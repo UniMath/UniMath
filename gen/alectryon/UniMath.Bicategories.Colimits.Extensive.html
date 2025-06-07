@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Extensive.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**********************************************************</span>
+
+<span class="sd"> Extensive bicategories</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Disjoint coproducts</span>
+<span class="sd"> 2. Universal coproducts</span>
+
+<span class="sd"> **********************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="extensive-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="extensive-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Initial.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Coproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.CommaObjects.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.PullbackFunctions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PullbackFunctions.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 1. Disjoint coproducts</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(*******************************************</span>
+
+<span class="sd"> the initial object gives a comma cone on</span>
+
+<span class="sd"> x --&gt; z &lt;-- y</span>
+
+<span class="sd"> *******************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="extensive-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="extensive-v-chk1"><span class="kn">Definition</span> <span class="nf">biinitial_comma_cone</span>
+           {<span class="nv">B</span> : bicat_with_biinitial}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+           (<span class="nv">f</span> : x --&gt; z)
+           (<span class="nv">g</span> : y --&gt; z)
+  : comma_cone f g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comma_cone f g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="extensive-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="extensive-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comma_cone f g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="extensive-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="extensive-v-chk3">use make_comma_cone.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="extensive-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><label class="goal-separator" for="extensive-v-chk4"><hr></label><div class="goal-conclusion">B ⟦ <span class="nl">?p</span>, x ⟧</div></blockquote><input class="alectryon-extra-goal-toggle" id="extensive-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><label class="goal-separator" for="extensive-v-chk5"><hr></label><div class="goal-conclusion">B ⟦ <span class="nl">?p</span>, y ⟧</div></blockquote><input class="alectryon-extra-goal-toggle" id="extensive-v-chk6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><label class="goal-separator" for="extensive-v-chk6"><hr></label><div class="goal-conclusion"><span class="nl">?π₁</span> · f ==&gt; <span class="nl">?π₂</span> · g</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="extensive-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="extensive-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr1 (biinitial_of B)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="extensive-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="extensive-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B ⟦ pr1 (biinitial_of B), x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (is_biinitial_1cell_property (pr2 (biinitial_of B)) _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="extensive-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="extensive-v-chk9">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B ⟦ pr1 (biinitial_of B), y ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (is_biinitial_1cell_property (pr2 (biinitial_of B)) _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="extensive-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="extensive-v-chka">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, z ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biinitial_1cell_property (pr2 (biinitial_of B)) x
+· f ==&gt;
+is_biinitial_1cell_property (pr2 (biinitial_of B)) y
+· g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (is_biinitial_2cell_property (pr2 (biinitial_of B)) _ _ _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_disjoint_coproduct</span>
+           {<span class="nv">B</span> : bicat_with_biinitial}
+           {<span class="nv">x</span> <span class="nv">p</span> <span class="nv">y</span> : B}
+           (<span class="nv">ι₁</span> : x --&gt; p)
+           (<span class="nv">ι₂</span> : y --&gt; p)
+  : UU
+  := fully_faithful_1cell ι₁
+     ×
+     fully_faithful_1cell ι₂
+     ×
+     has_comma_ump (biinitial_comma_cone ι₁ ι₂)
+     ×
+     has_comma_ump (biinitial_comma_cone ι₂ ι₁).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_disjoint_coproduct_cone</span>
+           {<span class="nv">B</span> : bicat_with_biinitial}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">p</span> : bincoprod_cocone x y)
+  : UU
+  := is_disjoint_coproduct
+       (bincoprod_cocone_inl p)
+       (bincoprod_cocone_inr p).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 2. Universal coproducts</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(*******************************************</span>
+
+<span class="sd"> Given</span>
+
+<span class="sd">       z</span>
+
+<span class="sd">       |</span>
+<span class="sd">       V</span>
+
+<span class="sd"> x --&gt; p &lt;-- y</span>
+
+<span class="sd"> we have pullbacks</span>
+
+
+<span class="sd"> v --&gt; z &lt;-- w</span>
+
+<span class="sd"> |     |     |</span>
+<span class="sd"> V     V     V</span>
+
+<span class="sd"> x --&gt; p &lt;-- y</span>
+
+<span class="sd"> such that z is the coproduct of v and w</span>
+
+<span class="sd"> *******************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_universal_coproduct</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">p</span> <span class="nv">y</span> : B}
+           (<span class="nv">ι₁</span> : x --&gt; p)
+           (<span class="nv">ι₂</span> : y --&gt; p)
+  : UU
+  := ∏ (z : B)
+       (h : z --&gt; p),
+     ∑ (v w : B)
+       (f₁ : v --&gt; x)
+       (f₂ : w --&gt; y)
+       (g₁ : v --&gt; z)
+       (g₂ : w --&gt; z)
+       (γ₁ : invertible_2cell (f₁ · ι₁) (g₁ · h))
+       (γ₂ : invertible_2cell (f₂ · ι₂) (g₂ · h))
+       (H₁ : has_pb_ump (make_pb_cone _ f₁ g₁ γ₁))
+       (H₂ : has_pb_ump (make_pb_cone w f₂ g₂ γ₂)),
+     has_bincoprod_ump (make_bincoprod_cocone _ g₁ g₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_universal_coproduct_cone</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">p</span> : bincoprod_cocone x y)
+  : UU
+  := is_universal_coproduct
+       (bincoprod_cocone_inl p)
+       (bincoprod_cocone_inr p).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bicat_with_pb_is_universal_coproduct</span>
+           {<span class="nv">B</span> : bicat_with_pb}
+           {<span class="nv">x</span> <span class="nv">p</span> <span class="nv">y</span> : B}
+           (<span class="nv">ι₁</span> : x --&gt; p)
+           (<span class="nv">ι₂</span> : y --&gt; p)
+  : UU
+  := ∏ (z : B)
+       (h : z --&gt; p),
+     has_bincoprod_ump
+       (make_bincoprod_cocone
+          z
+          (pb_pr2 ι₁ h)
+          (pb_pr2 ι₂ h)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_universal_from_pb</span>
+           {<span class="nv">B</span> : bicat_with_pb}
+           {<span class="nv">x</span> <span class="nv">p</span> <span class="nv">y</span> : B}
+           (<span class="nv">ι₁</span> : x --&gt; p)
+           (<span class="nv">ι₂</span> : y --&gt; p)
+           (<span class="nv">H</span> : bicat_with_pb_is_universal_coproduct ι₁ ι₂)
+  : is_universal_coproduct ι₁ ι₂
+  := <span class="kr">λ</span> <span class="nv">z</span> <span class="nv">h</span>,
+     ι₁ /≃ h
+     ,,
+     ι₂ /≃ h
+     ,,
+     π₁
+     ,,
+     π₁
+     ,,
+     π₂
+     ,,
+     π₂
+     ,,
+     pb_cell ι₁ h
+     ,,
+     pb_cell ι₂ h
+     ,,
+     pb_obj_has_pb_ump ι₁ h
+     ,,
+     pb_obj_has_pb_ump ι₂ h
+     ,,
+     H z h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_universal_from_pb_alt</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : has_pb B)
+           {<span class="nv">x</span> <span class="nv">p</span> <span class="nv">y</span> : B}
+           (<span class="nv">ι₁</span> : x --&gt; p)
+           (<span class="nv">ι₂</span> : y --&gt; p)
+           (<span class="nv">H</span> : @bicat_with_pb_is_universal_coproduct (B ,, HB) _ _ _ ι₁ ι₂)
+  : is_universal_coproduct ι₁ ι₂
+  := is_universal_from_pb _ _ H.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 3. Extensive bicategory</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bicat_with_biinitial_bincoprod</span>
+  : UU
+  := ∑ (B : bicat),
+     biinitial_obj B
+     ×
+     has_bincoprod B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">bicat_with_biinitial_bincoprod_to_bicat_with_biinitial</span>
+         (B : bicat_with_biinitial_bincoprod)
+  : bicat_with_biinitial
+  := pr1 B ,, pr12 B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">bicat_with_biinitial_bincoprod_to_bicat_with_bincoprod</span>
+         (B : bicat_with_biinitial_bincoprod)
+  : bicat_with_bincoprod
+  := pr1 B ,, pr22 B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_extensive</span>
+           (<span class="nv">B</span> : bicat_with_biinitial_bincoprod)
+  : UU
+  := ∏ (x y : B),
+     @is_disjoint_coproduct_cone B x y (pr1 (bincoprod_of B x y))
+     ×
+     @is_universal_coproduct_cone B x y (pr1 (bincoprod_of B x y)).</span></span></pre>
+</div>
+</div></body>
+</html>

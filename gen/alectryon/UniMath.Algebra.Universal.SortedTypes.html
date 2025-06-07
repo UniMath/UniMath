@@ -1,0 +1,740 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>SortedTypes.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Sorted types. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)</span>
+<span class="c">(*</span>
+<span class="c">This file contains a formalization of _sorted types_, i.e. types indexed by elements of another</span>
+<span class="c">type, called _index type_. Notation and terminologies are inspired by Wolfgang Wechler,</span>
+<span class="c">_Universal Algebra for Computer Scientist_, Springer.</span>
+<span class="c">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.Combinatorics.MoreLists.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.Algebra.Universal.HVectors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Declare Scope</span> sorted_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Delimit Scope</span> sorted_scope <span class="kr">with</span> sorted.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> sorted_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** An element of [sUU S] is an [S]-sorted type, i.e., an [S]-indexed family of types. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">sUU</span> (<span class="nv">S</span>: UU): UU := S → UU.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Identity Coercion</span> <span class="nf">Id_sUU</span> : sUU &gt;-&gt; <span class="kt">Funclass</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** If [X] and [Y] are [S]-sorted types, then [sfun X Y] is an [S]-sorted mapping, i.e.,</span>
+<span class="sd">a [S]-indexed family of functions [X s → Y s]. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">sfun</span> {<span class="nv">S</span>: UU} (<span class="nv">X</span> <span class="nv">Y</span>: sUU S): UU := ∏ s: S, X s → Y s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Identity Coercion</span> <span class="nf">sfun_Id</span> : sfun &gt;-&gt; <span class="kt">Funclass</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;x s→ y&quot;</span> := (sfun x y) (<span class="kn">at level</span> <span class="mi">99</span>, y <span class="kn">at level</span> <span class="mi">200</span>, <span class="kn">right associativity</span>): type_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Bind Scope</span> sorted_scope <span class="kr">with</span> sUU.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Bind Scope</span> sorted_scope <span class="kr">with</span> sfun.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">idsfun</span> {<span class="nv">S</span>: UU} (<span class="nv">X</span>: sUU S): X s→ X := <span class="kr">λ</span> <span class="nv">s</span>: S, idfun (X s).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">scomp</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>: sUU S} (<span class="nv">f</span>: Y s→ Z) (<span class="nv">g</span>: X s→ Y): sfun X Z
+  := <span class="kr">λ</span> <span class="nv">s</span>: S, (f s) ∘ (g s).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Infix</span> <span class="s2">&quot;s∘&quot;</span> := scomp (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>): sorted_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">sunit</span> (<span class="nv">S</span>: UU): sUU S := <span class="kr">λ</span> <span class="nv">σ</span>: S, unit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">tosunit</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span>: sUU S}: X s→ sunit S := <span class="kr">λ</span> <span class="nv">σ</span>: S, tounit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk1"><span class="kn">Lemma</span> <span class="nf">iscontr_sfuntosunit</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span>: sUU S}: iscontr (X s→ sunit S).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iscontr (X s→ sunit S)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iscontr (X s→ sunit S)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk3"><span class="nb">apply</span> impred_iscontr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ t : S, iscontr (X t → sunit S t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk4"><span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iscontr (X t → sunit S t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> iscontrfuntounit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** An element of [shSet S] is an [S]-sorted set, i.e., an [S]-indexed family of sets. It can be</span>
+<span class="sd">immediately coerced to an [S]-sorted type. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">shSet</span> (<span class="nv">S</span>: UU): UU := S → hSet.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">sunitset</span> (<span class="nv">S</span>: UU): shSet S := <span class="kr">λ</span> <span class="nv">_</span>, unitset.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk5"><span class="kn">Lemma</span> <span class="nf">isaset_set_sfun_space</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span>: sUU S} {<span class="nv">Y</span>: shSet S}: isaset (X s→ Y).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>Y</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (X s→ <span class="kr">λ</span> <span class="nv">x</span> : S, Y x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk6"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>Y</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (X s→ <span class="kr">λ</span> <span class="nv">x</span> : S, Y x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk7"><span class="nb">change</span> (isaset (X s→ Y)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>Y</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (X s→ <span class="kr">λ</span> <span class="nv">x</span> : S, Y x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk8"><span class="nb">apply</span> impred_isaset.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>Y</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ t : S, isaset (X t → Y t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk9"><span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>Y</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (X t → Y t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_forall_hSet.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** If [X: sUU S], then [star X] is the lifting of [X] to the index type [list S], given</span>
+<span class="sd">by [star X] [s1; s2; ...; sn] = [X s1 ; X s2 ; ... ; X sn]. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">star</span> {<span class="nv">S</span>: UU} (<span class="nv">X</span>: sUU S): sUU (list S) := <span class="kr">λ</span> <span class="nv">l</span>: list S, hvec (vec_map X l).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chka"><span class="kn">Definition</span> <span class="nf">setstar</span> {<span class="nv">S</span>: UU} (<span class="nv">X</span>: shSet S): shSet (list S).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">shSet (list S)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chkb"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">shSet (list S)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chkc"><span class="nb">intro</span> l.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hSet</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chkd">use make_hSet.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sortedtypes-v-chke" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br></div><label class="goal-separator" for="sortedtypes-v-chke"><hr></label><div class="goal-conclusion">isaset <span class="nl">?X</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chkf">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (star X l).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk10">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (star (<span class="kr">λ</span> <span class="nv">x</span> : S, X x) l)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk11"><span class="nb">unfold</span> star.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (hvec (vec_map (<span class="kr">λ</span> <span class="nv">x</span> : S, X x) l))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk12"><span class="nb">apply</span> isasethvec.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec (vec_map isaset (vec_map (<span class="kr">λ</span> <span class="nv">x</span> : S, X x) l))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk13"><span class="nb">apply</span> make_hvec.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ i : StandardFiniteSets.stn (length l),
+el (vec_map isaset (vec_map (<span class="kr">λ</span> <span class="nv">x</span> : S, X x) l)) i</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk14"><span class="nb">intros</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (length l)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">el (vec_map isaset (vec_map (<span class="kr">λ</span> <span class="nv">x</span> : S, X x) l)) i</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk15"><span class="nb">rewrite</span> !el_vec_map.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>shSet S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (length l)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (X (el l i))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> setproperty.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Bind Scope</span> hvec_scope <span class="kr">with</span> star.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;A ⋆&quot;</span> := (star A) (<span class="kn">at level</span> <span class="mi">3</span>, <span class="kn">format</span> <span class="s2">&quot;&#39;[ &#39; A &#39;⋆&#39; &#39;]&#39;&quot;</span>): sorted_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** If [f] is an indexed mapping between [S]-indexed types [X] and [Y], then [starfun X] is the lifting of</span>
+<span class="sd">[f] to a [list S]-indexed mapping between [list S]-indexed sets [star X] and [star Y].</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">starfun</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} (<span class="nv">f</span>: sfun X Y) : sfun X⋆ Y⋆ := <span class="kr">λ</span> <span class="nv">s</span>: list S, h1map f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;f ⋆⋆&quot;</span> := (starfun f) (<span class="kn">at level</span> <span class="mi">3</span>, <span class="kn">format</span> <span class="s2">&quot;&#39;[ &#39; f &#39;⋆⋆&#39; &#39;]&#39;&quot;</span>): sorted_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Here follows the proof that [starfun] is functorial. Compositionality w.r.t. [s∘] is presented as</span>
+<span class="sd">[(f s∘ g)⋆⋆ _ x = f⋆⋆ _ (g⋆⋆ _ x)] instead of [(f s∘ g)⋆⋆ = (f⋆⋆) s∘ (g⋆⋆ )] since the former</span>
+<span class="sd">does not require function extensionality. *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk16"><span class="kn">Lemma</span> <span class="nf">staridfun</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span>: sUU S} (<span class="nv">l</span>: list S) (<span class="nv">x</span>: X⋆ l): (idsfun X)⋆⋆ _ x = idsfun X⋆ _ x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X⋆ l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(idsfun X)⋆⋆ l x = idsfun X⋆ l x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk17"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X⋆ l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(idsfun X)⋆⋆ l x = idsfun X⋆ l x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> h1map_idfun.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk18"><span class="kn">Lemma</span> <span class="nf">starcomp</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>: sUU S} (<span class="nv">f</span>: Y s→ Z) (<span class="nv">g</span>: X s→ Y) (<span class="nv">l</span>: list S) (<span class="nv">x</span>: X⋆ l)
+  : (f s∘ g)⋆⋆ _ x = f⋆⋆ _ (g⋆⋆ _ x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>Y s→ Z</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X⋆ l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(f s∘ g)⋆⋆ l x = f⋆⋆ l (g⋆⋆ l x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk19"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>Y s→ Z</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X⋆ l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(f s∘ g)⋆⋆ l x = f⋆⋆ l (g⋆⋆ l x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk1a"><span class="nb">unfold</span> starfun.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>Y s→ Z</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X⋆ l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">h1map (f s∘ g) x = h1map f (h1map g x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk1b"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>Y s→ Z</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X⋆ l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">h1map f (h1map g x) = h1map (f s∘ g) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> h1map_compose.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(*indexed hsubtypes*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">shsubtype</span> {<span class="nv">S</span>:UU} (<span class="nv">X</span> : sUU S) : UU := ∏ s: S, hsubtype (X s).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(*indexed image*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">simage</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} (<span class="nv">f</span>:X s→ Y) : sUU S
+  := <span class="kr">λ</span> <span class="nv">s</span>, image (f s).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">shfiber</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} (<span class="nv">f</span>:X s→ Y) : ∏ s, Y s → UU
+  := <span class="kr">λ</span> (<span class="nv">s</span>:S) (<span class="nv">y</span> : Y s), (∑ (x : X s), f s x = y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">shfiber_fiber</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} {<span class="nv">f</span>:X s→ Y}
+  {<span class="nv">s</span> : S} {<span class="nv">y</span> : Y s}
+  (<span class="nv">fib</span> : shfiber f s y)
+  : X s := pr1 fib.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">shfiber_path</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} {<span class="nv">f</span>:X s→ Y}
+  {<span class="nv">s</span> : S} {<span class="nv">y</span> : Y s}
+  (<span class="nv">fib</span> : shfiber f s y)
+  : f s (shfiber_fiber fib) = y
+  := pr2 fib.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">simage_shsubtype</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span> : sUU S} (<span class="nv">f</span> : X s→ Y)
+  : shsubtype Y := <span class="kr">λ</span> (<span class="nv">s</span>:S) (<span class="nv">y</span> : Y s), (<span class="kr">∃</span> (<span class="nv">x</span> : X s), f s x = y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk1c"><span class="kn">Lemma</span> <span class="nf">hvec_of_shfiber</span> {<span class="nv">S</span> : UU} {<span class="nv">A</span> <span class="nv">B</span> : sUU S}
+{<span class="nv">h</span> : A s→ B} {<span class="nv">l</span> : list S}
+(<span class="nv">bs</span> : hvec (vec_map B l))
+(<span class="nv">xs</span> : hvec (h1map_vec (shfiber h) bs))
+: (h ⋆⋆)%sorted l (h2lower (h2map (<span class="kr">λ</span> (<span class="nv">s</span>:S) (<span class="nv">b</span> : B s), pr1) xs)) = bs.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>A s→ B</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>bs</var><span class="hyp-type"><b>: </b><span>hvec (vec_map B l)</span></span></span><br><span><var>xs</var><span class="hyp-type"><b>: </b><span>hvec (h1map_vec (shfiber h) bs)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">h⋆⋆ l (h2lower (h2map (<span class="kr">λ</span> (<span class="nv">s</span> : S) (<span class="nv">b</span> : B s), pr1) xs)) =
+bs</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk1d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>A s→ B</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>bs</var><span class="hyp-type"><b>: </b><span>hvec (vec_map B l)</span></span></span><br><span><var>xs</var><span class="hyp-type"><b>: </b><span>hvec (h1map_vec (shfiber h) bs)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">h⋆⋆ l (h2lower (h2map (<span class="kr">λ</span> (<span class="nv">s</span> : S) (<span class="nv">b</span> : B s), pr1) xs)) =
+bs</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input">use hvec_ofpaths.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(*TODO: generalize the map in the type of [ys] to any type starting with [is_hinh]*)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk1e"><span class="kn">Theorem</span> <span class="nf">squash_simage</span>
+  {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span> : sUU S} (<span class="nv">f</span> : X s→ Y)
+        (<span class="nv">ss</span> : list S)
+        (<span class="nv">ys</span> : (simage_shsubtype f)⋆ ss)
+  {<span class="nv">Q</span>:UU} (<span class="nv">isQ</span> : isaprop Q) :
+  (hvec (h1lower ((shfiber f)⋆⋆ ss (h1map (<span class="kr">λ</span> <span class="nv">s</span>, pr1) ys))) → Q)
+  → Q.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>ss</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>ys</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ ss</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(hvec
+   (h1lower
+      ((shfiber f)⋆⋆ ss (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys)))
+ → Q) → Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk1f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>ss</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>ys</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ ss</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(hvec
+   (h1lower
+      ((shfiber f)⋆⋆ ss (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys)))
+ → Q) → Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk20"><span class="nb">revert</span> ss ys.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (ss : list S)
+(ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ ss),
+(hvec
+   (h1lower
+      ((shfiber f)⋆⋆ ss (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys)))
+ → Q) → Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk21">use list_ind.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys)))
+  → Q) → Q) []%list</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sortedtypes-v-chk22" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br></div><label class="goal-separator" for="sortedtypes-v-chk22"><hr></label><div class="goal-conclusion">∏ (x : S) (xs : list S),
+(<span class="kr">λ</span> <span class="nv">xs0</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs0,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs0 (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys)))
+  → Q) → Q) xs
+→ (<span class="kr">λ</span> <span class="nv">xs0</span> : list S,
+   ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs0,
+   (hvec
+      (h1lower
+         ((shfiber f)⋆⋆ xs0 (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys)))
+    → Q) → Q) (x :: xs)%list</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk23">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys)))
+  → Q) → Q) []%list</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk24"><span class="nb">intros</span> t tQ.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ []%list</span></span></span><br><span><var>tQ</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ []%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) t))) → Q</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Q</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (tQ t).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk25">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : S) (xs : list S),
+(<span class="kr">λ</span> <span class="nv">xs0</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs0,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs0 (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys)))
+  → Q) → Q) xs
+→ (<span class="kr">λ</span> <span class="nv">xs0</span> : list S,
+   ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs0,
+   (hvec
+      (h1lower
+         ((shfiber f)⋆⋆ xs0 (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys)))
+    → Q) → Q) (x :: xs)%list</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk26"><span class="nb">intros</span> ss_hd ss_tl IH ys IHH.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆
+  (ss_hd :: ss_tl)%list</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk27">use (IH (htl ys)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆
+  (ss_hd :: ss_tl)%list</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) (htl ys)))) → Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk28"><span class="nb">intro</span> fib_tl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆
+  (ss_hd :: ss_tl)%list</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) (htl ys))))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk29"><span class="nb">destruct</span> ys <span class="kr">as</span> [ys_hd ys_tl].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>pr1
+  (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+     (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) (ys_hd,, ys_tl))))
+→ Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl (ys_hd,, ys_tl)))))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk2a"><span class="nb">destruct</span> ys_hd <span class="kr">as</span> [ys_hd ys_hd_is]. <span class="c">(*TODO (?): use accessors instead*)</span></label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>Y (hd (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_hd_is</var><span class="hyp-type"><b>: </b><span>simage_shsubtype f
+  (hd (ss_hd :: ss_tl)%list) ys_hd</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl)))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl ((ys_hd,, ys_hd_is),, ys_tl)))))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk2b">use (squash_to_prop ys_hd_is isQ).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>Y (hd (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_hd_is</var><span class="hyp-type"><b>: </b><span>simage_shsubtype f
+  (hd (ss_hd :: ss_tl)%list) ys_hd</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl)))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl ((ys_hd,, ys_hd_is),, ys_tl)))))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(∑ x : X (hd (ss_hd :: ss_tl)%list),
+ f (hd (ss_hd :: ss_tl)%list) x = ys_hd) → Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk2c"><span class="nb">intro</span> fib_hd.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>Y (hd (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_hd_is</var><span class="hyp-type"><b>: </b><span>simage_shsubtype f
+  (hd (ss_hd :: ss_tl)%list) ys_hd</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl)))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl ((ys_hd,, ys_hd_is),, ys_tl)))))</span></span></span><br><span><var>fib_hd</var><span class="hyp-type"><b>: </b><span>∑ x : X (hd (ss_hd :: ss_tl)%list),
+f (hd (ss_hd :: ss_tl)%list) x = ys_hd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk2d">use IHH.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>Y (hd (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_hd_is</var><span class="hyp-type"><b>: </b><span>simage_shsubtype f
+  (hd (ss_hd :: ss_tl)%list) ys_hd</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl)))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl ((ys_hd,, ys_hd_is),, ys_tl)))))</span></span></span><br><span><var>fib_hd</var><span class="hyp-type"><b>: </b><span>∑ x : X (hd (ss_hd :: ss_tl)%list),
+f (hd (ss_hd :: ss_tl)%list) x = ys_hd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk2e">use make_dirprod.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>Y (hd (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_hd_is</var><span class="hyp-type"><b>: </b><span>simage_shsubtype f
+  (hd (ss_hd :: ss_tl)%list) ys_hd</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl)))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl ((ys_hd,, ys_hd_is),, ys_tl)))))</span></span></span><br><span><var>fib_hd</var><span class="hyp-type"><b>: </b><span>∑ x : X (hd (ss_hd :: ss_tl)%list),
+f (hd (ss_hd :: ss_tl)%list) x = ys_hd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl))))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sortedtypes-v-chk2f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>Y (hd (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_hd_is</var><span class="hyp-type"><b>: </b><span>simage_shsubtype f
+  (hd (ss_hd :: ss_tl)%list) ys_hd</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl)))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl ((ys_hd,, ys_hd_is),, ys_tl)))))</span></span></span><br><span><var>fib_hd</var><span class="hyp-type"><b>: </b><span>∑ x : X (hd (ss_hd :: ss_tl)%list),
+f (hd (ss_hd :: ss_tl)%list) x = ys_hd</span></span></span><br></div><label class="goal-separator" for="sortedtypes-v-chk2f"><hr></label><div class="goal-conclusion">(<span class="kr">fix</span> F (n : ℕ) :
+     (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ,
+      ∏ v : vec UU n0,
+      (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) n0 v) n :=
+   <span class="kr">match</span>
+     n <span class="kr">as</span> n0
+     <span class="kr">return</span>
+       ((<span class="kr">λ</span> <span class="nv">n1</span> : ℕ,
+         ∏ v : vec UU n1,
+         (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1 v) n0)
+   <span class="kr">with</span>
+   | <span class="mi">0</span> =&gt;
+       <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+       transportb ((<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">_</span> : vec UU n0), UU) <span class="mi">0</span>)
+         (vec0_eq v [()]) unit
+   | S n0 =&gt;
+       (<span class="kr">λ</span> (<span class="nv">m</span> : ℕ)
+        (<span class="nv">H</span> : ∏ v : vec UU m,
+             (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) m v)
+        (<span class="nv">v</span> : vec UU (Preamble.S m)),
+        (<span class="kr">λ</span> (<span class="nv">x</span> : UU) (<span class="nv">n1</span> : ℕ) 
+         (<span class="nv">v0</span> : vec UU n1)
+         (<span class="nv">IHv</span> : (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1 v0),
+         x × IHv) (pr1 v) m 
+          (pr2 v) (H (pr2 v))) n0 
+         (F n0)
+   <span class="kr">end</span>) (pr1 ss_tl)
+  (pr2
+     (h1lower
+        ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+           (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+              ((ys_hd,, ys_hd_is),, ys_tl)))))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk30">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>Y (hd (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_hd_is</var><span class="hyp-type"><b>: </b><span>simage_shsubtype f
+  (hd (ss_hd :: ss_tl)%list) ys_hd</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl)))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl ((ys_hd,, ys_hd_is),, ys_tl)))))</span></span></span><br><span><var>fib_hd</var><span class="hyp-type"><b>: </b><span>∑ x : X (hd (ss_hd :: ss_tl)%list),
+f (hd (ss_hd :: ss_tl)%list) x = ys_hd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl))))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk31"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>Y (hd (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_hd_is</var><span class="hyp-type"><b>: </b><span>simage_shsubtype f
+  (hd (ss_hd :: ss_tl)%list) ys_hd</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl)))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl ((ys_hd,, ys_hd_is),, ys_tl)))))</span></span></span><br><span><var>fib_hd</var><span class="hyp-type"><b>: </b><span>∑ x : X (hd (ss_hd :: ss_tl)%list),
+f (hd (ss_hd :: ss_tl)%list) x = ys_hd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">shfiber f ss_hd ys_hd</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input">use fib_hd.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk32">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X s→ Y</span></span></span><br><span><var>Q</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>isQ</var><span class="hyp-type"><b>: </b><span>isaprop Q</span></span></span><br><span><var>ss_hd</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>ss_tl</var><span class="hyp-type"><b>: </b><span>list S</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">xs</span> : list S,
+ ∏ ys : (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)⋆ xs,
+ (hvec
+    (h1lower
+       ((shfiber f)⋆⋆ xs
+          (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1) ys))) → Q) → Q)
+  ss_tl</span></span></span><br><span><var>ys_hd</var><span class="hyp-type"><b>: </b><span>Y (hd (ss_hd :: ss_tl)%list)</span></span></span><br><span><var>ys_hd_is</var><span class="hyp-type"><b>: </b><span>simage_shsubtype f
+  (hd (ss_hd :: ss_tl)%list) ys_hd</span></span></span><br><span><var>ys_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (vec_map (<span class="kr">λ</span> <span class="nv">s</span> : S, simage_shsubtype f s)
+        (ss_hd :: ss_tl)%list))</span></span></span><br><span><var>IHH</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           ((ys_hd,, ys_hd_is),, ys_tl)))) → Q</span></span></span><br><span><var>fib_tl</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1lower
+     ((shfiber f)⋆⋆ ss_tl
+        (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+           (htl ((ys_hd,, ys_hd_is),, ys_tl)))))</span></span></span><br><span><var>fib_hd</var><span class="hyp-type"><b>: </b><span>∑ x : X (hd (ss_hd :: ss_tl)%list),
+f (hd (ss_hd :: ss_tl)%list) x = ys_hd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">fix</span> F (n : ℕ) :
+     (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ,
+      ∏ v : vec UU n0,
+      (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) n0 v) n :=
+   <span class="kr">match</span>
+     n <span class="kr">as</span> n0
+     <span class="kr">return</span>
+       ((<span class="kr">λ</span> <span class="nv">n1</span> : ℕ,
+         ∏ v : vec UU n1,
+         (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1 v) n0)
+   <span class="kr">with</span>
+   | <span class="mi">0</span> =&gt;
+       <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+       transportb ((<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">_</span> : vec UU n0), UU) <span class="mi">0</span>)
+         (vec0_eq v [()]) unit
+   | S n0 =&gt;
+       (<span class="kr">λ</span> (<span class="nv">m</span> : ℕ)
+        (<span class="nv">H</span> : ∏ v : vec UU m,
+             (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) m v)
+        (<span class="nv">v</span> : vec UU (Preamble.S m)),
+        (<span class="kr">λ</span> (<span class="nv">x</span> : UU) (<span class="nv">n1</span> : ℕ) 
+         (<span class="nv">v0</span> : vec UU n1)
+         (<span class="nv">IHv</span> : (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1 v0),
+         x × IHv) (pr1 v) m 
+          (pr2 v) (H (pr2 v))) n0 
+         (F n0)
+   <span class="kr">end</span>) (pr1 ss_tl)
+  (pr2
+     (h1lower
+        ((shfiber f)⋆⋆ (ss_hd :: ss_tl)%list
+           (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, pr1)
+              ((ys_hd,, ys_hd_is),, ys_tl)))))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">use fib_tl.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk33"><span class="kn">Definition</span> <span class="nf">transportf_sfun</span> {<span class="nv">X</span> <span class="nv">S</span> : UU} {<span class="nv">Y</span>: sUU S} (<span class="nv">P</span> : X -&gt; sUU S)
+           {<span class="nv">x1</span> <span class="nv">x2</span> : X}(<span class="nv">e</span> : x1 = x2)(<span class="nv">f</span> : P x1 s→ Y) (<span class="nv">s</span>:S):
+  transportf (<span class="kr">λ</span> <span class="nv">x</span>, (P x s→ Y)) e f s = (f s) ∘ (transportb (<span class="kr">λ</span> <span class="nv">x</span>, P x s) e).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>X → sUU S</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>x1 = x2</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>P x1 s→ Y</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf (<span class="kr">λ</span> <span class="nv">x</span> : X, P x s→ Y) e f s =
+f s ∘ transportb (<span class="kr">λ</span> <span class="nv">x</span> : X, P x s) e</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk34"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>X → sUU S</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>x1 = x2</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>P x1 s→ Y</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf (<span class="kr">λ</span> <span class="nv">x</span> : X, P x s→ Y) e f s =
+f s ∘ transportb (<span class="kr">λ</span> <span class="nv">x</span> : X, P x s) e</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk35"><span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>X → sUU S</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>x1 = x2</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>P x1 s→ Y</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf (<span class="kr">λ</span> <span class="nv">x</span> : X, P x s→ Y) e f s =
+f s ∘ transportb (<span class="kr">λ</span> <span class="nv">x</span> : X, P x s) e</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk36"><span class="nb">induction</span> e.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Y</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>X → sUU S</span></span></span><br><span><var>x1</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>P x1 s→ Y</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf (<span class="kr">λ</span> <span class="nv">x</span> : X, P x s→ Y) (idpath x1) f s =
+f s ∘ transportb (<span class="kr">λ</span> <span class="nv">x</span> : X, P x s) (idpath x1)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk37"><span class="kn">Definition</span> <span class="nf">transportb_funextfun_hvec</span> {<span class="nv">S</span>:UU}
+  {<span class="nv">n</span>:nat} {<span class="nv">v</span>: vec S n}
+  (<span class="nv">F</span> <span class="nv">F&#39;</span> : sUU S) (<span class="nv">H</span> : F ~ F&#39;)
+  (<span class="nv">f&#39;</span> : hvec (vec_map F&#39; v))
+  : transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+    (funextsec _ F F&#39; H) f&#39;
+  = h1map (<span class="kr">λ</span> <span class="nv">s</span>, transportb (idfun UU) (H s)) f&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+  (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk38"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+  (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk39"><span class="nb">revert</span> n v f&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (n : ℕ) (v : vec S n) (f&#39; : hvec (vec_map F&#39; v)),
+transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+  (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk3a">use (vec_ind _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;) <span class="mi">0</span>
+  [()]%vec</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sortedtypes-v-chk3b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br></div><label class="goal-separator" for="sortedtypes-v-chk3b"><hr></label><div class="goal-conclusion">∏ (x : S) (n : ℕ) (v : vec S n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec S n0),
+ ∏ f&#39; : hvec (vec_map F&#39; v0),
+ transportb (<span class="kr">λ</span> <span class="nv">x0</span> : sUU S, hvec (vec_map x0 v0))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec S n0),
+   ∏ f&#39; : hvec (vec_map F&#39; v0),
+   transportb (<span class="kr">λ</span> <span class="nv">x0</span> : sUU S, hvec (vec_map x0 v0))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+   h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+    (Preamble.S n) (x ::: v)%vec</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk3c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;) <span class="mi">0</span>
+  [()]%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk3d"><span class="nb">intro</span> f&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; [()])</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x [()]))
+  (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk3e">use proofirrelevancecontr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; [()])</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iscontr (hvec (vec_map F [()]))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input">use iscontrunit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk3f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : S) (n : ℕ) (v : vec S n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec S n0),
+ ∏ f&#39; : hvec (vec_map F&#39; v0),
+ transportb (<span class="kr">λ</span> <span class="nv">x0</span> : sUU S, hvec (vec_map x0 v0))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec S n0),
+   ∏ f&#39; : hvec (vec_map F&#39; v0),
+   transportb (<span class="kr">λ</span> <span class="nv">x0</span> : sUU S, hvec (vec_map x0 v0))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+   h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+    (Preamble.S n) (x ::: v)%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk40"><span class="nb">intros</span> s n v IH f&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x (s ::: v)))
+  (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk41">use dirprod_paths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (transportb
+     (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x (s ::: v)))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) =
+pr1 (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sortedtypes-v-chk42" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><label class="goal-separator" for="sortedtypes-v-chk42"><hr></label><div class="goal-conclusion">pr2
+  (transportb
+     (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x (s ::: v)))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) =
+pr2 (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk43">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (transportb
+     (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x (s ::: v)))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) =
+pr1 (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk44"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, x s × hvec (vec_map x v))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) =
+transportb (idfun UU) (H s) (hhd f&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk45"><span class="nb">eapply</span> pathscomp0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, x s × hvec (vec_map x v))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sortedtypes-v-chk46" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><label class="goal-separator" for="sortedtypes-v-chk46"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> = transportb (idfun UU) (H s) (hhd f&#39;)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk47">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, x s × hvec (vec_map x v))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">use pr1_transportb.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk48">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, (<span class="kr">λ</span> <span class="nv">x0</span> : sUU S, x0 s) x)
+  (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) (pr1 f&#39;) =
+transportb (idfun UU) (H s) (hhd f&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input">use (transportb_funextfun (idfun UU)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk49">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2
+  (transportb
+     (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x (s ::: v)))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) =
+pr2 (h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk4a"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2
+  (transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, x s × hvec (vec_map x v))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) =
+h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) (htl f&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk4b"><span class="nb">eapply</span> pathscomp0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2
+  (transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, x s × hvec (vec_map x v))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sortedtypes-v-chk4c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><label class="goal-separator" for="sortedtypes-v-chk4c"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) (htl f&#39;)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk4d">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2
+  (transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, x s × hvec (vec_map x v))
+     (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39;) = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">use pr2_transportb.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sortedtypes-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="sortedtypes-v-chk4e">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>S</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>sUU S</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>F ~ F&#39;</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec S n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec S n),
+ ∏ f&#39; : hvec (vec_map F&#39; v),
+ transportb (<span class="kr">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+   (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) f&#39; =
+ h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) f&#39;)
+  n v</span></span></span><br><span><var>f'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map F&#39; (s ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (<span class="kr">λ</span> <span class="nv">a</span> : sUU S, hvec (vec_map a v))
+  (funextsec (<span class="kr">λ</span> <span class="nv">_</span> : S, UU) F F&#39; H) (pr2 f&#39;) =
+h1map (<span class="kr">λ</span> <span class="nv">s</span> : S, transportb (idfun UU) (H s)) (htl f&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input">use IH.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

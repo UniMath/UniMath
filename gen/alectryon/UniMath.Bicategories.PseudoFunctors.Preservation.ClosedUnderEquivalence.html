@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>ClosedUnderEquivalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.ContainsAdjEquiv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Preservation.Preservation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.ProductEquivalences.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Inserters.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.InserterEquivalences.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Equifiers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.EquifierEquivalences.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Initial.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Coproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Colimits.CoproductEquivalences.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">PreservationClosedUnderEquivalence</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B₁ B₂}
+          (<span class="nv">η</span> : pstrans F G)
+          (<span class="nv">Hη</span> : ∏ (x : B₁), left_adjoint_equivalence (η x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk1"><span class="kn">Definition</span> <span class="nf">preserves_bifinal_left_adjoint_equivalence</span>
+             (<span class="nv">HF</span> : preserves_bifinal F)
+    : preserves_bifinal G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_bifinal F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_bifinal G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_bifinal F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_bifinal G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk3"><span class="nb">intros</span> x Hx.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_bifinal F</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>Hx</var><span class="hyp-type"><b>: </b><span>is_bifinal x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_bifinal (G x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (is_bifinal_left_adjoint_equivalence
+             _
+             (Hη x)
+             (HF _ Hx)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk4"><span class="kn">Definition</span> <span class="nf">preserves_biinitial_left_adjoint_equivalence</span>
+             (<span class="nv">HF</span> : preserves_biinitial F)
+    : preserves_biinitial G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_biinitial F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_biinitial G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk5"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_biinitial F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_biinitial G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk6"><span class="nb">intros</span> x Hx.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_biinitial F</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>Hx</var><span class="hyp-type"><b>: </b><span>is_biinitial x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biinitial (G x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (equiv_from_biinitial
+             (HF _ Hx)
+             (Hη x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk7"><span class="kn">Definition</span> <span class="nf">preserves_binprods_left_adjoint_equivalence</span>
+             (<span class="nv">HF</span> : preserves_binprods F)
+    : preserves_binprods G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_binprods F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_binprods G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk8"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_binprods F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_binprods G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk9"><span class="nb">intros</span> x y p Hp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_binprods F</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>binprod_cone x y</span></span></span><br><span><var>Hp</var><span class="hyp-type"><b>: </b><span>has_binprod_ump p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_binprod_ump (psfunctor_binprod_cone G p)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (has_binprod_ump_left_adjoint_equivalence
+             _ _
+             (HF _ _ _ Hp)
+             _ _
+             _ _ _
+             (Hη x)
+             (Hη y)
+             (Hη p)
+             (psnaturality_of
+                η
+                (binprod_cone_pr1 p))
+             (psnaturality_of
+                η
+                (binprod_cone_pr2 p))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chka"><span class="kn">Definition</span> <span class="nf">preserves_bincoprods_left_adjoint_equivalence</span>
+             (<span class="nv">HF</span> : preserves_bincoprods F)
+    : preserves_bincoprods G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_bincoprods F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_bincoprods G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chkb"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_bincoprods F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_bincoprods G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chkc"><span class="nb">intros</span> x y p Hp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_bincoprods F</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>bincoprod_cocone x y</span></span></span><br><span><var>Hp</var><span class="hyp-type"><b>: </b><span>has_bincoprod_ump p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_bincoprod_ump (psfunctor_bincoprod_cocone G p)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (has_bincoprod_ump_left_adjoint_equivalence
+             _ _
+             (HF _ _ _ Hp)
+             _ _
+             _ _ _
+             (Hη x)
+             (Hη y)
+             (Hη p)
+             (psnaturality_of
+                η
+                (bincoprod_cocone_inl p))
+             (psnaturality_of
+                η
+                (bincoprod_cocone_inr p))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chkd"><span class="kn">Definition</span> <span class="nf">preserves_inserters_left_adjoint_equivalence</span>
+             (<span class="nv">HF</span> : preserves_inserters F)
+    : preserves_inserters G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_inserters F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_inserters G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chke"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_inserters F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_inserters G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chkf"><span class="nb">intros</span> x y f g p Hp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_inserters F</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>inserter_cone f g</span></span></span><br><span><var>Hp</var><span class="hyp-type"><b>: </b><span>has_inserter_ump p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump (psfunctor_inserter_cone G p)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk10">use (has_inserter_ump_left_adjoint_equivalence
+             _ _ _
+             (Hη x)
+             (Hη y)
+             (Hη p)
+             (psnaturality_of η (inserter_cone_pr1 p))
+             (psnaturality_of η f)
+             (psnaturality_of η g)
+             (HF _ _ _ _ _ Hp)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_inserters F</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>inserter_cone f g</span></span></span><br><span><var>Hp</var><span class="hyp-type"><b>: </b><span>has_inserter_ump p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(((((η p
+     ◃ ((psfunctor_comp G (inserter_cone_pr1 p) f
+         • ## G (inserter_cone_cell p))
+        • (psfunctor_comp G (inserter_cone_pr1 p) g)
+          ^-<span class="mi">1</span>))
+    • lassociator (η p) (# G (inserter_cone_pr1 p))
+        (# G g))
+   • (psnaturality_of η (inserter_cone_pr1 p) ▹ # G g))
+  • rassociator (# F (inserter_cone_pr1 p)) (η x)
+      (# G g))
+ • (# F (inserter_cone_pr1 p) ◃ psnaturality_of η g))
+• lassociator (# F (inserter_cone_pr1 p)) (# F g)
+    (η y) =
+((((lassociator (η p) (# G (inserter_cone_pr1 p))
+      (# G f)
+    • (psnaturality_of η (inserter_cone_pr1 p) ▹ # G f))
+   • rassociator (# F (inserter_cone_pr1 p)) (η x)
+       (# G f))
+  • (# F (inserter_cone_pr1 p) ◃ psnaturality_of η f))
+ • lassociator (# F (inserter_cone_pr1 p)) (# F f)
+     (η y))
+• (((psfunctor_comp F (inserter_cone_pr1 p) f
+     • ## F (inserter_cone_cell p))
+    • (psfunctor_comp F (inserter_cone_pr1 p) g) ^-<span class="mi">1</span>)
+   ▹ η y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">pose</span> (psnaturality_natural η _ _ _ _ (inserter_cone_cell p)) <span class="kr">as</span> q ;
+       <span class="nb">cbn</span> <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> (pstrans_comp_alt η (inserter_cone_pr1 p) g) <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> (pstrans_comp_alt η (inserter_cone_pr1 p) f) <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> !vassocl <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+       <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+       <span class="nb">rewrite</span> !vassocr ;
+       use vcomp_move_L_Mp ; [ is_iso | ] ;
+       <span class="nb">cbn</span> -[psfunctor_comp] ;
+       <span class="nb">rewrite</span> !vassocl ;
+       <span class="nb">rewrite</span> q ;
+       <span class="nb">rewrite</span> !vassocr ;
+       <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> maponpaths_2 ;
+       <span class="nb">rewrite</span> !lwhisker_vcomp ;
+       <span class="nb">rewrite</span> vcomp_rinv ;
+       <span class="nb">rewrite</span> lwhisker_id2 ;
+       <span class="nb">apply</span> id2_left).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk11"><span class="kn">Definition</span> <span class="nf">preserves_equifiers_left_adjoint_equivalence</span>
+             (<span class="nv">HF</span> : preserves_equifiers F)
+    : preserves_equifiers G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_equifiers F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_equifiers G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk12"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_equifiers F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_equifiers G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="closedunderequivalence-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="closedunderequivalence-v-chk13"><span class="nb">intros</span> x y f g α β p Hp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>Hη</var><span class="hyp-type"><b>: </b><span>∏ x : B₁, left_adjoint_equivalence (η x)</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_equifiers F</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>equifier_cone f g α β</span></span></span><br><span><var>Hp</var><span class="hyp-type"><b>: </b><span>has_equifier_ump p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_equifier_ump (psfunctor_equifier_cone G p)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (has_equifier_ump_left_adjoint_equivalence
+             _ _ _ _ _
+             (Hη x)
+             (Hη y)
+             (Hη p)
+             (psnaturality_of η (equifier_cone_pr1 p))
+             (psnaturality_of η f)
+             (psnaturality_of η g)
+             (HF _ _ _ _ _ _ _ Hp)
+             (psnaturality_natural η _ _ _ _ α)
+             (psnaturality_natural η _ _ _ _ β)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">PreservationClosedUnderEquivalence</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

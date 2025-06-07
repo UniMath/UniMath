@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Init.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** Initial setup unrelated to Univalent Foundations *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> Coq.Init.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* get the standard Coq reserved notations *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">From</span> Coq <span class="kn">Require Export</span> <span class="kn">Ltac</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* get the tactics *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input">#[<span class="kn">global</span>] <span class="kn">Unset</span> <span class="kn">Universe</span> <span class="nf">Checking</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Notations *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;&#39;∏&#39;  x .. y , P&quot;</span> := (<span class="kr">forall</span> <span class="nv">x</span>, .. (<span class="kr">forall</span> <span class="nv">y</span>, P) ..)
+  (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>) : type_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  <span class="c">(* type this in emacs in agda-input method with \prod *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="init-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="init-v-chk0"><span class="kn">Notation</span> <span class="s2">&quot;&#39;λ&#39; x .. y , t&quot;</span> := (<span class="kr">fun</span> <span class="nv">x</span> =&gt; .. (<span class="kr">fun</span> <span class="nv">y</span> =&gt; t) ..)
+  (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>).</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Identifier &#39;<span class="kr">λ</span><span class="nv">&#39; now</span> <span class="nv">a</span> <span class="nv">keyword</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  <span class="c">(* type this in emacs in agda-input method with \lambda *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;A -&gt; B&quot;</span> := (<span class="kr">forall</span> (<span class="nv">_</span> : A), B) : type_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;X &lt;- Y&quot;</span> := (Y -&gt; X) (<span class="kn">at level</span> <span class="mi">90</span>, <span class="kn">only parsing</span>, <span class="kn">left associativity</span>) : type_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;x → y&quot;</span> := (x -&gt; y)
+  (<span class="kn">at level</span> <span class="mi">99</span>, y <span class="kn">at level</span> <span class="mi">200</span>, <span class="kn">right associativity</span>): type_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* written \to or \r- in Agda input method *)</span>
+<span class="c">(* the level comes from sub/coq/theories/Unicode/Utf8_core.v *)</span>
+
+<span class="sd">(** Reserved notations *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;x :: y&quot;</span> (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">right associativity</span>). <span class="c">(* originally in Coq.Init.Datatypes *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;x ++ y&quot;</span> (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">right associativity</span>). <span class="c">(* originally in Coq.Init.Datatypes *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;p # x&quot;</span> (<span class="kn">right associativity</span>, <span class="kn">at level</span> <span class="mi">65</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;a ╝ b&quot;</span> (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* in agda input mode use \--= and select the 6-th one in the first set,</span>
+<span class="c">   or use \chimney *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;X ≃ Y&quot;</span> (<span class="kn">at level</span> <span class="mi">80</span>, <span class="kn">no associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* written \~- or \simeq in Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;p #&#39; x&quot;</span> (<span class="kn">right associativity</span>, <span class="kn">at level</span> <span class="mi">65</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;f ~ g&quot;</span> (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;p @ q&quot;</span> (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">right associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;&#39;¬¬&#39; X&quot;</span> (<span class="kn">at level</span> <span class="mi">35</span>, <span class="kn">right associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* type this in emacs in agda-input method with \neg twice *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;x != y&quot;</span> (<span class="kn">at level</span> <span class="mi">70</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;&#39;¬&#39; X&quot;</span> (<span class="kn">at level</span> <span class="mi">35</span>, <span class="kn">right associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* type this in emacs in agda-input method with \neg *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;A × B&quot;</span> (<span class="kn">at level</span> <span class="mi">75</span>, <span class="kn">right associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="init-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="init-v-chk1"><span class="kn">Reserved Notation</span> <span class="s2">&quot;C ⟦ a , b ⟧&quot;</span> (<span class="kn">at level</span> <span class="mi">49</span>, <span class="kn">right associativity</span>).</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Postfix notations (i.e. starting <span class="kr">with</span> a nonterminal
+symbol <span class="kn">and</span> ending <span class="kr">with</span> a terminal symbol) should
+usually be <span class="kn">at level</span> <span class="mi">1</span> (default).
+[postfix-notation-not-level-<span class="mi">1</span>,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* ⟦   to input: type &quot;\[[&quot; or &quot;\(&quot; with Agda input method</span>
+<span class="c">   ⟧   to input: type &quot;\]]&quot; or &quot;\)&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="init-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="init-v-chk2"><span class="kn">Reserved Notation</span> <span class="s2">&quot;⟦ a ⟧&quot;</span> (<span class="kn">at level</span> <span class="mi">48</span>, <span class="kn">left associativity</span>).</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Closed notations (i.e. starting <span class="kn">and</span> ending <span class="kr">with</span> a
+terminal symbol) should usually be <span class="kn">at level</span> <span class="mi">0</span>
+(default).
+[closed-notation-not-level-<span class="mi">0</span>,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;f ;; g&quot;</span>  (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>, <span class="kn">format</span> <span class="s2">&quot;f  ;;  g&quot;</span>). <span class="c">(* deprecated *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;g ∘ f&quot;</span>  (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\circ&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;f · g&quot;</span>  (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\centerdot&quot; or &quot;\cdot&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;a --&gt; b&quot;</span> (<span class="kn">at level</span> <span class="mi">55</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;! p &quot;</span> (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(* conflict:</span>
+<span class="c">    Reserved Notation &quot;# F&quot;  (at level 3).</span>
+<span class="c">    Reserved Notation &quot;p # x&quot; (right associativity, at level 65, only parsing).</span>
+<span class="c">*)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="init-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="init-v-chk3"><span class="kn">Reserved Notation</span> <span class="s2">&quot;p #&#39; x&quot;</span> (<span class="kn">right associativity</span>, <span class="kn">at level</span> <span class="mi">65</span>).</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Setting x <span class="kn">constr at level</span> <span class="mi">65</span>
+to <span class="kr">match</span> previous notation <span class="kr">with</span> longest common prefix:
+<span class="s2">&quot;_ #&#39; _&quot;</span>.</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;C &#39;^op&#39;&quot;</span> (<span class="kn">at level</span> <span class="mi">1</span>, <span class="kn">format</span> <span class="s2">&quot;C ^op&quot;</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;q &#39;^-1&#39;&quot;</span> (<span class="kn">at level</span> <span class="mi">1</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;a &lt;-- b&quot;</span> (<span class="kn">at level</span> <span class="mi">55</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="init-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="init-v-chk4"><span class="kn">Reserved Notation</span> <span class="s2">&quot;[ C , D ]&quot;</span> .</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Setting notation <span class="kn">at level</span> <span class="mi">0</span>.</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="init-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="init-v-chk5"><span class="kn">Reserved Notation</span> <span class="s2">&quot;C [ a , b ]&quot;</span>  (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Postfix notations (i.e. starting <span class="kr">with</span> a nonterminal
+symbol <span class="kn">and</span> ending <span class="kr">with</span> a terminal symbol) should
+usually be <span class="kn">at level</span> <span class="mi">1</span> (default).
+[postfix-notation-not-level-<span class="mi">1</span>,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;X ⟶ Y&quot;</span>  (<span class="kn">at level</span> <span class="mi">39</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\--&gt;&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;X ⟹ Y&quot;</span>  (<span class="kn">at level</span> <span class="mi">39</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* same parsing level as ⟶ *)</span>
+<span class="c">(* to input: type &quot;\==&gt;&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;F ∙ G&quot;</span> (<span class="kn">at level</span> <span class="mi">35</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\.&quot; with Agda input method *)</span>
+<span class="c">(* the old notation had the arguments in the opposite order *)</span>
+
+<span class="c">(* conflict:</span>
+<span class="c">    Reserved Notation &quot;s □ x&quot; (at level 64, left associativity).</span>
+<span class="c">    Reserved Notation &quot;G □ F&quot; (at level 35).</span>
+<span class="c">    (* to input: type &quot;\Box&quot; or &quot;\square&quot; or &quot;\sqw&quot; or &quot;\sq&quot; with Agda input method *)</span>
+<span class="c">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;X ⊗ Y&quot;</span>  (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\ox&quot; or &quot;\otimes&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;f &#39;⊗₁&#39; g&quot;</span> (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;α &#39;⊗₂&#39; β&quot;</span> (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;F ◾ b&quot;</span>  (<span class="kn">at level</span> <span class="mi">36</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\sqb&quot; or &quot;\sq&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;F ▭ f&quot;</span>  (<span class="kn">at level</span> <span class="mi">36</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\rew&quot; or &quot;\re&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;A ⇒ B&quot;</span> (<span class="kn">at level</span> <span class="mi">95</span>, <span class="kn">right associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\Rightarrow&quot; or &quot;\r=&quot; or &quot;\r&quot; or &quot;\Longrightarrow&quot; or &quot;\=&gt;&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;X ⇐ c&quot;</span>   (<span class="kn">at level</span> <span class="mi">94</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\Leftarrow&quot; or &quot;\Longleftarrow&quot; or &quot;\l=&quot; or &quot;\l&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;x ⟲ f&quot;</span>  (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\l&quot; and select from the menu, row 4, spot 2, with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;q ⟳ x&quot;</span>  (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\r&quot; and select from the menu, row 4, spot 3, with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;p ◽ b&quot;</span>  (<span class="kn">at level</span> <span class="mi">36</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\sqw&quot; or &quot;\sq&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;xe ⟲⟲ p&quot;</span>  (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\l&quot; and select from the menu, row 4, spot 2, with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;r \\ x&quot;</span>  (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;x // r&quot;</span>  (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;X ⨿ Y&quot;</span> (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;x ,, y&quot;</span> (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">right associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;A ⊕ B&quot;</span> (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\o+&quot; or &quot;\oplus&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;A ↣ B&quot;</span> (<span class="kn">at level</span> <span class="mi">50</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\r-&gt;&quot; or &quot;\rightarrowtail&quot; or &quot;\r&quot; with Agda input method *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Reserved Notation</span> <span class="s2">&quot;B ↠ C&quot;</span> (<span class="kn">at level</span> <span class="mi">50</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* to input: type &quot;\rr-&quot; or &quot;\r&quot; or &quot;\twoheadrightarrow&quot; with Agda input method *)</span>
+
+<span class="sd">(** Tactics *)</span>
+
+<span class="c">(* Apply this tactic to a proof of ([X] and [X -&gt; ∅]), in either order: *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">contradicts</span> a b := <span class="kp">solve</span> [ <span class="nb">induction</span> (a b) | <span class="nb">induction</span> (b a) ].</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** A few more tactics, thanks go to Jason Gross *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">simple_rapply</span> p :=
+  <span class="nb">simple refine</span> p ||
+  <span class="nb">simple refine</span> (p _) ||
+  <span class="nb">simple refine</span> (p _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _ _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+  <span class="nb">simple refine</span> (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Tactic Notation</span> <span class="s2">&quot;use&quot;</span> <span class="kp">uconstr</span>(p) := simple_rapply p.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Tactic Notation</span> <span class="s2">&quot;transparent&quot;</span> <span class="s2">&quot;assert&quot;</span> <span class="s2">&quot;(&quot;</span> <span class="kn">ident</span>(name) <span class="s2">&quot;:&quot;</span> <span class="kp">constr</span>(type) <span class="s2">&quot;)&quot;</span> :=
+  <span class="nb">simple refine</span> (<span class="kr">let</span> <span class="nv">name</span> := (_ : type) <span class="kr">in</span> _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">exact_op</span> x := <span class="c">(* from Jason Gross: same as &quot;exact&quot;, but with unification the opposite way *)</span>
+  <span class="kr">let</span> <span class="nv">T</span> := <span class="kp">type of</span> x <span class="kr">in</span>
+  <span class="kr">let</span> <span class="nv">G</span> := <span class="kr">match goal with</span> |- <span class="nl">?G</span> =&gt; <span class="kp">constr</span>:(G) <span class="kr">end</span> <span class="kr">in</span>
+  <span class="bp">exact</span> (((<span class="kr">λ</span> <span class="nv">g</span>:G, g) : T -&gt; G) x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Create HintDb</span> <span class="nb">rewrite</span> <span class="kn">discriminated</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input">#[<span class="kn">global</span>]
+<span class="kn">Hint Variables Opaque</span> : <span class="nb">rewrite</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Create HintDb</span> typeclass_instances <span class="kn">discriminated</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

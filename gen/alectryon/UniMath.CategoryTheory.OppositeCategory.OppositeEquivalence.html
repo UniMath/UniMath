@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>OppositeEquivalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The Opposite Adjoint Equivalence</span>
+
+<span class="sd">  An adjoint equivalence F between categories C and D gives an adjoint equivalence between D^opp and</span>
+<span class="sd">  C^opp, which just repackages the data of F.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The opposite equivalence [adj_equivalence_of_cats_opposite] [adj_equiv_opposite]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chk1"><span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ^op&quot;</span> was already used <span class="kr">in</span> scope cat.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.OppositeAdjunction.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(* 1. The opposite equivalence *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">OppositeEquivalence</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chk2"><span class="kn">Definition</span> <span class="nf">forms_equivalence_opposite</span>
+    {<span class="nv">F</span> : C ⟶ D}
+    {<span class="nv">G</span> : D ⟶ C}
+    {<span class="nv">H1</span> : are_adjoints F G}
+    (<span class="nv">H2</span> : forms_equivalence H1)
+    : forms_equivalence (are_adjoints_opposite H1).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">forms_equivalence (are_adjoints_opposite H1)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chk3"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">forms_equivalence (are_adjoints_opposite H1)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chk4">use make_forms_equivalence.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : D ^opp,
+is_z_isomorphism
+  (adjunit (are_adjoints_opposite H1) a)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeequivalence-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br></div><label class="goal-separator" for="oppositeequivalence-v-chk5"><hr></label><div class="goal-conclusion">∏ b : C ^opp,
+is_z_isomorphism
+  (adjcounit (are_adjoints_opposite H1) b)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : D ^opp,
+is_z_isomorphism
+  (adjunit (are_adjoints_opposite H1) a)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chk7"><span class="nb">intro</span> a.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>D ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (adjunit (are_adjoints_opposite H1) a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chk8"><span class="nb">apply</span> opp_is_z_isomorphism.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>D ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (adjunit (are_adjoints_opposite H1) a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr2 H2 a).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chk9">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ b : C ^opp,
+is_z_isomorphism
+  (adjcounit (are_adjoints_opposite H1) b)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chka"><span class="nb">intro</span> a.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>C ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (adjcounit (are_adjoints_opposite H1) a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeequivalence-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeequivalence-v-chkb"><span class="nb">apply</span> opp_is_z_isomorphism.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>D ⟶ C</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>are_adjoints F G</span></span></span><br><span><var>H2</var><span class="hyp-type"><b>: </b><span>forms_equivalence H1</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>C ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (adjcounit (are_adjoints_opposite H1) a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr1 H2 a).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">adj_equivalence_of_cats_opposite</span>
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">H</span> : adj_equivalence_of_cats F)
+    : adj_equivalence_of_cats (functor_op (right_functor H))
+    := (functor_op F ,, _) ,,
+      forms_equivalence_opposite (pr2 H).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">adj_equiv_opposite</span>
+    (<span class="nv">F</span> : adj_equiv C D)
+    : adj_equiv (D^opp) (C^opp)
+    := _ ,, adj_equivalence_of_cats_opposite F.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">OppositeEquivalence</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

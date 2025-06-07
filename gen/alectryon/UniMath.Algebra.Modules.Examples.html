@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Examples.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**</span>
+
+<span class="sd">  Examples of Ring Modules</span>
+
+<span class="sd">  This file lists some examples of ring modules, like the identity multimodule morphism, the</span>
+<span class="sd">  R-module structure on a ring S from a morphism R → S (the identity on R gives the R-module</span>
+<span class="sd">  structure on R). It also gives the zero module, and the definition of R-S bimodules (a module with</span>
+<span class="sd">  a left R-action and a right S-action) via multimodules.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The identity multimodule morphism</span>
+<span class="sd">  2. Constructing a module from a ring morphism</span>
+<span class="sd">  3. The zero module</span>
+<span class="sd">  4. Bimodules</span>
+
+<span class="sd">  Originally written by Langston Barrett (@siddharthist), November-December 2017</span>
+
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.ModuleCore.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Groups.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Modules.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Modules.Multimodules.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> ring_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The identity multimodule morphism *)</span>
+
+<span class="sd">(** The identity function is multilinear *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk0"><span class="kn">Lemma</span> <span class="nf">idfun_multilinear</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} (<span class="nv">MM</span> : multimodule rings) :
+  ismultilinear (rings := rings) (idfun MM).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>rings</var><span class="hyp-type"><b>: </b><span>I → <span class="bp">ring</span></span></span></span><br><span><var>MM</var><span class="hyp-type"><b>: </b><span>multimodule rings</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ismultilinear (idfun MM)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>rings</var><span class="hyp-type"><b>: </b><span>I → <span class="bp">ring</span></span></span></span><br><span><var>MM</var><span class="hyp-type"><b>: </b><span>multimodule rings</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ismultilinear (idfun MM)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">easy</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The identity function is a multimodule morphism *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk2"><span class="kn">Lemma</span> <span class="nf">id_multimodulefun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} (<span class="nv">MM</span> : multimodule rings)
+  : ismultimodulefun (rings := rings) (idfun MM).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>rings</var><span class="hyp-type"><b>: </b><span>I → <span class="bp">ring</span></span></span></span><br><span><var>MM</var><span class="hyp-type"><b>: </b><span>multimodule rings</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ismultimodulefun (idfun MM)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk3"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>rings</var><span class="hyp-type"><b>: </b><span>I → <span class="bp">ring</span></span></span></span><br><span><var>MM</var><span class="hyp-type"><b>: </b><span>multimodule rings</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ismultimodulefun (idfun MM)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">easy</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Constructing a module from a ring morphism *)</span>
+
+<span class="sd">(** The left action of a ring through a ring homomorphism</span>
+<span class="sd">    See Bourbaki&#39;s Algebra, II §1.4, no. 1, Example 1.</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk4"><span class="kn">Definition</span> <span class="nf">ringfun_left_mult</span> {<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>} (<span class="nv">f</span> : ringfun R S) (<span class="nv">r</span> : R)
+  : group_endomorphism_ring S.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">group_endomorphism_ring S</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk5"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">group_endomorphism_ring S</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk6">use make_abelian_group_morphism.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">S → S</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="examples-v-chk7" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br></div><label class="goal-separator" for="examples-v-chk7"><hr></label><div class="goal-conclusion">isbinopfun <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">S → S</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk9"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">S</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (f r * x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chka">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isbinopfun (<span class="kr">λ</span> <span class="nv">x</span> : S, f r * x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chkb"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f r * (x + x&#39;)%addmonoid =
+(f r * x + f r * x&#39;)%addmonoid</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (rigldistr S _ _ _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** An important special case: the left action of a ring on itself *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Example</span> <span class="nf">ring_left_mult</span> {<span class="nv">R</span> : <span class="bp">ring</span>} : R → group_endomorphism_ring R :=
+  ringfun_left_mult (rigisotorigfun (idrigiso R)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+<span class="sd">(** A ring morphism R -&gt; S defines an R-module structure on the additive abelian</span>
+<span class="sd">    group of S *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chkc"><span class="kn">Definition</span> <span class="nf">ringfun_module</span> {<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>} (<span class="nv">f</span> : ringfun R S) : module R.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">module R</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chkd"><span class="nb">apply</span> (make_module (@ringaddabgr S)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">module_struct R S</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chke"><span class="nb">apply</span> (@mult_to_module_struct R S (<span class="kr">λ</span> <span class="nv">x</span>, (ringfun_left_mult f x : abelian_group_morphism _ _)));
+    <span class="nb">unfold</span> funcomp, pr1, ringfun_left_mult.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mult_isldistr_wrt_grop
+  (<span class="kr">λ</span> <span class="nv">x</span> : R,
+   make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x0</span> : S, f x * x0)
+     (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">x&#39;</span> : S, rigldistr S x0 x&#39; (f x)))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="examples-v-chkf" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><label class="goal-separator" for="examples-v-chkf"><hr></label><div class="goal-conclusion">mult_isrdistr_wrt_ringop1
+  (<span class="kr">λ</span> <span class="nv">x</span> : R,
+   make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x0</span> : S, f x * x0)
+     (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">x&#39;</span> : S, rigldistr S x0 x&#39; (f x)))</div></blockquote><input class="alectryon-extra-goal-toggle" id="examples-v-chk10" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><label class="goal-separator" for="examples-v-chk10"><hr></label><div class="goal-conclusion">mult_isrdistr_wrt_ringop2
+  (<span class="kr">λ</span> <span class="nv">x</span> : R,
+   make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x0</span> : S, f x * x0)
+     (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">x&#39;</span> : S, rigldistr S x0 x&#39; (f x)))</div></blockquote><input class="alectryon-extra-goal-toggle" id="examples-v-chk11" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><label class="goal-separator" for="examples-v-chk11"><hr></label><div class="goal-conclusion">mult_unel
+  (<span class="kr">λ</span> <span class="nv">x</span> : R,
+   make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x0</span> : S, f x * x0)
+     (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">x&#39;</span> : S, rigldistr S x0 x&#39; (f x)))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk12">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mult_isldistr_wrt_grop
+  (<span class="kr">λ</span> <span class="nv">x</span> : R,
+   make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x0</span> : S, f x * x0)
+     (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">x&#39;</span> : S, rigldistr S x0 x&#39; (f x)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk13"><span class="nb">intros</span> r x y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f r * x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f r))
+  (x + y)%addmonoid =
+(make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f r * x)
+   (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f r)) x +
+ make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f r * x)
+   (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f r)) y)%addmonoid</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> ringldistr.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk14">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mult_isrdistr_wrt_ringop1
+  (<span class="kr">λ</span> <span class="nv">x</span> : R,
+   make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x0</span> : S, f x * x0)
+     (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">x&#39;</span> : S, rigldistr S x0 x&#39; (f x)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk15"><span class="nb">intros</span> r s x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r, s</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f (r + s) * x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f (r + s))) x =
+(make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f r * x)
+   (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f r)) x +
+ make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f s * x)
+   (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f s)) x)%addmonoid</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk16"><span class="nb">refine</span> (_ @ ringrdistr _ _ _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r, s</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f (r + s) * x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f (r + s))) x =
+(f r + f s) * x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk17"><span class="nb">apply</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x * _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r, s</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f (r + s) = f r + f s</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (binopfunisbinopfun (ringaddfun f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk18">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mult_isrdistr_wrt_ringop2
+  (<span class="kr">λ</span> <span class="nv">x</span> : R,
+   make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x0</span> : S, f x * x0)
+     (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">x&#39;</span> : S, rigldistr S x0 x&#39; (f x)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk19"><span class="nb">intros</span> r s x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r, s</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f (r * s) * x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f (r * s))) x =
+make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f r * x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f r))
+  (make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f s * x)
+     (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f s)) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk1a"><span class="nb">refine</span> (_ @ rigassoc2 S _ _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r, s</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f (r * s) * x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f (r * s))) x =
+f r * f s * x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk1b"><span class="nb">apply</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x * _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>r, s</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f (r * s) = f r * f s</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (binopfunisbinopfun (ringmultfun f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk1c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mult_unel
+  (<span class="kr">λ</span> <span class="nv">x</span> : R,
+   make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x0</span> : S, f x * x0)
+     (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">x&#39;</span> : S, rigldistr S x0 x&#39; (f x)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk1d"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f <span class="mi">1</span> * x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f <span class="mi">1</span>)) x = x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk1e"><span class="nb">refine</span> (_ @ riglunax2 S _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">make_abelian_group_morphism (<span class="kr">λ</span> <span class="nv">x</span> : S, f <span class="mi">1</span> * x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">x&#39;</span> : S, rigldistr S x x&#39; (f <span class="mi">1</span>)) x = <span class="mi">1</span>%rig * x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk1f"><span class="nb">apply</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x * _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>ringfun R S</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f <span class="mi">1</span> = <span class="mi">1</span>%rig</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (monoidfununel (ringmultfun f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** An important special case: a ring is a module over itself *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ring_is_module</span> (<span class="nv">R</span> : <span class="bp">ring</span>) : module R :=
+  ringfun_module (rigisotorigfun (idrigiso R)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 3. The zero module *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk20"><span class="kn">Definition</span> <span class="nf">zero_module</span> (<span class="nv">R</span> : <span class="bp">ring</span>) : module R.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">module R</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk21"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">module R</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk22"><span class="nb">refine</span> (unitabgr,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (Core.disp_cat_data_from_disp_cat
+        (module_disp_cat R))) unitabgr</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (@mult_to_module_struct _ _ (<span class="kr">λ</span> <span class="nv">_</span> <span class="nv">u</span>, u));
+    <span class="bp">easy</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** 4. Bimodules *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> <span class="bp">ring</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** An R-S-bimodule is a left R module and a right S module, that is</span>
+<span class="sd">    With our definitions, this means a multimodule over bool with an R-module</span>
+<span class="sd">    structre, an S⁰-module structure, and some compatibility between them. *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bimodule</span> (<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>) : UU := @multimodule _ (bool_rect _ R (S⁰)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The more immediate/intuitive description of a bimodule. Below, we provide a</span>
+<span class="sd">    way to construct a bimodule from this definition (make_bimodule). *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bimodule_struct&#39;</span> (<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>) (<span class="nv">G</span> : abgr) : UU :=
+  <span class="c">(* A bimodule structure consists of two modules structures... *)</span>
+  ∑ (mr : module_struct R G) (ms : module_struct (S⁰) G),
+    <span class="c">(* ...and a notion of compatibility between them. *)</span>
+    <span class="kr">let</span> <span class="nv">mulr</span> := module_mult (G,, mr) <span class="kr">in</span>
+    <span class="kr">let</span> <span class="nv">muls</span> := module_mult (G,, ms) <span class="kr">in</span>
+    ∏ (r : R) (s : S), mulr r ∘ muls s = muls s ∘ mulr r.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk23"><span class="kn">Definition</span> <span class="nf">make_bimodule</span> (<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>) {<span class="nv">G</span>} (<span class="nv">str</span> : bimodule_struct&#39; R S G) : bimodule R S.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>abgr</span></span></span><br><span><var>str</var><span class="hyp-type"><b>: </b><span>bimodule_struct&#39; R S G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bimodule R S</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk24"><span class="nb">refine</span> (G,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>abgr</span></span></span><br><span><var>str</var><span class="hyp-type"><b>: </b><span>bimodule_struct&#39; R S G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑
+ms : ∏ i : bool,
+     module_struct
+       (bool_rect (<span class="kr">λ</span> <span class="nv">_</span> : bool, <span class="bp">ring</span>) R (S ⁰) i) G,
+multimodule_struct ms</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** Index the module structs over bool *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk25"><span class="nb">refine</span> (bool_rect _ (pr1 str) (pr1 (pr2 str)),, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>abgr</span></span></span><br><span><var>str</var><span class="hyp-type"><b>: </b><span>bimodule_struct&#39; R S G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">multimodule_struct
+  (bool_rect
+     (<span class="kr">λ</span> <span class="nv">b</span> : bool,
+      module_struct
+        (bool_rect (<span class="kr">λ</span> <span class="nv">_</span> : bool, <span class="bp">ring</span>) R (S ⁰) b) G)
+     (pr1 str) (pr12 str))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk26"><span class="nb">unfold</span> multimodule_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>abgr</span></span></span><br><span><var>str</var><span class="hyp-type"><b>: </b><span>bimodule_struct&#39; R S G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ i1 i2 : bool,
+(i1 = i2 → hfalse)
+→ arecompatibleactions
+    (bool_rect
+       (<span class="kr">λ</span> <span class="nv">b</span> : bool,
+        module_struct
+          (bool_rect (<span class="kr">λ</span> <span class="nv">_</span> : bool, <span class="bp">ring</span>) R (S ⁰) b) G)
+       (pr1 str) (pr12 str) i1)
+    (bool_rect
+       (<span class="kr">λ</span> <span class="nv">b</span> : bool,
+        module_struct
+          (bool_rect (<span class="kr">λ</span> <span class="nv">_</span> : bool, <span class="bp">ring</span>) R (S ⁰) b) G)
+       (pr1 str) (pr12 str) i2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  <span class="sd">(** the [ | ] pattern yields cases with hypotheses false ≠ false and</span>
+<span class="sd">      true ≠ true, so we use them as contradictions or clear the useless</span>
+<span class="sd">      hypothesis *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk27"><span class="nb">intros</span> [ | ] [ | ] neq r s;
+    <span class="kp">try</span> (<span class="bp">contradiction</span> (neq (idpath _))); <span class="nb">clear</span> neq; <span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>∑ x : ∑ x : hSet, binop x,
+(∑ d : isassoc op × isunital op, invstruct op d)
+× iscomm op</span></span></span><br><span><var>str</var><span class="hyp-type"><b>: </b><span>bimodule_struct&#39; R S G</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>pr11 S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">module_mult (G,, pr1 str) r
+∘ module_mult (G,, pr12 str) s =
+module_mult (G,, pr12 str) s
+∘ module_mult (G,, pr1 str) r</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="examples-v-chk28" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>∑ x : ∑ x : hSet, binop x,
+(∑ d : isassoc op × isunital op, invstruct op d)
+× iscomm op</span></span></span><br><span><var>str</var><span class="hyp-type"><b>: </b><span>bimodule_struct&#39; R S G</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>pr11 S</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br></div><label class="goal-separator" for="examples-v-chk28"><hr></label><div class="goal-conclusion">module_mult (G,, pr12 str) r
+∘ module_mult (G,, pr1 str) s =
+module_mult (G,, pr1 str) s
+∘ module_mult (G,, pr12 str) r</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk29">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>∑ x : ∑ x : hSet, binop x,
+(∑ d : isassoc op × isunital op, invstruct op d)
+× iscomm op</span></span></span><br><span><var>str</var><span class="hyp-type"><b>: </b><span>bimodule_struct&#39; R S G</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>pr11 S</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">module_mult (G,, pr1 str) r
+∘ module_mult (G,, pr12 str) s =
+module_mult (G,, pr12 str) s
+∘ module_mult (G,, pr1 str) r</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> ((pr2 (pr2 str)) r s).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk2a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R, S</var><span class="hyp-type"><b>: </b><span><span class="bp">ring</span></span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>∑ x : ∑ x : hSet, binop x,
+(∑ d : isassoc op × isunital op, invstruct op d)
+× iscomm op</span></span></span><br><span><var>str</var><span class="hyp-type"><b>: </b><span>bimodule_struct&#39; R S G</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>pr11 S</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>R</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">module_mult (G,, pr12 str) r
+∘ module_mult (G,, pr1 str) s =
+module_mult (G,, pr1 str) s
+∘ module_mult (G,, pr12 str) r</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (!((pr2 (pr2 str)) s r)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** A commutative ring is a bimodule over itself *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk2b"><span class="kn">Example</span> <span class="nf">commring_bimodule</span> (<span class="nv">R</span> : commring) : bimodule R R.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span>commring</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bimodule R R</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk2c"><span class="nb">apply</span> (@make_bimodule R R (@ringaddabgr R)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span>commring</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bimodule_struct&#39; R R R</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk2d"><span class="nb">unfold</span> bimodule_struct&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span>commring</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ (mr : module_struct R R)
+(ms : module_struct (R ⁰) R),
+∏ r s : R,
+module_mult (R,, mr) r ∘ module_mult (R,, ms) s =
+module_mult (R,, ms) s ∘ module_mult (R,, mr) r</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk2e"><span class="nb">refine</span> (pr2module (ring_is_module R),, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span>commring</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ ms : module_struct (R ⁰) R,
+∏ r s : R,
+module_mult (R,, pr2module (ring_is_module R)) r
+∘ module_mult (R,, ms) s =
+module_mult (R,, ms) s
+∘ module_mult (R,, pr2module (ring_is_module R)) r</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** We transport the module structure across the isomorphism R ≅ R⁰ *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk2f"><span class="nb">refine</span> (pr2module
+            (ringfun_module
+               (rigisotorigfun (invrigiso (iso_commring_opposite R)))),, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span>commring</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ r s : R,
+module_mult (R,, pr2module (ring_is_module R)) r
+∘ module_mult
+    (R,,
+     pr2module
+       (ringfun_module
+          (rigisotorigfun
+             (invrigiso (iso_commring_opposite R)))))
+    s =
+module_mult
+  (R,,
+   pr2module
+     (ringfun_module
+        (rigisotorigfun
+           (invrigiso (iso_commring_opposite R))))) s
+∘ module_mult (R,, pr2module (ring_is_module R)) r</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk30"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span>commring</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ r s : pr1 R,
+module_mult
+  (R,,
+   mult_to_module_struct
+     (<span class="kr">λ</span> <span class="nv">r0</span> <span class="nv">x</span> <span class="nv">y</span> : pr1 R, ringldistr R x y r0)
+     (<span class="kr">λ</span> <span class="nv">r0</span> <span class="nv">s0</span> <span class="nv">x</span> : pr1 R, ringrdistr R r0 s0 x)
+     (<span class="kr">λ</span> <span class="nv">r0</span> <span class="nv">s0</span> <span class="nv">x</span> : pr1 R, rigassoc2 R r0 s0 x)
+     (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R, riglunax2 R x)) r
+∘ module_mult
+    (R,,
+     mult_to_module_struct
+       (<span class="kr">λ</span> (<span class="nv">r0</span> : pr11 R) (<span class="nv">x</span> <span class="nv">y</span> : pr1 R),
+        ringldistr R x y
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) r0))
+       (<span class="kr">λ</span> (<span class="nv">r0</span> <span class="nv">s0</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+        maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+          (pr1
+             (ismonoidfuninvmap
+                (rigaddiso (iso_commring_opposite R)))
+             r0 s0) @
+        ringrdistr R
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) r0)
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) s0)
+          x)
+       (<span class="kr">λ</span> (<span class="nv">r0</span> <span class="nv">s0</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+        maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+          (pr1
+             (ismonoidfuninvmap
+                (rigmultiso (iso_commring_opposite R)))
+             r0 s0) @
+        rigassoc2 R
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) r0)
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) s0)
+          x)
+       (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R,
+        maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+          (monoidfununel
+             (ringmultfun
+                (rigisotorigfun
+                   (invrigiso
+                      (iso_commring_opposite R))))) @
+        riglunax2 R x)) s =
+module_mult
+  (R,,
+   mult_to_module_struct
+     (<span class="kr">λ</span> (<span class="nv">r0</span> : pr11 R) (<span class="nv">x</span> <span class="nv">y</span> : pr1 R),
+      ringldistr R x y
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) r0))
+     (<span class="kr">λ</span> (<span class="nv">r0</span> <span class="nv">s0</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+      maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+        (pr1
+           (ismonoidfuninvmap
+              (rigaddiso (iso_commring_opposite R)))
+           r0 s0) @
+      ringrdistr R
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) r0)
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) s0)
+        x)
+     (<span class="kr">λ</span> (<span class="nv">r0</span> <span class="nv">s0</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+      maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+        (pr1
+           (ismonoidfuninvmap
+              (rigmultiso (iso_commring_opposite R)))
+           r0 s0) @
+      rigassoc2 R
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) r0)
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) s0)
+        x)
+     (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R,
+      maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+        (monoidfununel
+           (ringmultfun
+              (rigisotorigfun
+                 (invrigiso (iso_commring_opposite R))))) @
+      riglunax2 R x)) s
+∘ module_mult
+    (R,,
+     mult_to_module_struct
+       (<span class="kr">λ</span> <span class="nv">r0</span> <span class="nv">x</span> <span class="nv">y</span> : pr1 R, ringldistr R x y r0)
+       (<span class="kr">λ</span> <span class="nv">r0</span> <span class="nv">s0</span> <span class="nv">x</span> : pr1 R, ringrdistr R r0 s0 x)
+       (<span class="kr">λ</span> <span class="nv">r0</span> <span class="nv">s0</span> <span class="nv">x</span> : pr1 R, rigassoc2 R r0 s0 x)
+       (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R, riglunax2 R x)) r</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk31"><span class="nb">intros</span> r s.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span>commring</span></span></span><br><span><var>r, s</var><span class="hyp-type"><b>: </b><span>pr1 R</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">module_mult
+  (R,,
+   mult_to_module_struct
+     (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">x</span> <span class="nv">y</span> : pr1 R, ringldistr R x y r)
+     (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, ringrdistr R r s x)
+     (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, rigassoc2 R r s x)
+     (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R, riglunax2 R x)) r
+∘ module_mult
+    (R,,
+     mult_to_module_struct
+       (<span class="kr">λ</span> (<span class="nv">r</span> : pr11 R) (<span class="nv">x</span> <span class="nv">y</span> : pr1 R),
+        ringldistr R x y
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) r))
+       (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+        maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+          (pr1
+             (ismonoidfuninvmap
+                (rigaddiso (iso_commring_opposite R)))
+             r s) @
+        ringrdistr R
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) s)
+          x)
+       (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+        maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+          (pr1
+             (ismonoidfuninvmap
+                (rigmultiso (iso_commring_opposite R)))
+             r s) @
+        rigassoc2 R
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+          (invmap (idfun (pr1 R),, idisweq (pr1 R)) s)
+          x)
+       (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R,
+        maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+          (monoidfununel
+             (ringmultfun
+                (rigisotorigfun
+                   (invrigiso
+                      (iso_commring_opposite R))))) @
+        riglunax2 R x)) s =
+module_mult
+  (R,,
+   mult_to_module_struct
+     (<span class="kr">λ</span> (<span class="nv">r</span> : pr11 R) (<span class="nv">x</span> <span class="nv">y</span> : pr1 R),
+      ringldistr R x y
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) r))
+     (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+      maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+        (pr1
+           (ismonoidfuninvmap
+              (rigaddiso (iso_commring_opposite R))) r
+           s) @
+      ringrdistr R
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) s) x)
+     (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+      maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+        (pr1
+           (ismonoidfuninvmap
+              (rigmultiso (iso_commring_opposite R)))
+           r s) @
+      rigassoc2 R
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+        (invmap (idfun (pr1 R),, idisweq (pr1 R)) s) x)
+     (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R,
+      maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+        (monoidfununel
+           (ringmultfun
+              (rigisotorigfun
+                 (invrigiso (iso_commring_opposite R))))) @
+      riglunax2 R x)) s
+∘ module_mult
+    (R,,
+     mult_to_module_struct
+       (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">x</span> <span class="nv">y</span> : pr1 R, ringldistr R x y r)
+       (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, ringrdistr R r s x)
+       (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, rigassoc2 R r s x)
+       (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R, riglunax2 R x)) r</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk32"><span class="nb">apply</span> funextfun.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span>commring</span></span></span><br><span><var>r, s</var><span class="hyp-type"><b>: </b><span>pr1 R</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">homotsec
+  (module_mult
+     (R,,
+      mult_to_module_struct
+        (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">x</span> <span class="nv">y</span> : pr1 R, ringldistr R x y r)
+        (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, ringrdistr R r s x)
+        (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, rigassoc2 R r s x)
+        (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R, riglunax2 R x)) r
+   ∘ module_mult
+       (R,,
+        mult_to_module_struct
+          (<span class="kr">λ</span> (<span class="nv">r</span> : pr11 R) (<span class="nv">x</span> <span class="nv">y</span> : pr1 R),
+           ringldistr R x y
+             (invmap (idfun (pr1 R),, idisweq (pr1 R))
+                r))
+          (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+           maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+             (pr1
+                (ismonoidfuninvmap
+                   (rigaddiso
+                      (iso_commring_opposite R))) r s) @
+           ringrdistr R
+             (invmap (idfun (pr1 R),, idisweq (pr1 R))
+                r)
+             (invmap (idfun (pr1 R),, idisweq (pr1 R))
+                s) x)
+          (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+           maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+             (pr1
+                (ismonoidfuninvmap
+                   (rigmultiso
+                      (iso_commring_opposite R))) r s) @
+           rigassoc2 R
+             (invmap (idfun (pr1 R),, idisweq (pr1 R))
+                r)
+             (invmap (idfun (pr1 R),, idisweq (pr1 R))
+                s) x)
+          (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R,
+           maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+             (monoidfununel
+                (ringmultfun
+                   (rigisotorigfun
+                      (invrigiso
+                         (iso_commring_opposite R))))) @
+           riglunax2 R x)) s)
+  (module_mult
+     (R,,
+      mult_to_module_struct
+        (<span class="kr">λ</span> (<span class="nv">r</span> : pr11 R) (<span class="nv">x</span> <span class="nv">y</span> : pr1 R),
+         ringldistr R x y
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) r))
+        (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+         maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+           (pr1
+              (ismonoidfuninvmap
+                 (rigaddiso (iso_commring_opposite R)))
+              r s) @
+         ringrdistr R
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) s)
+           x)
+        (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+         maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+           (pr1
+              (ismonoidfuninvmap
+                 (rigmultiso (iso_commring_opposite R)))
+              r s) @
+         rigassoc2 R
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) s)
+           x)
+        (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R,
+         maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+           (monoidfununel
+              (ringmultfun
+                 (rigisotorigfun
+                    (invrigiso
+                       (iso_commring_opposite R))))) @
+         riglunax2 R x)) s
+   ∘ module_mult
+       (R,,
+        mult_to_module_struct
+          (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">x</span> <span class="nv">y</span> : pr1 R, ringldistr R x y r)
+          (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, ringrdistr R r s x)
+          (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, rigassoc2 R r s x)
+          (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R, riglunax2 R x)) r)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="examples-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="examples-v-chk33"><span class="nb">intros</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>R</var><span class="hyp-type"><b>: </b><span>commring</span></span></span><br><span><var>r, s, x</var><span class="hyp-type"><b>: </b><span>pr1 R</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(module_mult
+   (R,,
+    mult_to_module_struct
+      (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">x</span> <span class="nv">y</span> : pr1 R, ringldistr R x y r)
+      (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, ringrdistr R r s x)
+      (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, rigassoc2 R r s x)
+      (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R, riglunax2 R x)) r
+ ∘ module_mult
+     (R,,
+      mult_to_module_struct
+        (<span class="kr">λ</span> (<span class="nv">r</span> : pr11 R) (<span class="nv">x</span> <span class="nv">y</span> : pr1 R),
+         ringldistr R x y
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) r))
+        (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+         maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+           (pr1
+              (ismonoidfuninvmap
+                 (rigaddiso (iso_commring_opposite R)))
+              r s) @
+         ringrdistr R
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) s)
+           x)
+        (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+         maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+           (pr1
+              (ismonoidfuninvmap
+                 (rigmultiso (iso_commring_opposite R)))
+              r s) @
+         rigassoc2 R
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+           (invmap (idfun (pr1 R),, idisweq (pr1 R)) s)
+           x)
+        (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R,
+         maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+           (monoidfununel
+              (ringmultfun
+                 (rigisotorigfun
+                    (invrigiso
+                       (iso_commring_opposite R))))) @
+         riglunax2 R x)) s) x =
+(module_mult
+   (R,,
+    mult_to_module_struct
+      (<span class="kr">λ</span> (<span class="nv">r</span> : pr11 R) (<span class="nv">x</span> <span class="nv">y</span> : pr1 R),
+       ringldistr R x y
+         (invmap (idfun (pr1 R),, idisweq (pr1 R)) r))
+      (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+       maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+         (pr1
+            (ismonoidfuninvmap
+               (rigaddiso (iso_commring_opposite R)))
+            r s) @
+       ringrdistr R
+         (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+         (invmap (idfun (pr1 R),, idisweq (pr1 R)) s)
+         x)
+      (<span class="kr">λ</span> (<span class="nv">r</span> <span class="nv">s</span> : pr11 R) (<span class="nv">x</span> : pr1 R),
+       maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+         (pr1
+            (ismonoidfuninvmap
+               (rigmultiso (iso_commring_opposite R)))
+            r s) @
+       rigassoc2 R
+         (invmap (idfun (pr1 R),, idisweq (pr1 R)) r)
+         (invmap (idfun (pr1 R),, idisweq (pr1 R)) s)
+         x)
+      (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R,
+       maponpaths (<span class="kr">λ</span> <span class="nv">x0</span> : pr1 R, x0 * x)
+         (monoidfununel
+            (ringmultfun
+               (rigisotorigfun
+                  (invrigiso (iso_commring_opposite R))))) @
+       riglunax2 R x)) s
+ ∘ module_mult
+     (R,,
+      mult_to_module_struct
+        (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">x</span> <span class="nv">y</span> : pr1 R, ringldistr R x y r)
+        (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, ringrdistr R r s x)
+        (<span class="kr">λ</span> <span class="nv">r</span> <span class="nv">s</span> <span class="nv">x</span> : pr1 R, rigassoc2 R r s x)
+        (<span class="kr">λ</span> <span class="nv">x</span> : pr1 R, riglunax2 R x)) r) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (!@rigassoc2 R r s x @ (maponpaths (<span class="kr">fun</span> <span class="nv">z</span> =&gt; z * x) (@ringcomm2 R r s))
+                      @ (rigassoc2 R s r x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Close Scope</span> <span class="bp">ring</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Toposes.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Grothendieck toposes</span>
+
+<span class="sd">  A Grothendieck topos is a category that is equivalent to the category of sheaves on some site.</span>
+<span class="sd">  Note that in principle, this is not a proposition, because there are many different sites with the</span>
+<span class="sd">  same category of sieves. For example, every site with the discrete topology has the same sheaf</span>
+<span class="sd">  category. Therefore, we need to take the propositional truncation of the site and the equivalence.</span>
+<span class="sd">  For a univalent Grothendieck topos C, we have an induction principle which shows that a</span>
+<span class="sd">  proposition holds for C if it holds for all sheaf categories. If we have a &#39;Grothendieck topos</span>
+<span class="sd">  structure&#39; (a chosen site and equivalence) for C, we have a recursion principle, which not only</span>
+<span class="sd">  works for propositions, but for arbitrary type families.</span>
+
+<span class="sd">  References</span>
+<span class="sd">  - Page 127 of &#39;Sheaves in Geometry and Logic&#39; by Saunders Mac Lane and Ieke Moerdijk.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The property of being a Grothendieck topos</span>
+<span class="sd">    [Grothendieck_topos_structure] [is_Grothendieck_topos]</span>
+<span class="sd">  2. Grothendieck toposes [Grothendieck_topos]</span>
+<span class="sd">  3. The recursion and induction principles [Grothendieck_topos_rect] [Grothendieck_topos_ind]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.CategoryEquality.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Sheaves.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Sites.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The property of being a Grothendieck topos *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">Grothendieck_topos_structure</span>
+  (<span class="nv">C</span> : category)
+  : UU
+  := ∑ (D : site), adj_equiv C (sheaf_cat D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">Grothendieck_topos_structure_site</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">G</span> : Grothendieck_topos_structure C)
+  : site
+  := pr1 G.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">Grothendieck_topos_structure_equiv</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">G</span> : Grothendieck_topos_structure C)
+  : adj_equiv C (sheaf_cat (Grothendieck_topos_structure_site G))
+  := pr2 G.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_Grothendieck_topos</span>
+  (<span class="nv">C</span> : category)
+  : hProp
+  := ∥ Grothendieck_topos_structure C ∥.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Grothendieck toposes *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">Grothendieck_topos</span> : UU :=
+  carrier is_Grothendieck_topos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_Grothendieck_topos</span>
+  (<span class="nv">C</span> : category)
+  (<span class="nv">G</span> : is_Grothendieck_topos C)
+  : Grothendieck_topos
+  := C ,, G.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">Grothendieck_topos_category</span> (GT : Grothendieck_topos) : category :=
+  pr1 GT.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">Grothendieck_topos_is_Grothendieck_topos</span>
+  (<span class="nv">GT</span> : Grothendieck_topos)
+  : is_Grothendieck_topos GT := pr2 GT.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 3. The recursion and induction principles *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chk0"><span class="kn">Lemma</span> <span class="nf">Grothendieck_topos_rect</span>
+  (<span class="nv">P</span> : category → UU)
+  (<span class="nv">HP</span> : ∏ (D : site), P (sheaf_cat D))
+  {<span class="nv">C</span> : category}
+  (<span class="nv">HU</span> : is_univalent C)
+  (<span class="nv">HT</span> : Grothendieck_topos_structure C)
+  : P C.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>Grothendieck_topos_structure C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>Grothendieck_topos_structure C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chk2"><span class="nb">refine</span> (transportf P _ (HP (Grothendieck_topos_structure_site HT))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>Grothendieck_topos_structure C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">sheaf_cat (Grothendieck_topos_structure_site HT) = C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chk3"><span class="nb">apply</span> (invmap (catiso_is_path_cat _ _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>Grothendieck_topos_structure C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">catiso
+  (sheaf_cat (Grothendieck_topos_structure_site HT)) C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chk4">use (adj_equivalence_of_cats_to_cat_iso (adj_equivalence_of_cats_inv _ (Grothendieck_topos_structure_equiv HT))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>Grothendieck_topos_structure C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent
+  (sheaf_cat (Grothendieck_topos_structure_site HT))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="toposes-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>Grothendieck_topos_structure C</span></span></span><br></div><label class="goal-separator" for="toposes-v-chk5"><hr></label><div class="goal-conclusion">is_univalent C</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>Grothendieck_topos_structure C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent
+  (sheaf_cat (Grothendieck_topos_structure_site HT))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> sheaf_cat_univalent.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>Grothendieck_topos_structure C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent C</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> HU.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chk8"><span class="kn">Lemma</span> <span class="nf">Grothendieck_topos_ind</span>
+  (<span class="nv">P</span> : category → hProp)
+  (<span class="nv">HP</span> : ∏ (D : site), P (sheaf_cat D))
+  {<span class="nv">C</span> : category}
+  (<span class="nv">HU</span> : is_univalent C)
+  (<span class="nv">HT</span> : is_Grothendieck_topos C)
+  : P C.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → hProp</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>is_Grothendieck_topos C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → hProp</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br><span><var>HT</var><span class="hyp-type"><b>: </b><span>is_Grothendieck_topos C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chka"><span class="nb">revert</span> HT.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → hProp</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_Grothendieck_topos C → P C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="toposes-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="toposes-v-chkb"><span class="nb">apply</span> hinhuniv.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>P</var><span class="hyp-type"><b>: </b><span>category → hProp</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ D : site, P (sheaf_cat D)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HU</var><span class="hyp-type"><b>: </b><span>is_univalent C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Grothendieck_topos_structure C → P C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (Grothendieck_topos_rect P HP HU).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

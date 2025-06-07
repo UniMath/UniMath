@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Utilities.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**</span>
+
+<span class="sd">  Tactic Utilities and Helper Tactics</span>
+
+<span class="sd">  This file introduces some miscellaneous tactics and tactic parts.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Ltac1 utilities</span>
+<span class="sd">  2. Ltac2 utilities</span>
+
+<span class="sd">  Initially written in 2015 by Michael A. Warren</span>
+
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.PartD.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.Propositions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.Sets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="utilities-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="utilities-v-chk0"><span class="kn">Require Import</span> <span class="kn">Ltac2</span>.<span class="kn">Ltac2</span>.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">[Loading ML file number_string_notation_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file tauto_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file cc_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file firstorder_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">Serlib plugin: coq-core.plugins.ltac2_ltac1 <span class="kr">is</span> not available: serlib support <span class="kr">is</span> missing.
+Incremental checking <span class="kr">for</span> commands <span class="kr">in</span> this plugin will be impacted.</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_ltac1_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> <span class="kn">Ltac2</span>.Control.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. Ltac1 utilities *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">&quot;Classic&quot;</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> tpair {_ _} _ _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** We introduce the notation ap for maponpaths as in KTheory. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Module</span> <span class="nf">Export</span> <span class="kn">Notation</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="nf">ap</span> := maponpaths.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="utilities-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="utilities-v-chk1"><span class="kn">Notation</span> <span class="s2">&quot;p # x&quot;</span> := (transportf _ p x) (<span class="kn">right associativity</span>, <span class="kn">at level</span> <span class="mi">65</span>) : transport.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Setting x <span class="kn">constr at level</span> <span class="mi">65</span>
+to <span class="kr">match</span> previous notation <span class="kr">with</span> longest common prefix:
+<span class="s2">&quot;_ # _&quot;</span>.</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Open Scope</span> transport.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;{ x : X &amp; P }&quot;</span> := (total2 (<span class="kr">λ</span> <span class="nv">x</span>:X, P)) : type_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;X ** Y&quot;</span> := (X × Y) (<span class="kn">right associativity</span>, <span class="kn">at level</span> <span class="mi">80</span>) : type_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Notation</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">neq</span> (<span class="nv">X</span> : UU) : X -&gt; X -&gt; hProp
+  := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, make_hProp (x != y) (isapropneg (x = y)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">check_cons</span> f g :=
+  <span class="kr">let</span> <span class="nv">h</span> <span class="nv">T</span> :=
+      f T; g T
+  <span class="kr">in</span>
+  h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">id_check</span> T := <span class="kp">idtac</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">make_hyp_check</span> e :=
+  <span class="kr">let</span> <span class="nv">T0</span> := <span class="kp">type of</span> e <span class="kr">in</span>
+  <span class="kr">let</span> <span class="nv">f</span> <span class="nv">T</span> :=
+      <span class="kr">match</span> T <span class="kr">with</span>
+        | T0 =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+        | _ =&gt; <span class="kp">idtac</span>
+      <span class="kr">end</span>
+  <span class="kr">in</span> f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** In some cases we may need to obtain the current left-hand side of a goal equation (it may have</span>
+<span class="sd">  been rewritten since initially being passed in via a match clause and a subsequent match on the</span>
+<span class="sd">  new state should be performed.  E.g., in matched_rewrite below.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">get_current_lhs</span> :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; lhs
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">get_current_rhs</span> :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; rhs
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">get_current_lhs_in</span> H :=
+  <span class="kr">let</span> <span class="nv">T</span> := <span class="kp">type of</span> H <span class="kr">in</span>
+  <span class="kr">match</span> T <span class="kr">with</span>
+    | <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; lhs
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">get_current_rhs_in</span> H :=
+  <span class="kr">let</span> <span class="nv">T</span> := <span class="kp">type of</span> H <span class="kr">in</span>
+  <span class="kr">match</span> T <span class="kr">with</span>
+    | <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; rhs
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">matched_rewrite</span> e :=
+  <span class="kr">match</span> <span class="kp">type of</span> e <span class="kr">with</span>
+    | <span class="nl">?l</span> = <span class="nl">?r</span> =&gt;
+      <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs <span class="kr">in</span>
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span> [l] =&gt; <span class="nb">rewrite</span> e
+        | <span class="kp">context</span> [r] =&gt; <span class="nb">rewrite</span> &lt;- e
+      <span class="kr">end</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Ltac2 utilities *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">&quot;Ltac2&quot;</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Executes `f` for all elements of `l`, until it returns something *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2 rec</span> iterate_until
+  (f : &#39;a -&gt; &#39;a list -&gt; &#39;b option)
+  (l : &#39;a list)
+  : &#39;b option
+  := <span class="kr">match</span> l <span class="kr">with</span>
+  | []     =&gt; None
+  | x :: l =&gt; <span class="kr">match</span> f x l <span class="kr">with</span>
+    | Some y =&gt; Some y
+    | None   =&gt; iterate_until f l
+    <span class="kr">end</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Executes `f`, and if it returns a value, recurses with that value *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2 rec</span> repeat_while
+  (f : &#39;a -&gt; (&#39;a option))
+  (t : &#39;a)
+  : unit
+  :=
+  <span class="kr">match</span> f t <span class="kr">with</span>
+  | Some t&#39; =&gt; repeat_while f t&#39;
+  | None =&gt; ()
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Fails with an arbitrary return type, because the `fail` tactic is only of type `unit -&gt; unit` *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2</span> failv0 () : &#39;a := zero (Tactic_failure None).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2 Notation</span> <span class="s2">&quot;failv&quot;</span> := failv0 ().</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Executes a tactic. Returns its result if it succeeds and `None` if not. *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2</span> try_opt (f : unit -&gt; &#39;a) : &#39;a option :=
+  once_plus
+    (<span class="kr">fun</span> () =&gt; Some (f ()))
+    (<span class="kr">fun</span> <span class="nv">_</span> =&gt; None).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Notation for defining a value of the pattern type, like `pn:((_ = _) → _)` *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2 Notation</span> <span class="s2">&quot;pn:&quot;</span> p(<span class="nb">pattern</span>) : <span class="mi">0</span> := p.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Unfolds locally (via `pose` or `set`) defined identifiers, because the current Ltac2 unfold</span>
+<span class="sd">  does not allow this yet (April, 2025) *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2</span> unfold_local0 (v : (<span class="kn">ident</span> * Std.occurrences) list) (c : Std.clause option) :=
+  Std.<span class="nb">unfold</span> (List.map (<span class="kr">fun</span> (<span class="nv">a</span>, b) =&gt; (Std.VarRef a, b)) v) (default_on_concl c).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2 Notation</span> <span class="s2">&quot;unfold_local&quot;</span> v(list1(seq(<span class="kn">ident</span>, occurrences), <span class="s2">&quot;,&quot;</span>)) cl(opt(clause))
+  := unfold_local0 v cl.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>ActionBasedStrongMonads.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**</span>
+
+<span class="sd">- the notion of strong monads w.r.t. monoidal actions (a generalization of the notion w.r.t. a monad)</span>
+<span class="sd">- an instantiation to strong monads in monoidal categories</span>
+
+<span class="sd">see https://ncatlab.org/nlab/show/strong+monad for a general bicategorical formulation and for the one w.r.t. a monad,</span>
+<span class="sd">the present notion is intermediately abstract/general and only sketched on that page</span>
+
+<span class="sd">author: Ralph Matthes 2022</span>
+
+<span class="sd"> *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ConstructionOfActegories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> BifunctorNotations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> MonoidalNotations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> ActegoryNotations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">A</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">V</span> : category} {<span class="nv">Mon_V</span> : monoidal V} {<span class="nv">C</span> : category} (<span class="nv">Act</span> : actegory Mon_V C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ηandμlinear</span> {<span class="nv">M</span>: Monad C} (<span class="nv">Ml</span> : lineator_lax Mon_V Act Act M) : UU :=
+  is_linear_nat_trans (identity_lineator_lax Mon_V Act) Ml (η M) ×
+    is_linear_nat_trans (comp_lineator_lax Mon_V Ml Ml) Ml (μ M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ηandμlinearnicer</span> {<span class="nv">M</span>: Monad C} (<span class="nv">Ml</span> : lineator_lax Mon_V Act Act M) : UU :=
+  ∏ (v : V) (x : C), η M (v ⊗_{Act} x) = v ⊗^{Act}_{l} η M x · Ml v x
+                   × v ⊗^{Act}_{l} μ M x · Ml v x = Ml v (M x) · #M (Ml v x) · μ M (v ⊗_{Act} x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk1"><span class="kn">Lemma</span> <span class="nf">ηandμlinearimpliesnicer</span> {<span class="nv">M</span>: Monad C} (<span class="nv">Ml</span> : lineator_lax Mon_V Act Act M) (<span class="nv">ηandμlin</span> : ηandμlinear Ml) : ηandμlinearnicer Ml.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ηandμlinearnicer Ml</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ηandμlinearnicer Ml</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk3"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">η M (v ⊗_{ Act} x) = v ⊗^{ Act}_{l} η M x · Ml v x</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="actionbasedstrongmonads-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="actionbasedstrongmonads-v-chk4"><hr></label><div class="goal-conclusion">v ⊗^{ Act}_{l} μ M x · Ml v x =
+Ml v (M x) · # M (Ml v x) · μ M (v ⊗_{ Act} x)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">η M (v ⊗_{ Act} x) = v ⊗^{ Act}_{l} η M x · Ml v x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk6">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">η M (v ⊗_{ Act} x) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="actionbasedstrongmonads-v-chk7" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="actionbasedstrongmonads-v-chk7"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> = v ⊗^{ Act}_{l} η M x · Ml v x</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk8"><span class="mi">2</span>: {</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="nl">?b</span> = v ⊗^{ Act}_{l} η M x · Ml v x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> ηandμlin.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk9">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">η M (v ⊗_{ Act} x) =
+identity_lineator_lax Mon_V Act v x
+· η M (v ⊗_{ Act} x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> pathsinv0, id_left.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chka">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlin</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">v ⊗^{ Act}_{l} μ M x · Ml v x =
+Ml v (M x) · # M (Ml v x) · μ M (v ⊗_{ Act} x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> pathsinv0, ηandμlin.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chkb"><span class="kn">Lemma</span> <span class="nf">ηandμlinearfollowsfromnicer</span> {<span class="nv">M</span>: Monad C} (<span class="nv">Ml</span> : lineator_lax Mon_V Act Act M) (<span class="nv">ηandμlinn</span> : ηandμlinearnicer Ml) : ηandμlinear Ml.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ηandμlinear Ml</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chkc"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ηandμlinear Ml</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chkd"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_linear_nat_trans (identity_lineator_lax Mon_V Act)
+  Ml (η M)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="actionbasedstrongmonads-v-chke" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br></div><label class="goal-separator" for="actionbasedstrongmonads-v-chke"><hr></label><div class="goal-conclusion">is_linear_nat_trans (comp_lineator_lax Mon_V Ml Ml) Ml
+  (μ M)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chkf">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_linear_nat_trans (identity_lineator_lax Mon_V Act)
+  Ml (η M)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk10"><span class="nb">red</span>; <span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity_lineator_lax Mon_V Act v x
+· η M (v ⊗_{ Act} x) = v ⊗^{ Act}_{l} η M x · Ml v x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk11">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity_lineator_lax Mon_V Act v x
+· η M (v ⊗_{ Act} x) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="actionbasedstrongmonads-v-chk12" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="actionbasedstrongmonads-v-chk12"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> = v ⊗^{ Act}_{l} η M x · Ml v x</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk13"><span class="mi">2</span>: {</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="nl">?b</span> = v ⊗^{ Act}_{l} η M x · Ml v x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> ηandμlinn.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk14">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity_lineator_lax Mon_V Act v x
+· η M (v ⊗_{ Act} x) = η M (v ⊗_{ Act} x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> id_left.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk15">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_linear_nat_trans (comp_lineator_lax Mon_V Ml Ml) Ml
+  (μ M)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk16"><span class="nb">red</span>; <span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>ηandμlinn</var><span class="hyp-type"><b>: </b><span>ηandμlinearnicer Ml</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_lineator_lax Mon_V Ml Ml v x · μ M (v ⊗_{ Act} x) =
+v ⊗^{ Act}_{l} μ M x · Ml v x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> pathsinv0, ηandμlinn.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk17"><span class="kn">Definition</span> <span class="nf">actionbasedstrongmonads_cat_disp</span> : disp_cat (category_Monad C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat (category_Monad C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk18"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat (category_Monad C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk19">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_data (category_Monad C)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="actionbasedstrongmonads-v-chk1a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><label class="goal-separator" for="actionbasedstrongmonads-v-chk1a"><hr></label><div class="goal-conclusion">disp_cat_axioms (category_Monad C) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk1b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_data (category_Monad C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk1c">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_ob_mor (category_Monad C)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="actionbasedstrongmonads-v-chk1d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><label class="goal-separator" for="actionbasedstrongmonads-v-chk1d"><hr></label><div class="goal-conclusion">disp_cat_id_comp (category_Monad C) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk1e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_ob_mor (category_Monad C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk1f">use make_disp_cat_ob_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category_Monad C → UU</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="actionbasedstrongmonads-v-chk20" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><label class="goal-separator" for="actionbasedstrongmonads-v-chk20"><hr></label><div class="goal-conclusion">∏ x y : category_Monad C,
+<span class="nl">?obd</span> x → <span class="nl">?obd</span> y → category_Monad C ⟦ x, y ⟧ → UU</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk21">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category_Monad C → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk22"><span class="nb">intro</span> M.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>category_Monad C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (∑ Ml : lineator_lax Mon_V Act Act (M: Monad C), ηandμlinear Ml).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk23">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : category_Monad C,
+(<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+ ∑ Ml : lineator_lax Mon_V Act Act (M : Monad C),
+ ηandμlinear Ml) x
+→ (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+   ∑ Ml : lineator_lax Mon_V Act Act (M : Monad C),
+   ηandμlinear Ml) y → category_Monad C ⟦ x, y ⟧ → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk24"><span class="nb">intros</span> M N [Ml islinM] [Nl islinN] α.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M, N</var><span class="hyp-type"><b>: </b><span>category_Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>islinM</var><span class="hyp-type"><b>: </b><span>ηandμlinear Ml</span></span></span><br><span><var>Nl</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act N</span></span></span><br><span><var>islinN</var><span class="hyp-type"><b>: </b><span>ηandμlinear Nl</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>category_Monad C ⟦ M, N ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (is_linear_nat_trans Ml Nl (nat_trans_from_monad_mor _ _ α)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk25">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_id_comp (category_Monad C)
+  (make_disp_cat_ob_mor (category_Monad C)
+     (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+      ∑ Ml : lineator_lax Mon_V Act Act (M : Monad C),
+      ηandμlinear Ml)
+     (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+      (<span class="nv">X</span> : (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+            ∑
+            Ml : lineator_lax Mon_V Act Act
+                   (M0 : Monad C), ηandμlinear Ml) M),
+      (<span class="kr">λ</span> (<span class="nv">Ml</span> : lineator_lax Mon_V Act Act M)
+       (<span class="nv">_</span> : ηandμlinear Ml)
+       (<span class="nv">X0</span> : ∑ Ml0 : lineator_lax Mon_V Act Act N,
+             ηandμlinear Ml0),
+       (<span class="kr">λ</span> (<span class="nv">Nl</span> : lineator_lax Mon_V Act Act N)
+        (<span class="nv">_</span> : ηandμlinear Nl)
+        (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+        is_linear_nat_trans Ml Nl α) (pr1 X0) (pr2 X0))
+        (pr1 X) (pr2 X)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk26"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : category_Monad C)
+(xx : make_disp_cat_ob_mor (category_Monad C)
+        (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+         ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+        (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+         (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+              ηandμlinear Ml)
+         (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+               ηandμlinear Ml)
+         (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+         is_linear_nat_trans (pr1 X) (pr1 X0) α) x),
+xx --&gt;[ identity x] xx</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="actionbasedstrongmonads-v-chk27" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><label class="goal-separator" for="actionbasedstrongmonads-v-chk27"><hr></label><div class="goal-conclusion">∏ (x y z : category_Monad C)
+(f : category_Monad C ⟦ x, y ⟧)
+(g : category_Monad C ⟦ y, z ⟧)
+(xx : make_disp_cat_ob_mor 
+        (category_Monad C)
+        (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+         ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+        (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+         (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+              ηandμlinear Ml)
+         (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+               ηandμlinear Ml)
+         (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+         is_linear_nat_trans (pr1 X) (pr1 X0) α) x)
+(yy : make_disp_cat_ob_mor 
+        (category_Monad C)
+        (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+         ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+        (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+         (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+              ηandμlinear Ml)
+         (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+               ηandμlinear Ml)
+         (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+         is_linear_nat_trans (pr1 X) (pr1 X0) α) y)
+(zz : make_disp_cat_ob_mor 
+        (category_Monad C)
+        (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+         ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+        (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+         (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+              ηandμlinear Ml)
+         (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+               ηandμlinear Ml)
+         (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+         is_linear_nat_trans (pr1 X) (pr1 X0) α) z),
+xx --&gt;[ f] yy → yy --&gt;[ g] zz → xx --&gt;[ f · g] zz</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk28">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : category_Monad C)
+(xx : make_disp_cat_ob_mor (category_Monad C)
+        (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+         ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+        (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+         (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+              ηandμlinear Ml)
+         (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+               ηandμlinear Ml)
+         (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+         is_linear_nat_trans (pr1 X) (pr1 X0) α) x),
+xx --&gt;[ identity x] xx</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk29"><span class="nb">intros</span> M [Ml [islinMη islimMμ]].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>category_Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>islinMη</var><span class="hyp-type"><b>: </b><span>is_linear_nat_trans
+  (identity_lineator_lax Mon_V Act) Ml 
+  (η M)</span></span></span><br><span><var>islimMμ</var><span class="hyp-type"><b>: </b><span>is_linear_nat_trans
+  (comp_lineator_lax Mon_V Ml Ml) Ml 
+  (μ M)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(Ml,, islinMη,, islimMμ) --&gt;[
+identity M] (Ml,, islinMη,, islimMμ)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk2a"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M</var><span class="hyp-type"><b>: </b><span>category_Monad C</span></span></span><br><span><var>Ml</var><span class="hyp-type"><b>: </b><span>lineator_lax Mon_V Act Act M</span></span></span><br><span><var>islinMη</var><span class="hyp-type"><b>: </b><span>is_linear_nat_trans
+  (identity_lineator_lax Mon_V Act) Ml 
+  (η M)</span></span></span><br><span><var>islimMμ</var><span class="hyp-type"><b>: </b><span>is_linear_nat_trans
+  (comp_lineator_lax Mon_V Ml Ml) Ml 
+  (μ M)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_linear_nat_trans Ml Ml (nat_trans_id (pr11 M))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> is_linear_nat_trans_identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk2b">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : category_Monad C)
+(f : category_Monad C ⟦ x, y ⟧)
+(g : category_Monad C ⟦ y, z ⟧)
+(xx : make_disp_cat_ob_mor (category_Monad C)
+        (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+         ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+        (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+         (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+              ηandμlinear Ml)
+         (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+               ηandμlinear Ml)
+         (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+         is_linear_nat_trans (pr1 X) (pr1 X0) α) x)
+(yy : make_disp_cat_ob_mor (category_Monad C)
+        (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+         ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+        (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+         (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+              ηandμlinear Ml)
+         (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+               ηandμlinear Ml)
+         (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+         is_linear_nat_trans (pr1 X) (pr1 X0) α) y)
+(zz : make_disp_cat_ob_mor (category_Monad C)
+        (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+         ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+        (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+         (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+              ηandμlinear Ml)
+         (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+               ηandμlinear Ml)
+         (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+         is_linear_nat_trans (pr1 X) (pr1 X0) α) z),
+xx --&gt;[ f] yy → yy --&gt;[ g] zz → xx --&gt;[ f · g] zz</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk2c"><span class="nb">intros</span> M N O α α&#39; Mll Nll Oll islntα islntβ.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>M, N, O</var><span class="hyp-type"><b>: </b><span>category_Monad C</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>category_Monad C ⟦ M, N ⟧</span></span></span><br><span><var>α'</var><span class="hyp-type"><b>: </b><span>category_Monad C ⟦ N, O ⟧</span></span></span><br><span><var>Mll</var><span class="hyp-type"><b>: </b><span>make_disp_cat_ob_mor (category_Monad C)
+  (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+   ∑ Ml : lineator_lax Mon_V Act Act M,
+   ηandμlinear Ml)
+  (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+   (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+        ηandμlinear Ml)
+   (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+         ηandμlinear Ml)
+   (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+   is_linear_nat_trans (pr1 X) (pr1 X0) α) M</span></span></span><br><span><var>Nll</var><span class="hyp-type"><b>: </b><span>make_disp_cat_ob_mor (category_Monad C)
+  (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+   ∑ Ml : lineator_lax Mon_V Act Act M,
+   ηandμlinear Ml)
+  (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+   (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+        ηandμlinear Ml)
+   (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+         ηandμlinear Ml)
+   (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+   is_linear_nat_trans (pr1 X) (pr1 X0) α) N</span></span></span><br><span><var>Oll</var><span class="hyp-type"><b>: </b><span>make_disp_cat_ob_mor (category_Monad C)
+  (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+   ∑ Ml : lineator_lax Mon_V Act Act M,
+   ηandμlinear Ml)
+  (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+   (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+        ηandμlinear Ml)
+   (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+         ηandμlinear Ml)
+   (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+   is_linear_nat_trans (pr1 X) (pr1 X0) α) O</span></span></span><br><span><var>islntα</var><span class="hyp-type"><b>: </b><span>Mll --&gt;[ α] Nll</span></span></span><br><span><var>islntβ</var><span class="hyp-type"><b>: </b><span>Nll --&gt;[ α&#39;] Oll</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Mll --&gt;[ α · α&#39;] Oll</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (is_linear_nat_trans_comp (pr1 Mll) (pr1 Nll) (pr1 Oll) islntα islntβ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk2d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_axioms (category_Monad C)
+  (make_disp_cat_ob_mor (category_Monad C)
+     (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+      ∑ Ml : lineator_lax Mon_V Act Act (M : Monad C),
+      ηandμlinear Ml)
+     (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+      (<span class="nv">X</span> : (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+            ∑
+            Ml : lineator_lax Mon_V Act Act
+                   (M0 : Monad C), ηandμlinear Ml) M),
+      (<span class="kr">λ</span> (<span class="nv">Ml</span> : lineator_lax Mon_V Act Act M)
+       (<span class="nv">_</span> : ηandμlinear Ml)
+       (<span class="nv">X0</span> : ∑ Ml0 : lineator_lax Mon_V Act Act N,
+             ηandμlinear Ml0),
+       (<span class="kr">λ</span> (<span class="nv">Nl</span> : lineator_lax Mon_V Act Act N)
+        (<span class="nv">_</span> : ηandμlinear Nl)
+        (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+        is_linear_nat_trans Ml Nl α) (pr1 X0) (pr2 X0))
+        (pr1 X) (pr2 X)),,
+   (<span class="kr">λ</span> (<span class="nv">M</span> : category_Monad C)
+    (<span class="nv">xx</span> : make_disp_cat_ob_mor (category_Monad C)
+            (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+             ∑ Ml : lineator_lax Mon_V Act Act M0,
+             ηandμlinear Ml)
+            (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N</span> : category_Monad C)
+             (<span class="nv">X</span> : ∑
+                  Ml : lineator_lax Mon_V Act Act M0,
+                  ηandμlinear Ml)
+             (<span class="nv">X0</span> : ∑
+                   Ml : lineator_lax Mon_V Act Act N,
+                   ηandμlinear Ml)
+             (<span class="nv">α</span> : category_Monad C ⟦ M0, N ⟧),
+             is_linear_nat_trans (pr1 X) (pr1 X0) α) M),
+    (<span class="kr">λ</span> (<span class="nv">Ml</span> : lineator_lax Mon_V Act Act M)
+     (<span class="nv">pr2</span> : ηandμlinear Ml),
+     (<span class="kr">λ</span> (<span class="nv">islinMη</span> : is_linear_nat_trans
+                     (identity_lineator_lax Mon_V Act)
+                     Ml (η M))
+      (<span class="nv">islimMμ</span> : is_linear_nat_trans
+                   (comp_lineator_lax Mon_V Ml Ml) Ml
+                   (μ M)),
+      is_linear_nat_trans_identity Ml
+      :
+      (Ml,, islinMη,, islimMμ) --&gt;[
+      identity M] (Ml,, islinMη,, islimMμ)) (pr1 pr2)
+       (Preamble.pr2 pr2)) (pr1 xx) (pr2 xx)),,
+   (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> <span class="nv">O</span> : category_Monad C)
+    (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧)
+    (<span class="nv">α&#39;</span> : category_Monad C ⟦ N, O ⟧)
+    (<span class="nv">Mll</span> : make_disp_cat_ob_mor (category_Monad C)
+             (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+              ∑ Ml : lineator_lax Mon_V Act Act M0,
+              ηandμlinear Ml)
+             (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N0</span> : category_Monad C)
+              (<span class="nv">X</span> : ∑
+                   Ml : lineator_lax Mon_V Act Act M0,
+                   ηandμlinear Ml)
+              (<span class="nv">X0</span> : ∑
+                    Ml : lineator_lax Mon_V Act Act N0,
+                    ηandμlinear Ml)
+              (<span class="nv">α0</span> : category_Monad C ⟦ M0, N0 ⟧),
+              is_linear_nat_trans (pr1 X) (pr1 X0) α0)
+             M)
+    (<span class="nv">Nll</span> : make_disp_cat_ob_mor (category_Monad C)
+             (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+              ∑ Ml : lineator_lax Mon_V Act Act M0,
+              ηandμlinear Ml)
+             (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N0</span> : category_Monad C)
+              (<span class="nv">X</span> : ∑
+                   Ml : lineator_lax Mon_V Act Act M0,
+                   ηandμlinear Ml)
+              (<span class="nv">X0</span> : ∑
+                    Ml : lineator_lax Mon_V Act Act N0,
+                    ηandμlinear Ml)
+              (<span class="nv">α0</span> : category_Monad C ⟦ M0, N0 ⟧),
+              is_linear_nat_trans (pr1 X) (pr1 X0) α0)
+             N)
+    (<span class="nv">Oll</span> : make_disp_cat_ob_mor (category_Monad C)
+             (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+              ∑ Ml : lineator_lax Mon_V Act Act M0,
+              ηandμlinear Ml)
+             (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N0</span> : category_Monad C)
+              (<span class="nv">X</span> : ∑
+                   Ml : lineator_lax Mon_V Act Act M0,
+                   ηandμlinear Ml)
+              (<span class="nv">X0</span> : ∑
+                    Ml : lineator_lax Mon_V Act Act N0,
+                    ηandμlinear Ml)
+              (<span class="nv">α0</span> : category_Monad C ⟦ M0, N0 ⟧),
+              is_linear_nat_trans (pr1 X) (pr1 X0) α0)
+             O) (<span class="nv">islntα</span> : Mll --&gt;[ α] Nll)
+    (<span class="nv">islntβ</span> : Nll --&gt;[ α&#39;] Oll),
+    is_linear_nat_trans_comp (pr1 Mll) (pr1 Nll)
+      (pr1 Oll) islntα islntβ))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="actionbasedstrongmonads-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="actionbasedstrongmonads-v-chk2e"><span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="kp">try</span> <span class="nb">apply</span> isaprop_is_linear_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal V</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Act</var><span class="hyp-type"><b>: </b><span>actegory Mon_V C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>category_Monad C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>category_Monad C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>(make_disp_cat_ob_mor (category_Monad C)
+   (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+    ∑ Ml : lineator_lax Mon_V Act Act M,
+    ηandμlinear Ml)
+   (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+    (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+    (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+          ηandμlinear Ml)
+    (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+    is_linear_nat_trans (pr1 X) (pr1 X0) α),,
+ (<span class="kr">λ</span> (<span class="nv">M</span> : category_Monad C)
+  (<span class="nv">xx</span> : make_disp_cat_ob_mor 
+          (category_Monad C)
+          (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+           ∑ Ml : lineator_lax Mon_V Act Act M0,
+           ηandμlinear Ml)
+          (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N</span> : category_Monad C)
+           (<span class="nv">X</span> : ∑
+                Ml : lineator_lax Mon_V Act Act
+                       M0, 
+                ηandμlinear Ml)
+           (<span class="nv">X0</span> : ∑
+                 Ml : lineator_lax Mon_V Act Act
+                       N, 
+                 ηandμlinear Ml)
+           (<span class="nv">α</span> : category_Monad C ⟦ M0, N ⟧),
+           is_linear_nat_trans (pr1 X) (pr1 X0) α)
+          M),
+  is_linear_nat_trans_identity (pr1 xx)),,
+ (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> <span class="nv">O</span> : category_Monad C)
+  (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧)
+  (<span class="nv">α&#39;</span> : category_Monad C ⟦ N, O ⟧)
+  (<span class="nv">Mll</span> : make_disp_cat_ob_mor 
+           (category_Monad C)
+           (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+            ∑ Ml : lineator_lax Mon_V Act Act M0,
+            ηandμlinear Ml)
+           (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N0</span> : category_Monad C)
+            (<span class="nv">X</span> : ∑
+                 Ml : lineator_lax Mon_V Act Act
+                       M0, 
+                 ηandμlinear Ml)
+            (<span class="nv">X0</span> : ∑
+                  Ml : lineator_lax Mon_V Act Act
+                       N0, 
+                  ηandμlinear Ml)
+            (<span class="nv">α0</span> : category_Monad C ⟦ M0, N0 ⟧),
+            is_linear_nat_trans 
+              (pr1 X) (pr1 X0) α0) M)
+  (<span class="nv">Nll</span> : make_disp_cat_ob_mor 
+           (category_Monad C)
+           (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+            ∑ Ml : lineator_lax Mon_V Act Act M0,
+            ηandμlinear Ml)
+           (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N0</span> : category_Monad C)
+            (<span class="nv">X</span> : ∑
+                 Ml : lineator_lax Mon_V Act Act
+                       M0, 
+                 ηandμlinear Ml)
+            (<span class="nv">X0</span> : ∑
+                  Ml : lineator_lax Mon_V Act Act
+                       N0, 
+                  ηandμlinear Ml)
+            (<span class="nv">α0</span> : category_Monad C ⟦ M0, N0 ⟧),
+            is_linear_nat_trans 
+              (pr1 X) (pr1 X0) α0) N)
+  (<span class="nv">Oll</span> : make_disp_cat_ob_mor 
+           (category_Monad C)
+           (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+            ∑ Ml : lineator_lax Mon_V Act Act M0,
+            ηandμlinear Ml)
+           (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N0</span> : category_Monad C)
+            (<span class="nv">X</span> : ∑
+                 Ml : lineator_lax Mon_V Act Act
+                       M0, 
+                 ηandμlinear Ml)
+            (<span class="nv">X0</span> : ∑
+                  Ml : lineator_lax Mon_V Act Act
+                       N0, 
+                  ηandμlinear Ml)
+            (<span class="nv">α0</span> : category_Monad C ⟦ M0, N0 ⟧),
+            is_linear_nat_trans 
+              (pr1 X) (pr1 X0) α0) O)
+  (<span class="nv">islntα</span> : Mll --&gt;[ α] Nll)
+  (<span class="nv">islntβ</span> : Nll --&gt;[ α&#39;] Oll),
+  is_linear_nat_trans_comp 
+    (pr1 Mll) (pr1 Nll) 
+    (pr1 Oll) islntα islntβ)) x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>(make_disp_cat_ob_mor (category_Monad C)
+   (<span class="kr">λ</span> <span class="nv">M</span> : category_Monad C,
+    ∑ Ml : lineator_lax Mon_V Act Act M,
+    ηandμlinear Ml)
+   (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> : category_Monad C)
+    (<span class="nv">X</span> : ∑ Ml : lineator_lax Mon_V Act Act M,
+         ηandμlinear Ml)
+    (<span class="nv">X0</span> : ∑ Ml : lineator_lax Mon_V Act Act N,
+          ηandμlinear Ml)
+    (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧),
+    is_linear_nat_trans (pr1 X) (pr1 X0) α),,
+ (<span class="kr">λ</span> (<span class="nv">M</span> : category_Monad C)
+  (<span class="nv">xx</span> : make_disp_cat_ob_mor 
+          (category_Monad C)
+          (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+           ∑ Ml : lineator_lax Mon_V Act Act M0,
+           ηandμlinear Ml)
+          (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N</span> : category_Monad C)
+           (<span class="nv">X</span> : ∑
+                Ml : lineator_lax Mon_V Act Act
+                       M0, 
+                ηandμlinear Ml)
+           (<span class="nv">X0</span> : ∑
+                 Ml : lineator_lax Mon_V Act Act
+                       N, 
+                 ηandμlinear Ml)
+           (<span class="nv">α</span> : category_Monad C ⟦ M0, N ⟧),
+           is_linear_nat_trans (pr1 X) (pr1 X0) α)
+          M),
+  is_linear_nat_trans_identity (pr1 xx)),,
+ (<span class="kr">λ</span> (<span class="nv">M</span> <span class="nv">N</span> <span class="nv">O</span> : category_Monad C)
+  (<span class="nv">α</span> : category_Monad C ⟦ M, N ⟧)
+  (<span class="nv">α&#39;</span> : category_Monad C ⟦ N, O ⟧)
+  (<span class="nv">Mll</span> : make_disp_cat_ob_mor 
+           (category_Monad C)
+           (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+            ∑ Ml : lineator_lax Mon_V Act Act M0,
+            ηandμlinear Ml)
+           (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N0</span> : category_Monad C)
+            (<span class="nv">X</span> : ∑
+                 Ml : lineator_lax Mon_V Act Act
+                       M0, 
+                 ηandμlinear Ml)
+            (<span class="nv">X0</span> : ∑
+                  Ml : lineator_lax Mon_V Act Act
+                       N0, 
+                  ηandμlinear Ml)
+            (<span class="nv">α0</span> : category_Monad C ⟦ M0, N0 ⟧),
+            is_linear_nat_trans 
+              (pr1 X) (pr1 X0) α0) M)
+  (<span class="nv">Nll</span> : make_disp_cat_ob_mor 
+           (category_Monad C)
+           (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+            ∑ Ml : lineator_lax Mon_V Act Act M0,
+            ηandμlinear Ml)
+           (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N0</span> : category_Monad C)
+            (<span class="nv">X</span> : ∑
+                 Ml : lineator_lax Mon_V Act Act
+                       M0, 
+                 ηandμlinear Ml)
+            (<span class="nv">X0</span> : ∑
+                  Ml : lineator_lax Mon_V Act Act
+                       N0, 
+                  ηandμlinear Ml)
+            (<span class="nv">α0</span> : category_Monad C ⟦ M0, N0 ⟧),
+            is_linear_nat_trans 
+              (pr1 X) (pr1 X0) α0) N)
+  (<span class="nv">Oll</span> : make_disp_cat_ob_mor 
+           (category_Monad C)
+           (<span class="kr">λ</span> <span class="nv">M0</span> : category_Monad C,
+            ∑ Ml : lineator_lax Mon_V Act Act M0,
+            ηandμlinear Ml)
+           (<span class="kr">λ</span> (<span class="nv">M0</span> <span class="nv">N0</span> : category_Monad C)
+            (<span class="nv">X</span> : ∑
+                 Ml : lineator_lax Mon_V Act Act
+                       M0, 
+                 ηandμlinear Ml)
+            (<span class="nv">X0</span> : ∑
+                  Ml : lineator_lax Mon_V Act Act
+                       N0, 
+                  ηandμlinear Ml)
+            (<span class="nv">α0</span> : category_Monad C ⟦ M0, N0 ⟧),
+            is_linear_nat_trans 
+              (pr1 X) (pr1 X0) α0) O)
+  (<span class="nv">islntα</span> : Mll --&gt;[ α] Nll)
+  (<span class="nv">islntβ</span> : Nll --&gt;[ α&#39;] Oll),
+  is_linear_nat_trans_comp 
+    (pr1 Mll) (pr1 Nll) 
+    (pr1 Oll) islntα islntβ)) y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (xx --&gt;[ f] yy)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isasetaprop; <span class="nb">apply</span> isaprop_is_linear_nat_trans.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">actionbasedstrongmonads_cat_total</span> : category := total_category actionbasedstrongmonads_cat_disp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">A</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">StrongMonads</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">strongmonads_cat_disp</span> : disp_cat (category_Monad C) :=
+  actionbasedstrongmonads_cat_disp (actegory_with_canonical_self_action M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">strongmonads_cat_total</span> : category := total_category strongmonads_cat_disp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">StrongMonads</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

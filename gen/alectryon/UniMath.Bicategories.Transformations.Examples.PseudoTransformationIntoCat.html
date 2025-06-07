@@ -1,0 +1,1014 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>PseudoTransformationIntoCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Pseudotransformations and indexed functors</span>
+
+<span class="sd"> In this file, we relate indexed functors and pseudotransformations. We first</span>
+<span class="sd"> give constructors for pseudotransformations between pseudofunctors whose source</span>
+<span class="sd"> is a discrete bicategory, and in the case that the target is the bicategory of</span>
+<span class="sd"> univalent categories. After that, we show that every indexed functor gives rise</span>
+<span class="sd"> to a pseudotransformation and vice versa.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Pseudotransformations between pseudofunctors from discrete bicategories</span>
+<span class="sd"> 2. Pseudotransformations between pseudofunctors to categories</span>
+<span class="sd"> 3. Indexed functors to pseudotransformations</span>
+<span class="sd"> 4. Pseudotransformations to indexed functors</span>
+
+<span class="sd"> ********************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Discreteness.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.DiscreteBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.PseudoFunctorsIntoCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 1. Pseudotransformations between pseudofunctors from discrete bicategories</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">PseudoTransFromCat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">B</span> : bicat}
+          {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) B}
+          (<span class="nv">τ₀</span> : ∏ (x : C), F x --&gt; G x)
+          (<span class="nv">τ₁</span> : ∏ (x y : C)
+                  (f : x --&gt; y),
+                invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y))
+          (<span class="nv">τid</span> : ∏ (x : C),
+                 (τ₀ x ◃ psfunctor_id G x)
+                 • τ₁ x x (identity x)
+                 =
+                 runitor (τ₀ x)
+                 • linvunitor (τ₀ x)
+                 • (psfunctor_id F x ▹ τ₀ x))
+          (<span class="nv">τc</span> : ∏ (x y z : C)
+                  (f : x --&gt; y)
+                  (g : y --&gt; z),
+                (τ₀ x ◃ psfunctor_comp G f g)
+                • τ₁ x z (f · g)
+                =
+                lassociator (τ₀ x) (# G f) (# G g)
+                • (τ₁ x y f ▹ # G g)
+                • rassociator (# F f) (τ₀ y) (# G g)
+                • (# F f ◃ τ₁ y z g)
+                • lassociator (# F f) (# F g) (τ₀ z)
+                • (psfunctor_comp F f g ▹ τ₀ z)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk1"><span class="kn">Definition</span> <span class="nf">make_pstrans_from_cat_data</span>
+    : pstrans_data F G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data F G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data F G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk3">use make_pstrans_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : cat_to_bicat C, B ⟦ F X, G X ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk4"><hr></label><div class="goal-conclusion">∏ (X Y : cat_to_bicat C)
+(f : cat_to_bicat C ⟦ X, Y ⟧),
+invertible_2cell (<span class="nl">?η₁</span> X · # G f) (# F f · <span class="nl">?η₁</span> Y)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : cat_to_bicat C, B ⟦ F X, G X ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> τ₀.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : cat_to_bicat C)
+(f : cat_to_bicat C ⟦ X, Y ⟧),
+invertible_2cell (τ₀ X · # G f) (# F f · τ₀ Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> τ₁.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk7"><span class="kn">Proposition</span> <span class="nf">make_pstrans_from_cat_laws</span>
+    : is_pstrans make_pstrans_from_cat_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans make_pstrans_from_cat_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk8"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans make_pstrans_from_cat_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk9"><span class="kp">repeat</span> <span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : cat_to_bicat C)
+(f g : cat_to_bicat C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(pr1 make_pstrans_from_cat_data X ◃ ## G α)
+• pr2 make_pstrans_from_cat_data X Y g =
+pr2 make_pstrans_from_cat_data X Y f
+• (## F α ▹ pr1 make_pstrans_from_cat_data Y)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chka" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chka"><hr></label><div class="goal-conclusion">∏ X : cat_to_bicat C,
+(pr1 make_pstrans_from_cat_data X ◃ psfunctor_id G X)
+• pr2 make_pstrans_from_cat_data X X (id₁ X) =
+(runitor (pr1 make_pstrans_from_cat_data X)
+ • linvunitor (pr1 make_pstrans_from_cat_data X))
+• (psfunctor_id F X ▹ pr1 make_pstrans_from_cat_data X)</div></blockquote><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chkb"><hr></label><div class="goal-conclusion">∏ (X Y Z : cat_to_bicat C)
+(f : cat_to_bicat C ⟦ X, Y ⟧)
+(g : cat_to_bicat C ⟦ Y, Z ⟧),
+(pr1 make_pstrans_from_cat_data X
+ ◃ psfunctor_comp G f g)
+• pr2 make_pstrans_from_cat_data X Z (f · g) =
+((((lassociator (pr1 make_pstrans_from_cat_data X)
+      (# G f) (# G g)
+    • (pr2 make_pstrans_from_cat_data X Y f ▹ # G g))
+   • rassociator (# F f)
+       (pr1 make_pstrans_from_cat_data Y) (# G g))
+  • (# F f ◃ pr2 make_pstrans_from_cat_data Y Z g))
+ • lassociator (# F f) (# F g)
+     (pr1 make_pstrans_from_cat_data Z))
+• (psfunctor_comp F f g
+   ▹ pr1 make_pstrans_from_cat_data Z)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chkc">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : cat_to_bicat C)
+(f g : cat_to_bicat C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(pr1 make_pstrans_from_cat_data X ◃ ## G α)
+• pr2 make_pstrans_from_cat_data X Y g =
+pr2 make_pstrans_from_cat_data X Y f
+• (## F α ▹ pr1 make_pstrans_from_cat_data Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chkd"><span class="nb">cbn</span> ; <span class="nb">intros</span> x y f g p.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>f = g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(τ₀ x ◃ ## G p) • τ₁ x y g =
+τ₁ x y f • (## F p ▹ τ₀ y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chke"><span class="nb">induction</span> p.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(τ₀ x ◃ ## G (idpath f)) • τ₁ x y f =
+τ₁ x y f • (## F (idpath f) ▹ τ₀ y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chkf">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(τ₀ x ◃ ## G (idpath f)) • τ₁ x y f = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk10" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk10"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> = τ₁ x y f • (## F (idpath f) ▹ τ₀ y)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk11">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(τ₀ x ◃ ## G (idpath f)) • τ₁ x y f = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk12"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">τ₀ x ◃ ## G (idpath f) = <span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk13"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">## G (idpath f) = <span class="nl">?t2</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk14"><span class="nb">refine</span> (_ @ psfunctor_id2 G f).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">## G (idpath f) = ## G (id₂ f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk15"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">idpath f = id₂ f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk16">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(τ₀ x ◃ id₂ (# G f)) • τ₁ x y f =
+τ₁ x y f • (## F (idpath f) ▹ τ₀ y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk17"><span class="nb">rewrite</span> lwhisker_id2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id₂ (τ₀ x · # G f) • τ₁ x y f =
+τ₁ x y f • (## F (idpath f) ▹ τ₀ y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk18"><span class="nb">rewrite</span> id2_left.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">τ₁ x y f = τ₁ x y f • (## F (idpath f) ▹ τ₀ y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk19"><span class="nb">refine</span> (!_).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">τ₁ x y f • (## F (idpath f) ▹ τ₀ y) = τ₁ x y f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk1a">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">τ₁ x y f • (## F (idpath f) ▹ τ₀ y) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk1b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk1b"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> = τ₁ x y f</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk1c">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">τ₁ x y f • (## F (idpath f) ▹ τ₀ y) = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk1d"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">## F (idpath f) = <span class="nl">?t2</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk1e"><span class="nb">refine</span> (_ @ psfunctor_id2 F f).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">## F (idpath f) = ## F (id₂ f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk1f"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">idpath f = id₂ f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk20">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">τ₁ x y f • (id₂ (# F f) ▹ τ₀ y) = τ₁ x y f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk21"><span class="nb">rewrite</span> id2_rwhisker.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">τ₁ x y f • id₂ (# F f · τ₀ y) = τ₁ x y f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk22"><span class="nb">rewrite</span> id2_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">τ₁ x y f = τ₁ x y f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk23">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : cat_to_bicat C,
+(pr1 make_pstrans_from_cat_data X ◃ psfunctor_id G X)
+• pr2 make_pstrans_from_cat_data X X (id₁ X) =
+(runitor (pr1 make_pstrans_from_cat_data X)
+ • linvunitor (pr1 make_pstrans_from_cat_data X))
+• (psfunctor_id F X ▹ pr1 make_pstrans_from_cat_data X)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> τid.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk24">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y Z : cat_to_bicat C)
+(f : cat_to_bicat C ⟦ X, Y ⟧)
+(g : cat_to_bicat C ⟦ Y, Z ⟧),
+(pr1 make_pstrans_from_cat_data X
+ ◃ psfunctor_comp G f g)
+• pr2 make_pstrans_from_cat_data X Z (f · g) =
+((((lassociator (pr1 make_pstrans_from_cat_data X)
+      (# G f) (# G g)
+    • (pr2 make_pstrans_from_cat_data X Y f ▹ # G g))
+   • rassociator (# F f)
+       (pr1 make_pstrans_from_cat_data Y) (# G g))
+  • (# F f ◃ pr2 make_pstrans_from_cat_data Y Z g))
+ • lassociator (# F f) (# F g)
+     (pr1 make_pstrans_from_cat_data Z))
+• (psfunctor_comp F f g
+   ▹ pr1 make_pstrans_from_cat_data Z)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> τc.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk25"><span class="kn">Definition</span> <span class="nf">make_pstrans_from_cat</span>
+    : pstrans F G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans F G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk26"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans F G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk27">use make_pstrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data F G</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk28" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk28"><hr></label><div class="goal-conclusion">is_pstrans <span class="nl">?η</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk29">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data F G</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> make_pstrans_from_cat_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk2a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) B</span></span></span><br><span><var>τ₀</var><span class="hyp-type"><b>: </b><span>∏ x : C, B ⟦ F x, G x ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y)</span></span></span><br><span><var>τid</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(τ₀ x ◃ psfunctor_id G x) • τ₁ x x (id₁ x) =
+(runitor (τ₀ x) • linvunitor (τ₀ x)) • (psfunctor_id F x ▹ τ₀ x)</span></span></span><br><span><var>τc</var><span class="hyp-type"><b>: </b><span>∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ₀ x ◃ psfunctor_comp G f g) • τ₁ x z (f · g) =
+((((lassociator (τ₀ x) (# G f) (# G g)
+    • (τ₁ x y f ▹ # G g))
+   • rassociator (# F f) (τ₀ y) (# G g))
+  • (# F f ◃ τ₁ y z g))
+ • lassociator (# F f) (# F g) (τ₀ z))
+• (psfunctor_comp F f g ▹ τ₀ z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans make_pstrans_from_cat_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> make_pstrans_from_cat_laws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">PseudoTransFromCat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 2. Pseudotransformations between pseudofunctors to categories</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats)
+  : UU
+  := ∑ (τ₀ : ∏ (x : C), F x --&gt; G x),
+     ∏ (x y : C)
+       (f : x --&gt; y),
+     nat_z_iso (τ₀ x · # G f) (# F f · τ₀ y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_pstrans_from_cat_into_cat_data</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (<span class="nv">τ₀</span> : ∏ (x : C), F x --&gt; G x)
+           (<span class="nv">τ₁</span> : ∏ (x y : C)
+                   (f : x --&gt; y),
+                 nat_z_iso (τ₀ x · # G f) (# F f · τ₀ y))
+  : pstrans_from_cat_into_cat_data F G
+  := τ₀ ,, τ₁.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat_data_to_ob</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (<span class="nv">τ</span> : pstrans_from_cat_into_cat_data F G)
+           (<span class="nv">x</span> : C)
+  : F x --&gt; G x
+  := pr1 τ x.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">pstrans_from_cat_into_cat_data_to_ob</span> : pstrans_from_cat_into_cat_data &gt;-&gt; <span class="kt">Funclass</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat_data_nat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (<span class="nv">τ</span> : pstrans_from_cat_into_cat_data F G)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : nat_z_iso (τ x · # G f) (# F f · τ y)
+  := pr2 τ x y f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat_laws</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (<span class="nv">τ</span> : pstrans_from_cat_into_cat_data F G)
+  : UU
+  := (∏ (x : C)
+        (xx : pr1 (F x)),
+      pr11 (psfunctor_id G x) (pr1 (τ x) xx)
+      · pr1 (pstrans_from_cat_into_cat_data_nat τ (id₁ x)) xx
+      =
+      # (pr1 (τ x)) (pr11 (psfunctor_id F x) xx))
+     ×
+     (∏ (x y z : C)
+        (f : x --&gt; y)
+        (g : y --&gt; z)
+        (xx : pr1 (F x)),
+       pr11 (psfunctor_comp G f g) (pr1 (τ x) xx)
+       · pr1 (pstrans_from_cat_into_cat_data_nat τ (f · g)) xx
+       =
+       # (pr1 (# G g)) ((pr11 (pstrans_from_cat_into_cat_data_nat τ f)) xx)
+       · (pr11 (pstrans_from_cat_into_cat_data_nat τ g)) (pr1 (# F f) xx)
+       · # (pr1 (τ z)) (pr11 (psfunctor_comp F f g) xx)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">PseudoTransIntoCat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+          (<span class="nv">τ</span> : pstrans_from_cat_into_cat_data F G)
+          (<span class="nv">Hτ</span> : pstrans_from_cat_into_cat_laws τ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk2b"><span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat</span>
+    : pstrans F G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans F G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk2c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans F G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk2d">use make_pstrans_from_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C, bicat_of_univ_cats ⟦ F x, G x ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk2e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk2e"><hr></label><div class="goal-conclusion">∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (<span class="nl">?τ₀</span> x · # G f) (# F f · <span class="nl">?τ₀</span> y)</div></blockquote><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk2f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk2f"><hr></label><div class="goal-conclusion">∏ x : C,
+(<span class="nl">?τ₀</span> x ◃ psfunctor_id G x) • <span class="nl">?τ₁</span> x x (id₁ x) =
+(runitor (<span class="nl">?τ₀</span> x) • linvunitor (<span class="nl">?τ₀</span> x))
+• (psfunctor_id F x ▹ <span class="nl">?τ₀</span> x)</div></blockquote><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk30" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk30"><hr></label><div class="goal-conclusion">∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(<span class="nl">?τ₀</span> x ◃ psfunctor_comp G f g) • <span class="nl">?τ₁</span> x z (f · g) =
+((((lassociator (<span class="nl">?τ₀</span> x) (# G f) (# G g)
+    • (<span class="nl">?τ₁</span> x y f ▹ # G g))
+   • rassociator (# F f) (<span class="nl">?τ₀</span> y) (# G g))
+  • (# F f ◃ <span class="nl">?τ₁</span> y z g))
+ • lassociator (# F f) (# F g) (<span class="nl">?τ₀</span> z))
+• (psfunctor_comp F f g ▹ <span class="nl">?τ₀</span> z)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk31">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C, bicat_of_univ_cats ⟦ F x, G x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> τ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk32">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : C) (f : C ⟦ x, y ⟧),
+invertible_2cell (τ x · # G f) (# F f · τ y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk33"><span class="nb">intros</span> x y f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">invertible_2cell (τ x · # G f) (# F f · τ y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk34">use nat_z_iso_to_invertible_2cell.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_z_iso (τ x · # G f) (# F f · τ y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pstrans_from_cat_into_cat_data_nat τ f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk35">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+(τ x ◃ psfunctor_id G x)
+• (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : C ⟦ x0, y ⟧),
+   nat_z_iso_to_invertible_2cell (τ x0 · # G f)
+     (# F f · τ y)
+     (pstrans_from_cat_into_cat_data_nat τ f)) x x
+    (id₁ x) =
+(runitor (τ x) • linvunitor (τ x))
+• (psfunctor_id F x ▹ τ x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">intros</span> x ;
+         use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> xx ;
+         <span class="nb">cbn</span> -[psfunctor_id] ;
+         <span class="nb">rewrite</span> !id_left ;
+         <span class="bp">exact</span> (pr1 Hτ x xx)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk36">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_data F G</span></span></span><br><span><var>Hτ</var><span class="hyp-type"><b>: </b><span>pstrans_from_cat_into_cat_laws τ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧),
+(τ x ◃ psfunctor_comp G f g)
+• (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+   nat_z_iso_to_invertible_2cell (τ x0 · # G f0)
+     (# F f0 · τ y0)
+     (pstrans_from_cat_into_cat_data_nat τ f0)) x z
+    (f · g) =
+((((lassociator (τ x) (# G f) (# G g)
+    • ((<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+        nat_z_iso_to_invertible_2cell (τ x0 · # G f0)
+          (# F f0 · τ y0)
+          (pstrans_from_cat_into_cat_data_nat τ f0)) x
+         y f ▹ # G g))
+   • rassociator (# F f) (τ y) (# G g))
+  • (# F f
+     ◃ (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+        nat_z_iso_to_invertible_2cell (τ x0 · # G f0)
+          (# F f0 · τ y0)
+          (pstrans_from_cat_into_cat_data_nat τ f0)) y
+         z g)) • lassociator (# F f) (# F g) (τ z))
+• (psfunctor_comp F f g ▹ τ z)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z f g ;
+         use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> xx ;
+         <span class="nb">cbn</span> -[psfunctor_comp] ;
+         <span class="nb">rewrite</span> !id_left ;
+         <span class="nb">rewrite</span> !id_right ;
+         <span class="bp">exact</span> (pr2 Hτ x y z f g xx)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">PseudoTransIntoCat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 3. Indexed functors to pseudotransformations</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk37"><span class="kn">Definition</span> <span class="nf">indexed_functor_to_pstrans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Φ</span> <span class="nv">Ψ</span> : indexed_cat C}
+           (<span class="nv">τ</span> : indexed_functor Φ Ψ)
+  : pstrans
+      (indexed_cat_to_psfunctor Φ)
+      (indexed_cat_to_psfunctor Ψ).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans (indexed_cat_to_psfunctor Φ)
+  (indexed_cat_to_psfunctor Ψ)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk38"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans (indexed_cat_to_psfunctor Φ)
+  (indexed_cat_to_psfunctor Ψ)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk39">use pstrans_from_cat_into_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_from_cat_into_cat_data
+  (indexed_cat_to_psfunctor Φ)
+  (indexed_cat_to_psfunctor Ψ)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk3a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk3a"><hr></label><div class="goal-conclusion">pstrans_from_cat_into_cat_laws <span class="nl">?τ</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk3b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_from_cat_into_cat_data
+  (indexed_cat_to_psfunctor Φ)
+  (indexed_cat_to_psfunctor Ψ)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk3c">use make_pstrans_from_cat_into_cat_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+bicat_of_univ_cats ⟦ indexed_cat_to_psfunctor Φ x,
+indexed_cat_to_psfunctor Ψ x ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk3d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk3d"><hr></label><div class="goal-conclusion">∏ (x y : C) (f : C ⟦ x, y ⟧),
+nat_z_iso (<span class="nl">?τ₀</span> x · # (indexed_cat_to_psfunctor Ψ) f)
+  (# (indexed_cat_to_psfunctor Φ) f · <span class="nl">?τ₀</span> y)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk3e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+bicat_of_univ_cats ⟦ indexed_cat_to_psfunctor Φ x,
+indexed_cat_to_psfunctor Ψ x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> τ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk3f">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : C) (f : C ⟦ x, y ⟧),
+nat_z_iso (τ x · # (indexed_cat_to_psfunctor Ψ) f)
+  (# (indexed_cat_to_psfunctor Φ) f · τ y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, indexed_functor_natural τ f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk40">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_from_cat_into_cat_laws
+  (make_pstrans_from_cat_into_cat_data τ
+     (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : C ⟦ x, y ⟧),
+      indexed_functor_natural τ f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk41"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : C) (xx : pr1 (indexed_cat_to_psfunctor Φ x)),
+(pr11 (psfunctor_id (indexed_cat_to_psfunctor Ψ) x))
+  (pr1
+     (make_pstrans_from_cat_into_cat_data τ
+        (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : C ⟦ x0, y ⟧),
+         indexed_functor_natural τ f) x) xx)
+· pr1
+    (pstrans_from_cat_into_cat_data_nat
+       (make_pstrans_from_cat_into_cat_data τ
+          (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : C ⟦ x0, y ⟧),
+           indexed_functor_natural τ f)) (id₁ x)) xx =
+# (pr1
+     (make_pstrans_from_cat_into_cat_data τ
+        (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : C ⟦ x0, y ⟧),
+         indexed_functor_natural τ f) x))
+  ((pr11 (psfunctor_id (indexed_cat_to_psfunctor Φ) x))
+     xx)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk42" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk42"><hr></label><div class="goal-conclusion">∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧)
+(xx : pr1 (indexed_cat_to_psfunctor Φ x)),
+(pr11 (psfunctor_comp (indexed_cat_to_psfunctor Ψ) f g))
+  (pr1
+     (make_pstrans_from_cat_into_cat_data τ
+        (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+         indexed_functor_natural τ f0) x) xx)
+· pr1
+    (pstrans_from_cat_into_cat_data_nat
+       (make_pstrans_from_cat_into_cat_data τ
+          (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+           indexed_functor_natural τ f0)) (f · g)) xx =
+# (pr1 (# (indexed_cat_to_psfunctor Ψ) g))
+  ((pr11 (pstrans_from_cat_into_cat_data_nat
+            (make_pstrans_from_cat_into_cat_data τ
+               (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+                indexed_functor_natural τ f0)) f)) xx)
+· (pr11 (pstrans_from_cat_into_cat_data_nat
+           (make_pstrans_from_cat_into_cat_data τ
+              (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+               indexed_functor_natural τ f0)) g))
+    (pr1 (# (indexed_cat_to_psfunctor Φ) f) xx)
+· # (pr1
+       (make_pstrans_from_cat_into_cat_data τ
+          (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+           indexed_functor_natural τ f0) z))
+    ((pr11 (psfunctor_comp
+              (indexed_cat_to_psfunctor Φ) f g)) xx)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk43">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : C) (xx : pr1 (indexed_cat_to_psfunctor Φ x)),
+(pr11 (psfunctor_id (indexed_cat_to_psfunctor Ψ) x))
+  (pr1
+     (make_pstrans_from_cat_into_cat_data τ
+        (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : C ⟦ x0, y ⟧),
+         indexed_functor_natural τ f) x) xx)
+· pr1
+    (pstrans_from_cat_into_cat_data_nat
+       (make_pstrans_from_cat_into_cat_data τ
+          (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : C ⟦ x0, y ⟧),
+           indexed_functor_natural τ f)) (id₁ x)) xx =
+# (pr1
+     (make_pstrans_from_cat_into_cat_data τ
+        (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : C ⟦ x0, y ⟧),
+         indexed_functor_natural τ f) x))
+  ((pr11 (psfunctor_id (indexed_cat_to_psfunctor Φ) x))
+     xx)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, indexed_functor_id τ xx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk44">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧)
+(xx : pr1 (indexed_cat_to_psfunctor Φ x)),
+(pr11 (psfunctor_comp (indexed_cat_to_psfunctor Ψ) f g))
+  (pr1
+     (make_pstrans_from_cat_into_cat_data τ
+        (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+         indexed_functor_natural τ f0) x) xx)
+· pr1
+    (pstrans_from_cat_into_cat_data_nat
+       (make_pstrans_from_cat_into_cat_data τ
+          (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+           indexed_functor_natural τ f0)) (f · g)) xx =
+# (pr1 (# (indexed_cat_to_psfunctor Ψ) g))
+  ((pr11 (pstrans_from_cat_into_cat_data_nat
+            (make_pstrans_from_cat_into_cat_data τ
+               (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+                indexed_functor_natural τ f0)) f)) xx)
+· (pr11 (pstrans_from_cat_into_cat_data_nat
+           (make_pstrans_from_cat_into_cat_data τ
+              (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+               indexed_functor_natural τ f0)) g))
+    (pr1 (# (indexed_cat_to_psfunctor Φ) f) xx)
+· # (pr1
+       (make_pstrans_from_cat_into_cat_data τ
+          (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> : C) (<span class="nv">f0</span> : C ⟦ x0, y0 ⟧),
+           indexed_functor_natural τ f0) z))
+    ((pr11 (psfunctor_comp
+              (indexed_cat_to_psfunctor Φ) f g)) xx)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">xx</span>, indexed_functor_comp τ f g xx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 4. Pseudotransformations to indexed functors</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">PseudoTransformationToIndexedFunctor</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+          (<span class="nv">τ</span> : pstrans F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk45"><span class="kn">Definition</span> <span class="nf">pstrans_to_indexed_functor_data</span>
+    : indexed_functor_data
+        (psfunctor_to_indexed_cat F)
+        (psfunctor_to_indexed_cat G).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_functor_data (psfunctor_to_indexed_cat F)
+  (psfunctor_to_indexed_cat G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk46"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_functor_data (psfunctor_to_indexed_cat F)
+  (psfunctor_to_indexed_cat G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk47">use make_indexed_functor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+psfunctor_to_indexed_cat F x
+⟶ psfunctor_to_indexed_cat G x</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk48" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk48"><hr></label><div class="goal-conclusion">∏ (x y : C) (f : C ⟦ x, y ⟧),
+nat_z_iso (<span class="nl">?τ₀</span> x ∙ (psfunctor_to_indexed_cat G $ f))
+  ((psfunctor_to_indexed_cat F $ f) ∙ <span class="nl">?τ₀</span> y)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk49">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+psfunctor_to_indexed_cat F x
+⟶ psfunctor_to_indexed_cat G x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span>, τ x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk4a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : C) (f : C ⟦ x, y ⟧),
+nat_z_iso
+  ((<span class="kr">λ</span> <span class="nv">x0</span> : C, τ x0) x
+   ∙ (psfunctor_to_indexed_cat G $ f))
+  ((psfunctor_to_indexed_cat F $ f)
+   ∙ (<span class="kr">λ</span> <span class="nv">x0</span> : C, τ x0) y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, invertible_2cell_to_nat_z_iso _ _ (psnaturality_of τ f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk4b"><span class="kn">Proposition</span> <span class="nf">pstrans_to_indexed_functor_laws</span>
+    : indexed_functor_laws pstrans_to_indexed_functor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_functor_laws pstrans_to_indexed_functor_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk4c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_functor_laws pstrans_to_indexed_functor_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk4d"><span class="kp">repeat</span> <span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : C) (xx : psfunctor_to_indexed_cat F x),
+indexed_cat_id (psfunctor_to_indexed_cat G) x
+  (pstrans_to_indexed_functor_data x xx)
+· indexed_functor_natural
+    pstrans_to_indexed_functor_data (id₁ x) xx =
+# (pstrans_to_indexed_functor_data x)
+  (indexed_cat_id (psfunctor_to_indexed_cat F) x xx)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk4e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk4e"><hr></label><div class="goal-conclusion">∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧)
+(xx : psfunctor_to_indexed_cat F x),
+indexed_cat_comp (psfunctor_to_indexed_cat G) f g
+  (pstrans_to_indexed_functor_data x xx)
+· indexed_functor_natural
+    pstrans_to_indexed_functor_data (f · g) xx =
+# (psfunctor_to_indexed_cat G $ g)
+  (indexed_functor_natural
+     pstrans_to_indexed_functor_data f xx)
+· indexed_functor_natural
+    pstrans_to_indexed_functor_data g
+    ((psfunctor_to_indexed_cat F $ f) xx)
+· # (pstrans_to_indexed_functor_data z)
+    (indexed_cat_comp (psfunctor_to_indexed_cat F) f g
+       xx)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk4f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : C) (xx : psfunctor_to_indexed_cat F x),
+indexed_cat_id (psfunctor_to_indexed_cat G) x
+  (pstrans_to_indexed_functor_data x xx)
+· indexed_functor_natural
+    pstrans_to_indexed_functor_data (id₁ x) xx =
+# (pstrans_to_indexed_functor_data x)
+  (indexed_cat_id (psfunctor_to_indexed_cat F) x xx)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk50"><span class="nb">intros</span> x xx.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>psfunctor_to_indexed_cat F x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id (psfunctor_to_indexed_cat G) x
+  (pstrans_to_indexed_functor_data x xx)
+· indexed_functor_natural
+    pstrans_to_indexed_functor_data (id₁ x) xx =
+# (pstrans_to_indexed_functor_data x)
+  (indexed_cat_id (psfunctor_to_indexed_cat F) x xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk51"><span class="nb">refine</span> (nat_trans_eq_pointwise (pstrans_id τ x) xx @ _) ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>psfunctor_to_indexed_cat F x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id₁ (τ x xx) · id₁ (τ x xx)
+· # (pr1 (τ x)) (pr1 ((pr122 (pr1 F)) x) xx) =
+# (τ x) ((pr122 (pr1 F)) x xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk52"><span class="nb">rewrite</span> !id_left.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>psfunctor_to_indexed_cat F x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr1 (τ x)) (pr1 ((pr122 (pr1 F)) x) xx) =
+# (τ x) ((pr122 (pr1 F)) x xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk53">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧)
+(xx : psfunctor_to_indexed_cat F x),
+indexed_cat_comp (psfunctor_to_indexed_cat G) f g
+  (pstrans_to_indexed_functor_data x xx)
+· indexed_functor_natural
+    pstrans_to_indexed_functor_data (f · g) xx =
+# (psfunctor_to_indexed_cat G $ g)
+  (indexed_functor_natural
+     pstrans_to_indexed_functor_data f xx)
+· indexed_functor_natural
+    pstrans_to_indexed_functor_data g
+    ((psfunctor_to_indexed_cat F $ f) xx)
+· # (pstrans_to_indexed_functor_data z)
+    (indexed_cat_comp (psfunctor_to_indexed_cat F) f g
+       xx)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk54"><span class="nb">intros</span> x y z f g xx.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>psfunctor_to_indexed_cat F x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_comp (psfunctor_to_indexed_cat G) f g
+  (pstrans_to_indexed_functor_data x xx)
+· indexed_functor_natural
+    pstrans_to_indexed_functor_data (f · g) xx =
+# (psfunctor_to_indexed_cat G $ g)
+  (indexed_functor_natural
+     pstrans_to_indexed_functor_data f xx)
+· indexed_functor_natural
+    pstrans_to_indexed_functor_data g
+    ((psfunctor_to_indexed_cat F $ f) xx)
+· # (pstrans_to_indexed_functor_data z)
+    (indexed_cat_comp (psfunctor_to_indexed_cat F) f g
+       xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk55"><span class="nb">refine</span> (nat_trans_eq_pointwise (pstrans_comp τ f g) xx @ _) ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>psfunctor_to_indexed_cat F x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id₁ (# G g (# G f (τ x xx)))
+· # (pr1 (# G g)) (pr1 (psnaturality_of τ f) xx)
+· id₁ (# G g (τ y (# F f xx)))
+· pr1 (psnaturality_of τ g) (pr1 (# F f) xx)
+· id₁ (τ z (# F g (# F f xx)))
+· # (pr1 (τ z)) (pr1 ((pr222 (pr1 F)) x y z f g) xx) =
+# (# G g) (psnaturality_of τ f xx)
+· psnaturality_of τ g (# F f xx)
+· # (τ z) ((pr222 (pr1 F)) x y z f g xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk56"><span class="nb">rewrite</span> !id_left, !id_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>psfunctor_to_indexed_cat F x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr1 (# G g)) (pr1 (psnaturality_of τ f) xx)
+· pr1 (psnaturality_of τ g) (pr1 (# F f) xx)
+· # (pr1 (τ z)) (pr1 ((pr222 (pr1 F)) x y z f g) xx) =
+# (# G g) (psnaturality_of τ f xx)
+· psnaturality_of τ g (# F f xx)
+· # (τ z) ((pr222 (pr1 F)) x y z f g xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk57"><span class="kn">Definition</span> <span class="nf">pstrans_to_indexed_functor</span>
+    : indexed_functor
+        (psfunctor_to_indexed_cat F)
+        (psfunctor_to_indexed_cat G).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_functor (psfunctor_to_indexed_cat F)
+  (psfunctor_to_indexed_cat G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk58"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_functor (psfunctor_to_indexed_cat F)
+  (psfunctor_to_indexed_cat G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk59">use make_indexed_functor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_functor_data (psfunctor_to_indexed_cat F)
+  (psfunctor_to_indexed_cat G)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudotransformationintocat-v-chk5a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><label class="goal-separator" for="pseudotransformationintocat-v-chk5a"><hr></label><div class="goal-conclusion">indexed_functor_laws <span class="nl">?τ</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk5b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_functor_data (psfunctor_to_indexed_cat F)
+  (psfunctor_to_indexed_cat G)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> pstrans_to_indexed_functor_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudotransformationintocat-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudotransformationintocat-v-chk5c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor (cat_to_bicat C) bicat_of_univ_cats</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>pstrans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_functor_laws pstrans_to_indexed_functor_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> pstrans_to_indexed_functor_laws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">PseudoTransformationToIndexedFunctor</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>AlgebraicTheoryMorphisms.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Algebraic theory morphisms</span>
+
+<span class="sd">  Defines morphisms of algebraic theories, together with constructors, accessors and some</span>
+<span class="sd">  properties.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The definition of algebraic theory morphisms [algebraic_theory_morphism]</span>
+<span class="sd">  2. An equality lemma [algebraic_theory_morphism_eq]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.IndexedSetCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The definition of algebraic theory morphisms *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">algebraic_theory_morphism_data</span>
+  (<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory_data)
+  : UU
+  := indexed_set_cat _ ⟦T, T&#39;⟧.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">algebraic_theory_morphism_data_to_function</span>
+  {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory_data}
+  (<span class="nv">F</span> : algebraic_theory_morphism_data T T&#39;)
+  (<span class="nv">n</span> : nat)
+  : T n → T&#39; n
+  := F n.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">algebraic_theory_morphism_data_to_function</span> : algebraic_theory_morphism_data &gt;-&gt; <span class="kt">Funclass</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">algebraic_theory_morphism</span>
+  (<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory)
+  : UU
+  := algebraic_theory_cat⟦T, T&#39;⟧.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">algebraic_theory_morphism_to_algebraic_theory_morphism_data</span>
+  {T T&#39; : algebraic_theory}
+  (F : algebraic_theory_morphism T T&#39;)
+  : algebraic_theory_morphism_data T T&#39;
+  := pr11 F.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">mor_var_ax</span>
+  {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory_data}
+  (<span class="nv">F</span> : algebraic_theory_morphism_data T T&#39;)
+  (<span class="nv">n</span> : nat)
+  (<span class="nv">i</span> : stn n)
+  : UU
+  := F n (var i) = var i.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">mor_subst_ax</span>
+  {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory_data}
+  (<span class="nv">F</span> : algebraic_theory_morphism_data T T&#39;)
+  (<span class="nv">m</span> <span class="nv">n</span> : nat)
+  (<span class="nv">f</span> : T m)
+  (<span class="nv">g</span> : stn m → T n)
+  : UU
+  := F n (f • g) = (F m f) • (<span class="kr">λ</span> <span class="nv">i</span>, F n (g i)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_algebraic_theory_morphism</span>
+  {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory}
+  (<span class="nv">F</span> : algebraic_theory_morphism_data T T&#39;)
+  : UU
+  := (∏ n i, mor_var_ax F n i) ×
+    (∏ m n f g, mor_subst_ax F m n f g).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_is_algebraic_theory_morphism</span> {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory}
+  {<span class="nv">F</span> : algebraic_theory_morphism_data T T&#39;}
+  (<span class="nv">H1</span> : ∏ n i, mor_var_ax F n i)
+  (<span class="nv">H2</span> : ∏ m n f g, mor_subst_ax F m n f g)
+  : is_algebraic_theory_morphism F
+  := H1 ,, H2.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk1"><span class="kn">Lemma</span> <span class="nf">isaprop_is_algebraic_theory_morphism</span>
+  {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory}
+  (<span class="nv">F</span> : algebraic_theory_morphism_data T T&#39;)
+  : isaprop (is_algebraic_theory_morphism F).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism_data T T&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (is_algebraic_theory_morphism F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism_data T T&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (is_algebraic_theory_morphism F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk3"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism_data T T&#39;</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>is_algebraic_theory_morphism F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x&#39; : is_algebraic_theory_morphism F,
+isofhlevel <span class="mi">0</span> (x = x&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">repeat</span> <span class="nb">apply</span> isapropdirprod;
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+    <span class="nb">apply</span> setproperty.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_algebraic_theory_morphism</span>
+  {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory}
+  (<span class="nv">F</span> : algebraic_theory_morphism_data T T&#39;)
+  (<span class="nv">H</span> : is_algebraic_theory_morphism F)
+  : algebraic_theory_morphism T T&#39;
+  := (F ,, pr1 H ,, pr2 H) ,, tt.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">mor_var</span>
+  {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory}
+  (<span class="nv">F</span> : algebraic_theory_morphism T T&#39;)
+  {<span class="nv">n</span> : nat}
+  (<span class="nv">i</span> : stn n)
+  : mor_var_ax F n i
+  := pr121 F n i.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">mor_subst</span>
+  {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory}
+  (<span class="nv">F</span> : algebraic_theory_morphism T T&#39;)
+  {<span class="nv">m</span> <span class="nv">n</span> : nat}
+  (<span class="nv">f</span> : T m)
+  (<span class="nv">g</span> : stn m → T n)
+  : mor_subst_ax F m n f g
+  := pr221 F m n f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. An equality lemma *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk4"><span class="kn">Lemma</span> <span class="nf">algebraic_theory_morphism_eq</span>
+  {<span class="nv">T</span> <span class="nv">T&#39;</span> : algebraic_theory}
+  (<span class="nv">F</span> <span class="nv">F&#39;</span> : algebraic_theory_morphism T T&#39;)
+  (<span class="nv">H1</span> : ∏ n f, F n f = F&#39; n f)
+  : F = F&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F = F&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk5"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F = F&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk6">use subtypePath.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate (Core.mor_disp (pr2 T) (pr2 T&#39;))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="algebraictheorymorphisms-v-chk7" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><label class="goal-separator" for="algebraictheorymorphisms-v-chk7"><hr></label><div class="goal-conclusion">pr1 F = pr1 F&#39;</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk8">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate (Core.mor_disp (pr2 T) (pr2 T&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk9"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>algebraic_theory_data_cat ⟦ pr1 T, pr1 T&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (Core.mor_disp (pr2 T) (pr2 T&#39;) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> isapropunit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chka">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 F = pr1 F&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chkb">use subtypePath.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate (Core.mor_disp (pr21 T) (pr21 T&#39;))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="algebraictheorymorphisms-v-chkc" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><label class="goal-separator" for="algebraictheorymorphisms-v-chkc"><hr></label><div class="goal-conclusion">pr11 F = pr11 F&#39;</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chkd">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate (Core.mor_disp (pr21 T) (pr21 T&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chke"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>indexed_set_cat ℕ ⟦ pr11 T, pr11 T&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (Core.mor_disp (pr21 T) (pr21 T&#39;) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isapropdirprod;
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+    <span class="nb">apply</span> setproperty.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chkf">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr11 F = pr11 F&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebraictheorymorphisms-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="algebraictheorymorphisms-v-chk10"><span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T, T'</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>F, F'</var><span class="hyp-type"><b>: </b><span>algebraic_theory_morphism T T&#39;</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>∏ (n : ℕ) (f : T n), F n f = F&#39; n f</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>(pr11 T) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr11 F) x x0 = (pr11 F&#39;) x x0</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> H1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

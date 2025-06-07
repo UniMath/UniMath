@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>SurjectivePrecomposition.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Precomposition with a fully faithful functor is split essentially surjective</span>
+
+<span class="sd">  If D is a category with colimits and F: C → C&#39; is a fully faithful functor, one can use left Kan</span>
+<span class="sd">  extension to show that the functor F ∙ (⋅): [C&#39;, D] → [C, D] is split essentially surjective.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Precomposition with F is split essentially surjective [pre_comp_split_essentially_surjective]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.LeftKanExtension.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">PrecompositionEssentiallySurjective</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C&#39;</span> : category}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">F</span> : C ⟶ C&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">H</span> : fully_faithful F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">D</span> : category).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">HD</span> : Colims D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">Fweq</span> (<span class="nv">a</span> <span class="nv">b</span> : C)
+    : C⟦a, b⟧ ≃ C&#39;⟦F a, F b⟧
+    := weq_from_fully_faithful H a b.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">η</span> (<span class="nv">P</span> : C ⟶ D)
+    : P ⟹ (pre_comp_functor F (left_adjoint (is_right_adjoint_precomposition HD F) P) : _ ⟶ _)
+    := unit_from_right_adjoint (is_right_adjoint_precomposition HD F) P.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Iso</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">P</span> : C ⟶ D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">c</span> : C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk1"><span class="kn">Definition</span> <span class="nf">pre_comp_z_iso_inv</span>
+      : D⟦(lan_functor HD F P : C&#39; ⟶ D) (F c), P c⟧.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">D ⟦ (lan_functor HD F P : C&#39; ⟶ D) (F c), P c ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">D ⟦ (lan_functor HD F P : C&#39; ⟶ D) (F c), P c ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk3">use (colimArrow _ _ (make_cocone _ _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ v : vertex (lan_comma F (F c)),
+D
+⟦ dob
+    (diagram_from_functor (lan_comma F (F c)) D
+       (lan_pr F P (F c))) v, P c ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="surjectiveprecomposition-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="surjectiveprecomposition-v-chk4"><hr></label><div class="goal-conclusion">forms_cocone
+  (diagram_from_functor (lan_comma F (F c)) D
+     (lan_pr F P (F c))) 
+  <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ v : vertex (lan_comma F (F c)),
+D
+⟦ dob
+    (diagram_from_functor (lan_comma F (F c)) D
+       (lan_pr F P (F c))) v, P c ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk6"><span class="nb">intros</span> v.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">D
+⟦ dob
+    (diagram_from_functor (lan_comma F (F c)) D
+       (lan_pr F P (F c))) v, P c ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (#(P : _ ⟶ _) (invmap (Fweq _ _) (pr2 v))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">forms_cocone
+  (diagram_from_functor (lan_comma F (F c)) D
+     (lan_pr F P (F c)))
+  (<span class="kr">λ</span> <span class="nv">v</span> : vertex (lan_comma F (F c)),
+   # (P : C ⟶ D) (invmap (Fweq (pr11 v) c) (pr2 v)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (
+          <span class="nb">intros</span> u v e;
+          <span class="nb">refine</span> (!functor_comp P _ _ @ _);
+          <span class="nb">apply</span> (maponpaths (# (P : _ ⟶ _)));
+          <span class="nb">refine</span> (!invmap_eq _ _ _ (!_));
+          <span class="nb">refine</span> (functor_comp _ _ _ @ _);
+          <span class="nb">refine</span> (maponpaths _ (homotweqinvweq (Fweq _ _) _) @ _);
+          <span class="bp">exact</span> (!pr2 e @ id_right _)
+        ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk8"><span class="kn">Lemma</span> <span class="nf">pre_comp_z_iso_is_inverse</span>
+      : is_inverse_in_precat (C := D)
+        (η P c)
+        pre_comp_z_iso_inv.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_inverse_in_precat (η P c) pre_comp_z_iso_inv</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_inverse_in_precat (η P c) pre_comp_z_iso_inv</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chka"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">η P c · pre_comp_z_iso_inv = identity (P c)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="surjectiveprecomposition-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="surjectiveprecomposition-v-chkb"><hr></label><div class="goal-conclusion">pre_comp_z_iso_inv · η P c =
+identity
+  (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P) c)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chkc">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">η P c · pre_comp_z_iso_inv = identity (P c)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chkd"><span class="nb">refine</span> (_ @ functor_id P _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">η P c · pre_comp_z_iso_inv = # P (identity c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chke"><span class="nb">refine</span> (colimArrowCommutes (lan_colim HD F P (F c)) _ _ ((c ,, tt) ,, identity (F c)) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">coconeIn
+  (make_cocone
+     (<span class="kr">λ</span> <span class="nv">v</span> : vertex (lan_comma F (F c)),
+      # P (invmap (Fweq (pr11 v) c) (pr2 v)))
+     pre_comp_z_iso_inv_subproof)
+  ((c,, tt),, identity (F c)) = # P (identity c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chkf"><span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">f</span>, # (P : _ ⟶ _) f) (_ : invmap (Fweq c c) _ = _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">invmap (Fweq c c) (pr2 ((c,, tt),, identity (F c))) =
+identity c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk10"><span class="nb">apply</span> invmap_eq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2 ((c,, tt),, identity (F c)) =
+Fweq c c (identity c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (!functor_id F _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk11">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pre_comp_z_iso_inv · η P c =
+identity
+  (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P) c)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk12"><span class="nb">apply</span> colim_mor_eq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ v : vertex (lan_comma F (F c)),
+colimIn (lan_colim HD F P (F c)) v
+· (pre_comp_z_iso_inv · η P c) =
+colimIn (lan_colim HD F P (F c)) v
+· identity
+    (pre_comp_functor F
+       (left_adjoint
+          (is_right_adjoint_precomposition HD F) P) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk13"><span class="nb">intro</span> v.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">colimIn (lan_colim HD F P (F c)) v
+· (pre_comp_z_iso_inv · η P c) =
+colimIn (lan_colim HD F P (F c)) v
+· identity
+    (pre_comp_functor F
+       (left_adjoint
+          (is_right_adjoint_precomposition HD F) P) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk14"><span class="nb">refine</span> (assoc _ _ _ @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">colimIn (lan_colim HD F P (F c)) v
+· pre_comp_z_iso_inv · η P c =
+colimIn (lan_colim HD F P (F c)) v
+· identity
+    (pre_comp_functor F
+       (left_adjoint
+          (is_right_adjoint_precomposition HD F) P) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk15"><span class="kr">match goal with</span>
+        | [ |- _ · <span class="nl">?a</span> = _ ] =&gt; <span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x · a) (colimArrowCommutes _ _ _ _) @ _)
+        <span class="kr">end</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">coconeIn
+  (make_cocone
+     (<span class="kr">λ</span> <span class="nv">v</span> : vertex (lan_comma F (F c)),
+      # P (invmap (Fweq (pr11 v) c) (pr2 v)))
+     pre_comp_z_iso_inv_subproof) v · η P c =
+colimIn (lan_colim HD F P (F c)) v
+· identity
+    (pre_comp_functor F
+       (left_adjoint
+          (is_right_adjoint_precomposition HD F) P) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk16">use (colimInCommutes _ v ((c ,, tt) ,, identity (F c)) ((make_dirprod _ _) ,, _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">StandardCategories.unit_category ⟦ pr21 v,
+pr21 ((c,, tt),, identity (F c)) ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="surjectiveprecomposition-v-chk17" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><label class="goal-separator" for="surjectiveprecomposition-v-chk17"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">f</span> : PrecategoryBinProduct.category_binproduct C
+         StandardCategories.unit_category ⟦ 
+       pr1 v, pr1 ((c,, tt),, identity (F c)) ⟧,
+ Core.mor_disp (pr2 v)
+   (pr2 ((c,, tt),, identity (F c))) f)
+  (make_dirprod
+     (pr1 (weqccontrhfiber (Fweq (pr11 v) c) (pr2 v)))
+     <span class="nl">?y</span>)</div></blockquote><input class="alectryon-extra-goal-toggle" id="surjectiveprecomposition-v-chk18" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><label class="goal-separator" for="surjectiveprecomposition-v-chk18"><hr></label><div class="goal-conclusion">colimIn (lan_colim HD F P (F c)) v =
+colimIn (lan_colim HD F P (F c)) v
+· identity
+    (pre_comp_functor F
+       (left_adjoint
+          (is_right_adjoint_precomposition HD F) P) c)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk19">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">StandardCategories.unit_category ⟦ pr21 v,
+pr21 ((c,, tt),, identity (F c)) ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> <span class="nb">induction</span> (pr21 v).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk1a">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">f</span> : PrecategoryBinProduct.category_binproduct C
+         StandardCategories.unit_category ⟦ pr1 v,
+       pr1 ((c,, tt),, identity (F c)) ⟧,
+ Core.mor_disp (pr2 v)
+   (pr2 ((c,, tt),, identity (F c))) f)
+  (make_dirprod
+     (pr1 (weqccontrhfiber (Fweq (pr11 v) c) (pr2 v)))
+     (<span class="kr">let</span> <span class="nv">o</span> := pr21 v <span class="kr">in</span>
+      unit_rect
+        (<span class="kr">λ</span> <span class="nv">o0</span> : unit,
+         StandardCategories.unit_category ⟦ o0,
+         pr21 ((c,, tt),, identity (F c)) ⟧)
+        (! idpath tt) o))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk1b"><span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x · _) _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2 v =
+# F
+  (pr1
+     (make_dirprod
+        (pr1
+           (weqccontrhfiber (Fweq (pr11 v) c) (pr2 v)))
+        (<span class="kr">let</span> <span class="nv">o</span> := pr21 v <span class="kr">in</span>
+         unit_rect
+           (<span class="kr">λ</span> <span class="nv">o0</span> : unit,
+            StandardCategories.unit_category ⟦ o0,
+            pr21 ((c,, tt),, identity (F c)) ⟧)
+           (! idpath tt) o)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">          </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (!homotweqinvweq (Fweq _ _) _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="surjectiveprecomposition-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="surjectiveprecomposition-v-chk1c">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, C'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C ⟶ C&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>fully_faithful F</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>Colims D</span></span></span><br><span><var>Fweq</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, weq_from_fully_faithful H a b</span></span><span class="hyp-type"><b>: </b><span>∏ a b : C, C ⟦ a, b ⟧ ≃ C&#39; ⟦ F a, F b ⟧</span></span></span></span><br><span><var>η</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">P</span> : C ⟶ D,
+unit_from_right_adjoint
+  (is_right_adjoint_precomposition HD F) P</span></span><span class="hyp-type"><b>: </b><span>∏ P : C ⟶ D,
+P
+⟹ (pre_comp_functor F
+     (left_adjoint
+        (is_right_adjoint_precomposition HD F) P)
+   :
+   C ⟶ D)</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vertex (lan_comma F (F c))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">colimIn (lan_colim HD F P (F c)) v =
+colimIn (lan_colim HD F P (F c)) v
+· identity
+    (pre_comp_functor F
+       (left_adjoint
+          (is_right_adjoint_precomposition HD F) P) c)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (!id_right _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pre_comp_is_z_iso</span>
+      : is_z_isomorphism (η P c)
+      := make_is_z_isomorphism _ _ pre_comp_z_iso_is_inverse.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Iso</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pre_comp_after_lan_iso</span>
+    (<span class="nv">P</span> : [C, D])
+    : z_iso P (pre_comp_functor F (lan_functor HD F P))
+    := z_iso_from_nat_z_iso _ (make_nat_z_iso _ _ _ (pre_comp_is_z_iso _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pre_comp_split_essentially_surjective</span>
+    : split_essentially_surjective (pre_comp_functor F)
+    := <span class="kr">λ</span> <span class="nv">c</span>, lan_functor HD F c ,, (z_iso_inv (pre_comp_after_lan_iso c)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">PrecompositionEssentiallySurjective</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

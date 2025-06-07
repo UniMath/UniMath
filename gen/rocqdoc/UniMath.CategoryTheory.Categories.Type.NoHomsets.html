@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.Type.NoHomsets</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.Type.NoHomsets</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartA.html#"><span class="id" title="library">UniMath.Foundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#"><span class="id" title="library">UniMath.Foundations.UnivalenceAxiom</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#"><span class="id" title="library">UniMath.MoreFoundations.NoInjectivePairing</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.PartD.html#"><span class="id" title="library">UniMath.MoreFoundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Type.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="bool_eq1" class="idref" href="#bool_eq1"><span class="id" title="definition">bool_eq1</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtopaths"><span class="id" title="definition">weqtopaths</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#idweq"><span class="id" title="definition">idweq</span></a> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="bool_eq2" class="idref" href="#bool_eq2"><span class="id" title="definition">bool_eq2</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtopaths"><span class="id" title="definition">weqtopaths</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#negb_weq"><span class="id" title="definition">negb_weq</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="bool_eq_distinct" class="idref" href="#bool_eq_distinct"><span class="id" title="lemma">bool_eq_distinct</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#bool_eq1"><span class="id" title="definition">bool_eq1</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#ae852a684c466d31158e6f0f40d3d021"><span class="id" title="notation">!=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#bool_eq2"><span class="id" title="definition">bool_eq2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="t:1" class="idref" href="#t:1"><span class="id" title="binder"><span id="t:2" class="id">t</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#bool_to_type"><span class="id" title="definition">bool_to_type</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#t:1"><span class="id" title="variable">t</span></a>)) (<span class="id" title="var">_</span> : <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a> <span class="id" title="keyword">with</span> (<a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#negb_weq"><span class="id" title="definition">negb_weq</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> <span class="id" title="keyword">with</span> (<a class="idref" href="UniMath.Foundations.PartA.html#idweq"><span class="id" title="definition">idweq</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="f:3" class="idref" href="#f:3"><span class="id" title="binder"><span id="f:4" class="id">f</span></span></a> : <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#f:3"><span class="id" title="variable">f</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmaponpathsweq"><span class="id" title="definition">invmaponpathsweq</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalence"><span class="id" title="definition">univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">H</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="const_bool" class="idref" href="#const_bool"><span class="id" title="definition">const_bool</span></a><br/>
+&nbsp;&nbsp;(<a id="t:5" class="idref" href="#t:5"><span class="id" title="binder">t</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="const_bool_eq1" class="idref" href="#const_bool_eq1"><span class="id" title="definition">const_bool_eq1</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#const_bool"><span class="id" title="definition">const_bool</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#const_bool"><span class="id" title="definition">const_bool</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtoforallpaths"><span class="id" title="definition">weqtoforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#bool_eq1"><span class="id" title="definition">bool_eq1</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="const_bool_eq2" class="idref" href="#const_bool_eq2"><span class="id" title="definition">const_bool_eq2</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#const_bool"><span class="id" title="definition">const_bool</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#const_bool"><span class="id" title="definition">const_bool</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtoforallpaths"><span class="id" title="definition">weqtoforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#bool_eq2"><span class="id" title="definition">bool_eq2</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="const_bool_eq_distinct" class="idref" href="#const_bool_eq_distinct"><span class="id" title="definition">const_bool_eq_distinct</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#const_bool_eq1"><span class="id" title="definition">const_bool_eq1</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#ae852a684c466d31158e6f0f40d3d021"><span class="id" title="notation">!=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#const_bool_eq2"><span class="id" title="definition">const_bool_eq2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#bool_eq_distinct"><span class="id" title="lemma">bool_eq_distinct</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#bool_eq1"><span class="id" title="definition">bool_eq1</span></a> <span class="id" title="keyword">with</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#bool_eq1"><span class="id" title="definition">bool_eq1</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">tt</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#bool_eq2"><span class="id" title="definition">bool_eq2</span></a> <span class="id" title="keyword">with</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#bool_eq2"><span class="id" title="definition">bool_eq2</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">tt</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:6" class="idref" href="#x:6"><span class="id" title="binder"><span id="x:7" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#x:6"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmaponpathsweq"><span class="id" title="definition">invmaponpathsweq</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtoforallpaths"><span class="id" title="definition">weqtoforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">H</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="type_no_homsets" class="idref" href="#type_no_homsets"><span class="id" title="lemma">type_no_homsets</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#has_homsets"><span class="id" title="definition">has_homsets</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.NoHomsets.html#const_bool_eq_distinct"><span class="id" title="definition">const_bool_eq_distinct</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

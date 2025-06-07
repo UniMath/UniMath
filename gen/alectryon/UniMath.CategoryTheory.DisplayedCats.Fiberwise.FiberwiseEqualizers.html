@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>FiberwiseEqualizers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> Fiberwise equalizers</span>
+
+<span class="sd"> In this file, we define fiberwise equalizers for fibrations. We also define when a</span>
+<span class="sd"> displayed functor preserves fiberwise equalizers.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Fiberwise equalizers</span>
+<span class="sd"> 2. Preservation of fiberwise equalizers</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. Fiberwise products *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">fiberwise_equalizers</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           (<span class="nv">HD</span> : cleaving D)
+  : UU
+  := (∏ (x : C),
+      Equalizers (D[{x}]))
+     ×
+     (∏ (x y : C)
+        (f : x --&gt; y),
+      preserves_equalizer (fiber_functor_from_cleaving D HD f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">equalizer_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">P</span> : fiberwise_equalizers HD)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">xx</span> <span class="nv">yy</span> : D[{x}]}
+           (<span class="nv">ff</span> <span class="nv">gg</span> : xx --&gt; yy)
+  : Equalizer ff gg
+  := pr1 P x xx yy ff gg.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">preserves_equalizer_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">P</span> : fiberwise_equalizers HD)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : preserves_equalizer (fiber_functor_from_cleaving D HD f)
+  := pr2 P x y f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk1"><span class="kn">Proposition</span> <span class="nf">isaprop_fiberwise_equalizers</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : disp_univalent_category C}
+            (<span class="nv">HD</span> : cleaving D)
+  : isaprop (fiberwise_equalizers HD).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (fiberwise_equalizers HD)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (fiberwise_equalizers HD)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk3">use isapropdirprod.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (∏ x : C, Equalizers D[{x}])</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="fiberwiseequalizers-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br></div><label class="goal-separator" for="fiberwiseequalizers-v-chk4"><hr></label><div class="goal-conclusion">isaprop
+  (∏ (x y : C) (f : C ⟦ x, y ⟧),
+   preserves_equalizer
+     (fiber_functor_from_cleaving D HD f))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (∏ x : C, Equalizers D[{x}])</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk6"><span class="kp">do</span> <span class="mi">5</span> (use impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t0, t1</var><span class="hyp-type"><b>: </b><span>D[{t}]</span></span></span><br><span><var>t2, t3</var><span class="hyp-type"><b>: </b><span>D[{t}] ⟦ t0, t1 ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span> (Equalizer t2 t3)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk7">use isaprop_Equalizer.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t0, t1</var><span class="hyp-type"><b>: </b><span>D[{t}]</span></span></span><br><span><var>t2, t3</var><span class="hyp-type"><b>: </b><span>D[{t}] ⟦ t0, t1 ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent D[{t}]</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk8">use is_univalent_fiber.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t0, t1</var><span class="hyp-type"><b>: </b><span>D[{t}]</span></span></span><br><span><var>t2, t3</var><span class="hyp-type"><b>: </b><span>D[{t}] ⟦ t0, t1 ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_disp D</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_univalent_category_is_univalent_disp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk9">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (∏ (x y : C) (f : C ⟦ x, y ⟧),
+   preserves_equalizer
+     (fiber_functor_from_cleaving D HD f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chka"><span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_univalent_category C</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>cleaving D</span></span></span><br><span><var>t, t0</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t1</var><span class="hyp-type"><b>: </b><span>C ⟦ t, t0 ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t1</span> : C ⟦ t, t0 ⟧,
+    preserves_equalizer
+      (fiber_functor_from_cleaving D HD t1)) t1)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_preserves_equalizer.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Preservation of fiberwise equalizers *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">preserves_fiberwise_binproducts</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">D₁</span> : disp_cat C₁}
+           {<span class="nv">D₂</span> : disp_cat C₂}
+           (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+  : UU
+  := ∏ (x : C₁),
+     preserves_equalizer (fiber_functor FF x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chkb"><span class="kn">Proposition</span> <span class="nf">isaprop_preserves_fiberwise_binproducts</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+  : isaprop (preserves_fiberwise_binproducts FF).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (preserves_fiberwise_binproducts FF)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chkc"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (preserves_fiberwise_binproducts FF)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chkd">use impred ; <span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t</span> : C₁, preserves_equalizer (fiber_functor FF t))
+     t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_preserves_equalizer.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chke"><span class="kn">Definition</span> <span class="nf">id_preserves_fiberwise_binproducts</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : disp_cat C)
+  : preserves_fiberwise_binproducts (disp_functor_identity D).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_cat C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_fiberwise_binproducts
+  (disp_functor_identity D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chkf"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_cat C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_fiberwise_binproducts
+  (disp_functor_identity D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk10"><span class="nb">intros</span> x y₁ y₂ e f g h p q H.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>disp_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_identity D) x) h
+· # (fiber_functor (disp_functor_identity D) x) f =
+# (fiber_functor (disp_functor_identity D) x) h
+· # (fiber_functor (disp_functor_identity D) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isEqualizer
+  (# (fiber_functor (disp_functor_identity D) x) f)
+  (# (fiber_functor (disp_functor_identity D) x) g)
+  (# (fiber_functor (disp_functor_identity D) x) h) q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> H.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk11"><span class="kn">Definition</span> <span class="nf">comp_preserves_fiberwise_binproducts</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">G</span> : C₂ ⟶ C₃}
+           {<span class="nv">D₁</span> : disp_cat C₁}
+           {<span class="nv">D₂</span> : disp_cat C₂}
+           {<span class="nv">D₃</span> : disp_cat C₃}
+           {<span class="nv">FF</span> : disp_functor F D₁ D₂}
+           (<span class="nv">HFF</span> : preserves_fiberwise_binproducts FF)
+           {<span class="nv">GG</span> : disp_functor G D₂ D₃}
+           (<span class="nv">HGG</span> : preserves_fiberwise_binproducts GG)
+  : preserves_fiberwise_binproducts (disp_functor_composite FF GG).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_fiberwise_binproducts
+  (disp_functor_composite FF GG)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk12"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_fiberwise_binproducts
+  (disp_functor_composite FF GG)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk13"><span class="nb">intros</span> x y₁ y₂ e f g h p q H.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isEqualizer
+  (# (fiber_functor (disp_functor_composite FF GG) x)
+     f)
+  (# (fiber_functor (disp_functor_composite FF GG) x)
+     g)
+  (# (fiber_functor (disp_functor_composite FF GG) x)
+     h) q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk14">use (isEqualizer_eq _ _ _ _ _ (HGG _ _ _ _ _ _ _ _ _ (HFF _ _ _ _ _ _ _ _ _ H))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor GG (F x)) (# (fiber_functor FF x) h)
+· # (fiber_functor GG (F x))
+    (# (fiber_functor FF x) f) =
+# (fiber_functor GG (F x)) (# (fiber_functor FF x) h)
+· # (fiber_functor GG (F x))
+    (# (fiber_functor FF x) g)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="fiberwiseequalizers-v-chk15" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><label class="goal-separator" for="fiberwiseequalizers-v-chk15"><hr></label><div class="goal-conclusion"># (fiber_functor GG (F x)) (# (fiber_functor FF x) f) =
+# (fiber_functor (disp_functor_composite FF GG) x) f</div></blockquote><input class="alectryon-extra-goal-toggle" id="fiberwiseequalizers-v-chk16" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><label class="goal-separator" for="fiberwiseequalizers-v-chk16"><hr></label><div class="goal-conclusion"># (fiber_functor GG (F x)) (# (fiber_functor FF x) g) =
+# (fiber_functor (disp_functor_composite FF GG) x) g</div></blockquote><input class="alectryon-extra-goal-toggle" id="fiberwiseequalizers-v-chk17" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><label class="goal-separator" for="fiberwiseequalizers-v-chk17"><hr></label><div class="goal-conclusion"># (fiber_functor GG (F x)) (# (fiber_functor FF x) h) =
+# (fiber_functor (disp_functor_composite FF GG) x) h</div></blockquote><input class="alectryon-extra-goal-toggle" id="fiberwiseequalizers-v-chk18" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><label class="goal-separator" for="fiberwiseequalizers-v-chk18"><hr></label><div class="goal-conclusion"># (fiber_functor FF x) h · # (fiber_functor FF x) f =
+# (fiber_functor FF x) h · # (fiber_functor FF x) g</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk19">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor GG (F x)) (# (fiber_functor FF x) h)
+· # (fiber_functor GG (F x))
+    (# (fiber_functor FF x) f) =
+# (fiber_functor GG (F x)) (# (fiber_functor FF x) h)
+· # (fiber_functor GG (F x))
+    (# (fiber_functor FF x) g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">cbn</span> <span class="kr">in</span> q ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !disp_functor_transportf ;
+       <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker ;
+       <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker ;
+       <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> !transport_f_f ;
+       <span class="nb">rewrite</span> !transport_f_f <span class="kr">in</span> q ;
+       <span class="nb">refine</span> (_ @ q @ _) ;
+       <span class="nb">apply</span> maponpaths_2 ;
+       <span class="nb">apply</span> homset_property).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk1a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor GG (F x)) (# (fiber_functor FF x) f) =
+# (fiber_functor (disp_functor_composite FF GG) x) f</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> disp_functor_transportf ;
+       <span class="nb">rewrite</span> transport_f_f ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk1b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor GG (F x)) (# (fiber_functor FF x) g) =
+# (fiber_functor (disp_functor_composite FF GG) x) g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> disp_functor_transportf ;
+       <span class="nb">rewrite</span> transport_f_f ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk1c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor GG (F x)) (# (fiber_functor FF x) h) =
+# (fiber_functor (disp_functor_composite FF GG) x) h</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> disp_functor_transportf ;
+       <span class="nb">rewrite</span> transport_f_f ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fiberwiseequalizers-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="fiberwiseequalizers-v-chk1d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>D₁</var><span class="hyp-type"><b>: </b><span>disp_cat C₁</span></span></span><br><span><var>D₂</var><span class="hyp-type"><b>: </b><span>disp_cat C₂</span></span></span><br><span><var>D₃</var><span class="hyp-type"><b>: </b><span>disp_cat C₃</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>disp_functor F D₁ D₂</span></span></span><br><span><var>HFF</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts FF</span></span></span><br><span><var>GG</var><span class="hyp-type"><b>: </b><span>disp_functor G D₂ D₃</span></span></span><br><span><var>HGG</var><span class="hyp-type"><b>: </b><span>preserves_fiberwise_binproducts GG</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>D₁[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D₁[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) f =
+# (fiber_functor (disp_functor_composite FF GG) x)
+  h
+· # (fiber_functor (disp_functor_composite FF GG)
+       x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor FF x) h · # (fiber_functor FF x) f =
+# (fiber_functor FF x) h · # (fiber_functor FF x) g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker ;
+       <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker ;
+       <span class="nb">rewrite</span> &lt;- !disp_functor_comp_var ;
+       <span class="nb">rewrite</span> !transport_f_f ;
+       <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+       <span class="nb">cbn</span> <span class="kr">in</span> p ;
+       <span class="nb">refine</span> (!_ @ maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, transportb (<span class="kr">λ</span> <span class="nv">f</span>, _ --&gt;[ f ] _) _ z) p @ _) ;
+       <span class="nb">apply</span> transportbfinv).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

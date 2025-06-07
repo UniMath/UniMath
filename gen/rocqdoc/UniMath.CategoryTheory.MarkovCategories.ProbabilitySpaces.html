@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces</h1>
+
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#"><span class="id" title="library">UniMath.CategoryTheory.coslicecat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Quotient.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Quotient</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Cartesian</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.MarkovCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.MarkovCategories.MarkovCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.Determinism.html#"><span class="id" title="library">UniMath.CategoryTheory.MarkovCategories.Determinism</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#"><span class="id" title="library">UniMath.CategoryTheory.MarkovCategories.State</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.html#"><span class="id" title="library">UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#"><span class="id" title="library">UniMath.CategoryTheory.MarkovCategories.AlmostSurely</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.Conditionals.html#"><span class="id" title="library">UniMath.CategoryTheory.MarkovCategories.Conditionals</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">moncat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">markov</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="ProbabilitySpaces" class="idref" href="#ProbabilitySpaces"><span class="id" title="section">ProbabilitySpaces</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="ProbabilitySpaces.C" class="idref" href="#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.MarkovCategory.html#markov_category"><span class="id" title="definition">markov_category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="ProbabilitySpaces.causality" class="idref" href="#ProbabilitySpaces.causality"><span class="id" title="variable">causality</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.html#is_causal"><span class="id" title="definition">is_causal</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#C:1"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="states_cat" class="idref" href="#states_cat"><span class="id" title="definition">states_cat</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat"><span class="id" title="definition">coslice_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">I_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">}</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+  In the next definition we use that states are definitionally the same as objects of states_cat.
+  If that was not the case, that definition would not type check.
+   
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="state_mor" class="idref" href="#state_mor"><span class="id" title="definition">state_mor</span></a> (<a id="p:3" class="idref" href="#p:3"><span class="id" title="binder">p</span></a> <a id="q:4" class="idref" href="#q:4"><span class="id" title="binder">q</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#states_cat"><span class="id" title="definition">states_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#p:3"><span class="id" title="variable">p</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#q:4"><span class="id" title="variable">q</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a> .<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a id="state_mor_to_mor" class="idref" href="#state_mor_to_mor"><span class="id" title="definition">state_mor_to_mor</span></a> {<a id="p:5" class="idref" href="#p:5"><span class="id" title="binder">p</span></a> <a id="q:6" class="idref" href="#q:6"><span class="id" title="binder">q</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a>} (<a id="f:7" class="idref" href="#f:7"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#state_mor"><span class="id" title="definition">state_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#p:5"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#q:6"><span class="id" title="variable">q</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state_ob"><span class="id" title="definition">state_ob</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#p:5"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state_ob"><span class="id" title="definition">state_ob</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#q:6"><span class="id" title="variable">q</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#f:7"><span class="id" title="variable">f</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="state_mor_eq" class="idref" href="#state_mor_eq"><span class="id" title="lemma">state_mor_eq</span></a> {<a id="p:8" class="idref" href="#p:8"><span class="id" title="binder">p</span></a> <a id="q:9" class="idref" href="#q:9"><span class="id" title="binder">q</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a>} (<a id="f:10" class="idref" href="#f:10"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#state_mor"><span class="id" title="definition">state_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#p:8"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#q:9"><span class="id" title="variable">q</span></a>) : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#p:8"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#f:10"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#q:9"><span class="id" title="variable">q</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ase_states" class="idref" href="#ase_states"><span class="id" title="definition">ase_states</span></a> (<a id="p:11" class="idref" href="#p:11"><span class="id" title="binder">p</span></a> <a id="q:12" class="idref" href="#q:12"><span class="id" title="binder">q</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.Foundations.Sets.html#hrel"><span class="id" title="definition">hrel</span></a> (<a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#state_mor"><span class="id" title="definition">state_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#p:11"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#q:12"><span class="id" title="variable">q</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#make_hProp"><span class="id" title="definition">make_hProp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#dd92faddf9165134ac77683a239187a1"><span class="id" title="notation">=</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#dd92faddf9165134ac77683a239187a1"><span class="id" title="notation">_</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#dd92faddf9165134ac77683a239187a1"><span class="id" title="notation">{</span></a><span class="id" title="var">p</span><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#dd92faddf9165134ac77683a239187a1"><span class="id" title="notation">}</span></a> <span class="id" title="var">g</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#isaprop_ase"><span class="id" title="lemma">isaprop_ase</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="is_eqrel_ase_states" class="idref" href="#is_eqrel_ase_states"><span class="id" title="lemma">is_eqrel_ase_states</span></a> (<a id="p:13" class="idref" href="#p:13"><span class="id" title="binder">p</span></a> <a id="q:14" class="idref" href="#q:14"><span class="id" title="binder">q</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.Foundations.Sets.html#iseqrel"><span class="id" title="definition">iseqrel</span></a> (<a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ase_states"><span class="id" title="definition">ase_states</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#p:13"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#q:14"><span class="id" title="variable">q</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#ase_trans"><span class="id" title="lemma">ase_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#ase_symm"><span class="id" title="lemma">ase_symm</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="ase_states_cong" class="idref" href="#ase_states_cong"><span class="id" title="lemma">ase_states_cong</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="p:15" class="idref" href="#p:15"><span class="id" title="binder">p</span></a> <a id="q:16" class="idref" href="#q:16"><span class="id" title="binder">q</span></a> <a id="r:17" class="idref" href="#r:17"><span class="id" title="binder">r</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.C"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:18" class="idref" href="#f:18"><span class="id" title="binder">f</span></a> <a id="f':19" class="idref" href="#f':19"><span class="id" title="binder">f'</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#state_mor"><span class="id" title="definition">state_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#p:15"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#q:16"><span class="id" title="variable">q</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="g:20" class="idref" href="#g:20"><span class="id" title="binder">g</span></a> <a id="g':21" class="idref" href="#g':21"><span class="id" title="binder">g'</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#state_mor"><span class="id" title="definition">state_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#q:16"><span class="id" title="variable">q</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#r:17"><span class="id" title="variable">r</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="039cc4399577e95e450b54bcfb483c44" class="idref" href="#039cc4399577e95e450b54bcfb483c44"><span class="id" title="binder">e₁</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ase_states"><span class="id" title="definition">ase_states</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#f:18"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#f':19"><span class="id" title="variable">f'</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="70d1c1ee73a9b2b3d5b345be230c54e3" class="idref" href="#70d1c1ee73a9b2b3d5b345be230c54e3"><span class="id" title="binder">e₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ase_states"><span class="id" title="definition">ase_states</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#g:20"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#g':21"><span class="id" title="variable">g'</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ase_states"><span class="id" title="definition">ase_states</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#f:18"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#g:20"><span class="id" title="variable">g</span></a>) (<a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#f':19"><span class="id" title="variable">f'</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#g':21"><span class="id" title="variable">g'</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.html#ase_congruence"><span class="id" title="lemma">ase_congruence</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces.causality"><span class="id" title="variable">causality</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">e₁</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">e₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#state_mor_eq"><span class="id" title="lemma">state_mor_eq</span></a> <span class="id" title="var">f</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ase_cong" class="idref" href="#ase_cong"><span class="id" title="definition">ase_cong</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Quotient.html#mor_cong_rel"><span class="id" title="definition">mor_cong_rel</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#states_cat"><span class="id" title="definition">states_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Quotient.html#make_mor_cong_rel"><span class="id" title="definition">make_mor_cong_rel</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Sets.html#make_eqrel"><span class="id" title="definition">make_eqrel</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ase_states"><span class="id" title="definition">ase_states</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#is_eqrel_ase_states"><span class="id" title="lemma">is_eqrel_ase_states</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> <span class="id" title="var">r</span> <span class="id" title="var">f</span> <span class="id" title="var">f'</span> <span class="id" title="var">g</span> <span class="id" title="var">g'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ase_states_cong"><span class="id" title="lemma">ase_states_cong</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="prob_space" class="idref" href="#prob_space"><span class="id" title="definition">prob_space</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Quotient.html#mor_quot_category"><span class="id" title="definition">mor_quot_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#states_cat"><span class="id" title="definition">states_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ase_cong"><span class="id" title="definition">ase_cong</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.ProbabilitySpaces.html#ProbabilitySpaces"><span class="id" title="section">ProbabilitySpaces</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,959 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>MonadsInOp2Bicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*************************************************************************</span>
+
+<span class="sd"> Monads in `op2 B`</span>
+
+<span class="sd"> Comnads can be defined as monads internal to a bicategory. More</span>
+<span class="sd"> specifically, comonads in `B` are the same as moands in `op2 B`.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Comonads</span>
+<span class="sd"> 2. Comonad morphisms</span>
+<span class="sd"> 3. Comonad cells</span>
+<span class="sd"> 4. Monads in `op2 B`</span>
+<span class="sd"> 5. Monad morphisms in `op2 B`</span>
+<span class="sd"> 6. Monad cells in `op2 B`</span>
+
+<span class="sd"> *************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpCellBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 1. Comonads</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Comonads</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> : bicat}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_data</span>
+    : UU
+    := ∑ (x : B)
+         (f : x --&gt; x),
+       f ==&gt; id₁ _ × f ==&gt; f · f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_comnd_data</span>
+             (<span class="nv">x</span> : B)
+             (<span class="nv">f</span> : x --&gt; x)
+             (<span class="nv">ex</span> : f ==&gt; id₁ _)
+             (<span class="nv">dup</span> : f ==&gt; f · f)
+    : comnd_data
+    := x ,, f ,, ex ,, dup.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Projections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> : comnd_data).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ob_of_comnd</span>
+      : B
+      := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">endo_of_comnd</span>
+      : ob_of_comnd --&gt; ob_of_comnd
+      := pr12 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">counit_of_comnd</span>
+      : endo_of_comnd ==&gt; id₁ _
+      := pr122 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comult_of_comnd</span>
+      : endo_of_comnd ==&gt; endo_of_comnd · endo_of_comnd
+      := pr222 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Projections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">ComonadLaws</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> : comnd_data).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_counit_left_law</span>
+      : UU
+      := comult_of_comnd C • (counit_of_comnd C ▹ _) • lunitor _
+         =
+         id₂ _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_counit_right_law</span>
+      : UU
+      := comult_of_comnd C • (_ ◃ counit_of_comnd C) • runitor _
+         =
+         id₂ _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_comult_assoc_law</span>
+      : UU
+      := comult_of_comnd C
+         • (_ ◃ comult_of_comnd C)
+         • lassociator _ _ _
+         =
+         comult_of_comnd C • (comult_of_comnd C ▹ _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">ComonadLaws</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_laws</span>
+             (<span class="nv">C</span> : comnd_data)
+    : UU
+    := comnd_counit_left_law C
+       ×
+       comnd_counit_right_law C
+       ×
+       comnd_comult_assoc_law C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk1"><span class="kn">Definition</span> <span class="nf">isaprop_comnd_laws</span>
+             (<span class="nv">C</span> : comnd_data)
+    : isaprop (comnd_laws C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (comnd_laws C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (comnd_laws C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">repeat</span> (use isapropdirprod) ; <span class="nb">apply</span> cellset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd</span>
+    : UU
+    := ∑ (C : comnd_data), comnd_laws C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">comnd_to_comnd_data</span> (C : comnd) : comnd_data := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">LawsProjections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> : comnd).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_counit_left</span>
+      : comult_of_comnd C • (counit_of_comnd C ▹ _) • lunitor _
+        =
+        id₂ _
+      := pr12 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_counit_right</span>
+      : comult_of_comnd C • (_ ◃ counit_of_comnd C) • runitor _
+        =
+        id₂ _
+      := pr122 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_comult_assoc</span>
+      : comult_of_comnd C
+        • (_ ◃ comult_of_comnd C)
+        • lassociator _ _ _
+        =
+        comult_of_comnd C • (comult_of_comnd C ▹ _)
+      := pr222 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">LawsProjections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_comnd</span>
+             (<span class="nv">C</span> : comnd_data)
+             (<span class="nv">HC</span> : comnd_laws C)
+    : comnd
+    := C ,, HC.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Comonads</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> comnd_data : <span class="kn">clear implicits</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> comnd : <span class="kn">clear implicits</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 2. Comonad morphisms</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">ComonadMorphism</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : comnd B}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_mor_data</span>
+    : UU
+    := ∑ (f : ob_of_comnd C₁ --&gt; ob_of_comnd C₂),
+       endo_of_comnd C₁ · f ==&gt; f · endo_of_comnd C₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_comnd_mor_data</span>
+             (<span class="nv">f</span> : ob_of_comnd C₁ --&gt; ob_of_comnd C₂)
+             (<span class="nv">fe</span> : endo_of_comnd C₁ · f ==&gt; f · endo_of_comnd C₂)
+    : comnd_mor_data
+    := f ,,  fe.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">mor_of_comnd_mor</span>
+           (f : comnd_mor_data)
+    : ob_of_comnd C₁ --&gt; ob_of_comnd C₂
+    := pr1 f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_mor_endo</span>
+             (<span class="nv">f</span> : comnd_mor_data)
+    : endo_of_comnd C₁ · f ==&gt; f · endo_of_comnd C₂
+    := pr2 f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">ComonadMorphismLaws</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">f</span> : comnd_mor_data).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_mor_counit_law</span>
+      : UU
+      := (counit_of_comnd C₁ ▹ _) • lunitor _
+         =
+         comnd_mor_endo f • (_ ◃ counit_of_comnd C₂) • runitor _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_mor_comult_law</span>
+      : UU
+      := (comult_of_comnd C₁ ▹ _)
+         • rassociator _ _ _
+         • (_ ◃ comnd_mor_endo f)
+         • lassociator _ _ _
+         • (comnd_mor_endo f ▹ _)
+         • rassociator _ _ _
+         =
+         comnd_mor_endo f
+         • (_ ◃ comult_of_comnd C₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">ComonadMorphismLaws</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_mor_laws</span>
+             (<span class="nv">f</span> : comnd_mor_data)
+    : UU
+    := comnd_mor_counit_law f × comnd_mor_comult_law f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_mor</span>
+    : UU
+    := ∑ (f : comnd_mor_data), comnd_mor_laws f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">comnd_mor_to_comnd_mor_data</span>
+           (f : comnd_mor)
+    : comnd_mor_data
+    := pr1 f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_comnd_mor</span>
+             (<span class="nv">f</span> : comnd_mor_data)
+             (<span class="nv">Hf</span> : comnd_mor_laws f)
+    : comnd_mor
+    := f ,, Hf.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">LawProjections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">f</span> : comnd_mor).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_mor_counit</span>
+      : (counit_of_comnd C₁ ▹ _) • lunitor _
+         =
+         comnd_mor_endo f • (_ ◃ counit_of_comnd C₂) • runitor _
+      := pr12 f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_mor_comult</span>
+      : (comult_of_comnd C₁ ▹ _)
+        • rassociator _ _ _
+        • (_ ◃ comnd_mor_endo f)
+        • lassociator _ _ _
+        • (comnd_mor_endo f ▹ _)
+        • rassociator _ _ _
+        =
+        comnd_mor_endo f
+        • (_ ◃ comult_of_comnd C₂)
+      := pr22 f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">LawProjections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">ComonadMorphism</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> comnd_mor_data {_} _ _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> comnd_mor {_} _ _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 3. Comonad cells</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_comnd_cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comnd B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : comnd_mor C₁ C₂}
+           (<span class="nv">α</span> : f₂ ==&gt; f₁)
+  : UU
+  := (_ ◃ α) • comnd_mor_endo f₁
+     =
+     comnd_mor_endo f₂ • (α ▹ _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comnd_cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comnd B}
+           (<span class="nv">f₁</span> <span class="nv">f₂</span> : comnd_mor C₁ C₂)
+  : UU
+  := ∑ (α : f₂ ==&gt; f₁), is_comnd_cell α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">comnd_cell_to_cell</span>
+         {B : bicat}
+         {C₁ C₂ : comnd B}
+         {f₁ f₂ : comnd_mor C₁ C₂}
+         (α : comnd_cell f₁ f₂)
+  : f₂ ==&gt; f₁
+  := pr1 α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_comnd_cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comnd B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : comnd_mor C₁ C₂}
+           (<span class="nv">α</span> : f₂ ==&gt; f₁)
+           (<span class="nv">Hα</span> : is_comnd_cell α)
+  : comnd_cell f₁ f₂
+  := α ,, Hα.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 4. Monads in `op2 B`</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">MonadsInOp2Bicat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> : bicat}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk3"><span class="kn">Definition</span> <span class="nf">op2_mnd_to_comnd</span>
+             (<span class="nv">m</span> : mnd (op2_bicat B))
+    : comnd B.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd B</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd B</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk5">use make_comnd.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_data B</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk6"><hr></label><div class="goal-conclusion">comnd_laws <span class="nl">?C</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_data B</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk8">use make_comnd_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk9" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk9"><hr></label><div class="goal-conclusion">B ⟦ <span class="nl">?x</span>, <span class="nl">?x</span> ⟧</div></blockquote><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chka" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chka"><hr></label><div class="goal-conclusion"><span class="nl">?f</span> ==&gt; id₁ <span class="nl">?x</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chkb"><hr></label><div class="goal-conclusion"><span class="nl">?f</span> ==&gt; <span class="nl">?f</span> · <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chkc">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (ob_of_mnd m).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chkd">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B ⟦ ob_of_mnd m, ob_of_mnd m ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (endo_of_mnd m).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chke">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">endo_of_mnd m ==&gt; id₁ (ob_of_mnd m)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (unit_of_mnd m).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chkf">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">endo_of_mnd m ==&gt; endo_of_mnd m · endo_of_mnd m</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (mult_of_mnd m).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk10">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_laws
+  (make_comnd_data (ob_of_mnd m) (endo_of_mnd m)
+     (unit_of_mnd m) (mult_of_mnd m))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk11"><span class="kp">repeat</span> <span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_counit_left_law
+  (make_comnd_data (ob_of_mnd m) (endo_of_mnd m)
+     (unit_of_mnd m) (mult_of_mnd m))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk12" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk12"><hr></label><div class="goal-conclusion">comnd_counit_right_law
+  (make_comnd_data (ob_of_mnd m) (endo_of_mnd m)
+     (unit_of_mnd m) (mult_of_mnd m))</div></blockquote><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk13" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk13"><hr></label><div class="goal-conclusion">comnd_comult_assoc_law
+  (make_comnd_data (ob_of_mnd m) (endo_of_mnd m)
+     (unit_of_mnd m) (mult_of_mnd m))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk14">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_counit_left_law
+  (make_comnd_data (ob_of_mnd m) (endo_of_mnd m)
+     (unit_of_mnd m) (mult_of_mnd m))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_counit_left_law ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_unit_left m)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk15">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_counit_right_law
+  (make_comnd_data (ob_of_mnd m) (endo_of_mnd m)
+     (unit_of_mnd m) (mult_of_mnd m))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_counit_right_law ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_unit_right m)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk16">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_comult_assoc_law
+  (make_comnd_data (ob_of_mnd m) (endo_of_mnd m)
+     (unit_of_mnd m) (mult_of_mnd m))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_comult_assoc_law ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_mult_assoc m)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk17"><span class="kn">Definition</span> <span class="nf">comnd_to_op2_mnd</span>
+             (<span class="nv">C</span> : comnd B)
+    : mnd (op2_bicat B).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk18"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk19">use make_mnd.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd_data (op2_bicat B)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk1a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk1a"><hr></label><div class="goal-conclusion">is_mnd (op2_bicat B) <span class="nl">?m</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk1b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd_data (op2_bicat B)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk1c">use make_mnd_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_bicat B</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk1d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk1d"><hr></label><div class="goal-conclusion">op2_bicat B ⟦ <span class="nl">?x</span>, <span class="nl">?x</span> ⟧</div></blockquote><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk1e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk1e"><hr></label><div class="goal-conclusion">id₁ <span class="nl">?x</span> ==&gt; <span class="nl">?f</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk1f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk1f"><hr></label><div class="goal-conclusion"><span class="nl">?f</span> · <span class="nl">?f</span> ==&gt; <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk20">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_bicat B</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (ob_of_comnd C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk21">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_bicat B ⟦ ob_of_comnd C, ob_of_comnd C ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (endo_of_comnd C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk22">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id₁ (ob_of_comnd C) ==&gt; endo_of_comnd C</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (counit_of_comnd C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk23">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">endo_of_comnd C · endo_of_comnd C ==&gt; endo_of_comnd C</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (comult_of_comnd C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk24">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_mnd (op2_bicat B)
+  (make_mnd_data (ob_of_comnd C) (endo_of_comnd C)
+     (counit_of_comnd C) (comult_of_comnd C))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk25"><span class="kp">repeat</span> <span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(linvunitor
+   (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)))
+ • (pr122 (make_mnd_data (ob_of_comnd C)
+             (endo_of_comnd C) (counit_of_comnd C)
+             (comult_of_comnd C))
+    ▹ pr12 (make_mnd_data (ob_of_comnd C)
+              (endo_of_comnd C) (counit_of_comnd C)
+              (comult_of_comnd C))))
+• pr222 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)) =
+id₂
+  (pr12 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk26" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk26"><hr></label><div class="goal-conclusion">(rinvunitor
+   (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)))
+ • (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C))
+    ◃ pr122 (make_mnd_data (ob_of_comnd C)
+               (endo_of_comnd C) (counit_of_comnd C)
+               (comult_of_comnd C))))
+• pr222 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)) =
+id₂
+  (pr12 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)))</div></blockquote><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk27" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk27"><hr></label><div class="goal-conclusion">(rassociator
+   (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)))
+   (pr2
+      (pr1
+         (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)),,
+       pr12 (make_mnd_data (ob_of_comnd C)
+               (endo_of_comnd C) (counit_of_comnd C)
+               (comult_of_comnd C))))
+   (pr2
+      (pr1
+         (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)),,
+       pr12 (make_mnd_data (ob_of_comnd C)
+               (endo_of_comnd C) (counit_of_comnd C)
+               (comult_of_comnd C))))
+ • (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C))
+    ◃ pr222 (make_mnd_data (ob_of_comnd C)
+               (endo_of_comnd C) (counit_of_comnd C)
+               (comult_of_comnd C))))
+• pr222 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)) =
+(pr222 (make_mnd_data (ob_of_comnd C)
+          (endo_of_comnd C) (counit_of_comnd C)
+          (comult_of_comnd C))
+ ▹ pr12 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)))
+• pr222 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk28">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(linvunitor
+   (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)))
+ • (pr122 (make_mnd_data (ob_of_comnd C)
+             (endo_of_comnd C) (counit_of_comnd C)
+             (comult_of_comnd C))
+    ▹ pr12 (make_mnd_data (ob_of_comnd C)
+              (endo_of_comnd C) (counit_of_comnd C)
+              (comult_of_comnd C))))
+• pr222 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)) =
+id₂
+  (pr12 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_counit_left C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk29">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(rinvunitor
+   (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)))
+ • (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C))
+    ◃ pr122 (make_mnd_data (ob_of_comnd C)
+               (endo_of_comnd C) (counit_of_comnd C)
+               (comult_of_comnd C))))
+• pr222 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)) =
+id₂
+  (pr12 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_counit_right C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk2a">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(rassociator
+   (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)))
+   (pr2
+      (pr1
+         (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)),,
+       pr12 (make_mnd_data (ob_of_comnd C)
+               (endo_of_comnd C) (counit_of_comnd C)
+               (comult_of_comnd C))))
+   (pr2
+      (pr1
+         (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C)),,
+       pr12 (make_mnd_data (ob_of_comnd C)
+               (endo_of_comnd C) (counit_of_comnd C)
+               (comult_of_comnd C))))
+ • (pr12 (make_mnd_data (ob_of_comnd C)
+            (endo_of_comnd C) (counit_of_comnd C)
+            (comult_of_comnd C))
+    ◃ pr222 (make_mnd_data (ob_of_comnd C)
+               (endo_of_comnd C) (counit_of_comnd C)
+               (comult_of_comnd C))))
+• pr222 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)) =
+(pr222 (make_mnd_data (ob_of_comnd C)
+          (endo_of_comnd C) (counit_of_comnd C)
+          (comult_of_comnd C))
+ ▹ pr12 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C)))
+• pr222 (make_mnd_data (ob_of_comnd C)
+           (endo_of_comnd C) (counit_of_comnd C)
+           (comult_of_comnd C))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_comult_assoc C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk2b"><span class="kn">Definition</span> <span class="nf">op2_mnd_weq_comnd_inv₁</span>
+             (<span class="nv">m</span> : mnd (op2_bicat B))
+    : comnd_to_op2_mnd (op2_mnd_to_comnd m) = m.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_to_op2_mnd (op2_mnd_to_comnd m) = m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk2c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_to_op2_mnd (op2_mnd_to_comnd m) = m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk2d"><span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, ob_of_mnd m ,, z) _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2
+  (make_mnd_data (ob_of_comnd (op2_mnd_to_comnd m))
+     (endo_of_comnd (op2_mnd_to_comnd m))
+     (counit_of_comnd (op2_mnd_to_comnd m))
+     (comult_of_comnd (op2_mnd_to_comnd m))),,
+comnd_to_op2_mnd_subproof (op2_mnd_to_comnd m),,
+comnd_to_op2_mnd_subproof0 (op2_mnd_to_comnd m),,
+comnd_to_op2_mnd_subproof1 (op2_mnd_to_comnd m) =
+pr2 m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk2e">use subtypePath.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : disp_mnd_data (op2_bicat B) (ob_of_mnd m),
+   FullSub.disp_fullsubbicat (mnd_data (op2_bicat B))
+     (is_mnd (op2_bicat B)) (ob_of_mnd m,, x))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk2f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk2f"><hr></label><div class="goal-conclusion">pr1
+  (pr2
+     (make_mnd_data (ob_of_comnd (op2_mnd_to_comnd m))
+        (endo_of_comnd (op2_mnd_to_comnd m))
+        (counit_of_comnd (op2_mnd_to_comnd m))
+        (comult_of_comnd (op2_mnd_to_comnd m))),,
+   comnd_to_op2_mnd_subproof (op2_mnd_to_comnd m),,
+   comnd_to_op2_mnd_subproof0 (op2_mnd_to_comnd m),,
+   comnd_to_op2_mnd_subproof1 (op2_mnd_to_comnd m)) =
+pr12 m</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk30">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : disp_mnd_data (op2_bicat B) (ob_of_mnd m),
+   FullSub.disp_fullsubbicat (mnd_data (op2_bicat B))
+     (is_mnd (op2_bicat B)) (ob_of_mnd m,, x))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk31"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>disp_mnd_data (op2_bicat B) (ob_of_mnd m)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (FullSub.disp_fullsubbicat (mnd_data (op2_bicat B))
+     (is_mnd (op2_bicat B)) (ob_of_mnd m,, x))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_is_mnd.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk32">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (pr2
+     (make_mnd_data (ob_of_comnd (op2_mnd_to_comnd m))
+        (endo_of_comnd (op2_mnd_to_comnd m))
+        (counit_of_comnd (op2_mnd_to_comnd m))
+        (comult_of_comnd (op2_mnd_to_comnd m))),,
+   comnd_to_op2_mnd_subproof (op2_mnd_to_comnd m),,
+   comnd_to_op2_mnd_subproof0 (op2_mnd_to_comnd m),,
+   comnd_to_op2_mnd_subproof1 (op2_mnd_to_comnd m)) =
+pr12 m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk33"><span class="kn">Definition</span> <span class="nf">op2_mnd_weq_comnd_inv₂</span>
+             (<span class="nv">C</span> : comnd B)
+    : op2_mnd_to_comnd (comnd_to_op2_mnd C) = C.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_mnd_to_comnd (comnd_to_op2_mnd C) = C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk34"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_mnd_to_comnd (comnd_to_op2_mnd C) = C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk35">use subtypePath.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate comnd_laws</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk36" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk36"><hr></label><div class="goal-conclusion">pr1 (op2_mnd_to_comnd (comnd_to_op2_mnd C)) = pr1 C</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk37">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate comnd_laws</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk38"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>comnd_data B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (comnd_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_comnd_laws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk39">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>comnd B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (op2_mnd_to_comnd (comnd_to_op2_mnd C)) = pr1 C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">MonadsInOp2Bicat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk3a"><span class="kn">Definition</span> <span class="nf">op2_mnd_weq_comnd</span>
+           (<span class="nv">B</span> : bicat)
+  : mnd (op2_bicat B) ≃ comnd B.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) ≃ comnd B</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk3b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) ≃ comnd B</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk3c">use make_weq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) → comnd B</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk3d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk3d"><hr></label><div class="goal-conclusion">isweq <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk3e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) → comnd B</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> op2_mnd_to_comnd.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk3f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isweq op2_mnd_to_comnd</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk40">use isweq_iso.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd B → mnd (op2_bicat B)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk41" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk41"><hr></label><div class="goal-conclusion">∏ x : mnd (op2_bicat B), <span class="nl">?g</span> (op2_mnd_to_comnd x) = x</div></blockquote><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk42" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk42"><hr></label><div class="goal-conclusion">∏ y : comnd B, op2_mnd_to_comnd (<span class="nl">?g</span> y) = y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk43">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd B → mnd (op2_bicat B)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> comnd_to_op2_mnd.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk44">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : mnd (op2_bicat B),
+comnd_to_op2_mnd (op2_mnd_to_comnd x) = x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> op2_mnd_weq_comnd_inv₁.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk45">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ y : comnd B,
+op2_mnd_to_comnd (comnd_to_op2_mnd y) = y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> op2_mnd_weq_comnd_inv₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 5. Monad morphisms in `op2 B`</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">MonadMorInOp2Bicat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (op2_bicat B)}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk46"><span class="kn">Definition</span> <span class="nf">op2_mnd_mor_to_comnd_mor</span>
+             (<span class="nv">f</span> : m₁ --&gt; m₂)
+    : comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk47"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk48">use make_comnd_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor_data (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk49" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk49"><hr></label><div class="goal-conclusion">comnd_mor_laws <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk4a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor_data (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk4b">use make_comnd_mor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B ⟦ ob_of_comnd (op2_mnd_to_comnd m₁),
+ob_of_comnd (op2_mnd_to_comnd m₂) ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk4c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk4c"><hr></label><div class="goal-conclusion">endo_of_comnd (op2_mnd_to_comnd m₁) · <span class="nl">?f</span> ==&gt;
+<span class="nl">?f</span> · endo_of_comnd (op2_mnd_to_comnd m₂)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk4d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B ⟦ ob_of_comnd (op2_mnd_to_comnd m₁),
+ob_of_comnd (op2_mnd_to_comnd m₂) ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (mor_of_mnd_mor f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk4e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">endo_of_comnd (op2_mnd_to_comnd m₁) · mor_of_mnd_mor f ==&gt;
+mor_of_mnd_mor f · endo_of_comnd (op2_mnd_to_comnd m₂)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (mnd_mor_endo f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk4f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor_laws
+  (make_comnd_mor_data (mor_of_mnd_mor f)
+     (mnd_mor_endo f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk50"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor_counit_law
+  (make_comnd_mor_data (mor_of_mnd_mor f)
+     (mnd_mor_endo f))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk51" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk51"><hr></label><div class="goal-conclusion">comnd_mor_comult_law
+  (make_comnd_mor_data (mor_of_mnd_mor f)
+     (mnd_mor_endo f))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk52">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor_counit_law
+  (make_comnd_mor_data (mor_of_mnd_mor f)
+     (mnd_mor_endo f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_mor_counit_law ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_mor_unit f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk53">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor_comult_law
+  (make_comnd_mor_data (mor_of_mnd_mor f)
+     (mnd_mor_endo f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_mor_comult_law ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_mor_mu f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk54"><span class="kn">Definition</span> <span class="nf">comnd_mor_to_op2_mnd_mor</span>
+             (<span class="nv">f</span> : comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂))
+    : m₁ --&gt; m₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk55"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk56">use make_mnd_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd_mor_data m₁ m₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk57" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk57"><hr></label><div class="goal-conclusion">mnd_mor_laws <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk58">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd_mor_data m₁ m₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk59">use make_mnd_mor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_bicat B ⟦ ob_of_mnd m₁, ob_of_mnd m₂ ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk5a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk5a"><hr></label><div class="goal-conclusion"><span class="nl">?f</span> · endo_of_mnd m₂ ==&gt; endo_of_mnd m₁ · <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk5b">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_bicat B ⟦ ob_of_mnd m₁, ob_of_mnd m₂ ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk5c">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f · endo_of_mnd m₂ ==&gt; endo_of_mnd m₁ · f</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (comnd_mor_endo f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk5d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd_mor_laws (make_mnd_mor_data f (comnd_mor_endo f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk5e"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linvunitor
+  (pr1 (make_mnd_mor_data f (comnd_mor_endo f)))
+• (unit_of_mnd m₁
+   ▹ pr1 (make_mnd_mor_data f (comnd_mor_endo f))) =
+(rinvunitor
+   (pr1 (make_mnd_mor_data f (comnd_mor_endo f)))
+ • (pr1 (make_mnd_mor_data f (comnd_mor_endo f))
+    ◃ unit_of_mnd m₂))
+• pr2 (make_mnd_mor_data f (comnd_mor_endo f))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk5f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk5f"><hr></label><div class="goal-conclusion">((((lassociator
+      (pr1 (make_mnd_mor_data f (comnd_mor_endo f)))
+      (endo_of_mnd m₂) (endo_of_mnd m₂)
+    • (pr2 (make_mnd_mor_data f (comnd_mor_endo f))
+       ▹ endo_of_mnd m₂))
+   • rassociator (endo_of_mnd m₁)
+       (pr1 (make_mnd_mor_data f (comnd_mor_endo f)))
+       (endo_of_mnd m₂))
+  • (endo_of_mnd m₁
+     ◃ pr2 (make_mnd_mor_data f (comnd_mor_endo f))))
+ • lassociator (endo_of_mnd m₁) (endo_of_mnd m₁)
+     (pr1 (make_mnd_mor_data f (comnd_mor_endo f))))
+• (mult_of_mnd m₁
+   ▹ pr1 (make_mnd_mor_data f (comnd_mor_endo f))) =
+(pr1 (make_mnd_mor_data f (comnd_mor_endo f))
+ ◃ mult_of_mnd m₂)
+• pr2 (make_mnd_mor_data f (comnd_mor_endo f))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk60" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk60">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linvunitor
+  (pr1 (make_mnd_mor_data f (comnd_mor_endo f)))
+• (unit_of_mnd m₁
+   ▹ pr1 (make_mnd_mor_data f (comnd_mor_endo f))) =
+(rinvunitor
+   (pr1 (make_mnd_mor_data f (comnd_mor_endo f)))
+ • (pr1 (make_mnd_mor_data f (comnd_mor_endo f))
+    ◃ unit_of_mnd m₂))
+• pr2 (make_mnd_mor_data f (comnd_mor_endo f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_mor_counit f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk61" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk61">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((((lassociator
+      (pr1 (make_mnd_mor_data f (comnd_mor_endo f)))
+      (endo_of_mnd m₂) (endo_of_mnd m₂)
+    • (pr2 (make_mnd_mor_data f (comnd_mor_endo f))
+       ▹ endo_of_mnd m₂))
+   • rassociator (endo_of_mnd m₁)
+       (pr1 (make_mnd_mor_data f (comnd_mor_endo f)))
+       (endo_of_mnd m₂))
+  • (endo_of_mnd m₁
+     ◃ pr2 (make_mnd_mor_data f (comnd_mor_endo f))))
+ • lassociator (endo_of_mnd m₁) (endo_of_mnd m₁)
+     (pr1 (make_mnd_mor_data f (comnd_mor_endo f))))
+• (mult_of_mnd m₁
+   ▹ pr1 (make_mnd_mor_data f (comnd_mor_endo f))) =
+(pr1 (make_mnd_mor_data f (comnd_mor_endo f))
+ ◃ mult_of_mnd m₂)
+• pr2 (make_mnd_mor_data f (comnd_mor_endo f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_mor_comult f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk62" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk62"><span class="kn">Definition</span> <span class="nf">op2_mnd_mor_weq_comnd_mor_inv₁</span>
+             (<span class="nv">f</span> : m₁ --&gt; m₂)
+    : comnd_mor_to_op2_mnd_mor (op2_mnd_mor_to_comnd_mor f) = f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor_to_op2_mnd_mor (op2_mnd_mor_to_comnd_mor f) =
+f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk63" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk63"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor_to_op2_mnd_mor (op2_mnd_mor_to_comnd_mor f) =
+f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk64" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk64"><span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, _ ,, z) _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr2
+   (make_mnd_mor_data (op2_mnd_mor_to_comnd_mor f)
+      (comnd_mor_endo (op2_mnd_mor_to_comnd_mor f))),,
+ comnd_mor_to_op2_mnd_mor_subproof
+   (op2_mnd_mor_to_comnd_mor f),,
+ comnd_mor_to_op2_mnd_mor_subproof0
+   (op2_mnd_mor_to_comnd_mor f)),, tt = pr2 f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk65" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk65">use subtypePath.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : pr12 m₁ --&gt;[
+         pr1
+           (make_mnd_mor_data
+              (op2_mnd_mor_to_comnd_mor f)
+              (comnd_mor_endo
+                 (op2_mnd_mor_to_comnd_mor f)))] pr12 m₂,
+   pr22 m₁ --&gt;[
+   pr1
+     (make_mnd_mor_data (op2_mnd_mor_to_comnd_mor f)
+        (comnd_mor_endo (op2_mnd_mor_to_comnd_mor f))),,
+   x] pr22 m₂)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk66" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk66"><hr></label><div class="goal-conclusion">pr1
+  ((pr2
+      (make_mnd_mor_data (op2_mnd_mor_to_comnd_mor f)
+         (comnd_mor_endo (op2_mnd_mor_to_comnd_mor f))),,
+    comnd_mor_to_op2_mnd_mor_subproof
+      (op2_mnd_mor_to_comnd_mor f),,
+    comnd_mor_to_op2_mnd_mor_subproof0
+      (op2_mnd_mor_to_comnd_mor f)),, tt) = pr12 f</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk67" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk67">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : pr12 m₁ --&gt;[
+         pr1
+           (make_mnd_mor_data
+              (op2_mnd_mor_to_comnd_mor f)
+              (comnd_mor_endo
+                 (op2_mnd_mor_to_comnd_mor f)))] pr12 m₂,
+   pr22 m₁ --&gt;[
+   pr1
+     (make_mnd_mor_data (op2_mnd_mor_to_comnd_mor f)
+        (comnd_mor_endo (op2_mnd_mor_to_comnd_mor f))),,
+   x] pr22 m₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk68" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk68">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  ((pr2
+      (make_mnd_mor_data (op2_mnd_mor_to_comnd_mor f)
+         (comnd_mor_endo (op2_mnd_mor_to_comnd_mor f))),,
+    comnd_mor_to_op2_mnd_mor_subproof
+      (op2_mnd_mor_to_comnd_mor f),,
+    comnd_mor_to_op2_mnd_mor_subproof0
+      (op2_mnd_mor_to_comnd_mor f)),, tt) = pr12 f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk69" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk69">use subtypePath.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : pr112 m₁ --&gt;[
+         pr1
+           (make_mnd_mor_data
+              (op2_mnd_mor_to_comnd_mor f)
+              (comnd_mor_endo
+                 (op2_mnd_mor_to_comnd_mor f)))] pr112 m₂,
+   pr212 m₁ --&gt;[
+   pr1
+     (make_mnd_mor_data (op2_mnd_mor_to_comnd_mor f)
+        (comnd_mor_endo (op2_mnd_mor_to_comnd_mor f))),,
+   x] pr212 m₂)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk6a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk6a"><hr></label><div class="goal-conclusion">pr11 ((pr2
+         (make_mnd_mor_data
+            (op2_mnd_mor_to_comnd_mor f)
+            (comnd_mor_endo
+               (op2_mnd_mor_to_comnd_mor f))),,
+       comnd_mor_to_op2_mnd_mor_subproof
+         (op2_mnd_mor_to_comnd_mor f),,
+       comnd_mor_to_op2_mnd_mor_subproof0
+         (op2_mnd_mor_to_comnd_mor f)),, tt) = pr112 f</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk6b" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk6b">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : pr112 m₁ --&gt;[
+         pr1
+           (make_mnd_mor_data
+              (op2_mnd_mor_to_comnd_mor f)
+              (comnd_mor_endo
+                 (op2_mnd_mor_to_comnd_mor f)))] pr112 m₂,
+   pr212 m₁ --&gt;[
+   pr1
+     (make_mnd_mor_data (op2_mnd_mor_to_comnd_mor f)
+        (comnd_mor_endo (op2_mnd_mor_to_comnd_mor f))),,
+   x] pr212 m₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk6c" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk6c"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr112 m₁ --&gt;[
+pr1
+  (make_mnd_mor_data (op2_mnd_mor_to_comnd_mor f)
+     (comnd_mor_endo (op2_mnd_mor_to_comnd_mor f)))] pr112 m₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (pr212 m₁ --&gt;[
+   pr1
+     (make_mnd_mor_data (op2_mnd_mor_to_comnd_mor f)
+        (comnd_mor_endo (op2_mnd_mor_to_comnd_mor f))),,
+   x] pr212 m₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk6d" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk6d">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr11 ((pr2
+         (make_mnd_mor_data
+            (op2_mnd_mor_to_comnd_mor f)
+            (comnd_mor_endo
+               (op2_mnd_mor_to_comnd_mor f))),,
+       comnd_mor_to_op2_mnd_mor_subproof
+         (op2_mnd_mor_to_comnd_mor f),,
+       comnd_mor_to_op2_mnd_mor_subproof0
+         (op2_mnd_mor_to_comnd_mor f)),, tt) = pr112 f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk6e" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk6e"><span class="kn">Definition</span> <span class="nf">op2_mnd_mor_weq_comnd_mor_inv₂</span>
+             (<span class="nv">f</span> : comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂))
+    : op2_mnd_mor_to_comnd_mor (comnd_mor_to_op2_mnd_mor f) = f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_mnd_mor_to_comnd_mor (comnd_mor_to_op2_mnd_mor f) =
+f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk6f" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk6f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_mnd_mor_to_comnd_mor (comnd_mor_to_op2_mnd_mor f) =
+f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk70" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk70">use subtypePath.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate comnd_mor_laws</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk71" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk71"><hr></label><div class="goal-conclusion">pr1
+  (op2_mnd_mor_to_comnd_mor
+     (comnd_mor_to_op2_mnd_mor f)) = pr1 f</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk72" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk72">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate comnd_mor_laws</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk73" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk73"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>comnd_mor_data (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (comnd_mor_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk74" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk74">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>comnd_mor (op2_mnd_to_comnd m₁)
+  (op2_mnd_to_comnd m₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (op2_mnd_mor_to_comnd_mor
+     (comnd_mor_to_op2_mnd_mor f)) = pr1 f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">MonadMorInOp2Bicat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk75" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk75"><span class="kn">Definition</span> <span class="nf">op2_mnd_mor_weq_comnd_mor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (op2_bicat B))
+  : m₁ --&gt; m₂ ≃ comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) ⟦ m₁, m₂ ⟧
+≃ comnd_mor (op2_mnd_to_comnd m₁)
+    (op2_mnd_to_comnd m₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk76" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk76"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) ⟦ m₁, m₂ ⟧
+≃ comnd_mor (op2_mnd_to_comnd m₁)
+    (op2_mnd_to_comnd m₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk77" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk77">use make_weq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) ⟦ m₁, m₂ ⟧
+→ comnd_mor (op2_mnd_to_comnd m₁)
+    (op2_mnd_to_comnd m₂)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk78" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk78"><hr></label><div class="goal-conclusion">isweq <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk79" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk79">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd (op2_bicat B) ⟦ m₁, m₂ ⟧
+→ comnd_mor (op2_mnd_to_comnd m₁)
+    (op2_mnd_to_comnd m₂)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> op2_mnd_mor_to_comnd_mor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk7a" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk7a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isweq op2_mnd_mor_to_comnd_mor</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk7b" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk7b">use isweq_iso.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂)
+→ mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk7c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk7c"><hr></label><div class="goal-conclusion">∏ x : mnd (op2_bicat B) ⟦ m₁, m₂ ⟧,
+<span class="nl">?g</span> (op2_mnd_mor_to_comnd_mor x) = x</div></blockquote><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk7d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk7d"><hr></label><div class="goal-conclusion">∏
+y : comnd_mor (op2_mnd_to_comnd m₁)
+      (op2_mnd_to_comnd m₂),
+op2_mnd_mor_to_comnd_mor (<span class="nl">?g</span> y) = y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk7e" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk7e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂)
+→ mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> comnd_mor_to_op2_mnd_mor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk7f" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk7f">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : mnd (op2_bicat B) ⟦ m₁, m₂ ⟧,
+comnd_mor_to_op2_mnd_mor (op2_mnd_mor_to_comnd_mor x) =
+x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> op2_mnd_mor_weq_comnd_mor_inv₁.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk80" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk80">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+y : comnd_mor (op2_mnd_to_comnd m₁)
+      (op2_mnd_to_comnd m₂),
+op2_mnd_mor_to_comnd_mor (comnd_mor_to_op2_mnd_mor y) =
+y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> op2_mnd_mor_weq_comnd_mor_inv₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 6. Monad cells in `op2 B`</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">MonadMorInOp2Bicat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (op2_bicat B)}
+          {<span class="nv">f₁</span> <span class="nv">f₂</span> : m₁ --&gt; m₂}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk81" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk81"><span class="kn">Definition</span> <span class="nf">op2_mnd_cell_to_comnd_cell</span>
+             (<span class="nv">α</span> : f₁ ==&gt; f₂)
+    : comnd_cell (op2_mnd_mor_to_comnd_mor f₁) (op2_mnd_mor_to_comnd_mor f₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f₁ ==&gt; f₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk82" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk82"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f₁ ==&gt; f₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk83" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk83">use make_comnd_cell.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f₁ ==&gt; f₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_mnd_mor_to_comnd_mor f₂ ==&gt;
+op2_mnd_mor_to_comnd_mor f₁</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk84" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f₁ ==&gt; f₂</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk84"><hr></label><div class="goal-conclusion">is_comnd_cell <span class="nl">?α</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk85" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk85">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f₁ ==&gt; f₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op2_mnd_mor_to_comnd_mor f₂ ==&gt;
+op2_mnd_mor_to_comnd_mor f₁</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (cell_of_mnd_cell α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk86" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk86">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f₁ ==&gt; f₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_comnd_cell (cell_of_mnd_cell α)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (mnd_cell_endo α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk87" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk87"><span class="kn">Definition</span> <span class="nf">comnd_cell_to_op2_mnd_cell</span>
+             (<span class="nv">α</span> : comnd_cell (op2_mnd_mor_to_comnd_mor f₁) (op2_mnd_mor_to_comnd_mor f₂))
+    : f₁ ==&gt; f₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f₁ ==&gt; f₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk88" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk88"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f₁ ==&gt; f₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk89" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk89">use make_mnd_cell.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd_cell_data f₁ f₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk8a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂)</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk8a"><hr></label><div class="goal-conclusion">is_mnd_cell <span class="nl">?τ</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk8b" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk8b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mnd_cell_data f₁ f₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr1 α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk8c" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk8c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_mnd_cell (pr1 α)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr2 α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">MonadMorInOp2Bicat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk8d" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk8d"><span class="kn">Definition</span> <span class="nf">op2_mnd_cell_weq_comnd_cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (op2_bicat B)}
+           (<span class="nv">f₁</span> <span class="nv">f₂</span> : m₁ --&gt; m₂)
+  : f₁ ==&gt; f₂ ≃ comnd_cell (op2_mnd_mor_to_comnd_mor f₁) (op2_mnd_mor_to_comnd_mor f₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f₁ ==&gt; f₂
+≃ comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+    (op2_mnd_mor_to_comnd_mor f₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk8e" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk8e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f₁ ==&gt; f₂
+≃ comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+    (op2_mnd_mor_to_comnd_mor f₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk8f" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk8f">use make_weq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f₁ ==&gt; f₂
+→ comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+    (op2_mnd_mor_to_comnd_mor f₂)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk90" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk90"><hr></label><div class="goal-conclusion">isweq <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk91" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk91">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f₁ ==&gt; f₂
+→ comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+    (op2_mnd_mor_to_comnd_mor f₂)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> op2_mnd_cell_to_comnd_cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk92" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk92">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isweq op2_mnd_cell_to_comnd_cell</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk93" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk93">use isweq_iso.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂) → f₁ ==&gt; f₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk94" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk94"><hr></label><div class="goal-conclusion">∏ x : f₁ ==&gt; f₂, <span class="nl">?g</span> (op2_mnd_cell_to_comnd_cell x) = x</div></blockquote><input class="alectryon-extra-goal-toggle" id="monadsinop2bicat-v-chk95" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><label class="goal-separator" for="monadsinop2bicat-v-chk95"><hr></label><div class="goal-conclusion">∏
+y : comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+      (op2_mnd_mor_to_comnd_mor f₂),
+op2_mnd_cell_to_comnd_cell (<span class="nl">?g</span> y) = y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk96" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk96">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+  (op2_mnd_mor_to_comnd_mor f₂) → f₁ ==&gt; f₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> comnd_cell_to_op2_mnd_cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk97" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk97">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : f₁ ==&gt; f₂,
+comnd_cell_to_op2_mnd_cell
+  (op2_mnd_cell_to_comnd_cell x) = x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">intro</span> ;
+         use eq_mnd_cell ;
+         <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monadsinop2bicat-v-chk98" style="display: none" type="checkbox"><label class="alectryon-input" for="monadsinop2bicat-v-chk98">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B)</span></span></span><br><span><var>f₁, f₂</var><span class="hyp-type"><b>: </b><span>mnd (op2_bicat B) ⟦ m₁, m₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+y : comnd_cell (op2_mnd_mor_to_comnd_mor f₁)
+      (op2_mnd_mor_to_comnd_mor f₂),
+op2_mnd_cell_to_comnd_cell
+  (comnd_cell_to_op2_mnd_cell y) = y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">intro</span> ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

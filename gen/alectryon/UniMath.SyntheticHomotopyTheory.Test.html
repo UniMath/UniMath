@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Test.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.SyntheticHomotopyTheory.Circle2.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.SyntheticHomotopyTheory.AffineLine.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk1"><span class="kn">Require Import</span> UniMath.NumberSystems.Integers.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> hz.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Groups.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.GroupAction.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> abgr.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> action_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">&quot;0&quot;</span> := (toℤ <span class="mi">0</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">&quot;1&quot;</span> := (toℤ <span class="mi">1</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">A</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk2"><span class="kn">Goal</span> ∏ (X:<span class="kt">Type</span>) (f := eqweqmap (idpath X)), f = idweq X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : <span class="kt">Type</span>,
+<span class="kr">let</span> <span class="nv">f</span> := eqweqmap (idpath X) <span class="kr">in</span> f = idweq X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk3"><span class="kn">Goal</span> ∏ (X:<span class="kt">Type</span>), invmap (idweq X) = idfun X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : <span class="kt">Type</span>, invmap (idweq X) = idfun X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk4"><span class="kn">Goal</span> ∏ (X:<span class="kt">Type</span>) (x:X), iscontrpr1 (iscontrcoconusfromt X x) = (x,,idpath x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : <span class="kt">Type</span>) (x : X),
+iscontrpr1 (iscontrcoconusfromt X x) = (stnpr x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk5"><span class="kn">Goal</span> ∏ (X:<span class="kt">Type</span>) (x:X), iscontrpr1 (iscontrcoconustot X x) = (x,,idpath x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : <span class="kt">Type</span>) (x : X),
+iscontrpr1 (iscontrcoconustot X x) = (stnpr x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk6"><span class="kn">Goal</span> ∏ (X Y:<span class="kt">Type</span>) (f:X≃Y), invmap (invweq f) = f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : <span class="kt">Type</span>) (f : X ≃ Y), invmap (invweq f) = f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk7"><span class="kn">Goal</span> ∏ (X Y Z:<span class="kt">Type</span>) (f:X≃Y) (g:Y≃Z), pr1weq (weqcomp f g) = funcomp f g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y Z : <span class="kt">Type</span>) (f : X ≃ Y) (g : Y ≃ Z),
+(g ∘ f)%weq = g ∘ f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk8"><span class="kn">Goal</span> ∏ (X Y Z:<span class="kt">Type</span>) (f:X≃Y) (g:Y≃Z), invmap (weqcomp f g) = funcomp (invmap g) (invmap f).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y Z : <span class="kt">Type</span>) (f : X ≃ Y) (g : Y ≃ Z),
+invmap (g ∘ f)%weq = invmap f ∘ invmap g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk9"><span class="kn">Goal</span> ∏ {X : UU} (P Q : X -&gt; <span class="kt">Type</span>) (f : ∏ x, P x ≃ Q x) (x:X) (p:P x), weqfibtototal _ _ f (x,,p) = (x,,f x p).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : UU) (P Q : X → <span class="kt">Type</span>) (f : ∏ x : X, P x ≃ Q x)
+(x : X) (p : P x),
+weqfibtototal P Q f (x,, p) = x,, f x p</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chka"><span class="kn">Goal</span> ∏ {X : UU} (P Q : X -&gt; <span class="kt">Type</span>) (f : ∏ x, P x ≃ Q x) (x:X) (q:Q x), invmap (weqfibtototal _ _ f) (x,,q) = (x,,invmap (f x) q).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : UU) (P Q : X → <span class="kt">Type</span>) (f : ∏ x : X, P x ≃ Q x)
+(x : X) (q : Q x),
+invmap (weqfibtototal P Q f) (x,, q) =
+x,, invmap (f x) q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chkb"><span class="kn">Goal</span> ∏ {X Y : <span class="kt">Type</span>} (w : X ≃ Y) (<span class="kr">is</span> : iscontr Y), iscontrpr1 (iscontrweqb w <span class="kr">is</span>) = invmap w (iscontrpr1 <span class="kr">is</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : <span class="kt">Type</span>) (w : X ≃ Y) (<span class="kr">is</span> : iscontr Y),
+iscontrpr1 (iscontrweqb w <span class="kr">is</span>) =
+invmap w (iscontrpr1 <span class="kr">is</span>)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chkc"><span class="kn">Goal</span> ∏ {X Y : <span class="kt">Type</span>} (w : X ≃ Y) (<span class="kr">is</span> : iscontr X), iscontrpr1 (iscontrweqf w <span class="kr">is</span>) = w (iscontrpr1 <span class="kr">is</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : <span class="kt">Type</span>) (w : X ≃ Y) (<span class="kr">is</span> : iscontr X),
+iscontrpr1 (iscontrweqf w <span class="kr">is</span>) = w (iscontrpr1 <span class="kr">is</span>)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chkd"><span class="kn">Goal</span> ∏ (X:<span class="kt">Type</span>) (i : isConnected X) (P:X-&gt;hProp) (x0:X) (p:P x0), @predicateOnConnectedType X i P x0 p x0 = p.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : <span class="kt">Type</span>) (i : isConnected X) (P : X → hProp)
+(x0 : X) (p : P x0),
+predicateOnConnectedType i x0 p x0 = p</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chke"><span class="kn">Fail</span> <span class="bp">reflexivity</span>.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">The command has indeed failed <span class="kr">with</span> message:
+In environment
+X : <span class="kt">Type</span>
+i : isConnected X
+P : X → hProp
+x0 : X
+p : P x0
+Unable to <span class="nb">unify</span> <span class="s2">&quot;p&quot;</span> <span class="kr">with</span>
+ <span class="s2">&quot;predicateOnConnectedType i x0 p x0&quot;</span>.</blockquote></div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : <span class="kt">Type</span>) (i : isConnected X) (P : X → hProp)
+(x0 : X) (p : P x0),
+predicateOnConnectedType i x0 p x0 = p</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Abort</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chkf"><span class="kn">Goal</span> ∏ (X:<span class="kt">Type</span>) (i : iscontr X) (x0 := pr1 i : X), pr2 i x0 = idpath x0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : <span class="kt">Type</span>) (i : iscontr X),
+<span class="kr">let</span> <span class="nv">x0</span> := pr1 i <span class="kr">in</span> pr2 i x0 = idpath x0</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk10"><span class="kn">Fail</span> <span class="bp">reflexivity</span>.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">The command has indeed failed <span class="kr">with</span> message:
+In environment
+X : <span class="kt">Type</span>
+i : iscontr X
+x0 := pr1 i : X
+Unable to <span class="nb">unify</span> <span class="s2">&quot;idpath x0&quot;</span> <span class="kr">with</span> <span class="s2">&quot;pr2 i x0&quot;</span>.</blockquote></div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : <span class="kt">Type</span>) (i : iscontr X),
+<span class="kr">let</span> <span class="nv">x0</span> := pr1 i <span class="kr">in</span> pr2 i x0 = idpath x0</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Abort</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk11"><span class="kn">Goal</span> ∏ (X Y:<span class="kt">Type</span>) (p:X=Y) (x:X), eqweqmap p x = cast p x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : <span class="kt">Type</span>) (p : X = Y) (x : X),
+eqweqmap p x = cast p x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk12"><span class="kn">Fail</span> <span class="bp">reflexivity</span>.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">The command has indeed failed <span class="kr">with</span> message:
+In environment
+X : <span class="kt">Type</span>
+Y : <span class="kt">Type</span>
+p : X = Y
+x : X
+Unable to <span class="nb">unify</span> <span class="s2">&quot;cast p x&quot;</span> <span class="kr">with</span> <span class="s2">&quot;eqweqmap p x&quot;</span>.</blockquote></div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : <span class="kt">Type</span>) (p : X = Y) (x : X),
+eqweqmap p x = cast p x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Abort</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk13"><span class="kn">Goal</span> ∏ (X Y:<span class="kt">Type</span>) (p:X=Y) (x:X), eqweqmap p x = transportf (<span class="kr">λ</span> <span class="nv">T</span>, T) p x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : <span class="kt">Type</span>) (p : X = Y) (x : X),
+eqweqmap p x = transportf (<span class="kr">λ</span> <span class="nv">T</span> : UU, T) p x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk14"><span class="kn">Fail</span> <span class="bp">reflexivity</span>.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">The command has indeed failed <span class="kr">with</span> message:
+In environment
+X : <span class="kt">Type</span>
+Y : <span class="kt">Type</span>
+p : X = Y
+x : X
+Unable to <span class="nb">unify</span> <span class="s2">&quot;transportf (λ T : UU, T) p x&quot;</span> <span class="kr">with</span>
+ <span class="s2">&quot;eqweqmap p x&quot;</span>.</blockquote></div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : <span class="kt">Type</span>) (p : X = Y) (x : X),
+eqweqmap p x = transportf (<span class="kr">λ</span> <span class="nv">T</span> : UU, T) p x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Abort</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk15"><span class="kn">Goal</span> ∏ {X:PointedType} (bc : isBaseConnected X) (t := basepoint X), pr2 (baseConnectedness X bc) t t = hinhpr (idpath t).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : PointedType) (bc : isBaseConnected X),
+<span class="kr">let</span> <span class="nv">t</span> := basepoint X <span class="kr">in</span>
+pr2 (baseConnectedness X bc) t t = hinhpr (idpath t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk16"><span class="kn">Fail</span> <span class="bp">reflexivity</span>.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">The command has indeed failed <span class="kr">with</span> message:
+In environment
+X : PointedType
+bc : isBaseConnected X
+t := basepoint X : (<span class="kr">λ</span> <span class="nv">X</span> : UU, X) (pr1 X)
+Unable to <span class="nb">unify</span> <span class="s2">&quot;hinhpr (idpath t)&quot;</span> <span class="kr">with</span>
+ <span class="s2">&quot;pr2 (baseConnectedness X bc) t t&quot;</span>.</blockquote></div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : PointedType) (bc : isBaseConnected X),
+<span class="kr">let</span> <span class="nv">t</span> := basepoint X <span class="kr">in</span>
+pr2 (baseConnectedness X bc) t t = hinhpr (idpath t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Abort</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk17"><span class="kn">Goal</span> ∏ (G:gr), isBaseConnected_BG G (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ G : gr,
+isBaseConnected_BG G (trivialTorsor G) =
+hinhpr (idpath (trivialTorsor G))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk18"><span class="kn">Fail</span> <span class="bp">reflexivity</span>.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">The command has indeed failed <span class="kr">with</span> message:
+In environment
+G : gr
+Unable to <span class="nb">unify</span> <span class="s2">&quot;hinhpr (idpath (trivialTorsor G))&quot;</span>
+<span class="kr">with</span> <span class="s2">&quot;isBaseConnected_BG G (trivialTorsor G)&quot;</span>.</blockquote></div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ G : gr,
+isBaseConnected_BG G (trivialTorsor G) =
+hinhpr (idpath (trivialTorsor G))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Abort</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk19"><span class="kn">Goal</span> ∏ (n:ℤ), (n+<span class="mi">0</span> = n)%hz.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ n : ℤ, (n + <span class="mi">0</span>)%hz = n</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk1a"><span class="kn">Fail</span> <span class="bp">reflexivity</span>.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">The command has indeed failed <span class="kr">with</span> message:
+In environment
+n : ℤ
+Unable to <span class="nb">unify</span> <span class="s2">&quot;n&quot;</span> <span class="kr">with</span> <span class="s2">&quot;(n + 0)%hz&quot;</span>.</blockquote></div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ n : ℤ, (n + <span class="mi">0</span>)%hz = n</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Abort</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk1b"><span class="kn">Goal</span> ∏ (n:ℤ), (<span class="mi">0</span>+n = n)%hz.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ n : ℤ, (<span class="mi">0</span> + n)%hz = n</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk1c"><span class="kn">Fail</span> <span class="bp">reflexivity</span>.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">The command has indeed failed <span class="kr">with</span> message:
+In environment
+n : ℤ
+Unable to <span class="nb">unify</span> <span class="s2">&quot;n&quot;</span> <span class="kr">with</span> <span class="s2">&quot;(0 + n)%hz&quot;</span>.</blockquote></div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ n : ℤ, (<span class="mi">0</span> + n)%hz = n</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Abort</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="test-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="test-v-chk1d"><span class="kn">Goal</span> ∏ (X : UU) (P : hProp) (f : X → P) (x : X), hinhuniv f (hinhpr x) = f x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : UU) (P : hProp) (f : X → P) (x : X),
+hinhuniv f (hinhpr x) = f x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">A</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

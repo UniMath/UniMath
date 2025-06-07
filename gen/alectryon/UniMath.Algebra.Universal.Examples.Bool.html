@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Bool.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Example on booleans. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)</span>
+<span class="sd">(**</span>
+<span class="sd">  This file contains the definition of the signature of booleans and the standard boolean algebra.</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.MoreFoundations.Bool.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.MoreLists.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Universal.Algebras.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Universal.VTerms.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> stn.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bool_signature</span> := make_signature_simple_single_sorted [<span class="mi">0</span>; <span class="mi">0</span>; <span class="mi">1</span>; <span class="mi">2</span>; <span class="mi">2</span>; <span class="mi">2</span>].</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** Algebra structure over type bool. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bool_algebra</span> := make_algebra_simple_single_sorted&#39; 
+  bool_signature
+  boolset
+  [( false ; true ; negb ; andb ; orb ; implb )].</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bool_sort</span>: sorts bool_signature := tt.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** Boolean ground terms. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Module</span> <span class="nf">GTerm</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The type of ground terms. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">T</span> := gterm bool_signature bool_sort.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Constructors for ground terms. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bot</span>  : T         := build_gterm&#39; (●<span class="mi">0</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">top</span>  : T         := build_gterm&#39; (●<span class="mi">1</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">neg</span>  : T → T     := build_gterm&#39; (●<span class="mi">2</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">conj</span> : T → T → T := build_gterm&#39; (●<span class="mi">3</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">disj</span> : T → T → T := build_gterm&#39; (●<span class="mi">4</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">impl</span> : T → T → T := build_gterm&#39; (●<span class="mi">5</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">GTerm</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** Booleans terms and semantics for boolean formulae. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Module</span> <span class="nf">Term</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bool_varspec</span> := make_varspec bool_signature natset (<span class="kr">λ</span> <span class="nv">_</span>, bool_sort).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Type for boolean (open) terms. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">T</span> := term bool_signature bool_varspec bool_sort.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Constructors for terms. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bot</span>  : T         := build_term&#39; (●<span class="mi">0</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">top</span>  : T         := build_term&#39; (●<span class="mi">1</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">neg</span>  : T → T     := build_term&#39; (●<span class="mi">2</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">conj</span> : T → T → T := build_term&#39; (●<span class="mi">3</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">disj</span> : T → T → T := build_term&#39; (●<span class="mi">4</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">impl</span> : T → T → T := build_term&#39; (●<span class="mi">5</span> : names bool_signature).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Interpretation of propositional formulae. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">interp</span> (<span class="nv">α</span>: assignment bool_algebra bool_varspec) (<span class="nv">t</span>: T) : bool :=
+  fromterm (ops bool_algebra) α bool_sort t.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Computations and interactive proofs. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Module</span> <span class="nf">Tests</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">x</span> : T := varterm (<span class="mi">0</span>: bool_varspec).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">y</span> : T := varterm (<span class="mi">1</span>: bool_varspec).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">z</span> : T := varterm (<span class="mi">2</span>: bool_varspec).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Example: evaluation of true &amp; false *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk0"><span class="kn">Goal</span> interp (<span class="kr">λ</span> <span class="nv">n</span>, false) (conj top bot) = false.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp (<span class="kr">λ</span> <span class="nv">_</span> : bool_varspec, false) (conj top bot) =
+false</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp (<span class="kr">λ</span> <span class="nv">_</span> : bool_varspec, false) (conj top bot) =
+false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk2"><span class="nb">lazy</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">false = false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** A simple evaluation function for variables:</span>
+<span class="sd">    assign true to x and y (the 0th and 1st variable) and false otherwise.</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">v</span> <span class="nv">n</span> :=
+  <span class="kr">match</span> n <span class="kr">with</span>
+    <span class="mi">0</span> =&gt; true
+  | <span class="mi">1</span> =&gt; true
+  | _ =&gt; false
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Example: evaluation of x ∧ (¬ y ∧ z) *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk3"><span class="kn">Goal</span> interp v (conj x (conj (neg  y) z)) = false.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp v (conj x (conj (neg y) z)) = false</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp v (conj x (conj (neg y) z)) = false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk5"><span class="nb">lazy</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">false = false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Example: evaluation of x ∧ (z → ¬ y) *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk6"><span class="kn">Goal</span> interp v (conj x (impl z (neg  y))) = true.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp v (conj x (impl z (neg y))) = true</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk7"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp v (conj x (impl z (neg y))) = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk8"><span class="nb">lazy</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">true = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Dummett tautology *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk9"><span class="kn">Local Lemma</span> <span class="nf">Dummett</span> : ∏ i, interp i (disj (impl x y) (impl y x)) = true.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ i : assignment bool_algebra bool_varspec,
+interp i (disj (impl x y) (impl y x)) = true</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chka"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ i : assignment bool_algebra bool_varspec,
+interp i (disj (impl x y) (impl y x)) = true</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chkb"><span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>i</var><span class="hyp-type"><b>: </b><span>assignment bool_algebra bool_varspec</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">interp i (disj (impl x y) (impl y x)) = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chkc"><span class="nb">lazy</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>i</var><span class="hyp-type"><b>: </b><span>assignment bool_algebra bool_varspec</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="kr">match</span>
+  <span class="kr">match</span> i <span class="mi">0</span> <span class="kr">with</span>
+  | true =&gt; i <span class="mi">1</span>
+  | false =&gt; true
+  <span class="kr">end</span>
+<span class="kr">with</span>
+| true =&gt; true
+| false =&gt;
+    <span class="kr">match</span> i <span class="mi">1</span> <span class="kr">with</span>
+    | true =&gt; i <span class="mi">0</span>
+    | false =&gt; true
+    <span class="kr">end</span>
+<span class="kr">end</span> = true</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">induction</span> (i <span class="mi">0</span>); <span class="nb">induction</span> (i <span class="mi">1</span>); <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** x ∨ ¬ (y ∧ z → x) *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chkd"><span class="kn">Local Lemma</span> <span class="nf">not_tautology</span> : ∑ i, interp i (disj x (neg (impl (conj y z) x))) = false.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ i : assignment bool_algebra bool_varspec,
+interp i (disj x (neg (impl (conj y z) x))) = false</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chke"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ i : assignment bool_algebra bool_varspec,
+interp i (disj x (neg (impl (conj y z) x))) = false</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chkf">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">assignment bool_algebra bool_varspec</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">i</span> : assignment bool_algebra bool_varspec,
+ interp i (disj x (neg (impl (conj y z) x))) = false)
+  <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"> </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk10">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">assignment bool_algebra bool_varspec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">n</span>, <span class="kr">match</span> n <span class="kr">with</span>  _ =&gt; false <span class="kr">end</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"> </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk11">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">i</span> : assignment bool_algebra bool_varspec,
+ interp i (disj x (neg (impl (conj y z) x))) = false)
+  (<span class="kr">λ</span> <span class="nv">_</span> : bool_varspec, false)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk12"><span class="nb">lazy</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">false = false</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">   </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Further tests. *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk13"><span class="kn">Definition</span> <span class="nf">f</span> (<span class="nv">n</span> : nat) : bool.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bool</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk14"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bool</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk15"><span class="nb">induction</span> n <span class="kr">as</span> [|n Hn].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bool</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bool-v-chk16" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>Hn</var><span class="hyp-type"><b>: </b><span>bool</span></span></span><br></div><label class="goal-separator" for="bool-v-chk16"><hr></label><div class="goal-conclusion">bool</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk17">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bool</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> true.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk18">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>Hn</var><span class="hyp-type"><b>: </b><span>bool</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bool</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> false.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk19"><span class="kn">Goal</span> interp f (conj x top) = true.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp f (conj x top) = true</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk1a"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp f (conj x top) = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk1b"><span class="nb">lazy</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">true = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk1c"><span class="kn">Goal</span> interp f (conj x y) = false.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp f (conj x y) = false</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk1d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp f (conj x y) = false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk1e"><span class="nb">lazy</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">false = false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk1f"><span class="kn">Goal</span> interp f (disj x y) = true.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp f (disj x y) = true</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk20"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp f (disj x y) = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk21"><span class="nb">lazy</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">true = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk22"><span class="kn">Goal</span> interp f (disj x (conj y bot)) = true.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp f (disj x (conj y bot)) = true</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk23"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">interp f (disj x (conj y bot)) = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bool-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="bool-v-chk24"><span class="nb">lazy</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">true = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Tests</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Term</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

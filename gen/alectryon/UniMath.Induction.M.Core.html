@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Core.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** ** M-types</span>
+
+<span class="sd">    The M-type associated to (A, B) is the final coalgebra of the associated</span>
+<span class="sd">    polynomial functor.</span>
+
+<span class="sd">    We can&#39;t use (1) the definition of [Terminal], because we can&#39;t use (2)</span>
+<span class="sd">    that (co)algebras and their morphisms form a precategory, because this is</span>
+<span class="sd">    only true when the base category has homsets, which [UU] doesn&#39;t.</span>
+<span class="sd">    Therefore, we must redefine what it means to be a final coalgebra here</span>
+<span class="sd">    without categorical language.</span>
+
+<span class="sd">    (Definition 4 in Ahrens, Capriotti, and Spadotti)</span>
+<span class="sd">    (IsFinal in HoTT/M-types)</span>
+
+<span class="sd">    Author: Langston Barrett (@siddharthist)</span>
+<span class="sd">  *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.PartD.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Induction.FunctorCoalgebras_legacy.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Induction.PolynomialFunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">M</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">A</span> : UU} (<span class="nv">B</span> : A → UU).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Notation</span> <span class="nf">F</span> := (polynomial_functor A B). <span class="c">(* can be coerced to a function *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_prefinal</span> (<span class="nv">X</span> : coalgebra F) :=
+    ∏ (Y : coalgebra F), coalgebra_homo F Y X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_final</span> (<span class="nv">X</span> : coalgebra F) :=
+    ∏ (Y : coalgebra F), iscontr (coalgebra_homo F Y X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** prop-IsFinal in HoTT/M-types *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="core-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="core-v-chk0"><span class="kn">Definition</span> <span class="nf">isaprop_is_final</span> (<span class="nv">X</span> : coalgebra F) : isaprop (is_final X).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>coalgebra F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (is_final X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="core-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="core-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>coalgebra F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (is_final X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="core-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="core-v-chk2"><span class="nb">apply</span> impred.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>coalgebra F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ t : coalgebra F,
+isofhlevel <span class="mi">1</span> (iscontr (coalgebra_homo F t X))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="core-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="core-v-chk3"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br><span><var>X, t</var><span class="hyp-type"><b>: </b><span>coalgebra F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span> (iscontr (coalgebra_homo F t X))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isapropiscontr.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="core-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="core-v-chk4"><span class="kn">Lemma</span> <span class="nf">is_prefinal_to_is_final</span> (<span class="nv">X</span> : coalgebra F) :
+    is_prefinal X -&gt; (∏ Y, isaprop (coalgebra_homo F Y X)) -&gt; is_final X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>coalgebra F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_prefinal X
+→ (∏ Y : coalgebra F, isaprop (coalgebra_homo F Y X))
+  → is_final X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="core-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="core-v-chk5"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>coalgebra F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_prefinal X
+→ (∏ Y : coalgebra F, isaprop (coalgebra_homo F Y X))
+  → is_final X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">is_pre</span> <span class="nv">is_prop</span> <span class="nv">Y</span>, iscontraprop1 (is_prop Y) (is_pre Y)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">M</span> := ∑ (X : coalgebra F), is_final X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">M_coalgebra</span> : M → coalgebra F := pr1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">M_is_final</span> : ∏ (m : M), is_final (pr1 m) := pr2.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">M_coalgebra</span> : M &gt;-&gt; coalgebra.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">M</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> isaprop_is_final {_ _} _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> is_prefinal {_ _} _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> is_final {_ _} _.</span></span></pre>
+</div>
+</div></body>
+</html>

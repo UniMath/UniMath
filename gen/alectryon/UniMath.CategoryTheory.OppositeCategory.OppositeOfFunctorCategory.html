@@ -1,0 +1,1252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>OppositeOfFunctorCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk1"><span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ^op&quot;</span> was already used <span class="kr">in</span> scope cat.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">OppositeOfFunctorCatToFunctorCatOfOpposite</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk2"><span class="kn">Definition</span> <span class="nf">opfunctorcat_to_functorcatofoppcats_data</span>
+    : functor_data ([C,D]^opp) ([C^opp,D^opp]).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data ([C, D] ^opp) [C ^opp, D ^opp]</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk3"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data ([C, D] ^opp) [C ^opp, D ^opp]</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk4">use make_functor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D] ^opp → [C ^opp, D ^opp]</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk5"><hr></label><div class="goal-conclusion">∏ a b : [C, D] ^opp,
+[C, D] ^opp ⟦ a, b ⟧ → [C ^opp, D ^opp] ⟦ <span class="nl">?F</span> a, <span class="nl">?F</span> b ⟧</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D] ^opp → [C ^opp, D ^opp]</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk7"><span class="nb">intro</span> F.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C ^opp, D ^opp]</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk8">use make_functor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data (C ^opp) (D ^opp)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk9" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk9"><hr></label><div class="goal-conclusion">is_functor <span class="nl">?F</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chka">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data (C ^opp) (D ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chkb"><span class="kr">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, (pr1 F) c).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a b : C ^opp,
+C ^opp ⟦ a, b ⟧ → D ^opp ⟦ pr1 F a, pr1 F b ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">c1</span> <span class="nv">c2</span> <span class="nv">f</span>, #(pr1 F) f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chkc">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor
+  ((<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 F c),,
+   (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C ^opp) (<span class="nv">f</span> : C ^opp ⟦ c1, c2 ⟧),
+    # (pr1 F) f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; [ <span class="nb">apply</span> functor_id | <span class="nb">apply</span> functor_comp ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chkd">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a b : [C, D] ^opp,
+[C, D] ^opp ⟦ a, b ⟧
+→ [C ^opp, D ^opp]
+  ⟦ (<span class="kr">λ</span> <span class="nv">F</span> : [C, D] ^opp,
+     make_functor
+       ((<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 F c),,
+        (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C ^opp) (<span class="nv">f</span> : C ^opp ⟦ c1, c2 ⟧),
+         # (pr1 F) f))
+       (opfunctorcat_to_functorcatofoppcats_data_subproof
+          F)) a,
+  (<span class="kr">λ</span> <span class="nv">F</span> : [C, D] ^opp,
+   make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 F c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C ^opp) (<span class="nv">f</span> : C ^opp ⟦ c1, c2 ⟧),
+       # (pr1 F) f))
+     (opfunctorcat_to_functorcatofoppcats_data_subproof
+        F)) b ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chke"><span class="nb">intros</span> F G α.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp ⟦ F, G ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C ^opp, D ^opp]
+⟦ (<span class="kr">λ</span> <span class="nv">F</span> : [C, D] ^opp,
+   make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 F c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C ^opp) (<span class="nv">f</span> : C ^opp ⟦ c1, c2 ⟧),
+       # (pr1 F) f))
+     (opfunctorcat_to_functorcatofoppcats_data_subproof
+        F)) F,
+(<span class="kr">λ</span> <span class="nv">F</span> : [C, D] ^opp,
+ make_functor
+   ((<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 F c),,
+    (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C ^opp) (<span class="nv">f</span> : C ^opp ⟦ c1, c2 ⟧),
+     # (pr1 F) f))
+   (opfunctorcat_to_functorcatofoppcats_data_subproof
+      F)) G ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chkf"><span class="kr">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, pr1 α c).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp ⟦ F, G ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 F c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C ^opp) (<span class="nv">f</span> : C ^opp ⟦ c1, c2 ⟧),
+       # (pr1 F) f))
+     (opfunctorcat_to_functorcatofoppcats_data_subproof
+        F))
+  (make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 G c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C ^opp) (<span class="nv">f</span> : C ^opp ⟦ c1, c2 ⟧),
+       # (pr1 G) f))
+     (opfunctorcat_to_functorcatofoppcats_data_subproof
+        G)) (<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 α c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk10"><span class="nb">intros</span> c1 c2 f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp ⟦ F, G ⟧</span></span></span><br><span><var>c1, c2</var><span class="hyp-type"><b>: </b><span>C ^opp</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ^opp ⟦ c1, c2 ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 F c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C ^opp) (<span class="nv">f</span> : C ^opp ⟦ c1, c2 ⟧),
+       # (pr1 F) f))
+     (opfunctorcat_to_functorcatofoppcats_data_subproof
+        F)) f · pr1 α c2 =
+pr1 α c1
+· # (make_functor
+       ((<span class="kr">λ</span> <span class="nv">c</span> : C, pr1 G c),,
+        (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C ^opp) (<span class="nv">f</span> : C ^opp ⟦ c1, c2 ⟧),
+         # (pr1 G) f))
+       (opfunctorcat_to_functorcatofoppcats_data_subproof
+          G)) f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (! pr2 α c2 c1 f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk11"><span class="kn">Definition</span> <span class="nf">opfunctorcat_to_functorcatofoppcats_is_functor</span>
+    : is_functor opfunctorcat_to_functorcatofoppcats_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor opfunctorcat_to_functorcatofoppcats_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk12"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor opfunctorcat_to_functorcatofoppcats_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; (<span class="nb">apply</span> nat_trans_eq ;
+      [ <span class="nb">apply</span> homset_property
+      | <span class="nb">intro</span> ; <span class="nb">apply</span> idpath
+      ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">opfunctorcat_to_functorcatofoppcats</span>
+    : functor ([C,D]^opp) ([C^opp,D^opp])
+    := opfunctorcat_to_functorcatofoppcats_data ,, opfunctorcat_to_functorcatofoppcats_is_functor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">OppositeOfFunctorCatToFunctorCatOfOpposite</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">OppositeOfFunctorCatFromFunctorCatOfOpposite</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk13"><span class="kn">Definition</span> <span class="nf">opfunctorcat_from_functorcatofoppcats_data</span>
+    : functor_data ([C^opp,D^opp]) ([C,D]^opp).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data [C ^opp, D ^opp] ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk14"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data [C ^opp, D ^opp] ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk15">use make_functor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C ^opp, D ^opp] → [C, D] ^opp</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk16" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk16"><hr></label><div class="goal-conclusion">∏ a b : [C ^opp, D ^opp],
+[C ^opp, D ^opp] ⟦ a, b ⟧ → [C, D] ^opp ⟦ <span class="nl">?F</span> a, <span class="nl">?F</span> b ⟧</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk17">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C ^opp, D ^opp] → [C, D] ^opp</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk18"><span class="nb">intro</span> F.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D] ^opp</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk19">use make_functor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data C D</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk1a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk1a"><hr></label><div class="goal-conclusion">is_functor <span class="nl">?F</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk1b">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data C D</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk1c"><span class="kr">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, (pr1 F) c).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a b : C, C ⟦ a, b ⟧ → D ⟦ pr1 F a, pr1 F b ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">c1</span> <span class="nv">c2</span> <span class="nv">f</span>, #(pr1 F) f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk1d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor
+  ((<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 F c),,
+   (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C) (<span class="nv">f</span> : C ⟦ c1, c2 ⟧), # (pr1 F) f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; [ <span class="nb">apply</span> (functor_id F) | <span class="nb">apply</span> (functor_comp F) ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk1e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a b : [C ^opp, D ^opp],
+[C ^opp, D ^opp] ⟦ a, b ⟧
+→ [C, D] ^opp
+  ⟦ (<span class="kr">λ</span> <span class="nv">F</span> : [C ^opp, D ^opp],
+     make_functor
+       ((<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 F c),,
+        (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C) (<span class="nv">f</span> : C ⟦ c1, c2 ⟧), # (pr1 F) f))
+       (opfunctorcat_from_functorcatofoppcats_data_subproof
+          F)) a,
+  (<span class="kr">λ</span> <span class="nv">F</span> : [C ^opp, D ^opp],
+   make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 F c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C) (<span class="nv">f</span> : C ⟦ c1, c2 ⟧), # (pr1 F) f))
+     (opfunctorcat_from_functorcatofoppcats_data_subproof
+        F)) b ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk1f"><span class="nb">intros</span> F G α.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp] ⟦ F, G ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D] ^opp
+⟦ (<span class="kr">λ</span> <span class="nv">F</span> : [C ^opp, D ^opp],
+   make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 F c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C) (<span class="nv">f</span> : C ⟦ c1, c2 ⟧), # (pr1 F) f))
+     (opfunctorcat_from_functorcatofoppcats_data_subproof
+        F)) F,
+(<span class="kr">λ</span> <span class="nv">F</span> : [C ^opp, D ^opp],
+ make_functor
+   ((<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 F c),,
+    (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C) (<span class="nv">f</span> : C ⟦ c1, c2 ⟧), # (pr1 F) f))
+   (opfunctorcat_from_functorcatofoppcats_data_subproof
+      F)) G ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk20"><span class="kr">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, pr1 α c).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp] ⟦ F, G ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 G c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C) (<span class="nv">f</span> : C ⟦ c1, c2 ⟧), # (pr1 G) f))
+     (opfunctorcat_from_functorcatofoppcats_data_subproof
+        G))
+  (make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 F c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C) (<span class="nv">f</span> : C ⟦ c1, c2 ⟧), # (pr1 F) f))
+     (opfunctorcat_from_functorcatofoppcats_data_subproof
+        F)) (<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 α c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk21"><span class="nb">intros</span> c1 c2 f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp] ⟦ F, G ⟧</span></span></span><br><span><var>c1, c2</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ c1, c2 ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (make_functor
+     ((<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 G c),,
+      (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C) (<span class="nv">f</span> : C ⟦ c1, c2 ⟧), # (pr1 G) f))
+     (opfunctorcat_from_functorcatofoppcats_data_subproof
+        G)) f · pr1 α c2 =
+pr1 α c1
+· # (make_functor
+       ((<span class="kr">λ</span> <span class="nv">c</span> : C ^opp, pr1 F c),,
+        (<span class="kr">λ</span> (<span class="nv">c1</span> <span class="nv">c2</span> : C) (<span class="nv">f</span> : C ⟦ c1, c2 ⟧), # (pr1 F) f))
+       (opfunctorcat_from_functorcatofoppcats_data_subproof
+          F)) f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (! pr2 α c2 c1 f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk22"><span class="kn">Definition</span> <span class="nf">opfunctorcat_from_functorcatofoppcats_is_functor</span>
+    : is_functor opfunctorcat_from_functorcatofoppcats_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor opfunctorcat_from_functorcatofoppcats_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk23"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor opfunctorcat_from_functorcatofoppcats_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; (<span class="nb">apply</span> nat_trans_eq ;
+      [ <span class="nb">apply</span> homset_property
+      | <span class="nb">intro</span> ; <span class="nb">apply</span> idpath
+      ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">opfunctorcat_from_functorcatofoppcats</span>
+    : functor ([C^opp,D^opp]) ([C,D]^opp)
+    := opfunctorcat_from_functorcatofoppcats_data ,, opfunctorcat_from_functorcatofoppcats_is_functor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">OppositeOfFunctorCatFromFunctorCatOfOpposite</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">UnitCounit</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk24"><span class="kn">Lemma</span> <span class="nf">counit_opfunctorcat_functorcatofoppcats</span>
+    : nat_trans (functor_composite
+                   (opfunctorcat_to_functorcatofoppcats C D)
+                   (opfunctorcat_from_functorcatofoppcats C D)
+                )
+                (functor_identity ([C, D]^opp)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">opfunctorcat_to_functorcatofoppcats C D
+∙ opfunctorcat_from_functorcatofoppcats C D
+⟹ functor_identity ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk25"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">opfunctorcat_to_functorcatofoppcats C D
+∙ opfunctorcat_from_functorcatofoppcats C D
+⟹ functor_identity ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk26">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (opfunctorcat_to_functorcatofoppcats C D
+   ∙ opfunctorcat_from_functorcatofoppcats C D)
+  (functor_identity ([C, D] ^opp))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk27" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk27"><hr></label><div class="goal-conclusion">is_nat_trans
+  (opfunctorcat_to_functorcatofoppcats C D
+   ∙ opfunctorcat_from_functorcatofoppcats C D)
+  (functor_identity ([C, D] ^opp)) <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk28">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (opfunctorcat_to_functorcatofoppcats C D
+   ∙ opfunctorcat_from_functorcatofoppcats C D)
+  (functor_identity ([C, D] ^opp))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk29"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D] ^opp
+⟦ (opfunctorcat_to_functorcatofoppcats C D
+   ∙ opfunctorcat_from_functorcatofoppcats C D) x,
+functor_identity ([C, D] ^opp) x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk2a">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data (functor_identity ([C, D] ^opp) x)
+  ((opfunctorcat_to_functorcatofoppcats C D
+    ∙ opfunctorcat_from_functorcatofoppcats C D) x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk2b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk2b"><hr></label><div class="goal-conclusion">is_nat_trans (functor_identity ([C, D] ^opp) x)
+  ((opfunctorcat_to_functorcatofoppcats C D
+    ∙ opfunctorcat_from_functorcatofoppcats C D) x) 
+  <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk2c">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data (functor_identity ([C, D] ^opp) x)
+  ((opfunctorcat_to_functorcatofoppcats C D
+    ∙ opfunctorcat_from_functorcatofoppcats C D) x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">apply</span> identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk2d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans (functor_identity ([C, D] ^opp) x)
+  ((opfunctorcat_to_functorcatofoppcats C D
+    ∙ opfunctorcat_from_functorcatofoppcats C D) x)
+  ((<span class="kr">λ</span> <span class="nv">x0</span> : C,
+    identity
+      ((opfunctorcat_to_functorcatofoppcats C D
+        ∙ opfunctorcat_from_functorcatofoppcats C D) x
+         x0))
+   :
+   nat_trans_data (functor_identity ([C, D] ^opp) x)
+     ((opfunctorcat_to_functorcatofoppcats C D
+       ∙ opfunctorcat_from_functorcatofoppcats C D) x))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk2e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (opfunctorcat_to_functorcatofoppcats C D
+   ∙ opfunctorcat_from_functorcatofoppcats C D)
+  (functor_identity ([C, D] ^opp))
+  ((<span class="kr">λ</span> <span class="nv">x</span> : [C, D] ^opp,
+    make_nat_trans (functor_identity ([C, D] ^opp) x)
+      ((opfunctorcat_to_functorcatofoppcats C D
+        ∙ opfunctorcat_from_functorcatofoppcats C D) x)
+      ((<span class="kr">λ</span> <span class="nv">x0</span> : C,
+        identity
+          ((opfunctorcat_to_functorcatofoppcats C D
+            ∙ opfunctorcat_from_functorcatofoppcats C
+                D) x x0))
+       :
+       nat_trans_data
+         (functor_identity ([C, D] ^opp) x)
+         ((opfunctorcat_to_functorcatofoppcats C D
+           ∙ opfunctorcat_from_functorcatofoppcats C D)
+            x))
+      (counit_opfunctorcat_functorcatofoppcats_subproof
+         x))
+   :
+   nat_trans_data
+     (opfunctorcat_to_functorcatofoppcats C D
+      ∙ opfunctorcat_from_functorcatofoppcats C D)
+     (functor_identity ([C, D] ^opp)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ; use nat_trans_eq ;
+          [ <span class="nb">apply</span> homset_property
+          | <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _) ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk2f"><span class="kn">Lemma</span> <span class="nf">unit_opfunctorcat_functorcatofoppcats</span>
+    : nat_trans
+        (functor_identity [C^opp , D^opp])
+        (functor_composite
+           (opfunctorcat_from_functorcatofoppcats C D)
+           (opfunctorcat_to_functorcatofoppcats C D)
+        ).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_identity [C ^opp, D ^opp]
+⟹ opfunctorcat_from_functorcatofoppcats C D
+  ∙ opfunctorcat_to_functorcatofoppcats C D</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk30"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_identity [C ^opp, D ^opp]
+⟹ opfunctorcat_from_functorcatofoppcats C D
+  ∙ opfunctorcat_to_functorcatofoppcats C D</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk31">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data (functor_identity [C ^opp, D ^opp])
+  (opfunctorcat_from_functorcatofoppcats C D
+   ∙ opfunctorcat_to_functorcatofoppcats C D)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk32" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk32"><hr></label><div class="goal-conclusion">is_nat_trans (functor_identity [C ^opp, D ^opp])
+  (opfunctorcat_from_functorcatofoppcats C D
+   ∙ opfunctorcat_to_functorcatofoppcats C D) <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk33">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data (functor_identity [C ^opp, D ^opp])
+  (opfunctorcat_from_functorcatofoppcats C D
+   ∙ opfunctorcat_to_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk34"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C ^opp, D ^opp]
+⟦ functor_identity [C ^opp, D ^opp] x,
+(opfunctorcat_from_functorcatofoppcats C D
+ ∙ opfunctorcat_to_functorcatofoppcats C D) x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk35">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data (functor_identity [C ^opp, D ^opp] x)
+  ((opfunctorcat_from_functorcatofoppcats C D
+    ∙ opfunctorcat_to_functorcatofoppcats C D) x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk36" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk36"><hr></label><div class="goal-conclusion">is_nat_trans (functor_identity [C ^opp, D ^opp] x)
+  ((opfunctorcat_from_functorcatofoppcats C D
+    ∙ opfunctorcat_to_functorcatofoppcats C D) x) 
+  <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk37">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data (functor_identity [C ^opp, D ^opp] x)
+  ((opfunctorcat_from_functorcatofoppcats C D
+    ∙ opfunctorcat_to_functorcatofoppcats C D) x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">apply</span> identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk38">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans (functor_identity [C ^opp, D ^opp] x)
+  ((opfunctorcat_from_functorcatofoppcats C D
+    ∙ opfunctorcat_to_functorcatofoppcats C D) x)
+  ((<span class="kr">λ</span> <span class="nv">x0</span> : C ^opp,
+    identity
+      ((opfunctorcat_from_functorcatofoppcats C D
+        ∙ opfunctorcat_to_functorcatofoppcats C D) x
+         x0))
+   :
+   nat_trans_data
+     (functor_identity [C ^opp, D ^opp] x)
+     ((opfunctorcat_from_functorcatofoppcats C D
+       ∙ opfunctorcat_to_functorcatofoppcats C D) x))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk39">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans (functor_identity [C ^opp, D ^opp])
+  (opfunctorcat_from_functorcatofoppcats C D
+   ∙ opfunctorcat_to_functorcatofoppcats C D)
+  ((<span class="kr">λ</span> <span class="nv">x</span> : [C ^opp, D ^opp],
+    make_nat_trans
+      (functor_identity [C ^opp, D ^opp] x)
+      ((opfunctorcat_from_functorcatofoppcats C D
+        ∙ opfunctorcat_to_functorcatofoppcats C D) x)
+      ((<span class="kr">λ</span> <span class="nv">x0</span> : C ^opp,
+        identity
+          ((opfunctorcat_from_functorcatofoppcats C D
+            ∙ opfunctorcat_to_functorcatofoppcats C D)
+             x x0))
+       :
+       nat_trans_data
+         (functor_identity [C ^opp, D ^opp] x)
+         ((opfunctorcat_from_functorcatofoppcats C D
+           ∙ opfunctorcat_to_functorcatofoppcats C D)
+            x))
+      (unit_opfunctorcat_functorcatofoppcats_subproof
+         x))
+   :
+   nat_trans_data (functor_identity [C ^opp, D ^opp])
+     (opfunctorcat_from_functorcatofoppcats C D
+      ∙ opfunctorcat_to_functorcatofoppcats C D))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ; use nat_trans_eq ;
+          [ <span class="nb">apply</span> homset_property
+          | <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _) ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">UnitCounit</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">OppositeOfFunctorCatEquivFunctorCatOfOpposite</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk3a"><span class="kn">Definition</span> <span class="nf">opfunctorcat_adjdata_functorcatofoppcats</span>
+    : adjunction_data [C ^opp, D ^opp] ([C, D] ^opp).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">adjunction_data [C ^opp, D ^opp] ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk3b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">adjunction_data [C ^opp, D ^opp] ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk3c">use make_adjunction_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C ^opp, D ^opp] ⟶ [C, D] ^opp</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk3d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk3d"><hr></label><div class="goal-conclusion">[C, D] ^opp ⟶ [C ^opp, D ^opp]</div></blockquote><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk3e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk3e"><hr></label><div class="goal-conclusion">functor_identity [C ^opp, D ^opp] ⟹ <span class="nl">?F</span> ∙ <span class="nl">?G</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk3f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk3f"><hr></label><div class="goal-conclusion"><span class="nl">?G</span> ∙ <span class="nl">?F</span> ⟹ functor_identity ([C, D] ^opp)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk40">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C ^opp, D ^opp] ⟶ [C, D] ^opp</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (opfunctorcat_from_functorcatofoppcats C D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk41">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D] ^opp ⟶ [C ^opp, D ^opp]</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (opfunctorcat_to_functorcatofoppcats C D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk42">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_identity [C ^opp, D ^opp]
+⟹ opfunctorcat_from_functorcatofoppcats C D
+  ∙ opfunctorcat_to_functorcatofoppcats C D</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (unit_opfunctorcat_functorcatofoppcats C D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk43">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">opfunctorcat_to_functorcatofoppcats C D
+∙ opfunctorcat_from_functorcatofoppcats C D
+⟹ functor_identity ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (counit_opfunctorcat_functorcatofoppcats C D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk44"><span class="kn">Lemma</span> <span class="nf">opfunctorcat_adjdata_functorcatofoppcats_form_adjunction</span>
+    :  form_adjunction
+         (opfunctorcat_from_functorcatofoppcats C D)
+         (opfunctorcat_to_functorcatofoppcats C D)
+         (unit_opfunctorcat_functorcatofoppcats C D)
+         (counit_opfunctorcat_functorcatofoppcats C D).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">form_adjunction
+  (opfunctorcat_from_functorcatofoppcats C D)
+  (opfunctorcat_to_functorcatofoppcats C D)
+  (unit_opfunctorcat_functorcatofoppcats C D)
+  (counit_opfunctorcat_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk45"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">form_adjunction
+  (opfunctorcat_from_functorcatofoppcats C D)
+  (opfunctorcat_to_functorcatofoppcats C D)
+  (unit_opfunctorcat_functorcatofoppcats C D)
+  (counit_opfunctorcat_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk46"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">triangle_1_statement
+  (opfunctorcat_from_functorcatofoppcats C D,,
+   opfunctorcat_to_functorcatofoppcats C D,,
+   unit_opfunctorcat_functorcatofoppcats C D,,
+   counit_opfunctorcat_functorcatofoppcats C D)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk47" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk47"><hr></label><div class="goal-conclusion">triangle_2_statement
+  (opfunctorcat_from_functorcatofoppcats C D,,
+   opfunctorcat_to_functorcatofoppcats C D,,
+   unit_opfunctorcat_functorcatofoppcats C D,,
+   counit_opfunctorcat_functorcatofoppcats C D)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk48">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">triangle_1_statement
+  (opfunctorcat_from_functorcatofoppcats C D,,
+   opfunctorcat_to_functorcatofoppcats C D,,
+   unit_opfunctorcat_functorcatofoppcats C D,,
+   counit_opfunctorcat_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk49"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (left_functor
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D))
+  (adjunit
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D) a)
+· adjcounit
+    (opfunctorcat_from_functorcatofoppcats C D,,
+     opfunctorcat_to_functorcatofoppcats C D,,
+     unit_opfunctorcat_functorcatofoppcats C D,,
+     counit_opfunctorcat_functorcatofoppcats C D)
+    (left_functor
+       (opfunctorcat_from_functorcatofoppcats C D,,
+        opfunctorcat_to_functorcatofoppcats C D,,
+        unit_opfunctorcat_functorcatofoppcats C D,,
+        counit_opfunctorcat_functorcatofoppcats C D) a) =
+identity
+  (left_functor
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D) a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk4a">use nat_trans_eq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_homsets D</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk4b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk4b"><hr></label><div class="goal-conclusion">∏ x : C,
+(# (left_functor
+      (opfunctorcat_from_functorcatofoppcats C D,,
+       opfunctorcat_to_functorcatofoppcats C D,,
+       unit_opfunctorcat_functorcatofoppcats C D,,
+       counit_opfunctorcat_functorcatofoppcats C D))
+   (adjunit
+      (opfunctorcat_from_functorcatofoppcats C D,,
+       opfunctorcat_to_functorcatofoppcats C D,,
+       unit_opfunctorcat_functorcatofoppcats C D,,
+       counit_opfunctorcat_functorcatofoppcats C D) a)
+ · adjcounit
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D)
+     (left_functor
+        (opfunctorcat_from_functorcatofoppcats C D,,
+         opfunctorcat_to_functorcatofoppcats C D,,
+         unit_opfunctorcat_functorcatofoppcats C D,,
+         counit_opfunctorcat_functorcatofoppcats C D)
+        a)) x =
+identity
+  (left_functor
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D) a)
+  x</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk4c">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_homsets D</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk4d">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+(# (left_functor
+      (opfunctorcat_from_functorcatofoppcats C D,,
+       opfunctorcat_to_functorcatofoppcats C D,,
+       unit_opfunctorcat_functorcatofoppcats C D,,
+       counit_opfunctorcat_functorcatofoppcats C D))
+   (adjunit
+      (opfunctorcat_from_functorcatofoppcats C D,,
+       opfunctorcat_to_functorcatofoppcats C D,,
+       unit_opfunctorcat_functorcatofoppcats C D,,
+       counit_opfunctorcat_functorcatofoppcats C D) a)
+ · adjcounit
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D)
+     (left_functor
+        (opfunctorcat_from_functorcatofoppcats C D,,
+         opfunctorcat_to_functorcatofoppcats C D,,
+         unit_opfunctorcat_functorcatofoppcats C D,,
+         counit_opfunctorcat_functorcatofoppcats C D)
+        a)) x =
+identity
+  (left_functor
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D) a)
+  x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span>  ; <span class="nb">apply</span> id_left.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk4e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">triangle_2_statement
+  (opfunctorcat_from_functorcatofoppcats C D,,
+   opfunctorcat_to_functorcatofoppcats C D,,
+   unit_opfunctorcat_functorcatofoppcats C D,,
+   counit_opfunctorcat_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk4f"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">adjunit
+  (opfunctorcat_from_functorcatofoppcats C D,,
+   opfunctorcat_to_functorcatofoppcats C D,,
+   unit_opfunctorcat_functorcatofoppcats C D,,
+   counit_opfunctorcat_functorcatofoppcats C D)
+  (right_functor
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D) b)
+· # (right_functor
+       (opfunctorcat_from_functorcatofoppcats C D,,
+        opfunctorcat_to_functorcatofoppcats C D,,
+        unit_opfunctorcat_functorcatofoppcats C D,,
+        counit_opfunctorcat_functorcatofoppcats C D))
+    (adjcounit
+       (opfunctorcat_from_functorcatofoppcats C D,,
+        opfunctorcat_to_functorcatofoppcats C D,,
+        unit_opfunctorcat_functorcatofoppcats C D,,
+        counit_opfunctorcat_functorcatofoppcats C D) b) =
+identity
+  (right_functor
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D) b)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk50">use nat_trans_eq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_homsets (D ^opp)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk51" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk51"><hr></label><div class="goal-conclusion">∏ x : C ^opp,
+(adjunit
+   (opfunctorcat_from_functorcatofoppcats C D,,
+    opfunctorcat_to_functorcatofoppcats C D,,
+    unit_opfunctorcat_functorcatofoppcats C D,,
+    counit_opfunctorcat_functorcatofoppcats C D)
+   (right_functor
+      (opfunctorcat_from_functorcatofoppcats C D,,
+       opfunctorcat_to_functorcatofoppcats C D,,
+       unit_opfunctorcat_functorcatofoppcats C D,,
+       counit_opfunctorcat_functorcatofoppcats C D) b)
+ · # (right_functor
+        (opfunctorcat_from_functorcatofoppcats C D,,
+         opfunctorcat_to_functorcatofoppcats C D,,
+         unit_opfunctorcat_functorcatofoppcats C D,,
+         counit_opfunctorcat_functorcatofoppcats C D))
+     (adjcounit
+        (opfunctorcat_from_functorcatofoppcats C D,,
+         opfunctorcat_to_functorcatofoppcats C D,,
+         unit_opfunctorcat_functorcatofoppcats C D,,
+         counit_opfunctorcat_functorcatofoppcats C D)
+        b)) x =
+identity
+  (right_functor
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D) b)
+  x</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk52">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_homsets (D ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk53">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C ^opp,
+(adjunit
+   (opfunctorcat_from_functorcatofoppcats C D,,
+    opfunctorcat_to_functorcatofoppcats C D,,
+    unit_opfunctorcat_functorcatofoppcats C D,,
+    counit_opfunctorcat_functorcatofoppcats C D)
+   (right_functor
+      (opfunctorcat_from_functorcatofoppcats C D,,
+       opfunctorcat_to_functorcatofoppcats C D,,
+       unit_opfunctorcat_functorcatofoppcats C D,,
+       counit_opfunctorcat_functorcatofoppcats C D) b)
+ · # (right_functor
+        (opfunctorcat_from_functorcatofoppcats C D,,
+         opfunctorcat_to_functorcatofoppcats C D,,
+         unit_opfunctorcat_functorcatofoppcats C D,,
+         counit_opfunctorcat_functorcatofoppcats C D))
+     (adjcounit
+        (opfunctorcat_from_functorcatofoppcats C D,,
+         opfunctorcat_to_functorcatofoppcats C D,,
+         unit_opfunctorcat_functorcatofoppcats C D,,
+         counit_opfunctorcat_functorcatofoppcats C D)
+        b)) x =
+identity
+  (right_functor
+     (opfunctorcat_from_functorcatofoppcats C D,,
+      opfunctorcat_to_functorcatofoppcats C D,,
+      unit_opfunctorcat_functorcatofoppcats C D,,
+      counit_opfunctorcat_functorcatofoppcats C D) b)
+  x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span>  ; <span class="nb">apply</span> id_left.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk54"><span class="kn">Definition</span> <span class="nf">is_left_adjoint_opfunctorcat_from_functorcatofoppcats</span>
+    :  is_left_adjoint (opfunctorcat_from_functorcatofoppcats C D).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_left_adjoint
+  (opfunctorcat_from_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk55"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_left_adjoint
+  (opfunctorcat_from_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk56"><span class="kr">exists</span> (<span class="nv">opfunctorcat_to_functorcatofoppcats</span> <span class="nv">C</span> <span class="nv">D</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">are_adjoints
+  (opfunctorcat_from_functorcatofoppcats C D)
+  (opfunctorcat_to_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk57"><span class="nb">unfold</span> are_adjoints.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑
+etaeps : functor_identity [C ^opp, D ^opp]
+         ⟹ opfunctorcat_from_functorcatofoppcats C D
+           ∙ opfunctorcat_to_functorcatofoppcats C D
+         × opfunctorcat_to_functorcatofoppcats C D
+           ∙ opfunctorcat_from_functorcatofoppcats C D
+           ⟹ functor_identity ([C, D] ^opp),
+form_adjunction
+  (opfunctorcat_from_functorcatofoppcats C D)
+  (opfunctorcat_to_functorcatofoppcats C D)
+  (pr1 etaeps) (pr2 etaeps)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk58">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_identity [C ^opp, D ^opp]
+⟹ opfunctorcat_from_functorcatofoppcats C D
+  ∙ opfunctorcat_to_functorcatofoppcats C D
+× opfunctorcat_to_functorcatofoppcats C D
+  ∙ opfunctorcat_from_functorcatofoppcats C D
+  ⟹ functor_identity ([C, D] ^opp)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk59" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk59"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">etaeps</span> : functor_identity [C ^opp, D ^opp]
+            ⟹ opfunctorcat_from_functorcatofoppcats C
+                D
+              ∙ opfunctorcat_to_functorcatofoppcats C
+                  D
+            × opfunctorcat_to_functorcatofoppcats C D
+              ∙ opfunctorcat_from_functorcatofoppcats
+                  C D ⟹ functor_identity ([C, D] ^opp),
+ form_adjunction
+   (opfunctorcat_from_functorcatofoppcats C D)
+   (opfunctorcat_to_functorcatofoppcats C D)
+   (pr1 etaeps) (pr2 etaeps)) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk5a" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk5a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_identity [C ^opp, D ^opp]
+⟹ opfunctorcat_from_functorcatofoppcats C D
+  ∙ opfunctorcat_to_functorcatofoppcats C D
+× opfunctorcat_to_functorcatofoppcats C D
+  ∙ opfunctorcat_from_functorcatofoppcats C D
+  ⟹ functor_identity ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk5b"><span class="kr">exists</span> (<span class="nv">unit_opfunctorcat_functorcatofoppcats</span> <span class="nv">C</span> <span class="nv">D</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">opfunctorcat_to_functorcatofoppcats C D
+∙ opfunctorcat_from_functorcatofoppcats C D
+⟹ functor_identity ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (counit_opfunctorcat_functorcatofoppcats C D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk5c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">etaeps</span> : functor_identity [C ^opp, D ^opp]
+            ⟹ opfunctorcat_from_functorcatofoppcats C
+                D
+              ∙ opfunctorcat_to_functorcatofoppcats C
+                  D
+            × opfunctorcat_to_functorcatofoppcats C D
+              ∙ opfunctorcat_from_functorcatofoppcats
+                  C D ⟹ functor_identity ([C, D] ^opp),
+ form_adjunction
+   (opfunctorcat_from_functorcatofoppcats C D)
+   (opfunctorcat_to_functorcatofoppcats C D)
+   (pr1 etaeps) (pr2 etaeps))
+  (unit_opfunctorcat_functorcatofoppcats C D,,
+   counit_opfunctorcat_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> opfunctorcat_adjdata_functorcatofoppcats_form_adjunction.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk5d"><span class="kn">Definition</span> <span class="nf">opfunctorcat_functorcatofoppcats_formequivalence</span>
+    : forms_equivalence opfunctorcat_adjdata_functorcatofoppcats.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">forms_equivalence
+  opfunctorcat_adjdata_functorcatofoppcats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk5e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">forms_equivalence
+  opfunctorcat_adjdata_functorcatofoppcats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk5f" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk5f"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : [C ^opp, D ^opp],
+is_z_isomorphism
+  (adjunit opfunctorcat_adjdata_functorcatofoppcats a)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk60" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk60"><hr></label><div class="goal-conclusion">∏ b : [C, D] ^opp,
+is_z_isomorphism
+  (adjcounit opfunctorcat_adjdata_functorcatofoppcats
+     b)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk61" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk61">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : [C ^opp, D ^opp],
+is_z_isomorphism
+  (adjunit opfunctorcat_adjdata_functorcatofoppcats a)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk62" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk62"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (adjunit opfunctorcat_adjdata_functorcatofoppcats a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk63" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk63">use make_is_z_isomorphism.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C ^opp, D ^opp]
+⟦ (pr1 opfunctorcat_adjdata_functorcatofoppcats
+   ∙ pr12 opfunctorcat_adjdata_functorcatofoppcats) a,
+functor_identity [C ^opp, D ^opp] a ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk64" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk64"><hr></label><div class="goal-conclusion">is_inverse_in_precat
+  (adjunit opfunctorcat_adjdata_functorcatofoppcats a)
+  <span class="nl">?g</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk65" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk65">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C ^opp, D ^opp]
+⟦ (pr1 opfunctorcat_adjdata_functorcatofoppcats
+   ∙ pr12 opfunctorcat_adjdata_functorcatofoppcats) a,
+functor_identity [C ^opp, D ^opp] a ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk66" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk66">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  ((pr1 opfunctorcat_adjdata_functorcatofoppcats
+    ∙ pr12 opfunctorcat_adjdata_functorcatofoppcats) a)
+  (functor_identity [C ^opp, D ^opp] a)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk67" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk67"><hr></label><div class="goal-conclusion">is_nat_trans
+  ((pr1 opfunctorcat_adjdata_functorcatofoppcats
+    ∙ pr12 opfunctorcat_adjdata_functorcatofoppcats) a)
+  (functor_identity [C ^opp, D ^opp] a) <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk68" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk68">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  ((pr1 opfunctorcat_adjdata_functorcatofoppcats
+    ∙ pr12 opfunctorcat_adjdata_functorcatofoppcats) a)
+  (functor_identity [C ^opp, D ^opp] a)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">apply</span> identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk69" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk69">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  ((pr1 opfunctorcat_adjdata_functorcatofoppcats
+    ∙ pr12 opfunctorcat_adjdata_functorcatofoppcats) a)
+  (functor_identity [C ^opp, D ^opp] a)
+  ((<span class="kr">λ</span> <span class="nv">x</span> : C ^opp,
+    identity (functor_identity [C ^opp, D ^opp] a x))
+   :
+   nat_trans_data
+     ((pr1 opfunctorcat_adjdata_functorcatofoppcats
+       ∙ pr12 opfunctorcat_adjdata_functorcatofoppcats)
+        a) (functor_identity [C ^opp, D ^opp] a))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk6a" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk6a">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>[C ^opp, D ^opp]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_inverse_in_precat
+  (adjunit opfunctorcat_adjdata_functorcatofoppcats a)
+  (make_nat_trans
+     ((pr1 opfunctorcat_adjdata_functorcatofoppcats
+       ∙ pr12 opfunctorcat_adjdata_functorcatofoppcats)
+        a) (functor_identity [C ^opp, D ^opp] a)
+     ((<span class="kr">λ</span> <span class="nv">x</span> : C ^opp,
+       identity
+         (functor_identity [C ^opp, D ^opp] a x))
+      :
+      nat_trans_data
+        ((pr1 opfunctorcat_adjdata_functorcatofoppcats
+          ∙ pr12 opfunctorcat_adjdata_functorcatofoppcats)
+           a) (functor_identity [C ^opp, D ^opp] a))
+     (opfunctorcat_functorcatofoppcats_formequivalence_subproof
+        a))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">split</span> ; (<span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> id_right ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk6b" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk6b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ b : [C, D] ^opp,
+is_z_isomorphism
+  (adjcounit opfunctorcat_adjdata_functorcatofoppcats
+     b)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk6c" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk6c"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (adjcounit opfunctorcat_adjdata_functorcatofoppcats
+     b)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk6d" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk6d">use make_is_z_isomorphism.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D] ^opp ⟦ functor_identity ([C, D] ^opp) b,
+(pr12 opfunctorcat_adjdata_functorcatofoppcats
+ ∙ pr1 opfunctorcat_adjdata_functorcatofoppcats) b ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk6e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk6e"><hr></label><div class="goal-conclusion">is_inverse_in_precat
+  (adjcounit opfunctorcat_adjdata_functorcatofoppcats
+     b) <span class="nl">?g</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk6f" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk6f">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D] ^opp ⟦ functor_identity ([C, D] ^opp) b,
+(pr12 opfunctorcat_adjdata_functorcatofoppcats
+ ∙ pr1 opfunctorcat_adjdata_functorcatofoppcats) b ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk70" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk70">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  ((pr12 opfunctorcat_adjdata_functorcatofoppcats
+    ∙ pr1 opfunctorcat_adjdata_functorcatofoppcats) b)
+  (functor_identity ([C, D] ^opp) b)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk71" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk71"><hr></label><div class="goal-conclusion">is_nat_trans
+  ((pr12 opfunctorcat_adjdata_functorcatofoppcats
+    ∙ pr1 opfunctorcat_adjdata_functorcatofoppcats) b)
+  (functor_identity ([C, D] ^opp) b) <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk72" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk72">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  ((pr12 opfunctorcat_adjdata_functorcatofoppcats
+    ∙ pr1 opfunctorcat_adjdata_functorcatofoppcats) b)
+  (functor_identity ([C, D] ^opp) b)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">apply</span> identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk73" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk73">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  ((pr12 opfunctorcat_adjdata_functorcatofoppcats
+    ∙ pr1 opfunctorcat_adjdata_functorcatofoppcats) b)
+  (functor_identity ([C, D] ^opp) b)
+  ((<span class="kr">λ</span> <span class="nv">x</span> : C,
+    identity (functor_identity ([C, D] ^opp) b x))
+   :
+   nat_trans_data
+     ((pr12 opfunctorcat_adjdata_functorcatofoppcats
+       ∙ pr1 opfunctorcat_adjdata_functorcatofoppcats)
+        b) (functor_identity ([C, D] ^opp) b))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk74" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk74">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>[C, D] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_inverse_in_precat
+  (adjcounit opfunctorcat_adjdata_functorcatofoppcats
+     b)
+  (make_nat_trans
+     ((pr12 opfunctorcat_adjdata_functorcatofoppcats
+       ∙ pr1 opfunctorcat_adjdata_functorcatofoppcats)
+        b) (functor_identity ([C, D] ^opp) b)
+     ((<span class="kr">λ</span> <span class="nv">x</span> : C,
+       identity (functor_identity ([C, D] ^opp) b x))
+      :
+      nat_trans_data
+        ((pr12 opfunctorcat_adjdata_functorcatofoppcats
+          ∙ pr1
+              opfunctorcat_adjdata_functorcatofoppcats)
+           b) (functor_identity ([C, D] ^opp) b))
+     (opfunctorcat_functorcatofoppcats_formequivalence_subproof0
+        b))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">split</span> ; (<span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> id_right ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk75" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk75"><span class="kn">Definition</span> <span class="nf">opfunctorcat_equiv_functorcatofoppcats</span>
+    : equivalence_of_cats [C^opp,D^opp] ([C,D]^opp).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">equivalence_of_cats [C ^opp, D ^opp] ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk76" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk76"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">equivalence_of_cats [C ^opp, D ^opp] ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk77" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk77">use make_equivalence_of_cats.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">adjunction_data [C ^opp, D ^opp] ([C, D] ^opp)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk78" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk78"><hr></label><div class="goal-conclusion">forms_equivalence <span class="nl">?adjData</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk79" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk79">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">adjunction_data [C ^opp, D ^opp] ([C, D] ^opp)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> opfunctorcat_adjdata_functorcatofoppcats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk7a" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk7a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">forms_equivalence
+  opfunctorcat_adjdata_functorcatofoppcats</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> opfunctorcat_functorcatofoppcats_formequivalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk7b" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk7b"><span class="kn">Definition</span> <span class="nf">opfunctorcat_adjequiv_functorcatofoppcats</span>
+    : adj_equivalence_of_cats (opfunctorcat_from_functorcatofoppcats C D).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">adj_equivalence_of_cats
+  (opfunctorcat_from_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk7c" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk7c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">adj_equivalence_of_cats
+  (opfunctorcat_from_functorcatofoppcats C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk7d" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk7d"><span class="kr">exists</span> <span class="nv">is_left_adjoint_opfunctorcat_from_functorcatofoppcats</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">forms_equivalence
+  is_left_adjoint_opfunctorcat_from_functorcatofoppcats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> opfunctorcat_functorcatofoppcats_formequivalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">OppositeOfFunctorCatEquivFunctorCatOfOpposite</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">PrecompositionFunctorOfOppositeFunctor</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : category} (<span class="nv">C</span> : category) (<span class="nv">F</span> : functor A B).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="c">(* In the following lemma we show that the following diagram commutes (up to a natural isomorphism):</span>
+
+<span class="c">     [B, C] ^opp      ⟶ [A, C] ^opp</span>
+<span class="c">       |                    |</span>
+<span class="c">       |                    |</span>
+<span class="c">     [B^opp, C^opp]   ⟶ [A^opp, C^opp]</span>
+
+<span class="c">   *)</span>
+
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk7e" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk7e"><span class="kn">Definition</span> <span class="nf">functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans</span>
+    : nat_trans
+        (functor_op (pre_composition_functor A B C F))
+        (functor_composite
+          (opfunctorcat_to_functorcatofoppcats B C)
+          (functor_composite
+             (pre_composition_functor _ _ _ (functor_op F))
+             (opfunctorcat_from_functorcatofoppcats A C))
+        ).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_op (pre_composition_functor A B C F)
+⟹ opfunctorcat_to_functorcatofoppcats B C
+  ∙ (pre_composition_functor (A ^opp) (B ^opp)
+       (C ^opp) (functor_op F)
+     ∙ opfunctorcat_from_functorcatofoppcats A C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk7f" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk7f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_op (pre_composition_functor A B C F)
+⟹ opfunctorcat_to_functorcatofoppcats B C
+  ∙ (pre_composition_functor (A ^opp) (B ^opp)
+       (C ^opp) (functor_op F)
+     ∙ opfunctorcat_from_functorcatofoppcats A C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk80" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk80">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (functor_op (pre_composition_functor A B C F))
+  (opfunctorcat_to_functorcatofoppcats B C
+   ∙ (pre_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk81" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk81"><hr></label><div class="goal-conclusion">is_nat_trans
+  (functor_op (pre_composition_functor A B C F))
+  (opfunctorcat_to_functorcatofoppcats B C
+   ∙ (pre_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C)) 
+  <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk82" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk82">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (functor_op (pre_composition_functor A B C F))
+  (opfunctorcat_to_functorcatofoppcats B C
+   ∙ (pre_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk83" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk83"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[A, C] ^opp
+⟦ functor_op (pre_composition_functor A B C F) x,
+(opfunctorcat_to_functorcatofoppcats B C
+ ∙ (pre_composition_functor (A ^opp) (B ^opp) (C ^opp)
+      (functor_op F)
+    ∙ opfunctorcat_from_functorcatofoppcats A C)) x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk84" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk84">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  ((opfunctorcat_to_functorcatofoppcats B C
+    ∙ (pre_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) x)
+  (functor_op (pre_composition_functor A B C F) x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk85" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk85"><hr></label><div class="goal-conclusion">is_nat_trans
+  ((opfunctorcat_to_functorcatofoppcats B C
+    ∙ (pre_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) x)
+  (functor_op (pre_composition_functor A B C F) x) 
+  <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk86" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk86">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  ((opfunctorcat_to_functorcatofoppcats B C
+    ∙ (pre_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) x)
+  (functor_op (pre_composition_functor A B C F) x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">apply</span> identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk87" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk87">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  ((opfunctorcat_to_functorcatofoppcats B C
+    ∙ (pre_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) x)
+  (functor_op (pre_composition_functor A B C F) x)
+  ((<span class="kr">λ</span> <span class="nv">x0</span> : A,
+    identity
+      (functor_op (pre_composition_functor A B C F) x
+         x0))
+   :
+   nat_trans_data
+     ((opfunctorcat_to_functorcatofoppcats B C
+       ∙ (pre_composition_functor (A ^opp) (B ^opp)
+            (C ^opp) (functor_op F)
+          ∙ opfunctorcat_from_functorcatofoppcats A C))
+        x)
+     (functor_op (pre_composition_functor A B C F) x))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk88" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk88">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (functor_op (pre_composition_functor A B C F))
+  (opfunctorcat_to_functorcatofoppcats B C
+   ∙ (pre_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C))
+  ((<span class="kr">λ</span> <span class="nv">x</span> : [B, C] ^opp,
+    make_nat_trans
+      ((opfunctorcat_to_functorcatofoppcats B C
+        ∙ (pre_composition_functor (A ^opp) (B ^opp)
+             (C ^opp) (functor_op F)
+           ∙ opfunctorcat_from_functorcatofoppcats A C))
+         x)
+      (functor_op (pre_composition_functor A B C F) x)
+      ((<span class="kr">λ</span> <span class="nv">x0</span> : A,
+        identity
+          (functor_op
+             (pre_composition_functor A B C F) x x0))
+       :
+       nat_trans_data
+         ((opfunctorcat_to_functorcatofoppcats B C
+           ∙ (pre_composition_functor (A ^opp)
+                (B ^opp) (C ^opp) (functor_op F)
+              ∙ opfunctorcat_from_functorcatofoppcats
+                  A C)) x)
+         (functor_op (pre_composition_functor A B C F)
+            x))
+      (functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans_subproof
+         x))
+   :
+   nat_trans_data
+     (functor_op (pre_composition_functor A B C F))
+     (opfunctorcat_to_functorcatofoppcats B C
+      ∙ (pre_composition_functor (A ^opp) (B ^opp)
+           (C ^opp) (functor_op F)
+         ∙ opfunctorcat_from_functorcatofoppcats A C)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _)]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk89" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk89"><span class="kn">Lemma</span> <span class="nf">functor_op_of_precomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso</span>
+    : is_nat_z_iso functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk8a" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk8a"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk8b" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk8b"><span class="nb">intro</span> G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans
+     G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk8c" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk8c">use make_is_z_isomorphism.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[A, C] ^opp
+⟦ (opfunctorcat_to_functorcatofoppcats B C
+   ∙ (pre_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C)) G,
+functor_op (pre_composition_functor A B C F) G ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk8d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk8d"><hr></label><div class="goal-conclusion">is_inverse_in_precat
+  (functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans
+     G) <span class="nl">?g</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk8e" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk8e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[A, C] ^opp
+⟦ (opfunctorcat_to_functorcatofoppcats B C
+   ∙ (pre_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C)) G,
+functor_op (pre_composition_functor A B C F) G ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk8f" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk8f">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (functor_op (pre_composition_functor A B C F) G)
+  ((opfunctorcat_to_functorcatofoppcats B C
+    ∙ (pre_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) G)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk90" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk90"><hr></label><div class="goal-conclusion">is_nat_trans
+  (functor_op (pre_composition_functor A B C F) G)
+  ((opfunctorcat_to_functorcatofoppcats B C
+    ∙ (pre_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) G)
+  <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk91" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk91">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (functor_op (pre_composition_functor A B C F) G)
+  ((opfunctorcat_to_functorcatofoppcats B C
+    ∙ (pre_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) G)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">apply</span> identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk92" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk92">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (functor_op (pre_composition_functor A B C F) G)
+  ((opfunctorcat_to_functorcatofoppcats B C
+    ∙ (pre_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) G)
+  ((<span class="kr">λ</span> <span class="nv">x</span> : A,
+    identity
+      ((opfunctorcat_to_functorcatofoppcats B C
+        ∙ (pre_composition_functor (A ^opp) (B ^opp)
+             (C ^opp) (functor_op F)
+           ∙ opfunctorcat_from_functorcatofoppcats A C))
+         G x))
+   :
+   nat_trans_data
+     (functor_op (pre_composition_functor A B C F) G)
+     ((opfunctorcat_to_functorcatofoppcats B C
+       ∙ (pre_composition_functor (A ^opp) (B ^opp)
+            (C ^opp) (functor_op F)
+          ∙ opfunctorcat_from_functorcatofoppcats A C))
+        G))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk93" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk93">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B, C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>A ⟶ B</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[B, C] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_inverse_in_precat
+  (functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans
+     G)
+  (make_nat_trans
+     (functor_op (pre_composition_functor A B C F) G)
+     ((opfunctorcat_to_functorcatofoppcats B C
+       ∙ (pre_composition_functor (A ^opp) (B ^opp)
+            (C ^opp) (functor_op F)
+          ∙ opfunctorcat_from_functorcatofoppcats A C))
+        G)
+     ((<span class="kr">λ</span> <span class="nv">x</span> : A,
+       identity
+         ((opfunctorcat_to_functorcatofoppcats B C
+           ∙ (pre_composition_functor (A ^opp)
+                (B ^opp) (C ^opp) (functor_op F)
+              ∙ opfunctorcat_from_functorcatofoppcats
+                  A C)) G x))
+      :
+      nat_trans_data
+        (functor_op (pre_composition_functor A B C F)
+           G)
+        ((opfunctorcat_to_functorcatofoppcats B C
+          ∙ (pre_composition_functor (A ^opp) (B ^opp)
+               (C ^opp) (functor_op F)
+             ∙ opfunctorcat_from_functorcatofoppcats A
+                 C)) G))
+     (functor_op_of_precomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso_subproof
+        G))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">split</span> ; (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> id_right ])).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">functor_op_of_precomp_functor_factorizes_through_functorcatofopp_nat_z_iso</span>
+    : nat_z_iso
+        (functor_op (pre_composition_functor A B C F))
+        (functor_composite
+          (opfunctorcat_to_functorcatofoppcats B C)
+          (functor_composite
+             (pre_composition_functor _ _ _ (functor_op F))
+             (opfunctorcat_from_functorcatofoppcats A C))
+        )
+    := make_nat_z_iso _ _ _ (functor_op_of_precomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">PrecompositionFunctorOfOppositeFunctor</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">PostcompositionFunctorOfOppositeFunctor</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">A</span> : category) (<span class="nv">F</span> : functor B C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk94" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk94"><span class="kn">Definition</span> <span class="nf">functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans</span>
+    : nat_trans
+        (functor_op (post_composition_functor A B C F))
+        (functor_composite
+          (opfunctorcat_to_functorcatofoppcats A B)
+          (functor_composite
+             (post_composition_functor _ _ _ (functor_op F))
+             (opfunctorcat_from_functorcatofoppcats A C))
+        ).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_op (post_composition_functor A B C F)
+⟹ opfunctorcat_to_functorcatofoppcats A B
+  ∙ (post_composition_functor (A ^opp) (B ^opp)
+       (C ^opp) (functor_op F)
+     ∙ opfunctorcat_from_functorcatofoppcats A C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk95" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk95"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_op (post_composition_functor A B C F)
+⟹ opfunctorcat_to_functorcatofoppcats A B
+  ∙ (post_composition_functor (A ^opp) (B ^opp)
+       (C ^opp) (functor_op F)
+     ∙ opfunctorcat_from_functorcatofoppcats A C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk96" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk96">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (functor_op (post_composition_functor A B C F))
+  (opfunctorcat_to_functorcatofoppcats A B
+   ∙ (post_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk97" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk97"><hr></label><div class="goal-conclusion">is_nat_trans
+  (functor_op (post_composition_functor A B C F))
+  (opfunctorcat_to_functorcatofoppcats A B
+   ∙ (post_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C)) 
+  <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk98" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk98">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (functor_op (post_composition_functor A B C F))
+  (opfunctorcat_to_functorcatofoppcats A B
+   ∙ (post_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk99" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk99"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[A, C] ^opp
+⟦ functor_op (post_composition_functor A B C F) x,
+(opfunctorcat_to_functorcatofoppcats A B
+ ∙ (post_composition_functor (A ^opp) (B ^opp)
+      (C ^opp) (functor_op F)
+    ∙ opfunctorcat_from_functorcatofoppcats A C)) x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk9a" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk9a">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  ((opfunctorcat_to_functorcatofoppcats A B
+    ∙ (post_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) x)
+  (functor_op (post_composition_functor A B C F) x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chk9b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chk9b"><hr></label><div class="goal-conclusion">is_nat_trans
+  ((opfunctorcat_to_functorcatofoppcats A B
+    ∙ (post_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) x)
+  (functor_op (post_composition_functor A B C F) x) 
+  <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk9c" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk9c">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  ((opfunctorcat_to_functorcatofoppcats A B
+    ∙ (post_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) x)
+  (functor_op (post_composition_functor A B C F) x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">apply</span> identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk9d" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk9d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  ((opfunctorcat_to_functorcatofoppcats A B
+    ∙ (post_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) x)
+  (functor_op (post_composition_functor A B C F) x)
+  ((<span class="kr">λ</span> <span class="nv">x0</span> : A,
+    identity
+      (functor_op (post_composition_functor A B C F) x
+         x0))
+   :
+   nat_trans_data
+     ((opfunctorcat_to_functorcatofoppcats A B
+       ∙ (post_composition_functor (A ^opp) (B ^opp)
+            (C ^opp) (functor_op F)
+          ∙ opfunctorcat_from_functorcatofoppcats A C))
+        x)
+     (functor_op (post_composition_functor A B C F) x))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk9e" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk9e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (functor_op (post_composition_functor A B C F))
+  (opfunctorcat_to_functorcatofoppcats A B
+   ∙ (post_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C))
+  ((<span class="kr">λ</span> <span class="nv">x</span> : [A, B] ^opp,
+    make_nat_trans
+      ((opfunctorcat_to_functorcatofoppcats A B
+        ∙ (post_composition_functor (A ^opp) (B ^opp)
+             (C ^opp) (functor_op F)
+           ∙ opfunctorcat_from_functorcatofoppcats A C))
+         x)
+      (functor_op (post_composition_functor A B C F) x)
+      ((<span class="kr">λ</span> <span class="nv">x0</span> : A,
+        identity
+          (functor_op
+             (post_composition_functor A B C F) x x0))
+       :
+       nat_trans_data
+         ((opfunctorcat_to_functorcatofoppcats A B
+           ∙ (post_composition_functor (A ^opp)
+                (B ^opp) (C ^opp) (functor_op F)
+              ∙ opfunctorcat_from_functorcatofoppcats
+                  A C)) x)
+         (functor_op
+            (post_composition_functor A B C F) x))
+      (functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans_subproof
+         x))
+   :
+   nat_trans_data
+     (functor_op (post_composition_functor A B C F))
+     (opfunctorcat_to_functorcatofoppcats A B
+      ∙ (post_composition_functor (A ^opp) (B ^opp)
+           (C ^opp) (functor_op F)
+         ∙ opfunctorcat_from_functorcatofoppcats A C)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _)]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chk9f" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chk9f"><span class="kn">Lemma</span> <span class="nf">functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso</span>
+    : is_nat_z_iso functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chka0" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chka0"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chka1" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chka1"><span class="nb">intro</span> G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans
+     G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chka2" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chka2">use make_is_z_isomorphism.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[A, C] ^opp
+⟦ (opfunctorcat_to_functorcatofoppcats A B
+   ∙ (post_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C)) G,
+functor_op (post_composition_functor A B C F) G ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chka3" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chka3"><hr></label><div class="goal-conclusion">is_inverse_in_precat
+  (functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans
+     G) <span class="nl">?g</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chka4" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chka4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[A, C] ^opp
+⟦ (opfunctorcat_to_functorcatofoppcats A B
+   ∙ (post_composition_functor (A ^opp) (B ^opp)
+        (C ^opp) (functor_op F)
+      ∙ opfunctorcat_from_functorcatofoppcats A C)) G,
+functor_op (post_composition_functor A B C F) G ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chka5" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chka5">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (functor_op (post_composition_functor A B C F) G)
+  ((opfunctorcat_to_functorcatofoppcats A B
+    ∙ (post_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) G)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="oppositeoffunctorcategory-v-chka6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><label class="goal-separator" for="oppositeoffunctorcategory-v-chka6"><hr></label><div class="goal-conclusion">is_nat_trans
+  (functor_op (post_composition_functor A B C F) G)
+  ((opfunctorcat_to_functorcatofoppcats A B
+    ∙ (post_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) G)
+  <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chka7" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chka7">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (functor_op (post_composition_functor A B C F) G)
+  ((opfunctorcat_to_functorcatofoppcats A B
+    ∙ (post_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) G)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">apply</span> identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chka8" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chka8">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (functor_op (post_composition_functor A B C F) G)
+  ((opfunctorcat_to_functorcatofoppcats A B
+    ∙ (post_composition_functor (A ^opp) (B ^opp)
+         (C ^opp) (functor_op F)
+       ∙ opfunctorcat_from_functorcatofoppcats A C)) G)
+  ((<span class="kr">λ</span> <span class="nv">x</span> : A,
+    identity
+      ((opfunctorcat_to_functorcatofoppcats A B
+        ∙ (post_composition_functor (A ^opp) (B ^opp)
+             (C ^opp) (functor_op F)
+           ∙ opfunctorcat_from_functorcatofoppcats A C))
+         G x))
+   :
+   nat_trans_data
+     (functor_op (post_composition_functor A B C F) G)
+     ((opfunctorcat_to_functorcatofoppcats A B
+       ∙ (post_composition_functor (A ^opp) (B ^opp)
+            (C ^opp) (functor_op F)
+          ∙ opfunctorcat_from_functorcatofoppcats A C))
+        G))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="oppositeoffunctorcategory-v-chka9" style="display: none" type="checkbox"><label class="alectryon-input" for="oppositeoffunctorcategory-v-chka9">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B, C, A</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>B ⟶ C</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>[A, B] ^opp</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_inverse_in_precat
+  (functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans
+     G)
+  (make_nat_trans
+     (functor_op (post_composition_functor A B C F) G)
+     ((opfunctorcat_to_functorcatofoppcats A B
+       ∙ (post_composition_functor (A ^opp) (B ^opp)
+            (C ^opp) (functor_op F)
+          ∙ opfunctorcat_from_functorcatofoppcats A C))
+        G)
+     ((<span class="kr">λ</span> <span class="nv">x</span> : A,
+       identity
+         ((opfunctorcat_to_functorcatofoppcats A B
+           ∙ (post_composition_functor (A ^opp)
+                (B ^opp) (C ^opp) (functor_op F)
+              ∙ opfunctorcat_from_functorcatofoppcats
+                  A C)) G x))
+      :
+      nat_trans_data
+        (functor_op (post_composition_functor A B C F)
+           G)
+        ((opfunctorcat_to_functorcatofoppcats A B
+          ∙ (post_composition_functor (A ^opp)
+               (B ^opp) (C ^opp) (functor_op F)
+             ∙ opfunctorcat_from_functorcatofoppcats A
+                 C)) G))
+     (functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso_subproof
+        G))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">split</span> ; (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> id_right ])).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_nat_z_iso</span>
+    : nat_z_iso
+        (functor_op (post_composition_functor A B C F))
+        (functor_composite
+          (opfunctorcat_to_functorcatofoppcats A B)
+          (functor_composite
+             (post_composition_functor _ _ _ (functor_op F))
+             (opfunctorcat_from_functorcatofoppcats A C))
+        )
+    := make_nat_z_iso _ _ _ (functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">PostcompositionFunctorOfOppositeFunctor</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

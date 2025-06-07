@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>YonedaExponentials.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The Yoneda embedding preserves exponentials</span>
+
+<span class="sd">  This file shows that the Yoneda embedding Y preserves exponentials. It does this by first</span>
+<span class="sd">  establishing isomorphisms between Y(X^Y)(Z) and (Y(X)^Y(Y))(Z) for all Z, and then showing that</span>
+<span class="sd">  these are equal to the morphisms given by `preserves_exponentials_map`. From this, we conclude</span>
+<span class="sd">  that `preserves_exponentials_map` is an isomorphism.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The Yoneda embedding preserves exponentials [yoneda_preserves_exponentials]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.YonedaBinproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The scopes must be in this order, because we use ∘ from weq_scope and not from cat *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> weq_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">YonedaPreservesExponentials</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : category}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">BP</span> : BinProducts C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">Exp</span> : Exponentials BP).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk1"><span class="kn">Definition</span> <span class="nf">yoneda_exponentials_iso</span>
+    (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C)
+    : z_iso
+      ((yoneda C (exp (Exp X) Y) : _ ⟶ _) Z)
+      ((exp (Exponentials_PreShv (yoneda C X)) (yoneda C Y) : _ ⟶ _) Z).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">z_iso
+  ((yoneda C (exp (Exp X) Y)
+    :
+    opp_precat.op_category C ⟶ SET) Z)
+  ((exp (Exponentials_PreShv (yoneda C X))
+      (yoneda C Y)
+    :
+    opp_precat.op_category C ⟶ SET) Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">z_iso
+  ((yoneda C (exp (Exp X) Y)
+    :
+    opp_precat.op_category C ⟶ SET) Z)
+  ((exp (Exponentials_PreShv (yoneda C X))
+      (yoneda C Y)
+    :
+    opp_precat.op_category C ⟶ SET) Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk3"><span class="nb">refine</span> (hset_equiv_weq_z_iso _ _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (yoneda C (exp (Exp X) Y) Z)
+≃ pr1
+    (exp (Exponentials_PreShv (yoneda C X))
+       (yoneda C Y) Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk4"><span class="nb">refine</span> (yoneda_weq _ _ (exp (Exponentials_PreShv _) _) ∘ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (yoneda C (exp (Exp X) Y) Z)
+≃ [opp_precat.op_category C, SET, has_homsets_HSET]
+  ⟦ yoneda C Z,
+  exp (Exponentials_PreShv (yoneda C X)) (yoneda C Y)
+  ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk5"><span class="nb">refine</span> (adjunction_hom_weq (pr2 (Exponentials_PreShv _)) _ _ ∘ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (yoneda C (exp (Exp X) Y) Z)
+≃ [opp_precat.op_category C, SET]
+  ⟦ constprod_functor1 BinProducts_PreShv (yoneda C X)
+      (yoneda C Z), yoneda C Y ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk6"><span class="nb">refine</span> (invweq (z_iso_comp_right_weq (preserves_binproduct_to_z_iso _
+      (yoneda_preserves_binproduct _ BP) _ (BinProducts_PreShv _ _)) _) ∘ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (yoneda C (exp (Exp X) Y) Z)
+≃ [opp_precat.op_category C, SET]
+  ⟦ preserves_binproduct_to_binproduct (yoneda C)
+      (yoneda_preserves_binproduct C BP) <span class="nl">?Goal0</span>,
+  yoneda C Y ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk7"><span class="nb">refine</span> (weq_from_fully_faithful (yoneda_fully_faithful _) _ _ ∘ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (yoneda C (exp (Exp X) Y) Z) ≃ C ⟦ pr11 <span class="nl">?Goal</span>, Y ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk8"><span class="nb">refine</span> (invweq (adjunction_hom_weq (pr2 (Exp X)) _ _) ∘ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (yoneda C (exp (Exp X) Y) Z)
+≃ C ⟦ Z, pr1 (Exp X) Y ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk9"><span class="nb">refine</span> (invweq (weq_from_fully_faithful (yoneda_fully_faithful _) _ _) ∘ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (yoneda C (exp (Exp X) Y) Z)
+≃ [opp_precat.op_category C, SET] ⟦ yoneda C Z,
+  yoneda C (pr1 (Exp X) Y) ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (invweq (yoneda_weq _ _ (yoneda _ _))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** The pr1 is definitionally equal to nat_trans_data_from_nat_trans_funclass,</span>
+<span class="sd">    but the latter gives an increase of about 5 seconds in yoneda_preserves_exponentials *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chka"><span class="kn">Lemma</span> <span class="nf">yoneda_exponentials_iso_is_preserves_exponentials</span>
+    (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C)
+    : z_iso_mor (yoneda_exponentials_iso X Y Z)
+    = pr1 (preserves_exponentials_map _ _ (yoneda_preserves_binproduct _ BP) _ _) Z.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">yoneda_exponentials_iso X Y Z =
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chkb"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">yoneda_exponentials_iso X Y Z =
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chkc"><span class="nb">apply</span> funextsec.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">yoneda_exponentials_iso X Y Z ~
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chkd"><span class="nb">intro</span> f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">yoneda_exponentials_iso X Y Z f =
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chke"><span class="nb">apply</span> nat_trans_eq_alt.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : opp_precat.op_category C,
+yoneda_exponentials_iso X Y Z f x =
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z f x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chkf"><span class="nb">intro</span> d.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">yoneda_exponentials_iso X Y Z f d =
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z f d</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk10"><span class="nb">apply</span> funextfun.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">yoneda_exponentials_iso X Y Z f d ~
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z f d</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk11"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">yoneda_exponentials_iso X Y Z f d x =
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z f d x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk12"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">yoneda_morphisms_data C (pr11 (BP X Z)) Y
+  (φ_adj_inv (pr2 (Exp X)) (identity Z · f)) d
+  (yoneda_morphisms_data C (BP X Z) (pr11 (BP X Z))
+     (BinProductArrow C
+        (make_BinProduct C X Z (pr11 (BP X Z))
+           (pr121 (BP X Z)) (pr221 (BP X Z))
+           (pr2 (BP X Z))) (BinProductPr1 C (BP X Z))
+        (BinProductPr2 C (BP X Z))) d
+     (yon_binprod_inv_nat_trans_data BP X Z d
+        (prodtofuntoprod
+           (pr1,,
+            (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+                   × yoneda_objects_ob C Z d, pr2 x))
+           (make_dirprod (pr2 x)
+              (identity d · pr1 x · identity Z))))) =
+yoneda_morphisms_data C (pr11 (BP X (exp (Exp X) Y)))
+  Y (exp_eval (Exp X) Y) d
+  (yoneda_morphisms_data C (BP X (exp (Exp X) Y))
+     (pr11 (BP X (exp (Exp X) Y)))
+     (BinProductArrow C
+        (make_BinProduct C X (exp (Exp X) Y)
+           (pr11 (BP X (exp (Exp X) Y)))
+           (pr121 (BP X (exp (Exp X) Y)))
+           (pr221 (BP X (exp (Exp X) Y)))
+           (pr2 (BP X (exp (Exp X) Y))))
+        (BinProductPr1 C (BP X (exp (Exp X) Y)))
+        (BinProductPr2 C (BP X (exp (Exp X) Y)))) d
+     (yon_binprod_inv_nat_trans_data BP X
+        (exp (Exp X) Y) d
+        (prodtofuntoprod
+           (pr1,,
+            (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+                   × yoneda_objects_ob C
+                       (exp (Exp X) Y) d, pr2 x))
+           (make_dirprod (pr2 x)
+              (identity d · pr1 x · f)))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk13"><span class="kp">do</span> <span class="mi">2</span> (
+      <span class="nb">refine</span> (!maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, _ · BinProductArrow _ _ x _ · _) (id_right (BinProductPr1 _ _)) @ _);
+      <span class="nb">refine</span> (!maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, _ · BinProductArrow _ _ _ x · _) (id_right (BinProductPr2 _ _)) @ _);
+      <span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x · _) (postcompWithBinProductArrow _ _ _ _ _ _ _) @ !_)
+    ).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">BinProductArrow C (BP X Z)
+  (pr1
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C Z d, pr2 x))
+     (make_dirprod (pr2 x)
+        (identity d · pr1 x · identity Z))
+   · identity X)
+  (pr2
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C Z d, pr2 x))
+     (make_dirprod (pr2 x)
+        (identity d · pr1 x · identity Z))
+   · identity Z)
+· φ_adj_inv (pr2 (Exp X)) (identity Z · f) =
+BinProductArrow C (BP X (exp (Exp X) Y))
+  (pr1
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C (exp (Exp X) Y) d,
+       pr2 x))
+     (make_dirprod (pr2 x) (identity d · pr1 x · f))
+   · identity X)
+  (pr2
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C (exp (Exp X) Y) d,
+       pr2 x))
+     (make_dirprod (pr2 x) (identity d · pr1 x · f))
+   · identity (exp (Exp X) Y)) · exp_eval (Exp X) Y</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk14"><span class="nb">refine</span> (assoc _ _ _ @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">BinProductArrow C (BP X Z)
+  (pr1
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C Z d, pr2 x))
+     (make_dirprod (pr2 x)
+        (identity d · pr1 x · identity Z))
+   · identity X)
+  (pr2
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C Z d, pr2 x))
+     (make_dirprod (pr2 x)
+        (identity d · pr1 x · identity Z))
+   · identity Z)
+· # (constprod_functor1 BP X) (identity Z · f)
+· counit_from_are_adjoints (pr2 (Exp X)) Y =
+BinProductArrow C (BP X (exp (Exp X) Y))
+  (pr1
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C (exp (Exp X) Y) d,
+       pr2 x))
+     (make_dirprod (pr2 x) (identity d · pr1 x · f))
+   · identity X)
+  (pr2
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C (exp (Exp X) Y) d,
+       pr2 x))
+     (make_dirprod (pr2 x) (identity d · pr1 x · f))
+   · identity (exp (Exp X) Y)) · exp_eval (Exp X) Y</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk15"><span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x · _) (postcompWithBinProductArrow _ _ _ _ _ _ _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">BinProductArrow C
+  (BP (constant_functor C C X (pr1 (Exp X) Y))
+     (functor_identity C (pr1 (Exp X) Y)))
+  (pr1
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C Z d, pr2 x))
+     (make_dirprod (pr2 x)
+        (identity d · pr1 x · identity Z))
+   · identity X
+   · # (constant_functor C C X) (identity Z · f))
+  (pr2
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C Z d, pr2 x))
+     (make_dirprod (pr2 x)
+        (identity d · pr1 x · identity Z))
+   · identity Z
+   · # (functor_identity C) (identity Z · f))
+· counit_from_are_adjoints (pr2 (Exp X)) Y =
+BinProductArrow C (BP X (exp (Exp X) Y))
+  (pr1
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C (exp (Exp X) Y) d,
+       pr2 x))
+     (make_dirprod (pr2 x) (identity d · pr1 x · f))
+   · identity X)
+  (pr2
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C (exp (Exp X) Y) d,
+       pr2 x))
+     (make_dirprod (pr2 x) (identity d · pr1 x · f))
+   · identity (exp (Exp X) Y)) · exp_eval (Exp X) Y</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk16"><span class="nb">apply</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x · _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">BinProductArrow C
+  (BP (constant_functor C C X (pr1 (Exp X) Y))
+     (functor_identity C (pr1 (Exp X) Y)))
+  (pr1
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C Z d, pr2 x))
+     (make_dirprod (pr2 x)
+        (identity d · pr1 x · identity Z))
+   · identity X
+   · # (constant_functor C C X) (identity Z · f))
+  (pr2
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C Z d, pr2 x))
+     (make_dirprod (pr2 x)
+        (identity d · pr1 x · identity Z))
+   · identity Z
+   · # (functor_identity C) (identity Z · f)) =
+BinProductArrow C (BP X (exp (Exp X) Y))
+  (pr1
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C (exp (Exp X) Y) d,
+       pr2 x))
+     (make_dirprod (pr2 x) (identity d · pr1 x · f))
+   · identity X)
+  (pr2
+     (pr1,,
+      (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+             × yoneda_objects_ob C (exp (Exp X) Y) d,
+       pr2 x))
+     (make_dirprod (pr2 x) (identity d · pr1 x · f))
+   · identity (exp (Exp X) Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk17"><span class="nb">refine</span> (
+      maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, BinProductArrow _ (BP X (pr1 (Exp X) Y)) x _) _ @
+      maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, BinProductArrow _ (BP X (pr1 (Exp X) Y)) _ x) _
+    ).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C Z d, pr2 x))
+  (make_dirprod (pr2 x)
+     (identity d · pr1 x · identity Z)) · identity X
+· # (constant_functor C C X) (identity Z · f) =
+pr1
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C (exp (Exp X) Y) d,
+    pr2 x))
+  (make_dirprod (pr2 x) (identity d · pr1 x · f))
+· identity X</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="yonedaexponentials-v-chk18" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><label class="goal-separator" for="yonedaexponentials-v-chk18"><hr></label><div class="goal-conclusion">pr2
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C Z d, pr2 x))
+  (make_dirprod (pr2 x)
+     (identity d · pr1 x · identity Z)) · identity Z
+· # (functor_identity C) (identity Z · f) =
+pr2
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C (exp (Exp X) Y) d,
+    pr2 x))
+  (make_dirprod (pr2 x) (identity d · pr1 x · f))
+· identity (exp (Exp X) Y)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk19">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C Z d, pr2 x))
+  (make_dirprod (pr2 x)
+     (identity d · pr1 x · identity Z)) · identity X
+· # (constant_functor C C X) (identity Z · f) =
+pr1
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C (exp (Exp X) Y) d,
+    pr2 x))
+  (make_dirprod (pr2 x) (identity d · pr1 x · f))
+· identity X</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> id_right.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk1a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C Z d, pr2 x))
+  (make_dirprod (pr2 x)
+     (identity d · pr1 x · identity Z)) · identity Z
+· # (functor_identity C) (identity Z · f) =
+pr2
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C (exp (Exp X) Y) d,
+    pr2 x))
+  (make_dirprod (pr2 x) (identity d · pr1 x · f))
+· identity (exp (Exp X) Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk1b"><span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x · _) (id_right _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C Z d, pr2 x))
+  (make_dirprod (pr2 x)
+     (identity d · pr1 x · identity Z))
+· # (functor_identity C) (identity Z · f) =
+pr2
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C (exp (Exp X) Y) d,
+    pr2 x))
+  (make_dirprod (pr2 x) (identity d · pr1 x · f))
+· identity (exp (Exp X) Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk1c"><span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, x · _) (id_right _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity d · pr1 x
+· # (functor_identity C) (identity Z · f) =
+pr2
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C (exp (Exp X) Y) d,
+    pr2 x))
+  (make_dirprod (pr2 x) (identity d · pr1 x · f))
+· identity (exp (Exp X) Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk1d"><span class="nb">refine</span> (maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, _ · x) (id_left _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>yoneda C (exp (Exp X) Y) Z</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>BinProduct_of_functors (opp_precat.op_category C)
+  SET BinProductsHSET
+  (covyoneda.covyoneda (opp_precat.op_category C)
+     Z) (yoneda C X) d</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity d · pr1 x · f =
+pr2
+  (pr1,,
+   (<span class="kr">λ</span> <span class="nv">x</span> : yoneda_objects_ob C X d
+          × yoneda_objects_ob C (exp (Exp X) Y) d,
+    pr2 x))
+  (make_dirprod (pr2 x) (identity d · pr1 x · f))
+· identity (exp (Exp X) Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (!id_right _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk1e"><span class="kn">Definition</span> <span class="nf">yoneda_preserves_exponentials</span>
+    : preserves_exponentials Exp (Exponentials_PreShv) (yoneda_preserves_binproduct _ BP).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_exponentials Exp Exponentials_PreShv
+  (yoneda_preserves_binproduct C BP)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk1f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_exponentials Exp Exponentials_PreShv
+  (yoneda_preserves_binproduct C BP)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk20"><span class="nb">intros</span> X Y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk21"><span class="nb">apply</span> nat_trafo_z_iso_if_pointwise_z_iso.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  (pr1
+     (preserves_exponentials_map Exp
+        Exponentials_PreShv
+        (yoneda_preserves_binproduct C BP) X Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk22"><span class="nb">intro</span> Z.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (pr1
+     (preserves_exponentials_map Exp
+        Exponentials_PreShv
+        (yoneda_preserves_binproduct C BP) X Y) Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk23">use is_z_isomorphism_path.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">SET ⟦ yoneda C (exp (Exp X) Y) Z,
+exp (Exponentials_PreShv (yoneda C X)) (yoneda C Y) Z
+⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="yonedaexponentials-v-chk24" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br></div><label class="goal-separator" for="yonedaexponentials-v-chk24"><hr></label><div class="goal-conclusion"><span class="nl">?f</span> =
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z</div></blockquote><input class="alectryon-extra-goal-toggle" id="yonedaexponentials-v-chk25" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br></div><label class="goal-separator" for="yonedaexponentials-v-chk25"><hr></label><div class="goal-conclusion">is_z_isomorphism <span class="nl">?f</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk26">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">SET ⟦ yoneda C (exp (Exp X) Y) Z,
+exp (Exponentials_PreShv (yoneda C X)) (yoneda C Y) Z
+⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (z_iso_mor (yoneda_exponentials_iso X Y Z)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk27">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">yoneda_exponentials_iso X Y Z =
+pr1
+  (preserves_exponentials_map Exp Exponentials_PreShv
+     (yoneda_preserves_binproduct C BP) X Y) Z</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (yoneda_exponentials_iso_is_preserves_exponentials X Y Z).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="yonedaexponentials-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="yonedaexponentials-v-chk28">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>Exp</var><span class="hyp-type"><b>: </b><span>Exponentials BP</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>opp_precat.op_category C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (yoneda_exponentials_iso X Y Z)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> z_iso_is_z_isomorphism.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">YonedaPreservesExponentials</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

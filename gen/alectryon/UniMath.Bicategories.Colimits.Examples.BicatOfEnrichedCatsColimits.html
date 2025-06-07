@@ -1,0 +1,902 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>BicatOfEnrichedCatsColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> Colimits of enriched categories</span>
+
+<span class="sd"> In this file, we collect results about colimits in the bicategory of enriched</span>
+<span class="sd"> categories. Note that we only look at univalent enriched categories.</span>
+
+<span class="sd"> The bicategory of enriched categories has Kleisli objects. In this construction,</span>
+<span class="sd"> there is an interesting subtlety. Usually, one can construct enriched Kleili</span>
+<span class="sd"> category without any additional assumption on `V`. This is done in the file</span>
+<span class="sd"> `EnrichedCats.Examples.KleisliEnriched.v`. However, this construction does</span>
+<span class="sd"> not give rise to a univalent category. As such, we do not get Kleisli objects</span>
+<span class="sd"> in the bicategory of univalent enriched categories this way.</span>
+
+<span class="sd"> Alteratively, one can construct the Kleisli category as a full subcategory of</span>
+<span class="sd"> the Eilenberg-Moore category. This route is taken in the file</span>
+<span class="sd"> `EnrichedCats.Examples.UnivalentKleisliEnriched`. However, for this construction,</span>
+<span class="sd"> we need to make additional assumptions on `V`. To guarantee that the</span>
+<span class="sd"> Eilenberg-Moore category is enriched, one needs to have equalizers in `V`,</span>
+<span class="sd"> because those are used to formulate the commutativity requirement for morphisms</span>
+<span class="sd"> in the Eilenberg-Moore category. This construction does give rise to a univalent</span>
+<span class="sd"> enriched category, and this way, we can construct Kleisli objects in the</span>
+<span class="sd"> bicategory of enriched categories.</span>
+
+<span class="sd"> To prove the universal property of this construction, we use the universal</span>
+<span class="sd"> property of the Rezk completion. The relevant functions are given in the file</span>
+<span class="sd"> `EnrichedCats.Examples.UnivalentKleisliMapping.v`, and more explanation is</span>
+<span class="sd"> given there. The main idea is:</span>
+<span class="sd"> - We can establish the universal property for the ordinary non-univalent Kleisli</span>
+<span class="sd">   category.</span>
+<span class="sd"> - We have a weak equivalence from the non-univalent Kleisli category to the</span>
+<span class="sd">   univalent Kleisli category. As such, the univalent Kleisli category is the</span>
+<span class="sd">   Rezk completion of the non-univalent one.</span>
+<span class="sd"> - Using this weak equivalence and the universal property of the Rezk completion,</span>
+<span class="sd">   we obtain the universal property for the univalent Kleisli category.</span>
+
+<span class="sd"> Note that in the file `RezkCompletion.EnrichedRezkCompletion.v`, there is a</span>
+<span class="sd"> general construction for Rezk completions of enriched categories. This</span>
+<span class="sd"> construction cannot be used here, because it raises the universe level, and</span>
+<span class="sd"> thus the obtained category might not live in the bicategory that we are looking</span>
+<span class="sd"> at. However, for the Kleisli category, we established that its Rezk completion</span>
+<span class="sd"> does actually live in the relevant bicategory, because of the weak equivalence</span>
+<span class="sd"> that we constructed between the two versions of the Kleisli category.</span>
+
+<span class="sd"> Furthermore, for the Rezk completion in `RezkCompletion.EnrichedRezkCompletion.v`,</span>
+<span class="sd"> we assume that `V` is a complete symmetric monoidal closed category, whereas</span>
+<span class="sd"> in our construction, we only need equalizers.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Kleisli categories</span>
+
+<span class="sd"> ******************************************************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.KleisliCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentMonad.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.UnivalentKleisliEnriched.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.UnivalentKleisliMapping.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpMorBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.EnrichedCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInBicatOfEnrichedCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInOp1Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Colimits.KleisliObjects.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">ColimitsEnrichedCats</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">V</span> : monoidal_cat).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** * 1. Kleisli objects *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">KleisliEnrichedCat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">HV</span> : Equalizers V)
+            (<span class="nv">EM</span> : mnd (op1_bicat (bicat_of_enriched_cats V))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">C</span> : univalent_category := pr1 (ob_of_mnd EM).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">E</span> : enrichment C V := pr2 (ob_of_mnd EM).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">M</span> : Monad C := Monad_from_mnd_enriched_cats _ (mnd_op1_to_mnd EM).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">EM&#39;</span> : monad_enrichment E M
+      := Monad_enrichment_from_mnd_enriched_cats _ (mnd_op1_to_mnd EM).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk1"><span class="kn">Definition</span> <span class="nf">bicat_of_enriched_cats_has_kleisli_cocone</span>
+      : kleisli_cocone EM.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">kleisli_cocone EM</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">kleisli_cocone EM</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk3">use make_kleisli_cocone.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_enriched_cats V</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk4"><hr></label><div class="goal-conclusion">bicat_of_enriched_cats V ⟦ ob_of_mnd EM, <span class="nl">?x</span> ⟧</div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk5"><hr></label><div class="goal-conclusion">endo_of_mnd EM · <span class="nl">?f</span> ==&gt; <span class="nl">?f</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk6"><hr></label><div class="goal-conclusion">(unit_of_mnd EM ▹ <span class="nl">?f</span>) • <span class="nl">?γ</span> = lunitor <span class="nl">?f</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk7" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk7"><hr></label><div class="goal-conclusion">(rassociator (endo_of_mnd EM) (endo_of_mnd EM) <span class="nl">?f</span>
+ • (endo_of_mnd EM ◃ <span class="nl">?γ</span>)) • <span class="nl">?γ</span> =
+(mult_of_mnd EM ▹ <span class="nl">?f</span>) • <span class="nl">?γ</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_enriched_cats V</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (univalent_kleisli_cat M ,, kleisli_cat_enrichment HV EM&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk9">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_enriched_cats V ⟦ ob_of_mnd EM,
+univalent_kleisli_cat M,,
+kleisli_cat_enrichment HV EM&#39; ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (kleisli_incl M ,, kleisli_incl_enrichment HV EM&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chka">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">endo_of_mnd EM
+· (kleisli_incl M,, kleisli_incl_enrichment HV EM&#39;) ==&gt;
+(kleisli_incl M,, kleisli_incl_enrichment HV EM&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (kleisli_nat_trans M ,, kleisli_nat_trans_enrichment HV EM&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(unit_of_mnd EM
+ ▹ (kleisli_incl M,, kleisli_incl_enrichment HV EM&#39;))
+• (kleisli_nat_trans M,,
+   kleisli_nat_trans_enrichment HV EM&#39;) =
+lunitor
+  (kleisli_incl M,, kleisli_incl_enrichment HV EM&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (use eq_enriched_nat_trans ;
+           <span class="nb">intro</span> x ;
+           use eq_mor_kleisli_cat ;
+           <span class="bp">exact</span> (@Monad_law2 _ M x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chkc">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(rassociator (endo_of_mnd EM) (endo_of_mnd EM)
+   (kleisli_incl M,, kleisli_incl_enrichment HV EM&#39;)
+ • (endo_of_mnd EM
+    ◃ (kleisli_nat_trans M,,
+       kleisli_nat_trans_enrichment HV EM&#39;)))
+• (kleisli_nat_trans M,,
+   kleisli_nat_trans_enrichment HV EM&#39;) =
+(mult_of_mnd EM
+ ▹ (kleisli_incl M,, kleisli_incl_enrichment HV EM&#39;))
+• (kleisli_nat_trans M,,
+   kleisli_nat_trans_enrichment HV EM&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (use eq_enriched_nat_trans ;
+           <span class="nb">intro</span> x ;
+           use eq_mor_kleisli_cat ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_left ;
+           <span class="nb">apply</span> (!(@Monad_law3 _ M x))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chkd"><span class="kn">Definition</span> <span class="nf">bicat_of_enriched_cats_has_kleisli_ump_1</span>
+      : has_kleisli_ump_1 EM bicat_of_enriched_cats_has_kleisli_cocone.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_kleisli_ump_1 EM
+  bicat_of_enriched_cats_has_kleisli_cocone</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chke"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_kleisli_ump_1 EM
+  bicat_of_enriched_cats_has_kleisli_cocone</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chkf"><span class="nb">intro</span> q.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">kleisli_cocone_mor EM
+  bicat_of_enriched_cats_has_kleisli_cocone q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk10"><span class="nb">pose</span> (F := mor_of_kleisli_cocone _ q).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">kleisli_cocone_mor EM
+  bicat_of_enriched_cats_has_kleisli_cocone q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk11"><span class="nb">pose</span> (γ := cell_of_kleisli_cocone _ q).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">kleisli_cocone_mor EM
+  bicat_of_enriched_cats_has_kleisli_cocone q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk12"><span class="nb">pose</span> (p₁ := from_eq_enriched_nat_trans (kleisli_cocone_unit _ q)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">kleisli_cocone_mor EM
+  bicat_of_enriched_cats_has_kleisli_cocone q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk13"><span class="nb">assert</span> (p₂ : ∏ (x : C), pr11 γ (M x) · pr11 γ x = # (pr11 F) (μ M x) · pr11 γ x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk14" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk14"><hr></label><div class="goal-conclusion">kleisli_cocone_mor EM
+  bicat_of_enriched_cats_has_kleisli_cocone q</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk15">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk16"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk17"><span class="nb">pose</span> (p₂ := from_eq_enriched_nat_trans (kleisli_cocone_mult _ q) x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>p₂</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_mult EM q) x</span></span><span class="hyp-type"><b>: </b><span>((rassociator (endo_of_mnd EM) (endo_of_mnd EM)
+    (mor_of_kleisli_cocone EM q)
+  • (endo_of_mnd EM ◃ cell_of_kleisli_cocone EM q))
+ • cell_of_kleisli_cocone EM q) x =
+((mult_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk18"><span class="nb">cbn</span> <span class="kr">in</span> p₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>p₂</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_mult EM q) x</span></span><span class="hyp-type"><b>: </b><span>id₁
+  (pr1 (mor_of_kleisli_cocone EM q)
+     (pr1 (endo_of_mnd EM)
+        (pr1 (endo_of_mnd EM) x)))
+· (pr11 (cell_of_kleisli_cocone EM q))
+    (pr1 (pr1 (endo_of_mnd EM)) x)
+· pr1 (cell_of_kleisli_cocone EM q) x =
+# (pr11 (mor_of_kleisli_cocone EM q))
+  ((pr11 (mult_of_mnd EM)) x)
+· pr1 (cell_of_kleisli_cocone EM q) x</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk19"><span class="nb">rewrite</span> !id_left <span class="kr">in</span> p₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>(pr11 (cell_of_kleisli_cocone EM q))
+  (pr1 (pr1 (endo_of_mnd EM)) x)
+· pr1 (cell_of_kleisli_cocone EM q) x =
+# (pr11 (mor_of_kleisli_cocone EM q))
+  ((pr11 (mult_of_mnd EM)) x)
+· pr1 (cell_of_kleisli_cocone EM q) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> p₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk1a">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">kleisli_cocone_mor EM
+  bicat_of_enriched_cats_has_kleisli_cocone q</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk1b">use make_kleisli_cocone_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, q ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk1c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk1c"><hr></label><div class="goal-conclusion">mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · <span class="nl">?f</span> ==&gt;
+mor_of_kleisli_cocone EM q</div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk1d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk1d"><hr></label><div class="goal-conclusion">(endo_of_mnd EM ◃ <span class="nl">?α</span>) • cell_of_kleisli_cocone EM q =
+(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone) <span class="nl">?f</span>
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone ▹ 
+    <span class="nl">?f</span>)) • <span class="nl">?α</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk1e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk1e"><hr></label><div class="goal-conclusion">is_invertible_2cell <span class="nl">?α</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk1f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, q ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (enriched_functor_from_univalent_kleisli_cat
+                 HV
+                 EM&#39;
+                 _
+                 (enriched_functor_enrichment F)
+                 (enriched_nat_trans_enrichment _ γ)
+                 p₁ p₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk20">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone
+· enriched_functor_from_univalent_kleisli_cat HV EM&#39; q
+    (enriched_functor_enrichment F) γ p₁ p₂ ==&gt;
+mor_of_kleisli_cocone EM q</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (enriched_functor_from_univalent_kleisli_cat_nat_trans
+                 HV
+                 EM&#39;
+                 _
+                 (enriched_functor_enrichment F)
+                 (enriched_nat_trans_enrichment _ γ)
+                 p₁ p₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk21">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(endo_of_mnd EM
+ ◃ enriched_functor_from_univalent_kleisli_cat_nat_trans
+     HV EM&#39; q (enriched_functor_enrichment F) γ p₁ p₂)
+• cell_of_kleisli_cocone EM q =
+(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   (enriched_functor_from_univalent_kleisli_cat HV EM&#39;
+      q (enriched_functor_enrichment F) γ p₁ p₂)
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ enriched_functor_from_univalent_kleisli_cat HV
+        EM&#39; q (enriched_functor_enrichment F) γ p₁ p₂))
+• enriched_functor_from_univalent_kleisli_cat_nat_trans
+    HV EM&#39; q (enriched_functor_enrichment F) γ p₁ p₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (use eq_enriched_nat_trans ;
+           <span class="nb">intro</span> x ;
+           <span class="nb">refine</span> (_ @ maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, z · _) (!(id_left _))) ;
+           <span class="bp">exact</span> (enriched_functor_from_univalent_kleisli_cat_eq
+                    HV
+                    EM&#39;
+                    _
+                    (enriched_functor_enrichment F)
+                    (enriched_nat_trans_enrichment _ γ)
+                    p₁ p₂
+                    x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk22">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_invertible_2cell
+  (enriched_functor_from_univalent_kleisli_cat_nat_trans
+     HV EM&#39; q (enriched_functor_enrichment F) γ p₁ p₂)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk23">use make_is_invertible_2cell_enriched.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>kleisli_cocone EM</span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>mor_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V ⟦ ob_of_mnd EM, q ⟧</span></span></span></span><br><span><var>γ</var><span><span class="hyp-body"><b>:= </b><span>cell_of_kleisli_cocone EM q</span></span><span class="hyp-type"><b>: </b><span>endo_of_mnd EM · mor_of_kleisli_cocone EM q ==&gt;
+mor_of_kleisli_cocone EM q</span></span></span></span><br><span><var>p₁</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans
+  (kleisli_cocone_unit EM q)</span></span><span class="hyp-type"><b>: </b><span>∏ x : ob_of_mnd EM,
+((unit_of_mnd EM ▹ mor_of_kleisli_cocone EM q)
+ • cell_of_kleisli_cocone EM q) x =
+lunitor (mor_of_kleisli_cocone EM q) x</span></span></span></span><br><span><var>p₂</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+(pr11 γ) (M x) · (pr11 γ) x =
+# (pr11 F) (μ M x) · (pr11 γ) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  (enriched_functor_from_univalent_kleisli_cat_nat_trans
+     HV EM&#39; q (enriched_functor_enrichment F) γ p₁ p₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> enriched_functor_from_univalent_kleisli_cat_nat_trans_is_z_iso.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk24"><span class="kn">Definition</span> <span class="nf">bicat_of_enriched_cats_has_kleisli_ump_2</span>
+      : has_kleisli_ump_2 EM bicat_of_enriched_cats_has_kleisli_cocone.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_kleisli_ump_2 EM
+  bicat_of_enriched_cats_has_kleisli_cocone</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk25"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_kleisli_ump_2 EM
+  bicat_of_enriched_cats_has_kleisli_cocone</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk26"><span class="nb">intros</span> C&#39; G₁ G₂ α p.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="kr">∃</span>! β : G₁ ==&gt; G₂,
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone ◃ β = α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk27"><span class="nb">assert</span> (p&#39; : ∏ (x : C),
+                 # (pr11 G₁) (kleisli_nat_trans M x) · pr11 α x
+                 =
+                 pr11 α (M x) · # (pr11 G₂) (kleisli_nat_trans M x)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x) · # (pr11 G₂) (kleisli_nat_trans M x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk28" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk28"><hr></label><div class="goal-conclusion"><span class="kr">∃</span>! β : G₁ ==&gt; G₂,
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone ◃ β = α</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk29">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x) · # (pr11 G₂) (kleisli_nat_trans M x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk2a"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x) · # (pr11 G₂) (kleisli_nat_trans M x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk2b"><span class="nb">pose</span> (q := from_eq_enriched_nat_trans p x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>q</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans p x</span></span><span class="hyp-type"><b>: </b><span>((lassociator (endo_of_mnd EM)
+    (mor_of_kleisli_cocone EM
+       bicat_of_enriched_cats_has_kleisli_cocone)
+    G₁
+  • (cell_of_kleisli_cocone EM
+       bicat_of_enriched_cats_has_kleisli_cocone
+     ▹ G₁)) • α) x =
+(((endo_of_mnd EM ◃ α)
+  • lassociator (endo_of_mnd EM)
+      (mor_of_kleisli_cocone EM
+         bicat_of_enriched_cats_has_kleisli_cocone)
+      G₂)
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₂)) x</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x) · # (pr11 G₂) (kleisli_nat_trans M x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk2c"><span class="nb">cbn</span> <span class="kr">in</span> q.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>q</var><span><span class="hyp-body"><b>:= </b><span>from_eq_enriched_nat_trans p x</span></span><span class="hyp-type"><b>: </b><span>id₁
+  (pr1 G₁
+     (Full.full_img_functor_obj (free_alg_em M)
+        (pr1 (endo_of_mnd EM) x)))
+· # (pr11 G₁)
+    (EilenbergMoore.make_mor_eilenberg_moore M
+       (pr1 (mult_of_mnd EM) x)
+       (kleisli_nat_trans_subproof C M x),, tt)
+· pr1 α x =
+(pr11 α) (pr1 (pr1 (endo_of_mnd EM)) x)
+· id₁
+    (pr1 G₂
+       (Full.full_img_functor_obj (free_alg_em M)
+          (pr1 (endo_of_mnd EM) x)))
+· # (pr11 G₂)
+    (EilenbergMoore.make_mor_eilenberg_moore M
+       (pr1 (mult_of_mnd EM) x)
+       (kleisli_nat_trans_subproof C M x),, tt)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x) · # (pr11 G₂) (kleisli_nat_trans M x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk2d"><span class="nb">rewrite</span> !id_left, !id_right <span class="kr">in</span> q.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span># (pr11 G₁)
+  (EilenbergMoore.make_mor_eilenberg_moore M
+     (pr1 (mult_of_mnd EM) x)
+     (kleisli_nat_trans_subproof C M x),, tt)
+· pr1 α x =
+(pr11 α) (pr1 (pr1 (endo_of_mnd EM)) x)
+· # (pr11 G₂)
+    (EilenbergMoore.make_mor_eilenberg_moore M
+       (pr1 (mult_of_mnd EM) x)
+       (kleisli_nat_trans_subproof C M x),, tt)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x) · # (pr11 G₂) (kleisli_nat_trans M x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> q.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk2e">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="kr">∃</span>! β : G₁ ==&gt; G₂,
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone ◃ β = α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk2f">use iscontraprop1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (∑ β : G₁ ==&gt; G₂,
+   mor_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone ◃ β = α)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk30" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk30"><hr></label><div class="goal-conclusion">∑ β : G₁ ==&gt; G₂,
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone ◃ β = α</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk31">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (∑ β : G₁ ==&gt; G₂,
+   mor_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone ◃ β = α)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (use invproofirrelevance ;
+           <span class="nb">intros</span> β₁ β₂ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+           use eq_enriched_nat_trans ;
+           <span class="bp">exact</span> (enriched_nat_trans_from_univalent_kleisli_cat_unique
+                    HV EM&#39;
+                    _
+                    α
+                    (from_eq_enriched_nat_trans (pr2 β₁))
+                    (from_eq_enriched_nat_trans (pr2 β₂)))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk32">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ β : G₁ ==&gt; G₂,
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone ◃ β = α</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk33"><span class="nb">simple refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">G₁ ==&gt; G₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk34" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk34"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">β</span> : G₁ ==&gt; G₂,
+ mor_of_kleisli_cocone EM
+   bicat_of_enriched_cats_has_kleisli_cocone ◃ β = α)
+  <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk35">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">G₁ ==&gt; G₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (enriched_nat_trans_from_univalent_kleisli_cat HV EM&#39; _ α p&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk36">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>EM</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br><span><var>C</var><span><span class="hyp-body"><b>:= </b><span>pr1 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span></span><br><span><var>E</var><span><span class="hyp-body"><b>:= </b><span>pr2 (ob_of_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>enrichment C V</span></span></span></span><br><span><var>M</var><span><span class="hyp-body"><b>:= </b><span>Monad_from_mnd_enriched_cats V (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>Monad C</span></span></span></span><br><span><var>EM'</var><span><span class="hyp-body"><b>:= </b><span>Monad_enrichment_from_mnd_enriched_cats V
+  (mnd_op1_to_mnd EM)</span></span><span class="hyp-type"><b>: </b><span>monad_enrichment E M</span></span></span></span><br><span><var>C'</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V</span></span></span><br><span><var>G₁, G₂</var><span class="hyp-type"><b>: </b><span>bicat_of_enriched_cats V
+⟦ bicat_of_enriched_cats_has_kleisli_cocone, C&#39; ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₁ ==&gt;
+mor_of_kleisli_cocone EM
+  bicat_of_enriched_cats_has_kleisli_cocone · G₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>(lassociator (endo_of_mnd EM)
+   (mor_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone)
+   G₁
+ • (cell_of_kleisli_cocone EM
+      bicat_of_enriched_cats_has_kleisli_cocone
+    ▹ G₁)) • α =
+((endo_of_mnd EM ◃ α)
+ • lassociator (endo_of_mnd EM)
+     (mor_of_kleisli_cocone EM
+        bicat_of_enriched_cats_has_kleisli_cocone)
+     G₂)
+• (cell_of_kleisli_cocone EM
+     bicat_of_enriched_cats_has_kleisli_cocone
+   ▹ G₂)</span></span></span><br><span><var>p'</var><span class="hyp-type"><b>: </b><span>∏ x : C,
+# (pr11 G₁) (kleisli_nat_trans M x) · (pr11 α) x =
+(pr11 α) (M x)
+· # (pr11 G₂) (kleisli_nat_trans M x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">β</span> : G₁ ==&gt; G₂,
+ mor_of_kleisli_cocone EM
+   bicat_of_enriched_cats_has_kleisli_cocone ◃ β = α)
+  (enriched_nat_trans_from_univalent_kleisli_cat HV
+     EM&#39; (pr2 C&#39;) α p&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+            (use eq_enriched_nat_trans ;
+             <span class="bp">exact</span> (pre_whisker_enriched_nat_trans_from_univalent_kleisli_cat
+                      HV EM&#39;
+                      _
+                      α
+                      p&#39;)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">KleisliEnrichedCat</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk37"><span class="kn">Definition</span> <span class="nf">bicat_of_enriched_cats_has_kleisli</span>
+             (<span class="nv">HV</span> : Equalizers V)
+    : has_kleisli (bicat_of_enriched_cats V).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_kleisli (bicat_of_enriched_cats V)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk38"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_kleisli (bicat_of_enriched_cats V)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk39"><span class="nb">intro</span> m.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ k : kleisli_cocone m, has_kleisli_ump m k</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk3a"><span class="nb">simple refine</span> (_ ,, _ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">kleisli_cocone m</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk3b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk3b"><hr></label><div class="goal-conclusion">has_kleisli_ump_1 m <span class="nl">?pr1</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofenrichedcatscolimits-v-chk3c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br></div><label class="goal-separator" for="bicatofenrichedcatscolimits-v-chk3c"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : has_kleisli_ump_1 m <span class="nl">?pr1</span>,
+ has_kleisli_ump_2 m <span class="nl">?pr1</span>) <span class="nl">?pr10</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk3d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">kleisli_cocone m</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (bicat_of_enriched_cats_has_kleisli_cocone HV m).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk3e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_kleisli_ump_1 m
+  (bicat_of_enriched_cats_has_kleisli_cocone HV m)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (bicat_of_enriched_cats_has_kleisli_ump_1 HV m).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofenrichedcatscolimits-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofenrichedcatscolimits-v-chk3f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>HV</var><span class="hyp-type"><b>: </b><span>Equalizers V</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>mnd (op1_bicat (bicat_of_enriched_cats V))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : has_kleisli_ump_1 m
+         (bicat_of_enriched_cats_has_kleisli_cocone HV
+            m),
+ has_kleisli_ump_2 m
+   (bicat_of_enriched_cats_has_kleisli_cocone HV m))
+  (bicat_of_enriched_cats_has_kleisli_ump_1 HV m)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (bicat_of_enriched_cats_has_kleisli_ump_2 HV m).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">ColimitsEnrichedCats</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

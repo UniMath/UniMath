@@ -1,0 +1,1549 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>LiftingModel.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(****************************************************************************</span>
+
+<span class="sd"> Linear category from the lifting operation on posets</span>
+
+<span class="sd"> We construct an example of a linear category coming from lifting posets.</span>
+
+<span class="sd"> ****************************************************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.OrderTheory.Posets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.PointedPosetStrict.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.FunctorCategories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.SmashProductMonoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.PosetsMonoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.LiftPoset.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Semantics.LinearLogic.LinearCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> MonoidalNotations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk1"><span class="kn">Definition</span> <span class="nf">lifting_linear_category_data</span>
+  : linear_category_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk3">use make_linear_category_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">sym_mon_closed_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">sym_monoidal_cmd <span class="nl">?𝕃</span></div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : <span class="nl">?𝕃</span>, pr1 <span class="nl">?𝕃</span> ⟦ <span class="nl">?bang</span> x, <span class="nl">?bang</span> x ⊗ <span class="nl">?bang</span> x ⟧</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : <span class="nl">?𝕃</span>, pr1 <span class="nl">?𝕃</span> ⟦ <span class="nl">?bang</span> x, I_{ <span class="nl">?𝕃</span>} ⟧</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">sym_mon_closed_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> pointed_poset_sym_mon_closed_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">sym_monoidal_cmd pointed_poset_sym_mon_closed_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> lift_poset_symmetric_monoidal_comonad.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : pointed_poset_sym_mon_closed_cat,
+pr1 pointed_poset_sym_mon_closed_cat
+⟦ lift_poset_symmetric_monoidal_comonad x,
+lift_poset_symmetric_monoidal_comonad x
+⊗ lift_poset_symmetric_monoidal_comonad x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">X</span>, lift_poset_comult X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : pointed_poset_sym_mon_closed_cat,
+pr1 pointed_poset_sym_mon_closed_cat
+⟦ lift_poset_symmetric_monoidal_comonad x,
+I_{ pointed_poset_sym_mon_closed_cat} ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">X</span>, lift_poset_counit X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk8"><span class="kn">Proposition</span> <span class="nf">lifting_linear_category_laws</span>
+  : linear_category_laws lifting_linear_category_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_laws lifting_linear_category_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_laws lifting_linear_category_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chka"><span class="kp">repeat</span> <span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : lifting_linear_category_data)
+(f : lifting_linear_category_data ⟦ x, y ⟧),
+# (linear_category_bang lifting_linear_category_data)
+  f
+· linear_category_comult lifting_linear_category_data
+    y =
+linear_category_comult lifting_linear_category_data x
+· # (linear_category_bang lifting_linear_category_data)
+    f
+  #⊗ # (linear_category_bang
+          lifting_linear_category_data) f</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : lifting_linear_category_data)
+(f : lifting_linear_category_data ⟦ x, y ⟧),
+# (linear_category_bang lifting_linear_category_data)
+  f
+· linear_category_counit lifting_linear_category_data
+    y =
+linear_category_counit lifting_linear_category_data x</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_comult lifting_linear_category_data x
+· δ
+    (linear_category_bang lifting_linear_category_data)
+    x
+  #⊗ δ
+       (linear_category_bang
+          lifting_linear_category_data) x
+· mon_functor_tensor
+    (linear_category_bang_functor
+       lifting_linear_category_data)
+    (linear_category_bang lifting_linear_category_data
+       x)
+    (linear_category_bang lifting_linear_category_data
+       x) =
+δ (linear_category_bang lifting_linear_category_data)
+  x
+· # (linear_category_bang lifting_linear_category_data)
+    (linear_category_comult
+       lifting_linear_category_data x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_counit lifting_linear_category_data x
+· mon_functor_unit
+    (linear_category_bang_functor
+       lifting_linear_category_data) =
+δ (linear_category_bang lifting_linear_category_data)
+  x
+· # (linear_category_bang lifting_linear_category_data)
+    (linear_category_counit
+       lifting_linear_category_data x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+δ (linear_category_bang lifting_linear_category_data)
+  x
+· linear_category_counit lifting_linear_category_data
+    (linear_category_bang lifting_linear_category_data
+       x) =
+linear_category_counit lifting_linear_category_data x</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+δ (linear_category_bang lifting_linear_category_data)
+  x
+· linear_category_comult lifting_linear_category_data
+    (linear_category_bang lifting_linear_category_data
+       x) =
+linear_category_comult lifting_linear_category_data x
+· δ
+    (linear_category_bang lifting_linear_category_data)
+    x
+  #⊗ δ
+       (linear_category_bang
+          lifting_linear_category_data) x</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_comult lifting_linear_category_data x
+· identity
+    (linear_category_bang lifting_linear_category_data
+       x)
+  #⊗ linear_category_comult
+       lifting_linear_category_data x =
+linear_category_comult lifting_linear_category_data x
+· linear_category_comult lifting_linear_category_data
+    x
+  #⊗ identity
+       (linear_category_bang
+          lifting_linear_category_data x)
+· mon_lassociator
+    (linear_category_bang lifting_linear_category_data
+       x)
+    (linear_category_bang lifting_linear_category_data
+       x)
+    (linear_category_bang lifting_linear_category_data
+       x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_comult lifting_linear_category_data x
+· linear_category_counit lifting_linear_category_data
+    x
+  #⊗ identity
+       (linear_category_bang
+          lifting_linear_category_data x)
+· mon_lunitor
+    (linear_category_bang lifting_linear_category_data
+       x) =
+identity
+  (linear_category_bang lifting_linear_category_data x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_comult lifting_linear_category_data x
+· sym_mon_braiding lifting_linear_category_data
+    (linear_category_bang lifting_linear_category_data
+       x)
+    (linear_category_bang lifting_linear_category_data
+       x) =
+linear_category_comult lifting_linear_category_data x</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : lifting_linear_category_data,
+mon_functor_tensor
+  (linear_category_bang_functor
+     lifting_linear_category_data) x y
+· linear_category_comult lifting_linear_category_data
+    (x ⊗ y) =
+linear_category_comult lifting_linear_category_data x
+#⊗ linear_category_comult lifting_linear_category_data
+     y
+· (SymmetricDiagonal.inner_swap
+     lifting_linear_category_data
+     (linear_category_bang
+        lifting_linear_category_data x)
+     (linear_category_bang
+        lifting_linear_category_data x)
+     (linear_category_bang
+        lifting_linear_category_data y)
+     (linear_category_bang
+        lifting_linear_category_data y)
+   · mon_functor_tensor
+       (linear_category_bang_functor
+          lifting_linear_category_data) x y
+     #⊗ mon_functor_tensor
+          (linear_category_bang_functor
+             lifting_linear_category_data) x y)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_functor_unit
+  (linear_category_bang_functor
+     lifting_linear_category_data)
+· linear_category_comult lifting_linear_category_data
+    I_{ lifting_linear_category_data} =
+mon_linvunitor I_{ lifting_linear_category_data}
+· mon_functor_unit
+    (linear_category_bang_functor
+       lifting_linear_category_data)
+  #⊗ mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : lifting_linear_category_data,
+mon_functor_tensor
+  (linear_category_bang_functor
+     lifting_linear_category_data) x y
+· linear_category_counit lifting_linear_category_data
+    (x ⊗ y) =
+linear_category_counit lifting_linear_category_data x
+#⊗ linear_category_counit lifting_linear_category_data
+     y · mon_lunitor I_{ lifting_linear_category_data}</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_functor_unit
+  (linear_category_bang_functor
+     lifting_linear_category_data)
+· linear_category_counit lifting_linear_category_data
+    I_{ lifting_linear_category_data} =
+identity I_{ lifting_linear_category_data}</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : lifting_linear_category_data)
+(f : lifting_linear_category_data ⟦ x, y ⟧),
+# (linear_category_bang lifting_linear_category_data)
+  f
+· linear_category_comult lifting_linear_category_data
+    y =
+linear_category_comult lifting_linear_category_data x
+· # (linear_category_bang lifting_linear_category_data)
+    f
+  #⊗ # (linear_category_bang
+          lifting_linear_category_data) f</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chkc"><span class="nb">intros</span> X Y f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data ⟦ X, Y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (linear_category_bang lifting_linear_category_data)
+  f
+· linear_category_comult lifting_linear_category_data
+    Y =
+linear_category_comult lifting_linear_category_data X
+· # (linear_category_bang lifting_linear_category_data)
+    f
+  #⊗ # (linear_category_bang
+          lifting_linear_category_data) f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (nat_trans_ax lift_poset_comult X Y f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chkd">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : lifting_linear_category_data)
+(f : lifting_linear_category_data ⟦ x, y ⟧),
+# (linear_category_bang lifting_linear_category_data)
+  f
+· linear_category_counit lifting_linear_category_data
+    y =
+linear_category_counit lifting_linear_category_data x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chke"><span class="nb">intros</span> X Y f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data ⟦ X, Y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (linear_category_bang lifting_linear_category_data)
+  f
+· linear_category_counit lifting_linear_category_data
+    Y =
+linear_category_counit lifting_linear_category_data X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chkf"><span class="nb">refine</span> (nat_trans_ax lift_poset_counit X Y f @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data ⟦ X, Y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lift_poset_counit X
+· # (constant_functor category_of_pointed_poset_strict
+       pointed_poset_sym_mon_closed_cat
+       I_{ pointed_poset_sym_mon_closed_cat}) f =
+linear_category_counit lifting_linear_category_data X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> id_right.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk10">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_comult lifting_linear_category_data x
+· δ
+    (linear_category_bang lifting_linear_category_data)
+    x
+  #⊗ δ
+       (linear_category_bang
+          lifting_linear_category_data) x
+· mon_functor_tensor
+    (linear_category_bang_functor
+       lifting_linear_category_data)
+    (linear_category_bang lifting_linear_category_data
+       x)
+    (linear_category_bang lifting_linear_category_data
+       x) =
+δ (linear_category_bang lifting_linear_category_data)
+  x
+· # (linear_category_bang lifting_linear_category_data)
+    (linear_category_comult
+       lifting_linear_category_data x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk11"><span class="nb">intros</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_comult lifting_linear_category_data X
+· δ
+    (linear_category_bang lifting_linear_category_data)
+    X
+  #⊗ δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+· mon_functor_tensor
+    (linear_category_bang_functor
+       lifting_linear_category_data)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X) =
+δ (linear_category_bang lifting_linear_category_data)
+  X
+· # (linear_category_bang lifting_linear_category_data)
+    (linear_category_comult
+       lifting_linear_category_data X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk12">use eq_mor_hset_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : pr11 (linear_category_bang
+            lifting_linear_category_data X),
+pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X
+   · mon_functor_tensor
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+       (linear_category_bang
+          lifting_linear_category_data X)
+       (linear_category_bang
+          lifting_linear_category_data X)) x =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_comult
+          lifting_linear_category_data X)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk13"><span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="kr">in</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X ⨿ unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X
+   · mon_functor_tensor
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+       (linear_category_bang
+          lifting_linear_category_data X)
+       (linear_category_bang
+          lifting_linear_category_data X)) x =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_comult
+          lifting_linear_category_data X)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk14"><span class="nb">induction</span> x <span class="kr">as</span> [ x | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X
+   · mon_functor_tensor
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+       (linear_category_bang
+          lifting_linear_category_data X)
+       (linear_category_bang
+          lifting_linear_category_data X)) (inl x) =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_comult
+          lifting_linear_category_data X)) (inl x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="liftingmodel-v-chk15" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><label class="goal-separator" for="liftingmodel-v-chk15"><hr></label><div class="goal-conclusion">pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X
+   · mon_functor_tensor
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+       (linear_category_bang
+          lifting_linear_category_data X)
+       (linear_category_bang
+          lifting_linear_category_data X)) (inr b) =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_comult
+          lifting_linear_category_data X)) (inr b)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk16">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X
+   · mon_functor_tensor
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+       (linear_category_bang
+          lifting_linear_category_data X)
+       (linear_category_bang
+          lifting_linear_category_data X)) (inl x) =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_comult
+          lifting_linear_category_data X)) (inl x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk17">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X
+   · mon_functor_tensor
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+       (linear_category_bang
+          lifting_linear_category_data X)
+       (linear_category_bang
+          lifting_linear_category_data X)) (inr b) =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_comult
+          lifting_linear_category_data X)) (inr b)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk18">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_counit lifting_linear_category_data x
+· mon_functor_unit
+    (linear_category_bang_functor
+       lifting_linear_category_data) =
+δ (linear_category_bang lifting_linear_category_data)
+  x
+· # (linear_category_bang lifting_linear_category_data)
+    (linear_category_counit
+       lifting_linear_category_data x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk19"><span class="nb">intros</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_counit lifting_linear_category_data X
+· mon_functor_unit
+    (linear_category_bang_functor
+       lifting_linear_category_data) =
+δ (linear_category_bang lifting_linear_category_data)
+  X
+· # (linear_category_bang lifting_linear_category_data)
+    (linear_category_counit
+       lifting_linear_category_data X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk1a">use eq_mor_hset_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : pr11 (linear_category_bang
+            lifting_linear_category_data X),
+pr1
+  (linear_category_counit lifting_linear_category_data
+     X
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)) x =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_counit
+          lifting_linear_category_data X)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk1b"><span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="kr">in</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X ⨿ unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (linear_category_counit lifting_linear_category_data
+     X
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)) x =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_counit
+          lifting_linear_category_data X)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk1c"><span class="nb">induction</span> x <span class="kr">as</span> [ x | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (linear_category_counit lifting_linear_category_data
+     X
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)) (inl x) =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_counit
+          lifting_linear_category_data X)) (inl x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="liftingmodel-v-chk1d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><label class="goal-separator" for="liftingmodel-v-chk1d"><hr></label><div class="goal-conclusion">pr1
+  (linear_category_counit lifting_linear_category_data
+     X
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)) (inr b) =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_counit
+          lifting_linear_category_data X)) (inr b)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk1e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (linear_category_counit lifting_linear_category_data
+     X
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)) (inl x) =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_counit
+          lifting_linear_category_data X)) (inl x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk1f">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (linear_category_counit lifting_linear_category_data
+     X
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)) (inr b) =
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · # (linear_category_bang
+          lifting_linear_category_data)
+       (linear_category_counit
+          lifting_linear_category_data X)) (inr b)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk20">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+δ (linear_category_bang lifting_linear_category_data)
+  x
+· linear_category_counit lifting_linear_category_data
+    (linear_category_bang lifting_linear_category_data
+       x) =
+linear_category_counit lifting_linear_category_data x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk21"><span class="nb">intros</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">δ (linear_category_bang lifting_linear_category_data)
+  X
+· linear_category_counit lifting_linear_category_data
+    (linear_category_bang lifting_linear_category_data
+       X) =
+linear_category_counit lifting_linear_category_data X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk22">use eq_mor_hset_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : pr11 (linear_category_bang
+            lifting_linear_category_data X),
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_counit
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) x =
+pr1
+  (linear_category_counit lifting_linear_category_data
+     X) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk23"><span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="kr">in</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X ⨿ unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_counit
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) x =
+pr1
+  (linear_category_counit lifting_linear_category_data
+     X) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk24"><span class="nb">induction</span> x <span class="kr">as</span> [ x | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_counit
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) (inl x) =
+pr1
+  (linear_category_counit lifting_linear_category_data
+     X) (inl x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="liftingmodel-v-chk25" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><label class="goal-separator" for="liftingmodel-v-chk25"><hr></label><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_counit
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) (inr b) =
+pr1
+  (linear_category_counit lifting_linear_category_data
+     X) (inr b)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk26">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_counit
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) (inl x) =
+pr1
+  (linear_category_counit lifting_linear_category_data
+     X) (inl x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk27">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_counit
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) (inr b) =
+pr1
+  (linear_category_counit lifting_linear_category_data
+     X) (inr b)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk28">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+δ (linear_category_bang lifting_linear_category_data)
+  x
+· linear_category_comult lifting_linear_category_data
+    (linear_category_bang lifting_linear_category_data
+       x) =
+linear_category_comult lifting_linear_category_data x
+· δ
+    (linear_category_bang lifting_linear_category_data)
+    x
+  #⊗ δ
+       (linear_category_bang
+          lifting_linear_category_data) x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk29"><span class="nb">intros</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">δ (linear_category_bang lifting_linear_category_data)
+  X
+· linear_category_comult lifting_linear_category_data
+    (linear_category_bang lifting_linear_category_data
+       X) =
+linear_category_comult lifting_linear_category_data X
+· δ
+    (linear_category_bang lifting_linear_category_data)
+    X
+  #⊗ δ
+       (linear_category_bang
+          lifting_linear_category_data) X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk2a">use eq_mor_hset_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : pr11 (linear_category_bang
+            lifting_linear_category_data X),
+pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_comult
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) x =
+pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk2b"><span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="kr">in</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X ⨿ unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_comult
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) x =
+pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk2c"><span class="nb">induction</span> x <span class="kr">as</span> [ x | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_comult
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) (inl x) =
+pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X) (inl x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="liftingmodel-v-chk2d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><label class="goal-separator" for="liftingmodel-v-chk2d"><hr></label><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_comult
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) (inr b) =
+pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X) (inr b)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk2e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_comult
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) (inl x) =
+pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X) (inl x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk2f">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (δ
+     (linear_category_bang
+        lifting_linear_category_data) X
+   · linear_category_comult
+       lifting_linear_category_data
+       (linear_category_bang
+          lifting_linear_category_data X)) (inr b) =
+pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   · δ
+       (linear_category_bang
+          lifting_linear_category_data) X
+     #⊗ δ
+          (linear_category_bang
+             lifting_linear_category_data) X) (inr b)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk30">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_comult lifting_linear_category_data x
+· identity
+    (linear_category_bang lifting_linear_category_data
+       x)
+  #⊗ linear_category_comult
+       lifting_linear_category_data x =
+linear_category_comult lifting_linear_category_data x
+· linear_category_comult lifting_linear_category_data
+    x
+  #⊗ identity
+       (linear_category_bang
+          lifting_linear_category_data x)
+· mon_lassociator
+    (linear_category_bang lifting_linear_category_data
+       x)
+    (linear_category_bang lifting_linear_category_data
+       x)
+    (linear_category_bang lifting_linear_category_data
+       x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk31"><span class="nb">intros</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_comult lifting_linear_category_data X
+· identity
+    (linear_category_bang lifting_linear_category_data
+       X)
+  #⊗ linear_category_comult
+       lifting_linear_category_data X =
+linear_category_comult lifting_linear_category_data X
+· linear_category_comult lifting_linear_category_data
+    X
+  #⊗ identity
+       (linear_category_bang
+          lifting_linear_category_data X)
+· mon_lassociator
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk32"><span class="nb">rewrite</span> &lt;-tensor_mor_left.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_comult lifting_linear_category_data X
+· WhiskeredBifunctors.leftwhiskering_on_morphisms
+    (pr1 lifting_linear_category_data)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X
+     ⊗ linear_category_bang
+         lifting_linear_category_data X)
+    (linear_category_comult
+       lifting_linear_category_data X) =
+linear_category_comult lifting_linear_category_data X
+· linear_category_comult lifting_linear_category_data
+    X
+  #⊗ identity
+       (linear_category_bang
+          lifting_linear_category_data X)
+· mon_lassociator
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk33"><span class="nb">rewrite</span> &lt;-tensor_mor_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_comult lifting_linear_category_data X
+· WhiskeredBifunctors.leftwhiskering_on_morphisms
+    (pr1 lifting_linear_category_data)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X
+     ⊗ linear_category_bang
+         lifting_linear_category_data X)
+    (linear_category_comult
+       lifting_linear_category_data X) =
+linear_category_comult lifting_linear_category_data X
+· WhiskeredBifunctors.rightwhiskering_on_morphisms
+    (pr1 lifting_linear_category_data)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X
+     ⊗ linear_category_bang
+         lifting_linear_category_data X)
+    (linear_category_comult
+       lifting_linear_category_data X)
+· mon_lassociator
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> pathsinv0, (comonoid_to_law_assoc _ (lift_commutative_comonoid X)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk34">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_comult lifting_linear_category_data x
+· linear_category_counit lifting_linear_category_data
+    x
+  #⊗ identity
+       (linear_category_bang
+          lifting_linear_category_data x)
+· mon_lunitor
+    (linear_category_bang lifting_linear_category_data
+       x) =
+identity
+  (linear_category_bang lifting_linear_category_data x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk35"><span class="nb">intros</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_comult lifting_linear_category_data X
+· linear_category_counit lifting_linear_category_data
+    X
+  #⊗ identity
+       (linear_category_bang
+          lifting_linear_category_data X)
+· mon_lunitor
+    (linear_category_bang lifting_linear_category_data
+       X) =
+identity
+  (linear_category_bang lifting_linear_category_data X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk36"><span class="nb">rewrite</span> &lt;-tensor_mor_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_comult lifting_linear_category_data X
+· WhiskeredBifunctors.rightwhiskering_on_morphisms
+    (pr1 lifting_linear_category_data)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X) I_{ lifting_linear_category_data}
+    (linear_category_counit
+       lifting_linear_category_data X)
+· mon_lunitor
+    (linear_category_bang lifting_linear_category_data
+       X) =
+identity
+  (linear_category_bang lifting_linear_category_data X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk37">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_comult lifting_linear_category_data X
+· WhiskeredBifunctors.rightwhiskering_on_morphisms
+    (pr1 lifting_linear_category_data)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X) I_{ lifting_linear_category_data}
+    (linear_category_counit
+       lifting_linear_category_data X)
+· mon_lunitor
+    (linear_category_bang lifting_linear_category_data
+       X) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="liftingmodel-v-chk38" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><label class="goal-separator" for="liftingmodel-v-chk38"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+identity
+  (linear_category_bang lifting_linear_category_data X)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk39"><span class="mi">2</span>: {</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="nl">?b</span> =
+identity
+  (linear_category_bang lifting_linear_category_data X)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (comonoid_to_law_unit_left _ (lift_commutative_comonoid X)).</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk3a">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_comult lifting_linear_category_data X
+· WhiskeredBifunctors.rightwhiskering_on_morphisms
+    (pr1 lifting_linear_category_data)
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X) I_{ lifting_linear_category_data}
+    (linear_category_counit
+       lifting_linear_category_data X)
+· mon_lunitor
+    (linear_category_bang lifting_linear_category_data
+       X) =
+comonoid_comult pointed_poset_sym_mon_closed_cat
+  (lift_commutative_comonoid X)
+· WhiskeredBifunctors.rightwhiskering_on_morphisms
+    pointed_poset_sym_mon_closed_cat
+    (lift_commutative_comonoid X)
+    (lift_commutative_comonoid X)
+    I_{ pointed_poset_sym_mon_closed_cat}
+    (comonoid_counit pointed_poset_sym_mon_closed_cat
+       (lift_commutative_comonoid X))
+· mon_lunitor (lift_commutative_comonoid X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk3b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : lifting_linear_category_data,
+linear_category_comult lifting_linear_category_data x
+· sym_mon_braiding lifting_linear_category_data
+    (linear_category_bang lifting_linear_category_data
+       x)
+    (linear_category_bang lifting_linear_category_data
+       x) =
+linear_category_comult lifting_linear_category_data x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk3c"><span class="nb">intros</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_comult lifting_linear_category_data X
+· sym_mon_braiding lifting_linear_category_data
+    (linear_category_bang lifting_linear_category_data
+       X)
+    (linear_category_bang lifting_linear_category_data
+       X) =
+linear_category_comult lifting_linear_category_data X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (commutative_comonoid_is_commutative _ (lift_commutative_comonoid X)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk3d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : lifting_linear_category_data,
+mon_functor_tensor
+  (linear_category_bang_functor
+     lifting_linear_category_data) x y
+· linear_category_comult lifting_linear_category_data
+    (x ⊗ y) =
+linear_category_comult lifting_linear_category_data x
+#⊗ linear_category_comult lifting_linear_category_data
+     y
+· (SymmetricDiagonal.inner_swap
+     lifting_linear_category_data
+     (linear_category_bang
+        lifting_linear_category_data x)
+     (linear_category_bang
+        lifting_linear_category_data x)
+     (linear_category_bang
+        lifting_linear_category_data y)
+     (linear_category_bang
+        lifting_linear_category_data y)
+   · mon_functor_tensor
+       (linear_category_bang_functor
+          lifting_linear_category_data) x y
+     #⊗ mon_functor_tensor
+          (linear_category_bang_functor
+             lifting_linear_category_data) x y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk3e"><span class="nb">intros</span> X Y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_functor_tensor
+  (linear_category_bang_functor
+     lifting_linear_category_data) X Y
+· linear_category_comult lifting_linear_category_data
+    (X ⊗ Y) =
+linear_category_comult lifting_linear_category_data X
+#⊗ linear_category_comult lifting_linear_category_data
+     Y
+· (SymmetricDiagonal.inner_swap
+     lifting_linear_category_data
+     (linear_category_bang
+        lifting_linear_category_data X)
+     (linear_category_bang
+        lifting_linear_category_data X)
+     (linear_category_bang
+        lifting_linear_category_data Y)
+     (linear_category_bang
+        lifting_linear_category_data Y)
+   · mon_functor_tensor
+       (linear_category_bang_functor
+          lifting_linear_category_data) X Y
+     #⊗ mon_functor_tensor
+          (linear_category_bang_functor
+             lifting_linear_category_data) X Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk3f">use eq_mor_hset_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : pr11 (linear_category_bang_functor
+            lifting_linear_category_data X
+          ⊗ linear_category_bang_functor
+              lifting_linear_category_data Y),
+pr1
+  (mon_functor_tensor
+     (linear_category_bang_functor
+        lifting_linear_category_data) X Y
+   · linear_category_comult
+       lifting_linear_category_data (X ⊗ Y)) x =
+pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   #⊗ linear_category_comult
+        lifting_linear_category_data Y
+   · (SymmetricDiagonal.inner_swap
+        lifting_linear_category_data
+        (linear_category_bang
+           lifting_linear_category_data X)
+        (linear_category_bang
+           lifting_linear_category_data X)
+        (linear_category_bang
+           lifting_linear_category_data Y)
+        (linear_category_bang
+           lifting_linear_category_data Y)
+      · mon_functor_tensor
+          (linear_category_bang_functor
+             lifting_linear_category_data) X Y
+        #⊗ mon_functor_tensor
+             (linear_category_bang_functor
+                lifting_linear_category_data) X Y)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk40">use setquotunivprop&#39; ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : pr1
+      (linear_category_bang_functor
+         lifting_linear_category_data X)
+    × pr1
+        (linear_category_bang_functor
+           lifting_linear_category_data Y),
+(<span class="kr">λ</span> <span class="nv">c</span> : setquot
+         (pr1
+            (smash_eqrel
+               (pr1
+                  pointed_struct_pointed_poset_strict_with_smash_closed)
+               (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+               (pr2
+                  (linear_category_bang_functor
+                     lifting_linear_category_data X))
+               (pr2
+                  (linear_category_bang_functor
+                     lifting_linear_category_data Y)))),
+ pr1
+   (mon_functor_tensor
+      (linear_category_bang_functor
+         lifting_linear_category_data) X Y
+    · linear_category_comult
+        lifting_linear_category_data (X ⊗ Y)) c =
+ pr1
+   (linear_category_comult
+      lifting_linear_category_data X
+    #⊗ linear_category_comult
+         lifting_linear_category_data Y
+    · (SymmetricDiagonal.inner_swap
+         lifting_linear_category_data
+         (linear_category_bang
+            lifting_linear_category_data X)
+         (linear_category_bang
+            lifting_linear_category_data X)
+         (linear_category_bang
+            lifting_linear_category_data Y)
+         (linear_category_bang
+            lifting_linear_category_data Y)
+       · mon_functor_tensor
+           (linear_category_bang_functor
+              lifting_linear_category_data) X Y
+         #⊗ mon_functor_tensor
+              (linear_category_bang_functor
+                 lifting_linear_category_data) X Y)) c)
+  (setquotpr
+     (smash_eqrel
+        (pr1
+           pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data X))
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data Y))) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk41"><span class="nb">intros</span> xy.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>xy</var><span class="hyp-type"><b>: </b><span>pr1
+  (linear_category_bang_functor
+     lifting_linear_category_data X)
+× pr1
+    (linear_category_bang_functor
+       lifting_linear_category_data Y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">c</span> : setquot
+         (pr1
+            (smash_eqrel
+               (pr1
+                  pointed_struct_pointed_poset_strict_with_smash_closed)
+               (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+               (pr2
+                  (linear_category_bang_functor
+                     lifting_linear_category_data X))
+               (pr2
+                  (linear_category_bang_functor
+                     lifting_linear_category_data Y)))),
+ pr1
+   (mon_functor_tensor
+      (linear_category_bang_functor
+         lifting_linear_category_data) X Y
+    · linear_category_comult
+        lifting_linear_category_data (X ⊗ Y)) c =
+ pr1
+   (linear_category_comult
+      lifting_linear_category_data X
+    #⊗ linear_category_comult
+         lifting_linear_category_data Y
+    · (SymmetricDiagonal.inner_swap
+         lifting_linear_category_data
+         (linear_category_bang
+            lifting_linear_category_data X)
+         (linear_category_bang
+            lifting_linear_category_data X)
+         (linear_category_bang
+            lifting_linear_category_data Y)
+         (linear_category_bang
+            lifting_linear_category_data Y)
+       · mon_functor_tensor
+           (linear_category_bang_functor
+              lifting_linear_category_data) X Y
+         #⊗ mon_functor_tensor
+              (linear_category_bang_functor
+                 lifting_linear_category_data) X Y)) c)
+  (setquotpr
+     (smash_eqrel
+        (pr1
+           pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data X))
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data Y))) xy)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk42"><span class="nb">induction</span> xy <span class="kr">as</span> [ x y ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1
+  (linear_category_bang_functor
+     lifting_linear_category_data X)</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>pr1
+  (linear_category_bang_functor
+     lifting_linear_category_data Y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (mon_functor_tensor
+     (linear_category_bang_functor
+        lifting_linear_category_data) X Y
+   · linear_category_comult
+       lifting_linear_category_data (X ⊗ Y))
+  (setquotpr
+     (smash_eqrel
+        (pr1
+           pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data X))
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data Y)))
+     (x,, y)) =
+pr1
+  (linear_category_comult lifting_linear_category_data
+     X
+   #⊗ linear_category_comult
+        lifting_linear_category_data Y
+   · (SymmetricDiagonal.inner_swap
+        lifting_linear_category_data
+        (linear_category_bang
+           lifting_linear_category_data X)
+        (linear_category_bang
+           lifting_linear_category_data X)
+        (linear_category_bang
+           lifting_linear_category_data Y)
+        (linear_category_bang
+           lifting_linear_category_data Y)
+      · mon_functor_tensor
+          (linear_category_bang_functor
+             lifting_linear_category_data) X Y
+        #⊗ mon_functor_tensor
+             (linear_category_bang_functor
+                lifting_linear_category_data) X Y))
+  (setquotpr
+     (smash_eqrel
+        (pr1
+           pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data X))
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data Y)))
+     (x,, y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">induction</span> x <span class="kr">as</span> [ x | ], y <span class="kr">as</span> [ y | ] ; <span class="nb">simpl</span> ; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk43">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_functor_unit
+  (linear_category_bang_functor
+     lifting_linear_category_data)
+· linear_category_comult lifting_linear_category_data
+    I_{ lifting_linear_category_data} =
+mon_linvunitor I_{ lifting_linear_category_data}
+· mon_functor_unit
+    (linear_category_bang_functor
+       lifting_linear_category_data)
+  #⊗ mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk44">use eq_mor_hset_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : pr11 I_{ lifting_linear_category_data},
+pr1
+  (mon_functor_unit
+     (linear_category_bang_functor
+        lifting_linear_category_data)
+   · linear_category_comult
+       lifting_linear_category_data
+       I_{ lifting_linear_category_data}) x =
+pr1
+  (mon_linvunitor I_{ lifting_linear_category_data}
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+     #⊗ mon_functor_unit
+          (linear_category_bang_functor
+             lifting_linear_category_data)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk45"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>x</var><span class="hyp-type"><b>: </b><span>pr11 I_{ lifting_linear_category_data}</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (mon_functor_unit
+     (linear_category_bang_functor
+        lifting_linear_category_data)
+   · linear_category_comult
+       lifting_linear_category_data
+       I_{ lifting_linear_category_data}) x =
+pr1
+  (mon_linvunitor I_{ lifting_linear_category_data}
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+     #⊗ mon_functor_unit
+          (linear_category_bang_functor
+             lifting_linear_category_data)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk46"><span class="nb">induction</span> x <span class="kr">as</span> [ | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (mon_functor_unit
+     (linear_category_bang_functor
+        lifting_linear_category_data)
+   · linear_category_comult
+       lifting_linear_category_data
+       I_{ lifting_linear_category_data}) true =
+pr1
+  (mon_linvunitor I_{ lifting_linear_category_data}
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+     #⊗ mon_functor_unit
+          (linear_category_bang_functor
+             lifting_linear_category_data)) true</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (mon_functor_unit
+     (linear_category_bang_functor
+        lifting_linear_category_data)
+   · linear_category_comult
+       lifting_linear_category_data
+       I_{ lifting_linear_category_data}) false =
+pr1
+  (mon_linvunitor I_{ lifting_linear_category_data}
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+     #⊗ mon_functor_unit
+          (linear_category_bang_functor
+             lifting_linear_category_data)) false</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk47">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (mon_functor_unit
+     (linear_category_bang_functor
+        lifting_linear_category_data)
+   · linear_category_comult
+       lifting_linear_category_data
+       I_{ lifting_linear_category_data}) true =
+pr1
+  (mon_linvunitor I_{ lifting_linear_category_data}
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+     #⊗ mon_functor_unit
+          (linear_category_bang_functor
+             lifting_linear_category_data)) true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk48"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">setquotpr
+  (smash_eqrel cartesian_struct_pointed_poset_strict
+     pointed_struct_pointed_poset_strict
+     (lift_pointed_PartialOrder PartialOrder_boolset)
+     (lift_pointed_PartialOrder PartialOrder_boolset))
+  (inl true,, inl true) =
+setquotpr
+  (smash_eqrel cartesian_struct_pointed_poset_strict
+     pointed_struct_pointed_poset_strict
+     (lift_pointed_PartialOrder PartialOrder_boolset)
+     (lift_pointed_PartialOrder PartialOrder_boolset))
+  (inl true,, inl true)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk49">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (mon_functor_unit
+     (linear_category_bang_functor
+        lifting_linear_category_data)
+   · linear_category_comult
+       lifting_linear_category_data
+       I_{ lifting_linear_category_data}) false =
+pr1
+  (mon_linvunitor I_{ lifting_linear_category_data}
+   · mon_functor_unit
+       (linear_category_bang_functor
+          lifting_linear_category_data)
+     #⊗ mon_functor_unit
+          (linear_category_bang_functor
+             lifting_linear_category_data)) false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk4a">use iscompsetquotpr ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">ishinh_UU
+  ((inr tt,, inr tt = inl true,, inr tt)
+   ⨿ (product_point_coordinate
+        cartesian_struct_pointed_poset_strict
+        pointed_struct_pointed_poset_strict
+        (lift_pointed_PartialOrder
+           PartialOrder_boolset)
+        (lift_pointed_PartialOrder
+           PartialOrder_boolset) (inr tt,, inr tt)
+      × product_point_coordinate
+          cartesian_struct_pointed_poset_strict
+          pointed_struct_pointed_poset_strict
+          (lift_pointed_PartialOrder
+             PartialOrder_boolset)
+          (lift_pointed_PartialOrder
+             PartialOrder_boolset) (inl true,, inr tt)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk4b"><span class="nb">refine</span> (hinhpr (inr _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">product_point_coordinate
+  cartesian_struct_pointed_poset_strict
+  pointed_struct_pointed_poset_strict
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (inr tt,, inr tt)
+× product_point_coordinate
+    cartesian_struct_pointed_poset_strict
+    pointed_struct_pointed_poset_strict
+    (lift_pointed_PartialOrder PartialOrder_boolset)
+    (lift_pointed_PartialOrder PartialOrder_boolset)
+    (inl true,, inr tt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk4c"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">product_point_coordinate
+  cartesian_struct_pointed_poset_strict
+  pointed_struct_pointed_poset_strict
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (inr tt,, inr tt)</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">product_point_coordinate
+  cartesian_struct_pointed_poset_strict
+  pointed_struct_pointed_poset_strict
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (inl true,, inr tt)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk4d">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">product_point_coordinate
+  cartesian_struct_pointed_poset_strict
+  pointed_struct_pointed_poset_strict
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (inr tt,, inr tt)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk4e"><span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(inr tt = inr tt) ⨿ (inr tt = inr tt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (inl (idpath _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk4f">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">product_point_coordinate
+  cartesian_struct_pointed_poset_strict
+  pointed_struct_pointed_poset_strict
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (lift_pointed_PartialOrder PartialOrder_boolset)
+  (inl true,, inr tt)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk50"><span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(inl true = inr tt) ⨿ (inr tt = inr tt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (inr (idpath _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk51">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : lifting_linear_category_data,
+mon_functor_tensor
+  (linear_category_bang_functor
+     lifting_linear_category_data) x y
+· linear_category_counit lifting_linear_category_data
+    (x ⊗ y) =
+linear_category_counit lifting_linear_category_data x
+#⊗ linear_category_counit lifting_linear_category_data
+     y · mon_lunitor I_{ lifting_linear_category_data}</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk52"><span class="nb">intros</span> X Y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_functor_tensor
+  (linear_category_bang_functor
+     lifting_linear_category_data) X Y
+· linear_category_counit lifting_linear_category_data
+    (X ⊗ Y) =
+linear_category_counit lifting_linear_category_data X
+#⊗ linear_category_counit lifting_linear_category_data
+     Y · mon_lunitor I_{ lifting_linear_category_data}</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk53">use eq_mor_hset_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : pr11 (linear_category_bang_functor
+            lifting_linear_category_data X
+          ⊗ linear_category_bang_functor
+              lifting_linear_category_data Y),
+pr1
+  (mon_functor_tensor
+     (linear_category_bang_functor
+        lifting_linear_category_data) X Y
+   · linear_category_counit
+       lifting_linear_category_data (X ⊗ Y)) x =
+pr1
+  (linear_category_counit lifting_linear_category_data
+     X
+   #⊗ linear_category_counit
+        lifting_linear_category_data Y
+   · mon_lunitor I_{ lifting_linear_category_data}) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk54">use setquotunivprop&#39; ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : pr1
+      (linear_category_bang_functor
+         lifting_linear_category_data X)
+    × pr1
+        (linear_category_bang_functor
+           lifting_linear_category_data Y),
+(<span class="kr">λ</span> <span class="nv">c</span> : setquot
+         (pr1
+            (smash_eqrel
+               (pr1
+                  pointed_struct_pointed_poset_strict_with_smash_closed)
+               (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+               (pr2
+                  (linear_category_bang_functor
+                     lifting_linear_category_data X))
+               (pr2
+                  (linear_category_bang_functor
+                     lifting_linear_category_data Y)))),
+ pr1
+   (mon_functor_tensor
+      (linear_category_bang_functor
+         lifting_linear_category_data) X Y
+    · linear_category_counit
+        lifting_linear_category_data (X ⊗ Y)) c =
+ pr1
+   (linear_category_counit
+      lifting_linear_category_data X
+    #⊗ linear_category_counit
+         lifting_linear_category_data Y
+    · mon_lunitor I_{ lifting_linear_category_data}) c)
+  (setquotpr
+     (smash_eqrel
+        (pr1
+           pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data X))
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data Y))) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk55"><span class="nb">intros</span> xy.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>xy</var><span class="hyp-type"><b>: </b><span>pr1
+  (linear_category_bang_functor
+     lifting_linear_category_data X)
+× pr1
+    (linear_category_bang_functor
+       lifting_linear_category_data Y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">c</span> : setquot
+         (pr1
+            (smash_eqrel
+               (pr1
+                  pointed_struct_pointed_poset_strict_with_smash_closed)
+               (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+               (pr2
+                  (linear_category_bang_functor
+                     lifting_linear_category_data X))
+               (pr2
+                  (linear_category_bang_functor
+                     lifting_linear_category_data Y)))),
+ pr1
+   (mon_functor_tensor
+      (linear_category_bang_functor
+         lifting_linear_category_data) X Y
+    · linear_category_counit
+        lifting_linear_category_data (X ⊗ Y)) c =
+ pr1
+   (linear_category_counit
+      lifting_linear_category_data X
+    #⊗ linear_category_counit
+         lifting_linear_category_data Y
+    · mon_lunitor I_{ lifting_linear_category_data}) c)
+  (setquotpr
+     (smash_eqrel
+        (pr1
+           pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data X))
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data Y))) xy)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk56"><span class="nb">induction</span> xy <span class="kr">as</span> [ x y ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1
+  (linear_category_bang_functor
+     lifting_linear_category_data X)</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>pr1
+  (linear_category_bang_functor
+     lifting_linear_category_data Y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (mon_functor_tensor
+     (linear_category_bang_functor
+        lifting_linear_category_data) X Y
+   · linear_category_counit
+       lifting_linear_category_data (X ⊗ Y))
+  (setquotpr
+     (smash_eqrel
+        (pr1
+           pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data X))
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data Y)))
+     (x,, y)) =
+pr1
+  (linear_category_counit lifting_linear_category_data
+     X
+   #⊗ linear_category_counit
+        lifting_linear_category_data Y
+   · mon_lunitor I_{ lifting_linear_category_data})
+  (setquotpr
+     (smash_eqrel
+        (pr1
+           pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr12 pointed_struct_pointed_poset_strict_with_smash_closed)
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data X))
+        (pr2
+           (linear_category_bang_functor
+              lifting_linear_category_data Y)))
+     (x,, y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk57"><span class="nb">induction</span> x <span class="kr">as</span> [ x | ], y <span class="kr">as</span> [ y | ] ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">true = true</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="liftingmodel-v-chk58" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>unitset</span></span></span><br></div><label class="goal-separator" for="liftingmodel-v-chk58"><hr></label><div class="goal-conclusion">false = false</div></blockquote><input class="alectryon-extra-goal-toggle" id="liftingmodel-v-chk59" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unitset</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>pr1 Y</span></span></span><br></div><label class="goal-separator" for="liftingmodel-v-chk59"><hr></label><div class="goal-conclusion">false = false</div></blockquote><input class="alectryon-extra-goal-toggle" id="liftingmodel-v-chk5a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b, p</var><span class="hyp-type"><b>: </b><span>unitset</span></span></span><br></div><label class="goal-separator" for="liftingmodel-v-chk5a"><hr></label><div class="goal-conclusion">false = false</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk5b">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">true = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk5c">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>unitset</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">false = false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk5d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>unitset</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">false = false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk5e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>lifting_linear_category_data</span></span></span><br><span><var>b, p</var><span class="hyp-type"><b>: </b><span>unitset</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">false = false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk5f" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk5f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_functor_unit
+  (linear_category_bang_functor
+     lifting_linear_category_data)
+· linear_category_counit lifting_linear_category_data
+    I_{ lifting_linear_category_data} =
+identity I_{ lifting_linear_category_data}</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk60" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk60">use eq_mor_hset_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : pr11 I_{ lifting_linear_category_data},
+pr1
+  (mon_functor_unit
+     (linear_category_bang_functor
+        lifting_linear_category_data)
+   · linear_category_counit
+       lifting_linear_category_data
+       I_{ lifting_linear_category_data}) x =
+pr1 (identity I_{ lifting_linear_category_data}) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk61" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk61"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>x</var><span class="hyp-type"><b>: </b><span>pr11 I_{ lifting_linear_category_data}</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (mon_functor_unit
+     (linear_category_bang_functor
+        lifting_linear_category_data)
+   · linear_category_counit
+       lifting_linear_category_data
+       I_{ lifting_linear_category_data}) x =
+pr1 (identity I_{ lifting_linear_category_data}) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk62" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk62"><span class="nb">induction</span> x <span class="kr">as</span> [ | ] ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">true = true</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">false = false</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk63" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk63">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">true = true</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk64" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk64">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">false = false</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk65" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk65"><span class="kn">Definition</span> <span class="nf">lifting_linear_category</span>
+  : linear_category.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk66" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk66"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk67" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk67">use make_linear_category.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_data</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_laws <span class="nl">?𝕃</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk68" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk68">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> lifting_linear_category_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="liftingmodel-v-chk69" style="display: none" type="checkbox"><label class="alectryon-input" for="liftingmodel-v-chk69">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">linear_category_laws lifting_linear_category_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> lifting_linear_category_laws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>
