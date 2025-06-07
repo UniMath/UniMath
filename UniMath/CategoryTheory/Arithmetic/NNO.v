@@ -46,7 +46,7 @@ Definition sucNNO (n : NNO) : C ⟦n,n⟧ := pr1 (pr2 (pr2 n)).
 Lemma isNNO_NNO (n : NNO) : isNNO n (zeroNNO n) (sucNNO n).
 Proof.
 exact (pr2 (pr2 (pr2 n))).
-Qed.
+Defined.
 
 Section UniversalMappingProperty.
   Context (N : NNO)
