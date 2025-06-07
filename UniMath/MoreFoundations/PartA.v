@@ -16,6 +16,7 @@ Definition maponpaths_1 {X A : UU} (f : X -> A) {x x'} (e : x = x')
   : f x = f x'
 := maponpaths f e.
 
+
 Definition maponpaths_2 {Y X A : UU} (f : Y -> X -> A)
     {y y'} (e_y : y = y') x
   : f y x = f y' x
