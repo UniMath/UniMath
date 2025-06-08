@@ -1901,3 +1901,73 @@ Section PullbackIso.
   Qed.
 
 End PullbackIso.
+
+Proposition pullbacks_of_isos_to_iso'
+  {C : category} {x x' y y' z z' : C}
+  {f : C⟦x, z⟧} {g : C⟦y, z⟧}
+  {f' : C⟦x', z'⟧} {g' : C⟦y', z'⟧}
+  (p : Pullback f g) (q : Pullback f' g')
+  (i : z_iso x x') (j : z_iso y y') (k : z_iso z z')
+  (pf : i · f' = f · k)
+  (pf' : j · g' = g · k)
+  : C⟦p, q⟧.
+Proof.
+  use PullbackArrow.
+  - exact (PullbackPr1 p · i).
+  - exact (PullbackPr2 p · j).
+  - abstract (rewrite assoc', pf;
+              rewrite assoc', pf';
+              do 2 rewrite assoc;
+              now rewrite PullbackSqrCommutes).
+Defined.
+
+Proposition pullbacks_of_isos_to_iso
+  {C : category} {x x' y y' z z' : C}
+  {f : C⟦x, z⟧} {g : C⟦y, z⟧}
+  {f' : C⟦x', z'⟧} {g' : C⟦y', z'⟧}
+  (p : Pullback f g) (q : Pullback f' g')
+  (i : z_iso x x') (j : z_iso y y') (k : z_iso z z')
+  (pf : i · f' = f · k)
+  (pf' : j · g' = g · k)
+  : z_iso p q.
+Proof.
+  simple refine (_ ,, _ ,, (_ ,, _)).
+  - exact (pullbacks_of_isos_to_iso' p q i j k pf pf').
+  - apply (pullbacks_of_isos_to_iso' q p (z_iso_inv i) (z_iso_inv j) (z_iso_inv k)).
+    + abstract (
+          use z_iso_inv_on_right;
+          rewrite assoc, pf;
+          rewrite assoc';
+          rewrite z_iso_inv_after_z_iso;
+          now rewrite id_right).
+    + abstract (
+          use z_iso_inv_on_right;
+          rewrite assoc, pf';
+          rewrite assoc';
+          rewrite z_iso_inv_after_z_iso;
+          now rewrite id_right).
+  - abstract (
+        unfold pullbacks_of_isos_to_iso';
+        rewrite postCompWithPullbackArrow;
+        apply pathsinv0, PullbackArrowUnique';
+        [ rewrite id_left, assoc ;
+          rewrite PullbackArrow_PullbackPr1 ;
+          rewrite assoc', z_iso_inv_after_z_iso ;
+          now rewrite id_right
+        | rewrite id_left, assoc;
+          rewrite PullbackArrow_PullbackPr2;
+          rewrite assoc', z_iso_inv_after_z_iso;
+          now rewrite id_right]).
+  - abstract (
+        unfold pullbacks_of_isos_to_iso';
+        rewrite postCompWithPullbackArrow;
+        apply pathsinv0, PullbackArrowUnique';
+        [ rewrite id_left, assoc ;
+          rewrite PullbackArrow_PullbackPr1 ;
+          rewrite assoc', z_iso_inv_after_z_iso ;
+          now rewrite id_right
+        | rewrite id_left, assoc;
+          rewrite PullbackArrow_PullbackPr2;
+          rewrite assoc', z_iso_inv_after_z_iso;
+          now rewrite id_right]).
+Defined.
