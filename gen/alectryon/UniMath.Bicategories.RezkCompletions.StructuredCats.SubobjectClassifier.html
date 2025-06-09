@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>SubobjectClassifier.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="c">(*</span>
+<span class="c">In this file, we show how the Rezk completion for finitely complete categories lifts to those equipped with a subobject classifier.</span>
+<span class="c">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Terminal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.SubobjectClassifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Reflection.SubobjectClassifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.SubobjectClassifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.UniversalArrow.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.RezkCompletions.StructuredCats.FiniteLimits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesSubobjectClassifierAdmitRezkCompletions</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">LUR</span> : left_universal_arrow univ_cats_to_cats)
+    (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (pr12 LUR C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk1"><span class="kn">Lemma</span> <span class="nf">disp_bicat_subobject_classifier_has_RC</span>
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_subobject_classifier.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_subobject_classifier</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_subobject_classifier</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk3">use make_cat_with_struct_has_RC_from_sigma ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  FiniteLimits.disp_bicat_limits</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="subobjectclassifier-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="subobjectclassifier-v-chk4"><hr></label><div class="goal-conclusion">∏ (C1 C2 : category) 
+(H : is_univalent C2) 
+(F : C1 ⟶ C2) (F_weq : is_weak_equiv F)
+(d : (∑ _ : Limits.Terminal.Terminal C1, unit)
+     × (∑ _ : Limits.BinProducts.BinProducts C1, unit)
+       × (∑ _ : Limits.Pullbacks.Pullbacks C1, unit)
+         × (∑ _ : Limits.Equalizers.Equalizers C1,
+            unit)),
+(∑ _ : subobject_classifier (pr11 d), unit)
+→ ∑
+  _ : subobject_classifier
+        (pr11 (cat_with_struct_has_RC_transport_weak_equiv
+                 η_weak_equiv
+                 FiniteLimits.disp_bicat_limits 
+                 <span class="nl">?Goal</span> H F_weq d)), unit</div></blockquote><input class="alectryon-extra-goal-toggle" id="subobjectclassifier-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="subobjectclassifier-v-chk5"><hr></label><div class="goal-conclusion">∏ (C : category)
+(d : (∑ _ : Limits.Terminal.Terminal C, unit)
+     × (∑ _ : Limits.BinProducts.BinProducts C, unit)
+       × (∑ _ : Limits.Pullbacks.Pullbacks C, unit)
+         × (∑ _ : Limits.Equalizers.Equalizers C, unit)),
+(∑ _ : subobject_classifier (pr11 d), unit)
+→ ∑ _ : unit,
+  preserves_subobject_classifier 
+    ((pr12 LUR) C) (pr11 d)
+    (pr11 (cat_with_struct_has_RC_transport_weak_equiv
+             η_weak_equiv
+             FiniteLimits.disp_bicat_limits 
+             <span class="nl">?Goal</span> (pr2 (pr1 LUR C)) 
+             (η_weak_equiv C) d))
+    (pr21 (cat_with_struct_has_RC_weak_equiv_preserves_struct
+             η_weak_equiv
+             FiniteLimits.disp_bicat_limits 
+             <span class="nl">?Goal</span> d))</div></blockquote><input class="alectryon-extra-goal-toggle" id="subobjectclassifier-v-chk6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="subobjectclassifier-v-chk6"><hr></label><div class="goal-conclusion">∏ (C1 : category) (C2 C3 : univalent_category)
+(F : C1 ⟶ C3) (G : C1 ⟶ C2) 
+(H : C2 ⟶ C3) (n : nat_z_iso (G ∙ H) F)
+(d1 : (∑ _ : Limits.Terminal.Terminal C1, unit)
+      × (∑ _ : Limits.BinProducts.BinProducts C1, unit)
+        × (∑ _ : Limits.Pullbacks.Pullbacks C1, unit)
+          × (∑ _ : Limits.Equalizers.Equalizers C1,
+             unit)),
+(∑ _ : subobject_classifier (pr11 d1), unit)
+→ ∏
+  d2 : (∑ _ : Limits.Terminal.Terminal (pr1 C2), unit)
+       × (∑
+          _ : Limits.BinProducts.BinProducts (pr1 C2),
+          unit)
+         × (∑ _ : Limits.Pullbacks.Pullbacks (pr1 C2),
+            unit)
+           × (∑
+              _ : Limits.Equalizers.Equalizers
+                    (pr1 C2), unit),
+  (∑ _ : subobject_classifier (pr11 d2), unit)
+  → ∏
+    d3 : (∑ _ : Limits.Terminal.Terminal (pr1 C3),
+          unit)
+         × (∑
+            _ : Limits.BinProducts.BinProducts
+                  (pr1 C3), unit)
+           × (∑
+              _ : Limits.Pullbacks.Pullbacks (pr1 C3),
+              unit)
+             × (∑
+                _ : Limits.Equalizers.Equalizers
+                    (pr1 C3), unit),
+    (∑ _ : subobject_classifier (pr11 d3), unit)
+    → ∏ (G_weq : is_weak_equiv G)
+      (f_D : (∑ _ : unit,
+              Preservation.preserves_terminal F)
+             × (∑ _ : unit,
+                Preservation.preserves_binproduct F)
+               × (∑ _ : unit,
+                  Preservation.preserves_pullback F)
+                 × (∑ 
+                    _ : unit,
+                    Preservation.preserves_equalizer F)),
+      (∑ _ : unit,
+       preserves_subobject_classifier F 
+         (pr11 d1) (pr11 d3) 
+         (pr21 f_D))
+      → ∑ _ : unit,
+        preserves_subobject_classifier H 
+          (pr11 d2) (pr11 d3)
+          (pr21 (cat_with_struct_has_RC_lift_struct_along_weak_equiv
+                   η_weak_equiv
+                   FiniteLimits.disp_bicat_limits
+                   <span class="nl">?Goal</span> C2 C3 n d1 d2 d3 G_weq f_D))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  FiniteLimits.disp_bicat_limits</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (disp_bicat_limits_has_RC _ η_weak_equiv).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C1 C2 : category) (H : is_univalent C2)
+(F : C1 ⟶ C2) (F_weq : is_weak_equiv F)
+(d : (∑ _ : Limits.Terminal.Terminal C1, unit)
+     × (∑ _ : Limits.BinProducts.BinProducts C1, unit)
+       × (∑ _ : Limits.Pullbacks.Pullbacks C1, unit)
+         × (∑ _ : Limits.Equalizers.Equalizers C1,
+            unit)),
+(∑ _ : subobject_classifier (pr11 d), unit)
+→ ∑
+  _ : subobject_classifier
+        (pr11 (cat_with_struct_has_RC_transport_weak_equiv
+                 η_weak_equiv
+                 FiniteLimits.disp_bicat_limits
+                 (disp_bicat_limits_has_RC LUR
+                    η_weak_equiv) H F_weq d)), unit</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk9"><span class="nb">simpl</span> ; <span class="nb">intros</span> C₁ C₂ C₂_univ F F_weq [[T₁ ?] [BP₁ ?]] [Ω₁ ?].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂_univ</var><span class="hyp-type"><b>: </b><span>is_univalent C₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>F_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑
+_ : subobject_classifier
+      (Limits.Terminal.make_Terminal
+         (F (Preamble.pr1 T₁))
+         (weak_equiv_preserves_terminal F F_weq
+            (Preamble.pr1 T₁) (Preamble.pr2 T₁))),
+unit</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chka"><span class="nb">refine</span> (_ ,, tt).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂_univ</var><span class="hyp-type"><b>: </b><span>is_univalent C₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>F_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">subobject_classifier
+  (Limits.Terminal.make_Terminal (F (Preamble.pr1 T₁))
+     (weak_equiv_preserves_terminal F F_weq
+        (Preamble.pr1 T₁) (Preamble.pr2 T₁)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (weak_equiv_creates_subobject_classifier _ _ Ω₁).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C : category)
+(d : (∑ _ : Limits.Terminal.Terminal C, unit)
+     × (∑ _ : Limits.BinProducts.BinProducts C, unit)
+       × (∑ _ : Limits.Pullbacks.Pullbacks C, unit)
+         × (∑ _ : Limits.Equalizers.Equalizers C, unit)),
+(∑ _ : subobject_classifier (pr11 d), unit)
+→ ∑ _ : unit,
+  preserves_subobject_classifier ((pr12 LUR) C)
+    (pr11 d)
+    (pr11 (cat_with_struct_has_RC_transport_weak_equiv
+             η_weak_equiv
+             FiniteLimits.disp_bicat_limits
+             (disp_bicat_limits_has_RC LUR
+                η_weak_equiv) (pr2 (pr1 LUR C))
+             (η_weak_equiv C) d))
+    (pr21 (cat_with_struct_has_RC_weak_equiv_preserves_struct
+             η_weak_equiv
+             FiniteLimits.disp_bicat_limits
+             (disp_bicat_limits_has_RC LUR
+                η_weak_equiv) d))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chkc"><span class="nb">cbn</span> ; <span class="nb">intros</span> C [[T ?] [BP ?]] [Ω ?].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>T</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C, unit)</span></span></span><br><span><var>Ω</var><span class="hyp-type"><b>: </b><span>subobject_classifier (pr11 ((T,, pr2),, BP,, pr0))</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ _ : unit,
+preserves_subobject_classifier ((pr12 LUR) C)
+  (pr11 ((T,, pr2),, BP,, pr0))
+  (Limits.Terminal.make_Terminal
+     ((pr12 LUR) C (Preamble.pr1 T))
+     (weak_equiv_preserves_terminal ((pr12 LUR) C)
+        (η_weak_equiv C) (Preamble.pr1 T)
+        (Preamble.pr2 T)))
+  (weak_equiv_preserves_terminal ((pr12 LUR) C)
+     (η_weak_equiv C))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chkd"><span class="nb">refine</span> (tt ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>T</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C, unit)</span></span></span><br><span><var>Ω</var><span class="hyp-type"><b>: </b><span>subobject_classifier (pr11 ((T,, pr2),, BP,, pr0))</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_subobject_classifier ((pr12 LUR) C)
+  (pr11 ((T,, pr2),, BP,, pr0))
+  (Limits.Terminal.make_Terminal
+     ((pr12 LUR) C (Preamble.pr1 T))
+     (weak_equiv_preserves_terminal ((pr12 LUR) C)
+        (η_weak_equiv C) (Preamble.pr1 T)
+        (Preamble.pr2 T)))
+  (weak_equiv_preserves_terminal ((pr12 LUR) C)
+     (η_weak_equiv C))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> weak_equiv_preserves_subobject_classifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chke">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C1 : category) (C2 C3 : univalent_category)
+(F : C1 ⟶ C3) (G : C1 ⟶ C2) (H : C2 ⟶ C3)
+(n : nat_z_iso (G ∙ H) F)
+(d1 : (∑ _ : Limits.Terminal.Terminal C1, unit)
+      × (∑ _ : Limits.BinProducts.BinProducts C1, unit)
+        × (∑ _ : Limits.Pullbacks.Pullbacks C1, unit)
+          × (∑ _ : Limits.Equalizers.Equalizers C1,
+             unit)),
+(∑ _ : subobject_classifier (pr11 d1), unit)
+→ ∏
+  d2 : (∑ _ : Limits.Terminal.Terminal (pr1 C2), unit)
+       × (∑
+          _ : Limits.BinProducts.BinProducts (pr1 C2),
+          unit)
+         × (∑ _ : Limits.Pullbacks.Pullbacks (pr1 C2),
+            unit)
+           × (∑
+              _ : Limits.Equalizers.Equalizers
+                    (pr1 C2), unit),
+  (∑ _ : subobject_classifier (pr11 d2), unit)
+  → ∏
+    d3 : (∑ _ : Limits.Terminal.Terminal (pr1 C3),
+          unit)
+         × (∑
+            _ : Limits.BinProducts.BinProducts
+                  (pr1 C3), unit)
+           × (∑
+              _ : Limits.Pullbacks.Pullbacks (pr1 C3),
+              unit)
+             × (∑
+                _ : Limits.Equalizers.Equalizers
+                      (pr1 C3), unit),
+    (∑ _ : subobject_classifier (pr11 d3), unit)
+    → ∏ (G_weq : is_weak_equiv G)
+      (f_D : (∑ _ : unit,
+              Preservation.preserves_terminal F)
+             × (∑ _ : unit,
+                Preservation.preserves_binproduct F)
+               × (∑ _ : unit,
+                  Preservation.preserves_pullback F)
+                 × (∑ _ : unit,
+                    Preservation.preserves_equalizer F)),
+      (∑ _ : unit,
+       preserves_subobject_classifier F (pr11 d1)
+         (pr11 d3) (pr21 f_D))
+      → ∑ _ : unit,
+        preserves_subobject_classifier H (pr11 d2)
+          (pr11 d3)
+          (pr21 (cat_with_struct_has_RC_lift_struct_along_weak_equiv
+                   η_weak_equiv
+                   FiniteLimits.disp_bicat_limits
+                   (disp_bicat_limits_has_RC LUR
+                      η_weak_equiv) C2 C3 n d1 d2 d3
+                   G_weq f_D))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chkf"><span class="nb">cbn</span> ; <span class="nb">intros</span> C₁ C₂ C₃ F G H n
+        [[T₁ ?] [BP₁ ?]] [Ω₁ _]
+        [[T₂ ?] [BP₂ ?]] [Ω₂ _]
+        [[T₃ ?] [BP₃ ?]] [Ω₃ _]
+        G_weq
+        [[? Fpt] [? Fpb]]
+        [? FΩ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₂</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₂), unit</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₂), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>Ω₂</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))</span></span></span><br><span><var>T₃</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₃</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₃), unit</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₃), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>Ω₃</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>Fpt</var><span class="hyp-type"><b>: </b><span>Preservation.preserves_terminal F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>∑ _ : unit, Preservation.preserves_binproduct F</span></span></span><br><span><var>Fpb</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_pullback F)
+× (∑ _ : unit,
+   Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr8</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FΩ</var><span class="hyp-type"><b>: </b><span>preserves_subobject_classifier F
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (pr21 ((pr6,, Fpt),, pr7,, Fpb))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ _ : unit,
+preserves_subobject_classifier H
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (weak_equiv_lifts_preserves_terminal n G_weq Fpt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk10"><span class="nb">refine</span> (tt ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₂</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₂), unit</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₂), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>Ω₂</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))</span></span></span><br><span><var>T₃</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₃</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₃), unit</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₃), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>Ω₃</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>Fpt</var><span class="hyp-type"><b>: </b><span>Preservation.preserves_terminal F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>∑ _ : unit, Preservation.preserves_binproduct F</span></span></span><br><span><var>Fpb</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_pullback F)
+× (∑ _ : unit,
+   Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr8</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FΩ</var><span class="hyp-type"><b>: </b><span>preserves_subobject_classifier F
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (pr21 ((pr6,, Fpt),, pr7,, Fpb))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_subobject_classifier H
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (weak_equiv_lifts_preserves_terminal n G_weq Fpt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk11">use preserves_subobject_classifier_independent_of_chosen_terminal_if_univalent.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₂</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₂), unit</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₂), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>Ω₂</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))</span></span></span><br><span><var>T₃</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₃</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₃), unit</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₃), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>Ω₃</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>Fpt</var><span class="hyp-type"><b>: </b><span>Preservation.preserves_terminal F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>∑ _ : unit, Preservation.preserves_binproduct F</span></span></span><br><span><var>Fpb</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_pullback F)
+× (∑ _ : unit,
+   Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr8</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FΩ</var><span class="hyp-type"><b>: </b><span>preserves_subobject_classifier F
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (pr21 ((pr6,, Fpt),, pr7,, Fpb))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Limits.Terminal.Terminal (Preamble.pr1 C₂)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="subobjectclassifier-v-chk12" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₂</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₂), unit</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₂), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>Ω₂</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))</span></span></span><br><span><var>T₃</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₃</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₃), unit</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₃), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>Ω₃</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>Fpt</var><span class="hyp-type"><b>: </b><span>Preservation.preserves_terminal F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>∑ _ : unit, Preservation.preserves_binproduct F</span></span></span><br><span><var>Fpb</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_pullback F)
+× (∑ _ : unit,
+   Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr8</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FΩ</var><span class="hyp-type"><b>: </b><span>preserves_subobject_classifier F
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (pr21 ((pr6,, Fpt),, pr7,, Fpb))</span></span></span><br></div><label class="goal-separator" for="subobjectclassifier-v-chk12"><hr></label><div class="goal-conclusion">preserves_subobject_classifier H 
+  <span class="nl">?T₁</span> (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (weak_equiv_lifts_preserves_terminal n G_weq Fpt)</div></blockquote><input class="alectryon-extra-goal-toggle" id="subobjectclassifier-v-chk13" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₂</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₂), unit</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₂), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>Ω₂</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))</span></span></span><br><span><var>T₃</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₃</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₃), unit</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₃), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>Ω₃</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>Fpt</var><span class="hyp-type"><b>: </b><span>Preservation.preserves_terminal F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>∑ _ : unit, Preservation.preserves_binproduct F</span></span></span><br><span><var>Fpb</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_pullback F)
+× (∑ _ : unit,
+   Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr8</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FΩ</var><span class="hyp-type"><b>: </b><span>preserves_subobject_classifier F
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (pr21 ((pr6,, Fpt),, pr7,, Fpb))</span></span></span><br></div><label class="goal-separator" for="subobjectclassifier-v-chk13"><hr></label><div class="goal-conclusion">is_univalent (Preamble.pr1 C₂)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk14">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₂</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₂), unit</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₂), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>Ω₂</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))</span></span></span><br><span><var>T₃</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₃</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₃), unit</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₃), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>Ω₃</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>Fpt</var><span class="hyp-type"><b>: </b><span>Preservation.preserves_terminal F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>∑ _ : unit, Preservation.preserves_binproduct F</span></span></span><br><span><var>Fpb</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_pullback F)
+× (∑ _ : unit,
+   Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr8</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FΩ</var><span class="hyp-type"><b>: </b><span>preserves_subobject_classifier F
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (pr21 ((pr6,, Fpt),, pr7,, Fpb))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Limits.Terminal.Terminal (Preamble.pr1 C₂)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (weak_equiv_creates_terminal G_weq T₁).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk15">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₂</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₂), unit</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₂), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>Ω₂</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))</span></span></span><br><span><var>T₃</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₃</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₃), unit</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₃), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>Ω₃</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>Fpt</var><span class="hyp-type"><b>: </b><span>Preservation.preserves_terminal F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>∑ _ : unit, Preservation.preserves_binproduct F</span></span></span><br><span><var>Fpb</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_pullback F)
+× (∑ _ : unit,
+   Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr8</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FΩ</var><span class="hyp-type"><b>: </b><span>preserves_subobject_classifier F
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (pr21 ((pr6,, Fpt),, pr7,, Fpb))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_subobject_classifier H
+  (weak_equiv_creates_terminal G_weq T₁)
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (weak_equiv_lifts_preserves_terminal n G_weq Fpt)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (weak_equiv_lifts_preserves_subobject_classifier C₂ C₃ n G_weq Fpt T₁ T₃ FΩ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk16">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₁</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C₁, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>Ω₁</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₂</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₂), unit</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₂), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>Ω₂</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₂,, pr1),, BP₂,, pr3))</span></span></span><br><span><var>T₃</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP₃</var><span class="hyp-type"><b>: </b><span>∑
+_ : Limits.BinProducts.BinProducts
+      (Preamble.pr1 C₃), unit</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Pullbacks.Pullbacks
+       (Preamble.pr1 C₃), unit)
+× (∑
+   _ : Limits.Equalizers.Equalizers
+         (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>Ω₃</var><span class="hyp-type"><b>: </b><span>subobject_classifier
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>Fpt</var><span class="hyp-type"><b>: </b><span>Preservation.preserves_terminal F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>∑ _ : unit, Preservation.preserves_binproduct F</span></span></span><br><span><var>Fpb</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_pullback F)
+× (∑ _ : unit,
+   Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr8</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FΩ</var><span class="hyp-type"><b>: </b><span>preserves_subobject_classifier F
+  (pr11 ((T₁,, pr2),, BP₁,, pr0))
+  (pr11 ((T₃,, pr4),, BP₃,, pr5))
+  (pr21 ((pr6,, Fpt),, pr7,, Fpb))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent (Preamble.pr1 C₂)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> C₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk17"><span class="kn">Theorem</span> <span class="nf">disp_bicat_subobject_classifier_has_RezkCompletion</span>
+    : cat_with_structure_has_RezkCompletion disp_bicat_subobject_classifier.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_subobject_classifier</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk18"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_subobject_classifier</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk19"><span class="nb">apply</span> (make_RezkCompletion_from_locally_contractible η_weak_equiv).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_subobject_classifier</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="subobjectclassifier-v-chk1a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="subobjectclassifier-v-chk1a"><hr></label><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_subobject_classifier</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk1b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_subobject_classifier</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_bicat_subobject_classifier_has_RC.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="subobjectclassifier-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="subobjectclassifier-v-chk1c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_subobject_classifier</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_subobject_classifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesSubobjectClassifierAdmitRezkCompletions</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

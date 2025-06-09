@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>SigmaTypes.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Comprehension categories with strong sigma types</span>
+
+<span class="sd"> In this file, we define when a comprehension category has strong sigma types. Note that</span>
+<span class="sd"> sigma types are called strong if the canonical map from `Γ . A . B` to `Γ . ∑ A , B` is an</span>
+<span class="sd"> isomorphism (Definition 5.8 in &#39;Comprehension categories and the semantics of type</span>
+<span class="sd"> dependency&#39; by Jacobs).</span>
+
+<span class="sd"> We define the displayed bicategory of sigma types as a full subbicategory. The reason for</span>
+<span class="sd"> that is given by Proposition 3.5 in &#39;The biequivalence of locally cartesian closed categories</span>
+<span class="sd"> and Martin-Löf type theories&#39; by Clairambault and Dybjer. Morphisms automatically preserve</span>
+<span class="sd"> sigma types, and the proof of this fact uses that the sigma types are strong.</span>
+
+<span class="sd"> We also lift this displayed bicategory to full comprehension categories.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - &#39;Comprehension categories and the semantics of type dependency&#39; by Jacobs</span>
+<span class="sd"> - &#39;The biequivalence of locally cartesian closed categories and Martin-Löf type theories&#39; by</span>
+<span class="sd">   Clairambault and Dybjer</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The displayed bicategory of sigma types</span>
+<span class="sd"> 2. The univalence of this displayed bicategory</span>
+<span class="sd"> 3. Sigma types for comprehension categories</span>
+<span class="sd"> 4. Adjoint equivalences</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.UnivalenceOp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpMorBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Examples.MorphismsInBicatOfUnivCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Examples.MorphismsInOp1Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The displayed bicategory of sigma types *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comp_cat_dependent_sum</span>
+           (<span class="nv">C</span> : comp_cat)
+  : UU
+  := ∑ (sig : ∏ (Γ : C) (A : ty Γ), dependent_sum (cleaving_of_types C) (π A)),
+     ∏ (Γ₁ Γ₂ : C)
+       (A₁ : ty Γ₁)
+       (A₂ : ty Γ₂)
+       (s₁ : Γ₁ --&gt; Γ₂)
+       (s₂ : Γ₁ &amp; A₁ --&gt; Γ₂ &amp; A₂)
+       (p : s₂ · π A₂ = π A₁ · s₁)
+       (Hp : isPullback p),
+     left_beck_chevalley
+       _
+       (π A₂) s₁ (π A₁) s₂
+       p
+       (sig _ A₂)
+       (sig _ A₁).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Projections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : comp_cat}
+          (<span class="nv">S</span> : comp_cat_dependent_sum C)
+          {<span class="nv">Γ</span> : C}
+          (<span class="nv">A</span> : ty Γ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">dep_sum_cc</span>
+             (<span class="nv">B</span> : ty (Γ &amp; A))
+    : ty Γ
+    := Adjunctions.Core.left_adjoint (pr1 S Γ A) B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">dep_sum_unit_cc</span>
+             (<span class="nv">B</span> : ty (Γ &amp; A))
+    : B --&gt;[ identity _ ] subst_ty (π A) (dep_sum_cc B)
+    := unit_from_right_adjoint (pr1 S Γ A) B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">dep_sum_counit_cc</span>
+             (<span class="nv">B</span> : ty Γ)
+    : dep_sum_cc (subst_ty (π A) B) --&gt;[ identity _ ] B
+    := counit_from_right_adjoint (pr1 S Γ A) B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Projections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk1"><span class="kn">Proposition</span> <span class="nf">isaprop_dependent_sum</span>
+            {<span class="nv">C</span> : cat_with_terminal_cleaving}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+  : isaprop (dependent_sum (cleaving_of_types C) f).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>cat_with_terminal_cleaving</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (dependent_sum (cleaving_of_types C) f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>cat_with_terminal_cleaving</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (dependent_sum (cleaving_of_types C) f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk3"><span class="nb">pose</span> (D₁ := univalent_fiber_category (disp_cat_of_types C) y : bicat_of_univ_cats).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>cat_with_terminal_cleaving</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>D₁</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) y
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (dependent_sum (cleaving_of_types C) f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk4"><span class="nb">pose</span> (D₂ := univalent_fiber_category (disp_cat_of_types C) x : bicat_of_univ_cats).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>cat_with_terminal_cleaving</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>D₁</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) y
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>D₂</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) x
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (dependent_sum (cleaving_of_types C) f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk5"><span class="nb">pose</span> (F := (fiber_functor_from_cleaving _ (cleaving_of_types C) f : D₁ --&gt; D₂)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>cat_with_terminal_cleaving</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>D₁</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) y
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>D₂</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) x
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>fiber_functor_from_cleaving (disp_cat_of_types C)
+  (cleaving_of_types C) f
+:
+bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (dependent_sum (cleaving_of_types C) f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk6">use (isofhlevelweqf _ (right_adjoint_weq_is_right_adjoint F)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>cat_with_terminal_cleaving</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>D₁</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) y
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>D₂</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) x
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>fiber_functor_from_cleaving (disp_cat_of_types C)
+  (cleaving_of_types C) f
+:
+bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span> (internal_right_adj F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk7">use (isofhlevelweqf _ op1_left_adjoint_weq_right_adjoint).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>cat_with_terminal_cleaving</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>D₁</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) y
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>D₂</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) x
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>fiber_functor_from_cleaving (disp_cat_of_types C)
+  (cleaving_of_types C) f
+:
+bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span> (left_adjoint F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk8"><span class="nb">apply</span> isaprop_left_adjoint.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>cat_with_terminal_cleaving</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>D₁</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) y
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>D₂</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) x
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>fiber_functor_from_cleaving (disp_cat_of_types C)
+  (cleaving_of_types C) f
+:
+bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 (op1_bicat bicat_of_univ_cats)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk9">use op1_bicat_is_univalent_2_1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>cat_with_terminal_cleaving</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>D₁</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) y
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>D₂</var><span><span class="hyp-body"><b>:= </b><span>univalent_fiber_category (disp_cat_of_types C) x
+:
+bicat_of_univ_cats</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats</span></span></span></span><br><span><var>F</var><span><span class="hyp-body"><b>:= </b><span>fiber_functor_from_cleaving (disp_cat_of_types C)
+  (cleaving_of_types C) f
+:
+bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span><span class="hyp-type"><b>: </b><span>bicat_of_univ_cats ⟦ D₁, D₂ ⟧</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 bicat_of_univ_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_cat_is_univalent_2_1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chka"><span class="kn">Proposition</span> <span class="nf">isaprop_comp_cat_dependent_sum</span>
+            (<span class="nv">C</span> : comp_cat)
+  : isaprop (comp_cat_dependent_sum C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (comp_cat_dependent_sum C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chkb"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (comp_cat_dependent_sum C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chkc">use isaproptotal2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : ∏ (Γ : C) (A : ty Γ),
+         dependent_sum (cleaving_of_types C) (π A),
+   ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+   (s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+   (p : s₂ · π A₂ = π A₁ · s₁),
+   isPullback p
+   → left_beck_chevalley (cleaving_of_types C) (π A₂)
+       s₁ (π A₁) s₂ p (x Γ₂ A₂) (x Γ₁ A₁))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sigmatypes-v-chkd" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><label class="goal-separator" for="sigmatypes-v-chkd"><hr></label><div class="goal-conclusion">∏
+x
+ y : ∏ (Γ : C) (A : ty Γ),
+     dependent_sum (cleaving_of_types C) (π A),
+(<span class="kr">λ</span> <span class="nv">x0</span> : ∏ (Γ : C) (A : ty Γ),
+        dependent_sum (cleaving_of_types C) (π A),
+ ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+ (s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+ (p : s₂ · π A₂ = π A₁ · s₁),
+ isPullback p
+ → left_beck_chevalley (cleaving_of_types C) (π A₂) s₁
+     (π A₁) s₂ p (x0 Γ₂ A₂) (x0 Γ₁ A₁)) x
+→ (<span class="kr">λ</span> <span class="nv">x0</span> : ∏ (Γ : C) (A : ty Γ),
+          dependent_sum (cleaving_of_types C) (π A),
+   ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+   (s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+   (p : s₂ · π A₂ = π A₁ · s₁),
+   isPullback p
+   → left_beck_chevalley (cleaving_of_types C) (π A₂)
+       s₁ (π A₁) s₂ p (x0 Γ₂ A₂) (x0 Γ₁ A₁)) y → x = y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chke">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : ∏ (Γ : C) (A : ty Γ),
+         dependent_sum (cleaving_of_types C) (π A),
+   ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+   (s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+   (p : s₂ · π A₂ = π A₁ · s₁),
+   isPullback p
+   → left_beck_chevalley (cleaving_of_types C) (π A₂)
+       s₁ (π A₁) s₂ p (x Γ₂ A₂) (x Γ₁ A₁))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chkf"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>∏ (Γ : C) (A : ty Γ),
+dependent_sum (cleaving_of_types C) (π A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+   (s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+   (p : s₂ · π A₂ = π A₁ · s₁),
+   isPullback p
+   → left_beck_chevalley (cleaving_of_types C) (π A₂)
+       s₁ (π A₁) s₂ p (x Γ₂ A₂) (x Γ₁ A₁))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk10"><span class="kp">do</span> <span class="mi">8</span> (use impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>∏ (Γ : C) (A : ty Γ),
+dependent_sum (cleaving_of_types C) (π A)</span></span></span><br><span><var>t, t0</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t1</var><span class="hyp-type"><b>: </b><span>ty t</span></span></span><br><span><var>t2</var><span class="hyp-type"><b>: </b><span>ty t0</span></span></span><br><span><var>t3</var><span class="hyp-type"><b>: </b><span>C ⟦ t, t0 ⟧</span></span></span><br><span><var>t4</var><span class="hyp-type"><b>: </b><span>C ⟦ t &amp; t1, t0 &amp; t2 ⟧</span></span></span><br><span><var>t5</var><span class="hyp-type"><b>: </b><span>t4 · π t2 = π t1 · t3</span></span></span><br><span><var>t6</var><span class="hyp-type"><b>: </b><span>isPullback t5</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">_</span> : isPullback t5,
+    left_beck_chevalley (cleaving_of_types C) (π t2)
+      t3 (π t1) t4 t5 (x t0 t2) (x t t1)) t6)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_left_beck_chevalley.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk11">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x
+ y : ∏ (Γ : C) (A : ty Γ),
+     dependent_sum (cleaving_of_types C) (π A),
+(<span class="kr">λ</span> <span class="nv">x0</span> : ∏ (Γ : C) (A : ty Γ),
+        dependent_sum (cleaving_of_types C) (π A),
+ ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+ (s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+ (p : s₂ · π A₂ = π A₁ · s₁),
+ isPullback p
+ → left_beck_chevalley (cleaving_of_types C) (π A₂) s₁
+     (π A₁) s₂ p (x0 Γ₂ A₂) (x0 Γ₁ A₁)) x
+→ (<span class="kr">λ</span> <span class="nv">x0</span> : ∏ (Γ : C) (A : ty Γ),
+          dependent_sum (cleaving_of_types C) (π A),
+   ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+   (s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+   (p : s₂ · π A₂ = π A₁ · s₁),
+   isPullback p
+   → left_beck_chevalley (cleaving_of_types C) (π A₂)
+       s₁ (π A₁) s₂ p (x0 Γ₂ A₂) (x0 Γ₁ A₁)) y → x = y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk12"><span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>∏ (Γ : C) (A : ty Γ),
+dependent_sum (cleaving_of_types C) (π A)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">x</span> : ∏ (Γ : C) (A : ty Γ),
+       dependent_sum (cleaving_of_types C) (π A),
+ ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+ (s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+ (p : s₂ · π A₂ = π A₁ · s₁),
+ isPullback p
+ → left_beck_chevalley (cleaving_of_types C)
+     (π A₂) s₁ (π A₁) s₂ p (x Γ₂ A₂) (x Γ₁ A₁)) x</span></span></span><br><span><var>X0</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">x</span> : ∏ (Γ : C) (A : ty Γ),
+       dependent_sum (cleaving_of_types C) (π A),
+ ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+ (s₁ : C ⟦ Γ₁, Γ₂ ⟧)
+ (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+ (p : s₂ · π A₂ = π A₁ · s₁),
+ isPullback p
+ → left_beck_chevalley (cleaving_of_types C)
+     (π A₂) s₁ (π A₁) s₂ p (x Γ₂ A₂) (x Γ₁ A₁)) y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">x = y</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk13"><span class="kp">do</span> <span class="mi">2</span> (use funextsec ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>∏ (Γ : C) (A : ty Γ),
+dependent_sum (cleaving_of_types C) (π A)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">x</span> : ∏ (Γ : C) (A : ty Γ),
+       dependent_sum (cleaving_of_types C) (π A),
+ ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+ (s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+ (p : s₂ · π A₂ = π A₁ · s₁),
+ isPullback p
+ → left_beck_chevalley (cleaving_of_types C)
+     (π A₂) s₁ (π A₁) s₂ p (x Γ₂ A₂) (x Γ₁ A₁)) x</span></span></span><br><span><var>X0</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">x</span> : ∏ (Γ : C) (A : ty Γ),
+       dependent_sum (cleaving_of_types C) (π A),
+ ∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+ (s₁ : C ⟦ Γ₁, Γ₂ ⟧)
+ (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+ (p : s₂ · π A₂ = π A₁ · s₁),
+ isPullback p
+ → left_beck_chevalley (cleaving_of_types C)
+     (π A₂) s₁ (π A₁) s₂ p (x Γ₂ A₂) (x Γ₁ A₁)) y</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>x1</var><span class="hyp-type"><b>: </b><span>ty x0</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">x x0 x1 = y x0 x1</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_dependent_sum.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_comp_cat_dependent_sum</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">sig</span> : ∏ (Γ : C) (A : ty Γ),
+                  dependent_sum (cleaving_of_types C) (π A))
+           (<span class="nv">stable</span> : ∏ (Γ₁ Γ₂ : C)
+                       (A₁ : ty Γ₁)
+                       (A₂ : ty Γ₂)
+                       (s₁ : Γ₁ --&gt; Γ₂)
+                       (s₂ : Γ₁ &amp; A₁ --&gt; Γ₂ &amp; A₂)
+                       (p : s₂ · π A₂ = π A₁ · s₁)
+                       (Hp : isPullback p),
+                     left_beck_chevalley
+                       _
+                       (π A₂) s₁ (π A₁) s₂
+                       p
+                       (sig _ A₂)
+                       (sig _ A₁))
+  : comp_cat_dependent_sum C
+  := sig ,, stable.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk14"><span class="kn">Definition</span> <span class="nf">make_comp_cat_dependent_sum_all</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">HC</span> : has_dependent_sums (cleaving_of_types C))
+  : comp_cat_dependent_sum C.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>HC</var><span class="hyp-type"><b>: </b><span>has_dependent_sums (cleaving_of_types C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_dependent_sum C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk15"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>HC</var><span class="hyp-type"><b>: </b><span>has_dependent_sums (cleaving_of_types C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_dependent_sum C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk16">use make_comp_cat_dependent_sum.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>HC</var><span class="hyp-type"><b>: </b><span>has_dependent_sums (cleaving_of_types C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (Γ : C) (A : ty Γ),
+dependent_sum (cleaving_of_types C) (π A)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sigmatypes-v-chk17" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>HC</var><span class="hyp-type"><b>: </b><span>has_dependent_sums (cleaving_of_types C)</span></span></span><br></div><label class="goal-separator" for="sigmatypes-v-chk17"><hr></label><div class="goal-conclusion">∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+(s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+(p : s₂ · π A₂ = π A₁ · s₁),
+isPullback p
+→ left_beck_chevalley (cleaving_of_types C) (π A₂) s₁
+    (π A₁) s₂ p (<span class="nl">?sig</span> Γ₂ A₂) (<span class="nl">?sig</span> Γ₁ A₁)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk18">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>HC</var><span class="hyp-type"><b>: </b><span>has_dependent_sums (cleaving_of_types C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (Γ : C) (A : ty Γ),
+dependent_sum (cleaving_of_types C) (π A)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">Γ</span> <span class="nv">A</span>, pr1 HC _ _ (π A)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk19">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>HC</var><span class="hyp-type"><b>: </b><span>has_dependent_sums (cleaving_of_types C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (Γ₁ Γ₂ : C) (A₁ : ty Γ₁) (A₂ : ty Γ₂)
+(s₁ : C ⟦ Γ₁, Γ₂ ⟧) (s₂ : C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧)
+(p : s₂ · π A₂ = π A₁ · s₁),
+isPullback p
+→ left_beck_chevalley (cleaving_of_types C) (π A₂) s₁
+    (π A₁) s₂ p
+    ((<span class="kr">λ</span> (<span class="nv">Γ</span> : C) (<span class="nv">A</span> : ty Γ), pr1 HC (Γ &amp; A) Γ (π A)) Γ₂
+       A₂)
+    ((<span class="kr">λ</span> (<span class="nv">Γ</span> : C) (<span class="nv">A</span> : ty Γ), pr1 HC (Γ &amp; A) Γ (π A)) Γ₁
+       A₁)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk1a"><span class="nb">intros</span> Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>HC</var><span class="hyp-type"><b>: </b><span>has_dependent_sums (cleaving_of_types C)</span></span></span><br><span><var>Γ₁, Γ₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A₁</var><span class="hyp-type"><b>: </b><span>ty Γ₁</span></span></span><br><span><var>A₂</var><span class="hyp-type"><b>: </b><span>ty Γ₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>C ⟦ Γ₁, Γ₂ ⟧</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>C ⟦ Γ₁ &amp; A₁, Γ₂ &amp; A₂ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>s₂ · π A₂ = π A₁ · s₁</span></span></span><br><span><var>Hp</var><span class="hyp-type"><b>: </b><span>isPullback p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_beck_chevalley (cleaving_of_types C) (π A₂) s₁
+  (π A₁) s₂ p
+  ((<span class="kr">λ</span> (<span class="nv">Γ</span> : C) (<span class="nv">A</span> : ty Γ), pr1 HC (Γ &amp; A) Γ (π A)) Γ₂
+     A₂)
+  ((<span class="kr">λ</span> (<span class="nv">Γ</span> : C) (<span class="nv">A</span> : ty Γ), pr1 HC (Γ &amp; A) Γ (π A)) Γ₁
+     A₁)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr2 HC _ _ _ _ _ _ _ _ _ Hp).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">dependent_sum_map</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">D</span> : comp_cat_dependent_sum C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+           (<span class="nv">B</span> : ty (Γ &amp; A))
+  : Γ &amp; A &amp; B --&gt; Γ &amp; dep_sum_cc D A B
+  := comp_cat_comp_mor (dep_sum_unit_cc D A B)
+     · comp_cat_extend_over (dep_sum_cc D A B) (π A).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk1b"><span class="kn">Proposition</span> <span class="nf">dependent_sum_map_eq</span>
+            {<span class="nv">C</span> : comp_cat}
+            (<span class="nv">D</span> : comp_cat_dependent_sum C)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">A</span> : ty Γ)
+            (<span class="nv">B</span> : ty (Γ &amp; A))
+  : dependent_sum_map D A B · π (dep_sum_cc D A B)
+    =
+    π B · π A.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">dependent_sum_map D A B · π (dep_sum_cc D A B) =
+π B · π A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk1c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">dependent_sum_map D A B · π (dep_sum_cc D A B) =
+π B · π A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk1d"><span class="nb">unfold</span> dependent_sum_map, comp_cat_extend_over.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_comp_mor (dep_sum_unit_cc D A B)
+· comprehension_functor_mor (comp_cat_comprehension C)
+    (comp_cat_subst (dep_sum_cc D A B) (π A))
+· π (dep_sum_cc D A B) = π B · π A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk1e"><span class="nb">rewrite</span> !assoc&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_comp_mor (dep_sum_unit_cc D A B)
+· (comprehension_functor_mor
+     (comp_cat_comprehension C)
+     (comp_cat_subst (dep_sum_cc D A B) (π A))
+   · π (dep_sum_cc D A B)) = π B · π A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk1f">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_comp_mor (dep_sum_unit_cc D A B)
+· (comprehension_functor_mor
+     (comp_cat_comprehension C)
+     (comp_cat_subst (dep_sum_cc D A B) (π A))
+   · π (dep_sum_cc D A B)) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sigmatypes-v-chk20" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><label class="goal-separator" for="sigmatypes-v-chk20"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> = π B · π A</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk21">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_comp_mor (dep_sum_unit_cc D A B)
+· (comprehension_functor_mor
+     (comp_cat_comprehension C)
+     (comp_cat_subst (dep_sum_cc D A B) (π A))
+   · π (dep_sum_cc D A B)) = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk22"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comprehension_functor_mor (comp_cat_comprehension C)
+  (comp_cat_subst (dep_sum_cc D A B) (π A))
+· π (dep_sum_cc D A B) = <span class="nl">?t2</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> comprehension_functor_mor_comm.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk23">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_comp_mor (dep_sum_unit_cc D A B)
+· (comprehension_functor_cod_mor
+     (comp_cat_comprehension C)
+     (dep_sum_cc D A B [[π A]]) · π A) = π B · π A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk24"><span class="nb">rewrite</span> !assoc.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_comp_mor (dep_sum_unit_cc D A B)
+· comprehension_functor_cod_mor
+    (comp_cat_comprehension C)
+    (dep_sum_cc D A B [[π A]]) · π A = π B · π A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk25">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_comp_mor (dep_sum_unit_cc D A B)
+· comprehension_functor_cod_mor
+    (comp_cat_comprehension C)
+    (dep_sum_cc D A B [[π A]]) · π A = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sigmatypes-v-chk26" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><label class="goal-separator" for="sigmatypes-v-chk26"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> = π B · π A</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk27">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_comp_mor (dep_sum_unit_cc D A B)
+· comprehension_functor_cod_mor
+    (comp_cat_comprehension C)
+    (dep_sum_cc D A B [[π A]]) · π A = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk28"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_comp_mor (dep_sum_unit_cc D A B)
+· comprehension_functor_cod_mor
+    (comp_cat_comprehension C)
+    (dep_sum_cc D A B [[π A]]) = <span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> comprehension_functor_mor_comm.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk29">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comprehension_functor_cod_mor
+  (comp_cat_comprehension C) B · id₁ (Γ &amp; A) · π A =
+π B · π A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk2a"><span class="nb">rewrite</span> id_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>Γ</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>ty Γ</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>ty (Γ &amp; A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comprehension_functor_cod_mor
+  (comp_cat_comprehension C) B · π A = π B · π A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">strong_dependent_sums</span>
+           (<span class="nv">C</span> : comp_cat)
+  : UU
+  := ∑ (D : comp_cat_dependent_sum C),
+     ∏ (Γ : C)
+       (A : ty Γ)
+       (B : ty (Γ &amp; A)),
+     is_z_isomorphism (dependent_sum_map D A B).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk2b"><span class="kn">Coercion</span> <span class="nf">strong_dependent_sum_to_dependent_sums</span>
+         {C : comp_cat}
+         (D : strong_dependent_sums C)
+  : comp_cat_dependent_sum C.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>strong_dependent_sums C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_dependent_sum C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk2c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>strong_dependent_sums C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">comp_cat_dependent_sum C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr1 D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">strong_dependent_sums_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">D</span> : strong_dependent_sums C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+           (<span class="nv">B</span> : ty (Γ &amp; A))
+  : is_z_isomorphism (dependent_sum_map D A B)
+  := pr2 D Γ A B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk2d"><span class="kn">Proposition</span> <span class="nf">isaprop_strong_dependent_sums</span>
+            (<span class="nv">C</span> : comp_cat)
+  : isaprop (strong_dependent_sums C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (strong_dependent_sums C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk2e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (strong_dependent_sums C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk2f">use isaproptotal2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : comp_cat_dependent_sum C,
+   ∏ (Γ : C) (A : ty Γ) (B : ty (Γ &amp; A)),
+   is_z_isomorphism (dependent_sum_map x A B))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sigmatypes-v-chk30" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><label class="goal-separator" for="sigmatypes-v-chk30"><hr></label><div class="goal-conclusion">∏ x y : comp_cat_dependent_sum C,
+(<span class="kr">λ</span> <span class="nv">x0</span> : comp_cat_dependent_sum C,
+ ∏ (Γ : C) (A : ty Γ) (B : ty (Γ &amp; A)),
+ is_z_isomorphism (dependent_sum_map x0 A B)) x
+→ (<span class="kr">λ</span> <span class="nv">x0</span> : comp_cat_dependent_sum C,
+   ∏ (Γ : C) (A : ty Γ) (B : ty (Γ &amp; A)),
+   is_z_isomorphism (dependent_sum_map x0 A B)) y
+  → x = y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk31">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isPredicate
+  (<span class="kr">λ</span> <span class="nv">x</span> : comp_cat_dependent_sum C,
+   ∏ (Γ : C) (A : ty Γ) (B : ty (Γ &amp; A)),
+   is_z_isomorphism (dependent_sum_map x A B))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk32"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (∏ (Γ : C) (A : ty Γ) (B : ty (Γ &amp; A)),
+   is_z_isomorphism (dependent_sum_map x A B))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk33"><span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t0</var><span class="hyp-type"><b>: </b><span>ty t</span></span></span><br><span><var>t1</var><span class="hyp-type"><b>: </b><span>ty (t &amp; t0)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t1</span> : ty (t &amp; t0),
+    is_z_isomorphism (dependent_sum_map x t0 t1)) t1)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_is_z_isomorphism.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk34">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : comp_cat_dependent_sum C,
+(<span class="kr">λ</span> <span class="nv">x0</span> : comp_cat_dependent_sum C,
+ ∏ (Γ : C) (A : ty Γ) (B : ty (Γ &amp; A)),
+ is_z_isomorphism (dependent_sum_map x0 A B)) x
+→ (<span class="kr">λ</span> <span class="nv">x0</span> : comp_cat_dependent_sum C,
+   ∏ (Γ : C) (A : ty Γ) (B : ty (Γ &amp; A)),
+   is_z_isomorphism (dependent_sum_map x0 A B)) y
+  → x = y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk35"><span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>comp_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>comp_cat_dependent_sum C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">x</span> : comp_cat_dependent_sum C,
+ ∏ (Γ : C) (A : ty Γ) (B : ty (Γ &amp; A)),
+ is_z_isomorphism (dependent_sum_map x A B)) x</span></span></span><br><span><var>X0</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">x</span> : comp_cat_dependent_sum C,
+ ∏ (Γ : C) (A : ty Γ) (B : ty (Γ &amp; A)),
+ is_z_isomorphism (dependent_sum_map x A B)) y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">x = y</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_comp_cat_dependent_sum.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">disp_bicat_of_sigma_type</span>
+  : disp_bicat bicat_comp_cat
+  := disp_fullsubbicat _ strong_dependent_sums.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. The univalence of this displayed bicategory *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk36"><span class="kn">Definition</span> <span class="nf">univalent_2_1_disp_bicat_of_sigma_type</span>
+  : disp_univalent_2_1 disp_bicat_of_sigma_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk37"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_fullsubbicat_univalent_2_1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk38"><span class="kn">Definition</span> <span class="nf">univalent_2_0_disp_bicat_of_sigma_type</span>
+  : disp_univalent_2_0 disp_bicat_of_sigma_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk39"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk3a">use disp_univalent_2_0_fullsubbicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 bicat_comp_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : bicat_comp_cat,
+isaprop (strong_dependent_sums x)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk3b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 bicat_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> is_univalent_2_bicat_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk3c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : bicat_comp_cat,
+isaprop (strong_dependent_sums x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk3d"><span class="nb">intro</span> C.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat_comp_cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (strong_dependent_sums C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_strong_dependent_sums.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk3e"><span class="kn">Definition</span> <span class="nf">univalent_2_disp_bicat_of_sigma_type</span>
+  : disp_univalent_2 disp_bicat_of_sigma_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk3f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk40"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_sigma_type</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_sigma_type</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk41">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_0_disp_bicat_of_sigma_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk42">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_sigma_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk43"><span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_of_sigma_type</span>
+  : disp_2cells_isaprop disp_bicat_of_sigma_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk44"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk45"><span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_disp_bicat_of_sigma_type</span>
+  : disp_locally_groupoid disp_bicat_of_sigma_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk46"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_locally_groupoid_fullsubbicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 3. Sigma types for comprehension categories *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">disp_bicat_of_sigma_type_full_comp_cat</span>
+  : disp_bicat bicat_full_comp_cat
+  := lift_disp_bicat _ disp_bicat_of_sigma_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk47"><span class="kn">Definition</span> <span class="nf">univalent_2_1_disp_bicat_of_sigma_type_full_comp_cat</span>
+  : disp_univalent_2_1 disp_bicat_of_sigma_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk48"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk49">use disp_univalent_2_1_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_sigma_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk4a"><span class="kn">Definition</span> <span class="nf">univalent_2_0_disp_bicat_of_sigma_type_full_comp_cat</span>
+  : disp_univalent_2_0 disp_bicat_of_sigma_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk4b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk4c">use disp_univalent_2_0_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_sigma_type</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_sigma_type</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 bicat_comp_cat</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_full_comp_cat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk4d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_0_disp_bicat_of_sigma_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk4e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_sigma_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk4f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 bicat_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> is_univalent_2_1_bicat_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk50">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_univalent_2_1_disp_bicat_full_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk51"><span class="kn">Definition</span> <span class="nf">univalent_2_disp_bicat_of_sigma_type_full_comp_cat</span>
+  : disp_univalent_2 disp_bicat_of_sigma_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk52"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk53"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk54">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_0_disp_bicat_of_sigma_type_full_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk55">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_sigma_type_full_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk56"><span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_of_sigma_type_full_comp_cat</span>
+  : disp_2cells_isaprop disp_bicat_of_sigma_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk57"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk58">use disp_2cells_isaprop_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_of_sigma_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk59"><span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_disp_bicat_of_sigma_type_full_comp_cat</span>
+  : disp_locally_groupoid disp_bicat_of_sigma_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk5a" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk5a"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid
+  disp_bicat_of_sigma_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk5b">use disp_locally_groupoid_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid disp_bicat_of_sigma_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_locally_groupoid_disp_bicat_of_sigma_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 4. Adjoint equivalences *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk5c"><span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           {<span class="nv">T₁</span> : disp_bicat_of_sigma_type_full_comp_cat C₁}
+           {<span class="nv">T₂</span> : disp_bicat_of_sigma_type_full_comp_cat C₂}
+           (<span class="nv">FF</span> : T₁ --&gt;[ F ] T₂)
+  : disp_left_adjoint_equivalence F FF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>full_comp_cat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>adjoint_equivalence C₁ C₂</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[ F] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence F FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk5d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>full_comp_cat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>adjoint_equivalence C₁ C₂</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[ F] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence F FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk5e"><span class="nb">revert</span> C₁ C₂ F T₁ T₂ FF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C₁ C₂ : full_comp_cat)
+(F : adjoint_equivalence C₁ C₂)
+(T₁ : disp_bicat_of_sigma_type_full_comp_cat C₁)
+(T₂ : disp_bicat_of_sigma_type_full_comp_cat C₂)
+(FF : T₁ --&gt;[ F] T₂),
+disp_left_adjoint_equivalence F FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk5f" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk5f">use J_2_0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_0 bicat_full_comp_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : bicat_full_comp_cat,
+(<span class="kr">λ</span> (<span class="nv">a0</span> <span class="nv">b</span> : bicat_full_comp_cat)
+ (<span class="nv">f</span> : adjoint_equivalence a0 b),
+ ∏ (T₁ : disp_bicat_of_sigma_type_full_comp_cat a0)
+ (T₂ : disp_bicat_of_sigma_type_full_comp_cat b)
+ (FF : T₁ --&gt;[ f] T₂),
+ disp_left_adjoint_equivalence f FF) a a
+  (internal_adjoint_equivalence_identity a)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk60" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk60">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_0 bicat_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> is_univalent_2_0_bicat_full_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk61" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk61">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : bicat_full_comp_cat,
+(<span class="kr">λ</span> (<span class="nv">a0</span> <span class="nv">b</span> : bicat_full_comp_cat)
+ (<span class="nv">f</span> : adjoint_equivalence a0 b),
+ ∏ (T₁ : disp_bicat_of_sigma_type_full_comp_cat a0)
+ (T₂ : disp_bicat_of_sigma_type_full_comp_cat b)
+ (FF : T₁ --&gt;[ f] T₂),
+ disp_left_adjoint_equivalence f FF) a a
+  (internal_adjoint_equivalence_identity a)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk62" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk62"><span class="nb">intros</span> C T₁ T₂ FF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat_full_comp_cat</span></span></span><br><span><var>T₁, T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[
+internal_adjoint_equivalence_identity C] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence
+  (internal_adjoint_equivalence_identity C) FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk63" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk63">use to_disp_left_adjoint_equivalence_over_id_lift.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat_full_comp_cat</span></span></span><br><span><var>T₁, T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[
+internal_adjoint_equivalence_identity C] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence
+  (internal_adjoint_equivalence_identity (pr1 C)) FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_left_adjoint_equivalence_fullsubbicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk64" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk64"><span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">T₁</span> : disp_bicat_of_sigma_type_full_comp_cat C₁}
+           {<span class="nv">T₂</span> : disp_bicat_of_sigma_type_full_comp_cat C₂}
+           (<span class="nv">FF</span> : T₁ --&gt;[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>full_comp_cat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>full_comp_cat_functor C₁ C₂</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>left_adjoint_equivalence F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[ F] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence HF FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sigmatypes-v-chk65" style="display: none" type="checkbox"><label class="alectryon-input" for="sigmatypes-v-chk65"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>full_comp_cat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>full_comp_cat_functor C₁ C₂</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>left_adjoint_equivalence F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_sigma_type_full_comp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[ F] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence HF FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat_help (F ,, HF) FF).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

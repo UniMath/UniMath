@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.Modifications.Examples.Associativity</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.Modifications.Examples.Associativity</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+Associativity laws are inverses
+ ********************************************************************************* 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#"><span class="id" title="library">UniMath.CategoryTheory.PrecategoryBinProduct</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Invertible_2cells.html#"><span class="id" title="library">UniMath.Bicategories.Core.Invertible_2cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#"><span class="id" title="library">UniMath.Bicategories.Core.BicategoryLaws</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#"><span class="id" title="library">UniMath.Bicategories.Core.Unitors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.Base.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.Base</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.Map1Cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.Map2Cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.Identitor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.Identitor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.Compositor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.Compositor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.PseudoFunctor</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#Notations"><span class="id" title="module">PseudoFunctor.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Identity.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.Identity</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Composition.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.Composition</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#"><span class="id" title="library">UniMath.Bicategories.Transformations.PseudoTransformation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Transformations.Examples.Associativity.html#"><span class="id" title="library">UniMath.Bicategories.Transformations.Examples.Associativity</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#"><span class="id" title="library">UniMath.Bicategories.Modifications.Modification</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Associativity" class="idref" href="#Associativity"><span class="id" title="section">Associativity</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="f96b0601fd8738dda7f3a9d06df52c9a" class="idref" href="#f96b0601fd8738dda7f3a9d06df52c9a"><span class="id" title="variable">B₁</span></a> <a id="dd75cd4616056939e491f397b992e5f8" class="idref" href="#dd75cd4616056939e491f397b992e5f8"><span class="id" title="variable">B₂</span></a> <a id="abd93d5046f69fe8f63eac3f6ebaccbc" class="idref" href="#abd93d5046f69fe8f63eac3f6ebaccbc"><span class="id" title="variable">B₃</span></a> <a id="04cd03607ad78c3c98265c351e202a91" class="idref" href="#04cd03607ad78c3c98265c351e202a91"><span class="id" title="variable">B₄</span></a>: <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> (<a id="b6d8256da2febf115f6afed8c945d125" class="idref" href="#b6d8256da2febf115f6afed8c945d125"><span class="id" title="variable">F₁</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#f96b0601fd8738dda7f3a9d06df52c9a"><span class="id" title="variable">B₁</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#dd75cd4616056939e491f397b992e5f8"><span class="id" title="variable">B₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="9b458473f943ae4023fb36e7d31873fc" class="idref" href="#9b458473f943ae4023fb36e7d31873fc"><span class="id" title="variable">F₂</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#dd75cd4616056939e491f397b992e5f8"><span class="id" title="variable">B₂</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#abd93d5046f69fe8f63eac3f6ebaccbc"><span class="id" title="variable">B₃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="e693150e3cce6a04a2df3aaa5642ce1a" class="idref" href="#e693150e3cce6a04a2df3aaa5642ce1a"><span class="id" title="variable">F₃</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#abd93d5046f69fe8f63eac3f6ebaccbc"><span class="id" title="variable">B₃</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#04cd03607ad78c3c98265c351e202a91"><span class="id" title="variable">B₄</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lassociator_rassociator_pstrans_data" class="idref" href="#lassociator_rassociator_pstrans_data"><span class="id" title="definition">lassociator_rassociator_pstrans_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#invertible_modification_data"><span class="id" title="definition">invertible_modification_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#comp_pstrans"><span class="id" title="definition">comp_pstrans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.Examples.Associativity.html#lassociator_pstrans"><span class="id" title="definition">lassociator_pstrans</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#b6d8256da2febf115f6afed8c945d125"><span class="id" title="variable">F₁</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#9b458473f943ae4023fb36e7d31873fc"><span class="id" title="variable">F₂</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#e693150e3cce6a04a2df3aaa5642ce1a"><span class="id" title="variable">F₃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.Examples.Associativity.html#rassociator_pstrans"><span class="id" title="definition">rassociator_pstrans</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#b6d8256da2febf115f6afed8c945d125"><span class="id" title="variable">F₁</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#9b458473f943ae4023fb36e7d31873fc"><span class="id" title="variable">F₂</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#e693150e3cce6a04a2df3aaa5642ce1a"><span class="id" title="variable">F₃</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#id_pstrans"><span class="id" title="definition">id_pstrans</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#make_invertible_2cell"><span class="id" title="definition">make_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lunitor"><span class="id" title="definition">lunitor</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">is_iso</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lassociator_rassociator_pstrans_modification" class="idref" href="#lassociator_rassociator_pstrans_modification"><span class="id" title="definition">lassociator_rassociator_pstrans_modification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#is_modification"><span class="id" title="definition">is_modification</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#lassociator_rassociator_pstrans_data"><span class="id" title="definition">lassociator_rassociator_pstrans_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker_vcomp"><span class="id" title="definition">lwhisker_vcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocr"><span class="id" title="definition">vassocr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lunitor_lwhisker"><span class="id" title="lemma">lunitor_lwhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rwhisker_vcomp"><span class="id" title="definition">rwhisker_vcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocr"><span class="id" title="definition">vassocr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#lunitor_triangle"><span class="id" title="definition">lunitor_triangle</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#rwhisker_hcomp"><span class="id" title="lemma">rwhisker_hcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#triangle_r_inv"><span class="id" title="lemma">triangle_r_inv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#lwhisker_hcomp"><span class="id" title="lemma">lwhisker_hcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker_vcomp"><span class="id" title="definition">lwhisker_vcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#linvunitor_lunitor"><span class="id" title="definition">linvunitor_lunitor</span></a>, <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker_id2"><span class="id" title="definition">lwhisker_id2</span></a>, <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#id2_right"><span class="id" title="definition">id2_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vcomp_lunitor"><span class="id" title="definition">vcomp_lunitor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#runitor_lunitor_identity"><span class="id" title="lemma">runitor_lunitor_identity</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lassociator_rassociator_pstrans" class="idref" href="#lassociator_rassociator_pstrans"><span class="id" title="definition">lassociator_rassociator_pstrans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#invertible_modification"><span class="id" title="definition">invertible_modification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#comp_pstrans"><span class="id" title="definition">comp_pstrans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.Examples.Associativity.html#lassociator_pstrans"><span class="id" title="definition">lassociator_pstrans</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#b6d8256da2febf115f6afed8c945d125"><span class="id" title="variable">F₁</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#9b458473f943ae4023fb36e7d31873fc"><span class="id" title="variable">F₂</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#e693150e3cce6a04a2df3aaa5642ce1a"><span class="id" title="variable">F₃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.Examples.Associativity.html#rassociator_pstrans"><span class="id" title="definition">rassociator_pstrans</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#b6d8256da2febf115f6afed8c945d125"><span class="id" title="variable">F₁</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#9b458473f943ae4023fb36e7d31873fc"><span class="id" title="variable">F₂</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#e693150e3cce6a04a2df3aaa5642ce1a"><span class="id" title="variable">F₃</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#id_pstrans"><span class="id" title="definition">id_pstrans</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#make_invertible_modification"><span class="id" title="definition">make_invertible_modification</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#lassociator_rassociator_pstrans_data"><span class="id" title="definition">lassociator_rassociator_pstrans_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#lassociator_rassociator_pstrans_modification"><span class="id" title="definition">lassociator_rassociator_pstrans_modification</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="rassociator_lassociator_pstrans_data" class="idref" href="#rassociator_lassociator_pstrans_data"><span class="id" title="definition">rassociator_lassociator_pstrans_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#invertible_modification_data"><span class="id" title="definition">invertible_modification_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#comp_pstrans"><span class="id" title="definition">comp_pstrans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.Examples.Associativity.html#rassociator_pstrans"><span class="id" title="definition">rassociator_pstrans</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#b6d8256da2febf115f6afed8c945d125"><span class="id" title="variable">F₁</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#9b458473f943ae4023fb36e7d31873fc"><span class="id" title="variable">F₂</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#e693150e3cce6a04a2df3aaa5642ce1a"><span class="id" title="variable">F₃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.Examples.Associativity.html#lassociator_pstrans"><span class="id" title="definition">lassociator_pstrans</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#b6d8256da2febf115f6afed8c945d125"><span class="id" title="variable">F₁</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#9b458473f943ae4023fb36e7d31873fc"><span class="id" title="variable">F₂</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#e693150e3cce6a04a2df3aaa5642ce1a"><span class="id" title="variable">F₃</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#id_pstrans"><span class="id" title="definition">id_pstrans</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#make_invertible_2cell"><span class="id" title="definition">make_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lunitor"><span class="id" title="definition">lunitor</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">is_iso</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="rassociator_lassociator_pstrans_is_modification" class="idref" href="#rassociator_lassociator_pstrans_is_modification"><span class="id" title="definition">rassociator_lassociator_pstrans_is_modification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#is_modification"><span class="id" title="definition">is_modification</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#rassociator_lassociator_pstrans_data"><span class="id" title="definition">rassociator_lassociator_pstrans_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker_vcomp"><span class="id" title="definition">lwhisker_vcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocr"><span class="id" title="definition">vassocr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lunitor_lwhisker"><span class="id" title="lemma">lunitor_lwhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rwhisker_vcomp"><span class="id" title="definition">rwhisker_vcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocr"><span class="id" title="definition">vassocr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#lunitor_triangle"><span class="id" title="definition">lunitor_triangle</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#rwhisker_hcomp"><span class="id" title="lemma">rwhisker_hcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#triangle_r_inv"><span class="id" title="lemma">triangle_r_inv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#lwhisker_hcomp"><span class="id" title="lemma">lwhisker_hcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker_vcomp"><span class="id" title="definition">lwhisker_vcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#linvunitor_lunitor"><span class="id" title="definition">linvunitor_lunitor</span></a>, <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker_id2"><span class="id" title="definition">lwhisker_id2</span></a>, <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#id2_right"><span class="id" title="definition">id2_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vcomp_lunitor"><span class="id" title="definition">vcomp_lunitor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#runitor_lunitor_identity"><span class="id" title="lemma">runitor_lunitor_identity</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="rassociator_lassociator_pstrans" class="idref" href="#rassociator_lassociator_pstrans"><span class="id" title="definition">rassociator_lassociator_pstrans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#invertible_modification"><span class="id" title="definition">invertible_modification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#comp_pstrans"><span class="id" title="definition">comp_pstrans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.Examples.Associativity.html#rassociator_pstrans"><span class="id" title="definition">rassociator_pstrans</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#b6d8256da2febf115f6afed8c945d125"><span class="id" title="variable">F₁</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#9b458473f943ae4023fb36e7d31873fc"><span class="id" title="variable">F₂</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#e693150e3cce6a04a2df3aaa5642ce1a"><span class="id" title="variable">F₃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.Examples.Associativity.html#lassociator_pstrans"><span class="id" title="definition">lassociator_pstrans</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#b6d8256da2febf115f6afed8c945d125"><span class="id" title="variable">F₁</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#9b458473f943ae4023fb36e7d31873fc"><span class="id" title="variable">F₂</span></a> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#e693150e3cce6a04a2df3aaa5642ce1a"><span class="id" title="variable">F₃</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#id_pstrans"><span class="id" title="definition">id_pstrans</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#make_invertible_modification"><span class="id" title="definition">make_invertible_modification</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#rassociator_lassociator_pstrans_data"><span class="id" title="definition">rassociator_lassociator_pstrans_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#rassociator_lassociator_pstrans_is_modification"><span class="id" title="definition">rassociator_lassociator_pstrans_is_modification</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.Associativity.html#Associativity"><span class="id" title="section">Associativity</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

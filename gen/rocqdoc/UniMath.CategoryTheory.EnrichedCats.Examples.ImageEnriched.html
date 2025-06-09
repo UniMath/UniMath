@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Full</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Enrichment</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">moncat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="ImageEnriched" class="idref" href="#ImageEnriched"><span class="id" title="section">ImageEnriched</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="ImageEnriched.V" class="idref" href="#ImageEnriched.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="bc94d3d2ffc1855c743150e0f1805db5" class="idref" href="#bc94d3d2ffc1855c743150e0f1805db5"><span class="id" title="variable">C₁</span></a> <a id="855e4ec2d6a1dbc3a0bac0bc291e7257" class="idref" href="#855e4ec2d6a1dbc3a0bac0bc291e7257"><span class="id" title="variable">C₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="2d39dbcda61ed0afea9a0d6c1c1e31fc" class="idref" href="#2d39dbcda61ed0afea9a0d6c1c1e31fc"><span class="id" title="variable">E₁</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#enrichment"><span class="id" title="definition">enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#94ac6026770feb54e4b346e25b44edea"><span class="id" title="variable">C₁</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#V:1"><span class="id" title="variable">V</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="0d3ca552c87b7a26a8fe5dd8121568d3" class="idref" href="#0d3ca552c87b7a26a8fe5dd8121568d3"><span class="id" title="variable">E₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#enrichment"><span class="id" title="definition">enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#5fde3f0cc2cbae0bc1717a879ade453e"><span class="id" title="variable">C₂</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#V:1"><span class="id" title="variable">V</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="ImageEnriched.F" class="idref" href="#ImageEnriched.F"><span class="id" title="variable">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#94ac6026770feb54e4b346e25b44edea"><span class="id" title="variable">C₁</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#5fde3f0cc2cbae0bc1717a879ade453e"><span class="id" title="variable">C₂</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="ImageEnriched.EF" class="idref" href="#ImageEnriched.EF"><span class="id" title="variable">EF</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_enrichment"><span class="id" title="definition">functor_enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#F:6"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#dad99965798df00a2b7d5ed4abeff714"><span class="id" title="variable">E₁</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#d851681adc0fed310f194638daa4e66b"><span class="id" title="variable">E₂</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   1. The enriched image
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="image_enrichment" class="idref" href="#image_enrichment"><span class="id" title="definition">image_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#enrichment"><span class="id" title="definition">enrichment</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_img_sub_precategory"><span class="id" title="definition">full_img_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.F"><span class="id" title="variable">F</span></a>) <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.V"><span class="id" title="variable">V</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.html#fullsub_enrichment"><span class="id" title="definition">fullsub_enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#0d3ca552c87b7a26a8fe5dd8121568d3"><span class="id" title="variable">E₂</span></a> <span class="id" title="var">_</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   2. The factorization functors
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="image_incl_enrichment" class="idref" href="#image_incl_enrichment"><span class="id" title="definition">image_incl_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_enrichment"><span class="id" title="definition">functor_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#sub_precategory_inclusion"><span class="id" title="definition">sub_precategory_inclusion</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_enrichment"><span class="id" title="definition">image_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#0d3ca552c87b7a26a8fe5dd8121568d3"><span class="id" title="variable">E₂</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.html#fullsub_inclusion_enrichment"><span class="id" title="definition">fullsub_inclusion_enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#0d3ca552c87b7a26a8fe5dd8121568d3"><span class="id" title="variable">E₂</span></a> <span class="id" title="var">_</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="image_incl_enrichment_fully_faithful" class="idref" href="#image_incl_enrichment_fully_faithful"><span class="id" title="definition">image_incl_enrichment_fully_faithful</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#fully_faithful_enriched_functor"><span class="id" title="definition">fully_faithful_enriched_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_incl_enrichment"><span class="id" title="definition">image_incl_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.html#fullsub_inclusion_enrichment_fully_faithful"><span class="id" title="definition">fullsub_inclusion_enrichment_fully_faithful</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#0d3ca552c87b7a26a8fe5dd8121568d3"><span class="id" title="variable">E₂</span></a> <span class="id" title="var">_</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="image_proj_enrichment" class="idref" href="#image_proj_enrichment"><span class="id" title="definition">image_proj_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_enrichment"><span class="id" title="definition">functor_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#functor_full_img"><span class="id" title="definition">functor_full_img</span></a> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#2d39dbcda61ed0afea9a0d6c1c1e31fc"><span class="id" title="variable">E₁</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_enrichment"><span class="id" title="definition">image_enrichment</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:8" class="idref" href="#x:8"><span class="id" title="binder"><span id="x:10" class="id">x</span></span></a> <a id="y:9" class="idref" href="#y:9"><span class="id" title="binder"><span id="y:11" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.EF"><span class="id" title="variable">EF</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#x:8"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#y:9"><span class="id" title="variable">y</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_enrichment_id"><span class="id" title="definition">functor_enrichment_id</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.EF"><span class="id" title="variable">EF</span></a> <span class="id" title="var">x</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_enrichment_comp"><span class="id" title="definition">functor_enrichment_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.EF"><span class="id" title="variable">EF</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_enrichment_from_arr"><span class="id" title="definition">functor_enrichment_from_arr</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.EF"><span class="id" title="variable">EF</span></a> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   3. The commutation
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="image_factorization_enriched_commutes" class="idref" href="#image_factorization_enriched_commutes"><span class="id" title="definition">image_factorization_enriched_commutes</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.html#nat_trans_enrichment"><span class="id" title="definition">nat_trans_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_image_inclusion_commute_nat_iso"><span class="id" title="definition">full_image_inclusion_commute_nat_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.F"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_comp_enrichment"><span class="id" title="definition">functor_comp_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_proj_enrichment"><span class="id" title="definition">image_proj_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_incl_enrichment"><span class="id" title="definition">image_incl_enrichment</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.EF"><span class="id" title="variable">EF</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.html#nat_trans_enrichment_via_comp"><span class="id" title="lemma">nat_trans_enrichment_via_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#precomp_arr_id"><span class="id" title="definition">precomp_arr_id</span></a>, <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#postcomp_arr_id"><span class="id" title="definition">postcomp_arr_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="image_factorization_enriched_commutes_inv" class="idref" href="#image_factorization_enriched_commutes_inv"><span class="id" title="definition">image_factorization_enriched_commutes_inv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.html#nat_trans_enrichment"><span class="id" title="definition">nat_trans_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_z_iso_inv"><span class="id" title="definition">nat_z_iso_inv</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_image_inclusion_commute_nat_iso"><span class="id" title="definition">full_image_inclusion_commute_nat_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.F"><span class="id" title="variable">F</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched.EF"><span class="id" title="variable">EF</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_comp_enrichment"><span class="id" title="definition">functor_comp_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_proj_enrichment"><span class="id" title="definition">image_proj_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_incl_enrichment"><span class="id" title="definition">image_incl_enrichment</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.html#nat_trans_enrichment_via_comp"><span class="id" title="lemma">nat_trans_enrichment_via_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#precomp_arr_id"><span class="id" title="definition">precomp_arr_id</span></a>, <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#postcomp_arr_id"><span class="id" title="definition">postcomp_arr_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#ImageEnriched"><span class="id" title="section">ImageEnriched</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_enrichment"><span class="id" title="definition">image_enrichment</span></a> {<span class="id" title="var">V</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span>} <span class="id" title="var">E₂</span> <span class="id" title="var">F</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_incl_enrichment"><span class="id" title="definition">image_incl_enrichment</span></a> {<span class="id" title="var">V</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span>} <span class="id" title="var">E₂</span> <span class="id" title="var">F</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

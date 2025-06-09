@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>PERExponentials.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Exponentials of partial setoids</span>
+
+<span class="sd"> In this file we put together all the necessary statements that show that the category of</span>
+<span class="sd"> partial setoids has exponentials.</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk1"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Notations <span class="s2">&quot;_ [ _ , _ ]&quot;</span> defined <span class="kn">at level</span> <span class="mi">50</span>
+<span class="kr">with</span> arguments <span class="kn">constr at level</span> <span class="mi">50</span>, <span class="kp">constr</span>
+<span class="kn">and</span> <span class="s2">&quot;_ [ _ ]tm&quot;</span> defined <span class="kn">at level</span> <span class="mi">10</span> <span class="kr">with</span> arguments
+<span class="kn">constr at next level</span>, <span class="kp">constr</span>
+<span class="nb">have</span> incompatible prefixes.
+One of them will likely not work.
+[notation-incompatible-prefix,parsing,default]</blockquote><blockquote class="alectryon-message">Notations <span class="s2">&quot;_ [ _ , _ ]&quot;</span> defined <span class="kn">at level</span> <span class="mi">50</span>
+<span class="kr">with</span> arguments <span class="kn">constr at level</span> <span class="mi">50</span>, <span class="kp">constr</span>
+<span class="kn">and</span> <span class="s2">&quot;_ [ _ ]&quot;</span> defined <span class="kn">at level</span> <span class="mi">10</span> <span class="kr">with</span> arguments
+<span class="kn">constr at next level</span>, <span class="kp">constr</span>
+<span class="nb">have</span> incompatible prefixes.
+One of them will likely not work.
+[notation-incompatible-prefix,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk2"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">[Loading ML file number_string_notation_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file tauto_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file cc_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file firstorder_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">Serlib plugin: coq-core.plugins.ltac2_ltac1 <span class="kr">is</span> not available: serlib support <span class="kr">is</span> missing.
+Incremental checking <span class="kr">for</span> commands <span class="kr">in</span> this plugin will be impacted.</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_ltac1_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;¬ _&quot;</span> was already used.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.GenericPredicate.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERBinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialPER.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialEval.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialLam.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialEqs.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> hd.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk3"><span class="kn">Definition</span> <span class="nf">exponentials_partial_setoid</span>
+           (<span class="nv">H</span> : tripos)
+  : Exponentials (binproducts_partial_setoid H).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Exponentials (binproducts_partial_setoid H)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Exponentials (binproducts_partial_setoid H)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk5"><span class="nb">intros</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_exponentiable (binproducts_partial_setoid H) X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk6"><span class="nb">apply</span> right_adjoint_weq_coreflections.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : category_of_partial_setoids H,
+coreflection x
+  (constprod_functor1 (binproducts_partial_setoid H) X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk7"><span class="nb">intro</span> Y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">coreflection Y
+  (constprod_functor1 (binproducts_partial_setoid H) X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk8">use make_coreflection&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category_of_partial_setoids H</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="perexponentials-v-chk9" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br></div><label class="goal-separator" for="perexponentials-v-chk9"><hr></label><div class="goal-conclusion">category_of_partial_setoids H
+⟦ constprod_functor1 (binproducts_partial_setoid H) X
+    <span class="nl">?c</span>, Y ⟧</div></blockquote><input class="alectryon-extra-goal-toggle" id="perexponentials-v-chka" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br></div><label class="goal-separator" for="perexponentials-v-chka"><hr></label><div class="goal-conclusion">is_coreflection (make_coreflection_data <span class="nl">?c</span> <span class="nl">?f</span>)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category_of_partial_setoids H</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (exp_partial_setoid X Y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chkc">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category_of_partial_setoids H
+⟦ constprod_functor1 (binproducts_partial_setoid H) X
+    (exp_partial_setoid X Y), Y ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (eval_partial_setoid X Y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chkd">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_coreflection
+  (make_coreflection_data (exp_partial_setoid X Y)
+     (eval_partial_setoid X Y))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chke"><span class="nb">intro</span> φ.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>coreflection_data Y
+  (constprod_functor1
+     (binproducts_partial_setoid H) X)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="kr">∃</span>! g : category_of_partial_setoids H
+       ⟦ coreflection_data_object φ,
+       coreflection_data_object
+         (make_coreflection_data
+            (exp_partial_setoid X Y)
+            (eval_partial_setoid X Y)) ⟧,
+φ =
+# (constprod_functor1 (binproducts_partial_setoid H) X)
+  g
+· make_coreflection_data (exp_partial_setoid X Y)
+    (eval_partial_setoid X Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chkf">use make_coreflection_arrow.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>coreflection_data Y
+  (constprod_functor1
+     (binproducts_partial_setoid H) X)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category_of_partial_setoids H
+⟦ coreflection_data_object φ,
+coreflection_data_object
+  (make_coreflection_data (exp_partial_setoid X Y)
+     (eval_partial_setoid X Y)) ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="perexponentials-v-chk10" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>coreflection_data Y
+  (constprod_functor1
+     (binproducts_partial_setoid H) X)</span></span></span><br></div><label class="goal-separator" for="perexponentials-v-chk10"><hr></label><div class="goal-conclusion">(φ
+ :
+ category_of_partial_setoids H
+ ⟦ constprod_functor1 (binproducts_partial_setoid H) X
+     (coreflection_data_object φ), Y ⟧) =
+# (constprod_functor1 (binproducts_partial_setoid H) X)
+  <span class="nl">?g</span>
+· make_coreflection_data (exp_partial_setoid X Y)
+    (eval_partial_setoid X Y)</div></blockquote><input class="alectryon-extra-goal-toggle" id="perexponentials-v-chk11" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>coreflection_data Y
+  (constprod_functor1
+     (binproducts_partial_setoid H) X)</span></span></span><br></div><label class="goal-separator" for="perexponentials-v-chk11"><hr></label><div class="goal-conclusion">∏
+g&#39; : category_of_partial_setoids H
+     ⟦ coreflection_data_object φ,
+     coreflection_data_object
+       (make_coreflection_data
+          (exp_partial_setoid X Y)
+          (eval_partial_setoid X Y)) ⟧,
+(φ
+ :
+ category_of_partial_setoids H
+ ⟦ constprod_functor1 (binproducts_partial_setoid H) X
+     (coreflection_data_object φ), Y ⟧) =
+# (constprod_functor1 (binproducts_partial_setoid H) X)
+  g&#39;
+· make_coreflection_data (exp_partial_setoid X Y)
+    (eval_partial_setoid X Y) → g&#39; = <span class="nl">?g</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk12">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>coreflection_data Y
+  (constprod_functor1
+     (binproducts_partial_setoid H) X)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category_of_partial_setoids H
+⟦ coreflection_data_object φ,
+coreflection_data_object
+  (make_coreflection_data (exp_partial_setoid X Y)
+     (eval_partial_setoid X Y)) ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (lam_partial_setoid (coreflection_data_arrow φ)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk13">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>coreflection_data Y
+  (constprod_functor1
+     (binproducts_partial_setoid H) X)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(φ
+ :
+ category_of_partial_setoids H
+ ⟦ constprod_functor1 (binproducts_partial_setoid H) X
+     (coreflection_data_object φ), Y ⟧) =
+# (constprod_functor1 (binproducts_partial_setoid H) X)
+  (lam_partial_setoid φ)
+· make_coreflection_data (exp_partial_setoid X Y)
+    (eval_partial_setoid X Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (lam_partial_setoid_comm (coreflection_data_arrow φ)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="perexponentials-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="perexponentials-v-chk14">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>category_of_partial_setoids H</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>coreflection_data Y
+  (constprod_functor1
+     (binproducts_partial_setoid H) X)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+g&#39; : category_of_partial_setoids H
+     ⟦ coreflection_data_object φ,
+     coreflection_data_object
+       (make_coreflection_data
+          (exp_partial_setoid X Y)
+          (eval_partial_setoid X Y)) ⟧,
+(φ
+ :
+ category_of_partial_setoids H
+ ⟦ constprod_functor1 (binproducts_partial_setoid H) X
+     (coreflection_data_object φ), Y ⟧) =
+# (constprod_functor1 (binproducts_partial_setoid H) X)
+  g&#39;
+· make_coreflection_data (exp_partial_setoid X Y)
+    (eval_partial_setoid X Y)
+→ g&#39; = lam_partial_setoid φ</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (lam_partial_setoid_unique (coreflection_data_arrow φ)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

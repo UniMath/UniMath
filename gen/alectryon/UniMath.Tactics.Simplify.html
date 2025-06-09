@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Simplify.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**</span>
+
+<span class="sd">  A Generic Tactic for Simplification</span>
+
+<span class="sd">  A tactic which can be instantiated for various theories to perform simplification:</span>
+<span class="sd">  - The tactic uses a list of &quot;top level traversals&quot; to split the goal into subgoals.</span>
+<span class="sd">  - For every subgoal, it uses a list of &quot;traversals&quot; to recursively traverse &quot;suitable&quot; subterms of</span>
+<span class="sd">    the subgoals</span>
+<span class="sd">  - At every step, it uses a list of &quot;rewrites&quot; to see if the current subterm can be rewritten into</span>
+<span class="sd">    &quot;something simpler&quot;.</span>
+<span class="sd">  - After a rewrite, an equivalent rewrite statement is printed to the output and the tactic starts</span>
+<span class="sd">    from the top of the subgoal again.</span>
+
+<span class="sd">  The tactic can be used to propagate explicit substitution through a term in an untyped lambda</span>
+<span class="sd">  calculus or propagate substitution through a formula in a (first order) hyperdoctrine.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Some supporting types and definitions [t_traversal] [t_rewrite] [navigation]</span>
+<span class="sd">  2. The traversal tactic [traverse]</span>
+<span class="sd">  3. The simplification tactic [simplify]</span>
+
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.PartA.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="simplify-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="simplify-v-chk0"><span class="kn">Require Import</span> UniMath.Tactics.Utilities.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">[Loading ML file number_string_notation_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file tauto_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file cc_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file firstorder_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">Serlib plugin: coq-core.plugins.ltac2_ltac1 <span class="kr">is</span> not available: serlib support <span class="kr">is</span> missing.
+Incremental checking <span class="kr">for</span> commands <span class="kr">in</span> this plugin will be impacted.</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_ltac1_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> <span class="kn">Ltac2</span>.<span class="kn">Ltac2</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> <span class="kn">Ltac2</span>.Control.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> <span class="kn">Ltac2</span>.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. Some supporting types and definitions *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">  A traversal consists of</span>
+<span class="sd">  - A tactic that tries to match the goal to some pattern, and if it matches, steps into a subgoal.</span>
+<span class="sd">  - A pair of strings, describing the left and right hand side of the goal around the subgoal.</span>
+<span class="sd">  - An optional list of traversals that should be used for the subgoal, instead of the &quot;standard&quot;</span>
+<span class="sd">    list of sugboals. This is to keep track of the state of the algorithm, and should be None at the</span>
+<span class="sd">    start.</span>
+<span class="sd">  For example:</span>
+<span class="sd">    [(make_traversal (fun () =&gt; match! goal with | [|- (?a ∨ _ ) = _ ] =&gt; &#39;(λ x, $a ∨ x ) end) &quot;_ ∨ &quot; &quot;&quot;)]</span>
+<span class="sd">*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2 Type rec</span> t_traversal := {
+  c : unit -&gt; <span class="kp">constr</span>;
+  s : (string * string);
+  t : (t_traversal list) option
+}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2</span> make_traversal (c : unit -&gt; <span class="kp">constr</span>) (l : string) (r : string)
+  : t_traversal
+  := {c := c; s := (l, r); t := None}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd">  A rewrite consists of</span>
+<span class="sd">  - A pattern [p], describing the goal [p = ...] where the rewrite activates;</span>
+<span class="sd">  - A (thunked) term [t] of an identity type, describing the rewrite;</span>
+<span class="sd">  - A string representation of [t].</span>
+<span class="sd">  For example:</span>
+<span class="sd">    [(pn:((_ ∨ _)[_]), (fun () =&gt; &#39;(disj_subst _ _ _)), &quot;disj_subst _ _ _&quot;)]</span>
+<span class="sd">*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2 Type</span> t_rewrite := (<span class="nb">pattern</span> * (unit -&gt; <span class="kp">constr</span>) * string).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd">  While traversing, [n : navigation], with preinpostfix deconstructed as (pre, in, post), gives the</span>
+<span class="sd">  contextual information for printing rewrites [rew]:</span>
+<span class="sd">    &quot;refine (pre (λ x, &quot; + (join &quot;(&quot; reverse(left)) + &quot; x &quot; + (join &quot;)&quot; right) + &quot;) in (rew) post)&quot;</span>
+<span class="sd">  For example: [maponpaths (λ x, _ ∧ (x ~ _)) (_) @ _] or [transportf (λ x, (x ∨ _) ⊢ _) (_) _].</span>
+<span class="sd">  The value [print] keeps track of whether we want to print rewrites or not.</span>
+<span class="sd">*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2 Type</span> navigation := {
+  <span class="nb">left</span>: string list;
+  <span class="nb">right</span>: string list;
+  preinpostfix: (string * string * string);
+  print: bool;
+}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Adds a new step on the inside of the navigation *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2</span> append_navigation
+  (n : navigation)
+  ((l, r) : string * string)
+  : navigation
+  := {n <span class="kr">with</span>
+    <span class="nb">left</span> := (l :: n.(<span class="nb">left</span>));
+    <span class="nb">right</span> := (r :: n.(<span class="nb">right</span>));
+  }.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Prints a rewrite with navigation n and identity t (in its string representation) *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2</span> print_refine (n : navigation) (t : string) :=
+  <span class="kr">if</span> n.(print) <span class="kr">then</span>
+    <span class="kr">let</span> (<span class="nv">prefix</span>, infix, postfix) := n.(preinpostfix) <span class="kr">in</span>
+      Message.print (Message.of_string (
+        String.concat <span class="s2">&quot;&quot;</span> [
+          prefix ;
+          <span class="s2">&quot;(λ x, &quot;</span> ;
+          String.concat <span class="s2">&quot;(&quot;</span> (List.rev (n.(<span class="nb">left</span>))) ;
+          <span class="s2">&quot;x&quot;</span> ;
+          String.concat <span class="s2">&quot;)&quot;</span> (n.(<span class="nb">right</span>)) ;
+          <span class="s2">&quot;)&quot;</span> ;
+          infix ;
+          <span class="s2">&quot;(&quot;</span> ;
+          t ;
+          <span class="s2">&quot;)&quot;</span> ;
+          postfix
+        ]
+      ))
+  <span class="kr">else</span> ().</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. The traversal tactic *)</span>
+
+<span class="sd">(** Steps into a subterm, described by the traversal [t], of the current goal. In this subterm,</span>
+<span class="sd">  execute [traverse], with [first_traversals] set to the list [t.(t)].</span>
+<span class="sd">  If the result of this is [Some x] (presumed to be the &quot;remaining traversals&quot; in the subterm),</span>
+<span class="sd">  returns the remaining traversals at this level. Else, the combination of [try_opt] and</span>
+<span class="sd">  [Option.get_bt] resets the goal to what it was at the start of the function. *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2</span> traverse_subterm
+  (traverse : (t_traversal list) option -&gt; navigation -&gt; (t_traversal list) option)
+  (n : navigation)
+  (t : t_traversal)
+  (l : t_traversal list)
+  : (t_traversal list) option
+  := try_opt (<span class="kr">fun</span> () =&gt;
+      <span class="kr">let</span> <span class="nv">c</span> := t.(c) () <span class="kr">in</span>
+      <span class="nb">refine</span> &#39;(maponpaths $c _);
+      focus <span class="mi">2</span> <span class="mi">2</span> (<span class="kr">fun</span> () =&gt;
+        Option.get_bt (Option.map
+          (<span class="kr">fun</span> (<span class="nv">x</span> : t_traversal list) =&gt; ({t <span class="kr">with</span> t := Some x}) :: l)
+          (traverse (t.(t)) (append_navigation n (t.(s)))))
+      )
+    ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd">  At each subterm of the left hand side of the goal, executes [preorder], then recurses, and then</span>
+<span class="sd">  executes [postorder]. If either preorder or postorder returns true, stops executing and returns</span>
+<span class="sd">  the remaining traversals at each level.</span>
+<span class="sd">  At this level, uses [first_traversals] if it has a value, and else uses [traversals].</span>
+<span class="sd">*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2 rec</span> traverse
+  (traversals : t_traversal list)
+  (preorder :  navigation -&gt; bool)
+  (postorder : navigation -&gt; bool)
+  (first_traversals : (t_traversal list) option)
+  (n : navigation)
+  : (t_traversal list) option
+  := <span class="kr">if</span> preorder n <span class="kr">then</span> Some traversals <span class="kr">else</span>
+    <span class="kr">match</span> iterate_until
+      (traverse_subterm (traverse traversals preorder postorder) n)
+      (Option.default traversals first_traversals)
+    <span class="kr">with</span>
+    | Some x =&gt; Some x
+    | _ =&gt; <span class="kr">if</span> postorder n <span class="kr">then</span> Some [] <span class="kr">else</span> None
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 3. The simplification tactic *)</span>
+
+<span class="sd">(** Tries to rewrite any subterm of the left hand side of the goal, from the top level downwards *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2</span> simplify_component
+  (traversals : t_traversal list)
+  (rewrites : t_rewrite list)
+  : (t_traversal list) option -&gt; navigation -&gt; (t_traversal list) option
+  := traverse
+      traversals
+      (<span class="kr">fun</span> <span class="nv">n</span> =&gt; <span class="kr">match</span>
+        (iterate_until
+          (<span class="kr">fun</span> (<span class="nv">p</span>, c, t) <span class="nv">_</span> =&gt; try_opt (<span class="kr">fun</span> () =&gt;
+            <span class="kr">match! goal with</span>
+            | [ |- $<span class="nb">pattern</span>:p = _ ] =&gt;
+              <span class="nb">refine</span> (c ());
+              print_refine n t
+            <span class="kr">end</span>
+          ))
+          rewrites)
+        <span class="kr">with</span>
+        | Some _ =&gt; true
+        | None =&gt; false
+        <span class="kr">end</span>)
+      (<span class="kr">fun</span> <span class="nv">_</span> =&gt; false).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd">  Uses [top_traversals] to get a goals of the form [[term] = _], and tries to repeatedly rewrite the</span>
+<span class="sd">  highest rewritable subterm of the left hand side of those goals.</span>
+
+<span class="sd">  If [rewrite_level] is supplied, the provided rewrites are first filtered, keeping only the</span>
+<span class="sd">  rewrites [(i, r)] where [i ≤ rewrite_level]. The rationale being that rewrites with a higher [i]</span>
+<span class="sd">  are more rarely used, or more complex.</span>
+<span class="sd">*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac2</span> simplify
+  (traversals : t_traversal list)
+  (rewrites : (int * t_rewrite) list)
+  (top_traversals : ((unit -&gt; unit) * navigation) list)
+  (rewrite_level : int option)
+  : unit
+  :=
+  <span class="kr">let</span> <span class="nv">filtered_rewrites</span> :=
+    List.map
+      (<span class="kr">fun</span> (<span class="nv">_</span>, r) =&gt; r)
+      (<span class="kr">match</span> rewrite_level <span class="kr">with</span>
+      | None =&gt; rewrites
+      | Some n =&gt;
+        (List.filter
+          (<span class="kr">fun</span> (<span class="nv">i</span>, _) =&gt; Int.le i n)
+          rewrites)
+      <span class="kr">end</span>) <span class="kr">in</span>
+  List.iter (<span class="kr">fun</span> (<span class="nv">m</span>, n) =&gt;
+    <span class="kp">try</span> (
+      m ();
+      focus <span class="mi">2</span> <span class="mi">2</span> (<span class="kr">fun</span> () =&gt;
+        repeat_while
+          (<span class="kr">fun</span> (<span class="nv">l</span> : t_traversal list) =&gt;
+            try_opt (<span class="kr">fun</span> () =&gt;
+              <span class="nb">refine</span> &#39;(_ @ _);
+              focus <span class="mi">2</span> <span class="mi">2</span> (<span class="kr">fun</span> () =&gt; Option.get_bt (simplify_component traversals filtered_rewrites (Some l) n))
+            )
+          )
+          traversals;
+        <span class="bp">reflexivity</span>
+      )
+    )
+  ) top_traversals.</span></span></pre>
+</div>
+</div></body>
+</html>

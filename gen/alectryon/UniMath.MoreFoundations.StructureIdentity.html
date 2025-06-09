@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>StructureIdentity.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Structure identity *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.MoreFoundations.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.MoreFoundations.Tactics.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.MoreFoundations.AlternativeProofs.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">StructureIdentity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** ** abstract the proof of Poset_rect for use in multiple situations *)</span>
+
+  <span class="sd">(** See Section 9.8 of the HoTT book, on &quot;The structure identity principle&quot;. *)</span>
+
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Open Scope</span> poset.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">Base</span> : UU}                              (* base type *)
+          (<span class="nv">Data</span> : Base -&gt; Poset).                  <span class="c">(* the additional structure *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">Struc</span> := ∑ b, Data b.   <span class="c">(* the structures *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** for example: Base = hSet, Data = PartialOrder, Struc = Poset *)</span>
+
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">DataEquiv</span> (<span class="nv">b</span>:Base) (<span class="nv">d</span> <span class="nv">d&#39;</span>:Data b) := d ≤ d&#39; ∧ d&#39; ≤ d.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">StrucEquiv</span> (<span class="nv">X</span> <span class="nv">Y</span>:Struc)
+    := ∑ (p: pr1 X = pr1 Y), DataEquiv _ (transportf Data p (pr2 X)) (pr2 Y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;X ≅ Y&quot;</span> := (StrucEquiv X Y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk0"><span class="kn">Theorem</span> <span class="nf">Struc_univalence</span> (<span class="nv">X</span> <span class="nv">Y</span>:Struc) : X=Y ≃ X≅Y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X = Y ≃ X ≅ Y</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X = Y ≃ X ≅ Y</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk2"><span class="nb">simple refine</span> (@remakeweq _ _ _ _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X = Y ≃ X ≅ Y</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chk3" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chk3"><hr></label><div class="goal-conclusion">X = Y → X ≅ Y</div></blockquote><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chk4"><hr></label><div class="goal-conclusion"><span class="nl">?f</span> ~ <span class="nl">?g</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk5">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X = Y ≃ X ≅ Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk6">intermediate_weq (X╝Y).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X = Y ≃ X ╝ Y</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chk7" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chk7"><hr></label><div class="goal-conclusion">X ╝ Y ≃ X ≅ Y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk8">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X = Y ≃ X ╝ Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> total2_paths_equiv&#39;.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk9">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X ╝ Y ≃ X ≅ Y</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chka">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X ╝ Y ≃ X ≅ Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chkb">use weqfibtototal; <span class="nb">intro</span> p.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+ transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, (<span class="kr">λ</span> <span class="nv">b</span> : Base, Data b) x0) x
+   (pr2 X) = pr2 Y) p
+≃ (<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+   DataEquiv (pr1 Y)
+     (transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, Data x0) x (pr2 X))
+     (pr2 Y)) p</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chkc"><span class="nb">apply</span> weqimplimpl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y
+→ DataEquiv (pr1 Y)
+    (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+    (pr2 Y)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chkd" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chkd"><hr></label><div class="goal-conclusion">DataEquiv (pr1 Y)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)) 
+  (pr2 Y)
+→ transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y</div></blockquote><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chke" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chke"><hr></label><div class="goal-conclusion">isaprop
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y)</div></blockquote><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chkf" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chkf"><hr></label><div class="goal-conclusion">isaprop
+  (DataEquiv (pr1 Y)
+     (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+     (pr2 Y))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk10">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y
+→ DataEquiv (pr1 Y)
+    (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+    (pr2 Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk11"><span class="nb">intros</span> q.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">DataEquiv (pr1 Y)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)) (pr2 Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">split</span>; <span class="nb">induction</span> q; <span class="nb">apply</span> isrefl_posetRelation.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk12">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">DataEquiv (pr1 Y)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)) (pr2 Y)
+→ transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chk13" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chk13"><hr></label><div class="goal-conclusion">isaprop
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y)</div></blockquote><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chk14" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chk14"><hr></label><div class="goal-conclusion">isaprop
+  (DataEquiv (pr1 Y)
+     (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+     (pr2 Y))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk15">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">DataEquiv (pr1 Y)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)) (pr2 Y)
+→ transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk16"><span class="nb">intros</span> e.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>DataEquiv (pr1 Y)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+  (pr2 Y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk17"><span class="nb">apply</span> isantisymm_posetRelation.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>DataEquiv (pr1 Y)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+  (pr2 Y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) ≤ pr2 Y</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chk18" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>DataEquiv (pr1 Y)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+  (pr2 Y)</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chk18"><hr></label><div class="goal-conclusion">pr2 Y ≤ transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">          </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk19">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>DataEquiv (pr1 Y)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+  (pr2 Y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) ≤ pr2 Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr1 e).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">          </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk1a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>DataEquiv (pr1 Y)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+  (pr2 Y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2 Y ≤ transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr2 e).</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk1b">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chk1c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chk1c"><hr></label><div class="goal-conclusion">isaprop
+  (DataEquiv (pr1 Y)
+     (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+     (pr2 Y))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk1d">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) = pr2 Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (setproperty (Data _)).</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk1e">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (DataEquiv (pr1 Y)
+     (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+     (pr2 Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk1f">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>pr1 X = pr1 Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (DataEquiv (pr1 Y)
+     (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+     (pr2 Y))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (propproperty (DataEquiv _ _ _)).</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">}</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">}</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk20">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X = Y → X ≅ Y</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="structureidentity-v-chk21" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><label class="goal-separator" for="structureidentity-v-chk21"><hr></label><div class="goal-conclusion">(weqfibtototal
+   (<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+    transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, (<span class="kr">λ</span> <span class="nv">b</span> : Base, Data b) x0)
+      x (pr2 X) = pr2 Y)
+   (<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+    DataEquiv (pr1 Y)
+      (transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, Data x0) x (pr2 X))
+      (pr2 Y))
+   (<span class="kr">λ</span> <span class="nv">p</span> : pr1 X = pr1 Y,
+    weqimplimpl
+      (<span class="kr">λ</span> <span class="nv">q</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) =
+             pr2 Y,
+       (<span class="kr">let</span> <span class="nv">p0</span> := pr2 Y <span class="kr">in</span>
+        paths_rect (Data (pr1 Y))
+          (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (<span class="kr">λ</span> (<span class="nv">p1</span> : Data (pr1 Y))
+           (<span class="nv">_</span> : transportf 
+                  (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p 
+                  (pr2 X) = p1),
+           transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)
+           ≤ p1)
+          (isrefl_posetRelation 
+             (Data (pr1 Y))
+             (transportf 
+                (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p 
+                (pr2 X))) p0 q),,
+       (<span class="kr">let</span> <span class="nv">p0</span> := pr2 Y <span class="kr">in</span>
+        paths_rect (Data (pr1 Y))
+          (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (<span class="kr">λ</span> (<span class="nv">p1</span> : Data (pr1 Y))
+           (<span class="nv">_</span> : transportf 
+                  (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p 
+                  (pr2 X) = p1),
+           p1
+           ≤ transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (isrefl_posetRelation 
+             (Data (pr1 Y))
+             (transportf 
+                (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p 
+                (pr2 X))) p0 q))
+      (<span class="kr">λ</span> <span class="nv">e</span> : DataEquiv (pr1 Y)
+               (transportf 
+                  (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p 
+                  (pr2 X)) 
+               (pr2 Y),
+       isantisymm_posetRelation 
+         (Data (pr1 Y))
+         (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+         (pr2 Y) (pr1 e) 
+         (pr2 e))
+      (setproperty (Data (pr1 Y))
+         (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+         (pr2 Y))
+      (propproperty
+         (DataEquiv (pr1 Y)
+            (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+            (pr2 Y))))
+ ∘ total2_paths_equiv&#39; (<span class="kr">λ</span> <span class="nv">b</span> : Base, Data b) X Y)%weq ~
+<span class="nl">?g</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk22">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X = Y → X ≅ Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk23"><span class="nb">intros</span> e.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>X = Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X ≅ Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk24"><span class="nb">induction</span> e.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X ≅ X</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk25"><span class="kr">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">DataEquiv (pr1 X)
+  (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) (idpath (pr1 X))
+     (pr2 X)) (pr2 X)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">split</span>; <span class="nb">apply</span> isrefl_posetRelation.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk26">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(weqfibtototal
+   (<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+    transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, (<span class="kr">λ</span> <span class="nv">b</span> : Base, Data b) x0)
+      x (pr2 X) = pr2 Y)
+   (<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+    DataEquiv (pr1 Y)
+      (transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, Data x0) x (pr2 X))
+      (pr2 Y))
+   (<span class="kr">λ</span> <span class="nv">p</span> : pr1 X = pr1 Y,
+    weqimplimpl
+      (<span class="kr">λ</span> <span class="nv">q</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) =
+             pr2 Y,
+       (<span class="kr">let</span> <span class="nv">p0</span> := pr2 Y <span class="kr">in</span>
+        paths_rect (Data (pr1 Y))
+          (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (<span class="kr">λ</span> (<span class="nv">p1</span> : Data (pr1 Y))
+           (<span class="nv">_</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                  (pr2 X) = p1),
+           transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)
+           ≤ p1)
+          (isrefl_posetRelation (Data (pr1 Y))
+             (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                (pr2 X))) p0 q),,
+       (<span class="kr">let</span> <span class="nv">p0</span> := pr2 Y <span class="kr">in</span>
+        paths_rect (Data (pr1 Y))
+          (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (<span class="kr">λ</span> (<span class="nv">p1</span> : Data (pr1 Y))
+           (<span class="nv">_</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                  (pr2 X) = p1),
+           p1
+           ≤ transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (isrefl_posetRelation (Data (pr1 Y))
+             (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                (pr2 X))) p0 q))
+      (<span class="kr">λ</span> <span class="nv">e</span> : DataEquiv (pr1 Y)
+               (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                  (pr2 X)) (pr2 Y),
+       isantisymm_posetRelation (Data (pr1 Y))
+         (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+         (pr2 Y) (pr1 e) (pr2 e))
+      (setproperty (Data (pr1 Y))
+         (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+         (pr2 Y))
+      (propproperty
+         (DataEquiv (pr1 Y)
+            (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+            (pr2 Y))))
+ ∘ total2_paths_equiv&#39; (<span class="kr">λ</span> <span class="nv">b</span> : Base, Data b) X Y)%weq ~
+(<span class="kr">λ</span> <span class="nv">e</span> : X = Y,
+ paths_rect Struc X (<span class="kr">λ</span> (<span class="nv">Y</span> : Struc) (<span class="nv">_</span> : X = Y), X ≅ Y)
+   (idpath (pr1 X),,
+    isrefl_posetRelation (Data (pr1 X)) (pr2 X),,
+    isrefl_posetRelation (Data (pr1 X))
+      (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x)
+         (idpath (pr1 X)) (pr2 X))) Y e)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk27"><span class="kp">try</span> <span class="bp">reflexivity</span>.            <span class="c">(* fails, which is why we are using &quot;remakeweq&quot; here *)</span></label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(weqfibtototal
+   (<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+    transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, (<span class="kr">λ</span> <span class="nv">b</span> : Base, Data b) x0)
+      x (pr2 X) = pr2 Y)
+   (<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+    DataEquiv (pr1 Y)
+      (transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, Data x0) x (pr2 X))
+      (pr2 Y))
+   (<span class="kr">λ</span> <span class="nv">p</span> : pr1 X = pr1 Y,
+    weqimplimpl
+      (<span class="kr">λ</span> <span class="nv">q</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) =
+             pr2 Y,
+       (<span class="kr">let</span> <span class="nv">p0</span> := pr2 Y <span class="kr">in</span>
+        paths_rect (Data (pr1 Y))
+          (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (<span class="kr">λ</span> (<span class="nv">p1</span> : Data (pr1 Y))
+           (<span class="nv">_</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                  (pr2 X) = p1),
+           transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)
+           ≤ p1)
+          (isrefl_posetRelation (Data (pr1 Y))
+             (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                (pr2 X))) p0 q),,
+       (<span class="kr">let</span> <span class="nv">p0</span> := pr2 Y <span class="kr">in</span>
+        paths_rect (Data (pr1 Y))
+          (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (<span class="kr">λ</span> (<span class="nv">p1</span> : Data (pr1 Y))
+           (<span class="nv">_</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                  (pr2 X) = p1),
+           p1
+           ≤ transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (isrefl_posetRelation (Data (pr1 Y))
+             (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                (pr2 X))) p0 q))
+      (<span class="kr">λ</span> <span class="nv">e</span> : DataEquiv (pr1 Y)
+               (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                  (pr2 X)) (pr2 Y),
+       isantisymm_posetRelation (Data (pr1 Y))
+         (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+         (pr2 Y) (pr1 e) (pr2 e))
+      (setproperty (Data (pr1 Y))
+         (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+         (pr2 Y))
+      (propproperty
+         (DataEquiv (pr1 Y)
+            (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+            (pr2 Y))))
+ ∘ total2_paths_equiv&#39; (<span class="kr">λ</span> <span class="nv">b</span> : Base, Data b) X Y)%weq ~
+(<span class="kr">λ</span> <span class="nv">e</span> : X = Y,
+ paths_rect Struc X (<span class="kr">λ</span> (<span class="nv">Y</span> : Struc) (<span class="nv">_</span> : X = Y), X ≅ Y)
+   (idpath (pr1 X),,
+    isrefl_posetRelation (Data (pr1 X)) (pr2 X),,
+    isrefl_posetRelation (Data (pr1 X))
+      (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x)
+         (idpath (pr1 X)) (pr2 X))) Y e)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk28"><span class="nb">intro</span> e.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>e</var><span class="hyp-type"><b>: </b><span>X = Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(weqfibtototal
+   (<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+    transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, Data x0) x (pr2 X) =
+    pr2 Y)
+   (<span class="kr">λ</span> <span class="nv">x</span> : pr1 X = pr1 Y,
+    DataEquiv (pr1 Y)
+      (transportf (<span class="kr">λ</span> <span class="nv">x0</span> : Base, Data x0) x (pr2 X))
+      (pr2 Y))
+   (<span class="kr">λ</span> <span class="nv">p</span> : pr1 X = pr1 Y,
+    weqimplimpl
+      (<span class="kr">λ</span> <span class="nv">q</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X) =
+             pr2 Y,
+       (<span class="kr">let</span> <span class="nv">p0</span> := pr2 Y <span class="kr">in</span>
+        paths_rect (Data (pr1 Y))
+          (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (<span class="kr">λ</span> (<span class="nv">p1</span> : Data (pr1 Y))
+           (<span class="nv">_</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                  (pr2 X) = p1),
+           transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X)
+           ≤ p1)
+          (isrefl_posetRelation (Data (pr1 Y))
+             (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                (pr2 X))) p0 q),,
+       (<span class="kr">let</span> <span class="nv">p0</span> := pr2 Y <span class="kr">in</span>
+        paths_rect (Data (pr1 Y))
+          (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (<span class="kr">λ</span> (<span class="nv">p1</span> : Data (pr1 Y))
+           (<span class="nv">_</span> : transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                  (pr2 X) = p1),
+           p1
+           ≤ transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+          (isrefl_posetRelation (Data (pr1 Y))
+             (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                (pr2 X))) p0 q))
+      (<span class="kr">λ</span> <span class="nv">e</span> : DataEquiv (pr1 Y)
+               (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p
+                  (pr2 X)) (pr2 Y),
+       isantisymm_posetRelation (Data (pr1 Y))
+         (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+         (pr2 Y) (pr1 e) (pr2 e))
+      (setproperty (Data (pr1 Y))
+         (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+         (pr2 Y))
+      (propproperty
+         (DataEquiv (pr1 Y)
+            (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) p (pr2 X))
+            (pr2 Y))))
+ ∘ total2_paths_equiv&#39; (<span class="kr">λ</span> <span class="nv">b</span> : Base, Data b) X Y)%weq e =
+paths_rect Struc X (<span class="kr">λ</span> (<span class="nv">Y</span> : Struc) (<span class="nv">_</span> : X = Y), X ≅ Y)
+  (idpath (pr1 X),,
+   isrefl_posetRelation (Data (pr1 X)) (pr2 X),,
+   isrefl_posetRelation (Data (pr1 X))
+     (transportf (<span class="kr">λ</span> <span class="nv">x</span> : Base, Data x) (idpath (pr1 X))
+        (pr2 X))) Y e</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> <span class="nb">induction</span> e.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk29"><span class="kn">Theorem</span> <span class="nf">Equiv_rect</span> (<span class="nv">X</span> <span class="nv">Y</span> : Struc) (<span class="nv">P</span> : X ≅ Y -&gt; UU) :
+    (∏ e : X = Y, P (Struc_univalence _ _ e)) -&gt; ∏ f, P f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>X ≅ Y → UU</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(∏ e : X = Y, P (Struc_univalence X Y e))
+→ ∏ f : X ≅ Y, P f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk2a"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>X ≅ Y → UU</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(∏ e : X = Y, P (Struc_univalence X Y e))
+→ ∏ f : X ≅ Y, P f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk2b"><span class="nb">intros</span> ih f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>X ≅ Y → UU</span></span></span><br><span><var>ih</var><span class="hyp-type"><b>: </b><span>∏ e : X = Y, P (Struc_univalence X Y e)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X ≅ Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk2c"><span class="nb">set</span> (p := ih (invmap (Struc_univalence _ _) f)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>X ≅ Y → UU</span></span></span><br><span><var>ih</var><span class="hyp-type"><b>: </b><span>∏ e : X = Y, P (Struc_univalence X Y e)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X ≅ Y</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>ih (invmap (Struc_univalence X Y) f)</span></span><span class="hyp-type"><b>: </b><span>P
+  (Struc_univalence X Y
+     (invmap (Struc_univalence X Y) f))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="structureidentity-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="structureidentity-v-chk2d"><span class="nb">set</span> (h := homotweqinvweq (Struc_univalence _ _) f).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Base</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>Data</var><span class="hyp-type"><b>: </b><span>Base → Poset</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>Struc</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>X ≅ Y → UU</span></span></span><br><span><var>ih</var><span class="hyp-type"><b>: </b><span>∏ e : X = Y, P (Struc_univalence X Y e)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X ≅ Y</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>ih (invmap (Struc_univalence X Y) f)</span></span><span class="hyp-type"><b>: </b><span>P
+  (Struc_univalence X Y
+     (invmap (Struc_univalence X Y) f))</span></span></span></span><br><span><var>h</var><span><span class="hyp-body"><b>:= </b><span>homotweqinvweq (Struc_univalence X Y) f</span></span><span class="hyp-type"><b>: </b><span>Struc_univalence X Y
+  (invmap (Struc_univalence X Y) f) = f</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (transportf P h p).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="c">(* Ltac Struc_induction f e := generalize f; apply Equiv_rect; intro e; clear f. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">StructureIdentity</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

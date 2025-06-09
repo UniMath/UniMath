@@ -1,0 +1,1136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>DoubleCatsUnfolded.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Double Categories</span>
+
+<span class="sd">  Authors: Benedikt Ahrens, Paige North, Nima Rasekh, Niels van der Weide</span>
+<span class="sd">  June 2023</span>
+<span class="sd">  Based on definition of weak double category in Section 3.3 of the book Higher Dimensional Categories by Marco Grandis.</span>
+<span class="sd"> *)</span>
+
+
+<span class="sd">(** ** Contents :</span>
+
+<span class="sd">  - Define a pre double category as a ``weak double category`` in the sense of Grandis.</span>
+<span class="sd">    This means one direction is weak and the other direction is strict.</span>
+
+<span class="sd">  - Double categories: A double category is a pre-double category with two set-truncated hom sets.</span>
+<span class="sd">  -</span>
+<span class="sd">  - Univalent Double Categories: A univalent double category is a double category with two univalent underlying categories.</span>
+
+<span class="sd">  - The structure is defined from scratch rather than building on a category.</span>
+<span class="sd">    This makes further generalizations easier.</span>
+<span class="sd"> *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.Propositions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.Sets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Definition_of_Double_Graphs</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(*  Definition of a double graph.*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ob_mor_hor</span> : UU
+:= ∑ obdb : UU, obdb -&gt; obdb -&gt; UU.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">obdb</span> (<span class="nv">C</span> : predoublecategory_ob_mor_hor) : UU := @pr1 _ _ C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">obdb</span> : predoublecategory_ob_mor_hor &gt;-&gt; UU.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_mor_ver</span> (<span class="nv">C</span> : predoublecategory_ob_mor_hor)
+  : UU
+  := (C -&gt; C -&gt; UU).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ob_mor_data</span> : UU :=
+  ∑ C, predoublecategory_mor_ver C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">precategory_ob_mor_from_predoublecategory_ob_mor_data</span> (C : predoublecategory_ob_mor_data) :
+    predoublecategory_ob_mor_hor := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Definition_of_Double_Graphs</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Morphism_Helper_Functions</span>. <span class="c">(* Couple helper functions for Approach 1 *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecat_hor_mor</span> (<span class="nv">C</span>: predoublecategory_ob_mor_data) : C → C → UU
+  := pr21 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecat_ver_mor</span> (<span class="nv">C</span>: predoublecategory_ob_mor_data) : C → C → UU
+:= pr2 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Morphism_Helper_Functions</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;x &#39;-h-&gt;&#39; y&quot;</span> := (get_predoublecat_hor_mor _ x y) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;x &#39;-v-&gt;&#39; y&quot;</span> := (get_predoublecat_ver_mor _ x y) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Underlying_Horizontal_Category</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  <span class="c">(* Now we construct the horizontal category.</span>
+<span class="c">     This is independent from squares.</span>
+<span class="c">     From here on we will take strictness in one direction for granted. *)</span>
+
+<span class="c">(* Here we can take two approaches:</span>
+<span class="c">1)  Take the ``underlying precategory`` and use the existing category definitions.</span>
+<span class="c">    This one is easier, but less generalizable.</span>
+<span class="c">2)  Define everything from scratch.</span>
+<span class="c">    This one is much more pain, but offers a more straightforward path for generalization.</span>
+
+<span class="c">For future purposes I took the first approach.</span>
+<span class="c">Here the definition of category involves associativity in both directions, similar to the original formalization of categories,</span>
+<span class="c">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_hor_id_comp</span>  (<span class="nv">C</span> : predoublecategory_ob_mor_data): UU <span class="c">(* Horizontal category data*)</span>
+  :=
+    (∏ c : C, c -h-&gt; c) <span class="c">(* identities *)</span>
+      ×
+    (∏ a b c : C, a -h-&gt; b -&gt; b -h-&gt; c -&gt; a -h-&gt; c). <span class="c">(* composition *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_hor_precat_data</span> : UU
+     := ∑ C : predoublecategory_ob_mor_data, predoublecategory_hor_id_comp C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ob_mor_data_from_predoublecategory_hor_precat_data</span> (<span class="nv">C</span>: predoublecategory_hor_precat_data) :
+  predoublecategory_ob_mor_data := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">predoublecategory_ob_mor_data_from_predoublecategory_hor_precat_data</span> :
+  predoublecategory_hor_precat_data &gt;-&gt;  predoublecategory_ob_mor_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_identity</span> {<span class="nv">C</span> : predoublecategory_hor_precat_data}
+     : ∏ c : C, c -h-&gt; c
+     := pr1 (pr2 C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_compose</span> {<span class="nv">C</span> : predoublecategory_hor_precat_data} { <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C }
+     : a -h-&gt; b -&gt; b -h-&gt; c -&gt; a -h-&gt; c
+     := pr2 (pr2 C) a b c.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;f ·h g&quot;</span> := (hor_compose f g) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;g ∘h f&quot;</span> := (hor_compose f g) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_predoublecategory_hor</span> (<span class="nv">C</span> : predoublecategory_hor_precat_data) : UU <span class="c">(* Horizontal Category Condition *)</span>
+     :=
+       ((∏ (a b : C) (f : a -h-&gt; b), hor_identity a ·h f = f)
+        ×
+        (∏ (a b : C) (f : a -h-&gt; b), f ·h hor_identity b = f))
+       ×
+       ((∏ (a b c d : C) (f : a -h-&gt; b) (g : b -h-&gt; c) (h : c -h-&gt; d), f ·h (g ·h h) = (f ·h g) ·h h)
+          ×
+        (∏ (a b c d : C) (f : a -h-&gt; b) (g : b -h-&gt; c) (h : c -h-&gt; d), (f ·h g) ·h h = f ·h (g ·h h))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_hor</span>: UU := total2 is_predoublecategory_hor. <span class="c">(* horizontal precategory*)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_predoublecategory_hor</span> (<span class="nv">C</span> : predoublecategory_hor_precat_data) (<span class="nv">H</span> : is_predoublecategory_hor C)
+  : predoublecategory_hor
+  := tpair _ C H.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_hor_data_from_predoublecategory_hor</span> (<span class="nv">C</span> : predoublecategory_hor) :
+  predoublecategory_hor_precat_data := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">predoublecategory_hor_data_from_predoublecategory_hor</span> : predoublecategory_hor &gt;-&gt; predoublecategory_hor_precat_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_id_hor_left</span> (<span class="nv">C</span> : predoublecategory_hor) :
+  ∏ (a b : C) (f : a -h-&gt; b),
+          hor_identity a ·h f = f := pr112 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">id_hor_left</span> {<span class="nv">C</span> : predoublecategory_hor} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span>: a -h-&gt; b) : hor_identity a ·h f = f
+  := get_id_hor_left C a b f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_id_hor_right</span> (<span class="nv">C</span> : predoublecategory_hor) :
+  ∏ (a b : C) (f : a -h-&gt; b),
+          f ·h hor_identity b = f := pr212 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">id_hor_right</span> {<span class="nv">C</span> : predoublecategory_hor} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span>: a -h-&gt; b) : f  ·h hor_identity b = f
+    := get_id_hor_right C a b f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_assoc_hor</span> (<span class="nv">C</span> : predoublecategory_hor) :
+  ∏ (a b c d : C)
+         (f : a -h-&gt; b) (g : b -h-&gt; c) (h : c -h-&gt; d),
+                    f ·h (g ·h h) = (f ·h g) ·h h := pr122 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">assoc_hor</span> {<span class="nv">C</span> : predoublecategory_hor} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : a -h-&gt; b) (<span class="nv">g</span> : b -h-&gt; c) (<span class="nv">h</span> : c -h-&gt; d) : f ·h (g ·h h) = (f ·h g) ·h h
+  := get_assoc_hor C a b c d f g h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ob_hor_ob_mor</span> (<span class="nv">C</span> : predoublecategory_ob_mor_hor) : precategory_ob_mor :=
+  make_precategory_ob_mor (pr1 C) (pr2 C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ob_hor_precategory_data</span> (<span class="nv">C</span>: predoublecategory_hor_precat_data) : precategory_data :=
+  make_precategory_data (und_ob_hor_ob_mor C) (pr12 C) (pr22 C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ob_hor_precategory_axioms</span> (<span class="nv">C</span>: predoublecategory_hor) : is_precategory (und_ob_hor_precategory_data C) :=
+  @make_is_precategory (und_ob_hor_precategory_data C) (pr112 C) (pr212 C) (pr122 C) (pr222 C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ob_hor_precategory</span> (<span class="nv">C</span> : predoublecategory_hor) : precategory :=
+  make_precategory (und_ob_hor_precategory_data C) (und_ob_hor_precategory_axioms C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">has_hor_homsets</span> (<span class="nv">C</span> : predoublecategory_ob_mor_data) : UU := ∏ a b : C, isaset (a -h-&gt; b). <span class="c">(*Horizontal Hom sets *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">doublecategory_hor</span> := ∑ C:predoublecategory_hor, has_hor_homsets C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_doublecategory_hor</span> <span class="nv">C</span> <span class="nv">h</span> : doublecategory_hor := C,,h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">doublecategory_hor_to_predoublecategory_hor</span> : doublecategory_hor -&gt; predoublecategory_hor := pr1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">doublecategory_hor_to_predoublecategory_hor</span> : doublecategory_hor &gt;-&gt; predoublecategory_hor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">double_homset_property</span> (C : doublecategory_hor) : has_hor_homsets C := pr2 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ob_hor_category</span> (<span class="nv">C</span>: doublecategory_hor) : category :=
+make_category (und_ob_hor_precategory C) (pr2 C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Underlying_Horizontal_Category</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;f ·h g&quot;</span> := (hor_compose f g) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;g ∘h f&quot;</span> := (hor_compose f g) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Underlying_Vertical_Composition</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* In this section we describe the vertical composition, which does not give us a category.</span>
+<span class="c">   This builds on the data and axioms of the horizontal composition structure. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ver_id_comp</span> (<span class="nv">C</span> : predoublecategory_hor) : UU <span class="c">(* Vertical composition data *)</span>
+  :=
+    (∏ c : C, c -v-&gt; c) <span class="c">(* vertical identities *)</span>
+      ×
+    (∏ a b c : C, a -v-&gt; b -&gt; b -v-&gt; c -&gt; a -v-&gt; c). <span class="c">(* vertical composition *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_hor_cat_ver_precat_data</span> : UU <span class="c">(* double graph with horizontal and vertical composition*)</span>
+     := ∑ C : predoublecategory_hor, predoublecategory_ver_id_comp C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_hor_from_predoublecategory_hor_cat_ver_precat_data</span> (<span class="nv">C</span>: predoublecategory_hor_cat_ver_precat_data) :
+predoublecategory_hor := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">predoublecategory_hor_from_predoublecategory_hor_cat_ver_precat_data</span> :
+predoublecategory_hor_cat_ver_precat_data &gt;-&gt;  predoublecategory_hor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ver_identity</span> {<span class="nv">C</span> : predoublecategory_hor_cat_ver_precat_data}
+     : ∏ c : C, c -v-&gt; c
+     := pr1 (pr2 C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ver_compose</span> {<span class="nv">C</span> : predoublecategory_hor_cat_ver_precat_data} { <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C }
+     : a -v-&gt; b -&gt; b -v-&gt; c -&gt; a -v-&gt; c
+     := pr2 (pr2 C) a b c.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Underlying_Vertical_Composition</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;f ·v g&quot;</span> := (ver_compose f g) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;g ∘v f&quot;</span> := (ver_compose f g) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk0"><span class="kn">Notation</span> <span class="s2">&quot;&#39;ver_comp&#39; C f g&quot;</span> := (@ver_compose C _ _ _ f g) (<span class="kn">at level</span> <span class="mi">60</span>).</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Identifier &#39;ver_comp&#39; <span class="bp">now</span> a keyword</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Squares</span>. <span class="c">(* Define Squares and their helper functions *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp"> </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_square</span> (<span class="nv">C</span> : predoublecategory_hor_cat_ver_precat_data) : UU
+ := ∏ (a b c d : C) (f: a -h-&gt; b) (g: a -v-&gt; c) (h: b -v-&gt; d) (k: c -h-&gt; d), UU.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ob_mor_sq_data</span> : UU := <span class="c">(*Ob, HorMor, VerMor, Sq hor ver compositions*)</span>
+   ∑ C, predoublecategory_square C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_hor_cat_ver_precat_data_from_predoublecategory_square</span> (<span class="nv">C</span> : predoublecategory_ob_mor_sq_data) :
+predoublecategory_hor_cat_ver_precat_data := pr1 C. <span class="c">(* Forget Sq *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">predoublecategory_hor_cat_ver_precat_data_from_predoublecategory_square</span> :
+predoublecategory_ob_mor_sq_data &gt;-&gt; predoublecategory_hor_cat_ver_precat_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp"> </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecat_sq</span> (<span class="nv">C</span>: predoublecategory_ob_mor_sq_data) :
+ ∏ (a b c d : C) (f: a -h-&gt; b)  (g: a -v-&gt; c) (h: b -v-&gt; d) (k: c -h-&gt; d), UU
+   := pr2 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hom_sq_between_ver</span> (<span class="nv">C</span>: predoublecategory_ob_mor_sq_data) {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">g</span>: a -v-&gt; c) (<span class="nv">h</span>: b -v-&gt; d): UU
+  := ∑ (f: a -h-&gt; b) (k: c -h-&gt; d), (get_predoublecat_sq C a b c d f g h k).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hom_sq_between_hor</span> (<span class="nv">C</span>: predoublecategory_ob_mor_sq_data) {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span>: a -h-&gt; b) (<span class="nv">k</span>: c -h-&gt; d): UU
+  := ∑ (g: a -v-&gt; c) (h: b -v-&gt; d), (get_predoublecat_sq C a b c d f g h k).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">sqq</span> {<span class="nv">C</span>: predoublecategory_ob_mor_sq_data}
+{<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span>: a -h-&gt; b)  (<span class="nv">g</span>: a -v-&gt; c) (<span class="nv">h</span>: b -v-&gt; d) (<span class="nv">k</span>: c -h-&gt; d):  UU
+:= get_predoublecat_sq C a b c d f g h k.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">boundary_sq_transport</span>
+           {<span class="nv">C</span> : predoublecategory_ob_mor_sq_data}
+           { <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C }
+           {<span class="nv">f1</span>: a -h-&gt; b} {<span class="nv">g1</span>: a -v-&gt; c}
+           {<span class="nv">h1</span>: b -v-&gt; d} {<span class="nv">k1</span>: c -h-&gt; d}
+           {<span class="nv">f2</span>: a -h-&gt; b} {<span class="nv">k2</span>: c -h-&gt; d}
+           (<span class="nv">eqf</span>: f1 = f2) (<span class="nv">eqk</span>: k1 = k2)
+           (<span class="nv">α</span> : sqq f2 g1 h1 k2)
+  : sqq f1 g1 h1 k1
+  := transportb
+       (<span class="kr">fun</span> <span class="nv">f0</span> =&gt; sqq f0 _ _ _)
+       eqf
+       (transportb
+          (<span class="kr">fun</span> <span class="nv">k0</span> =&gt; sqq _ _ _ k0)
+          eqk
+          α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Squares</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;&#39;mor_sq&#39;&quot;</span> := (get_predoublecat_sq).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;&#39;Sq[&#39; x &#39;-hv-&#39; f h &#39;-hv-&gt;&#39; y , z &#39;-vh-&#39; g k &#39;-vh-&gt;&#39; w ]&quot;</span> :=
+  (get_predoublecat_sq _ x y z w f g h k) (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">ident</span>, y <span class="kn">ident</span>, z <span class="kn">ident</span>, w <span class="kn">ident</span>, f <span class="kn">ident</span>, g <span class="kn">ident</span>, h <span class="kn">ident</span>, k <span class="kn">ident</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Horizontal_Composition_Squares</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(*We construct the horizontal composition of squares and study their properties, such as associativity and unitality. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_sq_hor_id_comp</span> (<span class="nv">C</span> : predoublecategory_ob_mor_sq_data): UU <span class="c">(* Horizontal composition of squares *)</span>
+    :=
+      (∏ (a b : C) (f: a -v-&gt; b), (sqq (hor_identity a) f f (hor_identity b)))  <span class="c">(* identities *)</span>
+        ×
+      (∏ (a0 a1 b0 b1 c0 c1 : C)
+      (f0: a0 -v-&gt; a1) (f1: b0 -v-&gt; b1) (f2: c0 -v-&gt; c1) (g0: a0 -h-&gt; b0) (h0: b0 -h-&gt; c0) (g1: a1 -h-&gt; b1) (h1: b1 -h-&gt; c1),
+        (sqq g0 f0 f1 g1) →
+        (sqq h0 f1 f2 h1) →
+        (sqq  (g0 ·h h0) f0 f2 (g1 ·h h1)) <span class="c">(* composition *)</span>
+      ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_sq_hor_data</span> : UU <span class="c">(* Double Graph with Squares horizontal morphism and square composition *)</span>
+      := ∑ C : predoublecategory_ob_mor_sq_data, predoublecategory_sq_hor_id_comp C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_predoublecategory_sq_hor_data</span> (<span class="nv">C</span> : predoublecategory_ob_mor_sq_data)
+        (<span class="nv">id</span> : (∏ (a b : C) (f: a -v-&gt; b), (mor_sq C a a b b (hor_identity a) f f (hor_identity b))))
+        (<span class="nv">comp</span>:  (∏ (a0 a1 b0 b1 c0 c1 : C)
+        (f0: a0 -v-&gt; a1) (f1: b0 -v-&gt; b1) (f2: c0 -v-&gt; c1) (g0: a0 -h-&gt; b0) (h0: b0 -h-&gt; c0) (g1: a1 -h-&gt; b1) (h1: b1 -h-&gt; c1),
+          (sqq g0 f0 f1 g1) →
+          (sqq h0 f1 f2 h1) →
+          (sqq (g0 ·h h0) f0 f2 (g1 ·h h1))) )
+      : predoublecategory_sq_hor_data
+      := tpair _ C (make_dirprod id comp).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ob_mor_sq_data_from_predoublecategory_sq_hor_data</span> (<span class="nv">C</span> : predoublecategory_sq_hor_data) :
+predoublecategory_ob_mor_sq_data := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">predoublecategory_ob_mor_sq_data_from_predoublecategory_sq_hor_data</span> :
+    predoublecategory_sq_hor_data &gt;-&gt; predoublecategory_ob_mor_sq_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_hor_sq_identity</span> {<span class="nv">C</span> : predoublecategory_sq_hor_data}
+      : (∏ (a b : C) (f: a -v-&gt; b), (sqq (hor_identity a) f f (hor_identity b)))
+      := pr1 (pr2 C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_sq_identity</span> {<span class="nv">C</span> : predoublecategory_sq_hor_data} {<span class="nv">a</span> <span class="nv">b</span>: C} (<span class="nv">f</span>: a -v-&gt; b) :
+      (sqq (hor_identity a) f f (hor_identity b)) := get_hor_sq_identity a b f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_sq_compose</span> {<span class="nv">C</span> : predoublecategory_sq_hor_data}
+    { <span class="nv">a0</span> <span class="nv">a1</span> <span class="nv">b0</span> <span class="nv">b1</span> <span class="nv">c0</span> <span class="nv">c1</span> : C }
+    {<span class="nv">f0</span>: a0 -v-&gt; a1} {<span class="nv">f1</span>: b0 -v-&gt; b1} {<span class="nv">f2</span>: c0 -v-&gt; c1} {<span class="nv">g0</span>: a0 -h-&gt; b0} {<span class="nv">h0</span>: b0 -h-&gt; c0} {<span class="nv">g1</span>: a1 -h-&gt; b1} {<span class="nv">h1</span>: b1 -h-&gt; c1}
+      : (sqq g0 f0 f1 g1) →
+      (sqq h0 f1 f2 h1) →
+      (sqq (g0 ·h h0) f0 f2 (g1 ·h h1))
+      := pr2 (pr2 C) a0 a1 b0 b1 c0 c1 f0 f1 f2 g0 h0 g1 h1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;α ·sqh β&quot;</span> := (hor_sq_compose α β) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;α ∘sqh β&quot;</span> := (hor_sq_compose α β) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(* The next 3 Definitions focus on various base changes along the boundary identities</span>
+<span class="c">   via identity and associativity. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_trans_id_left_sq</span> {<span class="nv">C</span> : predoublecategory_sq_hor_data}
+    { <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C } {<span class="nv">f</span>: a -h-&gt; b} {<span class="nv">g</span>: a -v-&gt; c} {<span class="nv">h</span>: b -v-&gt; d} {<span class="nv">k</span>: c -h-&gt; d}
+      (<span class="nv">α</span>: sqq f g h k) :
+      sqq ((hor_identity a) ·h f) g h ((hor_identity c) ·h k )
+      := boundary_sq_transport (id_hor_left f) (id_hor_left k) α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_trans_id_right_sq</span> {<span class="nv">C</span> : predoublecategory_sq_hor_data}
+          { <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C } {<span class="nv">f</span>: a -h-&gt; b} {<span class="nv">g</span>: a -v-&gt; c} {<span class="nv">h</span>: b -v-&gt; d} {<span class="nv">k</span>: c -h-&gt; d}
+            (<span class="nv">α</span> :  sqq f g h k) :  sqq (f ·h (hor_identity b)) g h (k ·h (hor_identity d))
+            := boundary_sq_transport (id_hor_right f) (id_hor_right k) α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_trans_assoc_sq</span> {<span class="nv">C</span> : predoublecategory_sq_hor_data}
+            { <span class="nv">a0</span> <span class="nv">b0</span> <span class="nv">c0</span> <span class="nv">d0</span> <span class="nv">a1</span> <span class="nv">b1</span> <span class="nv">c1</span> <span class="nv">d1</span> : C }
+            {<span class="nv">f0</span>: a0 -h-&gt; b0} {<span class="nv">g0</span>: b0 -h-&gt; c0} {<span class="nv">h0</span>: c0 -h-&gt; d0}
+            {<span class="nv">f1</span>: a1 -h-&gt; b1} {<span class="nv">g1</span>: b1 -h-&gt; c1} {<span class="nv">h1</span>: c1 -h-&gt; d1}
+            {<span class="nv">ma</span>: a0 -v-&gt; a1}  {<span class="nv">md</span>: d0 -v-&gt; d1}
+            (<span class="nv">α</span>: sqq ((f0 ·h g0) ·h h0) ma md ((f1 ·h g1) ·h h1)):
+             sqq (f0 ·h (g0 ·h h0)) ma md (f1 ·h (g1 ·h h1))
+            := boundary_sq_transport (assoc_hor f0 g0 h0) (assoc_hor f1 g1 h1) α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_predoublecategory_hor_sq</span> (<span class="nv">C</span> : predoublecategory_sq_hor_data) : UU <span class="c">(* Data of horizontal composition of squares *)</span>
+  :=
+    ((∏ (a b c d : C) (f: a -h-&gt; b) (g: a -v-&gt; c) (h: b -v-&gt; d) (k: c -h-&gt; d)
+      (α : mor_sq C a b c d f g h k),
+      (hor_sq_identity g) ·sqh α = hor_trans_id_left_sq α))
+     ×
+     ((∏ (a b c d : C) (f: a -h-&gt; b) (g: a -v-&gt; c) (h: b -v-&gt; d) (k: c -h-&gt; d)
+      (α : mor_sq C a b c d f g h k),
+      α ·sqh (hor_sq_identity h) = hor_trans_id_right_sq  α))
+    ×
+    (∏ ( a0 b0 c0 d0 a1 b1 c1 d1 : C )
+    (f0: a0 -h-&gt; b0) (g0: b0 -h-&gt; c0) (h0: c0 -h-&gt; d0)
+    (f1: a1 -h-&gt; b1) (g1: b1 -h-&gt; c1) (h1: c1 -h-&gt; d1)
+    (ma: a0 -v-&gt; a1) (mb: b0 -v-&gt; b1) (mc: c0 -v-&gt; c1) (md: d0 -v-&gt; d1)
+    (α: sqq f0 ma mb f1)
+    (β: sqq g0 mb mc g1)
+    (γ: sqq h0 mc md h1),
+    α ·sqh (β ·sqh γ) = hor_trans_assoc_sq  ((α ·sqh β) ·sqh γ)) .</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_hor_sq</span>: UU := total2 is_predoublecategory_hor_sq.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  <span class="c">(* Double Graph with Squares horizontal morphism and square composition + axioms*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_predoublecategory_hor_sq</span> (<span class="nv">C</span> : predoublecategory_sq_hor_data) (<span class="nv">H</span> : is_predoublecategory_hor_sq C)
+    : predoublecategory_hor_sq
+    := tpair _ C H.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_sq_hor_data_from_predoublecategory_hor_sq</span> (<span class="nv">C</span> : predoublecategory_hor_sq) :
+  predoublecategory_sq_hor_data := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">predoublecategory_sq_hor_data_from_predoublecategory_hor_sq</span> : predoublecategory_hor_sq &gt;-&gt; predoublecategory_sq_hor_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_id_hor_sq_left</span> (<span class="nv">C</span> : predoublecategory_hor_sq) :
+  ∏ (a b c d : pr1 C) (f : a -h-&gt; b) (g : a -v-&gt; c) (h : b -v-&gt; d) (k : c -h-&gt; d)
+      (α : sqq f g h k), (hor_sq_identity g) ·sqh α = hor_trans_id_left_sq α := pr12 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">id_hor_sq_left</span> {<span class="nv">C</span> : predoublecategory_hor_sq}
+  {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : pr1 C} {<span class="nv">f</span> : a -h-&gt; b} {<span class="nv">g</span> : a -v-&gt; c} {<span class="nv">h</span> : b -v-&gt; d} {<span class="nv">k</span> : c -h-&gt; d} (<span class="nv">α</span> : sqq f g h k)
+    : (hor_sq_identity g) ·sqh α =hor_trans_id_left_sq  α
+    := get_id_hor_sq_left C a b c d f g h k α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_id_hor_sq_right</span> (<span class="nv">C</span> : predoublecategory_hor_sq) :
+  ∏ (a b c d : pr1 C) (f : a -h-&gt; b) (g : a -v-&gt; c) (h : b -v-&gt; d) (k : c -h-&gt; d)
+    (α : sqq f g h k), α ·sqh (hor_sq_identity h) = hor_trans_id_right_sq α := pr122 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">id_hor_sq_right</span> {<span class="nv">C</span> : predoublecategory_hor_sq}
+  {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : pr1 C} {<span class="nv">f</span> : a -h-&gt; b} {<span class="nv">g</span> : a -v-&gt; c} {<span class="nv">h</span> : b -v-&gt; d} {<span class="nv">k</span> : c -h-&gt; d} (<span class="nv">α</span> : sqq f g h k)
+    : α ·sqh (hor_sq_identity h) = hor_trans_id_right_sq α
+    := get_id_hor_sq_right C a b c d f g h k α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_assoc_sq_hor</span> (<span class="nv">C</span> : predoublecategory_hor_sq) :
+  ∏ (a0 b0 c0 d0 a1 b1 c1 d1 : C )
+    (f0: a0 -h-&gt; b0) (g0: b0 -h-&gt; c0) (h0: c0 -h-&gt; d0)
+    (f1: a1 -h-&gt; b1) (g1: b1 -h-&gt; c1) (h1: c1 -h-&gt; d1)
+    (ma: a0 -v-&gt; a1) (mb: b0 -v-&gt; b1) (mc: c0 -v-&gt; c1) (md: d0 -v-&gt; d1)
+    (α: sqq f0 ma mb f1)
+    (β: sqq g0 mb mc g1)
+    (γ: sqq h0 mc md h1),
+    α ·sqh (β ·sqh γ) = hor_trans_assoc_sq( (α ·sqh β) ·sqh γ) := pr222 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">assoc_sq_hor</span> {<span class="nv">C</span> : predoublecategory_hor_sq}
+    {<span class="nv">a0</span> <span class="nv">b0</span> <span class="nv">c0</span> <span class="nv">d0</span> <span class="nv">a1</span> <span class="nv">b1</span> <span class="nv">c1</span> <span class="nv">d1</span> : pr1 C} {<span class="nv">f0</span>: a0 -h-&gt; b0} {<span class="nv">g0</span>: b0 -h-&gt; c0} {<span class="nv">h0</span>: c0 -h-&gt; d0}
+      {<span class="nv">f1</span>: a1 -h-&gt; b1} {<span class="nv">g1</span>: b1 -h-&gt; c1} {<span class="nv">h1</span>: c1 -h-&gt; d1}
+      {<span class="nv">ma</span>: a0 -v-&gt; a1} {<span class="nv">mb</span>: b0 -v-&gt; b1} {<span class="nv">mc</span>: c0 -v-&gt; c1} {<span class="nv">md</span>: d0 -v-&gt; d1}
+        (<span class="nv">α</span>: sqq f0 ma mb f1)
+        (<span class="nv">β</span>: sqq g0 mb mc g1)
+        (<span class="nv">γ</span>: sqq h0 mc md h1)
+      :  α ·sqh (β ·sqh γ) =hor_trans_assoc_sq ( (α ·sqh β) ·sqh γ)
+      := get_assoc_sq_hor C a0 b0 c0 d0 a1 b1 c1 d1 f0 g0 h0 f1 g1 h1 ma mb mc md α β γ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Horizontal_Composition_Squares</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;α ·sqh β&quot;</span> := (hor_sq_compose α β) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;α ∘sqh β&quot;</span> := (hor_sq_compose α β) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Special_Iso_Squares</span>. <span class="c">(* Define special iso squares which are necessary for the vertical composition *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecat_sq_special</span> {<span class="nv">C</span>: predoublecategory_ob_mor_sq_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">g</span>: a -v-&gt; b) (<span class="nv">h</span>: a -v-&gt; b): UU
+  := sqq (hor_identity a) g h (hor_identity b).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_iso_square</span> {<span class="nv">C</span>: predoublecategory_sq_hor_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">g</span>: a -v-&gt; b} {<span class="nv">h</span>: a -v-&gt; b}
+  (<span class="nv">α</span> : get_predoublecat_sq_special g h): UU
+  := ∑ (β : get_predoublecat_sq_special h g),
+  ( (α ·sqh β) =hor_trans_id_left_sq (hor_sq_identity g)) × ( (β ·sqh α) = hor_trans_id_left_sq (hor_sq_identity h)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_special_iso_squares</span> {<span class="nv">C</span>: predoublecategory_sq_hor_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">g</span>: a -v-&gt; b) (<span class="nv">h</span>: a -v-&gt; b)
+  : UU
+  := ∑ (α : get_predoublecat_sq_special g h), (is_iso_square α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">sqq_iso_special</span> {<span class="nv">C</span>: predoublecategory_sq_hor_data}
+  {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span>: a -v-&gt; b) (<span class="nv">g</span>: a -v-&gt; b):  UU
+  := get_special_iso_squares f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Special_Iso_Squares</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Vertical_Composition_Squares</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* We construct the vertical composition, noting it does not form a category *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_sq_ver_id_comp</span> (<span class="nv">C</span> : predoublecategory_hor_sq): UU
+    :=
+      (∏ (a b : C) (f: a -h-&gt; b), (sqq f (ver_identity a) (ver_identity b) f))  <span class="c">(* identities *)</span>
+        ×
+      (∏ (a0 a1 b0 b1 c0 c1 : C)
+      (f0: a0 -h-&gt; a1) (f1: b0 -h-&gt; b1) (f2: c0 -h-&gt; c1) (g0: a0 -v-&gt; b0) (h0: b0 -v-&gt; c0) (g1: a1 -v-&gt; b1) (h1: b1 -v-&gt; c1),
+        (sqq f0 g0 g1 f1) →
+        (sqq f1 h0 h1 f2) →
+        (sqq f0 (g0 ·v h0)  (g1 ·v h1) f2) <span class="c">(* composition *)</span>
+      ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_sq_hor_ver_data</span> : UU
+      := ∑ C : predoublecategory_hor_sq, predoublecategory_sq_ver_id_comp C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_predoublecategory_sq_hor_ver_data</span> (<span class="nv">C</span> : predoublecategory_hor_sq)
+        (<span class="nv">id</span> : (∏ (a b : C) (f: a -h-&gt; b), (sqq f (ver_identity a) (ver_identity b) f)))
+        (<span class="nv">comp</span>:  (∏ (a0 a1 b0 b1 c0 c1 : C)
+        (f0: a0 -h-&gt; a1) (f1: b0 -h-&gt; b1) (f2: c0 -h-&gt; c1) (g0: a0 -v-&gt; b0) (h0: b0 -v-&gt; c0) (g1: a1 -v-&gt; b1) (h1: b1 -v-&gt; c1),
+          (sqq f0 g0 g1 f1) →
+          (sqq f1 h0 h1 f2) →
+          (sqq f0 (g0 ·v h0) (g1 ·v h1) f2)) )
+      : predoublecategory_sq_hor_ver_data
+      := tpair _ C (make_dirprod id comp).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_hor_sq_from_predoublecategory_sq_hor_ver_data</span> (<span class="nv">C</span> : predoublecategory_sq_hor_ver_data) :
+  predoublecategory_hor_sq := pr1 C. <span class="c">(* Predoublegraph with vertical morphisms and squares composition *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">predoublecategory_hor_sq_from_predoublecategory_sq_hor_ver_data</span>:
+    predoublecategory_sq_hor_ver_data &gt;-&gt; predoublecategory_hor_sq.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_ver_sq_identity</span> {<span class="nv">C</span> : predoublecategory_sq_hor_ver_data}
+      : (∏ (a b : C) (f: a -h-&gt; b), (get_predoublecat_sq C a b a b f (ver_identity a) (ver_identity b) f))
+      := pr1 (pr2 C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ver_sq_identity</span> {<span class="nv">C</span> : predoublecategory_sq_hor_ver_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span>: a -h-&gt; b):
+      (get_predoublecat_sq C a b a b f (ver_identity a) (ver_identity b) f)
+      := get_ver_sq_identity a b f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ver_sq_compose</span> {<span class="nv">C</span> : predoublecategory_sq_hor_ver_data}
+    { <span class="nv">a0</span> <span class="nv">a1</span> <span class="nv">b0</span> <span class="nv">b1</span> <span class="nv">c0</span> <span class="nv">c1</span> : C }
+    {<span class="nv">f0</span>: a0 -h-&gt; a1} {<span class="nv">f1</span>: b0 -h-&gt; b1} {<span class="nv">f2</span>: c0 -h-&gt; c1} {<span class="nv">g0</span>: a0 -v-&gt; b0} {<span class="nv">h0</span>: b0 -v-&gt; c0} {<span class="nv">g1</span>: a1 -v-&gt; b1} {<span class="nv">h1</span>: b1 -v-&gt; c1}
+      : (sqq f0 g0 g1 f1) →
+      (sqq f1 h0 h1 f2) →
+      (sqq f0 (g0 ·v h0) (g1 ·v h1) f2)
+      := pr2 (pr2 C) a0 a1 b0 b1 c0 c1 f0 f1 f2 g0 h0 g1 h1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Vertical_Composition_Squares</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;α ·sqv β&quot;</span> := (ver_sq_compose α β) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;α ∘sqv β&quot;</span> := (ver_sq_compose α β) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Vertical_Unitor_and_Associator_Coherences</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* Define unitor and associator for the vertical composition*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ver_left_unitor</span> { <span class="nv">C</span>:predoublecategory_sq_hor_ver_data} {<span class="nv">a</span> <span class="nv">b</span>: C}  (<span class="nv">f</span>: a -v-&gt; b) : UU
+  := sqq_iso_special (ver_identity a ·v f) f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ver_right_unitor</span> { <span class="nv">C</span>:predoublecategory_sq_hor_ver_data} {<span class="nv">a</span> <span class="nv">b</span>: C}  (<span class="nv">f</span>: a -v-&gt; b) : UU
+    := sqq_iso_special (f ·v ver_identity b) f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ver_associator</span> { <span class="nv">C</span>:predoublecategory_sq_hor_ver_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span>: C}
+(<span class="nv">f</span> : a -v-&gt; b) (<span class="nv">g</span> : b -v-&gt; c) (<span class="nv">h</span> : c -v-&gt; d)
+    := sqq_iso_special (f ·v (g ·v h)) ((f ·v g) ·v h).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">has_predoublecategory_sq_hor_ver_unit_assoc</span> ( <span class="nv">C</span>:predoublecategory_sq_hor_ver_data) : UU
+:=
+ (∏ (a b: C) (f: a -v-&gt; b) , sqq_iso_special (ver_identity a ·v f) f) ×
+ (∏ (a b: C) (f: a -v-&gt; b) , sqq_iso_special (f ·v ver_identity b) f) ×
+ (∏ (a b c d: C) (f : a -v-&gt; b) (g : b -v-&gt; c) (h : c -v-&gt; d), sqq_iso_special (f ·v (g ·v h)) ((f ·v g) ·v h)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_sq_hor_ver_unit_assoc_data</span> : UU :=
+  ∑ (C:predoublecategory_sq_hor_ver_data), has_predoublecategory_sq_hor_ver_unit_assoc C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">predoublecategory_sq_hor_ver_data_from_predoublecategory_sq_hor_ver_unit_assoc_data</span> (C: predoublecategory_sq_hor_ver_unit_assoc_data)
+: predoublecategory_sq_hor_ver_data := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_ver_left_unitor</span> {<span class="nv">C</span>: predoublecategory_sq_hor_ver_unit_assoc_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span>: a -v-&gt; b) : sqq_iso_special (ver_identity a ·v f) f
+  := (pr12 C) a b f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_ver_right_unitor</span> {<span class="nv">C</span>: predoublecategory_sq_hor_ver_unit_assoc_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span>: a -v-&gt; b) : sqq_iso_special (f ·v ver_identity b) f
+    := (pr122 C) a b f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_ver_associator</span> {<span class="nv">C</span>: predoublecategory_sq_hor_ver_unit_assoc_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span>: C}
+    (<span class="nv">f</span> : a -v-&gt; b) (<span class="nv">g</span> : b -v-&gt; c) (<span class="nv">h</span> : c -v-&gt; d) : sqq_iso_special (f ·v (g ·v h)) ((f ·v g) ·v h)
+      := (pr222 C) a b c d f g h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ver_left_unitor_naturality</span> ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU
+      := ∏ (a b c d : C)
+      (f: a -h-&gt; b) (g: a -v-&gt; c) (h: b -v-&gt; d) (k: c -h-&gt; d)
+      (α : sqq f g h k),
+        ((ver_sq_identity f) ·sqv α) ·sqh (pr1 (get_ver_left_unitor h))
+        =
+        boundary_sq_transport
+          (id_hor_right _ @ !(id_hor_left _))
+          (id_hor_right _ @ !(id_hor_left _))
+          ((pr1 (get_ver_left_unitor g)) ·sqh α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ver_right_unitor_naturality</span> ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+      ∏ (a b c d : C)
+      (f: a -h-&gt; b) (g: a -v-&gt; c) (h: b -v-&gt; d) (k: c -h-&gt; d)
+      (α : sqq f g h k),
+        (α ·sqv (ver_sq_identity k)) ·sqh (pr1 (get_ver_right_unitor h))
+         =
+         boundary_sq_transport
+          (id_hor_right _ @ !(id_hor_left _))
+          (id_hor_right _ @ !(id_hor_left _))
+          ((pr1 (get_ver_right_unitor g)) ·sqh α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ver_assoc_naturality</span> ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+      ∏ (a0 a1 a2 a3 b0 b1 b2 b3 : C)
+      (fa: a0 -v-&gt; a1) (fb: b0 -v-&gt; b1) (ha: a1 -v-&gt; a2) (hb: b1 -v-&gt; b2) (ka: a2 -v-&gt; a3) (kb: b2 -v-&gt; b3)
+      (g0: a0 -h-&gt; b0) (g1: a1 -h-&gt; b1) (g2: a2 -h-&gt; b2) (g3: a3 -h-&gt; b3)
+      (α : sqq g0 fa fb g1) (β : sqq g1 ha hb g2) (γ : sqq g2 ka kb g3),
+      ( (α) ·sqv ( (β) ·sqv (γ)) ) ·sqh (pr1 (get_ver_associator fb hb kb))
+      =
+      boundary_sq_transport
+          (id_hor_right _ @ !(id_hor_left _))
+          (id_hor_right _ @ !(id_hor_left _))
+          ((pr1 (get_ver_associator fa ha ka)) ·sqh ( (α ·sqv β) ·sqv (γ) )).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ver_unitor_coherence</span> ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+  ∏ (a b c: C)
+  (f: a -v-&gt; b) (g: b -v-&gt; c),
+    ( ((pr1 (get_ver_associator f (ver_identity b) g)) ·sqh ( (pr1 (get_ver_right_unitor f)) ·sqv (hor_sq_identity g) ))  =
+      hor_trans_id_left_sq ((hor_sq_identity f) ·sqv (pr1 (get_ver_left_unitor g)))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_ver_assoc_coherence</span> ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+  ∏  (a b c d e: C) (f : a -v-&gt; b) (g : b -v-&gt; c) (h : c -v-&gt; d) (k : d -v-&gt; e),
+  (hor_trans_id_right_sq ( (pr1 (get_ver_associator f g (h ·v k))) ·sqh (pr1 (get_ver_associator (f ·v g) h k)) ))  =
+  ( ( ( (hor_sq_identity f) ·sqv (pr1 (get_ver_associator g h k)) )
+  ·sqh (pr1 (get_ver_associator f (g ·v h) k)) )
+  ·sqh  (  (pr1 (get_ver_associator f g h)) ·sqv (hor_sq_identity k)) ) .</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_interchange_comp</span> ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+  ∏ (a0 a1 a2 b0 b1 b2 c0 c1 c2 : C)
+  (fa: a0 -h-&gt; a1) (ga: a1 -h-&gt; a2) (fb: b0 -h-&gt; b1) (gb: b1 -h-&gt; b2) (fc: c0 -h-&gt; c1) (gc: c1 -h-&gt; c2)
+  (h0: a0 -v-&gt; b0) (k0: b0 -v-&gt; c0) (h1: a1 -v-&gt; b1) (k1: b1 -v-&gt; c1) (h2: a2 -v-&gt; b2) (k2: b2 -v-&gt; c2)
+  (α : sqq fa h0 h1 fb)
+  (β : sqq ga h1 h2 gb)
+  (γ : sqq fb k0 k1 fc)
+  (δ : sqq gb k1 k2 gc),
+  (α ·sqh β) ·sqv (γ ·sqh δ) = (α ·sqv γ) ·sqh (β ·sqv δ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_interchange_id_obj</span>  ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+  ∏ (a :C), ver_sq_identity (hor_identity a) = hor_sq_identity (ver_identity a).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_interchange_id_hor</span>  ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+  ∏ (a b c: C) (f: a -h-&gt; b) (g: b -h-&gt; c),
+     ver_sq_identity(f ·h g) = (ver_sq_identity f) ·sqh (ver_sq_identity g).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_interchange_id_ver</span>  ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+   ∏ (a b c: C) (f: a -v-&gt; b) (g: b -v-&gt; c),
+    (hor_sq_identity f) ·sqv (hor_sq_identity g) =hor_sq_identity(f ·v g).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory_interchange</span>  ( <span class="nv">C</span> : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+        predoublecategory_interchange_id_obj C ×
+        predoublecategory_interchange_id_hor C ×
+        predoublecategory_interchange_id_ver C ×
+        predoublecategory_interchange_comp C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Vertical_Unitor_and_Associator_Coherences</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk1"><span class="kn">Notation</span> <span class="s2">&quot;α ·sqv β&quot;</span> := (ver_sq_compose α β) (<span class="kn">at level</span> <span class="mi">60</span>).</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Setting β <span class="kn">constr at next level</span>
+to <span class="kr">match</span> previous notation <span class="kr">with</span> longest common prefix:
+<span class="s2">&quot;_ ·sqv _&quot;</span>.</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk2"><span class="kn">Notation</span> <span class="s2">&quot;α ∘sqv β&quot;</span> := (ver_sq_compose α β) (<span class="kn">at level</span> <span class="mi">60</span>).</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Setting β <span class="kn">constr at next level</span>
+to <span class="kr">match</span> previous notation <span class="kr">with</span> longest common prefix:
+<span class="s2">&quot;_ ∘sqv _&quot;</span>.</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Pre_Double_Categories</span>. <span class="c">(*Finally we define double categories by adding appropriate set truncation conditions. *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">has_sq_hor_homsets</span> (<span class="nv">C</span> : predoublecategory_hor_sq) : UU :=
+  ∏ (a b c d : C)
+    (g: a -v-&gt; c) (h: b -v-&gt; d)
+    (f : a -h-&gt; b) (k : c -h-&gt; d),
+    isaset (Sq[ a -hv- f h -hv-&gt; b, c -vh- g k -vh-&gt; d]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">doublecategory_hor_sq</span> := ∑ C:predoublecategory_hor_sq, has_sq_hor_homsets C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_doublecategory_hor_sq</span> <span class="nv">C</span> <span class="nv">h</span> : doublecategory_hor_sq := C,,h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">doublecategory_hor_sq_to_predoublecategory_hor_sq</span> : doublecategory_hor_sq -&gt; predoublecategory_hor_sq := pr1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">predoublecategory</span> : UU :=
+    ∑ (C:predoublecategory_sq_hor_ver_unit_assoc_data),
+    ( (predoublecategory_ver_left_unitor_naturality C) ×
+    (predoublecategory_ver_right_unitor_naturality C) ×
+    (predoublecategory_ver_assoc_naturality C) ×
+    (predoublecategory_ver_unitor_coherence C) ×
+    (predoublecategory_ver_assoc_coherence C) ×
+    (predoublecategory_interchange C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">predoublecategory_sq_hor_ver_unit_assoc_data_from_predoublecategory</span> (C: predoublecategory)
+    : predoublecategory_sq_hor_ver_unit_assoc_data := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecategory_ver_left_unitor_naturality</span>
+  {<span class="nv">C</span> : predoublecategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+  {<span class="nv">f</span>: a -h-&gt; b} {<span class="nv">g</span>: a -v-&gt; c} {<span class="nv">h</span>: b -v-&gt; d} {<span class="nv">k</span>: c -h-&gt; d}
+  (<span class="nv">α</span> : sqq f g h k) :
+  ((ver_sq_identity f) ·sqv α) ·sqh (pr1 (get_ver_left_unitor h))	=
+        boundary_sq_transport
+          (id_hor_right _ @ !(id_hor_left _))
+          (id_hor_right _ @ !(id_hor_left _))
+          ((pr1 (get_ver_left_unitor g)) ·sqh α) :=
+          (pr12 C) a b c d f g h k α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecategory_ver_right_unitor_naturality</span>
+  {<span class="nv">C</span> : predoublecategory}
+  {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+    {<span class="nv">f</span>: a -h-&gt; b} {<span class="nv">g</span>: a -v-&gt; c} {<span class="nv">h</span>: b -v-&gt; d} {<span class="nv">k</span>: c -h-&gt; d}
+    (<span class="nv">α</span> : sqq f g h k) :
+      (α ·sqv (ver_sq_identity k)) ·sqh (pr1 (get_ver_right_unitor h))
+       =
+       boundary_sq_transport
+        (id_hor_right _ @ !(id_hor_left _))
+        (id_hor_right _ @ !(id_hor_left _))
+        ((pr1 (get_ver_right_unitor g)) ·sqh α) :=
+        (pr122 C) a b c d f g h k α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecategory_ver_assoc_naturality</span>
+  {<span class="nv">C</span> : predoublecategory}
+  {<span class="nv">a0</span> <span class="nv">a1</span> <span class="nv">a2</span> <span class="nv">a3</span> <span class="nv">b0</span> <span class="nv">b1</span> <span class="nv">b2</span> <span class="nv">b3</span> : C}
+  {<span class="nv">fa</span>: a0 -v-&gt; a1} {<span class="nv">fb</span>: b0 -v-&gt; b1} {<span class="nv">ha</span>: a1 -v-&gt; a2} {<span class="nv">hb</span>: b1 -v-&gt; b2} {<span class="nv">ka</span>: a2 -v-&gt; a3} {<span class="nv">kb</span>: b2 -v-&gt; b3}
+      {<span class="nv">g0</span>: a0 -h-&gt; b0} {<span class="nv">g1</span>: a1 -h-&gt; b1} {<span class="nv">g2</span>: a2 -h-&gt; b2} {<span class="nv">g3</span>: a3 -h-&gt; b3}
+      (<span class="nv">α</span> : sqq g0 fa fb g1) (<span class="nv">β</span> : sqq g1 ha hb g2) (<span class="nv">γ</span> : sqq g2 ka kb g3) :
+      ( ( (α) ·sqv ( (β) ·sqv (γ)) ) ·sqh (pr1 (get_ver_associator fb hb kb))	=
+      boundary_sq_transport
+          (id_hor_right _ @ !(id_hor_left _))
+          (id_hor_right _ @ !(id_hor_left _))
+          ((pr1 (get_ver_associator fa ha ka)) ·sqh ( (α ·sqv β) ·sqv (γ) )) ) :=
+          (pr1 (pr222 C)) a0 a1 a2 a3 b0 b1 b2 b3 fa fb ha hb ka kb g0 g1 g2 g3 α β γ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecategory_ver_unitor_coherence</span>
+  {<span class="nv">C</span> : predoublecategory}
+  {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>: C} (<span class="nv">f</span>: a -v-&gt; b) (<span class="nv">g</span>: b -v-&gt; c) :
+    ( ((pr1 (get_ver_associator f (ver_identity b) g)) ·sqh ( (pr1 (get_ver_right_unitor f)) ·sqv (hor_sq_identity g) ))  =
+      hor_trans_id_left_sq ((hor_sq_identity f) ·sqv (pr1 (get_ver_left_unitor g))))
+      := (pr12 (pr222 C)) a b c f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecategory_ver_assoc_coherence</span>
+  {<span class="nv">C</span> : predoublecategory}
+  {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span>: C} (<span class="nv">f</span> : a -v-&gt; b) (<span class="nv">g</span> : b -v-&gt; c) (<span class="nv">h</span> : c -v-&gt; d) (<span class="nv">k</span> : d -v-&gt; e) :
+    ( (hor_trans_id_right_sq ( (pr1 (get_ver_associator f g (h ·v k))) ·sqh (pr1 (get_ver_associator (f ·v g) h k)) ))  =
+    ( ( ( (hor_sq_identity f) ·sqv (pr1 (get_ver_associator g h k)) )
+    ·sqh (pr1 (get_ver_associator f (g ·v h) k)) )
+    ·sqh  (  (pr1 (get_ver_associator f g h)) ·sqv (hor_sq_identity k)) ) )
+    := (pr122 (pr222 C)) a b c d e f g h k.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecategory_interchange_comp</span>
+    {<span class="nv">C</span> : predoublecategory}
+    {<span class="nv">a0</span> <span class="nv">a1</span> <span class="nv">a2</span> <span class="nv">b0</span> <span class="nv">b1</span> <span class="nv">b2</span> <span class="nv">c0</span> <span class="nv">c1</span> <span class="nv">c2</span> : C}
+  {<span class="nv">fa</span>: a0 -h-&gt; a1} {<span class="nv">ga</span>: a1 -h-&gt; a2} {<span class="nv">fb</span>: b0 -h-&gt; b1} {<span class="nv">gb</span>: b1 -h-&gt; b2} {<span class="nv">fc</span>: c0 -h-&gt; c1} {<span class="nv">gc</span>: c1 -h-&gt; c2}
+  {<span class="nv">h0</span>: a0 -v-&gt; b0} {<span class="nv">k0</span>: b0 -v-&gt; c0} {<span class="nv">h1</span>: a1 -v-&gt; b1} {<span class="nv">k1</span>: b1 -v-&gt; c1} {<span class="nv">h2</span>: a2 -v-&gt; b2} {<span class="nv">k2</span>: b2 -v-&gt; c2}
+  (<span class="nv">α</span> : sqq fa h0 h1 fb)
+  (<span class="nv">β</span> : sqq ga h1 h2 gb)
+  (<span class="nv">γ</span> : sqq fb k0 k1 fc)
+  (<span class="nv">δ</span> : sqq gb k1 k2 gc) : (α ·sqh β) ·sqv (γ ·sqh δ) = (α ·sqv γ) ·sqh (β ·sqv δ)
+    := pr222 (pr222 (pr222 C)) a0 a1 a2 b0 b1 b2 c0 c1 c2 fa ga fb gb fc gc h0 k0 h1 k1 h2 k2 α β γ δ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecategory_interchange_id_obj</span> {<span class="nv">C</span> : predoublecategory}
+      (<span class="nv">a</span> :C) : ver_sq_identity (hor_identity a) = hor_sq_identity (ver_identity a)
+      := (pr1 (pr222 (pr222 C))) a.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecategory_interchange_id_hor</span>  {<span class="nv">C</span> : predoublecategory}
+       {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>: C} (<span class="nv">f</span>: a -h-&gt; b) (<span class="nv">g</span>: b -h-&gt; c) :
+         ver_sq_identity(f ·h g) = (ver_sq_identity f) ·sqh (ver_sq_identity g)
+    := (pr12 (pr222 (pr222 C))) a b c f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_predoublecategory_interchange_id_ver</span>  {<span class="nv">C</span> : predoublecategory}
+       {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>: C} (<span class="nv">f</span>: a -v-&gt; b) (<span class="nv">g</span>: b -v-&gt; c) :
+        (hor_sq_identity f) ·sqv (hor_sq_identity g) =hor_sq_identity(f ·v g)
+        := (pr122 (pr222 (pr222 C))) a b c f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Pre_Double_Categories</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Underlying_Category_Vertical_Morphisms_Squares</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* We now show the horizontal composition of squares gives us a category. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_cat_ob</span> (<span class="nv">C</span>: predoublecategory_hor_sq) : UU :=
+    ∑ (a b : C), a -v-&gt; b.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_und_ver_cat_ob</span> {<span class="nv">C</span>: predoublecategory_hor_sq} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span>: a -v-&gt; b) : und_ver_cat_ob C
+    := (a,, (b,, f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_und_ver_cat_ob_mor</span> {<span class="nv">C</span>: predoublecategory_hor_sq} (<span class="nv">c</span> <span class="nv">d</span> : und_ver_cat_ob C) : UU :=
+      ∑ (g: (pr1 c) -h-&gt; (pr1 d)) (k: (pr12 c) -h-&gt; (pr12 d)), (sqq g (pr22 c) (pr22 d) k ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_cat_ob_mor</span> (<span class="nv">C</span>: predoublecategory_hor_sq) : und_ver_cat_ob C → und_ver_cat_ob C → UU :=
+      <span class="kr">fun</span> <span class="nv">c</span> <span class="nv">d</span> =&gt; (get_und_ver_cat_ob_mor c d).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_und_ver_cat_ob_mor</span> {<span class="nv">C</span>: predoublecategory_hor_sq}
+      {<span class="nv">c</span> <span class="nv">d</span> : und_ver_cat_ob C} {<span class="nv">g</span>: (pr1 c) -h-&gt; (pr1 d)} {<span class="nv">k</span>: (pr12 c) -h-&gt; (pr12 d)}
+        (<span class="nv">α</span> : sqq g (pr22 c) (pr22 d) k )  : und_ver_cat_ob_mor C c d
+      := (g ,, (k ,, α)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">has_hor_sq_homsets</span> (<span class="nv">C</span> : predoublecategory_hor_sq) : UU :=
+  ∏ (a b c d: C)
+  (f: a -v-&gt; b) (g: c -v-&gt; d),
+  isaset (und_ver_cat_ob_mor C (get_und_ver_cat_ob f) (get_und_ver_cat_ob g)). <span class="c">(*Horizontal Square Hom sets *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_und_ver_cat_id</span> {<span class="nv">C</span>: predoublecategory_hor_sq} (<span class="nv">c</span> : (und_ver_cat_ob C)) : und_ver_cat_ob_mor C c c
+:=  make_und_ver_cat_ob_mor (hor_sq_identity (pr22 c)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_cat_id</span> (<span class="nv">C</span>: predoublecategory_hor_sq) : ∏ c : und_ver_cat_ob C, und_ver_cat_ob_mor C c c :=
+<span class="kr">fun</span> <span class="nv">c</span> =&gt; get_und_ver_cat_id c.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_und_ver_cat_comp</span> {<span class="nv">C</span>: predoublecategory_hor_sq} (<span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : (und_ver_cat_ob C)) :
+und_ver_cat_ob_mor C c d → und_ver_cat_ob_mor C d e → und_ver_cat_ob_mor C c e
+:= <span class="kr">fun</span> <span class="nv">α</span> <span class="nv">β</span> =&gt; make_und_ver_cat_ob_mor ( (pr22 α) ·sqh (pr22 β)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_cat_comp</span> (<span class="nv">C</span>: predoublecategory_hor_sq) :
+∏ c d e: und_ver_cat_ob C, und_ver_cat_ob_mor C c d → und_ver_cat_ob_mor C d e → und_ver_cat_ob_mor C c e :=
+<span class="kr">fun</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> =&gt; get_und_ver_cat_comp c d e.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_und_ver_cat_comp</span> {<span class="nv">C</span>: predoublecategory_hor_sq} {<span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : (und_ver_cat_ob C)}
+(<span class="nv">f</span>: und_ver_cat_ob_mor C c d) (<span class="nv">g</span>: und_ver_cat_ob_mor C d e) : und_ver_cat_ob_mor C c e := und_ver_cat_comp C c d e f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_cat_precategory_data</span> (<span class="nv">C</span>: predoublecategory_hor_sq) : precategory_data :=
+  make_precategory_data (make_precategory_ob_mor (und_ver_cat_ob C) (und_ver_cat_ob_mor C)) (und_ver_cat_id C) (und_ver_cat_comp C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk3"><span class="kn">Lemma</span> <span class="nf">und_ver_cat_morphism_eq_principle</span> {<span class="nv">C</span>: predoublecategory_hor_sq} {<span class="nv">c</span> <span class="nv">d</span> : und_ver_cat_ob C} (<span class="nv">f</span> <span class="nv">g</span> : und_ver_cat_ob_mor C c d)
+(<span class="nv">equp</span>: (pr1 f) = (pr1 g)) (<span class="nv">eqdown</span>: (pr12 f) = (pr12 g))
+(<span class="nv">eqmid</span>: (pr22 f) =  boundary_sq_transport (equp) (eqdown) (pr22 g) ) : f = g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>predoublecategory_hor_sq</span></span></span><br><span><var>c, d</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob_mor C c d</span></span></span><br><span><var>equp</var><span class="hyp-type"><b>: </b><span>pr1 f = pr1 g</span></span></span><br><span><var>eqdown</var><span class="hyp-type"><b>: </b><span>pr12 f = pr12 g</span></span></span><br><span><var>eqmid</var><span class="hyp-type"><b>: </b><span>pr22 f =
+boundary_sq_transport equp eqdown (pr22 g)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f = g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>predoublecategory_hor_sq</span></span></span><br><span><var>c, d</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob_mor C c d</span></span></span><br><span><var>equp</var><span class="hyp-type"><b>: </b><span>pr1 f = pr1 g</span></span></span><br><span><var>eqdown</var><span class="hyp-type"><b>: </b><span>pr12 f = pr12 g</span></span></span><br><span><var>eqmid</var><span class="hyp-type"><b>: </b><span>pr22 f =
+boundary_sq_transport equp eqdown (pr22 g)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f = g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk5"><span class="nb">induction</span> f <span class="kr">as</span> [ f1 [ f2 sq1 ]].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>predoublecategory_hor_sq</span></span></span><br><span><var>c, d</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob C</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>pr1 c -h-&gt; pr1 d</span></span></span><br><span><var>f2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq1</var><span class="hyp-type"><b>: </b><span>sqq f1 (pr22 c) (pr22 d) f2</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob_mor C c d</span></span></span><br><span><var>equp</var><span class="hyp-type"><b>: </b><span>pr1 (f1,, f2,, sq1) = pr1 g</span></span></span><br><span><var>eqdown</var><span class="hyp-type"><b>: </b><span>pr12 (f1,, f2,, sq1) = pr12 g</span></span></span><br><span><var>eqmid</var><span class="hyp-type"><b>: </b><span>pr22 (f1,, f2,, sq1) =
+boundary_sq_transport equp eqdown (pr22 g)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f1,, f2,, sq1 = g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk6"><span class="nb">induction</span> g <span class="kr">as</span> [ g1 [ g2 sq2 ]].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>predoublecategory_hor_sq</span></span></span><br><span><var>c, d</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob C</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>pr1 c -h-&gt; pr1 d</span></span></span><br><span><var>f2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq1</var><span class="hyp-type"><b>: </b><span>sqq f1 (pr22 c) (pr22 d) f2</span></span></span><br><span><var>g1</var><span class="hyp-type"><b>: </b><span>pr1 c -h-&gt; pr1 d</span></span></span><br><span><var>g2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq2</var><span class="hyp-type"><b>: </b><span>sqq g1 (pr22 c) (pr22 d) g2</span></span></span><br><span><var>equp</var><span class="hyp-type"><b>: </b><span>pr1 (f1,, f2,, sq1) = pr1 (g1,, g2,, sq2)</span></span></span><br><span><var>eqdown</var><span class="hyp-type"><b>: </b><span>pr12 (f1,, f2,, sq1) = pr12 (g1,, g2,, sq2)</span></span></span><br><span><var>eqmid</var><span class="hyp-type"><b>: </b><span>pr22 (f1,, f2,, sq1) =
+boundary_sq_transport equp eqdown
+  (pr22 (g1,, g2,, sq2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f1,, f2,, sq1 = g1,, g2,, sq2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk7"><span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>predoublecategory_hor_sq</span></span></span><br><span><var>c, d</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob C</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>pr1 c -h-&gt; pr1 d</span></span></span><br><span><var>f2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq1</var><span class="hyp-type"><b>: </b><span>sqq f1 (pr22 c) (pr22 d) f2</span></span></span><br><span><var>g1</var><span class="hyp-type"><b>: </b><span>pr1 c -h-&gt; pr1 d</span></span></span><br><span><var>g2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq2</var><span class="hyp-type"><b>: </b><span>sqq g1 (pr22 c) (pr22 d) g2</span></span></span><br><span><var>equp</var><span class="hyp-type"><b>: </b><span>f1 = g1</span></span></span><br><span><var>eqdown</var><span class="hyp-type"><b>: </b><span>f2 = g2</span></span></span><br><span><var>eqmid</var><span class="hyp-type"><b>: </b><span>sq1 = boundary_sq_transport equp eqdown sq2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f1,, f2,, sq1 = g1,, g2,, sq2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk8"><span class="nb">induction</span> equp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>predoublecategory_hor_sq</span></span></span><br><span><var>c, d</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob C</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>pr1 c -h-&gt; pr1 d</span></span></span><br><span><var>f2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq1</var><span class="hyp-type"><b>: </b><span>sqq f1 (pr22 c) (pr22 d) f2</span></span></span><br><span><var>g2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq2</var><span class="hyp-type"><b>: </b><span>sqq f1 (pr22 c) (pr22 d) g2</span></span></span><br><span><var>eqdown</var><span class="hyp-type"><b>: </b><span>f2 = g2</span></span></span><br><span><var>eqmid</var><span class="hyp-type"><b>: </b><span>sq1 =
+boundary_sq_transport (idpath f1) eqdown sq2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f1,, f2,, sq1 = f1,, g2,, sq2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk9"><span class="nb">induction</span> eqdown.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>predoublecategory_hor_sq</span></span></span><br><span><var>c, d</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob C</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>pr1 c -h-&gt; pr1 d</span></span></span><br><span><var>f2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq1, sq2</var><span class="hyp-type"><b>: </b><span>sqq f1 (pr22 c) (pr22 d) f2</span></span></span><br><span><var>eqmid</var><span class="hyp-type"><b>: </b><span>sq1 =
+boundary_sq_transport (idpath f1) 
+  (idpath f2) sq2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f1,, f2,, sq1 = f1,, f2,, sq2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chka"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>predoublecategory_hor_sq</span></span></span><br><span><var>c, d</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob C</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>pr1 c -h-&gt; pr1 d</span></span></span><br><span><var>f2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq1, sq2</var><span class="hyp-type"><b>: </b><span>sqq f1 (pr22 c) (pr22 d) f2</span></span></span><br><span><var>eqmid</var><span class="hyp-type"><b>: </b><span>sq1 =
+boundary_sq_transport (idpath f1) 
+  (idpath f2) sq2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f2,, sq1 = f2,, sq2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chkb"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>predoublecategory_hor_sq</span></span></span><br><span><var>c, d</var><span class="hyp-type"><b>: </b><span>und_ver_cat_ob C</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>pr1 c -h-&gt; pr1 d</span></span></span><br><span><var>f2</var><span class="hyp-type"><b>: </b><span>pr12 c -h-&gt; pr12 d</span></span></span><br><span><var>sq1, sq2</var><span class="hyp-type"><b>: </b><span>sqq f1 (pr22 c) (pr22 d) f2</span></span></span><br><span><var>eqmid</var><span class="hyp-type"><b>: </b><span>sq1 =
+boundary_sq_transport (idpath f1) 
+  (idpath f2) sq2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">sq1 = sq2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (eqmid).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_left_unit</span>
+  {<span class="nv">C</span>: predoublecategory_hor_sq}
+  {<span class="nv">c</span> <span class="nv">d</span> : und_ver_cat_ob C}
+  (<span class="nv">f</span>: get_und_ver_cat_ob_mor c d) : (make_und_ver_cat_comp (und_ver_cat_id C c) f) = f
+  := (und_ver_cat_morphism_eq_principle
+  (make_und_ver_cat_comp (und_ver_cat_id C c) f) f (id_hor_left (pr1 f)) (id_hor_left (pr12 f)) (id_hor_sq_left (pr22 f))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_und_ver_left_unit</span> (<span class="nv">C</span>: predoublecategory_hor_sq) :
+∏ (c d : und_ver_cat_precategory_data C) (f: get_und_ver_cat_ob_mor c d),
+(make_und_ver_cat_comp (und_ver_cat_id C c) f) = f
+:= <span class="kr">fun</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> =&gt; und_ver_left_unit f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_right_unit</span>
+  {<span class="nv">C</span>: predoublecategory_hor_sq}
+  {<span class="nv">c</span> <span class="nv">d</span> : und_ver_cat_ob C}
+  (<span class="nv">f</span>: get_und_ver_cat_ob_mor c d) : (make_und_ver_cat_comp f (und_ver_cat_id C d)) = f
+  := (und_ver_cat_morphism_eq_principle
+  (make_und_ver_cat_comp f (und_ver_cat_id C d)) f (id_hor_right (pr1 f)) (id_hor_right (pr12 f)) (id_hor_sq_right (pr22 f))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_und_ver_right_unit</span> (<span class="nv">C</span>: predoublecategory_hor_sq) : ∏ (c d : und_ver_cat_ob C) (f: get_und_ver_cat_ob_mor c d),
+  (make_und_ver_cat_comp f (und_ver_cat_id C d)) = f
+  := <span class="kr">fun</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> =&gt; und_ver_right_unit f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_assoc</span>
+  {<span class="nv">C</span>: predoublecategory_hor_sq}
+  {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : und_ver_cat_ob C}
+  (<span class="nv">f</span>: get_und_ver_cat_ob_mor a b) (<span class="nv">g</span>: get_und_ver_cat_ob_mor b c) (<span class="nv">h</span>: get_und_ver_cat_ob_mor c d) :
+  make_und_ver_cat_comp f (make_und_ver_cat_comp g h) = make_und_ver_cat_comp (make_und_ver_cat_comp f g) h
+  := (und_ver_cat_morphism_eq_principle
+  (make_und_ver_cat_comp f (make_und_ver_cat_comp g h)) (make_und_ver_cat_comp (make_und_ver_cat_comp f g) h)
+  (assoc_hor (pr1 f) (pr1 g) (pr1 h)) (assoc_hor (pr12 f) (pr12 g) (pr12 h)) (assoc_sq_hor (pr22 f) (pr22 g) (pr22 h))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_und_ver_assoc</span> (<span class="nv">C</span>: predoublecategory_hor_sq) :
+∏ (a b c d : und_ver_cat_ob C) (f: get_und_ver_cat_ob_mor a b) (g: get_und_ver_cat_ob_mor b c) (h: get_und_ver_cat_ob_mor c d),
+make_und_ver_cat_comp f (make_und_ver_cat_comp g h) = make_und_ver_cat_comp (make_und_ver_cat_comp f g) h
+:= <span class="kr">fun</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> =&gt; und_ver_assoc f g h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_cat_is_precategory</span> (<span class="nv">C</span>: predoublecategory_hor_sq) : is_precategory (und_ver_cat_precategory_data C)
+  := make_is_precategory_one_assoc (get_und_ver_left_unit C) (get_und_ver_right_unit C) (get_und_ver_assoc C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ver_precategory</span> (<span class="nv">C</span>: predoublecategory_hor_sq) : precategory :=
+  make_precategory (und_ver_cat_precategory_data C) (und_ver_cat_is_precategory C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Underlying_Category_Vertical_Morphisms_Squares</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Double_Categories</span>. <span class="c">(* We now use the underlying categories to define double categories *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">doublecategory</span> := ∑ C:predoublecategory, (has_homsets (und_ob_hor_precategory C) × has_sq_hor_homsets C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_doublecategory</span> <span class="nv">C</span> <span class="nv">h</span> <span class="nv">k</span> : doublecategory := C,,h,,k.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">doublecategory_to_predoublecategory</span> : doublecategory → predoublecategory := pr1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">doublecategory_to_predoublecategory</span> : doublecategory &gt;-&gt; predoublecategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">homset_sq_property</span> (C : doublecategory) : (has_homsets (und_ob_hor_precategory C) × has_sq_hor_homsets C) := pr2 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">get_has_sq_hor_homsets</span>
+{<span class="nv">C</span> : doublecategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+(<span class="nv">g</span>: a -v-&gt; c) (<span class="nv">h</span>: b -v-&gt; d)
+(<span class="nv">f</span> : a -h-&gt; b) (<span class="nv">k</span> : c -h-&gt; d) :isaset (Sq[ a -hv- f h -hv-&gt; b, c -vh- g k -vh-&gt; d])
+  := (pr22 C) a b c d g h f k.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">und_ob_hor_cat</span> (<span class="nv">C</span>: doublecategory) : category := make_category (und_ob_hor_precategory C) (pr12 C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chkc"><span class="kn">Definition</span> <span class="nf">und_ver_cat</span> (<span class="nv">C</span>: doublecategory) : category.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chkd"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chke">use (make_category (und_ver_precategory C)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">C</span> : precategory, has_homsets C)
+  (und_ver_precategory C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chkf"><span class="nb">intros</span> x y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (und_ver_precategory C ⟦ x, y ⟧)%cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk10">use isaset_total2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (pr1 x -h-&gt; pr1 y)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecatsunfolded-v-chk11" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br></div><label class="goal-separator" for="doublecatsunfolded-v-chk11"><hr></label><div class="goal-conclusion">∏ x0 : pr1 x -h-&gt; pr1 y,
+isaset
+  ((<span class="kr">λ</span> <span class="nv">x1</span> : pr1 x -h-&gt; pr1 y,
+    ∑ k : pr12 x -h-&gt; pr12 y,
+    sqq x1 (pr22 x) (pr22 y) k) x0)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk12">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (pr1 x -h-&gt; pr1 y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk13">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x0 : pr1 x -h-&gt; pr1 y,
+isaset
+  ((<span class="kr">λ</span> <span class="nv">x1</span> : pr1 x -h-&gt; pr1 y,
+    ∑ k : pr12 x -h-&gt; pr12 y,
+    sqq x1 (pr22 x) (pr22 y) k) x0)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk14"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>pr1 x -h-&gt; pr1 y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  ((<span class="kr">λ</span> <span class="nv">x0</span> : pr1 x -h-&gt; pr1 y,
+    ∑ k : pr12 x -h-&gt; pr12 y,
+    sqq x0 (pr22 x) (pr22 y) k) x0)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk15">use isaset_total2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>pr1 x -h-&gt; pr1 y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (pr12 x -h-&gt; pr12 y)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecatsunfolded-v-chk16" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>pr1 x -h-&gt; pr1 y</span></span></span><br></div><label class="goal-separator" for="doublecatsunfolded-v-chk16"><hr></label><div class="goal-conclusion">∏ x1 : pr12 x -h-&gt; pr12 y,
+isaset (sqq x0 (pr22 x) (pr22 y) x1)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk17">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>pr1 x -h-&gt; pr1 y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (pr12 x -h-&gt; pr12 y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk18">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>pr1 x -h-&gt; pr1 y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x1 : pr12 x -h-&gt; pr12 y,
+isaset (sqq x0 (pr22 x) (pr22 y) x1)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk19"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ver_precategory C</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>pr1 x -h-&gt; pr1 y</span></span></span><br><span><var>x1</var><span class="hyp-type"><b>: </b><span>pr12 x -h-&gt; pr12 y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (sqq x0 (pr22 x) (pr22 y) x1)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk1a"><span class="kn">Definition</span> <span class="nf">doublecategory_to_twosided_disp_cat_data</span>
+           (<span class="nv">C</span> : doublecategory)
+  : twosided_disp_cat_data (und_ob_hor_cat C) (und_ob_hor_cat C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat_data (und_ob_hor_cat C)
+  (und_ob_hor_cat C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk1b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat_data (und_ob_hor_cat C)
+  (und_ob_hor_cat C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk1c">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat_ob_mor (und_ob_hor_cat C)
+  (und_ob_hor_cat C)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecatsunfolded-v-chk1d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><label class="goal-separator" for="doublecatsunfolded-v-chk1d"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">D</span> : twosided_disp_cat_ob_mor (und_ob_hor_cat C)
+         (und_ob_hor_cat C),
+ twosided_disp_cat_id_comp D) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk1e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat_ob_mor (und_ob_hor_cat C)
+  (und_ob_hor_cat C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk1f">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">und_ob_hor_cat C → und_ob_hor_cat C → UU</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecatsunfolded-v-chk20" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><label class="goal-separator" for="doublecatsunfolded-v-chk20"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C → und_ob_hor_cat C → UU,
+ ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+ D x₁ y₁
+ → D x₂ y₂
+   → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+     → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat → UU) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk21">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">und_ob_hor_cat C → und_ob_hor_cat C → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk22"><span class="nb">intros</span> x y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ob_hor_cat C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (x -v-&gt; y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk23">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C → und_ob_hor_cat C → UU,
+ ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+ D x₁ y₁
+ → D x₂ y₂
+   → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+     → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat → UU)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk24"><span class="nb">intros</span> x y z w f g h k.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y, z, w</var><span class="hyp-type"><b>: </b><span>und_ob_hor_cat C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>x -v-&gt; z</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>y -v-&gt; w</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ x, y ⟧)%cat</span></span></span><br><span><var>k</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ z, w ⟧)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (sqq h f g k).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk25">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">D</span> : twosided_disp_cat_ob_mor (und_ob_hor_cat C)
+         (und_ob_hor_cat C),
+ twosided_disp_cat_id_comp D)
+  ((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+   ((<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+     (<span class="nv">g</span> : y -v-&gt; w)
+     (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+     (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+     sqq h f g k)
+    :
+    (<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C → und_ob_hor_cat C → UU,
+     ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+     D x₁ y₁
+     → D x₂ y₂
+       → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+         → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat → UU)
+      (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk26">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat_id
+  ((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+   ((<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+     (<span class="nv">g</span> : y -v-&gt; w)
+     (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+     (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+     sqq h f g k)
+    :
+    (<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C → und_ob_hor_cat C → UU,
+     ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+     D x₁ y₁
+     → D x₂ y₂
+       → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+         → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat → UU)
+      (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y)))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecatsunfolded-v-chk27" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><label class="goal-separator" for="doublecatsunfolded-v-chk27"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : twosided_disp_cat_id
+         ((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+          ((<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C)
+            (<span class="nv">f</span> : x -v-&gt; z) (<span class="nv">g</span> : y -v-&gt; w)
+            (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+            (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+            sqq h f g k)
+           :
+           (<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C
+                  → und_ob_hor_cat C → UU,
+            ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+            D x₁ y₁
+            → D x₂ y₂
+              → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+                → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat
+                  → UU)
+             (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y))),
+ twosided_disp_cat_comp
+   ((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+    ((<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+      (<span class="nv">g</span> : y -v-&gt; w)
+      (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+      (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+      sqq h f g k)
+     :
+     (<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C → und_ob_hor_cat C → UU,
+      ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+      D x₁ y₁
+      → D x₂ y₂
+        → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+          → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat → UU)
+       (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y)))) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk28">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat_id
+  ((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+   ((<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+     (<span class="nv">g</span> : y -v-&gt; w)
+     (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+     (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+     sqq h f g k)
+    :
+    (<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C → und_ob_hor_cat C → UU,
+     ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+     D x₁ y₁
+     → D x₂ y₂
+       → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+         → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat → UU)
+      (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk29"><span class="nb">intros</span> x y f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>und_ob_hor_cat C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+ (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+  (<span class="nv">g</span> : y -v-&gt; w)
+  (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+  (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+  sqq h f g k)) x y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f --&gt;[ identity x ][ identity y] f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (hor_sq_identity f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk2a">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : twosided_disp_cat_id
+         ((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+          ((<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C)
+            (<span class="nv">f</span> : x -v-&gt; z) (<span class="nv">g</span> : y -v-&gt; w)
+            (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+            (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+            sqq h f g k)
+           :
+           (<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C
+                  → und_ob_hor_cat C → UU,
+            ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+            D x₁ y₁
+            → D x₂ y₂
+              → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+                → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat
+                  → UU)
+             (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y))),
+ twosided_disp_cat_comp
+   ((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+    ((<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+      (<span class="nv">g</span> : y -v-&gt; w)
+      (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+      (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+      sqq h f g k)
+     :
+     (<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C → und_ob_hor_cat C → UU,
+      ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+      D x₁ y₁
+      → D x₂ y₂
+        → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+          → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat → UU)
+       (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y))))
+  ((<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C)
+    (<span class="nv">f</span> : ((<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">y0</span> : und_ob_hor_cat C, x0 -v-&gt; y0),,
+          (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C)
+           (<span class="nv">f</span> : x0 -v-&gt; z) (<span class="nv">g</span> : y0 -v-&gt; w)
+           (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x0, y0 ⟧)%cat)
+           (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+           sqq h f g k)) x y), hor_sq_identity f)
+   :
+   twosided_disp_cat_id
+     ((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+      ((<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+        (<span class="nv">g</span> : y -v-&gt; w)
+        (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+        (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+        sqq h f g k)
+       :
+       (<span class="kr">λ</span> <span class="nv">D</span> : und_ob_hor_cat C → und_ob_hor_cat C → UU,
+        ∏ x₁ x₂ y₁ y₂ : und_ob_hor_cat C,
+        D x₁ y₁
+        → D x₂ y₂
+          → (und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat
+            → (und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat → UU)
+         (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y))))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk2b"><span class="nb">intros</span> x y z a b c f1 f2 f3 f4 f5 f6 f7 α β.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x, y, z, a, b, c</var><span class="hyp-type"><b>: </b><span>und_ob_hor_cat C</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+ (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+  (<span class="nv">g</span> : y -v-&gt; w)
+  (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+  (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+  sqq h f g k)) x a</span></span></span><br><span><var>f2</var><span class="hyp-type"><b>: </b><span>((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+ (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+  (<span class="nv">g</span> : y -v-&gt; w)
+  (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+  (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+  sqq h f g k)) y b</span></span></span><br><span><var>f3</var><span class="hyp-type"><b>: </b><span>((<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : und_ob_hor_cat C, x -v-&gt; y),,
+ (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : und_ob_hor_cat C) (<span class="nv">f</span> : x -v-&gt; z)
+  (<span class="nv">g</span> : y -v-&gt; w)
+  (<span class="nv">h</span> : (und_ob_hor_cat C ⟦ x, y ⟧)%cat)
+  (<span class="nv">k</span> : (und_ob_hor_cat C ⟦ z, w ⟧)%cat),
+  sqq h f g k)) z c</span></span></span><br><span><var>f4</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ x, y ⟧)%cat</span></span></span><br><span><var>f5</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ y, z ⟧)%cat</span></span></span><br><span><var>f6</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ a, b ⟧)%cat</span></span></span><br><span><var>f7</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ b, c ⟧)%cat</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f1 --&gt;[ f4 ][ f6] f2</span></span></span><br><span><var>β</var><span class="hyp-type"><b>: </b><span>f2 --&gt;[ f5 ][ f7] f3</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f1 --&gt;[ (f4 · f5)%cat ][ (f6 · f7)%cat] f3</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (α ·sqh β).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk2c"><span class="kn">Definition</span> <span class="nf">doublecategory_to_twosided_disp_cat</span>
+           (<span class="nv">C</span> : doublecategory)
+  : twosided_disp_cat (und_ob_hor_cat C) (und_ob_hor_cat C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat (und_ob_hor_cat C)
+  (und_ob_hor_cat C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk2d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat (und_ob_hor_cat C)
+  (und_ob_hor_cat C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk2e">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat_data (und_ob_hor_cat C)
+  (und_ob_hor_cat C)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecatsunfolded-v-chk2f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><label class="goal-separator" for="doublecatsunfolded-v-chk2f"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">D</span> : twosided_disp_cat_data (und_ob_hor_cat C)
+         (und_ob_hor_cat C),
+ twosided_disp_cat_axioms D) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk30">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">twosided_disp_cat_data (und_ob_hor_cat C)
+  (und_ob_hor_cat C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (doublecategory_to_twosided_disp_cat_data C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk31">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">D</span> : twosided_disp_cat_data (und_ob_hor_cat C)
+         (und_ob_hor_cat C),
+ twosided_disp_cat_axioms D)
+  (doublecategory_to_twosided_disp_cat_data C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk32"><span class="kp">repeat</span> <span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id_two_disp_left_law
+  (doublecategory_to_twosided_disp_cat_data C)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecatsunfolded-v-chk33" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><label class="goal-separator" for="doublecatsunfolded-v-chk33"><hr></label><div class="goal-conclusion">id_two_disp_right_law
+  (doublecategory_to_twosided_disp_cat_data C)</div></blockquote><input class="alectryon-extra-goal-toggle" id="doublecatsunfolded-v-chk34" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><label class="goal-separator" for="doublecatsunfolded-v-chk34"><hr></label><div class="goal-conclusion">assoc_two_disp_law
+  (doublecategory_to_twosided_disp_cat_data C)</div></blockquote><input class="alectryon-extra-goal-toggle" id="doublecatsunfolded-v-chk35" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><label class="goal-separator" for="doublecatsunfolded-v-chk35"><hr></label><div class="goal-conclusion">isaset_disp_mor_law
+  (doublecategory_to_twosided_disp_cat_data C)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk36">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id_two_disp_left_law
+  (doublecategory_to_twosided_disp_cat_data C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk37"><span class="nb">intros</span> x0 x1 y0 y1 f0 f1 g0 g1 α.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x0, x1, y0, y1</var><span class="hyp-type"><b>: </b><span>und_ob_hor_cat C</span></span></span><br><span><var>f0</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x0 y0</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x1 y1</span></span></span><br><span><var>g0</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ x0, x1 ⟧)%cat</span></span></span><br><span><var>g1</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ y0, y1 ⟧)%cat</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f0 --&gt;[ g0 ][ g1] f1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id_two_disp f0 ;;<span class="mi">2</span> α = trb₂ α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (id_hor_sq_left α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk38">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id_two_disp_right_law
+  (doublecategory_to_twosided_disp_cat_data C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk39"><span class="nb">intros</span> x0 x1 y0 y1 f0 f1 g0 g1 α.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x0, x1, y0, y1</var><span class="hyp-type"><b>: </b><span>und_ob_hor_cat C</span></span></span><br><span><var>f0</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x0 y0</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x1 y1</span></span></span><br><span><var>g0</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ x0, x1 ⟧)%cat</span></span></span><br><span><var>g1</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ y0, y1 ⟧)%cat</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f0 --&gt;[ g0 ][ g1] f1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">α ;;<span class="mi">2</span> id_two_disp f1 = trb₂ α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (id_hor_sq_right α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk3a">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">assoc_two_disp_law
+  (doublecategory_to_twosided_disp_cat_data C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk3b"><span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? α β γ.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x₁, x₂, x₃, x₄, y₁, y₂, y₃, y₄</var><span class="hyp-type"><b>: </b><span>und_ob_hor_cat C</span></span></span><br><span><var>xy₁</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x₁ y₁</span></span></span><br><span><var>xy₂</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x₂ y₂</span></span></span><br><span><var>xy₃</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x₃ y₃</span></span></span><br><span><var>xy₄</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x₄ y₄</span></span></span><br><span><var>f₁</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ x₁, x₂ ⟧)%cat</span></span></span><br><span><var>f₂</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ x₂, x₃ ⟧)%cat</span></span></span><br><span><var>f₃</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ x₃, x₄ ⟧)%cat</span></span></span><br><span><var>g₁</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ y₁, y₂ ⟧)%cat</span></span></span><br><span><var>g₂</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ y₂, y₃ ⟧)%cat</span></span></span><br><span><var>g₃</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ y₃, y₄ ⟧)%cat</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>xy₁ --&gt;[ f₁ ][ g₁] xy₂</span></span></span><br><span><var>β</var><span class="hyp-type"><b>: </b><span>xy₂ --&gt;[ f₂ ][ g₂] xy₃</span></span></span><br><span><var>γ</var><span class="hyp-type"><b>: </b><span>xy₃ --&gt;[ f₃ ][ g₃] xy₄</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">α ;;<span class="mi">2</span> (β ;;<span class="mi">2</span> γ) = trb₂ (α ;;<span class="mi">2</span> β ;;<span class="mi">2</span> γ)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (assoc_sq_hor α β γ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk3c">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset_disp_mor_law
+  (doublecategory_to_twosided_disp_cat_data C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecatsunfolded-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecatsunfolded-v-chk3d"><span class="nb">intros</span> x0 x1 y0 y1 f0 g0 f1 g1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>doublecategory</span></span></span><br><span><var>x0, x1, y0, y1</var><span class="hyp-type"><b>: </b><span>und_ob_hor_cat C</span></span></span><br><span><var>f0</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x0 y0</span></span></span><br><span><var>g0</var><span class="hyp-type"><b>: </b><span>doublecategory_to_twosided_disp_cat_data C x1 y1</span></span></span><br><span><var>f1</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ x0, x1 ⟧)%cat</span></span></span><br><span><var>g1</var><span class="hyp-type"><b>: </b><span>(und_ob_hor_cat C ⟦ y0, y1 ⟧)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (f0 --&gt;[ f1 ][ g1] g0)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (get_has_sq_hor_homsets f0 g0 f1 g1).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Double_Categories</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Univalent_Double_Categories</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* We now use the underlying categories to define double univalence, as the univalence of the underlying two categories *)</span>
+
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_double_univalent</span>
+             (<span class="nv">C</span> : doublecategory)
+    := (is_univalent (und_ob_hor_cat C)
+        ×
+        is_univalent_twosided_disp_cat (doublecategory_to_twosided_disp_cat C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">univalent_doublecategory</span> : UU := ∑ (C: doublecategory), is_double_univalent C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">univalent_doublecategory_to_doublecategory</span> (C: univalent_doublecategory) := pr1 C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Univalent_Double_Categories</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

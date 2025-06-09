@@ -1,0 +1,768 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>EqualizerTypes.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Comprehension categories with equalizers types</span>
+
+<span class="sd"> In this file, we define the displayed bicategory of equalizer types for comprehension</span>
+<span class="sd"> categories, and we show that this displayed bicategory is univalent. Note that equalizer types</span>
+<span class="sd"> can be phrased solely using the fibration of types, and for that reason, we define a displayed</span>
+<span class="sd"> bicategory of the bicategory of categories with a terminal object and a cleaving. Since we</span>
+<span class="sd"> are using univalent categories, we define this displayed bicategory as a subbicategory,</span>
+<span class="sd"> because equalizers are unique up to isomorphism. We then lift this displayed bicategory to</span>
+<span class="sd"> comprehension categories and to full comprehension categories.</span>
+
+<span class="sd"> It is important to notice equalizer types are a bit different from extensional identity</span>
+<span class="sd"> types. Whereas identity types are defined via a left adjoint of the diagonal substitution,</span>
+<span class="sd"> equalizer types are defined by stating that every fiber has equalizers that are preserved</span>
+<span class="sd"> under substitution. However, if a comprehension category has fiberwise equalizers, then one</span>
+<span class="sd"> can construct identity types. For the converse, one needs dependent sums (Theorem 10.5.10 in</span>
+<span class="sd"> &#39;Categorical Logic and Type Theory&#39; by Jacobs).</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - &#39;Categorical Logic and Type Theory&#39; by Jacobs</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The displayed bicategory of equalizer types</span>
+<span class="sd"> 2. The univalence of this displayed bicategory</span>
+<span class="sd"> 3. Equalizer types for comprehension categories</span>
+<span class="sd"> 4. Equalizer types for full comprehension categories</span>
+<span class="sd"> 5. Adjoint equivalences</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The displayed bicategory of equalizer types *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk1"><span class="kn">Definition</span> <span class="nf">disp_bicat_of_equalizer_type</span>
+  : disp_bicat bicat_cat_with_terminal_cleaving.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_cat_with_terminal_cleaving</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_cat_with_terminal_cleaving</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk3">use disp_subbicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_cat_with_terminal_cleaving → UU</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : bicat_cat_with_terminal_cleaving,
+<span class="nl">?P₀</span> x
+→ <span class="nl">?P₀</span> y
+  → bicat_cat_with_terminal_cleaving ⟦ x, y ⟧ → UU</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : bicat_cat_with_terminal_cleaving) (Px : <span class="nl">?P₀</span> x),
+<span class="nl">?P₁</span> x x Px Px (id₁ x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : bicat_cat_with_terminal_cleaving)
+(Px : <span class="nl">?P₀</span> x) (Py : <span class="nl">?P₀</span> y) (Pz : <span class="nl">?P₀</span> z)
+(f : bicat_cat_with_terminal_cleaving ⟦ x, y ⟧)
+(g : bicat_cat_with_terminal_cleaving ⟦ y, z ⟧),
+<span class="nl">?P₁</span> x y Px Py f
+→ <span class="nl">?P₁</span> y z Py Pz g → <span class="nl">?P₁</span> x z Px Pz (f · g)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_cat_with_terminal_cleaving → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> (<span class="nv">C</span> : cat_with_terminal_cleaving),
+           fiberwise_equalizers (cleaving_of_types C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : bicat_cat_with_terminal_cleaving,
+(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+ fiberwise_equalizers (cleaving_of_types C)) x
+→ (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+   fiberwise_equalizers (cleaving_of_types C)) y
+  → bicat_cat_with_terminal_cleaving ⟦ x, y ⟧ → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+             (<span class="nv">T₁</span> : fiberwise_equalizers (cleaving_of_types C₁))
+             (<span class="nv">T₂</span> : fiberwise_equalizers (cleaving_of_types C₂))
+             (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+           ∏ (x : C₁),
+           preserves_equalizer
+             (fiber_functor (comp_cat_type_functor F) x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : bicat_cat_with_terminal_cleaving)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) x),
+(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x0 : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x0)) x x
+  Px Px (id₁ x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">intros</span> C EC x y₁ y₂ e f g h p Fp H ;
+       <span class="bp">exact</span> H).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : bicat_cat_with_terminal_cleaving)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) x)
+(Py : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) y)
+(Pz : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) z)
+(f : bicat_cat_with_terminal_cleaving ⟦ x, y ⟧)
+(g : bicat_cat_with_terminal_cleaving ⟦ y, z ⟧),
+(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x0 : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x0)) x y
+  Px Py f
+→ (<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+   (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+   (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+   (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+   ∏ x0 : C₁,
+   preserves_equalizer
+     (fiber_functor (comp_cat_type_functor F) x0)) y z
+    Py Pz g
+  → (<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+     (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+     (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+     (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+     ∏ x0 : C₁,
+     preserves_equalizer
+       (fiber_functor (comp_cat_type_functor F) x0)) x
+      z Px Pz (f · g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk8"><span class="nb">intros</span> C₁ C₂ C₃ EC₁ EC₂ EC₃ F G HF HG x y₁ y₂ e f g h p Fp H.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>EC₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₁</span></span></span><br><span><var>EC₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₂</span></span></span><br><span><var>EC₃</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₃</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₂, C₃ ⟧</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₁ C₂ EC₁ EC₂ F</span></span></span><br><span><var>HG</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₂ C₃ EC₂ EC₃ G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>Fp</var><span class="hyp-type"><b>: </b><span># (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) f =
+# (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isEqualizer
+  (# (fiber_functor (comp_cat_type_functor (F · G)) x)
+     f)
+  (# (fiber_functor (comp_cat_type_functor (F · G)) x)
+     g)
+  (# (fiber_functor (comp_cat_type_functor (F · G)) x)
+     h) Fp</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk9">use (isEqualizer_eq
+           _ _ _ _ _
+           (composition_preserves_equalizer (HF x) (HG _) _ _ _ _ _ _ _ _ H)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>EC₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₁</span></span></span><br><span><var>EC₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₂</span></span></span><br><span><var>EC₃</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₃</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₂, C₃ ⟧</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₁ C₂ EC₁ EC₂ F</span></span></span><br><span><var>HG</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₂ C₃ EC₂ EC₃ G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>Fp</var><span class="hyp-type"><b>: </b><span># (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) f =
+# (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) h
+· # (fiber_functor (comp_cat_type_functor F) x
+     ∙ fiber_functor (comp_cat_type_functor G) (F x))
+    f =
+# (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) h
+· # (fiber_functor (comp_cat_type_functor F) x
+     ∙ fiber_functor (comp_cat_type_functor G) (F x))
+    g</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="equalizertypes-v-chka" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>EC₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₁</span></span></span><br><span><var>EC₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₂</span></span></span><br><span><var>EC₃</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₃</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₂, C₃ ⟧</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₁ C₂ EC₁ EC₂ F</span></span></span><br><span><var>HG</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₂ C₃ EC₂ EC₃ G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>Fp</var><span class="hyp-type"><b>: </b><span># (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) f =
+# (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><label class="goal-separator" for="equalizertypes-v-chka"><hr></label><div class="goal-conclusion"># (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) f =
+# (fiber_functor (comp_cat_type_functor (F · G)) x) f</div></blockquote><input class="alectryon-extra-goal-toggle" id="equalizertypes-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>EC₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₁</span></span></span><br><span><var>EC₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₂</span></span></span><br><span><var>EC₃</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₃</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₂, C₃ ⟧</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₁ C₂ EC₁ EC₂ F</span></span></span><br><span><var>HG</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₂ C₃ EC₂ EC₃ G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>Fp</var><span class="hyp-type"><b>: </b><span># (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) f =
+# (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><label class="goal-separator" for="equalizertypes-v-chkb"><hr></label><div class="goal-conclusion"># (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) g =
+# (fiber_functor (comp_cat_type_functor (F · G)) x) g</div></blockquote><input class="alectryon-extra-goal-toggle" id="equalizertypes-v-chkc" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>EC₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₁</span></span></span><br><span><var>EC₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₂</span></span></span><br><span><var>EC₃</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₃</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₂, C₃ ⟧</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₁ C₂ EC₁ EC₂ F</span></span></span><br><span><var>HG</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₂ C₃ EC₂ EC₃ G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>Fp</var><span class="hyp-type"><b>: </b><span># (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) f =
+# (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><label class="goal-separator" for="equalizertypes-v-chkc"><hr></label><div class="goal-conclusion"># (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) h =
+# (fiber_functor (comp_cat_type_functor (F · G)) x) h</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chkd">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>EC₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₁</span></span></span><br><span><var>EC₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₂</span></span></span><br><span><var>EC₃</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₃</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₂, C₃ ⟧</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₁ C₂ EC₁ EC₂ F</span></span></span><br><span><var>HG</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₂ C₃ EC₂ EC₃ G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>Fp</var><span class="hyp-type"><b>: </b><span># (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) f =
+# (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) h
+· # (fiber_functor (comp_cat_type_functor F) x
+     ∙ fiber_functor (comp_cat_type_functor G) (F x))
+    f =
+# (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) h
+· # (fiber_functor (comp_cat_type_functor F) x
+     ∙ fiber_functor (comp_cat_type_functor G) (F x))
+    g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker ;
+         <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker ;
+         <span class="nb">rewrite</span> !disp_functor_transportf ;
+         <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker ;
+         <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker ;
+         <span class="nb">rewrite</span> &lt;- !disp_functor_comp_var ;
+         <span class="nb">rewrite</span> !disp_functor_transportf ;
+         <span class="nb">rewrite</span> !transport_f_f ;
+         <span class="nb">pose</span> (maponpaths (transportb _ (id_right _)) p) <span class="kr">as</span> p&#39; ;
+         <span class="nb">cbn</span> <span class="kr">in</span> p&#39; ;
+         <span class="nb">rewrite</span> !transportbfinv <span class="kr">in</span> p&#39; ;
+         <span class="nb">rewrite</span> p&#39; ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chke">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>EC₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₁</span></span></span><br><span><var>EC₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₂</span></span></span><br><span><var>EC₃</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₃</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₂, C₃ ⟧</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₁ C₂ EC₁ EC₂ F</span></span></span><br><span><var>HG</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₂ C₃ EC₂ EC₃ G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>Fp</var><span class="hyp-type"><b>: </b><span># (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) f =
+# (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) f =
+# (fiber_functor (comp_cat_type_functor (F · G)) x) f</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !disp_functor_transportf ;
+         <span class="nb">rewrite</span> !transport_f_f ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chkf">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>EC₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₁</span></span></span><br><span><var>EC₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₂</span></span></span><br><span><var>EC₃</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₃</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₂, C₃ ⟧</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₁ C₂ EC₁ EC₂ F</span></span></span><br><span><var>HG</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₂ C₃ EC₂ EC₃ G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>Fp</var><span class="hyp-type"><b>: </b><span># (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) f =
+# (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) g =
+# (fiber_functor (comp_cat_type_functor (F · G)) x) g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !disp_functor_transportf ;
+         <span class="nb">rewrite</span> !transport_f_f ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk10">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂, C₃</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>EC₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₁</span></span></span><br><span><var>EC₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₂</span></span></span><br><span><var>EC₃</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving, fiberwise_equalizers (cleaving_of_types C))
+C₃</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₂, C₃ ⟧</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₁ C₂ EC₁ EC₂ F</span></span></span><br><span><var>HG</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+ (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+ (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+ ∏ x : C₁,
+ preserves_equalizer
+   (fiber_functor (comp_cat_type_functor F) x))
+  C₂ C₃ EC₂ EC₃ G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br><span><var>y₁, y₂, e</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}]</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>(Univalence.disp_cat_of_disp_univalent_cat
+   (disp_cat_of_types C₁))[{x}] ⟦ e, y₁ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>h · f = h · g</span></span></span><br><span><var>Fp</var><span class="hyp-type"><b>: </b><span># (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) f =
+# (fiber_functor (comp_cat_type_functor (F · G))
+     x) h
+· # (fiber_functor
+       (comp_cat_type_functor (F · G)) x) g</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>isEqualizer f g h p</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (fiber_functor (comp_cat_type_functor F) x
+   ∙ fiber_functor (comp_cat_type_functor G) (F x)) h =
+# (fiber_functor (comp_cat_type_functor (F · G)) x) h</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !disp_functor_transportf ;
+         <span class="nb">rewrite</span> !transport_f_f ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. The univalence of this displayed bicategory *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk11"><span class="kn">Definition</span> <span class="nf">univalent_2_1_disp_bicat_of_equalizer_type</span>
+  : disp_univalent_2_1 disp_bicat_of_equalizer_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk12"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk13">use disp_subbicat_univalent_2_1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : bicat_cat_with_terminal_cleaving)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) x)
+(Py : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) y)
+(f : bicat_cat_with_terminal_cleaving ⟦ x, y ⟧),
+isaprop
+  ((<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+    (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+    ∏ x0 : C₁,
+    preserves_equalizer
+      (fiber_functor (comp_cat_type_functor F) x0)) x
+     y Px Py f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk14"><span class="nb">intros</span> C₁ C₂ T₁ T₂ f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+ fiberwise_equalizers (cleaving_of_types C)) C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+ fiberwise_equalizers (cleaving_of_types C)) C₂</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  ((<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+    (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+    ∏ x : C₁,
+    preserves_equalizer
+      (fiber_functor (comp_cat_type_functor F) x)) C₁
+     C₂ T₁ T₂ f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk15">use impred ; <span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+ fiberwise_equalizers (cleaving_of_types C)) C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+ fiberwise_equalizers (cleaving_of_types C)) C₂</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t</span> : C₁,
+    preserves_equalizer
+      (fiber_functor (comp_cat_type_functor f) t)) t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_preserves_equalizer.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk16"><span class="kn">Definition</span> <span class="nf">univalent_2_0_disp_bicat_of_equalizer_type</span>
+  : disp_univalent_2_0 disp_bicat_of_equalizer_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk17"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk18">use disp_subbicat_univalent_2_0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 bicat_cat_with_terminal_cleaving</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : bicat_cat_with_terminal_cleaving,
+isaprop
+  ((<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+    fiberwise_equalizers (cleaving_of_types C)) x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : bicat_cat_with_terminal_cleaving)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) x)
+(Py : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) y)
+(f : bicat_cat_with_terminal_cleaving ⟦ x, y ⟧),
+isaprop
+  ((<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+    (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+    ∏ x0 : C₁,
+    preserves_equalizer
+      (fiber_functor (comp_cat_type_functor F) x0)) x
+     y Px Py f)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk19">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 bicat_cat_with_terminal_cleaving</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> is_univalent_2_bicat_cat_with_terminal_cleaving.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk1a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : bicat_cat_with_terminal_cleaving,
+isaprop
+  ((<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+    fiberwise_equalizers (cleaving_of_types C)) x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk1b"><span class="nb">intro</span> C.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  ((<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+    fiberwise_equalizers (cleaving_of_types C)) C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_fiberwise_equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk1c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : bicat_cat_with_terminal_cleaving)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) x)
+(Py : (<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+       fiberwise_equalizers (cleaving_of_types C)) y)
+(f : bicat_cat_with_terminal_cleaving ⟦ x, y ⟧),
+isaprop
+  ((<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+    (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+    ∏ x0 : C₁,
+    preserves_equalizer
+      (fiber_functor (comp_cat_type_functor F) x0)) x
+     y Px Py f)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk1d"><span class="nb">intros</span> C₁ C₂ T₁ T₂ f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+ fiberwise_equalizers (cleaving_of_types C)) C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+ fiberwise_equalizers (cleaving_of_types C)) C₂</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  ((<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : cat_with_terminal_cleaving)
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₁))
+    (<span class="nv">_</span> : fiberwise_equalizers (cleaving_of_types C₂))
+    (<span class="nv">F</span> : functor_with_terminal_cleaving C₁ C₂),
+    ∏ x : C₁,
+    preserves_equalizer
+      (fiber_functor (comp_cat_type_functor F) x)) C₁
+     C₂ T₁ T₂ f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk1e">use impred ; <span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+ fiberwise_equalizers (cleaving_of_types C)) C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">C</span> : cat_with_terminal_cleaving,
+ fiberwise_equalizers (cleaving_of_types C)) C₂</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bicat_cat_with_terminal_cleaving ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>C₁</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t</span> : C₁,
+    preserves_equalizer
+      (fiber_functor (comp_cat_type_functor f) t)) t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_preserves_equalizer.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk1f"><span class="kn">Definition</span> <span class="nf">univalent_2_disp_bicat_of_equalizer_type</span>
+  : disp_univalent_2 disp_bicat_of_equalizer_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk20"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk21"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_equalizer_type</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_equalizer_type</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk22">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_0_disp_bicat_of_equalizer_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk23">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_equalizer_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk24"><span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_of_equalizer_type</span>
+  : disp_2cells_isaprop disp_bicat_of_equalizer_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk25"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_isaprop_subbicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk26"><span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_disp_bicat_of_equalizer_type</span>
+  : disp_locally_groupoid disp_bicat_of_equalizer_type.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk27"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk28"><span class="nb">apply</span> disp_locally_groupoid_subbicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 bicat_cat_with_terminal_cleaving</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> is_univalent_2_bicat_cat_with_terminal_cleaving.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 3. Equalizer types for comprehension categories *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">disp_bicat_of_equalizer_type_comp_cat</span>
+  : disp_bicat bicat_comp_cat
+  := lift_disp_bicat _ disp_bicat_of_equalizer_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk29"><span class="kn">Definition</span> <span class="nf">univalent_2_1_disp_bicat_of_equalizer_type_comp_cat</span>
+  : disp_univalent_2_1 disp_bicat_of_equalizer_type_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk2a"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk2b">use disp_univalent_2_1_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_equalizer_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk2c"><span class="kn">Definition</span> <span class="nf">univalent_2_0_disp_bicat_of_equalizer_type_comp_cat</span>
+  : disp_univalent_2_0 disp_bicat_of_equalizer_type_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk2d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk2e">use disp_univalent_2_0_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_equalizer_type</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_equalizer_type</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 bicat_cat_with_terminal_cleaving</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_comp_cat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk2f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_0_disp_bicat_of_equalizer_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk30">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_equalizer_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk31">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 bicat_cat_with_terminal_cleaving</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> is_univalent_2_1_bicat_cat_with_terminal_cleaving.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk32">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_univalent_2_1_disp_bicat_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk33"><span class="kn">Definition</span> <span class="nf">univalent_2_disp_bicat_of_equalizer_type_comp_cat</span>
+  : disp_univalent_2 disp_bicat_of_equalizer_type_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2 disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk34"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2 disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk35"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk36">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_0_disp_bicat_of_equalizer_type_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk37">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_equalizer_type_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk38"><span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_of_equalizer_type_comp_cat</span>
+  : disp_2cells_isaprop disp_bicat_of_equalizer_type_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk39"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk3a">use disp_2cells_isaprop_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_of_equalizer_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk3b"><span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_disp_bicat_of_equalizer_type_comp_cat</span>
+  : disp_locally_groupoid disp_bicat_of_equalizer_type_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk3c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk3d">use disp_locally_groupoid_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid disp_bicat_of_equalizer_type</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_locally_groupoid_disp_bicat_of_equalizer_type.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 4. Equalizer types for full comprehension categories *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">disp_bicat_of_equalizer_type_full_comp_cat</span>
+  : disp_bicat bicat_full_comp_cat
+  := lift_disp_bicat _ disp_bicat_of_equalizer_type_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk3e"><span class="kn">Definition</span> <span class="nf">univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat</span>
+  : disp_univalent_2_1 disp_bicat_of_equalizer_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk3f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk40">use disp_univalent_2_1_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_equalizer_type_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk41"><span class="kn">Definition</span> <span class="nf">univalent_2_0_disp_bicat_of_equalizer_type_full_comp_cat</span>
+  : disp_univalent_2_0 disp_bicat_of_equalizer_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk42"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk43">use disp_univalent_2_0_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 bicat_comp_cat</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_full_comp_cat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk44">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_0_disp_bicat_of_equalizer_type_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk45">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_equalizer_type_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk46">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 bicat_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> is_univalent_2_1_bicat_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk47">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 disp_bicat_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_univalent_2_1_disp_bicat_full_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk48"><span class="kn">Definition</span> <span class="nf">univalent_2_disp_bicat_of_equalizer_type_full_comp_cat</span>
+  : disp_univalent_2 disp_bicat_of_equalizer_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk49"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk4a"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk4b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_0_disp_bicat_of_equalizer_type_full_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk4c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk4d"><span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_of_equalizer_type_full_comp_cat</span>
+  : disp_2cells_isaprop disp_bicat_of_equalizer_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk4e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk4f">use disp_2cells_isaprop_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_isaprop
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_of_equalizer_type_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk50"><span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_disp_bicat_of_equalizer_type_full_comp_cat</span>
+  : disp_locally_groupoid disp_bicat_of_equalizer_type_full_comp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk51"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid
+  disp_bicat_of_equalizer_type_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk52">use disp_locally_groupoid_lift_disp_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_locally_groupoid
+  disp_bicat_of_equalizer_type_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_locally_groupoid_disp_bicat_of_equalizer_type_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 5. Adjoint equivalences *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk53"><span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           {<span class="nv">T₁</span> : disp_bicat_of_equalizer_type_full_comp_cat C₁}
+           {<span class="nv">T₂</span> : disp_bicat_of_equalizer_type_full_comp_cat C₂}
+           (<span class="nv">FF</span> : T₁ --&gt;[ F ] T₂)
+  : disp_left_adjoint_equivalence F FF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>full_comp_cat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>adjoint_equivalence C₁ C₂</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[ F] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence F FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk54"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>full_comp_cat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>adjoint_equivalence C₁ C₂</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[ F] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence F FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk55"><span class="nb">revert</span> C₁ C₂ F T₁ T₂ FF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C₁ C₂ : full_comp_cat)
+(F : adjoint_equivalence C₁ C₂)
+(T₁ : disp_bicat_of_equalizer_type_full_comp_cat C₁)
+(T₂ : disp_bicat_of_equalizer_type_full_comp_cat C₂)
+(FF : T₁ --&gt;[ F] T₂),
+disp_left_adjoint_equivalence F FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk56">use J_2_0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_0 bicat_full_comp_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : bicat_full_comp_cat,
+(<span class="kr">λ</span> (<span class="nv">a0</span> <span class="nv">b</span> : bicat_full_comp_cat)
+ (<span class="nv">f</span> : adjoint_equivalence a0 b),
+ ∏
+ (T₁ : disp_bicat_of_equalizer_type_full_comp_cat a0)
+ (T₂ : disp_bicat_of_equalizer_type_full_comp_cat b)
+ (FF : T₁ --&gt;[ f] T₂),
+ disp_left_adjoint_equivalence f FF) a a
+  (internal_adjoint_equivalence_identity a)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk57">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_0 bicat_full_comp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> is_univalent_2_0_bicat_full_comp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk58">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : bicat_full_comp_cat,
+(<span class="kr">λ</span> (<span class="nv">a0</span> <span class="nv">b</span> : bicat_full_comp_cat)
+ (<span class="nv">f</span> : adjoint_equivalence a0 b),
+ ∏
+ (T₁ : disp_bicat_of_equalizer_type_full_comp_cat a0)
+ (T₂ : disp_bicat_of_equalizer_type_full_comp_cat b)
+ (FF : T₁ --&gt;[ f] T₂),
+ disp_left_adjoint_equivalence f FF) a a
+  (internal_adjoint_equivalence_identity a)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk59"><span class="nb">intros</span> C T₁ T₂ FF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat_full_comp_cat</span></span></span><br><span><var>T₁, T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[
+internal_adjoint_equivalence_identity C] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence
+  (internal_adjoint_equivalence_identity C) FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk5a" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk5a">use to_disp_left_adjoint_equivalence_over_id_lift.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat_full_comp_cat</span></span></span><br><span><var>T₁, T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[
+internal_adjoint_equivalence_identity C] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence
+  (internal_adjoint_equivalence_identity (pr1 C)) FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk5b">use to_disp_left_adjoint_equivalence_over_id_lift.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat_full_comp_cat</span></span></span><br><span><var>T₁, T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[
+internal_adjoint_equivalence_identity C] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence
+  (internal_adjoint_equivalence_identity (pr11 C)) FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk5c">use disp_left_adjoint_equivalence_subbicat_alt.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat_full_comp_cat</span></span></span><br><span><var>T₁, T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[
+internal_adjoint_equivalence_identity C] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 bicat_cat_with_terminal_cleaving</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> is_univalent_2_bicat_cat_with_terminal_cleaving.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk5d"><span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">T₁</span> : disp_bicat_of_equalizer_type_full_comp_cat C₁}
+           {<span class="nv">T₂</span> : disp_bicat_of_equalizer_type_full_comp_cat C₂}
+           (<span class="nv">FF</span> : T₁ --&gt;[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>full_comp_cat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>full_comp_cat_functor C₁ C₂</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>left_adjoint_equivalence F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[ F] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence HF FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizertypes-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizertypes-v-chk5e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>full_comp_cat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>full_comp_cat_functor C₁ C₂</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>left_adjoint_equivalence F</span></span></span><br><span><var>T₁</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C₁</span></span></span><br><span><var>T₂</var><span class="hyp-type"><b>: </b><span>disp_bicat_of_equalizer_type_full_comp_cat C₂</span></span></span><br><span><var>FF</var><span class="hyp-type"><b>: </b><span>T₁ --&gt;[ F] T₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence HF FF</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat_help (F ,, HF) FF).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

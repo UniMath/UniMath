@@ -1,0 +1,887 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>BinopCartesianMonoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Binproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.DisplayedCartesianMonoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">BinopCategory</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk1"><span class="kn">Definition</span> <span class="nf">Binop_disp_cat</span> : disp_cat SET.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat SET</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat SET</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk3">use disp_struct.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">SET → UU</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : SET, <span class="nl">?P</span> x → <span class="nl">?P</span> y → SET ⟦ x, y ⟧ → UU</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : SET) (a : <span class="nl">?P</span> x) (b : <span class="nl">?P</span> y)
+(f : SET ⟦ x, y ⟧), isaprop (<span class="nl">?H</span> x y a b f)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : SET) (a : <span class="nl">?P</span> x), <span class="nl">?H</span> x x a a (identity x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : SET) (a : <span class="nl">?P</span> x) (b : <span class="nl">?P</span> y) (c : <span class="nl">?P</span> z)
+(f : SET ⟦ x, y ⟧) (g : SET ⟦ y, z ⟧),
+<span class="nl">?H</span> x y a b f → <span class="nl">?H</span> y z b c g → <span class="nl">?H</span> x z a c (f · g)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">SET → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">X</span>, binop (pr1 X)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : SET,
+(<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) x
+→ (<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) y → SET ⟦ x, y ⟧ → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">f</span>, isbinopfun (X := (X,,m)) (Y := (Y,,n)) f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y : SET) (a : (<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) x)
+(b : (<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) y) (f : SET ⟦ x, y ⟧),
+isaprop
+  ((<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) X)
+    (<span class="nv">n</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) Y)
+    (<span class="nv">f0</span> : SET ⟦ X, Y ⟧), isbinopfun f0) x y a b f)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk7"><span class="nb">intros</span> X Y m n f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) Y</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ X, Y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  ((<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) X)
+    (<span class="nv">n</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) Y)
+    (<span class="nv">f</span> : SET ⟦ X, Y ⟧), isbinopfun f) X Y m n f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isapropisbinopfun.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : SET) (a : (<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) x),
+(<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) X)
+ (<span class="nv">n</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) Y)
+ (<span class="nv">f</span> : SET ⟦ X, Y ⟧), isbinopfun f) x x a a
+  (identity x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk9"><span class="nb">intros</span> X m x1 x2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) X</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>X,, m</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity X (x1 * x2)%multoperation =
+(identity X x1 * identity X x2)%multoperation</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chka">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : SET) (a : (<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) x)
+(b : (<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) y)
+(c : (<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) z) (f : SET ⟦ x, y ⟧)
+(g : SET ⟦ y, z ⟧),
+(<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) X)
+ (<span class="nv">n</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) Y)
+ (<span class="nv">f0</span> : SET ⟦ X, Y ⟧), isbinopfun f0) x y a b f
+→ (<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) X)
+   (<span class="nv">n</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) Y)
+   (<span class="nv">f0</span> : SET ⟦ X, Y ⟧), isbinopfun f0) y z b c g
+  → (<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET)
+     (<span class="nv">m</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) X)
+     (<span class="nv">n</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) Y)
+     (<span class="nv">f0</span> : SET ⟦ X, Y ⟧), isbinopfun f0) x z a c
+      (f · g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chkb"><span class="nb">intros</span> X Y Z m n o f g pf pg.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) Y</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">X</span> : SET, binop (pr1 X)) Z</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ X, Y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Y, Z ⟧</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET)
+ (<span class="nv">m</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) X)
+ (<span class="nv">n</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) Y)
+ (<span class="nv">f</span> : SET ⟦ X, Y ⟧), isbinopfun f) X Y m n f</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET)
+ (<span class="nv">m</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) X)
+ (<span class="nv">n</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) Y)
+ (<span class="nv">f</span> : SET ⟦ X, Y ⟧), isbinopfun f) Y Z n o g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) X)
+ (<span class="nv">n</span> : (<span class="kr">λ</span> <span class="nv">X0</span> : SET, binop (pr1 X0)) Y)
+ (<span class="nv">f</span> : SET ⟦ X, Y ⟧), isbinopfun f) X Z m o (f · g)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chkc"><span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>binop (pr1 X)</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>binop (pr1 Y)</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>binop (pr1 Z)</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>X → Y</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>Y → Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>isbinopfun f</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>isbinopfun g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isbinopfun (<span class="kr">λ</span> <span class="nv">x</span> : X, g (f x))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (isbinopfuncomp (make_binopfun (X := (X,,m)) (Y := (Y,,n)) f pf)
+            (make_binopfun (X := (Y,,n)) (Y := (Z,,o)) g pg)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chkd"><span class="kn">Lemma</span> <span class="nf">Binop_disp_cat_locally_prop</span> : locally_propositional Binop_disp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional Binop_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chke"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional Binop_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> isapropisbinopfun.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">Binop_cat</span> : category := total_category Binop_disp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chkf"><span class="kn">Definition</span> <span class="nf">Binop_dispBinproducts</span> : dispBinProducts Binop_disp_cat BinProductsHSET.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">dispBinProducts Binop_disp_cat BinProductsHSET</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk10"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">dispBinProducts Binop_disp_cat BinProductsHSET</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk11"><span class="nb">intros</span> X Y m n.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">dispBinProduct Binop_disp_cat X Y
+  (BinProductsHSET X Y) m n</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk12">use make_dispBinProduct_locally_prop.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional Binop_disp_cat</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="binopcartesianmonoidal-v-chk13" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><label class="goal-separator" for="binopcartesianmonoidal-v-chk13"><hr></label><div class="goal-conclusion">∑
+pp : Binop_disp_cat
+       (Limits.BinProducts.BinProductObject SET
+          (BinProductsHSET X Y)),
+pp --&gt;[
+Limits.BinProducts.BinProductPr1 SET
+  (BinProductsHSET X Y)] m
+× pp --&gt;[
+  Limits.BinProducts.BinProductPr2 SET
+    (BinProductsHSET X Y)] n</div></blockquote><input class="alectryon-extra-goal-toggle" id="binopcartesianmonoidal-v-chk14" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><label class="goal-separator" for="binopcartesianmonoidal-v-chk14"><hr></label><div class="goal-conclusion">∏ (a : SET) (f : SET ⟦ a, X ⟧) (g : SET ⟦ a, Y ⟧)
+(aa : Binop_disp_cat a),
+aa --&gt;[ f] m
+→ aa --&gt;[ g] n
+  → aa --&gt;[
+    Limits.BinProducts.BinProductArrow SET
+      (BinProductsHSET X Y) f g] pr1 <span class="nl">?dBP_data</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk15">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional Binop_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> Binop_disp_cat_locally_prop.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk16">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑
+pp : Binop_disp_cat
+       (Limits.BinProducts.BinProductObject SET
+          (BinProductsHSET X Y)),
+pp --&gt;[
+Limits.BinProducts.BinProductPr1 SET
+  (BinProductsHSET X Y)] m
+× pp --&gt;[
+  Limits.BinProducts.BinProductPr2 SET
+    (BinProductsHSET X Y)] n</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk17">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Binop_disp_cat
+  (Limits.BinProducts.BinProductObject SET
+     (BinProductsHSET X Y))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="binopcartesianmonoidal-v-chk18" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><label class="goal-separator" for="binopcartesianmonoidal-v-chk18"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">pp</span> : Binop_disp_cat
+          (Limits.BinProducts.BinProductObject SET
+             (BinProductsHSET X Y)),
+ pp --&gt;[
+ Limits.BinProducts.BinProductPr1 SET
+   (BinProductsHSET X Y)] m
+ × pp --&gt;[
+   Limits.BinProducts.BinProductPr2 SET
+     (BinProductsHSET X Y)] n) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk19">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Binop_disp_cat
+  (Limits.BinProducts.BinProductObject SET
+     (BinProductsHSET X Y))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk1a"><span class="nb">intros</span> xy1 xy2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>pr1 (Limits.BinProducts.BinProductObject SET (BinProductsHSET X Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (Limits.BinProducts.BinProductObject SET
+     (BinProductsHSET X Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk1b">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">pp</span> : Binop_disp_cat
+          (Limits.BinProducts.BinProductObject SET
+             (BinProductsHSET X Y)),
+ pp --&gt;[
+ Limits.BinProducts.BinProductPr1 SET
+   (BinProductsHSET X Y)] m
+ × pp --&gt;[
+   Limits.BinProducts.BinProductPr2 SET
+     (BinProductsHSET X Y)] n)
+  ((<span class="kr">λ</span> <span class="nv">xy1</span>
+       <span class="nv">xy2</span> : pr1
+               (Limits.BinProducts.BinProductObject
+                  SET (BinProductsHSET X Y)),
+    m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))
+   :
+   Binop_disp_cat
+     (Limits.BinProducts.BinProductObject SET
+        (BinProductsHSET X Y)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">split</span>; <span class="nb">intros</span> x1 x2; <span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk1c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (a : SET) (f : SET ⟦ a, X ⟧) (g : SET ⟦ a, Y ⟧)
+(aa : Binop_disp_cat a),
+aa --&gt;[ f] m
+→ aa --&gt;[ g] n
+  → aa --&gt;[
+    Limits.BinProducts.BinProductArrow SET
+      (BinProductsHSET X Y) f g] pr1
+                                   (((<span class="kr">λ</span> <span class="nv">xy1</span>
+                                         <span class="nv">xy2</span> : pr1
+                                                 (Limits.BinProducts.BinProductObject
+                                                 SET
+                                                 (BinProductsHSET
+                                                 X Y)),
+                                      m (pr1 xy1)
+                                        (pr1 xy2),,
+                                      n (pr2 xy1)
+                                        (pr2 xy2))
+                                     :
+                                     Binop_disp_cat
+                                       (Limits.BinProducts.BinProductObject
+                                          SET
+                                          (BinProductsHSET
+                                             X Y))),,
+                                    ((<span class="kr">λ</span> <span class="nv">x1</span>
+                                         <span class="nv">x2</span> : Limits.BinProducts.BinProductObject
+                                                SET
+                                                (BinProductsHSET
+                                                 X Y),,
+                                              (<span class="kr">λ</span> <span class="nv">xy1</span>
+                                                 <span class="nv">xy2</span> : 
+                                                 pr1
+                                                 (Limits.BinProducts.BinProductObject
+                                                 SET
+                                                 (BinProductsHSET
+                                                 X Y)),
+                                               m
+                                                 (pr1
+                                                 xy1)
+                                                 (pr1
+                                                 xy2),,
+                                               n
+                                                 (pr2
+                                                 xy1)
+                                                 (pr2
+                                                 xy2)),
+                                      idpath
+                                        (Limits.BinProducts.BinProductPr1
+                                           SET
+                                           (BinProductsHSET
+                                              X Y) x1 *
+                                         Limits.BinProducts.BinProductPr1
+                                           SET
+                                           (BinProductsHSET
+                                              X Y) x2)%multoperation)
+                                     :
+                                     (<span class="kr">λ</span> <span class="nv">xy1</span>
+                                         <span class="nv">xy2</span> : pr1
+                                                 (Limits.BinProducts.BinProductObject
+                                                 SET
+                                                 (BinProductsHSET
+                                                 X Y)),
+                                      m (pr1 xy1)
+                                        (pr1 xy2),,
+                                      n (pr2 xy1)
+                                        (pr2 xy2)) --&gt;[
+                                     Limits.BinProducts.BinProductPr1
+                                       SET
+                                       (BinProductsHSET
+                                          X Y)] m),,
+                                    ((<span class="kr">λ</span> <span class="nv">x1</span>
+                                         <span class="nv">x2</span> : Limits.BinProducts.BinProductObject
+                                                SET
+                                                (BinProductsHSET
+                                                 X Y),,
+                                              (<span class="kr">λ</span> <span class="nv">xy1</span>
+                                                 <span class="nv">xy2</span> : 
+                                                 pr1
+                                                 (Limits.BinProducts.BinProductObject
+                                                 SET
+                                                 (BinProductsHSET
+                                                 X Y)),
+                                               m
+                                                 (pr1
+                                                 xy1)
+                                                 (pr1
+                                                 xy2),,
+                                               n
+                                                 (pr2
+                                                 xy1)
+                                                 (pr2
+                                                 xy2)),
+                                      idpath
+                                        (Limits.BinProducts.BinProductPr2
+                                           SET
+                                           (BinProductsHSET
+                                              X Y) x1 *
+                                         Limits.BinProducts.BinProductPr2
+                                           SET
+                                           (BinProductsHSET
+                                              X Y) x2)%multoperation)
+                                     :
+                                     (<span class="kr">λ</span> <span class="nv">xy1</span>
+                                         <span class="nv">xy2</span> : pr1
+                                                 (Limits.BinProducts.BinProductObject
+                                                 SET
+                                                 (BinProductsHSET
+                                                 X Y)),
+                                      m (pr1 xy1)
+                                        (pr1 xy2),,
+                                      n (pr2 xy1)
+                                        (pr2 xy2)) --&gt;[
+                                     Limits.BinProducts.BinProductPr2
+                                       SET
+                                       (BinProductsHSET
+                                          X Y)] n))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk1d"><span class="nb">intros</span> Z f g o pf pg.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, X ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, Y ⟧</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>o --&gt;[ f] m</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>o --&gt;[ g] n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">o --&gt;[
+Limits.BinProducts.BinProductArrow SET
+  (BinProductsHSET X Y) f g] pr1
+                               (((<span class="kr">λ</span> <span class="nv">xy1</span>
+                                     <span class="nv">xy2</span> : pr1
+                                             (Limits.BinProducts.BinProductObject
+                                                SET
+                                                (BinProductsHSET
+                                                 X Y)),
+                                  m (pr1 xy1)
+                                    (pr1 xy2),,
+                                  n (pr2 xy1)
+                                    (pr2 xy2))
+                                 :
+                                 Binop_disp_cat
+                                   (Limits.BinProducts.BinProductObject
+                                      SET
+                                      (BinProductsHSET
+                                         X Y))),,
+                                ((<span class="kr">λ</span> <span class="nv">x1</span>
+                                     <span class="nv">x2</span> : Limits.BinProducts.BinProductObject
+                                            SET
+                                            (BinProductsHSET
+                                               X Y),,
+                                          (<span class="kr">λ</span> <span class="nv">xy1</span>
+                                              <span class="nv">xy2</span> : 
+                                              pr1
+                                                (Limits.BinProducts.BinProductObject
+                                                 SET
+                                                 (BinProductsHSET
+                                                 X Y)),
+                                           m (pr1 xy1)
+                                             (pr1 xy2),,
+                                           n (pr2 xy1)
+                                             (pr2 xy2)),
+                                  idpath
+                                    (Limits.BinProducts.BinProductPr1
+                                       SET
+                                       (BinProductsHSET
+                                          X Y) x1 *
+                                     Limits.BinProducts.BinProductPr1
+                                       SET
+                                       (BinProductsHSET
+                                          X Y) x2)%multoperation)
+                                 :
+                                 (<span class="kr">λ</span> <span class="nv">xy1</span>
+                                     <span class="nv">xy2</span> : pr1
+                                             (Limits.BinProducts.BinProductObject
+                                                SET
+                                                (BinProductsHSET
+                                                 X Y)),
+                                  m (pr1 xy1)
+                                    (pr1 xy2),,
+                                  n (pr2 xy1)
+                                    (pr2 xy2)) --&gt;[
+                                 Limits.BinProducts.BinProductPr1
+                                   SET
+                                   (BinProductsHSET X
+                                      Y)] m),,
+                                ((<span class="kr">λ</span> <span class="nv">x1</span>
+                                     <span class="nv">x2</span> : Limits.BinProducts.BinProductObject
+                                            SET
+                                            (BinProductsHSET
+                                               X Y),,
+                                          (<span class="kr">λ</span> <span class="nv">xy1</span>
+                                              <span class="nv">xy2</span> : 
+                                              pr1
+                                                (Limits.BinProducts.BinProductObject
+                                                 SET
+                                                 (BinProductsHSET
+                                                 X Y)),
+                                           m (pr1 xy1)
+                                             (pr1 xy2),,
+                                           n (pr2 xy1)
+                                             (pr2 xy2)),
+                                  idpath
+                                    (Limits.BinProducts.BinProductPr2
+                                       SET
+                                       (BinProductsHSET
+                                          X Y) x1 *
+                                     Limits.BinProducts.BinProductPr2
+                                       SET
+                                       (BinProductsHSET
+                                          X Y) x2)%multoperation)
+                                 :
+                                 (<span class="kr">λ</span> <span class="nv">xy1</span>
+                                     <span class="nv">xy2</span> : pr1
+                                             (Limits.BinProducts.BinProductObject
+                                                SET
+                                                (BinProductsHSET
+                                                 X Y)),
+                                  m (pr1 xy1)
+                                    (pr1 xy2),,
+                                  n (pr2 xy1)
+                                    (pr2 xy2)) --&gt;[
+                                 Limits.BinProducts.BinProductPr2
+                                   SET
+                                   (BinProductsHSET X
+                                      Y)] n))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk1e"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, X ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, Y ⟧</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>o --&gt;[ f] m</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>o --&gt;[ g] n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isbinopfun (prodtofuntoprod (f,, g))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk1f"><span class="nb">intros</span> x1 x2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, X ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, Y ⟧</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>o --&gt;[ f] m</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>o --&gt;[ g] n</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>Z,, o</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">prodtofuntoprod (f,, g) (x1 * x2)%multoperation =
+(prodtofuntoprod (f,, g) x1 *
+ prodtofuntoprod (f,, g) x2)%multoperation</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk20"><span class="nb">apply</span> dirprodeq; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, X ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, Y ⟧</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>o --&gt;[ f] m</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>o --&gt;[ g] n</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>Z,, o</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f (o x1 x2) = m (f x1) (f x2)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="binopcartesianmonoidal-v-chk21" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, X ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, Y ⟧</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>o --&gt;[ f] m</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>o --&gt;[ g] n</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>Z,, o</span></span></span><br></div><label class="goal-separator" for="binopcartesianmonoidal-v-chk21"><hr></label><div class="goal-conclusion">g (o x1 x2) = n (g x1) (g x2)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk22">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, X ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, Y ⟧</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>o --&gt;[ f] m</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>o --&gt;[ g] n</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>Z,, o</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f (o x1 x2) = m (f x1) (f x2)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk23"><span class="nb">rewrite</span> pf.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, X ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, Y ⟧</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>o --&gt;[ f] m</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>o --&gt;[ g] n</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>Z,, o</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(f x1 * f x2)%multoperation = m (f x1) (f x2)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk24">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, X ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, Y ⟧</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>o --&gt;[ f] m</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>o --&gt;[ g] n</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>Z,, o</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">g (o x1 x2) = n (g x1) (g x2)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk25"><span class="nb">rewrite</span> pg.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Y</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, X ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ Z, Y ⟧</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>Binop_disp_cat Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>o --&gt;[ f] m</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>o --&gt;[ g] n</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>Z,, o</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(g x1 * g x2)%multoperation = n (g x1) (g x2)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk26"><span class="kn">Definition</span> <span class="nf">Binop_dispTerminal</span> : dispTerminal Binop_disp_cat TerminalHSET.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">dispTerminal Binop_disp_cat TerminalHSET</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk27"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">dispTerminal Binop_disp_cat TerminalHSET</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk28">use make_dispTerminal_locally_prop.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional Binop_disp_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Binop_disp_cat
+  (Limits.Terminal.TerminalObject TerminalHSET)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (a : SET) (aa : Binop_disp_cat a),
+aa --&gt;[
+Limits.Terminal.TerminalArrow TerminalHSET a] <span class="nl">?dTO_data</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk29">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional Binop_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> Binop_disp_cat_locally_prop.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk2a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Binop_disp_cat
+  (Limits.Terminal.TerminalObject TerminalHSET)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">fun</span> <span class="nv">_</span> <span class="nv">_</span> =&gt; tt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk2b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (a : SET) (aa : Binop_disp_cat a),
+aa --&gt;[
+Limits.Terminal.TerminalArrow TerminalHSET a] (<span class="kr">λ</span> <span class="nv">_</span>
+                                                 <span class="nv">_</span> : 
+                                                 pr1
+                                                 (Limits.Terminal.TerminalObject
+                                                 TerminalHSET),
+                                               tt)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk2c"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (a : hSet) (aa : binop (pr1 a)),
+isbinopfun (<span class="kr">λ</span> <span class="nv">_</span> : a, tt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk2d"><span class="nb">intros</span> X m.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>binop (pr1 X)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isbinopfun (<span class="kr">λ</span> <span class="nv">_</span> : X, tt)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk2e"><span class="nb">intros</span> ? ?.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>binop (pr1 X)</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>X,, m</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">tt = (tt * tt)%multoperation</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk2f"><span class="kn">Definition</span> <span class="nf">Binop_cat_cart_monoidal_via_cartesian</span> : monoidal Binop_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">monoidal Binop_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk30"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">monoidal Binop_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk31">use cartesian_monoidal.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Limits.BinProducts.BinProducts Binop_cat</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Limits.Terminal.Terminal Binop_cat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk32">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Limits.BinProducts.BinProducts Binop_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (total_category_Binproducts _ BinProductsHSET Binop_dispBinproducts).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk33">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Limits.Terminal.Terminal Binop_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (total_category_Terminal _ TerminalHSET Binop_dispTerminal).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">BinopCategory</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">BinopIsCartesianMonoidal</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Notation</span> <span class="nf">BO</span> := Binop_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Notation</span> <span class="nf">DBO</span> := Binop_disp_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">BO_cart_disp_monoidal</span> : disp_monoidal DBO SET_cartesian_monoidal
+    := displayedcartesianmonoidalcat BinProductsHSET TerminalHSET Binop_disp_cat Binop_dispBinproducts Binop_dispTerminal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp"> </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">ElementaryProof</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk34"><span class="kn">Definition</span> <span class="nf">BO_disp_tensor_data</span> : disp_bifunctor_data SET_cartesian_monoidal DBO DBO DBO.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bifunctor_data SET_cartesian_monoidal DBO DBO DBO</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk35"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bifunctor_data SET_cartesian_monoidal DBO DBO DBO</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk36"><span class="kp">repeat</span> (use tpair).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : SET,
+DBO x
+→ DBO y
+  → DBO
+      (bifunctor_on_objects SET_cartesian_monoidal x y)</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y1 y2 : SET) (g : SET ⟦ y1, y2 ⟧) (xx : DBO x)
+(yy1 : DBO y1) (yy2 : DBO y2),
+yy1 --&gt;[ g] yy2
+→ <span class="nl">?pr1</span> x y1 xx yy1 --&gt;[
+  leftwhiskering_on_morphisms SET_cartesian_monoidal x
+    y1 y2 g] <span class="nl">?pr1</span> x y2 xx yy2</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : ∏ (x y1 y2 : SET) (g : SET ⟦ y1, y2 ⟧)
+       (xx : DBO x) (yy1 : DBO y1) (yy2 : DBO y2),
+       yy1 --&gt;[ g] yy2
+       → <span class="nl">?pr1</span> x y1 xx yy1 --&gt;[
+         leftwhiskering_on_morphisms
+           SET_cartesian_monoidal x y1 y2 g] <span class="nl">?pr1</span> x y2
+                                               xx yy2,
+ ∏ (x1 x2 y : SET) (f : SET ⟦ x1, x2 ⟧) (xx1 : DBO x1)
+ (xx2 : DBO x2) (yy : DBO y),
+ xx1 --&gt;[ f] xx2
+ → <span class="nl">?pr1</span> x1 y xx1 yy --&gt;[
+   rightwhiskering_on_morphisms SET_cartesian_monoidal
+     y x1 x2 f] <span class="nl">?pr1</span> x2 y xx2 yy) <span class="nl">?pr10</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk37">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : SET,
+DBO x
+→ DBO y
+  → DBO
+      (bifunctor_on_objects SET_cartesian_monoidal x y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk38"><span class="nb">intros</span> X Y m n.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>DBO Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">DBO (bifunctor_on_objects SET_cartesian_monoidal X Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk39"><span class="nb">intros</span> xy1 xy2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>DBO Y</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>pr1 (bifunctor_on_objects SET_cartesian_monoidal X Y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (bifunctor_on_objects SET_cartesian_monoidal X Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk3a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y1 y2 : SET) (g : SET ⟦ y1, y2 ⟧) (xx : DBO x)
+(yy1 : DBO y1) (yy2 : DBO y2),
+yy1 --&gt;[ g] yy2
+→ (<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : DBO X) (<span class="nv">n</span> : DBO Y),
+   (<span class="kr">λ</span> <span class="nv">xy1</span>
+       <span class="nv">xy2</span> : pr1
+               (bifunctor_on_objects
+                  SET_cartesian_monoidal X Y),
+    m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))
+   :
+   DBO
+     (bifunctor_on_objects SET_cartesian_monoidal X Y))
+    x y1 xx yy1 --&gt;[
+  leftwhiskering_on_morphisms SET_cartesian_monoidal x
+    y1 y2 g] (<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : DBO X) (<span class="nv">n</span> : DBO Y),
+              (<span class="kr">λ</span> <span class="nv">xy1</span>
+                  <span class="nv">xy2</span> : pr1
+                          (bifunctor_on_objects
+                             SET_cartesian_monoidal X
+                             Y),
+               m (pr1 xy1) (pr1 xy2),,
+               n (pr2 xy1) (pr2 xy2))
+              :
+              DBO
+                (bifunctor_on_objects
+                   SET_cartesian_monoidal X Y)) x y2
+               xx yy2</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk3b"><span class="nb">intros</span> X Y Z f m n o pf.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Y, Z ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>DBO Y</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>DBO Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>n --&gt;[ f] o</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : DBO X) (<span class="nv">n</span> : DBO Y),
+ (<span class="kr">λ</span> <span class="nv">xy1</span>
+     <span class="nv">xy2</span> : pr1
+             (bifunctor_on_objects
+                SET_cartesian_monoidal X Y),
+  m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))
+ :
+ DBO (bifunctor_on_objects SET_cartesian_monoidal X Y))
+  X Y m n --&gt;[
+leftwhiskering_on_morphisms SET_cartesian_monoidal X Y
+  Z f] (<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : DBO X) (<span class="nv">n</span> : DBO Y),
+        (<span class="kr">λ</span> <span class="nv">xy1</span>
+            <span class="nv">xy2</span> : pr1
+                    (bifunctor_on_objects
+                       SET_cartesian_monoidal X Y),
+         m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))
+        :
+        DBO
+          (bifunctor_on_objects SET_cartesian_monoidal
+             X Y)) X Z m o</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk3c"><span class="nb">intros</span> x1 x2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Y, Z ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>DBO Y</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>DBO Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>n --&gt;[ f] o</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y,,
+(<span class="kr">λ</span> <span class="nv">xy1</span>
+    <span class="nv">xy2</span> : pr1
+            (bifunctor_on_objects
+               SET_cartesian_monoidal X Y),
+ m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">leftwhiskering_on_morphisms SET_cartesian_monoidal X Y
+  Z f (x1 * x2)%multoperation =
+(leftwhiskering_on_morphisms SET_cartesian_monoidal X
+   Y Z f x1 *
+ leftwhiskering_on_morphisms SET_cartesian_monoidal X
+   Y Z f x2)%multoperation</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk3d">use total2_paths_b.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Y, Z ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>DBO Y</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>DBO Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>n --&gt;[ f] o</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y,,
+(<span class="kr">λ</span> <span class="nv">xy1</span>
+    <span class="nv">xy2</span> : pr1
+            (bifunctor_on_objects
+               SET_cartesian_monoidal X Y),
+ m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (leftwhiskering_on_morphisms SET_cartesian_monoidal
+     X Y Z f (x1 * x2)%multoperation) =
+pr1
+  (leftwhiskering_on_morphisms SET_cartesian_monoidal
+     X Y Z f x1 *
+   leftwhiskering_on_morphisms SET_cartesian_monoidal
+     X Y Z f x2)%multoperation</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="binopcartesianmonoidal-v-chk3e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Y, Z ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>DBO Y</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>DBO Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>n --&gt;[ f] o</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y,,
+(<span class="kr">λ</span> <span class="nv">xy1</span>
+    <span class="nv">xy2</span> : pr1
+            (bifunctor_on_objects
+               SET_cartesian_monoidal X Y),
+ m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))</span></span></span><br></div><label class="goal-separator" for="binopcartesianmonoidal-v-chk3e"><hr></label><div class="goal-conclusion">pr2
+  (leftwhiskering_on_morphisms SET_cartesian_monoidal
+     X Y Z f (x1 * x2)%multoperation) =
+transportb (<span class="kr">λ</span> <span class="nv">_</span> : X, Z) <span class="nl">?p</span>
+  (pr2
+     (leftwhiskering_on_morphisms
+        SET_cartesian_monoidal X Y Z f x1 *
+      leftwhiskering_on_morphisms
+        SET_cartesian_monoidal X Y Z f x2)%multoperation)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk3f">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Y, Z ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>DBO Y</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>DBO Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>n --&gt;[ f] o</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y,,
+(<span class="kr">λ</span> <span class="nv">xy1</span>
+    <span class="nv">xy2</span> : pr1
+            (bifunctor_on_objects
+               SET_cartesian_monoidal X Y),
+ m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (leftwhiskering_on_morphisms SET_cartesian_monoidal
+     X Y Z f (x1 * x2)%multoperation) =
+pr1
+  (leftwhiskering_on_morphisms SET_cartesian_monoidal
+     X Y Z f x1 *
+   leftwhiskering_on_morphisms SET_cartesian_monoidal
+     X Y Z f x2)%multoperation</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk40">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ Y, Z ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>DBO Y</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>DBO Z</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>n --&gt;[ f] o</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y,,
+(<span class="kr">λ</span> <span class="nv">xy1</span>
+    <span class="nv">xy2</span> : pr1
+            (bifunctor_on_objects
+               SET_cartesian_monoidal X Y),
+ m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2
+  (leftwhiskering_on_morphisms SET_cartesian_monoidal
+     X Y Z f (x1 * x2)%multoperation) =
+transportb (<span class="kr">λ</span> <span class="nv">_</span> : X, Z)
+  (idpath
+     (pr1
+        (leftwhiskering_on_morphisms
+           SET_cartesian_monoidal X Y Z f x1 *
+         leftwhiskering_on_morphisms
+           SET_cartesian_monoidal X Y Z f x2)%multoperation))
+  (pr2
+     (leftwhiskering_on_morphisms
+        SET_cartesian_monoidal X Y Z f x1 *
+      leftwhiskering_on_morphisms
+        SET_cartesian_monoidal X Y Z f x2)%multoperation)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk41"><span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>Y → Z</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>binop (pr1 X)</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>binop (pr1 Y)</span></span></span><br><span><var>o</var><span class="hyp-type"><b>: </b><span>binop (pr1 Z)</span></span></span><br><span><var>pf</var><span class="hyp-type"><b>: </b><span>isbinopfun f</span></span></span><br><span><var>x1, x2</var><span class="hyp-type"><b>: </b><span>X × Y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f (n (pr2 x1) (pr2 x2)) = o (f (pr2 x1)) (f (pr2 x2))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> pf.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk42">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : ∏ (x y1 y2 : SET) (g : SET ⟦ y1, y2 ⟧)
+       (xx : DBO x) (yy1 : DBO y1) (yy2 : DBO y2),
+       yy1 --&gt;[ g] yy2
+       → (<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : DBO X) (<span class="nv">n</span> : DBO Y),
+          (<span class="kr">λ</span> <span class="nv">xy1</span>
+              <span class="nv">xy2</span> : pr1
+                      (bifunctor_on_objects
+                         SET_cartesian_monoidal X Y),
+           m (pr1 xy1) (pr1 xy2),,
+           n (pr2 xy1) (pr2 xy2))
+          :
+          DBO
+            (bifunctor_on_objects
+               SET_cartesian_monoidal X Y)) x y1 xx
+           yy1 --&gt;[
+         leftwhiskering_on_morphisms
+           SET_cartesian_monoidal x y1 y2 g] (<span class="kr">λ</span> (<span class="nv">X</span>
+                                                 <span class="nv">Y</span> : SET)
+                                              (<span class="nv">m</span> : 
+                                               DBO X)
+                                              (<span class="nv">n</span> : 
+                                               DBO Y),
+                                              (<span class="kr">λ</span> <span class="nv">xy1</span>
+                                                 <span class="nv">xy2</span> : 
+                                                 pr1
+                                                 (bifunctor_on_objects
+                                                 SET_cartesian_monoidal
+                                                 X Y),
+                                               m
+                                                 (pr1
+                                                 xy1)
+                                                 (pr1
+                                                 xy2),,
+                                               n
+                                                 (pr2
+                                                 xy1)
+                                                 (pr2
+                                                 xy2))
+                                              :
+                                              DBO
+                                                (bifunctor_on_objects
+                                                 SET_cartesian_monoidal
+                                                 X Y))
+                                               x y2 xx
+                                               yy2,
+ ∏ (x1 x2 y : SET) (f : SET ⟦ x1, x2 ⟧) (xx1 : DBO x1)
+ (xx2 : DBO x2) (yy : DBO y),
+ xx1 --&gt;[ f] xx2
+ → (<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : DBO X) (<span class="nv">n</span> : DBO Y),
+    (<span class="kr">λ</span> <span class="nv">xy1</span>
+        <span class="nv">xy2</span> : pr1
+                (bifunctor_on_objects
+                   SET_cartesian_monoidal X Y),
+     m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2))
+    :
+    DBO
+      (bifunctor_on_objects SET_cartesian_monoidal X Y))
+     x1 y xx1 yy --&gt;[
+   rightwhiskering_on_morphisms SET_cartesian_monoidal
+     y x1 x2 f] (<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : SET) (<span class="nv">m</span> : DBO X)
+                 (<span class="nv">n</span> : DBO Y),
+                 (<span class="kr">λ</span> <span class="nv">xy1</span>
+                     <span class="nv">xy2</span> : pr1
+                             (bifunctor_on_objects
+                                SET_cartesian_monoidal
+                                X Y),
+                  m (pr1 xy1) (pr1 xy2),,
+                  n (pr2 xy1) (pr2 xy2))
+                 :
+                 DBO
+                   (bifunctor_on_objects
+                      SET_cartesian_monoidal X Y)) x2
+                  y xx2 yy)
+  (<span class="kr">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : SET) (<span class="nv">f</span> : SET ⟦ Y, Z ⟧) (<span class="nv">m</span> : DBO X)
+   (<span class="nv">n</span> : DBO Y) (<span class="nv">o</span> : DBO Z) (<span class="nv">pf</span> : n --&gt;[ f] o),
+   (<span class="kr">λ</span> <span class="nv">x1</span>
+       <span class="nv">x2</span> : bifunctor_on_objects
+              SET_cartesian_monoidal X Y,,
+            (<span class="kr">λ</span> <span class="nv">xy1</span>
+                <span class="nv">xy2</span> : pr1
+                        (bifunctor_on_objects
+                           SET_cartesian_monoidal X Y),
+             m (pr1 xy1) (pr1 xy2),,
+             n (pr2 xy1) (pr2 xy2)),
+    total2_paths_b
+      (idpath
+         (pr1
+            (leftwhiskering_on_morphisms
+               SET_cartesian_monoidal X Y Z f x1 *
+             leftwhiskering_on_morphisms
+               SET_cartesian_monoidal X Y Z f x2)%multoperation))
+      (pf (pr2 x1) (pr2 x2)
+       :
+       pr2
+         (leftwhiskering_on_morphisms
+            SET_cartesian_monoidal X Y Z f
+            (x1 * x2)%multoperation) =
+       transportb (<span class="kr">λ</span> <span class="nv">_</span> : X, Z)
+         (idpath
+            (pr1
+               (leftwhiskering_on_morphisms
+                  SET_cartesian_monoidal X Y Z f x1 *
+                leftwhiskering_on_morphisms
+                  SET_cartesian_monoidal X Y Z f x2)%multoperation))
+         (pr2
+            (leftwhiskering_on_morphisms
+               SET_cartesian_monoidal X Y Z f x1 *
+             leftwhiskering_on_morphisms
+               SET_cartesian_monoidal X Y Z f x2)%multoperation)))
+   :
+   (<span class="kr">λ</span> (<span class="nv">X0</span> <span class="nv">Y0</span> : SET) (<span class="nv">m0</span> : DBO X0) (<span class="nv">n0</span> : DBO Y0),
+    (<span class="kr">λ</span> <span class="nv">xy1</span>
+        <span class="nv">xy2</span> : pr1
+                (bifunctor_on_objects
+                   SET_cartesian_monoidal X0 Y0),
+     m0 (pr1 xy1) (pr1 xy2),, n0 (pr2 xy1) (pr2 xy2))
+    :
+    DBO
+      (bifunctor_on_objects SET_cartesian_monoidal X0
+         Y0)) X Y m n --&gt;[
+   leftwhiskering_on_morphisms SET_cartesian_monoidal
+     X Y Z f] (<span class="kr">λ</span> (<span class="nv">X0</span> <span class="nv">Y0</span> : SET) (<span class="nv">m0</span> : DBO X0)
+               (<span class="nv">n0</span> : DBO Y0),
+               (<span class="kr">λ</span> <span class="nv">xy1</span>
+                   <span class="nv">xy2</span> : pr1
+                           (bifunctor_on_objects
+                              SET_cartesian_monoidal
+                              X0 Y0),
+                m0 (pr1 xy1) (pr1 xy2),,
+                n0 (pr2 xy1) (pr2 xy2))
+               :
+               DBO
+                 (bifunctor_on_objects
+                    SET_cartesian_monoidal X0 Y0)) X Z
+                m o)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk43"><span class="nb">intros</span> X Y1 Y2 g m m1 m2 pg.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y1, Y2</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ X, Y1 ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>m1</var><span class="hyp-type"><b>: </b><span>DBO Y1</span></span></span><br><span><var>m2</var><span class="hyp-type"><b>: </b><span>DBO Y2</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>m --&gt;[ g] m1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">xy1</span>
+    <span class="nv">xy2</span> : pr1
+            (bifunctor_on_objects
+               SET_cartesian_monoidal X Y2),
+ m (pr1 xy1) (pr1 xy2),, m2 (pr2 xy1) (pr2 xy2)) --&gt;[
+rightwhiskering_on_morphisms SET_cartesian_monoidal Y2
+  X Y1 g] (<span class="kr">λ</span> <span class="nv">xy1</span>
+              <span class="nv">xy2</span> : pr1
+                      (bifunctor_on_objects
+                         SET_cartesian_monoidal Y1 Y2),
+           m1 (pr1 xy1) (pr1 xy2),,
+           m2 (pr2 xy1) (pr2 xy2))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk44"><span class="nb">intros</span> xy1 xy2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y1, Y2</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ X, Y1 ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>m1</var><span class="hyp-type"><b>: </b><span>DBO Y1</span></span></span><br><span><var>m2</var><span class="hyp-type"><b>: </b><span>DBO Y2</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>m --&gt;[ g] m1</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y2,,
+(<span class="kr">λ</span> <span class="nv">xy1</span> <span class="nv">xy2</span> : pr1 (bifunctor_on_objects SET_cartesian_monoidal X Y2),
+m (pr1 xy1) (pr1 xy2),, m2 (pr2 xy1) (pr2 xy2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rightwhiskering_on_morphisms SET_cartesian_monoidal Y2
+  X Y1 g (xy1 * xy2)%multoperation =
+(rightwhiskering_on_morphisms SET_cartesian_monoidal
+   Y2 X Y1 g xy1 *
+ rightwhiskering_on_morphisms SET_cartesian_monoidal
+   Y2 X Y1 g xy2)%multoperation</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk45">use total2_paths_b.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y1, Y2</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ X, Y1 ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>m1</var><span class="hyp-type"><b>: </b><span>DBO Y1</span></span></span><br><span><var>m2</var><span class="hyp-type"><b>: </b><span>DBO Y2</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>m --&gt;[ g] m1</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y2,,
+(<span class="kr">λ</span> <span class="nv">xy1</span> <span class="nv">xy2</span> : pr1 (bifunctor_on_objects SET_cartesian_monoidal X Y2),
+m (pr1 xy1) (pr1 xy2),, m2 (pr2 xy1) (pr2 xy2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (rightwhiskering_on_morphisms SET_cartesian_monoidal
+     Y2 X Y1 g (xy1 * xy2)%multoperation) =
+pr1
+  (rightwhiskering_on_morphisms SET_cartesian_monoidal
+     Y2 X Y1 g xy1 *
+   rightwhiskering_on_morphisms SET_cartesian_monoidal
+     Y2 X Y1 g xy2)%multoperation</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="binopcartesianmonoidal-v-chk46" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y1, Y2</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ X, Y1 ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>m1</var><span class="hyp-type"><b>: </b><span>DBO Y1</span></span></span><br><span><var>m2</var><span class="hyp-type"><b>: </b><span>DBO Y2</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>m --&gt;[ g] m1</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y2,,
+(<span class="kr">λ</span> <span class="nv">xy1</span> <span class="nv">xy2</span> : pr1 (bifunctor_on_objects SET_cartesian_monoidal X Y2),
+m (pr1 xy1) (pr1 xy2),, m2 (pr2 xy1) (pr2 xy2))</span></span></span><br></div><label class="goal-separator" for="binopcartesianmonoidal-v-chk46"><hr></label><div class="goal-conclusion">pr2
+  (rightwhiskering_on_morphisms SET_cartesian_monoidal
+     Y2 X Y1 g (xy1 * xy2)%multoperation) =
+transportb (<span class="kr">λ</span> <span class="nv">_</span> : Y1, Y2) <span class="nl">?p</span>
+  (pr2
+     (rightwhiskering_on_morphisms
+        SET_cartesian_monoidal Y2 X Y1 g xy1 *
+      rightwhiskering_on_morphisms
+        SET_cartesian_monoidal Y2 X Y1 g xy2)%multoperation)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk47">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y1, Y2</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ X, Y1 ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>m1</var><span class="hyp-type"><b>: </b><span>DBO Y1</span></span></span><br><span><var>m2</var><span class="hyp-type"><b>: </b><span>DBO Y2</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>m --&gt;[ g] m1</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y2,,
+(<span class="kr">λ</span> <span class="nv">xy1</span> <span class="nv">xy2</span> : pr1 (bifunctor_on_objects SET_cartesian_monoidal X Y2),
+m (pr1 xy1) (pr1 xy2),, m2 (pr2 xy1) (pr2 xy2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (rightwhiskering_on_morphisms SET_cartesian_monoidal
+     Y2 X Y1 g (xy1 * xy2)%multoperation) =
+pr1
+  (rightwhiskering_on_morphisms SET_cartesian_monoidal
+     Y2 X Y1 g xy1 *
+   rightwhiskering_on_morphisms SET_cartesian_monoidal
+     Y2 X Y1 g xy2)%multoperation</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">cbn</span> <span class="kr">in</span> *; <span class="nb">apply</span> pg.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk48">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y1, Y2</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>SET ⟦ X, Y1 ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>DBO X</span></span></span><br><span><var>m1</var><span class="hyp-type"><b>: </b><span>DBO Y1</span></span></span><br><span><var>m2</var><span class="hyp-type"><b>: </b><span>DBO Y2</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>m --&gt;[ g] m1</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>bifunctor_on_objects SET_cartesian_monoidal X Y2,,
+(<span class="kr">λ</span> <span class="nv">xy1</span> <span class="nv">xy2</span> : pr1 (bifunctor_on_objects SET_cartesian_monoidal X Y2),
+m (pr1 xy1) (pr1 xy2),, m2 (pr2 xy1) (pr2 xy2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr2
+  (rightwhiskering_on_morphisms SET_cartesian_monoidal
+     Y2 X Y1 g (xy1 * xy2)%multoperation) =
+transportb (<span class="kr">λ</span> <span class="nv">_</span> : Y1, Y2)
+  (pg (pr1 xy1) (pr1 xy2)
+   :
+   pr1
+     (rightwhiskering_on_morphisms
+        SET_cartesian_monoidal Y2 X Y1 g
+        (xy1 * xy2)%multoperation) =
+   pr1
+     (rightwhiskering_on_morphisms
+        SET_cartesian_monoidal Y2 X Y1 g xy1 *
+      rightwhiskering_on_morphisms
+        SET_cartesian_monoidal Y2 X Y1 g xy2)%multoperation)
+  (pr2
+     (rightwhiskering_on_morphisms
+        SET_cartesian_monoidal Y2 X Y1 g xy1 *
+      rightwhiskering_on_morphisms
+        SET_cartesian_monoidal Y2 X Y1 g xy2)%multoperation)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk49"><span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y1, Y2</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>X → Y1</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>binop (pr1 X)</span></span></span><br><span><var>m1</var><span class="hyp-type"><b>: </b><span>binop (pr1 Y1)</span></span></span><br><span><var>m2</var><span class="hyp-type"><b>: </b><span>binop (pr1 Y2)</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>isbinopfun g</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>X × Y2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m2 (pr2 xy1) (pr2 xy2) =
+transportb (<span class="kr">λ</span> <span class="nv">_</span> : Y1, Y2) (pg (pr1 xy1) (pr1 xy2))
+  (m2 (pr2 xy1) (pr2 xy2))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk4a"><span class="nb">unfold</span> transportb.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y1, Y2</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>X → Y1</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>binop (pr1 X)</span></span></span><br><span><var>m1</var><span class="hyp-type"><b>: </b><span>binop (pr1 Y1)</span></span></span><br><span><var>m2</var><span class="hyp-type"><b>: </b><span>binop (pr1 Y2)</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>isbinopfun g</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>X × Y2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m2 (pr2 xy1) (pr2 xy2) =
+transportf (<span class="kr">λ</span> <span class="nv">_</span> : Y1, Y2) (! pg (pr1 xy1) (pr1 xy2))
+  (m2 (pr2 xy1) (pr2 xy2))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk4b"><span class="nb">rewrite</span> transportf_const.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X, Y1, Y2</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>X → Y1</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>binop (pr1 X)</span></span></span><br><span><var>m1</var><span class="hyp-type"><b>: </b><span>binop (pr1 Y1)</span></span></span><br><span><var>m2</var><span class="hyp-type"><b>: </b><span>binop (pr1 Y2)</span></span></span><br><span><var>pg</var><span class="hyp-type"><b>: </b><span>isbinopfun g</span></span></span><br><span><var>xy1, xy2</var><span class="hyp-type"><b>: </b><span>X × Y2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m2 (pr2 xy1) (pr2 xy2) =
+idfun Y2 (m2 (pr2 xy1) (pr2 xy2))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk4c"><span class="kn">Definition</span> <span class="nf">BO_disp_tensor</span> : disp_tensor DBO SET_cartesian_monoidal.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_tensor DBO SET_cartesian_monoidal</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk4d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_tensor DBO SET_cartesian_monoidal</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk4e">use make_disp_bifunctor_locally_prop.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional DBO</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bifunctor_data SET_cartesian_monoidal DBO DBO DBO</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk4f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional DBO</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> Binop_disp_cat_locally_prop.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk50">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bifunctor_data SET_cartesian_monoidal DBO DBO DBO</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> BO_disp_tensor_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk51"><span class="kn">Definition</span> <span class="nf">BO_cart_disp_monoidal_data</span> : disp_monoidal_data DBO SET_cartesian_monoidal.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_monoidal_data DBO SET_cartesian_monoidal</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk52"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_monoidal_data DBO SET_cartesian_monoidal</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk53">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_tensor DBO SET_cartesian_monoidal</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">DT</span> : disp_tensor DBO SET_cartesian_monoidal,
+ ∑ i : DBO (monoidal_unit SET_cartesian_monoidal),
+ disp_leftunitor_data DT i
+ × disp_leftunitorinv_data DT i
+   × disp_rightunitor_data DT i
+     × disp_rightunitorinv_data DT i
+       × disp_associator_data DT
+         × disp_associatorinv_data DT) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk54">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_tensor DBO SET_cartesian_monoidal</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> BO_disp_tensor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk55">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">DT</span> : disp_tensor DBO SET_cartesian_monoidal,
+ ∑ i : DBO (monoidal_unit SET_cartesian_monoidal),
+ disp_leftunitor_data DT i
+ × disp_leftunitorinv_data DT i
+   × disp_rightunitor_data DT i
+     × disp_rightunitorinv_data DT i
+       × disp_associator_data DT
+         × disp_associatorinv_data DT) BO_disp_tensor</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk56">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">DBO (monoidal_unit SET_cartesian_monoidal)</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">i</span> : DBO (monoidal_unit SET_cartesian_monoidal),
+ disp_leftunitor_data BO_disp_tensor i
+ × disp_leftunitorinv_data BO_disp_tensor i
+   × disp_rightunitor_data BO_disp_tensor i
+     × disp_rightunitorinv_data BO_disp_tensor i
+       × disp_associator_data BO_disp_tensor
+         × disp_associatorinv_data BO_disp_tensor)
+  <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk57">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">DBO (monoidal_unit SET_cartesian_monoidal)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intros</span> t1 t2 ; <span class="nb">induction</span> t1 ; <span class="nb">induction</span> t2 ; <span class="bp">exact</span> tt.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk58">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">i</span> : DBO (monoidal_unit SET_cartesian_monoidal),
+ disp_leftunitor_data BO_disp_tensor i
+ × disp_leftunitorinv_data BO_disp_tensor i
+   × disp_rightunitor_data BO_disp_tensor i
+     × disp_rightunitorinv_data BO_disp_tensor i
+       × disp_associator_data BO_disp_tensor
+         × disp_associatorinv_data BO_disp_tensor)
+  ((<span class="kr">λ</span> <span class="nv">t1</span>
+       <span class="nv">t2</span> : pr1 (monoidal_unit SET_cartesian_monoidal),
+    unit_rect
+      (<span class="kr">λ</span> <span class="nv">_</span> : unit,
+       pr1 (monoidal_unit SET_cartesian_monoidal))
+      (unit_rect
+         (<span class="kr">λ</span> <span class="nv">_</span> : unit,
+          pr1 (monoidal_unit SET_cartesian_monoidal))
+         tt t2) t1)
+   :
+   DBO (monoidal_unit SET_cartesian_monoidal))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">repeat</span> <span class="nb">split</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk59"><span class="kn">Definition</span> <span class="nf">BO_cart_disp_monoidal_elementary</span> : disp_monoidal DBO SET_cartesian_monoidal.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_monoidal DBO SET_cartesian_monoidal</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk5a" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk5a"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_monoidal DBO SET_cartesian_monoidal</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk5b">use make_disp_monoidal_locally_prop.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional DBO</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_monoidal_data DBO SET_cartesian_monoidal</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk5c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_propositional DBO</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> Binop_disp_cat_locally_prop.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk5d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_monoidal_data DBO SET_cartesian_monoidal</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> BO_cart_disp_monoidal_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp"> </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">ElementaryProof</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">Binop_cat_cart_monoidal</span> : monoidal Binop_cat
+    := total_monoidal BO_cart_disp_monoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk5e"><span class="kn">Lemma</span> <span class="nf">Forgetful_BO_to_set_preserves_unit_strictly</span>
+    : preserves_unit_strictly (projection_preserves_unit BO_cart_disp_monoidal).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_unit_strictly
+  (projection_preserves_unit BO_cart_disp_monoidal)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk5f" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk5f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_unit_strictly
+  (projection_preserves_unit BO_cart_disp_monoidal)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> projection_preservesunit_strictly.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk60" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk60"><span class="kn">Lemma</span> <span class="nf">Forgetful_ptset_to_set_preserves_tensor_strictly</span>
+    : preserves_tensor_strictly (projection_preserves_tensordata BO_cart_disp_monoidal).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_tensor_strictly
+  (projection_preserves_tensordata
+     BO_cart_disp_monoidal)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binopcartesianmonoidal-v-chk61" style="display: none" type="checkbox"><label class="alectryon-input" for="binopcartesianmonoidal-v-chk61"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_tensor_strictly
+  (projection_preserves_tensordata
+     BO_cart_disp_monoidal)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> projection_preservestensor_strictly.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">BinopIsCartesianMonoidal</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

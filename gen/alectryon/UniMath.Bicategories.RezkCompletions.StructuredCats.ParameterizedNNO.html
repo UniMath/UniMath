@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>ParameterizedNNO.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="c">(*</span>
+<span class="c">Lifting of Rezk completions to categories with a parameterized NNO.</span>
+
+<span class="c">In this file, we show how the Rezk completion for finitely complete categories lifts to those equipped with a parameterized natural numbers object.</span>
+
+<span class="c">Contents.</span>
+<span class="c">1. The lifted biadjoint [disp_bicat_parameterized_NNO_has_Rezk_completion]</span>
+<span class="c">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Terminal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.PNNO.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.UniversalArrow.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.ParameterizedNNO.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.RezkCompletions.StructuredCats.FiniteLimits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesNNOAdmitRezkCompletions</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">LUR</span> : left_universal_arrow univ_cats_to_cats)
+    (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (pr12 LUR C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk1"><span class="kn">Lemma</span> <span class="nf">disp_bicat_parameterized_NNO_has_RC</span>
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_parameterized_NNO.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_parameterized_NNO</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_parameterized_NNO</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk3">use make_cat_with_struct_has_RC_from_sigma ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  FiniteLimits.disp_bicat_limits</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="parameterizednno-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="parameterizednno-v-chk4"><hr></label><div class="goal-conclusion">∏ (C1 C2 : category) 
+(H : is_univalent C2) 
+(F : C1 ⟶ C2) (F_weq : is_weak_equiv F)
+(d : (∑ _ : Limits.Terminal.Terminal C1, unit)
+     × (∑ _ : Limits.BinProducts.BinProducts C1, unit)
+       × (∑ _ : Limits.Pullbacks.Pullbacks C1, unit)
+         × (∑ _ : Limits.Equalizers.Equalizers C1,
+            unit)),
+(∑ _ : parameterized_NNO (pr11 d) (pr112 d), unit)
+→ ∑
+  _ : parameterized_NNO
+        (pr11 (cat_with_struct_has_RC_transport_weak_equiv
+                 η_weak_equiv
+                 FiniteLimits.disp_bicat_limits 
+                 <span class="nl">?Goal</span> H F_weq d))
+        (pr112 (cat_with_struct_has_RC_transport_weak_equiv
+                  η_weak_equiv
+                  FiniteLimits.disp_bicat_limits 
+                  <span class="nl">?Goal</span> H F_weq d)), unit</div></blockquote><input class="alectryon-extra-goal-toggle" id="parameterizednno-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="parameterizednno-v-chk5"><hr></label><div class="goal-conclusion">∏ (C : category)
+(d : (∑ _ : Limits.Terminal.Terminal C, unit)
+     × (∑ _ : Limits.BinProducts.BinProducts C, unit)
+       × (∑ _ : Limits.Pullbacks.Pullbacks C, unit)
+         × (∑ _ : Limits.Equalizers.Equalizers C, unit))
+(e : ∑ _ : parameterized_NNO (pr11 d) (pr112 d), unit),
+∑ _ : unit,
+preserves_parameterized_NNO 
+  (pr1 e)
+  (pr1
+     (<span class="nl">?Goal0</span> C (pr1 (pr1 LUR C)) 
+        (pr2 (pr1 LUR C)) 
+        ((pr12 LUR) C) 
+        (η_weak_equiv C) d e)) 
+  ((pr12 LUR) C)
+  (pr21 (cat_with_struct_has_RC_weak_equiv_preserves_struct
+           η_weak_equiv FiniteLimits.disp_bicat_limits
+           <span class="nl">?Goal</span> d))</div></blockquote><input class="alectryon-extra-goal-toggle" id="parameterizednno-v-chk6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="parameterizednno-v-chk6"><hr></label><div class="goal-conclusion">∏ (C1 : category) (C2 C3 : univalent_category)
+(F : C1 ⟶ C3) (G : C1 ⟶ C2) 
+(H : C2 ⟶ C3) (n : nat_z_iso (G ∙ H) F)
+(d1 : (∑ _ : Limits.Terminal.Terminal C1, unit)
+      × (∑ _ : Limits.BinProducts.BinProducts C1, unit)
+        × (∑ _ : Limits.Pullbacks.Pullbacks C1, unit)
+          × (∑ _ : Limits.Equalizers.Equalizers C1,
+             unit))
+(e1 : ∑ _ : parameterized_NNO (pr11 d1) (pr112 d1),
+      unit)
+(d2 : (∑ _ : Limits.Terminal.Terminal (pr1 C2), unit)
+      × (∑
+         _ : Limits.BinProducts.BinProducts (pr1 C2),
+         unit)
+        × (∑ _ : Limits.Pullbacks.Pullbacks (pr1 C2),
+           unit)
+          × (∑
+             _ : Limits.Equalizers.Equalizers (pr1 C2),
+             unit))
+(e2 : ∑ _ : parameterized_NNO (pr11 d2) (pr112 d2),
+      unit)
+(d3 : (∑ _ : Limits.Terminal.Terminal (pr1 C3), unit)
+      × (∑
+         _ : Limits.BinProducts.BinProducts (pr1 C3),
+         unit)
+        × (∑ _ : Limits.Pullbacks.Pullbacks (pr1 C3),
+           unit)
+          × (∑
+             _ : Limits.Equalizers.Equalizers (pr1 C3),
+             unit))
+(e3 : ∑ _ : parameterized_NNO (pr11 d3) (pr112 d3),
+      unit) (G_weq : is_weak_equiv G)
+(f_D : (∑ _ : unit, Preservation.preserves_terminal F)
+       × (∑ _ : unit,
+          Preservation.preserves_binproduct F)
+         × (∑ _ : unit,
+            Preservation.preserves_pullback F)
+           × (∑ _ : unit,
+              Preservation.preserves_equalizer F)),
+(∑ _ : unit,
+ preserves_parameterized_NNO 
+   (pr1 e1) (pr1 e3) F 
+   (pr21 f_D))
+→ ∑ _ : unit,
+  preserves_parameterized_NNO 
+    (pr1 e2) (pr1 e3) H
+    (pr21 (cat_with_struct_has_RC_lift_struct_along_weak_equiv
+             η_weak_equiv
+             FiniteLimits.disp_bicat_limits 
+             <span class="nl">?Goal</span> C2 C3 n d1 d2 d3 G_weq f_D))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  FiniteLimits.disp_bicat_limits</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (disp_bicat_limits_has_RC _ η_weak_equiv).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C1 C2 : category) (H : is_univalent C2)
+(F : C1 ⟶ C2) (F_weq : is_weak_equiv F)
+(d : (∑ _ : Limits.Terminal.Terminal C1, unit)
+     × (∑ _ : Limits.BinProducts.BinProducts C1, unit)
+       × (∑ _ : Limits.Pullbacks.Pullbacks C1, unit)
+         × (∑ _ : Limits.Equalizers.Equalizers C1,
+            unit)),
+(∑ _ : parameterized_NNO (pr11 d) (pr112 d), unit)
+→ ∑
+  _ : parameterized_NNO
+        (pr11 (cat_with_struct_has_RC_transport_weak_equiv
+                 η_weak_equiv
+                 FiniteLimits.disp_bicat_limits
+                 (disp_bicat_limits_has_RC LUR
+                    η_weak_equiv) H F_weq d))
+        (pr112 (cat_with_struct_has_RC_transport_weak_equiv
+                  η_weak_equiv
+                  FiniteLimits.disp_bicat_limits
+                  (disp_bicat_limits_has_RC LUR
+                     η_weak_equiv) H F_weq d)), unit</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk9"><span class="nb">simpl</span> ; <span class="nb">intros</span> C₁ C₂ C₂_univ F F_weq ? [N₁ ?].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂_univ</var><span class="hyp-type"><b>: </b><span>is_univalent C₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>F_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv F</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Terminal.Terminal C₁, unit)
+× (∑ _ : Limits.BinProducts.BinProducts C₁, unit)
+  × (∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+    × (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>N₁</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 d) (pr112 d)</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑
+_ : parameterized_NNO
+      (Limits.Terminal.make_Terminal (F (pr111 d))
+         (weak_equiv_preserves_terminal F F_weq
+            (pr111 d) (pr211 d)))
+      (BinProducts.weak_equiv_into_univ_creates_binproducts
+         C₂_univ F_weq (pr112 d)), unit</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chka"><span class="nb">refine</span> (_ ,, tt).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂_univ</var><span class="hyp-type"><b>: </b><span>is_univalent C₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>F_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv F</span></span></span><br><span><var>d</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Terminal.Terminal C₁, unit)
+× (∑ _ : Limits.BinProducts.BinProducts C₁, unit)
+  × (∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+    × (∑ _ : Limits.Equalizers.Equalizers C₁, unit)</span></span></span><br><span><var>N₁</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 d) (pr112 d)</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">parameterized_NNO
+  (Limits.Terminal.make_Terminal (F (pr111 d))
+     (weak_equiv_preserves_terminal F F_weq (pr111 d)
+        (pr211 d)))
+  (BinProducts.weak_equiv_into_univ_creates_binproducts
+     C₂_univ F_weq (pr112 d))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (weak_equiv_creates_parameterized_NNO F_weq N₁).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C : category)
+(d : (∑ _ : Limits.Terminal.Terminal C, unit)
+     × (∑ _ : Limits.BinProducts.BinProducts C, unit)
+       × (∑ _ : Limits.Pullbacks.Pullbacks C, unit)
+         × (∑ _ : Limits.Equalizers.Equalizers C, unit))
+(e : ∑ _ : parameterized_NNO (pr11 d) (pr112 d), unit),
+∑ _ : unit,
+preserves_parameterized_NNO (pr1 e)
+  (pr1
+     (((<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : category)
+        (<span class="nv">C₂_univ</span> : is_univalent C₂) (<span class="nv">F</span> : C₁ ⟶ C₂)
+        (<span class="nv">F_weq</span> : is_weak_equiv F)
+        (<span class="nv">d0</span> : (∑ _ : Limits.Terminal.Terminal C₁, unit)
+              × (∑
+                 _ : Limits.BinProducts.BinProducts C₁,
+                 unit)
+                × (∑
+                   _ : Limits.Pullbacks.Pullbacks C₁,
+                   unit)
+                  × (∑
+                     _ : Limits.Equalizers.Equalizers
+                           C₁, unit))
+        (<span class="nv">X</span> : ∑
+             _ : parameterized_NNO (pr11 d0)
+                   (pr112 d0), unit),
+        (<span class="kr">λ</span> (<span class="nv">N₁</span> : parameterized_NNO (pr11 d0)
+                   (pr112 d0)) (<span class="nv">_</span> : unit),
+         weak_equiv_creates_parameterized_NNO F_weq N₁
+           (Limits.Terminal.make_Terminal
+              (F (pr111 d0))
+              (weak_equiv_preserves_terminal F F_weq
+                 (pr111 d0) (pr211 d0)))
+           (BinProducts.weak_equiv_into_univ_creates_binproducts
+              C₂_univ F_weq (pr112 d0)),, tt) (pr1 X)
+          (pr2 X))
+       :
+       ∏ (C1 C2 : category) (H : is_univalent C2)
+       (F : C1 ⟶ C2) (F_weq : is_weak_equiv F)
+       (d0 : (∑ _ : Limits.Terminal.Terminal C1, unit)
+             × (∑
+                _ : Limits.BinProducts.BinProducts C1,
+                unit)
+               × (∑ _ : Limits.Pullbacks.Pullbacks C1,
+                  unit)
+                 × (∑
+                    _ : Limits.Equalizers.Equalizers
+                          C1, unit)),
+       (∑ _ : parameterized_NNO (pr11 d0) (pr112 d0),
+        unit)
+       → ∑
+         _ : parameterized_NNO
+               (pr11 (cat_with_struct_has_RC_transport_weak_equiv
+                        η_weak_equiv
+                        FiniteLimits.disp_bicat_limits
+                        (disp_bicat_limits_has_RC LUR
+                           η_weak_equiv) H F_weq d0))
+               (pr112 (cat_with_struct_has_RC_transport_weak_equiv
+                         η_weak_equiv
+                         FiniteLimits.disp_bicat_limits
+                         (disp_bicat_limits_has_RC LUR
+                            η_weak_equiv) H F_weq d0)),
+         unit) C (pr1 (pr1 LUR C)) (pr2 (pr1 LUR C))
+        ((pr12 LUR) C) (η_weak_equiv C) d e))
+  ((pr12 LUR) C)
+  (pr21 (cat_with_struct_has_RC_weak_equiv_preserves_struct
+           η_weak_equiv FiniteLimits.disp_bicat_limits
+           (disp_bicat_limits_has_RC LUR η_weak_equiv)
+           d))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chkc"><span class="nb">cbn</span> ; <span class="nb">intros</span> C [[T ?] [BP ?]] [Ω ?].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>T</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C, unit)</span></span></span><br><span><var>Ω</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 ((T,, pr2),, BP,, pr0))
+  (pr112 ((T,, pr2),, BP,, pr0))</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ _ : unit,
+preserves_parameterized_NNO (Preamble.pr1 (Ω,, pr1))
+  (weak_equiv_creates_parameterized_NNO
+     (η_weak_equiv C) Ω
+     (Limits.Terminal.make_Terminal
+        ((pr12 LUR) C (Preamble.pr1 T))
+        (weak_equiv_preserves_terminal ((pr12 LUR) C)
+           (η_weak_equiv C) (Preamble.pr1 T)
+           (Preamble.pr2 T)))
+     (BinProducts.weak_equiv_into_univ_creates_binproducts
+        (Preamble.pr2 (Preamble.pr1 LUR C))
+        (η_weak_equiv C) (Preamble.pr1 BP)))
+  ((pr12 LUR) C)
+  (weak_equiv_preserves_terminal ((pr12 LUR) C)
+     (η_weak_equiv C))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chkd"><span class="nb">refine</span> (tt ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>T</var><span class="hyp-type"><b>: </b><span>Limits.Terminal.Terminal C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>BP</var><span class="hyp-type"><b>: </b><span>∑ _ : Limits.BinProducts.BinProducts C, unit</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Pullbacks.Pullbacks C, unit)
+× (∑ _ : Limits.Equalizers.Equalizers C, unit)</span></span></span><br><span><var>Ω</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 ((T,, pr2),, BP,, pr0))
+  (pr112 ((T,, pr2),, BP,, pr0))</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_parameterized_NNO (Preamble.pr1 (Ω,, pr1))
+  (weak_equiv_creates_parameterized_NNO
+     (η_weak_equiv C) Ω
+     (Limits.Terminal.make_Terminal
+        ((pr12 LUR) C (Preamble.pr1 T))
+        (weak_equiv_preserves_terminal ((pr12 LUR) C)
+           (η_weak_equiv C) (Preamble.pr1 T)
+           (Preamble.pr2 T)))
+     (BinProducts.weak_equiv_into_univ_creates_binproducts
+        (Preamble.pr2 (Preamble.pr1 LUR C))
+        (η_weak_equiv C) (Preamble.pr1 BP)))
+  ((pr12 LUR) C)
+  (weak_equiv_preserves_terminal ((pr12 LUR) C)
+     (η_weak_equiv C))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> weak_equiv_preserves_parameterized_NNO&#39;.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chke">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C1 : category) (C2 C3 : univalent_category)
+(F : C1 ⟶ C3) (G : C1 ⟶ C2) (H : C2 ⟶ C3)
+(n : nat_z_iso (G ∙ H) F)
+(d1 : (∑ _ : Limits.Terminal.Terminal C1, unit)
+      × (∑ _ : Limits.BinProducts.BinProducts C1, unit)
+        × (∑ _ : Limits.Pullbacks.Pullbacks C1, unit)
+          × (∑ _ : Limits.Equalizers.Equalizers C1,
+             unit))
+(e1 : ∑ _ : parameterized_NNO (pr11 d1) (pr112 d1),
+      unit)
+(d2 : (∑ _ : Limits.Terminal.Terminal (pr1 C2), unit)
+      × (∑
+         _ : Limits.BinProducts.BinProducts (pr1 C2),
+         unit)
+        × (∑ _ : Limits.Pullbacks.Pullbacks (pr1 C2),
+           unit)
+          × (∑
+             _ : Limits.Equalizers.Equalizers (pr1 C2),
+             unit))
+(e2 : ∑ _ : parameterized_NNO (pr11 d2) (pr112 d2),
+      unit)
+(d3 : (∑ _ : Limits.Terminal.Terminal (pr1 C3), unit)
+      × (∑
+         _ : Limits.BinProducts.BinProducts (pr1 C3),
+         unit)
+        × (∑ _ : Limits.Pullbacks.Pullbacks (pr1 C3),
+           unit)
+          × (∑
+             _ : Limits.Equalizers.Equalizers (pr1 C3),
+             unit))
+(e3 : ∑ _ : parameterized_NNO (pr11 d3) (pr112 d3),
+      unit) (G_weq : is_weak_equiv G)
+(f_D : (∑ _ : unit, Preservation.preserves_terminal F)
+       × (∑ _ : unit,
+          Preservation.preserves_binproduct F)
+         × (∑ _ : unit,
+            Preservation.preserves_pullback F)
+           × (∑ _ : unit,
+              Preservation.preserves_equalizer F)),
+(∑ _ : unit,
+ preserves_parameterized_NNO (pr1 e1) (pr1 e3) F
+   (pr21 f_D))
+→ ∑ _ : unit,
+  preserves_parameterized_NNO (pr1 e2) (pr1 e3) H
+    (pr21 (cat_with_struct_has_RC_lift_struct_along_weak_equiv
+             η_weak_equiv
+             FiniteLimits.disp_bicat_limits
+             (disp_bicat_limits_has_RC LUR
+                η_weak_equiv) C2 C3 n d1 d2 d3 G_weq
+             f_D))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chkf"><span class="nb">cbn</span> ; <span class="nb">intros</span> C₁ C₂ C₃ F G H α
+        ? [N₁ ?]
+        ? [N₂ ?]
+        ? [N₃ ?]
+        G_weq
+        ?
+        [? FN].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>d1</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Terminal.Terminal C₁, unit)
+× (∑ _ : Limits.BinProducts.BinProducts C₁, unit)
+  × (∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+    × (∑ _ : Limits.Equalizers.Equalizers C₁,
+       unit)</span></span></span><br><span><var>N₁</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 d1) (pr112 d1)</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>d2</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Terminal.Terminal (Preamble.pr1 C₂),
+ unit)
+× (∑
+   _ : Limits.BinProducts.BinProducts
+         (Preamble.pr1 C₂), unit)
+  × (∑
+     _ : Limits.Pullbacks.Pullbacks
+           (Preamble.pr1 C₂), unit)
+    × (∑
+       _ : Limits.Equalizers.Equalizers
+             (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>N₂</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 d2) (pr112 d2)</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>d3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Terminal.Terminal (Preamble.pr1 C₃),
+ unit)
+× (∑
+   _ : Limits.BinProducts.BinProducts
+         (Preamble.pr1 C₃), unit)
+  × (∑
+     _ : Limits.Pullbacks.Pullbacks
+           (Preamble.pr1 C₃), unit)
+    × (∑
+       _ : Limits.Equalizers.Equalizers
+             (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>N₃</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 d3) (pr112 d3)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>f_D</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_terminal F)
+× (∑ _ : unit,
+   Preservation.preserves_binproduct F)
+  × (∑ _ : unit,
+     Preservation.preserves_pullback F)
+    × (∑ _ : unit,
+       Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FN</var><span class="hyp-type"><b>: </b><span>preserves_parameterized_NNO
+  (Preamble.pr1 (N₁,, pr2))
+  (Preamble.pr1 (N₃,, pr1)) F 
+  (pr21 f_D)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ _ : unit,
+preserves_parameterized_NNO (Preamble.pr1 (N₂,, pr0))
+  (Preamble.pr1 (N₃,, pr1)) H
+  (weak_equiv_lifts_preserves_terminal α G_weq
+     (pr21 f_D))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk10"><span class="nb">refine</span> (tt ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>d1</var><span class="hyp-type"><b>: </b><span>(∑ _ : Limits.Terminal.Terminal C₁, unit)
+× (∑ _ : Limits.BinProducts.BinProducts C₁, unit)
+  × (∑ _ : Limits.Pullbacks.Pullbacks C₁, unit)
+    × (∑ _ : Limits.Equalizers.Equalizers C₁,
+       unit)</span></span></span><br><span><var>N₁</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 d1) (pr112 d1)</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>d2</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Terminal.Terminal (Preamble.pr1 C₂),
+ unit)
+× (∑
+   _ : Limits.BinProducts.BinProducts
+         (Preamble.pr1 C₂), unit)
+  × (∑
+     _ : Limits.Pullbacks.Pullbacks
+           (Preamble.pr1 C₂), unit)
+    × (∑
+       _ : Limits.Equalizers.Equalizers
+             (Preamble.pr1 C₂), unit)</span></span></span><br><span><var>N₂</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 d2) (pr112 d2)</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>d3</var><span class="hyp-type"><b>: </b><span>(∑
+ _ : Limits.Terminal.Terminal (Preamble.pr1 C₃),
+ unit)
+× (∑
+   _ : Limits.BinProducts.BinProducts
+         (Preamble.pr1 C₃), unit)
+  × (∑
+     _ : Limits.Pullbacks.Pullbacks
+           (Preamble.pr1 C₃), unit)
+    × (∑
+       _ : Limits.Equalizers.Equalizers
+             (Preamble.pr1 C₃), unit)</span></span></span><br><span><var>N₃</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr11 d3) (pr112 d3)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>f_D</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, Preservation.preserves_terminal F)
+× (∑ _ : unit,
+   Preservation.preserves_binproduct F)
+  × (∑ _ : unit,
+     Preservation.preserves_pullback F)
+    × (∑ _ : unit,
+       Preservation.preserves_equalizer F)</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>FN</var><span class="hyp-type"><b>: </b><span>preserves_parameterized_NNO
+  (Preamble.pr1 (N₁,, pr2))
+  (Preamble.pr1 (N₃,, pr1)) F 
+  (pr21 f_D)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_parameterized_NNO (Preamble.pr1 (N₂,, pr0))
+  (Preamble.pr1 (N₃,, pr1)) H
+  (weak_equiv_lifts_preserves_terminal α G_weq
+     (pr21 f_D))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (weak_equiv_lifts_preserves_parameterized_NNO α G_weq N₁ N₂ N₃ FN).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk11"><span class="kn">Theorem</span> <span class="nf">disp_bicat_parameterized_NNO_has_Rezk_completion</span>
+    : cat_with_structure_has_RezkCompletion disp_bicat_parameterized_NNO.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_parameterized_NNO</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk12"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_parameterized_NNO</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk13"><span class="nb">apply</span> (make_RezkCompletion_from_locally_contractible η_weak_equiv).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_parameterized_NNO</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="parameterizednno-v-chk14" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="parameterizednno-v-chk14"><hr></label><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_parameterized_NNO</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk15">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_parameterized_NNO</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_bicat_parameterized_NNO_has_RC.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="parameterizednno-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="parameterizednno-v-chk16">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_parameterized_NNO</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_parameterized_NNO.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesNNOAdmitRezkCompletions</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

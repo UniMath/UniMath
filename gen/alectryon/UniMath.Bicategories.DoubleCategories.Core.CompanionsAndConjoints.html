@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>CompanionsAndConjoints.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> Companion pairs and conjoints in double categories</span>
+
+<span class="sd"> In this file, we define companion pairs and conjoints in pseudo double categories. Note</span>
+<span class="sd"> that this file only contains definitions and accessors for them. General properties for</span>
+<span class="sd"> companion pairs and conjoints are proven for Verity double bicategories instead.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Companion pairs</span>
+<span class="sd"> 2. Conjoints</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DerivedLaws.TransportLaws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Underlying.HorizontalBicategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. Companion pairs *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_cat_are_companions</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">h</span> : x --&gt;h y)
+           (<span class="nv">v</span> : x --&gt;v y)
+  : UU
+  := ∑ (φ : square v (identity_v y) h (identity_h y))
+       (ψ : square (identity_v x) v (identity_h x) h),
+     (transportf_square
+        (id_v_right _)
+        (id_v_right _)
+        (transportf_square
+           (id_v_left _)
+           (id_v_left _)
+           (linvunitor_h h ⋆v (ψ ⋆h φ))
+         ⋆v runitor_h h)
+      =
+      id_v_square h)
+     ×
+     (transportf_square
+        (idpath _)
+        (id_right _)
+        (transportf_square
+           (id_left _)
+           (idpath _)
+           (ψ ⋆v φ))
+      =
+      id_h_square v).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_double_cat_are_companions</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h</span> : x --&gt;h y}
+           {<span class="nv">v</span> : x --&gt;v y}
+           (<span class="nv">φ</span> : square v (identity_v y) h (identity_h y))
+           (<span class="nv">ψ</span> : square (identity_v x) v (identity_h x) h)
+           (<span class="nv">p</span> : transportf_square
+                  (id_v_right _)
+                  (id_v_right _)
+                  (transportf_square
+                     (id_v_left _)
+                     (id_v_left _)
+                     (linvunitor_h h ⋆v (ψ ⋆h φ))
+                   ⋆v runitor_h h)
+                =
+                id_v_square h)
+           (<span class="nv">q</span> : transportf_square
+                  (idpath _)
+                  (id_right _)
+                  (transportf_square
+                     (id_left _)
+                     (idpath _)
+                     (ψ ⋆v φ))
+                =
+                id_h_square v)
+  : double_cat_are_companions h v
+  := φ ,, ψ ,, p ,, q.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk1"><span class="kn">Definition</span> <span class="nf">make_double_cat_are_companions&#39;</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h</span> : x --&gt;h y}
+           {<span class="nv">v</span> : x --&gt;v y}
+           (<span class="nv">φ</span> : square v (identity_v y) h (identity_h y))
+           (<span class="nv">ψ</span> : square (identity_v x) v (identity_h x) h)
+           (<span class="nv">p</span> : transportf_square
+                  (id_v_right _ @ id_v_right _)
+                  (id_v_right _ @ id_v_right _)
+                  ((linvunitor_h h ⋆v (ψ ⋆h φ)) ⋆v runitor_h h)
+                =
+                id_v_square h)
+           (<span class="nv">q</span> : transportf_square
+                  (id_left _)
+                  (id_right _)
+                  (ψ ⋆v φ)
+                =
+                id_h_square v)
+  : double_cat_are_companions h v.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>square v (identity_v y) h (identity_h y)</span></span></span><br><span><var>ψ</var><span class="hyp-type"><b>: </b><span>square (identity_v x) v (identity_h x) h</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_right (identity_v x ·v identity_v x) @
+   id_v_right (identity_v x))
+  (id_v_right (identity_v y ·v identity_v y) @
+   id_v_right (identity_v y))
+  (linvunitor_h h ⋆v ψ ⋆h φ ⋆v runitor_h h) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_left v) (id_right v)
+  (ψ ⋆v φ) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_cat_are_companions h v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>square v (identity_v y) h (identity_h y)</span></span></span><br><span><var>ψ</var><span class="hyp-type"><b>: </b><span>square (identity_v x) v (identity_h x) h</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_right (identity_v x ·v identity_v x) @
+   id_v_right (identity_v x))
+  (id_v_right (identity_v y ·v identity_v y) @
+   id_v_right (identity_v y))
+  (linvunitor_h h ⋆v ψ ⋆h φ ⋆v runitor_h h) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_left v) (id_right v)
+  (ψ ⋆v φ) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_cat_are_companions h v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk3"><span class="nb">refine</span> (φ ,, ψ ,, _ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>square v (identity_v y) h (identity_h y)</span></span></span><br><span><var>ψ</var><span class="hyp-type"><b>: </b><span>square (identity_v x) v (identity_h x) h</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_right (identity_v x ·v identity_v x) @
+   id_v_right (identity_v x))
+  (id_v_right (identity_v y ·v identity_v y) @
+   id_v_right (identity_v y))
+  (linvunitor_h h ⋆v ψ ⋆h φ ⋆v runitor_h h) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_left v) (id_right v)
+  (ψ ⋆v φ) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (id_v_right (identity_v x))
+  (id_v_right (identity_v y))
+  (transportf_square (id_v_left (identity_v x))
+     (id_v_left (identity_v y))
+     (linvunitor_h h ⋆v ψ ⋆h φ) ⋆v runitor_h h) =
+id_v_square h</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="companionsandconjoints-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>square v (identity_v y) h (identity_h y)</span></span></span><br><span><var>ψ</var><span class="hyp-type"><b>: </b><span>square (identity_v x) v (identity_h x) h</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_right (identity_v x ·v identity_v x) @
+   id_v_right (identity_v x))
+  (id_v_right (identity_v y ·v identity_v y) @
+   id_v_right (identity_v y))
+  (linvunitor_h h ⋆v ψ ⋆h φ ⋆v runitor_h h) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_left v) (id_right v)
+  (ψ ⋆v φ) = id_h_square v</span></span></span><br></div><label class="goal-separator" for="companionsandconjoints-v-chk4"><hr></label><div class="goal-conclusion">transportf_square (idpath v) (id_right v)
+  (transportf_square (id_left v)
+     (idpath (v ·v identity_v y)) (ψ ⋆v φ)) =
+id_h_square v</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>square v (identity_v y) h (identity_h y)</span></span></span><br><span><var>ψ</var><span class="hyp-type"><b>: </b><span>square (identity_v x) v (identity_h x) h</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_right (identity_v x ·v identity_v x) @
+   id_v_right (identity_v x))
+  (id_v_right (identity_v y ·v identity_v y) @
+   id_v_right (identity_v y))
+  (linvunitor_h h ⋆v ψ ⋆h φ ⋆v runitor_h h) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_left v) (id_right v)
+  (ψ ⋆v φ) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (id_v_right (identity_v x))
+  (id_v_right (identity_v y))
+  (transportf_square (id_v_left (identity_v x))
+     (id_v_left (identity_v y))
+     (linvunitor_h h ⋆v ψ ⋆h φ) ⋆v runitor_h h) =
+id_v_square h</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> transportf_square_prewhisker ;
+       <span class="nb">rewrite</span> transportf_f_square ;
+       <span class="nb">refine</span> (_ @ p) ;
+       use transportf_square_eq ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>φ</var><span class="hyp-type"><b>: </b><span>square v (identity_v y) h (identity_h y)</span></span></span><br><span><var>ψ</var><span class="hyp-type"><b>: </b><span>square (identity_v x) v (identity_h x) h</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_right (identity_v x ·v identity_v x) @
+   id_v_right (identity_v x))
+  (id_v_right (identity_v y ·v identity_v y) @
+   id_v_right (identity_v y))
+  (linvunitor_h h ⋆v ψ ⋆h φ ⋆v runitor_h h) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_left v) (id_right v)
+  (ψ ⋆v φ) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (idpath v) (id_right v)
+  (transportf_square (id_left v)
+     (idpath (v ·v identity_v y)) (ψ ⋆v φ)) =
+id_h_square v</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">refine</span> (_ @ q) ;
+       <span class="nb">rewrite</span> transportf_f_square ;
+       use transportf_square_eq ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">unit_double_cat_are_companions</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h</span> : x --&gt;h y}
+           {<span class="nv">v</span> : x --&gt;v y}
+           (<span class="nv">c</span> : double_cat_are_companions h v)
+  : square v (identity_v y) h (identity_h y)
+  := pr1 c.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">counit_double_cat_are_companions</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h</span> : x --&gt;h y}
+           {<span class="nv">v</span> : x --&gt;v y}
+           (<span class="nv">c</span> : double_cat_are_companions h v)
+  : square (identity_v x) v (identity_h x) h
+  := pr12 c.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk7"><span class="kn">Proposition</span> <span class="nf">double_cat_are_companions_left</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">h</span> : x --&gt;h y}
+            {<span class="nv">v</span> : x --&gt;v y}
+            (<span class="nv">c</span> : double_cat_are_companions h v)
+  : transportf_square
+      (id_v_right _)
+      (id_v_right _)
+      (transportf_square
+         (id_v_left _)
+         (id_v_left _)
+         (linvunitor_h h
+          ⋆v
+          (counit_double_cat_are_companions c
+           ⋆h
+           unit_double_cat_are_companions c))
+       ⋆v runitor_h h)
+    =
+    id_v_square h.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>double_cat_are_companions h v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (id_v_right (identity_v x))
+  (id_v_right (identity_v y))
+  (transportf_square (id_v_left (identity_v x))
+     (id_v_left (identity_v y))
+     (linvunitor_h h
+      ⋆v counit_double_cat_are_companions c
+         ⋆h unit_double_cat_are_companions c)
+   ⋆v runitor_h h) = id_v_square h</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk8"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>double_cat_are_companions h v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (id_v_right (identity_v x))
+  (id_v_right (identity_v y))
+  (transportf_square (id_v_left (identity_v x))
+     (id_v_left (identity_v y))
+     (linvunitor_h h
+      ⋆v counit_double_cat_are_companions c
+         ⋆h unit_double_cat_are_companions c)
+   ⋆v runitor_h h) = id_v_square h</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr122 c).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk9"><span class="kn">Proposition</span> <span class="nf">double_cat_are_companions_right</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">h</span> : x --&gt;h y}
+            {<span class="nv">v</span> : x --&gt;v y}
+            (<span class="nv">c</span> : double_cat_are_companions h v)
+  : transportf_square
+      (idpath _)
+      (id_right _)
+      (transportf_square
+         (id_left _)
+         (idpath _)
+         (counit_double_cat_are_companions c
+          ⋆v
+          unit_double_cat_are_companions c))
+    =
+    id_h_square v.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>double_cat_are_companions h v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (idpath v) (id_right v)
+  (transportf_square (id_left v)
+     (idpath (v ·v identity_v y))
+     (counit_double_cat_are_companions c
+      ⋆v unit_double_cat_are_companions c)) =
+id_h_square v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chka"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>x --&gt;h y</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>double_cat_are_companions h v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (idpath v) (id_right v)
+  (transportf_square (id_left v)
+     (idpath (v ·v identity_v y))
+     (counit_double_cat_are_companions c
+      ⋆v unit_double_cat_are_companions c)) =
+id_h_square v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr222 c).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">all_companions_double_cat</span>
+           (<span class="nv">C</span> : double_cat)
+  : UU
+  := ∏ (x y : C)
+       (v : x --&gt;v y),
+     ∑ (h : x --&gt;h y), double_cat_are_companions h v.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Conjoints *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_cat_are_conjoints</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">h</span> : y --&gt;h x)
+           (<span class="nv">v</span> : x --&gt;v y)
+  : UU
+  := ∑ (η : square v (identity_v x) (identity_h x) h)
+       (ε : square (identity_v y) v h (identity_h y)),
+     (transportf_square
+        (id_v_left _)
+        (id_v_left _)
+        (rinvunitor_h h
+         ⋆v transportf_square
+              (id_v_right _)
+              (id_v_right _)
+              ((ε ⋆h η) ⋆v lunitor_h h))
+      =
+      id_v_square h)
+     ×
+     (transportf_square
+        (idpath _)
+        (id_v_left _)
+        (transportf_square
+           (id_v_right _)
+           (idpath _)
+           (η ⋆v ε))
+      =
+      id_h_square v).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_double_cat_are_conjoints</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h</span> : y --&gt;h x}
+           {<span class="nv">v</span> : x --&gt;v y}
+           (<span class="nv">η</span> : square v (identity_v x) (identity_h x) h)
+           (<span class="nv">ε</span> : square (identity_v y) v h (identity_h y))
+           (<span class="nv">p</span> : transportf_square
+                  (id_v_left _)
+                  (id_v_left _)
+                  (rinvunitor_h h
+                   ⋆v transportf_square
+                        (id_v_right _)
+                        (id_v_right _)
+                        ((ε ⋆h η) ⋆v lunitor_h h))
+                =
+                id_v_square h)
+           (<span class="nv">q</span> : transportf_square
+                  (idpath _)
+                  (id_v_left _)
+                  (transportf_square
+                     (id_v_right _)
+                     (idpath _)
+                     (η ⋆v ε))
+                =
+                id_h_square v)
+  : double_cat_are_conjoints h v
+  := η ,, ε ,, p ,, q.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chkb"><span class="kn">Definition</span> <span class="nf">make_double_cat_are_conjoints&#39;</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h</span> : y --&gt;h x}
+           {<span class="nv">v</span> : x --&gt;v y}
+           (<span class="nv">η</span> : square v (identity_v x) (identity_h x) h)
+           (<span class="nv">ε</span> : square (identity_v y) v h (identity_h y))
+           (<span class="nv">p</span> : transportf_square
+                  (id_v_left _ @ id_v_left _)
+                  (id_v_left _ @ id_v_left _)
+                  (rinvunitor_h h ⋆v ((ε ⋆h η) ⋆v lunitor_h h))
+                =
+                id_v_square h)
+           (<span class="nv">q</span> : transportf_square
+                  (id_v_right _)
+                  (id_v_left _)
+                  (η ⋆v ε)
+                =
+                id_h_square v)
+  : double_cat_are_conjoints h v.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>square v (identity_v x) (identity_h x) h</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>square (identity_v y) v h (identity_h y)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_left (identity_v y · identity_v y) @
+   id_v_left (identity_v y))
+  (id_v_left (identity_v x · identity_v x) @
+   id_v_left (identity_v x))
+  (rinvunitor_h h ⋆v (ε ⋆h η ⋆v lunitor_h h)) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_v_right v) (id_v_left v)
+  (η ⋆v ε) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_cat_are_conjoints h v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chkc"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>square v (identity_v x) (identity_h x) h</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>square (identity_v y) v h (identity_h y)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_left (identity_v y · identity_v y) @
+   id_v_left (identity_v y))
+  (id_v_left (identity_v x · identity_v x) @
+   id_v_left (identity_v x))
+  (rinvunitor_h h ⋆v (ε ⋆h η ⋆v lunitor_h h)) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_v_right v) (id_v_left v)
+  (η ⋆v ε) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_cat_are_conjoints h v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chkd"><span class="nb">refine</span> (η ,, ε ,, _ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>square v (identity_v x) (identity_h x) h</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>square (identity_v y) v h (identity_h y)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_left (identity_v y · identity_v y) @
+   id_v_left (identity_v y))
+  (id_v_left (identity_v x · identity_v x) @
+   id_v_left (identity_v x))
+  (rinvunitor_h h ⋆v (ε ⋆h η ⋆v lunitor_h h)) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_v_right v) (id_v_left v)
+  (η ⋆v ε) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (id_v_left (identity_v y))
+  (id_v_left (identity_v x))
+  (rinvunitor_h h
+   ⋆v transportf_square (id_v_right (identity_v y))
+        (id_v_right (identity_v x))
+        (ε ⋆h η ⋆v lunitor_h h)) = id_v_square h</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="companionsandconjoints-v-chke" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>square v (identity_v x) (identity_h x) h</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>square (identity_v y) v h (identity_h y)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_left (identity_v y · identity_v y) @
+   id_v_left (identity_v y))
+  (id_v_left (identity_v x · identity_v x) @
+   id_v_left (identity_v x))
+  (rinvunitor_h h ⋆v (ε ⋆h η ⋆v lunitor_h h)) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_v_right v) (id_v_left v)
+  (η ⋆v ε) = id_h_square v</span></span></span><br></div><label class="goal-separator" for="companionsandconjoints-v-chke"><hr></label><div class="goal-conclusion">transportf_square (idpath v) (id_v_left v)
+  (transportf_square (id_v_right v)
+     (idpath (identity_v x ·v v)) (η ⋆v ε)) =
+id_h_square v</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chkf">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>square v (identity_v x) (identity_h x) h</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>square (identity_v y) v h (identity_h y)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_left (identity_v y · identity_v y) @
+   id_v_left (identity_v y))
+  (id_v_left (identity_v x · identity_v x) @
+   id_v_left (identity_v x))
+  (rinvunitor_h h ⋆v (ε ⋆h η ⋆v lunitor_h h)) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_v_right v) (id_v_left v)
+  (η ⋆v ε) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (id_v_left (identity_v y))
+  (id_v_left (identity_v x))
+  (rinvunitor_h h
+   ⋆v transportf_square (id_v_right (identity_v y))
+        (id_v_right (identity_v x))
+        (ε ⋆h η ⋆v lunitor_h h)) = id_v_square h</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> transportf_square_postwhisker ;
+       <span class="nb">rewrite</span> transportf_f_square ;
+       <span class="nb">refine</span> (_ @ p) ;
+       use transportf_square_eq ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk10">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>square v (identity_v x) (identity_h x) h</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>square (identity_v y) v h (identity_h y)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>transportf_square
+  (id_v_left (identity_v y · identity_v y) @
+   id_v_left (identity_v y))
+  (id_v_left (identity_v x · identity_v x) @
+   id_v_left (identity_v x))
+  (rinvunitor_h h ⋆v (ε ⋆h η ⋆v lunitor_h h)) =
+id_v_square h</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>transportf_square (id_v_right v) (id_v_left v)
+  (η ⋆v ε) = id_h_square v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (idpath v) (id_v_left v)
+  (transportf_square (id_v_right v)
+     (idpath (identity_v x ·v v)) (η ⋆v ε)) =
+id_h_square v</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> transportf_f_square ;
+       <span class="nb">refine</span> (_ @ q) ;
+       use transportf_square_eq ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">unit_double_cat_are_conjoints</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h</span> : y --&gt;h x}
+           {<span class="nv">v</span> : x --&gt;v y}
+           (<span class="nv">c</span> : double_cat_are_conjoints h v)
+  : square v (identity_v x) (identity_h x) h
+  := pr1 c.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">counit_double_cat_are_conjoints</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h</span> : y --&gt;h x}
+           {<span class="nv">v</span> : x --&gt;v y}
+           (<span class="nv">c</span> : double_cat_are_conjoints h v)
+  : square (identity_v y) v h (identity_h y)
+  := pr12 c.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk11"><span class="kn">Proposition</span> <span class="nf">double_cat_are_conjoints_left</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">h</span> : y --&gt;h x}
+            {<span class="nv">v</span> : x --&gt;v y}
+            (<span class="nv">c</span> : double_cat_are_conjoints h v)
+  : transportf_square
+      (id_v_left _)
+      (id_v_left _)
+      (rinvunitor_h h
+       ⋆v transportf_square
+            (id_v_right _)
+            (id_v_right _)
+            ((counit_double_cat_are_conjoints c
+              ⋆h
+              unit_double_cat_are_conjoints c)
+             ⋆v lunitor_h h))
+    =
+    id_v_square h.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>double_cat_are_conjoints h v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (id_v_left (identity_v y))
+  (id_v_left (identity_v x))
+  (rinvunitor_h h
+   ⋆v transportf_square (id_v_right (identity_v y))
+        (id_v_right (identity_v x))
+        (counit_double_cat_are_conjoints c
+         ⋆h unit_double_cat_are_conjoints c
+         ⋆v lunitor_h h)) = id_v_square h</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk12"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>double_cat_are_conjoints h v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (id_v_left (identity_v y))
+  (id_v_left (identity_v x))
+  (rinvunitor_h h
+   ⋆v transportf_square (id_v_right (identity_v y))
+        (id_v_right (identity_v x))
+        (counit_double_cat_are_conjoints c
+         ⋆h unit_double_cat_are_conjoints c
+         ⋆v lunitor_h h)) = id_v_square h</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr122 c).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk13"><span class="kn">Proposition</span> <span class="nf">double_cat_are_conjoints_right</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">h</span> : y --&gt;h x}
+            {<span class="nv">v</span> : x --&gt;v y}
+            (<span class="nv">c</span> : double_cat_are_conjoints h v)
+  : transportf_square
+      (idpath _)
+      (id_v_left _)
+      (transportf_square
+         (id_v_right _)
+         (idpath _)
+         (unit_double_cat_are_conjoints c
+          ⋆v
+          counit_double_cat_are_conjoints c))
+    =
+    id_h_square v.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>double_cat_are_conjoints h v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (idpath v) (id_v_left v)
+  (transportf_square (id_v_right v)
+     (idpath (identity_v x ·v v))
+     (unit_double_cat_are_conjoints c
+      ⋆v counit_double_cat_are_conjoints c)) =
+id_h_square v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="companionsandconjoints-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="companionsandconjoints-v-chk14"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>double_cat</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>y --&gt;h x</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>x --&gt;v y</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>double_cat_are_conjoints h v</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportf_square (idpath v) (id_v_left v)
+  (transportf_square (id_v_right v)
+     (idpath (identity_v x ·v v))
+     (unit_double_cat_are_conjoints c
+      ⋆v counit_double_cat_are_conjoints c)) =
+id_h_square v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr222 c).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">all_conjoints_double_cat</span>
+           (<span class="nv">C</span> : double_cat)
+  : UU
+  := ∏ (x y : C)
+       (v : x --&gt;v y),
+     ∑ (h : y --&gt;h x), double_cat_are_conjoints h v.</span></span></pre>
+</div>
+</div></body>
+</html>

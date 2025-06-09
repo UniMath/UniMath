@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Monoids_Tactics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** Author: Michael A. Warren.*)</span>
+<span class="sd">(** Date: Spring 2015.*)</span>
+<span class="sd">(** Description: Some tactics for monoids.*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Monoids.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="monoids-tactics-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="monoids-tactics-v-chk0"><span class="kn">Require Import</span> UniMath.Tactics.Utilities.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">[Loading ML file number_string_notation_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file tauto_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file cc_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file firstorder_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">Serlib plugin: coq-core.plugins.ltac2_ltac1 <span class="kr">is</span> not available: serlib support <span class="kr">is</span> missing.
+Incremental checking <span class="kr">for</span> commands <span class="kr">in</span> this plugin will be impacted.</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_ltac1_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">op_strip</span> f :=
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | |- f <span class="nl">?x</span> <span class="nl">?y</span> = f <span class="nl">?x</span> <span class="nl">?z</span> =&gt;
+        <span class="nb">apply</span> (ap (<span class="kr">λ</span> <span class="nv">v</span>, f x v))
+      | |- f <span class="nl">?y</span> <span class="nl">?x</span> = f <span class="nl">?z</span> <span class="nl">?x</span> =&gt;
+        <span class="nb">apply</span> (ap (<span class="kr">λ</span> <span class="nv">v</span>, f v x))
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">assocop_clean</span> M f :=
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- (assocax M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">assocop_clean_in</span> M f t :=
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- (assocax M) <span class="kr">in</span> t.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">assocop_clean_all</span> M f :=
+  assocop_clean M f;
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : <span class="kp">context</span>[f <span class="nl">?x</span> (f <span class="nl">?y</span> <span class="nl">?z</span>)] |- _ =&gt; assocop_clean_in M f H
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">assocop_trivial</span> M f :=
+  <span class="kp">try</span> (assocop_clean_all M f; op_strip f; <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">assocop_group_in</span> M f x s t :=
+  <span class="kr">let</span> <span class="nv">T</span> := <span class="kp">type of</span> x <span class="kr">in</span>
+  <span class="kr">match</span> T <span class="kr">with</span>
+    | <span class="kp">context</span>[f s t] =&gt; <span class="kp">idtac</span>
+    | <span class="kp">context</span> [f (f <span class="nl">?u</span> s) t] =&gt; <span class="nb">rewrite</span> (assocax M u s t) <span class="kr">in</span> x
+    | <span class="kp">context</span> [f s (f t <span class="nl">?u</span>)] =&gt; <span class="nb">rewrite</span> &lt;- (assocax M s t u) <span class="kr">in</span> x
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">assocop_group</span> M f s t :=
+  <span class="kr">match goal with</span>
+    | |- <span class="kp">context</span> [f s t] =&gt; <span class="kp">idtac</span>
+    | |- <span class="kp">context</span> [f (f <span class="nl">?u</span> s) t] =&gt; <span class="nb">rewrite</span> (assocax M u s t)
+    | |- <span class="kp">context</span> [f s (f t <span class="nl">?u</span>)] =&gt; <span class="nb">rewrite</span> &lt;- (assocax M s t u)
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">monoid_clean</span> M :=
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> (lunax M); <span class="kp">repeat</span> <span class="nb">rewrite</span> (runax M); assocop_clean M (@op M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">monoid_clean_in</span> M t :=
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> (lunax M) <span class="kr">in</span> t; <span class="kp">repeat</span> <span class="nb">rewrite</span> (runax M) <span class="kr">in</span> t;
+  assocop_clean_in M (@op M) t.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">monoid_clean_all</span> M :=
+  monoid_clean M;
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : _ |- _ =&gt; monoid_clean_in M H
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">monoid_declean</span> M :=
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> (assocax M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">monoid_op_strip_left</span> M :=
+  (monoid_declean M;
+   <span class="kr">match goal with</span>
+     | |- (@op M) <span class="nl">?x</span> <span class="nl">?y</span> = (@op M) <span class="nl">?x</span> <span class="nl">?z</span> =&gt;
+       <span class="nb">apply</span> (ap (<span class="kr">λ</span> <span class="nv">v</span>, (@op M) x v))
+     | |- (<span class="nl">?x</span> * <span class="nl">?y</span> = <span class="nl">?x</span> * <span class="nl">?z</span>)%multmonoid =&gt; <span class="nb">apply</span> (ap (<span class="kr">λ</span> <span class="nv">v</span>, x * v))%multmonoid
+   <span class="kr">end</span>;
+   monoid_clean M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Some error handling should be added (e.g., to check that lhs, rhs are of type M; that they are words in M, etc.).*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">monoid_zap_body</span> M f :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | rhs =&gt; <span class="nb">apply</span> idpath
+        | (@unel M) =&gt; <span class="nb">apply</span> pathsinv0; monoid_zap_body M f
+        | _ =&gt; (monoid_op_strip_left M; monoid_zap_body M f)
+      <span class="kr">end</span>
+    | E : <span class="nl">?l</span> = <span class="nl">?r</span> |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; f E;
+        <span class="kr">let</span> <span class="nv">g</span> := make_hyp_check E <span class="kr">in</span>
+        <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+        matched_rewrite E; monoid_zap_body M h
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">monoid_zap</span> M := monoid_clean_all M; monoid_zap_body M id_check.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * TESTS *)</span>
+<span class="c">(*</span>
+<span class="c">Unset Ltac Debug.</span>
+
+<span class="c">Section Tests.</span>
+<span class="c">  Open Scope multmonoid.</span>
+
+<span class="c">  Hypothesis M : monoid.</span>
+
+<span class="c">  Hypothesis x y z u v w : M.</span>
+
+<span class="c">  Lemma test_op_strip_1 (is : w = v): x * (y * w) = x * (y * v).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. op_strip (@op M). assumption.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_assocop_clean_1 (is : w = v):  x * (y * w) = (x * y) * v.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. assocop_clean M (@op M). op_strip (@op M). assumption.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_assocop_clean_in_1 (t : x * (y * (z * u)) = (v * w) * u) :</span>
+<span class="c">    (((x * y) * z) * u) * w = v * (w * (u * w)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. assocop_clean_in M (@op M) t. assocop_clean M (@op M).</span>
+<span class="c">    rewrite t. op_strip (@op M). apply idpath.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_assocop_clean_all_1 (t : x * (y * (z * u)) = (v * w) * u) :</span>
+<span class="c">    (((x * y) * z) * u) * w = v * (w * (u * w)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. assocop_clean_all M (@op M). rewrite t. op_strip (@op M).</span>
+<span class="c">    apply idpath.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_assocop_group_1 (t : x * (y * (z * u)) = (v * w) * u) :</span>
+<span class="c">    ((x * (y * z)) * u) * w = v * (w * (u * w)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. assocop_group_in M (@op M) t w u.</span>
+<span class="c">    assocop_group M (@op M) w u. assocop_group M (@op M) v (w * u).</span>
+<span class="c">    rewrite &lt;- t. assocop_trivial M (@op M).</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_monoid_zap_1 (t : x * (y * (z * u)) = (v * w) * u) :</span>
+<span class="c">    ((x * (y * z)) * u) * w = v * (w * (u * w)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. monoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_monoid_zap_2 (t : x * y = y * x) : x * y * x = x * x * y.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. monoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_monoid_zap_3 (t : x * y = y * x) (i : x * z = @unel M) :</span>
+<span class="c">    x * (y * z) = y * (x * z).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. monoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Close Scope multmonoid.</span>
+<span class="c">End Tests.</span>
+<span class="c"> *)</span></span></pre>
+</div>
+</div></body>
+</html>

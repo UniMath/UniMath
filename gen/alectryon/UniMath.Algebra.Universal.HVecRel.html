@@ -1,0 +1,819 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>HVecRel.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Universal.HVectors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd">  Given a vector of relations on types</span>
+<span class="sd">  we can define the corresponding relation on the corresponding hvec.</span>
+
+<span class="sd">  If the relations are equivalence relations</span>
+<span class="sd">  then the quotients hvec is equivalent (as a type)</span>
+<span class="sd">  to the quotient of the defined relation</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk1"><span class="kn">Definition</span> <span class="nf">hrelhvec</span> {<span class="nv">n</span>:nat} (<span class="nv">v</span> : vec UU n) (<span class="nv">rels</span>: hvec (vec_map hrel v))
+  : (hrel (hvec v)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map hrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel (hvec v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map hrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel (hvec v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk3"><span class="nb">revert</span> n v rels.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (n : ℕ) (v : vec UU n),
+hvec (vec_map hrel v) → hrel (hvec v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk4">use vec_ind.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ hvec (vec_map hrel v) → hrel (hvec v)) <span class="mi">0</span> [()]%vec</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ hvec (vec_map hrel v0) → hrel (hvec v0)) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   hvec (vec_map hrel v0) → hrel (hvec v0)) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ hvec (vec_map hrel v) → hrel (hvec v)) <span class="mi">0</span> [()]%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk6"><span class="nb">intros</span> rels.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map hrel [()])</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel (hvec [()])</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">use uniteqrel.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ hvec (vec_map hrel v0) → hrel (hvec v0)) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   hvec (vec_map hrel v0) → hrel (hvec v0)) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk8"><span class="nb">intros</span> X n v IH rels.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ hvec (vec_map hrel v) → hrel (hvec v)) n v</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map hrel (X ::: v))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel (hvec (X ::: v))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk9"><span class="nb">destruct</span> rels <span class="kr">as</span> [relX relsv].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ hvec (vec_map hrel v) → hrel (hvec v)) n v</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (X ::: v))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (X ::: v)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel (hvec (X ::: v))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chka">use hreldirprod.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ hvec (vec_map hrel v) → hrel (hvec v)) n v</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (X ::: v))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (X ::: v)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel (pr1 (X ::: v)%vec)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="hvecrel-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ hvec (vec_map hrel v) → hrel (hvec v)) n v</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (X ::: v))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (X ::: v)))</span></span></span><br></div><label class="goal-separator" for="hvecrel-v-chkb"><hr></label><div class="goal-conclusion">hrel
+  ((<span class="kr">fix</span> F (n : ℕ) :
+        (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ,
+         ∏ v : vec UU n0,
+         (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) n0 v) n :=
+      <span class="kr">match</span>
+        n <span class="kr">as</span> n0
+        <span class="kr">return</span>
+          ((<span class="kr">λ</span> <span class="nv">n1</span> : ℕ,
+            ∏ v : vec UU n1,
+            (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1 v) n0)
+      <span class="kr">with</span>
+      | <span class="mi">0</span> =&gt;
+          <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+          transportb
+            ((<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">_</span> : vec UU n0), UU) <span class="mi">0</span>)
+            (vec0_eq v [()]) unit
+      | S n0 =&gt;
+          (<span class="kr">λ</span> (<span class="nv">m</span> : ℕ)
+           (<span class="nv">H</span> : ∏ v : vec UU m,
+                (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) m v)
+           (<span class="nv">v</span> : vec UU (S m)),
+           (<span class="kr">λ</span> (<span class="nv">x</span> : UU) (<span class="nv">n1</span> : ℕ) 
+            (<span class="nv">v0</span> : vec UU n1)
+            (<span class="nv">IHv</span> : (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1
+                     v0), 
+            x × IHv) (pr1 v) m 
+             (pr2 v) (H (pr2 v))) n0 
+            (F n0)
+      <span class="kr">end</span>) n (pr2 (X ::: v)%vec))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chkc">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ hvec (vec_map hrel v) → hrel (hvec v)) n v</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (X ::: v))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (X ::: v)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel (pr1 (X ::: v)%vec)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">use relX.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chkd">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ hvec (vec_map hrel v) → hrel (hvec v)) n v</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (X ::: v))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (X ::: v)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel
+  ((<span class="kr">fix</span> F (n : ℕ) :
+        (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ,
+         ∏ v : vec UU n0,
+         (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) n0 v) n :=
+      <span class="kr">match</span>
+        n <span class="kr">as</span> n0
+        <span class="kr">return</span>
+          ((<span class="kr">λ</span> <span class="nv">n1</span> : ℕ,
+            ∏ v : vec UU n1,
+            (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1 v) n0)
+      <span class="kr">with</span>
+      | <span class="mi">0</span> =&gt;
+          <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+          transportb
+            ((<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">_</span> : vec UU n0), UU) <span class="mi">0</span>)
+            (vec0_eq v [()]) unit
+      | S n0 =&gt;
+          (<span class="kr">λ</span> (<span class="nv">m</span> : ℕ)
+           (<span class="nv">H</span> : ∏ v : vec UU m,
+                (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) m v)
+           (<span class="nv">v</span> : vec UU (S m)),
+           (<span class="kr">λ</span> (<span class="nv">x</span> : UU) (<span class="nv">n1</span> : ℕ) 
+            (<span class="nv">v0</span> : vec UU n1)
+            (<span class="nv">IHv</span> : (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1
+                     v0), 
+            x × IHv) (pr1 v) m 
+             (pr2 v) (H (pr2 v))) n0 
+            (F n0)
+      <span class="kr">end</span>) n (pr2 (X ::: v)%vec))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chke">use IH.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ hvec (vec_map hrel v) → hrel (hvec v)) n v</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (X ::: v))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (X ::: v)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec (vec_map hrel v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> relsv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chkf"><span class="kn">Definition</span> <span class="nf">pr1eqrelhvec</span> {<span class="nv">n</span>:nat} {<span class="nv">v</span> : vec UU n} : hvec (vec_map eqrel v) -&gt; hvec (vec_map hrel v).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec (vec_map eqrel v) → hvec (vec_map hrel v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk10"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec (vec_map eqrel v) → hvec (vec_map hrel v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk11">use h1map.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : UU, eqrel a → hrel a</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input">use pr1eqrel.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk12"><span class="kn">Definition</span> <span class="nf">eqrelhvec</span> {<span class="nv">n</span>:nat} (<span class="nv">v</span> : vec UU n) (<span class="nv">rels</span>: hvec (vec_map eqrel v))
+  : (eqrel (hvec v)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">eqrel (hvec v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk13"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">eqrel (hvec v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk14">use make_eqrel.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel (hvec v)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="hvecrel-v-chk15" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><label class="goal-separator" for="hvecrel-v-chk15"><hr></label><div class="goal-conclusion">iseqrel <span class="nl">?R</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk16">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel (hvec v)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (hrelhvec v (pr1eqrelhvec rels)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk17">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iseqrel (hrelhvec v (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk18"><span class="nb">revert</span> rels.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ rels : hvec (vec_map eqrel v),
+iseqrel (hrelhvec v (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk19">use (vec_ind (<span class="kr">λ</span> <span class="nv">n</span> <span class="nv">v</span>, ∏ rels : hvec (vec_map eqrel v), iseqrel (hrelhvec v (pr1eqrelhvec rels)))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ iseqrel (hrelhvec v (pr1eqrelhvec rels))) <span class="mi">0</span> [()]%vec</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="hvecrel-v-chk1a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><label class="goal-separator" for="hvecrel-v-chk1a"><hr></label><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ ∏ rels : hvec (vec_map eqrel v0),
+ iseqrel (hrelhvec v0 (pr1eqrelhvec rels))) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   ∏ rels : hvec (vec_map eqrel v0),
+   iseqrel (hrelhvec v0 (pr1eqrelhvec rels))) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk1b">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ iseqrel (hrelhvec v (pr1eqrelhvec rels))) <span class="mi">0</span> [()]%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk1c"><span class="nb">intro</span> v&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel [()])</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iseqrel (hrelhvec [()] (pr1eqrelhvec v&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">use iseqrelunittrivialrel.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk1d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ ∏ rels : hvec (vec_map eqrel v0),
+ iseqrel (hrelhvec v0 (pr1eqrelhvec rels))) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   ∏ rels : hvec (vec_map eqrel v0),
+   iseqrel (hrelhvec v0 (pr1eqrelhvec rels))) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk1e"><span class="nb">intros</span> x n&#39; v&#39; IH rels.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ iseqrel (hrelhvec v (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iseqrel (hrelhvec (x ::: v&#39;) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk1f">use iseqreldirprod.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ iseqrel (hrelhvec v (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iseqrel (hhd rels)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="hvecrel-v-chk20" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ iseqrel (hrelhvec v (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><label class="goal-separator" for="hvecrel-v-chk20"><hr></label><div class="goal-conclusion">iseqrel
+  ((<span class="kr">fix</span> F (n : ℕ) :
+        (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ,
+         ∏ v : vec UU n0,
+         (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">v0</span> : vec UU n1),
+          hvec (vec_map hrel v0) → hrel (hvec v0)) n0
+           v) n :=
+      <span class="kr">match</span>
+        n <span class="kr">as</span> n0
+        <span class="kr">return</span>
+          ((<span class="kr">λ</span> <span class="nv">n1</span> : ℕ,
+            ∏ v : vec UU n1,
+            (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">v0</span> : vec UU n2),
+             hvec (vec_map hrel v0) → hrel (hvec v0))
+              n1 v) n0)
+      <span class="kr">with</span>
+      | <span class="mi">0</span> =&gt;
+          <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+          transportb
+            ((<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) 
+              (<span class="nv">v0</span> : vec UU n0),
+              hvec (vec_map hrel v0) → hrel (hvec v0))
+               <span class="mi">0</span>) (vec0_eq v [()])
+            ((<span class="kr">λ</span> <span class="nv">_</span> : hvec (vec_map hrel [()]),
+              uniteqrel)
+             :
+             (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) 
+              (<span class="nv">v0</span> : vec UU n0),
+              hvec (vec_map hrel v0) → hrel (hvec v0))
+               <span class="mi">0</span> [()]%vec)
+      | S n0 =&gt;
+          (<span class="kr">λ</span> (<span class="nv">m</span> : ℕ)
+           (<span class="nv">H</span> : ∏ v : vec UU m,
+                (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) 
+                 (<span class="nv">v0</span> : vec UU n1),
+                 hvec (vec_map hrel v0)
+                 → hrel (hvec v0)) m v)
+           (<span class="nv">v</span> : vec UU (S m)),
+           (<span class="kr">λ</span> (<span class="nv">X</span> : UU) (<span class="nv">n1</span> : ℕ) 
+            (<span class="nv">v0</span> : vec UU n1)
+            (<span class="nv">IH</span> : (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) 
+                   (<span class="nv">v1</span> : vec UU n2),
+                   hvec (vec_map hrel v1)
+                   → hrel (hvec v1)) n1 v0),
+            (<span class="kr">λ</span> <span class="nv">rels</span> : hvec (vec_map hrel (X ::: v0)),
+             (<span class="kr">λ</span> (<span class="nv">relX</span> : pr1 (vec_map hrel (X ::: v0)))
+              (<span class="nv">relsv</span> : hvec
+                        (pr2 (vec_map hrel (X ::: v0)))),
+              hreldirprod relX (IH relsv)) 
+               (pr1 rels) 
+               (pr2 rels))
+            :
+            (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">v1</span> : vec UU n2),
+             hvec (vec_map hrel v1) → hrel (hvec v1))
+              (S n1) (X ::: v0)%vec) 
+             (pr1 v) m (pr2 v) 
+             (H (pr2 v))) n0 
+            (F n0)
+      <span class="kr">end</span>) n&#39; (pr2 (x ::: v&#39;)%vec)
+     (pr2 (pr1eqrelhvec rels)))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk21">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ iseqrel (hrelhvec v (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iseqrel (hhd rels)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">use (iseqreleqrel (hhd rels)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk22">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ iseqrel (hrelhvec v (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iseqrel
+  ((<span class="kr">fix</span> F (n : ℕ) :
+        (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ,
+         ∏ v : vec UU n0,
+         (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">v0</span> : vec UU n1),
+          hvec (vec_map hrel v0) → hrel (hvec v0)) n0
+           v) n :=
+      <span class="kr">match</span>
+        n <span class="kr">as</span> n0
+        <span class="kr">return</span>
+          ((<span class="kr">λ</span> <span class="nv">n1</span> : ℕ,
+            ∏ v : vec UU n1,
+            (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">v0</span> : vec UU n2),
+             hvec (vec_map hrel v0) → hrel (hvec v0))
+              n1 v) n0)
+      <span class="kr">with</span>
+      | <span class="mi">0</span> =&gt;
+          <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+          transportb
+            ((<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) 
+              (<span class="nv">v0</span> : vec UU n0),
+              hvec (vec_map hrel v0) → hrel (hvec v0))
+               <span class="mi">0</span>) (vec0_eq v [()])
+            ((<span class="kr">λ</span> <span class="nv">_</span> : hvec (vec_map hrel [()]),
+              uniteqrel)
+             :
+             (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) 
+              (<span class="nv">v0</span> : vec UU n0),
+              hvec (vec_map hrel v0) → hrel (hvec v0))
+               <span class="mi">0</span> [()]%vec)
+      | S n0 =&gt;
+          (<span class="kr">λ</span> (<span class="nv">m</span> : ℕ)
+           (<span class="nv">H</span> : ∏ v : vec UU m,
+                (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) 
+                 (<span class="nv">v0</span> : vec UU n1),
+                 hvec (vec_map hrel v0)
+                 → hrel (hvec v0)) m v)
+           (<span class="nv">v</span> : vec UU (S m)),
+           (<span class="kr">λ</span> (<span class="nv">X</span> : UU) (<span class="nv">n1</span> : ℕ) 
+            (<span class="nv">v0</span> : vec UU n1)
+            (<span class="nv">IH</span> : (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) 
+                   (<span class="nv">v1</span> : vec UU n2),
+                   hvec (vec_map hrel v1)
+                   → hrel (hvec v1)) n1 v0),
+            (<span class="kr">λ</span> <span class="nv">rels</span> : hvec (vec_map hrel (X ::: v0)),
+             (<span class="kr">λ</span> (<span class="nv">relX</span> : pr1 (vec_map hrel (X ::: v0)))
+              (<span class="nv">relsv</span> : hvec
+                        (pr2 (vec_map hrel (X ::: v0)))),
+              hreldirprod relX (IH relsv)) 
+               (pr1 rels) 
+               (pr2 rels))
+            :
+            (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">v1</span> : vec UU n2),
+             hvec (vec_map hrel v1) → hrel (hvec v1))
+              (S n1) (X ::: v0)%vec) 
+             (pr1 v) m (pr2 v) 
+             (H (pr2 v))) n0 
+            (F n0)
+      <span class="kr">end</span>) n&#39; (pr2 (x ::: v&#39;)%vec)
+     (pr2 (pr1eqrelhvec rels)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">use IH.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk23"><span class="kn">Lemma</span> <span class="nf">pr1eqrelhvec_eq</span> {<span class="nv">n</span>:nat} {<span class="nv">v</span> : vec UU n} (<span class="nv">rels</span>: hvec (vec_map eqrel v))
+  : pr1eqrel _ (eqrelhvec v rels) =
+    hrelhvec v (pr1eqrelhvec rels).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">eqrelhvec v rels = hrelhvec v (pr1eqrelhvec rels)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk24"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">eqrelhvec v rels = hrelhvec v (pr1eqrelhvec rels)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk25"><span class="kn">Definition</span> <span class="nf">hvectosetquot</span> {<span class="nv">n</span>:nat} {<span class="nv">v</span> : vec UU n} (<span class="nv">rels</span>: hvec (vec_map hrel v))
+  (<span class="nv">c</span> : hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">_</span>, setquot) rels)) :
+  setquot (hrelhvec v rels).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map hrel v)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hrelhvec v rels)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk26"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map hrel v)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hrelhvec v rels)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk27"><span class="nb">revert</span> rels c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ rels : hvec (vec_map hrel v),
+hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels)
+→ setquot (hrelhvec v rels)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk28">use (vec_ind (<span class="kr">λ</span> <span class="nv">n</span> <span class="nv">v</span>, ∏ rels0 : hvec (vec_map hrel v),
+    hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0) →
+    setquot (hrelhvec v rels0))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) <span class="mi">0</span> [()]%vec</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="hvecrel-v-chk29" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><label class="goal-separator" for="hvecrel-v-chk29"><hr></label><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ ∏ rels0 : hvec (vec_map hrel v0),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v0 rels0)) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   ∏ rels0 : hvec (vec_map hrel v0),
+   hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+   → setquot (hrelhvec v0 rels0)) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk2a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) <span class="mi">0</span> [()]%vec</div></blockquote></div></div></small></span><span class="alectryon-wsp"> <span class="c">(*This bullet is just trivialities on [[unit]]</span>
+<span class="c">    TODO: move in MoreFoundations*)</span>
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk2b"><span class="nb">intros</span> rels c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map hrel [()])</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hrelhvec [()] rels)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk2c"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map hrel [()])</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot unittrivialrel</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> unittrivialrel_setquot.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk2d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ ∏ rels0 : hvec (vec_map hrel v0),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v0 rels0)) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   ∏ rels0 : hvec (vec_map hrel v0),
+   hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+   → setquot (hrelhvec v0 rels0)) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk2e"><span class="nb">intros</span> x n&#39; v&#39; IH rels c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map hrel (x ::: v&#39;))</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hrelhvec (x ::: v&#39;) rels)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk2f"><span class="nb">destruct</span> rels <span class="kr">as</span> [relX relsv].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) n&#39; v&#39;</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (x ::: v&#39;))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (x ::: v&#39;)))</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>hvec
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (relX,, relsv))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hrelhvec (x ::: v&#39;) (relX,, relsv))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk30"><span class="nb">destruct</span> c <span class="kr">as</span> [repX repsv].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) n&#39; v&#39;</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (x ::: v&#39;))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (x ::: v&#39;)))</span></span></span><br><span><var>repX</var><span class="hyp-type"><b>: </b><span>pr1
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (relX,, relsv))</span></span></span><br><span><var>repsv</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (relX,, relsv)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hrelhvec (x ::: v&#39;) (relX,, relsv))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk31">use dirprodtosetquot.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) n&#39; v&#39;</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (x ::: v&#39;))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (x ::: v&#39;)))</span></span></span><br><span><var>repX</var><span class="hyp-type"><b>: </b><span>pr1
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (relX,, relsv))</span></span></span><br><span><var>repsv</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (relX,, relsv)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot relX
+× setquot
+    ((<span class="kr">fix</span> F (n : ℕ) :
+          (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ,
+           ∏ v : vec UU n0,
+           (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">v0</span> : vec UU n1),
+            hvec (vec_map hrel v0) → hrel (hvec v0))
+             n0 v) n :=
+        <span class="kr">match</span>
+          n <span class="kr">as</span> n0
+          <span class="kr">return</span>
+            ((<span class="kr">λ</span> <span class="nv">n1</span> : ℕ,
+              ∏ v : vec UU n1,
+              (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) 
+               (<span class="nv">v0</span> : vec UU n2),
+               hvec (vec_map hrel v0) → hrel (hvec v0))
+                n1 v) n0)
+        <span class="kr">with</span>
+        | <span class="mi">0</span> =&gt;
+            <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+            transportb
+              ((<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) 
+                (<span class="nv">v0</span> : vec UU n0),
+                hvec (vec_map hrel v0)
+                → hrel (hvec v0)) <span class="mi">0</span>) 
+              (vec0_eq v [()])
+              ((<span class="kr">λ</span> <span class="nv">_</span> : hvec (vec_map hrel [()]),
+                uniteqrel)
+               :
+               (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) 
+                (<span class="nv">v0</span> : vec UU n0),
+                hvec (vec_map hrel v0)
+                → hrel (hvec v0)) <span class="mi">0</span> [()]%vec)
+        | S n0 =&gt;
+            (<span class="kr">λ</span> (<span class="nv">m</span> : ℕ)
+             (<span class="nv">H</span> : ∏ v : vec UU m,
+                  (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) 
+                   (<span class="nv">v0</span> : vec UU n1),
+                   hvec (vec_map hrel v0)
+                   → hrel (hvec v0)) m v)
+             (<span class="nv">v</span> : vec UU (S m)),
+             (<span class="kr">λ</span> (<span class="nv">X</span> : UU) 
+              (<span class="nv">n1</span> : ℕ) (<span class="nv">v0</span> : vec UU n1)
+              (<span class="nv">IH</span> : (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) 
+                     (<span class="nv">v1</span> : vec UU n2),
+                     hvec (vec_map hrel v1)
+                     → hrel (hvec v1)) n1 v0),
+              (<span class="kr">λ</span> <span class="nv">rels</span> : hvec (vec_map hrel (X ::: v0)),
+               (<span class="kr">λ</span> (<span class="nv">relX</span> : 
+                   pr1 (vec_map hrel (X ::: v0)))
+                (<span class="nv">relsv</span> : 
+                 hvec (pr2 (vec_map hrel (...)))),
+                hreldirprod relX (IH relsv))
+                 (pr1 rels) 
+                 (pr2 rels))
+              :
+              (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) 
+               (<span class="nv">v1</span> : vec UU n2),
+               hvec (vec_map hrel v1) → hrel (hvec v1))
+                (S n1) (X ::: v0)%vec) 
+               (pr1 v) m 
+               (pr2 v) (H (pr2 v))) n0 
+              (F n0)
+        <span class="kr">end</span>) n&#39; (pr2 (x ::: v&#39;)%vec)
+       (pr2 (relX,, relsv)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk32"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) n&#39; v&#39;</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (x ::: v&#39;))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (x ::: v&#39;)))</span></span></span><br><span><var>repX</var><span class="hyp-type"><b>: </b><span>pr1
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (relX,, relsv))</span></span></span><br><span><var>repsv</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (relX,, relsv)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot relX</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="hvecrel-v-chk33" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) n&#39; v&#39;</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (x ::: v&#39;))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (x ::: v&#39;)))</span></span></span><br><span><var>repX</var><span class="hyp-type"><b>: </b><span>pr1
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (relX,, relsv))</span></span></span><br><span><var>repsv</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (relX,, relsv)))</span></span></span><br></div><label class="goal-separator" for="hvecrel-v-chk33"><hr></label><div class="goal-conclusion">setquot
+  ((<span class="kr">fix</span> F (n : ℕ) :
+        ∏ v : vec UU n,
+        hvec (vec_map hrel v) → hrel (hvec v) :=
+      <span class="kr">match</span>
+        n <span class="kr">as</span> n0
+        <span class="kr">return</span>
+          (∏ v : vec UU n0,
+           hvec (vec_map hrel v) → hrel (hvec v))
+      <span class="kr">with</span>
+      | <span class="mi">0</span> =&gt;
+          <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+          transportb
+            (<span class="kr">λ</span> <span class="nv">v0</span> : vec UU <span class="mi">0</span>,
+             hvec (vec_map hrel v0) → hrel (hvec v0))
+            (vec0_eq v [()])
+            (<span class="kr">λ</span> <span class="nv">_</span> : hvec (vec_map hrel [()]), uniteqrel)
+      | S n0 =&gt;
+          <span class="kr">λ</span> (<span class="nv">v</span> : vec UU (S n0))
+          (<span class="nv">rels</span> : hvec
+                    (vec_map hrel (pr1 v ::: pr2 v))),
+          hreldirprod (pr1 rels)
+            (F n0 (pr2 v) (pr2 rels))
+      <span class="kr">end</span>) n&#39; (pr2 (x ::: v&#39;)%vec) relsv)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk34">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) n&#39; v&#39;</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (x ::: v&#39;))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (x ::: v&#39;)))</span></span></span><br><span><var>repX</var><span class="hyp-type"><b>: </b><span>pr1
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (relX,, relsv))</span></span></span><br><span><var>repsv</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (relX,, relsv)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot relX</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> repX.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk35">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) n&#39; v&#39;</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (x ::: v&#39;))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (x ::: v&#39;)))</span></span></span><br><span><var>repX</var><span class="hyp-type"><b>: </b><span>pr1
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (relX,, relsv))</span></span></span><br><span><var>repsv</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (relX,, relsv)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot
+  ((<span class="kr">fix</span> F (n : ℕ) :
+        ∏ v : vec UU n,
+        hvec (vec_map hrel v) → hrel (hvec v) :=
+      <span class="kr">match</span>
+        n <span class="kr">as</span> n0
+        <span class="kr">return</span>
+          (∏ v : vec UU n0,
+           hvec (vec_map hrel v) → hrel (hvec v))
+      <span class="kr">with</span>
+      | <span class="mi">0</span> =&gt;
+          <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+          transportb
+            (<span class="kr">λ</span> <span class="nv">v0</span> : vec UU <span class="mi">0</span>,
+             hvec (vec_map hrel v0) → hrel (hvec v0))
+            (vec0_eq v [()])
+            (<span class="kr">λ</span> <span class="nv">_</span> : hvec (vec_map hrel [()]), uniteqrel)
+      | S n0 =&gt;
+          <span class="kr">λ</span> (<span class="nv">v</span> : vec UU (S n0))
+          (<span class="nv">rels</span> : hvec
+                    (vec_map hrel (pr1 v ::: pr2 v))),
+          hreldirprod (pr1 rels)
+            (F n0 (pr2 v) (pr2 rels))
+      <span class="kr">end</span>) n&#39; (pr2 (x ::: v&#39;)%vec) relsv)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk36">use IH.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels0 : hvec (vec_map hrel v),
+ hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) rels0)
+ → setquot (hrelhvec v rels0)) n&#39; v&#39;</span></span></span><br><span><var>relX</var><span class="hyp-type"><b>: </b><span>pr1 (vec_map hrel (x ::: v&#39;))</span></span></span><br><span><var>relsv</var><span class="hyp-type"><b>: </b><span>hvec (pr2 (vec_map hrel (x ::: v&#39;)))</span></span></span><br><span><var>repX</var><span class="hyp-type"><b>: </b><span>pr1
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (relX,, relsv))</span></span></span><br><span><var>repsv</var><span class="hyp-type"><b>: </b><span>hvec
+  (pr2
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (relX,, relsv)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) relsv)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> repsv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk37"><span class="kn">Definition</span> <span class="nf">setquottohvec</span> {<span class="nv">n</span>:nat} {<span class="nv">v</span> : vec UU n} (<span class="nv">rels</span>: hvec (vec_map eqrel v))
+  (<span class="nv">c</span> : setquot (eqrelhvec v rels))
+  : hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">_</span>, setquot) (pr1eqrelhvec rels)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec v rels)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk38"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec v rels)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk39"><span class="nb">revert</span> rels c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ rels : hvec (vec_map eqrel v),
+setquot (eqrelhvec v rels)
+→ hvec
+    (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk3a">use (vec_ind (<span class="kr">λ</span> <span class="nv">n</span> <span class="nv">v</span>, ∏ rels : hvec (vec_map eqrel v),
+    setquot (eqrelhvec v rels)
+    → hvec
+    (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+    (pr1eqrelhvec rels)))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) <span class="mi">0</span> [()]%vec</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="hvecrel-v-chk3b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><label class="goal-separator" for="hvecrel-v-chk3b"><hr></label><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ ∏ rels : hvec (vec_map eqrel v0),
+ setquot (eqrelhvec v0 rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   ∏ rels : hvec (vec_map eqrel v0),
+   setquot (eqrelhvec v0 rels)
+   → hvec
+       (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+          (pr1eqrelhvec rels))) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk3c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) <span class="mi">0</span> [()]%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk3d"><span class="nb">intros</span> rels c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel [()])</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec [()] rels)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> tt.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk3e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ ∏ rels : hvec (vec_map eqrel v0),
+ setquot (eqrelhvec v0 rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   ∏ rels : hvec (vec_map eqrel v0),
+   setquot (eqrelhvec v0 rels)
+   → hvec
+       (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+          (pr1eqrelhvec rels))) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk3f"><span class="nb">intros</span> X n&#39; v&#39; IH rels c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (X ::: v&#39;))</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec (X ::: v&#39;) rels)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    <span class="c">(* change (eqrelhvec (X ::: v&#39;) rels)</span>
+<span class="c">      with (eqreldirprod (hhd rels) (eqrelhvec v&#39; (htl rels)))</span>
+<span class="c">      in c. *)</span>
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk40"><span class="nb">destruct</span> (setquottodirprod (hhd rels) (eqrelhvec v&#39; (htl rels)) c) <span class="kr">as</span> [clsX clssv].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (X ::: v&#39;))</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec (X ::: v&#39;) rels)</span></span></span><br><span><var>clsX</var><span class="hyp-type"><b>: </b><span>setquot (hhd rels)</span></span></span><br><span><var>clssv</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec v&#39; (htl rels))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hvec
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk41">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (X ::: v&#39;))</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec (X ::: v&#39;) rels)</span></span></span><br><span><var>clsX</var><span class="hyp-type"><b>: </b><span>setquot (hhd rels)</span></span></span><br><span><var>clssv</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec v&#39; (htl rels))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="hvecrel-v-chk42" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (X ::: v&#39;))</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec (X ::: v&#39;) rels)</span></span></span><br><span><var>clsX</var><span class="hyp-type"><b>: </b><span>setquot (hhd rels)</span></span></span><br><span><var>clssv</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec v&#39; (htl rels))</span></span></span><br></div><label class="goal-separator" for="hvecrel-v-chk42"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : pr1
+         (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+            (pr1eqrelhvec rels)),
+ (<span class="kr">fix</span> F (n : ℕ) :
+      (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ,
+       ∏ v : vec UU n0,
+       (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) n0 v) n :=
+    <span class="kr">match</span>
+      n <span class="kr">as</span> n0
+      <span class="kr">return</span>
+        ((<span class="kr">λ</span> <span class="nv">n1</span> : ℕ,
+          ∏ v : vec UU n1,
+          (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1 v) n0)
+    <span class="kr">with</span>
+    | <span class="mi">0</span> =&gt;
+        <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+        transportb
+          ((<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">_</span> : vec UU n0), UU) <span class="mi">0</span>)
+          (vec0_eq v [()]) unit
+    | S n0 =&gt;
+        (<span class="kr">λ</span> (<span class="nv">m</span> : ℕ)
+         (<span class="nv">H</span> : ∏ v : vec UU m,
+              (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) m v)
+         (<span class="nv">v</span> : vec UU (S m)),
+         (<span class="kr">λ</span> (<span class="nv">x</span> : UU) (<span class="nv">n1</span> : ℕ) 
+          (<span class="nv">v0</span> : vec UU n1)
+          (<span class="nv">IHv</span> : (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1
+                   v0), x × IHv) 
+           (pr1 v) m (pr2 v) 
+           (H (pr2 v))) n0 
+          (F n0)
+    <span class="kr">end</span>) n&#39;
+   (pr2
+      (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+         (pr1eqrelhvec rels)))) 
+  <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk43">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (X ::: v&#39;))</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec (X ::: v&#39;) rels)</span></span></span><br><span><var>clsX</var><span class="hyp-type"><b>: </b><span>setquot (hhd rels)</span></span></span><br><span><var>clssv</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec v&#39; (htl rels))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> clsX.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk44">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (X ::: v&#39;))</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec (X ::: v&#39;) rels)</span></span></span><br><span><var>clsX</var><span class="hyp-type"><b>: </b><span>setquot (hhd rels)</span></span></span><br><span><var>clssv</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec v&#39; (htl rels))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : pr1
+         (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+            (pr1eqrelhvec rels)),
+ (<span class="kr">fix</span> F (n : ℕ) :
+      (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ,
+       ∏ v : vec UU n0,
+       (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) n0 v) n :=
+    <span class="kr">match</span>
+      n <span class="kr">as</span> n0
+      <span class="kr">return</span>
+        ((<span class="kr">λ</span> <span class="nv">n1</span> : ℕ,
+          ∏ v : vec UU n1,
+          (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1 v) n0)
+    <span class="kr">with</span>
+    | <span class="mi">0</span> =&gt;
+        <span class="kr">λ</span> <span class="nv">v</span> : vec UU <span class="mi">0</span>,
+        transportb
+          ((<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">_</span> : vec UU n0), UU) <span class="mi">0</span>)
+          (vec0_eq v [()]) unit
+    | S n0 =&gt;
+        (<span class="kr">λ</span> (<span class="nv">m</span> : ℕ)
+         (<span class="nv">H</span> : ∏ v : vec UU m,
+              (<span class="kr">λ</span> (<span class="nv">n1</span> : ℕ) (<span class="nv">_</span> : vec UU n1), UU) m v)
+         (<span class="nv">v</span> : vec UU (S m)),
+         (<span class="kr">λ</span> (<span class="nv">x</span> : UU) (<span class="nv">n1</span> : ℕ) 
+          (<span class="nv">v0</span> : vec UU n1)
+          (<span class="nv">IHv</span> : (<span class="kr">λ</span> (<span class="nv">n2</span> : ℕ) (<span class="nv">_</span> : vec UU n2), UU) n1
+                   v0), x × IHv) 
+           (pr1 v) m (pr2 v) 
+           (H (pr2 v))) n0 
+          (F n0)
+    <span class="kr">end</span>) n&#39;
+   (pr2
+      (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+         (pr1eqrelhvec rels)))) clsX</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk45">use IH.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ → hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (X ::: v&#39;))</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec (X ::: v&#39;) rels)</span></span></span><br><span><var>clsX</var><span class="hyp-type"><b>: </b><span>setquot (hhd rels)</span></span></span><br><span><var>clssv</var><span class="hyp-type"><b>: </b><span>setquot (eqrelhvec v&#39; (htl rels))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (eqrelhvec v&#39; (htl rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> clssv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk46"><span class="kn">Theorem</span> <span class="nf">weqsetquottohvec</span> {<span class="nv">n</span>:nat} (<span class="nv">v</span> : vec UU n) (<span class="nv">rels</span>: hvec (vec_map eqrel v)) :
+  weq (setquot (eqrelhvec v rels)) (hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">_</span>, setquot) (pr1eqrelhvec rels))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (eqrelhvec v rels)
+≃ hvec
+    (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk47"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel v)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (eqrelhvec v rels)
+≃ hvec
+    (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk48"><span class="nb">revert</span> rels.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ rels : hvec (vec_map eqrel v),
+setquot (eqrelhvec v rels)
+≃ hvec
+    (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk49">use (vec_ind (<span class="kr">λ</span> <span class="nv">n</span> <span class="nv">v</span>, ∏ (rels : hvec (vec_map eqrel v)),
+    setquot (eqrelhvec v rels) ≃
+    hvec (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels)))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) <span class="mi">0</span> [()]%vec</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="hvecrel-v-chk4a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><label class="goal-separator" for="hvecrel-v-chk4a"><hr></label><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ ∏ rels : hvec (vec_map eqrel v0),
+ setquot (eqrelhvec v0 rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   ∏ rels : hvec (vec_map eqrel v0),
+   setquot (eqrelhvec v0 rels)
+   ≃ hvec
+       (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+          (pr1eqrelhvec rels))) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk4b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) <span class="mi">0</span> [()]%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk4c"><span class="nb">intros</span> t.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel [()])</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (eqrelhvec [()] t)
+≃ hvec
+    (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec t))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk4d"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel [()])</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot unittrivialrel ≃ unit</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk4e">use weqcontrtounit.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel [()])</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">iscontr (setquot unittrivialrel)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input">use iscontr_setquotuniteqrel.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk4f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : UU) (n : ℕ) (v : vec UU n),
+(<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+ ∏ rels : hvec (vec_map eqrel v0),
+ setquot (eqrelhvec v0 rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n v
+→ (<span class="kr">λ</span> (<span class="nv">n0</span> : ℕ) (<span class="nv">v0</span> : vec UU n0),
+   ∏ rels : hvec (vec_map eqrel v0),
+   setquot (eqrelhvec v0 rels)
+   ≃ hvec
+       (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+          (pr1eqrelhvec rels))) 
+    (S n) (x ::: v)%vec</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk50"><span class="nb">intros</span> x n&#39; v&#39; IH rels.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (eqrelhvec (x ::: v&#39;) rels)
+≃ hvec
+    (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk51"><span class="nb">change</span> (eqrelhvec (x ::: v&#39;) rels) <span class="kr">with</span> (eqreldirprod (hhd rels) (eqrelhvec v&#39; (htl rels))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot
+  (eqreldirprod (hhd rels) (eqrelhvec v&#39; (htl rels)))
+≃ hvec
+    (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk52">use (weqcomp (weqsetquottodirprod (hhd rels) (eqrelhvec v&#39; (htl rels)))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hhd rels) × setquot (eqrelhvec v&#39; (htl rels))
+≃ hvec
+    (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot) (pr1eqrelhvec rels))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk53"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hhd rels)
+× setquot (hrelhvec v&#39; (pr1eqrelhvec (htl rels)))
+≃ setquot (hhd rels)
+  × hvec
+      (h1lower
+         (h1map (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+            (h1map pr1eqrel (htl rels))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk54">use eqweqmap.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(setquot (hhd rels)
+ × setquot (hrelhvec v&#39; (pr1eqrelhvec (htl rels)))) =
+(setquot (hhd rels)
+ × hvec
+     (h1lower
+        (h1map (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+           (h1map pr1eqrel (htl rels)))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk55">use (maponpaths (<span class="kr">λ</span> <span class="nv">arg</span>, setquot (hhd rels) × arg)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hrelhvec v&#39; (pr1eqrelhvec (htl rels))) =
+hvec
+  (h1lower
+     (h1map (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (h1map pr1eqrel (htl rels))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="hvecrel-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="hvecrel-v-chk56">use weqtopaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>vec UU n</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>n'</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>v'</var><span class="hyp-type"><b>: </b><span>vec UU n&#39;</span></span></span><br><span><var>IH</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> (<span class="nv">n</span> : ℕ) (<span class="nv">v</span> : vec UU n),
+ ∏ rels : hvec (vec_map eqrel v),
+ setquot (eqrelhvec v rels)
+ ≃ hvec
+     (h1map_vec (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+        (pr1eqrelhvec rels))) n&#39; v&#39;</span></span></span><br><span><var>rels</var><span class="hyp-type"><b>: </b><span>hvec (vec_map eqrel (x ::: v&#39;))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot (hrelhvec v&#39; (pr1eqrelhvec (htl rels)))
+≃ hvec
+    (h1lower
+       (h1map (<span class="kr">λ</span> <span class="nv">a</span> : UU, setquot)
+          (h1map pr1eqrel (htl rels))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input">use IH.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

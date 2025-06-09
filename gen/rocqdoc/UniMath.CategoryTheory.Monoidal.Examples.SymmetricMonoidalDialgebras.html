@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+**********************************************************
+
+<div class="paragraph"> </div>
+
+Contents :
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> constructs a displayed symmetric monoidal category that is displayed
+  over the monoidal dialgebras, its total category is called the
+  symmetric monoidal dialgebras
+
+<div class="paragraph"> </div>
+
+ 
+
+</li>
+</ul>
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Dialgebras.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Dialgebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Displayed.Monoidal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Displayed.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Total</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">mor_disp_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FixTwoSymmetricMonoidalFunctors" class="idref" href="#FixTwoSymmetricMonoidalFunctors"><span class="id" title="section">FixTwoSymmetricMonoidalFunctors</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#BifunctorNotations"><span class="id" title="module">BifunctorNotations</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.html#DisplayedBifunctorNotations"><span class="id" title="module">DisplayedBifunctorNotations</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.html#DisplayedMonoidalNotations"><span class="id" title="module">DisplayedMonoidalNotations</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FixTwoSymmetricMonoidalFunctors.A" class="idref" href="#FixTwoSymmetricMonoidalFunctors.A"><span class="id" title="variable">A</span></a> <a id="FixTwoSymmetricMonoidalFunctors.B" class="idref" href="#FixTwoSymmetricMonoidalFunctors.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="FixTwoSymmetricMonoidalFunctors.V" class="idref" href="#FixTwoSymmetricMonoidalFunctors.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#A:1"><span class="id" title="variable">A</span></a>} {<a id="FixTwoSymmetricMonoidalFunctors.W" class="idref" href="#FixTwoSymmetricMonoidalFunctors.W"><span class="id" title="variable">W</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#B:2"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="FixTwoSymmetricMonoidalFunctors.HV" class="idref" href="#FixTwoSymmetricMonoidalFunctors.HV"><span class="id" title="variable">HV</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#symmetric"><span class="id" title="definition">symmetric</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#V:3"><span class="id" title="variable">V</span></a>} {<a id="FixTwoSymmetricMonoidalFunctors.HW" class="idref" href="#FixTwoSymmetricMonoidalFunctors.HW"><span class="id" title="variable">HW</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#symmetric"><span class="id" title="definition">symmetric</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#W:4"><span class="id" title="variable">W</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="FixTwoSymmetricMonoidalFunctors.F" class="idref" href="#FixTwoSymmetricMonoidalFunctors.F"><span class="id" title="variable">F</span></a> <a id="FixTwoSymmetricMonoidalFunctors.G" class="idref" href="#FixTwoSymmetricMonoidalFunctors.G"><span class="id" title="variable">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#B:2"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="FixTwoSymmetricMonoidalFunctors.Fm" class="idref" href="#FixTwoSymmetricMonoidalFunctors.Fm"><span class="id" title="variable">Fm</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal"><span class="id" title="definition">fmonoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#V:3"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#W:4"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#F:7"><span class="id" title="variable">F</span></a>} {<a id="FixTwoSymmetricMonoidalFunctors.Gm" class="idref" href="#FixTwoSymmetricMonoidalFunctors.Gm"><span class="id" title="variable">Gm</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_lax"><span class="id" title="definition">fmonoidal_lax</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#V:3"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#W:4"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#G:8"><span class="id" title="variable">G</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FixTwoSymmetricMonoidalFunctors.Fs" class="idref" href="#FixTwoSymmetricMonoidalFunctors.Fs"><span class="id" title="variable">Fs</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#is_symmetric_monoidal_functor"><span class="id" title="definition">is_symmetric_monoidal_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#HV:5"><span class="id" title="variable">HV</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#HW:6"><span class="id" title="variable">HW</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#Fm:9"><span class="id" title="variable">Fm</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FixTwoSymmetricMonoidalFunctors.Gs" class="idref" href="#FixTwoSymmetricMonoidalFunctors.Gs"><span class="id" title="variable">Gs</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#is_symmetric_monoidal_functor"><span class="id" title="definition">is_symmetric_monoidal_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#HV:5"><span class="id" title="variable">HV</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#HW:6"><span class="id" title="variable">HW</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#Gm:10"><span class="id" title="variable">Gm</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="base_mon_disp" class="idref" href="#base_mon_disp"><span class="id" title="definition">base_mon_disp</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.html#disp_monoidal"><span class="id" title="definition">disp_monoidal</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.Dialgebras.html#dialgebra_disp_cat"><span class="id" title="definition">dialgebra_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.G"><span class="id" title="variable">G</span></a>) <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.V"><span class="id" title="variable">V</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.html#dialgebra_disp_monoidal"><span class="id" title="definition">dialgebra_disp_monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.Fm"><span class="id" title="variable">Fm</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.Gm"><span class="id" title="variable">Gm</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="dialgebra_disp_symmetric_data" class="idref" href="#dialgebra_disp_symmetric_data"><span class="id" title="lemma">dialgebra_disp_symmetric_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.html#disp_symmetric_data"><span class="id" title="definition">disp_symmetric_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#base_mon_disp"><span class="id" title="definition">base_mon_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.HV"><span class="id" title="variable">HV</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">xx</span> <span class="id" title="var">yy</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">red</span> <span class="id" title="tactic">in</span> <span class="id" title="var">xx</span>, <span class="id" title="var">yy</span>. <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">xx</span>, <span class="id" title="var">yy</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.html#dialgebra_disp_tensor_op"><span class="id" title="definition">dialgebra_disp_tensor_op</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_inv_on_right"><span class="id" title="lemma">z_iso_inv_on_right</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservestensorstrongly"><span class="id" title="definition">fmonoidal_preservestensorstrongly</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.Fm"><span class="id" title="variable">Fm</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.Gs"><span class="id" title="variable">Gs</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#cancel_postcomposition"><span class="id" title="lemma">cancel_postcomposition</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#cancel_postcomposition"><span class="id" title="lemma">cancel_postcomposition</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.Fs"><span class="id" title="variable">Fs</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#cancel_postcomposition"><span class="id" title="lemma">cancel_postcomposition</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, (<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_inv_after_z_iso"><span class="id" title="definition">z_iso_inv_after_z_iso</span></a> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservestensorstrongly"><span class="id" title="definition">fmonoidal_preservestensorstrongly</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.Fm"><span class="id" title="variable">Fm</span></a> <span class="id" title="var">y</span> <span class="id" title="var">x</span>)). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#tensor_sym_mon_braiding"><span class="id" title="lemma">tensor_sym_mon_braiding</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a>(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.B"><span class="id" title="variable">B</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.W"><span class="id" title="variable">W</span></a>):<a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.HW"><span class="id" title="variable">HW</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="dialgebra_disp_symmetric_monoidal" class="idref" href="#dialgebra_disp_symmetric_monoidal"><span class="id" title="definition">dialgebra_disp_symmetric_monoidal</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.html#disp_symmetric"><span class="id" title="definition">disp_symmetric</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#base_mon_disp"><span class="id" title="definition">base_mon_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.HV"><span class="id" title="variable">HV</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.html#make_disp_symmetric_locally_propositional"><span class="id" title="definition">make_disp_symmetric_locally_propositional</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Dialgebras.html#is_locally_propositional_dialgebra_disp_cat"><span class="id" title="lemma">is_locally_propositional_dialgebra_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#dialgebra_disp_symmetric_data"><span class="id" title="lemma">dialgebra_disp_symmetric_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="dialgebra_symmetric_monoidal" class="idref" href="#dialgebra_symmetric_monoidal"><span class="id" title="definition">dialgebra_symmetric_monoidal</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#symmetric"><span class="id" title="definition">symmetric</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.html#dialgebra_monoidal"><span class="id" title="definition">dialgebra_monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.Fm"><span class="id" title="variable">Fm</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors.Gm"><span class="id" title="variable">Gm</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.html#total_symmetric"><span class="id" title="definition">total_symmetric</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#base_mon_disp"><span class="id" title="definition">base_mon_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#dialgebra_disp_symmetric_monoidal"><span class="id" title="definition">dialgebra_disp_symmetric_monoidal</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.html#FixTwoSymmetricMonoidalFunctors"><span class="id" title="section">FixTwoSymmetricMonoidalFunctors</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

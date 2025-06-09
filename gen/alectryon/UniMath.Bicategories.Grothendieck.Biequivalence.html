@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Biequivalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(************************************************************************</span>
+
+<span class="sd"> The Grothendieck Construction: the biequivalence</span>
+
+<span class="sd"> The Grothendieck construction gives a biequivalence between the</span>
+<span class="sd"> bicategory of fibrations over a fixed category `C` and the bicategory</span>
+<span class="sd"> of indexed categories over `C`. To construct this biequivalence, we</span>
+<span class="sd"> need to construct the following:</span>
+<span class="sd"> 1. A pseudofunctor from the bicategory of fibrations to the bicategory</span>
+<span class="sd">    of pseudofunctors</span>
+<span class="sd"> 2. A pseudofunctor from the bicategory of pseudofunctors to the</span>
+<span class="sd">    bicategory of fibrations</span>
+<span class="sd"> 3. The unit and a proof that it is a pointwise adjoint equivalence</span>
+<span class="sd"> 4. The counit and a proof that it is a pointwise adjoint equivalence</span>
+
+<span class="sd"> In this file, we collect all statements together so that we obtain the</span>
+<span class="sd"> desired biequivalence.</span>
+
+<span class="sd"> In the proof, we make use of the fact that a pseudotransformation is an</span>
+<span class="sd"> adjoint equivalence if it is a pointwise adjoint equivalence. The current</span>
+<span class="sd"> proof of that in UniMath requires the univalence of the codomain, so that</span>
+<span class="sd"> one can use induction on adjoint equivalences.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Collecting the data of the biequivalence</span>
+<span class="sd"> 2. Collecting that the unit and counit are adjoint equivalences</span>
+<span class="sd"> 3. The Grothendieck construction as biequivalence</span>
+
+<span class="sd"> ************************************************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk1"><span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ^op&quot;</span> was already used <span class="kr">in</span> scope cat.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedTransformation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.NatTransToIndexed.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedTransformationToTransformation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Discreteness.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.DiscreteBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.FibSlice.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.PseudoFunctorsIntoCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.PseudoTransformationIntoCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Examples.ModificationIntoCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Grothendieck.FibrationToPseudoFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Grothendieck.Unit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Grothendieck.Counit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">GrothendieckConstruction</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> : univalent_category).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(**</span>
+<span class="sd">   1. Collecting the data of the biequivalence</span>
+<span class="sd">   *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk2"><span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_bicat_unit_counit</span>
+    : is_biequivalence_unit_counit
+        (psfunctor_fib_to_psfunctor_bicat C)
+        (psfunctor_psfunctor_bicat_to_fib C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biequivalence_unit_counit
+  (psfunctor_fib_to_psfunctor_bicat C)
+  (psfunctor_psfunctor_bicat_to_fib C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk3"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biequivalence_unit_counit
+  (psfunctor_fib_to_psfunctor_bicat C)
+  (psfunctor_psfunctor_bicat_to_fib C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk4"><span class="nb">refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans
+  (comp_psfunctor (psfunctor_psfunctor_bicat_to_fib C)
+     (psfunctor_fib_to_psfunctor_bicat C))
+  (id_psfunctor (fib_slice_bicat C))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="biequivalence-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><label class="goal-separator" for="biequivalence-v-chk5"><hr></label><div class="goal-conclusion">pstrans
+  (comp_psfunctor (psfunctor_fib_to_psfunctor_bicat C)
+     (psfunctor_psfunctor_bicat_to_fib C))
+  (id_psfunctor
+     (psfunctor_bicat (cat_to_bicat C^op)
+        bicat_of_univ_cats))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans
+  (comp_psfunctor (psfunctor_psfunctor_bicat_to_fib C)
+     (psfunctor_fib_to_psfunctor_bicat C))
+  (id_psfunctor (fib_slice_bicat C))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> psfunctor_fib_to_psfunctor_unit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans
+  (comp_psfunctor (psfunctor_fib_to_psfunctor_bicat C)
+     (psfunctor_psfunctor_bicat_to_fib C))
+  (id_psfunctor
+     (psfunctor_bicat (cat_to_bicat C^op)
+        bicat_of_univ_cats))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> psfunctor_fib_to_psfunctor_counit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(**</span>
+<span class="sd">   2. Collecting that the unit and counit are adjoint equivalences</span>
+<span class="sd">   *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk8"><span class="kn">Definition</span> <span class="nf">is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat</span>
+    : is_biequivalence_adjoints psfunctor_fib_to_psfunctor_bicat_unit_counit.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biequivalence_adjoints
+  psfunctor_fib_to_psfunctor_bicat_unit_counit</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biequivalence_adjoints
+  psfunctor_fib_to_psfunctor_bicat_unit_counit</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chka"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (unit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="biequivalence-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><label class="goal-separator" for="biequivalence-v-chkb"><hr></label><div class="goal-conclusion">left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chkc">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (unit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chkd">use pointwise_adjequiv_to_adjequiv.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 (fib_slice_bicat C)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="biequivalence-v-chke" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><label class="goal-separator" for="biequivalence-v-chke"><hr></label><div class="goal-conclusion">∏ x : fib_slice_bicat C,
+left_adjoint_equivalence
+  (unit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit x)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chkf">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 (fib_slice_bicat C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (is_univalent_2_fib_slice_bicat C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk10">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : fib_slice_bicat C,
+left_adjoint_equivalence
+  (unit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk11"><span class="nb">intro</span> P.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>fib_slice_bicat C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (unit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit P)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk12">use equiv_to_adjequiv.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>fib_slice_bicat C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_equivalence
+  (psfunctor_fib_to_psfunctor_unit_disp_functor
+     (pr1 P) (pr2 P),,
+   is_cartesian_psfunctor_fib_to_psfunctor_unit_disp_functor
+     (pr1 P) (pr2 P))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_equiv (pr1 P) (pr2 P)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk13">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk14">use pointwise_adjequiv_to_adjequiv.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2
+  (psfunctor_bicat (cat_to_bicat C^op)
+     bicat_of_univ_cats)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="biequivalence-v-chk15" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><label class="goal-separator" for="biequivalence-v-chk15"><hr></label><div class="goal-conclusion">∏
+x : psfunctor_bicat (cat_to_bicat C^op)
+      bicat_of_univ_cats,
+left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit x)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk16">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2
+  (psfunctor_bicat (cat_to_bicat C^op)
+     bicat_of_univ_cats)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk17">use psfunctor_bicat_is_univalent_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 bicat_of_univ_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_cat_is_univalent_2.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk18">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : psfunctor_bicat (cat_to_bicat C^op)
+      bicat_of_univ_cats,
+left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk19"><span class="nb">intro</span> F.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat (cat_to_bicat C^op)
+  bicat_of_univ_cats</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk1a">use pointwise_adjequiv_to_adjequiv.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat (cat_to_bicat C^op)
+  bicat_of_univ_cats</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 bicat_of_univ_cats</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="biequivalence-v-chk1b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat (cat_to_bicat C^op)
+  bicat_of_univ_cats</span></span></span><br></div><label class="goal-separator" for="biequivalence-v-chk1b"><hr></label><div class="goal-conclusion">∏ x : cat_to_bicat C^op,
+left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit F x)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk1c">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat (cat_to_bicat C^op)
+  bicat_of_univ_cats</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 bicat_of_univ_cats</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> univalent_cat_is_univalent_2.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk1d">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat (cat_to_bicat C^op)
+  bicat_of_univ_cats</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : cat_to_bicat C^op,
+left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit F x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk1e"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat (cat_to_bicat C^op)
+  bicat_of_univ_cats</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>cat_to_bicat C^op</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     psfunctor_fib_to_psfunctor_bicat_unit_counit F x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">          </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequivalence-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="biequivalence-v-chk1f">use equiv_to_adjequiv.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat (cat_to_bicat C^op)
+  bicat_of_univ_cats</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>cat_to_bicat C^op</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_equivalence
+  (psfunctor_fib_to_psfunctor_counit_data_ob_data_functor_data
+     F x,,
+   psfunctor_fib_to_psfunctor_counit_data_ob_data_functor_laws
+     F x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">          </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (equiv_psfunctor_fib_to_psfunctor_counit_data_ob_data_functor F x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(**</span>
+<span class="sd">   3. The Grothendieck construction as biequivalence</span>
+<span class="sd">   *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_biequivalence_psfunctor_fib_to_psfunctor_bicat</span>
+    : is_biequivalence (psfunctor_fib_to_psfunctor_bicat C)
+    := psfunctor_psfunctor_bicat_to_fib C
+       ,,
+       psfunctor_fib_to_psfunctor_bicat_unit_counit
+       ,,
+       is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">grothendieck_construction</span>
+    : biequivalence
+        (fib_slice_bicat C)
+        (psfunctor_bicat (cat_to_bicat C^op) bicat_of_univ_cats)
+    := psfunctor_fib_to_psfunctor_bicat C
+       ,,
+       is_biequivalence_psfunctor_fib_to_psfunctor_bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">GrothendieckConstruction</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

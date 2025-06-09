@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>SumOfSignatures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Anders Mörtberg, 2016</span>
+
+<span class="sd">************************************************************)</span>
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- Definition of the sum of a family of signatures ([Sum_of_Signatures)]</span>
+
+<span class="sd">Adapted from the binary case</span>
+
+<span class="sd">************************************************************)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.PartD.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctorsComposition.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.OmegaCocontFunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">sum_of_signatures</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">D&#39;</span> : category) (<span class="nv">CD</span> : Coproducts I D).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">construction</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">&quot;&#39;CCD&#39;&quot;</span> := (Coproducts_functor_precat I C D CD : Coproducts I [C, D]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">H1</span> : I -&gt; functor [C, D&#39;] [C, D])
+        (<span class="nv">θ1</span> : ∏ i, θ_source (H1 i) ⟹ θ_target (H1 i)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * Definition of the data of the sum of signatures *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">H</span> : functor [C, D&#39;] [C, D] := coproduct_of_functors _ _ _ CCD H1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk0"><span class="kn">Local Definition</span> <span class="nf">θ_ob_fun</span> (<span class="nv">X</span> : [C, D&#39;]) (<span class="nv">Z</span> : category_Ptd C) (<span class="nv">x</span> : C) :
+   D ⟦ coproduct_of_functors_ob _ _ _ CD (<span class="kr">λ</span> <span class="nv">i</span>, H1 i X) (pr1 Z x),
+       coproduct_of_functors_ob _ _ _ CD (<span class="kr">λ</span> <span class="nv">i</span>, H1 i (functor_composite (pr1 Z) X)) x ⟧.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">D
+⟦ coproduct_of_functors_ob I C D CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X)
+    (pr1 Z x),
+coproduct_of_functors_ob I C D CD
+  (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i (pr1 Z ∙ X)) x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">D
+⟦ coproduct_of_functors_ob I C D CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X)
+    (pr1 Z x),
+coproduct_of_functors_ob I C D CD
+  (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i (pr1 Z ∙ X)) x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk2"><span class="nb">apply</span> CoproductOfArrows; <span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>I</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">D ⟦ H1 i X (pr1 Z x), H1 i (pr1 Z ∙ X) x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr1 (θ1 i (X ⊗ Z)) x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk3"><span class="kn">Local Lemma</span> <span class="nf">is_nat_trans_θ_ob_fun</span> (<span class="nv">X</span> : [C, D&#39;]) (<span class="nv">Z</span> : category_Ptd C) :
+  is_nat_trans (functor_composite_data (pr1 Z)
+                 (coproduct_of_functors_data _ _ _  CD (<span class="kr">λ</span> <span class="nv">i</span>, H1 i X)))
+                 (coproduct_of_functors_data _ _ _ CD (<span class="kr">λ</span> <span class="nv">i</span>, H1 i (functor_composite (pr1 Z) X)))
+               (θ_ob_fun X Z).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (functor_composite_data (pr1 Z)
+     (coproduct_of_functors_data I C D CD
+        (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X)))
+  (coproduct_of_functors_data I C D CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i (pr1 Z ∙ X))) (θ_ob_fun X Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (functor_composite_data (pr1 Z)
+     (coproduct_of_functors_data I C D CD
+        (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X)))
+  (coproduct_of_functors_data I C D CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i (pr1 Z ∙ X))) (θ_ob_fun X Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk5"><span class="nb">intros</span> x x&#39; f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (functor_composite_data (pr1 Z)
+     (coproduct_of_functors_data I C D CD
+        (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X))) f · θ_ob_fun X Z x&#39; =
+θ_ob_fun X Z x
+· # (coproduct_of_functors_data I C D CD
+       (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i (pr1 Z ∙ X))) f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk6"><span class="nb">eapply</span> pathscomp0; [ <span class="nb">apply</span> CoproductOfArrows_comp | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">CoproductOfArrows I D
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, (<span class="kr">λ</span> <span class="nv">i0</span> : I, H1 i0 X) i (pr1 Z x)))
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i (pr1 Z ∙ X) x&#39;))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   (<span class="kr">λ</span> <span class="nv">i0</span> : I, # ((<span class="kr">λ</span> <span class="nv">i1</span> : I, H1 i1 X) i0) (# (pr1 Z) f))
+     i · (<span class="kr">λ</span> <span class="nv">i0</span> : I, pr1 (θ1 i0 (X ⊗ Z)) x&#39;) i) =
+θ_ob_fun X Z x
+· # (coproduct_of_functors_data I C D CD
+       (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i (pr1 Z ∙ X))) f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk7"><span class="nb">eapply</span> pathscomp0; [ | <span class="nb">eapply</span> pathsinv0; <span class="nb">apply</span> CoproductOfArrows_comp].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">CoproductOfArrows I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 Z x)))
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i (pr1 Z ∙ X) x&#39;))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   # (H1 i X) (# (pr1 Z) f) · pr1 (θ1 i (X ⊗ Z)) x&#39;) =
+CoproductOfArrows I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 Z x)))
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, (<span class="kr">λ</span> <span class="nv">i0</span> : I, H1 i0 (pr1 Z ∙ X)) i x&#39;))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   (<span class="kr">λ</span> <span class="nv">i0</span> : I, pr1 (θ1 i0 (X ⊗ Z)) x) i
+   · (<span class="kr">λ</span> <span class="nv">i0</span> : I, # ((<span class="kr">λ</span> <span class="nv">i1</span> : I, H1 i1 (pr1 Z ∙ X)) i0) f)
+       i)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk8"><span class="nb">apply</span> maponpaths, funextsec; <span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>I</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (H1 i X) (# (pr1 Z) f) · pr1 (θ1 i (X ⊗ Z)) x&#39; =
+pr1 (θ1 i (X ⊗ Z)) x · # (H1 i (pr1 Z ∙ X)) f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (nat_trans_ax (θ1 i (X ⊗ Z))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk9"><span class="kn">Definition</span> <span class="nf">θ_ob</span> : ∏ XF, θ_source H XF --&gt; θ_target H XF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ XF : [C, D&#39;] ⊠ category_Ptd C,
+[C, D] ⟦ θ_source H XF, θ_target H XF ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chka"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ XF : [C, D&#39;] ⊠ category_Ptd C,
+[C, D] ⟦ θ_source H XF, θ_target H XF ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intros</span> [X Z]; <span class="kr">exists</span> (<span class="nv">θ_ob_fun</span> <span class="nv">X</span> <span class="nv">Z</span>); <span class="nb">apply</span> is_nat_trans_θ_ob_fun.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chkb"><span class="kn">Local Lemma</span> <span class="nf">is_nat_trans_θ_ob</span> :
+  is_nat_trans (θ_source H) (θ_target H) θ_ob.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans (θ_source H) (θ_target H) θ_ob</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chkc"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans (θ_source H) (θ_target H) θ_ob</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chkd"><span class="nb">intros</span> [X Z] [X&#39; Z&#39;] αβ.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>X'</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>αβ</var><span class="hyp-type"><b>: </b><span>[C, D&#39;] ⊠ category_Ptd C ⟦ X,, Z, X&#39;,, Z&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (θ_source H) αβ · θ_ob (X&#39;,, Z&#39;) =
+θ_ob (X,, Z) · # (θ_target H) αβ</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chke"><span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>X'</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>αβ</var><span class="hyp-type"><b>: </b><span>[C, D&#39;] ⊠ category_Ptd C ⟦ X,, Z, X&#39;,, Z&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(# (θ_source H) αβ · θ_ob (X&#39;,, Z&#39;)) c =
+(θ_ob (X,, Z) · # (θ_target H) αβ) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chkf"><span class="nb">eapply</span> pathscomp0; [ | <span class="nb">eapply</span> pathsinv0, CoproductOfArrows_comp].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>X'</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>αβ</var><span class="hyp-type"><b>: </b><span>[C, D&#39;] ⊠ category_Ptd C ⟦ X,, Z, X&#39;,, Z&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(# (θ_source H) αβ · θ_ob (X&#39;,, Z&#39;)) c =
+CoproductOfArrows I D
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      H1 i (pr1 (X,, Z)) (pr1 (pr2 (X,, Z)) c)))
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+       H1 i0
+         (HorizontalComposition.functorial_composition
+            C C D&#39;
+            (binswap_pair_functor
+               (pair_functor
+                  (functor_identity [C, D&#39;]) U
+                  (X&#39;,, Z&#39;))))) i c))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+    pr1 (θ1 i0 (pr1 (X,, Z) ⊗ pr2 (X,, Z))) c) i
+   · (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+      (<span class="kr">λ</span> <span class="nv">i1</span> : I,
+       # (H1 i1)
+         (# (HorizontalComposition.functorial_composition
+               C C D&#39;)
+            (# binswap_pair_functor
+               (# (pair_functor
+                     (functor_identity [C, D&#39;]) U) αβ))))
+        i0 c) i)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk10"><span class="nb">eapply</span> pathscomp0; [ <span class="nb">apply</span> cancel_postcomposition, CoproductOfArrows_comp |].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>X'</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>αβ</var><span class="hyp-type"><b>: </b><span>[C, D&#39;] ⊠ category_Ptd C ⟦ X,, Z, X&#39;,, Z&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">CoproductOfArrows I D
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      (<span class="kr">λ</span> <span class="nv">i0</span> : I, H1 i0 (pr1 (X,, Z))) i
+        (pr1
+           (binswap_pair_functor
+              (pair_functor H U (X,, Z))) c)))
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      (<span class="kr">λ</span> <span class="nv">i0</span> : I, H1 i0 (pr1 (X&#39;,, Z&#39;))) i
+        (pr1
+           (pr1
+              (binswap_pair_functor
+                 (pair_functor H U (X&#39;,, Z&#39;)))
+            :
+            C ⟶ C) c)))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+    # ((<span class="kr">λ</span> <span class="nv">i1</span> : I, H1 i1 (pr1 (X,, Z))) i0)
+      (pr1
+         (pr1
+            (# binswap_pair_functor
+               (# (pair_functor H U) αβ))) c)) i
+   · (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+      (<span class="kr">λ</span> <span class="nv">i1</span> : I, # (H1 i1) (pr1 αβ)) i0
+        (pr1
+           (pr1
+              (binswap_pair_functor
+                 (pair_functor H U (X&#39;,, Z&#39;)))
+            :
+            C ⟶ C) c)) i) · θ_ob (X&#39;,, Z&#39;) c =
+CoproductOfArrows I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 Z c)))
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      H1 i
+        (HorizontalComposition.functorial_composition
+           C C D&#39;
+           (binswap_pair_functor
+              (pair_functor (functor_identity [C, D&#39;])
+                 U (X&#39;,, Z&#39;)))) c))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   pr1 (θ1 i (X ⊗ Z)) c
+   · # (H1 i)
+       (# (HorizontalComposition.functorial_composition
+             C C D&#39;)
+          (# binswap_pair_functor
+             (# (pair_functor
+                   (functor_identity [C, D&#39;]) U) αβ)))
+       c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk11"><span class="nb">eapply</span> pathscomp0; [ <span class="nb">apply</span> CoproductOfArrows_comp |].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>X'</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>αβ</var><span class="hyp-type"><b>: </b><span>[C, D&#39;] ⊠ category_Ptd C ⟦ X,, Z, X&#39;,, Z&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">CoproductOfArrows I D
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      H1 i (pr1 (X,, Z))
+        (pr1
+           (binswap_pair_functor
+              (pair_functor H U (X,, Z))) c)))
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      H1 i (pr1 (pr2 (X&#39;,, Z&#39;)) ∙ pr1 (X&#39;,, Z&#39;)) c))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+    # (H1 i0 (pr1 (X,, Z)))
+      (pr1
+         (pr1
+            (# binswap_pair_functor
+               (# (pair_functor H U) αβ))) c)
+    · # (H1 i0) (pr1 αβ)
+        (pr1
+           (pr1
+              (binswap_pair_functor
+                 (pair_functor H U (X&#39;,, Z&#39;)))) c)) i
+   · (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+      pr1 (θ1 i0 (pr1 (X&#39;,, Z&#39;) ⊗ pr2 (X&#39;,, Z&#39;))) c) i) =
+CoproductOfArrows I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 Z c)))
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      H1 i
+        (HorizontalComposition.functorial_composition
+           C C D&#39;
+           (binswap_pair_functor
+              (pair_functor (functor_identity [C, D&#39;])
+                 U (X&#39;,, Z&#39;)))) c))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   pr1 (θ1 i (X ⊗ Z)) c
+   · # (H1 i)
+       (# (HorizontalComposition.functorial_composition
+             C C D&#39;)
+          (# binswap_pair_functor
+             (# (pair_functor
+                   (functor_identity [C, D&#39;]) U) αβ)))
+       c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk12"><span class="nb">apply</span> maponpaths, funextsec; <span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>X'</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>αβ</var><span class="hyp-type"><b>: </b><span>[C, D&#39;] ⊠ category_Ptd C ⟦ X,, Z, X&#39;,, Z&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>I</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (H1 i (pr1 (X,, Z)))
+  (pr1
+     (pr1
+        (# binswap_pair_functor
+           (# (pair_functor H U) αβ))) c)
+· # (H1 i) (pr1 αβ)
+    (pr1
+       (pr1
+          (binswap_pair_functor
+             (pair_functor H U (X&#39;,, Z&#39;)))) c)
+· pr1 (θ1 i (X&#39; ⊗ Z&#39;)) c =
+pr1 (θ1 i (X ⊗ Z)) c
+· # (H1 i)
+    (# (HorizontalComposition.functorial_composition C
+          C D&#39;)
+       (# binswap_pair_functor
+          (# (pair_functor (functor_identity [C, D&#39;])
+                U) αβ))) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (nat_trans_eq_pointwise (nat_trans_ax (θ1 i) (X,,Z) (X&#39;,,Z&#39;) αβ) c).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">θ</span> : PrestrengthForSignature H := tpair _ _ is_nat_trans_θ_ob.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * Proof of the strength laws of the sum of two signatures *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">S11&#39;</span> : ∏ i, θ_Strength1_int (θ1 i))
+        (<span class="nv">S12&#39;</span> : ∏ i, θ_Strength2_int (θ1 i)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk13"><span class="kn">Lemma</span> <span class="nf">SumStrength1&#39;</span> : θ_Strength1_int θ.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength1_int θ</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk14"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength1_int θ</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk15"><span class="nb">intro</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ (X ⊗ id_Ptd C)
+· # H
+    (BicatOfCatsElementary.lunitor_CAT
+       (pr2
+          (binswap_pair_functor
+             (pair_functor (functor_identity [C, D&#39;])
+                U (X ⊗ id_Ptd C))))) =
+BicatOfCatsElementary.lunitor_CAT
+  (pr2
+     (binswap_pair_functor
+        (pair_functor H U (X ⊗ id_Ptd C))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk16"><span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> x; <span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_ob_fun X (id_Ptd C) x
+· coproduct_nat_trans_data I C D CD
+    (<span class="kr">λ</span> <span class="nv">i</span> : I,
+     H1 i
+       (functor_compose
+          (BicatOfCatsElementary.id1_CAT C) X))
+    (Coproducts_functor_precat I C D CD
+       (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X))
+    (<span class="kr">λ</span> <span class="nv">i</span> : I,
+     # (H1 i) (BicatOfCatsElementary.lunitor_CAT X)
+     · CoproductIn I [C, D]
+         (Coproducts_functor_precat I C D CD
+            (<span class="kr">λ</span> <span class="nv">i0</span> : I, H1 i0 X)) i) x =
+identity
+  (coproduct_of_functors_ob I C D CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X)
+     x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk17">etrans; [<span class="nb">apply</span> CoproductOfArrows_comp|].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">CoproductOfArrows I D
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 (id_Ptd C) x)))
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X x))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   (<span class="kr">λ</span> <span class="nv">i0</span> : I, pr1 (θ1 i0 (X ⊗ id_Ptd C)) x) i
+   · (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+      # (H1 i0) (BicatOfCatsElementary.lunitor_CAT X)
+        x) i) =
+identity
+  (coproduct_of_functors_ob I C D CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X)
+     x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk18"><span class="nb">apply</span> pathsinv0, Coproduct_endo_is_identity; <span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>I</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">CoproductIn I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X x)) i
+· CoproductOfArrows I D
+    (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 (id_Ptd C) x)))
+    (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X x))
+    (<span class="kr">λ</span> <span class="nv">i</span> : I,
+     pr1 (θ1 i (X ⊗ id_Ptd C)) x
+     · # (H1 i) (BicatOfCatsElementary.lunitor_CAT X)
+         x) =
+CoproductIn I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X x)) i</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk19">etrans; [ <span class="nb">apply</span> (CoproductOfArrowsIn _ _ (CD (<span class="kr">λ</span> <span class="nv">i</span>, pr1 (pr1 (H1 i) X) x))) |].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>I</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">i</span> : I,
+ pr1 (θ1 i (X ⊗ id_Ptd C)) x
+ · # (H1 i) (BicatOfCatsElementary.lunitor_CAT X) x) i
+· CoproductIn I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X x)) i =
+CoproductIn I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X x)) i</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk1a">etrans; [| <span class="nb">apply</span> id_left].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>I</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (θ1 i (X ⊗ id_Ptd C)) x
+· # (H1 i) (BicatOfCatsElementary.lunitor_CAT X) x
+· CoproductIn I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X x)) i =
+identity (H1 i X x)
+· CoproductIn I D (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X x)) i</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> cancel_postcomposition, (nat_trans_eq_pointwise (S11&#39; i X) x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk1b"><span class="kn">Lemma</span> <span class="nf">SumStrength2&#39;</span> : θ_Strength2_int θ.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength2_int θ</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk1c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength2_int θ</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk1d"><span class="nb">intros</span> X Z Z&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ (X ⊗ Z p• Z&#39;)
+· # H
+    (BicatOfCatsElementary.rassociator_CAT (U Z)
+       (U Z&#39;) X) =
+BicatOfCatsElementary.lassociator_CAT (U Z) (U Z&#39;)
+  (H X) · θ (X ⊗ Z&#39;) •• U Z
+· θ (functor_compose (U Z&#39;) X ⊗ Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk1e"><span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">rewrite</span> id_left.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_ob_fun X (Z p• Z&#39;) x
+· coproduct_nat_trans_data I C D CD
+    (<span class="kr">λ</span> <span class="nv">i</span> : I,
+     H1 i
+       (functor_compose
+          (functor_compose (pr1 Z) (pr1 Z&#39;)) X))
+    (Coproducts_functor_precat I C D CD
+       (<span class="kr">λ</span> <span class="nv">i</span> : I,
+        H1 i
+          (functor_compose (pr1 Z)
+             (functor_compose (pr1 Z&#39;) X))))
+    (<span class="kr">λ</span> <span class="nv">i</span> : I,
+     # (H1 i)
+       (BicatOfCatsElementary.rassociator_CAT (pr1 Z)
+          (pr1 Z&#39;) X)
+     · CoproductIn I [C, D]
+         (Coproducts_functor_precat I C D CD
+            (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+             H1 i0
+               (functor_compose (pr1 Z)
+                  (functor_compose (pr1 Z&#39;) X)))) i) x =
+θ_ob_fun X Z&#39; (pr1 (pr1 Z) x)
+· θ_ob_fun (functor_compose (pr1 Z&#39;) X) Z x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk1f">etrans; [<span class="nb">apply</span> CoproductOfArrows_comp|].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">CoproductOfArrows I D
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 (Z p• Z&#39;) x)))
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      H1 i
+        (functor_compose (pr1 Z)
+           (functor_compose (pr1 Z&#39;) X)) x))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   (<span class="kr">λ</span> <span class="nv">i0</span> : I, pr1 (θ1 i0 (X ⊗ Z p• Z&#39;)) x) i
+   · (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+      # (H1 i0)
+        (BicatOfCatsElementary.rassociator_CAT (pr1 Z)
+           (pr1 Z&#39;) X) x) i) =
+θ_ob_fun X Z&#39; (pr1 (pr1 Z) x)
+· θ_ob_fun (functor_compose (pr1 Z&#39;) X) Z x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk20"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_ob_fun X Z&#39; (pr1 (pr1 Z) x)
+· θ_ob_fun (functor_compose (pr1 Z&#39;) X) Z x =
+CoproductOfArrows I D
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 (Z p• Z&#39;) x)))
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      H1 i
+        (functor_compose (pr1 Z)
+           (functor_compose (pr1 Z&#39;) X)) x))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   pr1 (θ1 i (X ⊗ Z p• Z&#39;)) x
+   · # (H1 i)
+       (BicatOfCatsElementary.rassociator_CAT (pr1 Z)
+          (pr1 Z&#39;) X) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk21">etrans; [<span class="nb">apply</span> CoproductOfArrows_comp|].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">CoproductOfArrows I D
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 Z&#39; (pr1 (pr1 Z) x))))
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      H1 i (pr1 Z ∙ functor_compose (pr1 Z&#39;) X) x))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   (<span class="kr">λ</span> <span class="nv">i0</span> : I, pr1 (θ1 i0 (X ⊗ Z&#39;)) (pr1 (pr1 Z) x)) i
+   · (<span class="kr">λ</span> <span class="nv">i0</span> : I,
+      pr1 (θ1 i0 (functor_compose (pr1 Z&#39;) X ⊗ Z)) x)
+       i) =
+CoproductOfArrows I D
+  (CD (<span class="kr">λ</span> <span class="nv">i</span> : I, H1 i X (pr1 (Z p• Z&#39;) x)))
+  (CD
+     (<span class="kr">λ</span> <span class="nv">i</span> : I,
+      H1 i
+        (functor_compose (pr1 Z)
+           (functor_compose (pr1 Z&#39;) X)) x))
+  (<span class="kr">λ</span> <span class="nv">i</span> : I,
+   pr1 (θ1 i (X ⊗ Z p• Z&#39;)) x
+   · # (H1 i)
+       (BicatOfCatsElementary.rassociator_CAT (pr1 Z)
+          (pr1 Z&#39;) X) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk22"><span class="nb">apply</span> pathsinv0, maponpaths, funextsec; <span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>I</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (θ1 i (X ⊗ Z p• Z&#39;)) x
+· # (H1 i)
+    (BicatOfCatsElementary.rassociator_CAT (pr1 Z)
+       (pr1 Z&#39;) X) x =
+pr1 (θ1 i (X ⊗ Z&#39;)) (pr1 (pr1 Z) x)
+· pr1 (θ1 i (functor_compose (pr1 Z&#39;) X ⊗ Z)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk23"><span class="nb">assert</span> (Ha_x := nat_trans_eq_pointwise (S12&#39; i X Z Z&#39;) x); <span class="nb">simpl</span> <span class="kr">in</span> Ha_x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>H1</var><span class="hyp-type"><b>: </b><span>I → [C, D&#39;] ⟶ [C, D]</span></span></span><br><span><var>θ1</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_source (H1 i) ⟹ θ_target (H1 i)</span></span></span><br><span><var>S11'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength1_int (θ1 i)</span></span></span><br><span><var>S12'</var><span class="hyp-type"><b>: </b><span>∏ i : I, θ_Strength2_int (θ1 i)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, D&#39;]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>I</span></span></span><br><span><var>Ha_x</var><span class="hyp-type"><b>: </b><span>θ1 i (X ⊗ Z p• Z&#39;) x
+· # (H1 i)
+    (BicatOfCatsElementary.rassociator_CAT
+       (pr1 Z) (pr1 Z&#39;) X) x =
+identity (H1 i X (pr1 Z&#39; (pr1 Z x)))
+· pr1 (θ1 i (X ⊗ Z&#39;)) (pr1 (pr1 Z) x)
+· θ1 i (functor_compose (pr1 Z&#39;) X ⊗ Z) x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (θ1 i (X ⊗ Z p• Z&#39;)) x
+· # (H1 i)
+    (BicatOfCatsElementary.rassociator_CAT (pr1 Z)
+       (pr1 Z&#39;) X) x =
+pr1 (θ1 i (X ⊗ Z&#39;)) (pr1 (pr1 Z) x)
+· pr1 (θ1 i (functor_compose (pr1 Z&#39;) X ⊗ Z)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">rewrite</span> id_left <span class="kr">in</span> Ha_x; <span class="nb">apply</span> Ha_x.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">construction</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk24"><span class="kn">Definition</span> <span class="nf">Sum_of_Signatures</span> (<span class="nv">S</span> : I -&gt; Signature C D D&#39;) : Signature C D D&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Signature C D D&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk25"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Signature C D D&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk26">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D&#39;] ⟶ [C, D]</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sumofsignatures-v-chk27" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><label class="goal-separator" for="sumofsignatures-v-chk27"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">H</span> : [C, D&#39;] ⟶ [C, D], StrengthForSignature H) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk28">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D&#39;] ⟶ [C, D]</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk29"><span class="nb">apply</span> H; <span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>I</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, D&#39;] ⟶ [C, D]</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (S i).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk2a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">H</span> : [C, D&#39;] ⟶ [C, D], StrengthForSignature H)
+  (H (<span class="kr">λ</span> <span class="nv">i</span> : I, <span class="kr">let</span> <span class="nv">X</span> := pr1 (S i) <span class="kr">in</span> X))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk2b"><span class="kr">exists</span> (<span class="nv">θ</span> (<span class="kr">λ</span> <span class="nv">i</span>, S i) (<span class="kr">λ</span> <span class="nv">i</span>, theta (S i))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength1_int
+  (θ (<span class="kr">λ</span> <span class="nv">i</span> : I, S i) (<span class="kr">λ</span> <span class="nv">i</span> : I, theta (S i)))
+× θ_Strength2_int
+    (θ (<span class="kr">λ</span> <span class="nv">i</span> : I, S i) (<span class="kr">λ</span> <span class="nv">i</span> : I, theta (S i)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk2c"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength1_int
+  (θ (<span class="kr">λ</span> <span class="nv">i</span> : I, S i) (<span class="kr">λ</span> <span class="nv">i</span> : I, theta (S i)))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="sumofsignatures-v-chk2d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><label class="goal-separator" for="sumofsignatures-v-chk2d"><hr></label><div class="goal-conclusion">θ_Strength2_int
+  (θ (<span class="kr">λ</span> <span class="nv">i</span> : I, S i) (<span class="kr">λ</span> <span class="nv">i</span> : I, theta (S i)))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk2e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength1_int
+  (θ (<span class="kr">λ</span> <span class="nv">i</span> : I, S i) (<span class="kr">λ</span> <span class="nv">i</span> : I, theta (S i)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> SumStrength1&#39;; <span class="nb">intro</span> i; <span class="nb">apply</span> (Sig_strength_law1 (S i)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk2f">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength2_int
+  (θ (<span class="kr">λ</span> <span class="nv">i</span> : I, S i) (<span class="kr">λ</span> <span class="nv">i</span> : I, theta (S i)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> SumStrength2&#39;; <span class="nb">intro</span> i; <span class="nb">apply</span> (Sig_strength_law2 (S i)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk30"><span class="kn">Lemma</span> <span class="nf">is_omega_cocont_Sum_of_Signatures</span> (<span class="nv">S</span> : I -&gt; Signature C D D&#39;)
+  (<span class="nv">h</span> : ∏ i, is_omega_cocont (S i)) : is_omega_cocont (Sum_of_Signatures S).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>∏ i : I, is_omega_cocont (S i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_omega_cocont (Sum_of_Signatures S)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="sumofsignatures-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="sumofsignatures-v-chk31"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>I</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>C, D, D'</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CD</var><span class="hyp-type"><b>: </b><span>Coproducts I D</span></span></span><br><span><var>S</var><span class="hyp-type"><b>: </b><span>I → Signature C D D&#39;</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>∏ i : I, is_omega_cocont (S i)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_omega_cocont (Sum_of_Signatures S)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> is_omega_cocont_coproduct_of_functors; <span class="kp">try</span> <span class="bp">assumption</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">sum_of_signatures</span>.</span></span></pre>
+</div>
+</div></body>
+</html>
