@@ -930,6 +930,98 @@ Proof.
   apply id_coerce_subst_ty.
 Qed.
 
+Proposition id_subst_ty_natural
+            {C : comp_cat}
+            {Γ : C}
+            {A B : ty Γ}
+            (s : A <: B)
+  : id_subst_ty A · coerce_subst_ty _ s
+    =
+    s · id_subst_ty B.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  cbn.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite id_left_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite id_right_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_subst_ty_natural
+            {C : comp_cat}
+            {Γ₁ Γ₂ Γ₃ : C}
+            {A B : ty Γ₃}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (f : A <: B)
+  : comp_subst_ty s₁ s₂ A
+    · coerce_subst_ty _ f
+    =
+    coerce_subst_ty s₁ (coerce_subst_ty s₂ f)
+    · comp_subst_ty s₁ s₂ B.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  cbn.
+  unfold transportb.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !assoc_disp_var.
+  rewrite !transport_f_f.
+  rewrite !cartesian_factorisation_commutes.
+  rewrite !mor_disp_transportf_prewhisker.
+  rewrite !transport_f_f.
+  etrans.
+  {
+    rewrite assoc_disp.
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite cartesian_factorisation_commutes.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite transport_f_f.
+    apply idpath.
+  }
+  refine (!_).
+  etrans.
+  {
+    rewrite assoc_disp.
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite cartesian_factorisation_commutes.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite transport_f_f.
+    rewrite assoc_disp_var.
+    rewrite transport_f_f.
+    rewrite cartesian_factorisation_commutes.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite transport_f_f.
+    apply idpath.
+  }
+  rewrite !assoc_disp_var.
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
 Proposition id_sub_comp_cat_tm
             {C : comp_cat}
             {Γ : C}

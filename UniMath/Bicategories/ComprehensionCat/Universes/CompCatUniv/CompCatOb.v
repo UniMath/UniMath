@@ -23,7 +23,8 @@
  5. Global univalence
  6. The total bicategory
  7. Accessors for the total bicategory
- 8. Equational lemmas
+ 8. Equational lemmas for functors
+ 9. Equational lemmas for natural transformations
                                                                                             *)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -882,7 +883,29 @@ Proof.
   apply homset_property.
 Qed.
 
-(** * 8. Equational lemmas *)
+Proposition comp_cat_nat_trans_on_univ_comm_alt
+            {C₁ C₂ : comp_cat_with_ob}
+            {F G : comp_cat_functor_ob C₁ C₂}
+            (τ : comp_cat_nat_trans_ob F G)
+            (Γ : C₁)
+  : functor_comp_cat_on_univ F Γ
+    =
+    comp_cat_type_fib_nat_trans τ (comp_cat_univ Γ)
+    · coerce_subst_ty (τ Γ) (functor_comp_cat_on_univ G Γ)
+    · sub_comp_cat_univ (τ Γ).
+Proof.
+  rewrite <- (comp_cat_nat_trans_on_univ_comm τ Γ).
+  rewrite !assoc'.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply z_iso_after_z_iso_inv.
+  }
+  apply id_right.
+Qed.
+
+(** * 8. Equational lemmas for functors *)
 Proposition id_functor_comp_cat_on_univ
             {C : comp_cat_with_ob}
             (Γ : C)
@@ -1032,6 +1055,229 @@ Proof.
   unfold transportb.
   rewrite mor_disp_transportf_postwhisker.
   rewrite transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+(** * 9. Equational lemmas for natural transformations *)
+Proposition comp_cat_type_fib_nat_trans_on_id2
+            {C₁ C₂ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (id₂ F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  unfold comp_cat_type_fib_nat_trans, id_subst_ty.
+  simpl.
+  rewrite !cartesian_factorisation_commutes.
+  cbn ; unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_type_fib_nat_trans_on_lunitor
+            {C₁ C₂ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (lunitor F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  unfold comp_cat_type_fib_nat_trans, id_subst_ty.
+  simpl.
+  rewrite !cartesian_factorisation_commutes.
+  cbn ; unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_type_fib_nat_trans_on_runitor
+            {C₁ C₂ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (runitor F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  unfold comp_cat_type_fib_nat_trans, id_subst_ty.
+  simpl.
+  rewrite !cartesian_factorisation_commutes.
+  cbn ; unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_type_fib_nat_trans_on_linvunitor
+            {C₁ C₂ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (linvunitor F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  unfold comp_cat_type_fib_nat_trans, id_subst_ty.
+  simpl.
+  rewrite !cartesian_factorisation_commutes.
+  cbn ; unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_type_fib_nat_trans_on_rinvunitor
+            {C₁ C₂ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (rinvunitor F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  unfold comp_cat_type_fib_nat_trans, id_subst_ty.
+  simpl.
+  rewrite !cartesian_factorisation_commutes.
+  cbn ; unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_type_fib_nat_trans_on_lassociator
+            {C₁ C₂ C₃ C₄ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            (G : comp_cat_functor_ob C₂ C₃)
+            (H : comp_cat_functor_ob C₃ C₄)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (lassociator F G H : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  unfold comp_cat_type_fib_nat_trans, id_subst_ty.
+  simpl.
+  rewrite !cartesian_factorisation_commutes.
+  cbn ; unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_type_fib_nat_trans_on_rassociator
+            {C₁ C₂ C₃ C₄ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            (G : comp_cat_functor_ob C₂ C₃)
+            (H : comp_cat_functor_ob C₃ C₄)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (rassociator F G H : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  unfold comp_cat_type_fib_nat_trans, id_subst_ty.
+  simpl.
+  rewrite !cartesian_factorisation_commutes.
+  cbn ; unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_type_fib_nat_trans_on_vcomp
+            {C₁ C₂ : comp_cat_with_ob}
+            {F G H : comp_cat_functor_ob C₁ C₂}
+            (τ : comp_cat_nat_trans_ob F G)
+            (θ : comp_cat_nat_trans_ob G H)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (τ • θ : comp_cat_nat_trans_ob _ _) A
+    =
+    comp_cat_type_fib_nat_trans τ A
+    · coerce_subst_ty _ (comp_cat_type_fib_nat_trans θ _)
+    · comp_subst_ty _ _ _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  unfold comp_cat_type_fib_nat_trans, comp_subst_ty.
+  cbn.
+  unfold transportb.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite !assoc_disp_var.
+  rewrite !transport_f_f.
+  rewrite !cartesian_factorisation_commutes.
+  rewrite !mor_disp_transportf_prewhisker.
+  refine (!_).
+  etrans.
+  {
+    do 3 apply maponpaths.
+    rewrite assoc_disp.
+    rewrite cartesian_factorisation_commutes.
+    unfold transportb.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite assoc_disp_var.
+    rewrite cartesian_factorisation_commutes.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    apply idpath.
+  }
+  rewrite !mor_disp_transportf_prewhisker.
+  rewrite !transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite !transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_type_fib_nat_trans_on_lwhisker
+            {C₁ C₂ C₃ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            {G₁ G₂ : comp_cat_functor_ob C₂ C₃}
+            (τ : comp_cat_nat_trans_ob G₁ G₂)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (F ◃ τ : comp_cat_nat_trans_ob _ _) A
+    =
+    comp_cat_type_fib_nat_trans τ (comp_cat_type_functor F Γ A).
+Proof.
+  apply idpath.
+Qed.
+
+Proposition comp_cat_type_fib_nat_trans_on_rwhisker
+            {C₁ C₂ C₃ : comp_cat_with_ob}
+            {F₁ F₂ : comp_cat_functor_ob C₁ C₂}
+            (G : comp_cat_functor_ob C₂ C₃)
+            {τ : comp_cat_nat_trans_ob F₁ F₂}
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_type_fib_nat_trans (τ ▹ G : comp_cat_nat_trans_ob _ _) A
+    =
+    comp_cat_functor_coerce G (comp_cat_type_fib_nat_trans τ A)
+    · comp_cat_functor_subst_ty_coe _ _ _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  unfold comp_cat_type_fib_nat_trans.
+  cbn.
+  unfold fiber_functor_natural_inv.
+  cbn.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite assoc_disp_var.
+  rewrite !transport_f_f.
+  rewrite !cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite <- disp_functor_comp_var.
+  rewrite cartesian_factorisation_commutes.
+  rewrite disp_functor_transportf.
+  rewrite !transport_f_f.
   apply maponpaths_2.
   apply homset_property.
 Qed.

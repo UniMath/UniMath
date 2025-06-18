@@ -46,13 +46,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.Limits.Terminal.
-Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
-Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
@@ -523,6 +520,26 @@ Proof.
   exact (pr12 el Γ t).
 Qed.
 
+Proposition comp_cat_univ_el_stable_id_coh_alt
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ : C}
+            (t : comp_cat_tm Γ (comp_cat_univ Γ))
+  : (comp_cat_univ_el_stable el (identity Γ) t : _ --> _)
+    =
+    id_subst_ty_inv _ · comp_cat_el_map_on_eq el (comp_cat_univ_id_coherence t).
+Proof.
+  rewrite <- comp_cat_univ_el_stable_id_coh.
+  rewrite !assoc.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    apply z_iso_after_z_iso_inv.
+  }
+  apply id_left.
+Qed.
+
 Proposition comp_cat_univ_el_stable_comp_coh
             {C : comp_cat_with_ob}
             (el : comp_cat_univ_type C)
@@ -973,6 +990,42 @@ Proof.
   exact (comp_cat_functor_preserves_univ_type_el_iso Fi t : _ --> _).
 Defined.
 
+Lemma comp_cat_functor_preserves_univ_type_el_mor_natural_path
+      {C₁ C₂ : comp_cat_with_ob}
+      (F : comp_cat_functor_ob C₁ C₂)
+      {Γ : C₁}
+      {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
+      (p : t₁ = t₂)
+  : comp_cat_functor_tm F t₁ ↑ functor_comp_cat_on_univ F Γ
+    =
+    comp_cat_functor_tm F t₂ ↑ functor_comp_cat_on_univ F Γ.
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Proposition comp_cat_functor_preserves_univ_type_el_mor_natural
+            {C₁ C₂ : comp_cat_with_ob}
+            {F : comp_cat_functor_ob C₁ C₂}
+            {u₁ : comp_cat_univ_type C₁}
+            {u₂ : comp_cat_univ_type C₂}
+            (Fu : comp_cat_functor_preserves_univ_type F u₁ u₂)
+            {Γ : C₁}
+            {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
+            (p : t₁ = t₂)
+  : comp_cat_functor_coerce F (comp_cat_el_map_on_eq _ p)
+    · comp_cat_functor_preserves_univ_type_el_mor Fu t₂
+    =
+    comp_cat_functor_preserves_univ_type_el_mor Fu t₁
+    · comp_cat_el_map_on_eq _ (comp_cat_functor_preserves_univ_type_el_mor_natural_path F p).
+Proof.
+  induction p.
+  rewrite !comp_cat_el_map_on_idpath.
+  rewrite comp_cat_functor_coerce_on_id.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
+
 Proposition comp_cat_functor_preserves_univ_type_el_stable
             {C₁ C₂ : comp_cat_with_ob}
             {F : comp_cat_functor_ob C₁ C₂}
@@ -1324,6 +1377,26 @@ Proof.
   - exact (comp_comp_cat_functor_preserves_stable_el (pr2 Fi) (pr2 Gi)).
 Defined.
 
+Proposition eq_comp_comp_cat_functor_preserves_univ
+            {C₁ C₂ C₃ : comp_cat_with_ob}
+            {F : comp_cat_functor_ob C₁ C₂}
+            {G : comp_cat_functor_ob C₂ C₃}
+            {el₁ : comp_cat_univ_type C₁}
+            {el₂ : comp_cat_univ_type C₂}
+            {el₃ : comp_cat_univ_type C₃}
+            (Fi : comp_cat_functor_preserves_univ_type F el₁ el₂)
+            (Gi : comp_cat_functor_preserves_univ_type G el₂ el₃)
+            {Γ : C₁}
+            (t : tm Γ (comp_cat_univ Γ) )
+  : (comp_comp_cat_functor_preserves_el (pr1 Fi) (pr1 Gi) Γ t : _ --> _)
+    =
+    comp_cat_functor_coerce G (comp_cat_functor_preserves_univ_type_el_mor Fi _)
+    · comp_cat_functor_preserves_univ_type_el_mor Gi _
+    · comp_cat_el_map_on_eq_iso _ (comp_comp_cat_functor_preserves_el_path F G t).
+Proof.
+  apply eq_comp_comp_cat_functor_preserves_el.
+Qed.
+
 (** * 10. Preservation by natural transformations *)
 Proposition comp_cat_nat_trans_preserves_univ_type_path
             {C₁ C₂ : comp_cat_with_ob}
@@ -1362,7 +1435,52 @@ Definition comp_cat_nat_trans_preserves_univ_type
        (t : tm Γ (comp_cat_univ Γ)),
      comp_cat_functor_preserves_univ_type_el_mor Fi t
      · comp_cat_univ_el_on_eq el₂ (comp_cat_nat_trans_preserves_univ_type_path τ t)
-     · inv_from_z_iso (comp_cat_univ_el_stable el₂ (τ Γ) _)
      =
      comp_cat_type_fib_nat_trans τ _
-     · coerce_subst_ty _ (comp_cat_functor_preserves_univ_type_el_mor Gi t).
+     · coerce_subst_ty _ (comp_cat_functor_preserves_univ_type_el_mor Gi t)
+     · comp_cat_univ_el_stable el₂ (τ Γ) _.
+
+Proposition comp_cat_nat_trans_preserves_univ_type_alt
+            {C₁ C₂ : comp_cat_with_ob}
+            {F G : comp_cat_functor_ob C₁ C₂}
+            {τ : comp_cat_nat_trans_ob F G}
+            {el₁ : comp_cat_univ_type C₁}
+            {el₂ : comp_cat_univ_type C₂}
+            {Fi : comp_cat_functor_preserves_univ_type F el₁ el₂}
+            {Gi : comp_cat_functor_preserves_univ_type G el₁ el₂}
+            (τi : comp_cat_nat_trans_preserves_univ_type τ Fi Gi)
+            {Γ : C₁}
+            (t : tm Γ (comp_cat_univ Γ))
+  : comp_cat_functor_preserves_univ_type_el_mor Fi t
+    =
+    comp_cat_type_fib_nat_trans τ _
+    · coerce_subst_ty _ (comp_cat_functor_preserves_univ_type_el_mor Gi t)
+    · comp_cat_univ_el_stable el₂ (τ Γ) _
+    · comp_cat_univ_el_on_eq el₂ (!(comp_cat_nat_trans_preserves_univ_type_path τ t)).
+Proof.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    refine (!_).
+    apply τi.
+  }
+  rewrite !assoc'.
+  rewrite <- comp_cat_univ_el_on_concat.
+  rewrite comp_cat_univ_el_on_idpath.
+  apply id_right.
+Qed.
+
+Proposition isaprop_comp_cat_nat_trans_preserves_univ_type
+            {C₁ C₂ : comp_cat_with_ob}
+            {F G : comp_cat_functor_ob C₁ C₂}
+            (τ : comp_cat_nat_trans_ob F G)
+            {el₁ : comp_cat_univ_type C₁}
+            {el₂ : comp_cat_univ_type C₂}
+            (Fi : comp_cat_functor_preserves_univ_type F el₁ el₂)
+            (Gi : comp_cat_functor_preserves_univ_type G el₁ el₂)
+  : isaprop (comp_cat_nat_trans_preserves_univ_type τ Fi Gi).
+Proof.
+  do 2 (use impred ; intro).
+  apply homset_property.
+Qed.
