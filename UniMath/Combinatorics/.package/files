@@ -19,4 +19,3 @@ DecSet.v
 Maybe.v
 MoreLists.v
 Tuples.v
-DecidableEqualityKFiniteTypes.v

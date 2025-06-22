@@ -618,3 +618,12 @@ Delimit Scope finset with finset.
 Notation "'∑' x .. y , P" := (FiniteSetSum (λ x,.. (FiniteSetSum (λ y, P))..))
                                (at level 200, x binder, y binder, right associativity) : finset.
 (* type this in emacs in agda-input method with \sum *)
+
+(* A surjection from stn 0 is an equivalence *)
+Lemma surjfromstn0toneg {X : UU} (f : ⟦ 0 ⟧ → X ) : (issurjective f) → ⟦ 0 ⟧ ≃ X.
+Proof.
+  intros surj. apply tpair with (pr1 := f). intros x.
+  apply fromempty, (squash_to_prop (surj x) (isapropempty)).
+  intros [contra eq]; clear surj.
+  apply negstn0, contra.
+Qed.

@@ -456,6 +456,18 @@ Definition natneq_DecidableProposition : DecidableRelation nat :=
 
 End DecidablePropositions.
 
+Section DecidableEquality.
+
+Lemma isdeceq_subtype {X : UU} (P : X → UU) : 
+  isdeceq X → isPredicate P → isdeceq (∑ x : X, P x).
+Proof.
+  intros deceqX predP. apply isdeceq_total2.
+  + apply deceqX.
+  + intros x. apply isdeceqifisaprop, predP.
+Qed. 
+
+End DecidableEquality.
+
 Declare Scope decidable_nat.
 Notation " x < y " := (natlth_DecidableProposition x y) (at level 70, no associativity) :
                         decidable_nat.
