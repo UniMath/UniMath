@@ -438,6 +438,79 @@ Proof.
 Qed.
 
 (** * 4. Adjoint equivalences *)
+Section ToDispAdjEquiv.
+  Context {C : comp_cat}
+          {u₁ u₂ : disp_bicat_comp_cat_with_ob C}
+          (f : u₁ -->[ identity _ ] u₂).
+
+  Definition to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_inv
+    : u₂ -->[ identity _ ] u₁.
+  Proof.
+    cbn.
+    refine (z_iso_disp_transportf _ (z_iso_inv_from_z_iso_disp f)).
+    abstract
+      (apply TerminalArrowEq).
+  Defined.
+
+  Proposition to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_unit
+    : id_disp u₁
+      ==>[ linvunitor _ ]
+      f ;; to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_inv.
+  Proof.
+    simpl.
+    rewrite id_left_disp.
+    unfold transportb.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      apply (pr22 f).
+    }
+    unfold transportb.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Proposition to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_counit
+    : to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_inv ;; f
+      ==>[ lunitor _ ]
+      id_disp u₂.
+  Proof.
+    simpl.
+    rewrite id_left_disp.
+    unfold transportb.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite !transport_f_f.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      apply (pr22 f).
+    }
+    unfold transportb.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id
+    : disp_left_adjoint_equivalence
+        (internal_adjoint_equivalence_identity C)
+        f.
+  Proof.
+    simple refine (_ ,, (_ ,, _)) ;
+      [
+      | split ; apply disp_2cells_isaprop_disp_bicat_comp_cat_with_ob
+      | split ; apply is_disp_invertible_2cell_disp_bicat_comp_cat_with_ob ].
+    simple refine(_ ,, _ ,, _).
+    - exact to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_inv.
+    - exact to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_unit.
+    - exact to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_counit.
+  Defined.
+End ToDispAdjEquiv.
+
 Section AdjointEquivalences.
   Context {C : comp_cat}
           (u₁ u₂ : ty ([] : C)).
@@ -458,36 +531,7 @@ Section AdjointEquivalences.
       refine (z_iso_disp_transportf _ f).
       abstract
         (apply TerminalArrowEq).
-    - simple refine (_ ,, _ ,, _).
-      + cbn.
-        refine (z_iso_disp_transportf _ (z_iso_inv_from_z_iso_disp f)).
-        abstract
-          (apply TerminalArrowEq).
-      + abstract
-          (simpl ;
-           rewrite id_left_disp ;
-           unfold transportb ;
-           rewrite mor_disp_transportf_prewhisker ;
-           rewrite mor_disp_transportf_postwhisker ;
-           rewrite !transport_f_f ;
-           etrans ; [ apply maponpaths ; apply (inv_mor_after_z_iso_disp f) | ] ;
-           unfold transportb ;
-           rewrite transport_f_f ;
-           apply maponpaths_2 ;
-           apply homset_property).
-      + abstract
-          (simpl ;
-           rewrite id_left_disp ;
-           unfold transportb ;
-           rewrite mor_disp_transportf_prewhisker ;
-           rewrite mor_disp_transportf_postwhisker ;
-           rewrite !transport_f_f ;
-           refine (!_) ;
-           etrans ; [ apply maponpaths ; apply (z_iso_disp_after_inv_mor f) | ] ;
-           unfold transportb ;
-           rewrite transport_f_f ;
-           apply maponpaths_2 ;
-           apply homset_property).
+    - apply to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id.
   Defined.
 
   Definition disp_bicat_comp_cat_with_ob_from_adjequiv

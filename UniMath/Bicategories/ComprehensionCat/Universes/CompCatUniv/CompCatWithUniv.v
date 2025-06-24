@@ -989,10 +989,382 @@ Proof.
 Qed.
 
 (** * 5. Adjoint equivalences in this displayed bicategory *)
+Section ToDispAdjEquiv.
+  Context {C : comp_cat_with_ob}
+          {du₁ du₂ : disp_bicat_comp_cat_ob_univ C}
+          (df : du₁ -->[ identity _ ] du₂).
+
+  Let u₁ : comp_cat_univ_type C := du₁.
+  Let u₂ : comp_cat_univ_type C := du₂.
+  Let f : comp_cat_functor_preserves_univ_type (id₁ C) du₁ du₂ := df.
+
+  Lemma disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path
+        {Γ : C}
+        (t : tm Γ (comp_cat_univ Γ))
+    : t
+      =
+      comp_cat_functor_tm
+        (id₁ C : comp_cat_functor_ob _ _) t
+      ↑ functor_comp_cat_on_univ (id₁ C) Γ.
+  Proof.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      apply id_comp_cat_functor_tm.
+    }
+    rewrite id_functor_comp_cat_on_univ.
+    apply id_coerce_comp_cat_tm.
+  Qed.
+
+  Definition disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_el
+    : comp_cat_functor_preserves_el (id₁ C) u₂ u₁
+    := λ Γ t,
+       z_iso_comp
+         (z_iso_comp
+            (comp_cat_el_map_on_eq_iso
+               u₂
+               (disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path t))
+            (z_iso_inv
+               (comp_cat_functor_preserves_univ_type_el_iso f t)))
+         (comp_cat_el_map_on_eq_iso
+            u₁
+            (disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path t)).
+
+  Proposition disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_stable_el
+    : comp_cat_functor_preserves_stable_el
+        u₂ u₁
+        disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_el.
+  Proof.
+    unfold disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_el.
+    intros Γ Δ s t.
+    rewrite !assoc'.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      refine (assoc' _ _ _ @ _).
+      apply maponpaths.
+      refine (!_).
+      apply (comp_cat_el_map_on_concat u₁).
+    }
+    rewrite !assoc.
+    use z_iso_inv_to_right.
+    refine (!_).
+    refine (_ @ assoc' _ _ _).
+    use z_iso_inv_on_left.
+    refine (!_).
+    rewrite !assoc'.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        refine (!_).
+        apply (comp_cat_el_map_on_inv u₁).
+      }
+      rewrite assoc.
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (!_).
+        use comp_cat_univ_el_stable_natural.
+        refine (!_).
+        apply disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path.
+      }
+      rewrite !assoc'.
+      apply maponpaths.
+      refine (_ @ comp_cat_functor_preserves_univ_type_el_stable_alt f s t).
+      apply maponpaths_2.
+      refine (!_).
+      apply id_comp_cat_functor_coerce.
+    }
+    assert (comp_cat_functor_subst_ty_coe
+              (id₁ C : comp_cat_functor_ob _ _)
+              s
+              (comp_cat_univ_el u₂ t)
+            =
+            identity _)
+      as ->.
+    {
+      apply id_comp_cat_functor_subst_ty_coe.
+    }
+    assert (comp_cat_functor_subst_ty_coe
+              (id₁ C : comp_cat_functor_ob _ _)
+              s
+              (comp_cat_univ_el u₁ t)
+            =
+            identity _)
+      as p.
+    {
+      apply id_comp_cat_functor_subst_ty_coe.
+    }
+    rewrite id_left.
+    rewrite !assoc.
+    etrans.
+    {
+      do 3 apply maponpaths_2.
+      apply maponpaths.
+      exact p.
+    }
+    rewrite id_right.
+    etrans.
+    {
+      apply maponpaths_2.
+      rewrite <- !comp_coerce_subst_ty.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply maponpaths.
+        do 2 refine (assoc' _ _ _ @ _).
+        apply maponpaths.
+        refine (assoc _ _ _ @ _).
+        apply maponpaths_2.
+        refine (!(comp_cat_el_map_on_concat _ _ _) @ _).
+        apply comp_cat_el_map_on_idpath.
+      }
+      rewrite id_left.
+      apply maponpaths_2.
+      apply maponpaths.
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        apply z_iso_after_z_iso_inv.
+      }
+      apply id_right.
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      use comp_cat_univ_el_stable_natural.
+      abstract
+        (apply maponpaths ;
+         refine (maponpaths (λ z, z [[ s ]]tm) _) ;
+         apply disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path).
+    }
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths_2.
+      apply id_comp_cat_functor_coerce.
+    }
+    refine (_ @ assoc _ _ _).
+    apply maponpaths.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply comp_cat_el_map_on_inv.
+    }
+    refine (!(comp_cat_el_map_on_concat _ _ _) @ _).
+    apply eq_comp_cat_el_map_on_eq.
+  Qed.
+
+  Definition disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv
+    : comp_cat_functor_preserves_univ_type (id₁ C) u₂ u₁.
+  Proof.
+    use make_comp_cat_functor_preserves_univ_type.
+    - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_el.
+    - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_stable_el.
+  Defined.
+
+  Proposition disp_bicat_comp_cat_ob_univ_to_adj_equiv_unit
+    : comp_cat_nat_trans_preserves_univ_type
+        (left_adjoint_unit (internal_adjunction_data_identity C))
+        (id_comp_cat_functor_preserves_univ_type u₁)
+        (comp_comp_cat_functor_preserves_univ_type
+           f
+           disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv).
+  Proof.
+    intros Γ t.
+    etrans.
+    {
+      refine (!_).
+      apply (comp_cat_el_map_on_concat u₁).
+    }
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      apply comp_cat_type_fib_nat_trans_on_linvunitor.
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      apply id_subst_ty_natural.
+    }
+    rewrite assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_univ_el_stable_id_coh.
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (eq_comp_comp_cat_functor_preserves_univ
+               f
+               disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv
+               t).
+    }
+    etrans.
+    {
+      do 3 apply maponpaths_2.
+      apply id_comp_cat_functor_coerce.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      refine (assoc _ _ _ @ _).
+      apply maponpaths_2.
+      refine (assoc _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths_2.
+        pose (p := disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path t).
+        refine (_ @ !(comp_cat_functor_preserves_univ_type_el_mor_natural f p)).
+        apply maponpaths.
+        apply (eq_comp_cat_el_map_on_eq u₂).
+      }
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        apply z_iso_inv_after_z_iso.
+      }
+      apply id_right.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      refine (!_).
+      apply (comp_cat_el_map_on_concat u₁).
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply (comp_cat_el_map_on_concat u₁).
+    }
+    refine (!(comp_cat_el_map_on_concat u₁ _ _) @ _).
+    apply eq_comp_cat_el_map_on_eq.
+  Qed.
+
+  Proposition disp_bicat_comp_cat_ob_univ_to_adj_equiv_counit
+    : comp_cat_nat_trans_preserves_univ_type
+        (left_adjoint_counit (internal_adjunction_data_identity C))
+        (comp_comp_cat_functor_preserves_univ_type
+           disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv
+           f)
+        (id_comp_cat_functor_preserves_univ_type u₂).
+  Proof.
+    intros Γ t.
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (eq_comp_comp_cat_functor_preserves_univ
+               disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv
+               f
+               t).
+    }
+    etrans.
+    {
+      do 3 apply maponpaths_2.
+      apply id_comp_cat_functor_coerce.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        exact (comp_cat_functor_preserves_univ_type_el_mor_natural
+                 f
+                 (disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path t)).
+      }
+      refine (assoc _ _ _ @ _).
+      apply maponpaths_2.
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        apply z_iso_after_z_iso_inv.
+      }
+      apply id_right.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      refine (!_).
+      apply (comp_cat_el_map_on_concat u₂).
+    }
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      apply comp_cat_type_fib_nat_trans_on_lunitor.
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (id_subst_ty_natural
+               (comp_cat_functor_preserves_univ_type_el_mor
+                  (id_comp_cat_functor_preserves_univ_type u₂)
+                  t)).
+    }
+    refine (assoc' _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_univ_el_stable_id_coh.
+    }
+    refine (!(comp_cat_el_map_on_concat u₂ _ _) @ _).
+    refine (!_).
+    refine (assoc' _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply (comp_cat_el_map_on_concat u₂).
+    }
+    etrans.
+    {
+      refine (!_).
+      apply (comp_cat_el_map_on_concat u₂).
+    }
+    apply eq_comp_cat_el_map_on_eq.
+  Qed.
+
+  Definition disp_bicat_comp_cat_ob_univ_to_adj_equiv_data
+    : disp_left_adjoint_data (internal_adjoint_equivalence_identity C) df.
+  Proof.
+    simple refine (_ ,, _ ,, _).
+    - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv.
+    - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_unit.
+    - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_counit.
+  Defined.
+
+  Definition disp_bicat_comp_cat_ob_univ_adj_equiv_over_id
+    : disp_left_adjoint_equivalence
+        (internal_adjoint_equivalence_identity _)
+        df.
+  Proof.
+    simple refine (_ ,, _ ,, _) ;
+      [
+      | split ; apply disp_2cells_isaprop_disp_bicat_comp_cat_ob_univ
+      | split ; apply disp_locally_groupoid_disp_bicat_comp_cat_ob_univ ].
+    exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_data.
+  Defined.
+End ToDispAdjEquiv.
+
 Section DispAdjEquiv.
   Context {C : comp_cat_with_ob}
-          (u₁ : comp_cat_univ_type C)
-          (u₂ : comp_cat_univ_type C).
+          (u₁ u₂ : comp_cat_univ_type C).
 
   Section ToDispAdjEquiv.
     Context (p : ∏ (Γ : C)
@@ -1001,33 +1373,14 @@ Section DispAdjEquiv.
                    (C := fiber_category _ _)
                    (comp_cat_univ_el u₁ t)
                    (comp_cat_univ_el u₂ t))
-              (q : ∏ (Γ Δ : C)
-                     (s : Γ --> Δ)
-                     (t : tm Δ (comp_cat_univ Δ)),
-                   comp_cat_univ_el_stable u₁ s t
-                   · p Γ (t [[s ]]tm ↑ sub_comp_cat_univ s)
-                   =
-                   coerce_subst_ty s (p Δ t : _ --> _)
-                   · comp_cat_univ_el_stable u₂ s t).
-
-    Lemma disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path
-          {Γ : C}
-          (t : tm Γ (comp_cat_univ Γ))
-      : t
-        =
-        comp_cat_functor_tm
-          (id₁ C : comp_cat_functor_ob _ _) t
-        ↑ functor_comp_cat_on_univ (id₁ C) Γ.
-    Proof.
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths.
-        apply id_comp_cat_functor_tm.
-      }
-      rewrite id_functor_comp_cat_on_univ.
-      apply id_coerce_comp_cat_tm.
-    Qed.
+            (q : ∏ (Γ Δ : C)
+                   (s : Γ --> Δ)
+                   (t : tm Δ (comp_cat_univ Δ)),
+                 comp_cat_univ_el_stable u₁ s t
+                 · p Γ (t [[s ]]tm ↑ sub_comp_cat_univ s)
+                 =
+                 coerce_subst_ty s (p Δ t : _ --> _)
+                 · comp_cat_univ_el_stable u₂ s t).
 
     Definition disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_preserves_el
       : comp_cat_functor_preserves_el (id₁ C) u₁ u₂.
@@ -1114,291 +1467,6 @@ Section DispAdjEquiv.
       apply idpath.
     Qed.
 
-    Definition disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_el
-      : comp_cat_functor_preserves_el (id₁ C) u₂ u₁.
-    Proof.
-      refine (λ Γ t, z_iso_comp (z_iso_inv (p Γ t)) (comp_cat_el_map_on_eq_iso u₁ _)).
-      apply disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path.
-    Defined.
-
-    Proposition disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_stable_el
-      : comp_cat_functor_preserves_stable_el
-          u₂ u₁
-          disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_el.
-    Proof.
-      intros Γ Δ s t.
-      rewrite !assoc'.
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths.
-        refine (assoc' _ _ _ @ _).
-        apply maponpaths.
-        refine (!_).
-        apply comp_cat_el_map_on_concat.
-      }
-      rewrite !assoc.
-      use z_iso_inv_to_right.
-      refine (!_).
-      use z_iso_inv_on_left.
-      refine (!_).
-      rewrite !assoc'.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        etrans.
-        {
-          apply maponpaths.
-          apply maponpaths_2.
-          refine (!_).
-          apply comp_cat_el_map_on_inv.
-        }
-        rewrite assoc.
-        etrans.
-        {
-          apply maponpaths_2.
-          refine (!_).
-          use comp_cat_univ_el_stable_natural.
-          refine (!_).
-          apply disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor_path.
-        }
-        rewrite !assoc'.
-        apply maponpaths.
-        apply q.
-      }
-      assert (comp_cat_functor_subst_ty_coe
-                (id₁ C : comp_cat_functor_ob _ _)
-                s
-                (comp_cat_univ_el u₂ t)
-              =
-              identity _)
-        as ->.
-      {
-        apply id_comp_cat_functor_subst_ty_coe.
-      }
-      etrans.
-      {
-        apply maponpaths.
-        rewrite !assoc.
-        apply maponpaths_2.
-        rewrite <- !comp_coerce_subst_ty.
-        etrans.
-        {
-          apply maponpaths.
-          do 2 refine (assoc' _ _ _ @ _).
-          apply maponpaths.
-          refine (assoc _ _ _ @ _).
-          apply maponpaths_2.
-          refine (!(comp_cat_el_map_on_concat _ _ _) @ _).
-          apply comp_cat_el_map_on_idpath.
-        }
-        rewrite id_left.
-        etrans.
-        {
-          apply maponpaths.
-          apply z_iso_after_z_iso_inv.
-        }
-        apply id_coerce_subst_ty.
-      }
-      rewrite !id_left.
-      apply idpath.
-    Qed.
-
-    Definition disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv
-      : comp_cat_functor_preserves_univ_type (id₁ C) u₂ u₁.
-    Proof.
-      use make_comp_cat_functor_preserves_univ_type.
-      - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_el.
-      - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv_preserves_stable_el.
-    Defined.
-
-    Lemma disp_bicat_comp_cat_ob_univ_to_adj_equiv_natural
-          {Γ : C}
-          {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
-          (r : t₁ = t₂)
-      : p Γ t₁ · comp_cat_el_map_on_eq _ r
-        =
-        comp_cat_el_map_on_eq _ r · p Γ t₂.
-    Proof.
-      induction r.
-      exact (id_right _ @ !(id_left _)).
-    Qed.
-
-    Proposition disp_bicat_comp_cat_ob_univ_to_adj_equiv_unit
-      : comp_cat_nat_trans_preserves_univ_type
-          (left_adjoint_unit (internal_adjunction_data_identity C))
-          (id_comp_cat_functor_preserves_univ_type u₁)
-          (comp_comp_cat_functor_preserves_univ_type
-             disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor
-             disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv).
-    Proof.
-      intros Γ t.
-      etrans.
-      {
-        refine (!_).
-        apply (comp_cat_el_map_on_concat u₁).
-      }
-      refine (!_).
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        apply comp_cat_type_fib_nat_trans_on_linvunitor.
-      }
-      etrans.
-      {
-        apply maponpaths_2.
-        apply id_subst_ty_natural.
-      }
-      rewrite assoc'.
-      etrans.
-      {
-        apply maponpaths.
-        apply comp_cat_univ_el_stable_id_coh.
-      }
-      etrans.
-      {
-        apply maponpaths_2.
-        exact (eq_comp_comp_cat_functor_preserves_univ
-                 disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor
-                 disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv
-                 t).
-      }
-      etrans.
-      {
-        do 3 apply maponpaths_2.
-        apply id_comp_cat_functor_coerce.
-      }
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        refine (assoc _ _ _ @ _).
-        do 2 apply maponpaths_2.
-        apply disp_bicat_comp_cat_ob_univ_to_adj_equiv_natural.
-      }
-      etrans.
-      {
-        do 3 apply maponpaths_2.
-        refine (assoc' _ _ _ @ _).
-        etrans.
-        {
-          apply maponpaths.
-          apply z_iso_inv_after_z_iso.
-        }
-        apply id_right.
-      }
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        refine (!_).
-        apply (comp_cat_el_map_on_concat u₁).
-      }
-      etrans.
-      {
-        apply maponpaths_2.
-        refine (!_).
-        apply (comp_cat_el_map_on_concat u₁).
-      }
-      refine (!(comp_cat_el_map_on_concat u₁ _ _) @ _).
-      apply eq_comp_cat_el_map_on_eq.
-    Qed.
-
-    Proposition disp_bicat_comp_cat_ob_univ_to_adj_equiv_counit
-      : comp_cat_nat_trans_preserves_univ_type
-          (left_adjoint_counit (internal_adjunction_data_identity C))
-          (comp_comp_cat_functor_preserves_univ_type
-             disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv
-             disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor)
-          (id_comp_cat_functor_preserves_univ_type u₂).
-    Proof.
-      intros Γ t.
-      etrans.
-      {
-        apply maponpaths_2.
-        exact (eq_comp_comp_cat_functor_preserves_univ
-                 disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv
-                 disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor
-                 t).
-      }
-      etrans.
-      {
-        do 3 apply maponpaths_2.
-        apply id_comp_cat_functor_coerce.
-      }
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        refine (assoc _ _ _ @ _).
-        apply maponpaths_2.
-        refine (assoc' _ _ _ @ _).
-        etrans.
-        {
-          apply maponpaths.
-          refine (!_).
-          apply disp_bicat_comp_cat_ob_univ_to_adj_equiv_natural.
-        }
-        refine (assoc _ _ _ @ _).
-        etrans.
-        {
-          apply maponpaths_2.
-          apply z_iso_after_z_iso_inv.
-        }
-        apply id_left.
-      }
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        refine (!_).
-        apply (comp_cat_el_map_on_concat u₂).
-      }
-      refine (!_).
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        apply comp_cat_type_fib_nat_trans_on_lunitor.
-      }
-      etrans.
-      {
-        apply maponpaths_2.
-        exact (id_subst_ty_natural
-                 (comp_cat_functor_preserves_univ_type_el_mor
-                    (id_comp_cat_functor_preserves_univ_type u₂)
-                    t)).
-      }
-      refine (assoc' _ _ _ @ _).
-      etrans.
-      {
-        apply maponpaths.
-        apply comp_cat_univ_el_stable_id_coh.
-      }
-      refine (!(comp_cat_el_map_on_concat u₂ _ _) @ _).
-      refine (!_).
-      refine (assoc' _ _ _ @ _).
-      etrans.
-      {
-        apply maponpaths.
-        refine (!_).
-        apply (comp_cat_el_map_on_concat u₂).
-      }
-      etrans.
-      {
-        refine (!_).
-        apply (comp_cat_el_map_on_concat u₂).
-      }
-      apply eq_comp_cat_el_map_on_eq.
-    Qed.
-
-    Definition disp_bicat_comp_cat_ob_univ_to_adj_equiv_data
-      : disp_left_adjoint_data
-          (D := disp_bicat_comp_cat_ob_univ)
-          (internal_adjoint_equivalence_identity C)
-          disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor.
-    Proof.
-      simple refine (_ ,, _ ,, _).
-      - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_inv.
-      - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_unit.
-      - exact disp_bicat_comp_cat_ob_univ_to_adj_equiv_counit.
-    Defined.
-
     Definition  disp_bicat_comp_cat_ob_univ_to_adj_equiv
       : disp_adjoint_equivalence
           (D := disp_bicat_comp_cat_ob_univ)
@@ -1408,14 +1476,8 @@ Section DispAdjEquiv.
     Proof.
       refine (disp_bicat_comp_cat_ob_univ_to_adj_equiv_mor
               ,,
-              disp_bicat_comp_cat_ob_univ_to_adj_equiv_data
-              ,,
               _).
-      split.
-      - abstract
-          (split ; apply disp_2cells_isaprop_disp_bicat_comp_cat_ob_univ).
-      - abstract
-          (split ; apply disp_locally_groupoid_disp_bicat_comp_cat_ob_univ).
+      apply disp_bicat_comp_cat_ob_univ_adj_equiv_over_id.
     Defined.
   End ToDispAdjEquiv.
 
@@ -1651,6 +1713,35 @@ Section DispAdjEquiv.
   Defined.
 End DispAdjEquiv.
 
+Definition disp_bicat_comp_cat_ob_univ_adj_equiv_over_adjequiv_help
+           {C₁ C₂ : comp_cat_with_ob}
+           {F : adjoint_equivalence C₁ C₂}
+           {u₁ : disp_bicat_comp_cat_ob_univ C₁}
+           {u₂ : disp_bicat_comp_cat_ob_univ C₂}
+           (f : u₁ -->[ F ] u₂)
+  : disp_left_adjoint_equivalence F f.
+Proof.
+  revert C₁ C₂ F u₁ u₂ f.
+  use J_2_0.
+  {
+    exact is_univalent_2_0_bicat_comp_cat_with_ob.
+  }
+  intros C₁ u₁ u₂ f.
+  apply disp_bicat_comp_cat_ob_univ_adj_equiv_over_id.
+Qed.
+
+Definition disp_bicat_comp_cat_ob_univ_adj_equiv_over_adjequiv
+           {C₁ C₂ : comp_cat_with_ob}
+           {F : C₁ --> C₂}
+           (HF : left_adjoint_equivalence F)
+           {u₁ : disp_bicat_comp_cat_ob_univ C₁}
+           {u₂ : disp_bicat_comp_cat_ob_univ C₂}
+           (f : u₁ -->[ F ] u₂)
+  : disp_left_adjoint_equivalence HF f.
+Proof.
+  exact (disp_bicat_comp_cat_ob_univ_adj_equiv_over_adjequiv_help (F := F ,, HF) f).
+Qed.
+
 (** * 6. Global univalence *)
 Proposition disp_univalent_2_0_disp_bicat_comp_cat_ob_univ
   : disp_univalent_2_0 disp_bicat_comp_cat_ob_univ.
@@ -1838,3 +1929,30 @@ Proof.
   use disp_locally_groupoid_lift_disp_bicat.
   exact disp_locally_groupoid_disp_bicat_full_comp_cat_with_univ.
 Qed.
+
+(** * 6. Adjoint equivalence between categories with finite limits and a universe *)
+Definition disp_left_adjoint_equivalence_finlim_universe
+           {C₁ C₂ : bicat_of_dfl_full_comp_cat}
+           {u₁ : disp_bicat_dfl_full_comp_cat_with_univ C₁}
+           {u₂ : disp_bicat_dfl_full_comp_cat_with_univ C₂}
+           {F : adjoint_equivalence C₁ C₂}
+           (Fu : u₁ -->[ F ] u₂)
+  : disp_left_adjoint_equivalence F Fu.
+Proof.
+  revert C₁ C₂ F u₁ u₂ Fu.
+  use J_2_0.
+  {
+    exact is_univalent_2_0_bicat_of_dfl_full_comp_cat.
+  }
+  intros C u₁ u₂ Fu.
+  use to_disp_left_adjoint_equivalence_over_id_lift.
+  use to_disp_left_adjoint_equivalence_over_id_lift.
+  use pair_disp_left_adjoint_equivalence_sigma.
+  - exact is_univalent_2_bicat_comp_cat.
+  - exact disp_2cells_isaprop_disp_bicat_comp_cat_with_ob.
+  - exact disp_2cells_isaprop_disp_bicat_comp_cat_ob_univ.
+  - exact disp_locally_groupoid_disp_bicat_comp_cat_with_ob.
+  - exact disp_locally_groupoid_disp_bicat_comp_cat_ob_univ.
+  - apply to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id.
+  - apply disp_bicat_comp_cat_ob_univ_adj_equiv_over_adjequiv.
+Defined.

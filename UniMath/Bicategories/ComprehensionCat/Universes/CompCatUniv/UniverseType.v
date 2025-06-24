@@ -1095,6 +1095,42 @@ Proof.
   exact (pr2 Fi Γ Δ s t).
 Qed.
 
+Proposition comp_cat_functor_preserves_univ_type_el_stable_alt
+            {C₁ C₂ : comp_cat_with_ob}
+            {F : comp_cat_functor_ob C₁ C₂}
+            {el₁ : comp_cat_univ_type C₁}
+            {el₂ : comp_cat_univ_type C₂}
+            (Fi : comp_cat_functor_preserves_univ_type F el₁ el₂)
+            {Γ Δ : C₁}
+            (s : Γ --> Δ)
+            (t : tm Δ (comp_cat_univ Δ))
+  : comp_cat_functor_coerce F (comp_cat_univ_el_stable el₁ s t : _ --> _)
+    · comp_cat_functor_preserves_univ_type_el_iso Fi (t [[ s ]]tm ↑ sub_comp_cat_univ _)
+    =
+    comp_cat_functor_subst_ty_coe F s _
+    · coerce_subst_ty (#F s) (comp_cat_functor_preserves_univ_type_el_mor Fi t)
+    · comp_cat_univ_el_stable el₂ (#F s) (comp_cat_functor_tm F t ↑ functor_comp_cat_on_univ F Δ)
+    · comp_cat_el_map_on_eq_inv _ (comp_cat_functor_preserves_stable_el_path F s t).
+Proof.
+  rewrite comp_cat_functor_preserves_univ_type_el_stable.
+  rewrite !assoc'.
+  refine (!_).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply comp_cat_el_map_on_inv.
+    }
+    refine (!(comp_cat_el_map_on_concat _ _ _) @ _).
+    apply comp_cat_el_map_on_idpath.
+  }
+  rewrite id_right.
+  apply idpath.
+Qed.
+
 (** * 8. Preservation of universes by identity and composition *)
 Definition id_comp_cat_functor_preserves_el
            {C : comp_cat_with_ob}

@@ -1188,7 +1188,7 @@ Proof.
 Defined.
 
 (** * 6. Adjoint equivalence between categories with finite limits and a universe *)
-Definition disp_left_adjoint_equivalence_finlim_universe
+Definition disp_left_adjoint_equivalence_finlim_universe_adjequiv
            {C₁ C₂ : univ_cat_with_finlim}
            {u₁ : disp_bicat_finlim_universe C₁}
            {u₂ : disp_bicat_finlim_universe C₂}
@@ -1210,4 +1210,16 @@ Proof.
   - exact disp_locally_groupoid_disp_bicat_finlim_el.
   - apply disp_bicat_finlim_ob_to_adj_equiv.
   - apply to_disp_left_adjoint_equivalence_over_adjequiv_finlim_ob.
+Defined.
+
+Definition disp_left_adjoint_equivalence_finlim_universe
+           {C₁ C₂ : univ_cat_with_finlim}
+           {u₁ : disp_bicat_finlim_universe C₁}
+           {u₂ : disp_bicat_finlim_universe C₂}
+           {F : C₁ --> C₂}
+           (HF : left_adjoint_equivalence F)
+           (Fu : u₁ -->[ F ] u₂)
+  : disp_left_adjoint_equivalence HF Fu.
+Proof.
+  exact (disp_left_adjoint_equivalence_finlim_universe_adjequiv (F := F ,, HF) Fu).
 Defined.
