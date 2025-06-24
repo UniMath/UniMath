@@ -433,6 +433,19 @@ Proof.
   exact p.
 Qed.
 
+Proposition isaset_comp_cat_tm
+            {C : comp_cat}
+            (Γ : C)
+            (A : ty Γ)
+  : isaset (tm Γ A).
+Proof.
+  use isaset_total2.
+  - apply homset_property.
+  - intro.
+    apply isasetaprop.
+    apply homset_property.
+Qed.
+
 Definition sub_to_extension
            {C : comp_cat}
            {Γ Δ : C}

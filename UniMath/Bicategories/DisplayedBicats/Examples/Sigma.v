@@ -821,6 +821,31 @@ Section SigmaDisplayedUnivalent.
     - apply disp_locally_groupoid_sigma ; assumption.
   Defined.
 
+  Definition pair_disp_left_adjoint_equivalence_sigma
+             {x : C}
+             {xx : (sigma_bicat C D₁ D₂) x}
+             {yy : (sigma_bicat C D₁ D₂) x}
+             {ff : xx -->[ identity _ ] yy}
+             (Hff₁ : disp_left_adjoint_equivalence
+                       (internal_adjoint_equivalence_identity x)
+                       (pr1 ff))
+             (Hff₂ : disp_left_adjoint_equivalence
+                       (invmap
+                          (adjoint_equivalence_total_disp_weq
+                             (pr1 xx) (pr1 yy))
+                          (internal_adjoint_equivalence_identity x ,, pr1 ff ,, Hff₁))
+                       (pr2 ff))
+    : disp_left_adjoint_equivalence
+        (internal_adjoint_equivalence_identity x)
+        ff.
+  Proof.
+    exact (pair_disp_adjequiv_to_sigma_disp_adjequiv
+             xx yy
+             ((pr1 ff ,, Hff₁)
+               ,,
+               (pr2 ff ,, Hff₂))).
+  Defined.
+
   Definition pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr1
              {x : C}
              (xx : (sigma_bicat C D₁ D₂) x)

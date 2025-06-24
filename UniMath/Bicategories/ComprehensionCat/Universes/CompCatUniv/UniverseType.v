@@ -99,19 +99,6 @@ Definition comp_cat_el_map_on_eq_inv
   : el _ t₂ <: el _ t₁
   := inv_from_z_iso (comp_cat_el_map_on_eq_iso el p).
 
-Proposition isaset_comp_cat_tm
-            {C : comp_cat}
-            (Γ : C)
-            (A : ty Γ)
-  : isaset (tm Γ A).
-Proof.
-  use isaset_total2.
-  - apply homset_property.
-  - intro.
-    apply isasetaprop.
-    apply homset_property.
-Qed.
-
 Proposition comp_cat_el_map_on_idpath
             {C : comp_cat_with_ob}
             (el : comp_cat_el_map C)
@@ -677,6 +664,18 @@ Definition comp_cat_functor_preserves_el
           el₂
           (comp_cat_functor_tm F t ↑ functor_comp_cat_on_univ F Γ)).
 
+Proposition isaset_comp_cat_functor_preserves_el
+            {C₁ C₂ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            (el₁ : comp_cat_univ_type C₁)
+            (el₂ : comp_cat_univ_type C₂)
+  : isaset (comp_cat_functor_preserves_el F el₁ el₂).
+Proof.
+  use impred_isaset ; intro Γ₁.
+  use impred_isaset ; intro Γ₂.
+  apply isaset_z_iso.
+Qed.
+
 Proposition comp_cat_functor_preserves_el_natural_path
             {C₁ C₂ : comp_cat_with_ob}
             {F : comp_cat_functor_ob C₁ C₂}
@@ -896,6 +895,18 @@ Definition comp_cat_functor_preserves_stable_el
      · Fi Γ (t [[ s ]]tm ↑ sub_comp_cat_univ _)
      · comp_cat_el_map_on_eq_iso _ (comp_cat_functor_preserves_stable_el_path F s t).
 
+Proposition isaprop_comp_cat_functor_preserves_stable_el
+            {C₁ C₂ : comp_cat_with_ob}
+            {F : comp_cat_functor_ob C₁ C₂}
+            (el₁ : comp_cat_univ_type C₁)
+            (el₂ : comp_cat_univ_type C₂)
+            (Fi : comp_cat_functor_preserves_el F el₁ el₂)
+  : isaprop (comp_cat_functor_preserves_stable_el el₁ el₂ Fi).
+Proof.
+  do 4 (use impred ; intro).
+  apply homset_property.
+Qed.
+
 Proposition comp_cat_functor_preserves_stable_el_alt
             {C₁ C₂ : comp_cat_with_ob}
             {F : comp_cat_functor_ob C₁ C₂}
@@ -940,6 +951,20 @@ Definition comp_cat_functor_preserves_univ_type
   : UU
   := ∑ (Fi : comp_cat_functor_preserves_el F _ _),
      comp_cat_functor_preserves_stable_el el₁ el₂ Fi.
+
+Proposition isaset_comp_cat_functor_preserves_univ_type
+            {C₁ C₂ : comp_cat_with_ob}
+            (F : comp_cat_functor_ob C₁ C₂)
+            (el₁ : comp_cat_univ_type C₁)
+            (el₂ : comp_cat_univ_type C₂)
+  : isaset (comp_cat_functor_preserves_univ_type F el₁ el₂).
+Proof.
+  use isaset_total2.
+  - apply isaset_comp_cat_functor_preserves_el.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_comp_cat_functor_preserves_stable_el.
+Qed.
 
 Definition make_comp_cat_functor_preserves_univ_type
            {C₁ C₂ : comp_cat_with_ob}
@@ -989,6 +1014,30 @@ Definition comp_cat_functor_preserves_univ_type_el_mor
 Proof.
   exact (comp_cat_functor_preserves_univ_type_el_iso Fi t : _ --> _).
 Defined.
+
+Proposition comp_cat_functor_preserves_univ_type_eq
+            {C₁ C₂ : comp_cat_with_ob}
+            {F : comp_cat_functor_ob C₁ C₂}
+            {el₁ : comp_cat_univ_type C₁}
+            {el₂ : comp_cat_univ_type C₂}
+            {Fi₁ Fi₂ : comp_cat_functor_preserves_univ_type F el₁ el₂}
+            (p : ∏ (Γ : C₁)
+                   (t : tm Γ (comp_cat_univ Γ)),
+                 comp_cat_functor_preserves_univ_type_el_mor Fi₁ t
+                 =
+                 comp_cat_functor_preserves_univ_type_el_mor Fi₂ t)
+  : Fi₁ = Fi₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_comp_cat_functor_preserves_stable_el.
+  }
+  use funextsec ; intro Γ.
+  use funextsec ; intro t.
+  use z_iso_eq.
+  exact (p Γ t).
+Qed.
 
 Lemma comp_cat_functor_preserves_univ_type_el_mor_natural_path
       {C₁ C₂ : comp_cat_with_ob}

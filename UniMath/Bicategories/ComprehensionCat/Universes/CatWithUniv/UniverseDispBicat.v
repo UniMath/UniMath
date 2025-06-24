@@ -17,6 +17,7 @@
  3. Adjoint equivalences and global univalence
  4. The displayed bicategory of universes over categories with finite limits
  5. Accessors
+ 6. Adjoint equivalence between categories with finite limits and a universe
                                                                                                *)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -573,6 +574,239 @@ Section AdjEquiv.
   Context {C : univ_cat_with_finlim_ob}
           (u₁ u₂ : cat_stable_el_map_coherent C).
 
+  Section ToMorIsAdjEquiv.
+    Context (ff : mor_disp
+                    (D := disp_bicat_finlim_el)
+                    u₁
+                    u₂
+                    (identity _)).
+
+    Definition disp_bicat_finlim_el_to_adjequiv_mor_z_iso
+               (Γ : C)
+               (t : Γ --> univ_cat_universe C)
+      : z_iso (cat_el_map_el u₂ t) (cat_el_map_el u₁ (t · id₁ _))
+      := z_iso_comp
+           (z_iso_comp
+              (cat_el_map_el_eq u₂ (!(id_right _)))
+              (z_iso_inv (pr1 (pr1 ff Γ t))))
+           (cat_el_map_el_eq u₁ (!(id_right _))).
+
+    Definition disp_bicat_finlim_el_to_adjequiv_mor_el_map
+      : functor_el_map u₂ u₁ (id₁ _).
+    Proof.
+      use make_functor_el_map.
+      - exact disp_bicat_finlim_el_to_adjequiv_mor_z_iso.
+      - cbn.
+        abstract
+          (intros Γ t ; cbn ;
+           use (cancel_z_iso' (cat_el_map_el_eq u₂ (id_right _))) ;
+           rewrite !assoc ;
+           rewrite cat_el_map_el_eq_comp ;
+           rewrite pathsinv0r ;
+           rewrite !assoc' ;
+           refine (_ @ !(id_left _)) ;
+           refine (!_) ;
+           use z_iso_inv_on_right ;
+           rewrite cat_el_map_mor_eq ;
+           refine (pr2 (pr1 ff Γ t) @ _) ;
+           apply maponpaths ;
+           rewrite cat_el_map_mor_eq ;
+           apply idpath).
+    Defined.
+
+    Proposition disp_bicat_finlim_el_to_adjequiv_mor_stable
+      : functor_stable_el_map disp_bicat_finlim_el_to_adjequiv_mor_el_map.
+    Proof.
+      intros Γ Δ s t ; cbn.
+      rewrite !assoc'.
+      use (cancel_z_iso' (cat_el_map_el_eq u₂ (id_right _))).
+      rewrite !assoc.
+      rewrite cat_el_map_el_eq_comp.
+      rewrite pathsinv0r.
+      rewrite !assoc'.
+      refine (_ @ !(id_left _)).
+      refine (!_).
+      use z_iso_inv_on_right.
+      rewrite !assoc.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (assoc _ _ _ @ _).
+        apply maponpaths_2.
+        apply maponpaths.
+        refine (assoc' _ _ _ @ _).
+        apply maponpaths.
+        refine (!_).
+        use cat_el_map_pb_mor_eq.
+        abstract
+          (rewrite id_right ;
+           apply idpath).
+      }
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        do 2 refine (assoc _ _ _ @ _).
+        refine (_ @ !(pr2 ff Γ Δ s t)).
+        apply maponpaths_2.
+        refine (assoc' _ _ _ @ _).
+        apply maponpaths.
+        rewrite cat_el_map_el_eq_comp.
+        apply cat_el_map_el_eq_eq.
+      }
+      cbn.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite z_iso_inv_after_z_iso.
+        rewrite id_left.
+        apply idpath.
+      }
+      etrans.
+      {
+        refine (!_).
+        use cat_el_map_pb_mor_eq.
+        abstract
+          (rewrite id_right ;
+           apply idpath).
+      }
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite cat_el_map_el_eq_comp.
+      apply cat_el_map_el_eq_eq.
+    Qed.
+
+    Definition disp_bicat_finlim_el_to_adjequiv_inv
+      : functor_preserves_el u₂ u₁ (id₁ C).
+    Proof.
+      use make_functor_preserves_el.
+      - exact disp_bicat_finlim_el_to_adjequiv_mor_el_map.
+      - exact disp_bicat_finlim_el_to_adjequiv_mor_stable.
+    Defined.
+
+    Proposition disp_bicat_finlim_el_to_adjequiv_unit
+      : nat_trans_preserves_el
+          (left_adjoint_unit (internal_adjunction_data_identity _))
+          (id_functor_preserves_el u₁)
+          (comp_functor_preserves_el
+             ff
+             disp_bicat_finlim_el_to_adjequiv_inv).
+    Proof.
+      intros Γ t ; simpl.
+      refine (id_left _ @ _).
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply cat_el_map_pb_mor_id.
+      }
+      rewrite !cat_el_map_el_eq_comp.
+      rewrite !assoc'.
+      rewrite !cat_el_map_el_eq_comp.
+      rewrite !assoc.
+      refine (!_).
+      etrans.
+      {
+        do 3 apply maponpaths_2.
+        use (functor_el_map_iso_eq (pr1 ff) (id_right _)).
+      }
+      etrans.
+      {
+        do 3 refine (assoc' _ _ _ @ _).
+        apply maponpaths.
+        do 2 refine (assoc _ _ _ @ _).
+        apply maponpaths_2.
+        rewrite cat_el_map_el_eq_comp.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply cat_el_map_el_eq_id.
+        }
+        apply id_left.
+      }
+      etrans.
+      {
+        refine (assoc' _ _ _ @ _).
+        apply maponpaths.
+        refine (assoc _ _ _ @ _).
+        etrans.
+        {
+          apply maponpaths_2.
+          apply z_iso_inv_after_z_iso.
+        }
+        apply id_left.
+      }
+      refine (cat_el_map_el_eq_comp _ _ _ @ _).
+      apply cat_el_map_el_eq_eq.
+    Qed.
+
+    Proposition disp_bicat_finlim_el_to_adjequiv_counit
+      : nat_trans_preserves_el
+          (left_adjoint_counit (internal_adjunction_data_identity _))
+          (comp_functor_preserves_el
+             disp_bicat_finlim_el_to_adjequiv_inv
+             ff)
+          (id_functor_preserves_el u₂).
+    Proof.
+      intros Γ t ; simpl.
+      refine (id_left _ @ _).
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply cat_el_map_pb_mor_id.
+      }
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        do 4 refine (assoc _ _ _ @ _).
+        do 3 apply maponpaths_2.
+        apply maponpaths.
+        use (functor_el_map_iso_eq (pr1 ff) (!(id_right _))).
+      }
+      etrans.
+      {
+        apply maponpaths.
+        do 3 apply maponpaths_2.
+        refine (assoc _ _ _ @ _).
+        etrans.
+        {
+          apply maponpaths_2.
+          rewrite !assoc'.
+          etrans.
+          {
+            apply maponpaths.
+            refine (assoc _ _ _ @ _).
+            apply maponpaths_2.
+            refine (cat_el_map_el_eq_comp _ _ _ @ _).
+            apply cat_el_map_el_eq_id.
+          }
+          rewrite id_left.
+          apply z_iso_after_z_iso_inv.
+        }
+        apply id_left.
+      }
+      rewrite !cat_el_map_el_eq_comp.
+      apply cat_el_map_el_eq_eq.
+    Qed.
+
+    Definition to_disp_left_adjoint_equivalence_over_identity_finlim_ob
+      : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity _) ff.
+    Proof.
+      simple refine (_ ,, _ ,, _) ;
+        [
+        | split ; apply disp_2cells_isaprop_disp_bicat_finlim_el
+        | split ; apply disp_locally_groupoid_disp_bicat_finlim_el ].
+      simple refine (_ ,, _ ,, _).
+      - exact disp_bicat_finlim_el_to_adjequiv_inv.
+      - exact disp_bicat_finlim_el_to_adjequiv_unit.
+      - exact disp_bicat_finlim_el_to_adjequiv_counit.
+    Defined.
+  End ToMorIsAdjEquiv.
+
   Section ToAdjEquiv.
     Context {p : ∏ (Γ : C)
                    (t : Γ --> univ_cat_universe C),
@@ -614,130 +848,13 @@ Section AdjEquiv.
            apply cat_el_map_pb_mor_eq).
     Defined.
 
-    Definition disp_bicat_finlim_el_to_adjequiv_inv
-      : functor_preserves_el u₂ u₁ (id₁ C).
-    Proof.
-      use make_functor_preserves_el.
-      - use make_functor_el_map.
-        + exact (λ Γ t, z_iso_comp (z_iso_inv (p Γ t)) (cat_el_map_el_eq u₁ (!(id_right _)))).
-        + abstract
-            (intros Γ t ; cbn ;
-             rewrite !assoc' ;
-             refine (!_) ;
-             use z_iso_inv_on_right ;
-             refine (_ @ !(q Γ t)) ;
-             rewrite cat_el_map_mor_eq ;
-             apply idpath).
-      - abstract
-          (intros Γ Δ s t ; cbn ;
-           rewrite !assoc' ;
-           refine (!_) ;
-           use z_iso_inv_on_right ;
-           rewrite !assoc ;
-           rewrite <- (r Γ Δ s t) ;
-           rewrite cat_el_map_el_eq_comp ;
-           rewrite !assoc' ;
-           refine (cat_el_map_pb_mor_eq _ _ (!(id_right _)) _ @ _) ;
-           apply maponpaths ;
-           rewrite !assoc ;
-           rewrite z_iso_inv_after_z_iso ;
-           rewrite id_left ;
-           apply idpath).
-    Defined.
-
-    Local Lemma cat_el_map_el_eq_natural
-          {Γ : C}
-          {t₁ t₂ : Γ --> univ_cat_universe C}
-          (pt : t₁ = t₂)
-      : p Γ t₁ · cat_el_map_el_eq u₂ pt
-        =
-        cat_el_map_el_eq u₁ pt · p Γ t₂.
-    Proof.
-      induction pt ; cbn.
-      rewrite id_left, id_right.
-      apply idpath.
-    Qed.
-
-    Proposition disp_bicat_finlim_el_to_adjequiv_unit
-      : nat_trans_preserves_el
-          (left_adjoint_unit (internal_adjunction_data_identity _))
-          (id_functor_preserves_el u₁)
-          (comp_functor_preserves_el
-             disp_bicat_finlim_el_to_adjequiv_mor
-             disp_bicat_finlim_el_to_adjequiv_inv).
-    Proof.
-      intros Γ t ; simpl.
-      refine (id_left _ @ _).
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths.
-        apply cat_el_map_pb_mor_id.
-      }
-      rewrite !cat_el_map_el_eq_comp.
-      rewrite !assoc'.
-      rewrite !cat_el_map_el_eq_comp.
-      rewrite !assoc.
-      rewrite cat_el_map_el_eq_natural.
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths_2.
-        rewrite !assoc'.
-        rewrite z_iso_inv_after_z_iso.
-        apply id_right.
-      }
-      rewrite cat_el_map_el_eq_comp.
-      apply cat_el_map_el_eq_eq.
-    Qed.
-
-    Proposition disp_bicat_finlim_el_to_adjequiv_counit
-      : nat_trans_preserves_el
-          (left_adjoint_counit (internal_adjunction_data_identity _))
-          (comp_functor_preserves_el
-             disp_bicat_finlim_el_to_adjequiv_inv
-             disp_bicat_finlim_el_to_adjequiv_mor)
-          (id_functor_preserves_el u₂).
-    Proof.
-      intros Γ t ; simpl.
-      refine (id_left _ @ _).
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths.
-        apply cat_el_map_pb_mor_id.
-      }
-      rewrite !assoc'.
-      etrans.
-      {
-        apply maponpaths.
-        do 4 refine (assoc _ _ _ @ _).
-        rewrite <- cat_el_map_el_eq_natural.
-        apply idpath.
-      }
-      rewrite !assoc'.
-      rewrite !cat_el_map_el_eq_comp.
-      refine (assoc _ _ _ @ _).
-      rewrite z_iso_after_z_iso_inv.
-      refine (id_left _ @ _).
-      apply cat_el_map_el_eq_eq.
-    Qed.
-
     Definition disp_bicat_finlim_el_to_adjequiv
       : disp_adjoint_equivalence
           (D := disp_bicat_finlim_el)
           (internal_adjoint_equivalence_identity _) u₁ u₂.
     Proof.
-      simple refine (_ ,, (_ ,, (_ ,, _))) ;
-        [
-        |
-        | split ; apply disp_2cells_isaprop_disp_bicat_finlim_el
-        | split ; apply disp_locally_groupoid_disp_bicat_finlim_el ].
-      - exact disp_bicat_finlim_el_to_adjequiv_mor.
-    - simple refine (_ ,, _ ,, _).
-      + exact disp_bicat_finlim_el_to_adjequiv_inv.
-      + exact disp_bicat_finlim_el_to_adjequiv_unit.
-      + exact disp_bicat_finlim_el_to_adjequiv_counit.
+      refine (disp_bicat_finlim_el_to_adjequiv_mor ,, _).
+      apply to_disp_left_adjoint_equivalence_over_identity_finlim_ob.
     Defined.
   End ToAdjEquiv.
 
@@ -867,6 +984,43 @@ Section AdjEquiv.
          apply cat_el_map_el_eq_id).
   Defined.
 End AdjEquiv.
+
+Definition to_disp_left_adjoint_equivalence_over_adjequiv_finlim_ob_help
+           {C₁ C₂ : univ_cat_with_finlim_ob}
+           {F : adjoint_equivalence C₁ C₂}
+           {u₁ : cat_stable_el_map_coherent C₁}
+           {u₂ : cat_stable_el_map_coherent C₂}
+           (ff : mor_disp
+                    (D := disp_bicat_finlim_el)
+                    u₁
+                    u₂
+                    F)
+  : disp_left_adjoint_equivalence F ff.
+Proof.
+  revert C₁ C₂ F u₁ u₂ ff.
+  use J_2_0.
+  {
+    exact is_univalent_2_0_bicat_of_univ_cat_with_finlim_ob.
+  }
+  intros C u₁ u₂ ff.
+  apply to_disp_left_adjoint_equivalence_over_identity_finlim_ob.
+Qed.
+
+Definition to_disp_left_adjoint_equivalence_over_adjequiv_finlim_ob
+           {C₁ C₂ : univ_cat_with_finlim_ob}
+           {F : C₁ --> C₂}
+           (HF : left_adjoint_equivalence F)
+           {u₁ : cat_stable_el_map_coherent C₁}
+           {u₂ : cat_stable_el_map_coherent C₂}
+           (ff : mor_disp
+                    (D := disp_bicat_finlim_el)
+                    u₁
+                    u₂
+                    F)
+  : disp_left_adjoint_equivalence HF ff.
+Proof.
+  exact (to_disp_left_adjoint_equivalence_over_adjequiv_finlim_ob_help (F := F ,, HF) ff).
+Qed.
 
 Proposition disp_univalent_2_0_disp_bicat_finlim_el
   : disp_univalent_2_0 disp_bicat_finlim_el.
@@ -1031,4 +1185,29 @@ Proposition nat_trans_universe_preserves_el
       (functor_finlim_universe_preserves_el G).
 Proof.
   exact (pr22 τ).
+Defined.
+
+(** * 6. Adjoint equivalence between categories with finite limits and a universe *)
+Definition disp_left_adjoint_equivalence_finlim_universe
+           {C₁ C₂ : univ_cat_with_finlim}
+           {u₁ : disp_bicat_finlim_universe C₁}
+           {u₂ : disp_bicat_finlim_universe C₂}
+           {F : adjoint_equivalence C₁ C₂}
+           (Fu : u₁ -->[ F ] u₂)
+  : disp_left_adjoint_equivalence F Fu.
+Proof.
+  revert C₁ C₂ F u₁ u₂ Fu.
+  use J_2_0.
+  {
+    exact is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  }
+  intros C u₁ u₂ Fu.
+  use pair_disp_left_adjoint_equivalence_sigma.
+  - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+  - exact disp_2cells_isaprop_disp_bicat_finlim_ob.
+  - exact disp_2cells_isaprop_disp_bicat_finlim_el.
+  - exact disp_locally_groupoid_disp_bicat_finlim_ob.
+  - exact disp_locally_groupoid_disp_bicat_finlim_el.
+  - apply disp_bicat_finlim_ob_to_adj_equiv.
+  - apply to_disp_left_adjoint_equivalence_over_adjequiv_finlim_ob.
 Defined.
