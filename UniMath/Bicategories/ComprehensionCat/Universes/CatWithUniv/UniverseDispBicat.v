@@ -1103,6 +1103,25 @@ Proof.
   - exact disp_univalent_2_1_disp_bicat_finlim_universe.
 Qed.
 
+Proposition disp_2cells_isaprop_disp_bicat_finlim_universe
+  : disp_2cells_isaprop disp_bicat_finlim_universe.
+Proof.
+  use disp_2cells_isaprop_sigma.
+  - exact disp_2cells_isaprop_disp_bicat_finlim_ob.
+  - exact disp_2cells_isaprop_disp_bicat_finlim_el.
+Qed.
+
+Proposition disp_locally_groupoid_disp_bicat_finlim_universe
+  : disp_locally_groupoid disp_bicat_finlim_universe.
+Proof.
+  use disp_locally_groupoid_sigma.
+  - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+  - exact disp_2cells_isaprop_disp_bicat_finlim_ob.
+  - exact disp_2cells_isaprop_disp_bicat_finlim_el.
+  - exact disp_locally_groupoid_disp_bicat_finlim_ob.
+  - exact disp_locally_groupoid_disp_bicat_finlim_el.
+Qed.
+
 (** * 5. Accessors *)
 Definition bicat_of_univ_cat_with_finlim_universe
   : bicat

@@ -353,6 +353,14 @@ Definition comp_cat_univ_type
   := ∑ (el_s : ∑ (el : comp_cat_el_map C), comp_cat_stable_el_map el),
      comp_cat_coherent_el_map (pr2 el_s).
 
+Definition make_comp_cat_univ_type
+           {C : comp_cat_with_ob}
+           (el : comp_cat_el_map C)
+           (el_s : comp_cat_stable_el_map el)
+           (el_c : comp_cat_coherent_el_map el_s)
+  : comp_cat_univ_type C
+  := (el ,, el_s) ,, el_c.
+
 (** * 5. Accessors for universes *)
 Definition comp_cat_univ_el
            {C : comp_cat_with_ob}
