@@ -2029,18 +2029,18 @@ Defined.
 (* Functions with domain in Standard finite sets. *)
 Definition fun_stnsn_to_stnn {X : UU} {n : nat} (f : stn (S n) → X) : stn n → X.
 Proof.
-    intros [m lem].
-    apply f. apply (make_stn _  m). apply natlthtolths, lem.
+  intros [m lem].
+  apply f. apply (make_stn _  m). apply natlthtolths, lem.
 Defined.
 
 Definition stnfun_excludefixed {X : UU} {n : nat} (f : stn (S n) → X) : 
       ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement) → stn n → 
       (∑ (x : X), ¬ (x = (f lastelement))).
 Proof.
-    intros.
-    exists (fun_stnsn_to_stnn f X1).
-    intros contra. apply X0.
-    eexists. apply contra.
+  intros.
+  exists (fun_stnsn_to_stnn f X1).
+  intros contra. apply X0.
+  eexists. apply contra.
 Defined.
 
 Lemma isdeceq_isdecsurj {X : UU} {n : nat} (f : ⟦ n ⟧ → X ) (y : X) : 

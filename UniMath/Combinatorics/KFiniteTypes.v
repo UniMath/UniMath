@@ -244,7 +244,7 @@ Section kfinite_definition.
 End kfinite_definition.
 
 Section iskfinite_isdeceq_isfinite.
-(* 
+(** 
   This section provides the necessary construction to prove that 
   every K-Finite type with decidable equality is Bishop-finite. 
   
@@ -277,37 +277,37 @@ Section iskfinite_isdeceq_isfinite.
   X <-> X / y + 1 <-> stn m + 1 <-> stn (S m). Thus, X is Bishop finite.
 
   *)
-Definition removeterm {X : UU} (y : X) : X → UU := λ x, x != y.
+  Definition removeterm {X : UU} (y : X) : X → UU := λ x, x != y.
 
-Lemma isPredicateremoveterm {X : UU} (y : X) : isPredicate (removeterm y).
-Proof.
-  intros x. apply isapropneg.
-Qed.
+  Lemma isPredicateremoveterm {X : UU} (y : X) : isPredicate (removeterm y).
+  Proof.
+    intros x. apply isapropneg.
+  Qed.
 
-Lemma removetermequiv {X : UU} (y : X) : isdeceq X → (∑ (x : X), ¬ (x = y)) ⨿ unit ≃ X.
-Proof.
-  intros deceqx.
-  use weq_iso.
-  - intros [[x neq] | tt]; [apply x | apply y].
-  - intros x. induction (deceqx x y); [right; apply tt | left].
-    apply tpair with (pr1 := x), b. 
-  - intros [[x neq] | tt].
-    + induction (deceqx x y).
-      * apply fromempty, neq, a.
-      * simpl. apply maponpaths, subtypePath; 
-        [apply isPredicateremoveterm | apply idpath].
-    + induction (deceqx y y).
-      * induction tt. apply idpath.
-      * apply fromempty, b, idpath.
-  - intros x; cbn beta.
-    induction (deceqx x y); simpl;
-    try induction a; apply idpath.
-Qed.
+  Lemma removetermequiv {X : UU} (y : X) : isdeceq X → (∑ (x : X), ¬ (x = y)) ⨿ unit ≃ X.
+  Proof.
+    intros deceqx.
+    use weq_iso.
+    - intros [[x neq] | tt]; [apply x | apply y].
+    - intros x. induction (deceqx x y); [right; apply tt | left].
+      apply tpair with (pr1 := x), b. 
+    - intros [[x neq] | tt].
+      + induction (deceqx x y).
+        * apply fromempty, neq, a.
+        * simpl. apply maponpaths, subtypePath; 
+          [apply isPredicateremoveterm | apply idpath].
+      + induction (deceqx y y).
+        * induction tt. apply idpath.
+        * apply fromempty, b, idpath.
+    - intros x; cbn beta.
+      induction (deceqx x y); simpl;
+      try induction a; apply idpath.
+  Qed.
 
-Lemma issurjective_stnfun_excludefixed {X : UU} {n : nat} (f : stn (S n) → X) 
-      (nfib : ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement)) : issurjective f → 
-      issurjective (stnfun_excludefixed f nfib).
-Proof.
+  Lemma issurjective_stnfun_excludefixed {X : UU} {n : nat} (f : stn (S n) → X) 
+        (nfib : ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement)) : issurjective f → 
+        issurjective (stnfun_excludefixed f nfib).
+  Proof.
     intros surjf y.
     destruct y as [x neq].
     use squash_to_prop.
@@ -322,10 +322,10 @@ Proof.
         induction q. apply maponpaths, stn_eq, idpath. 
       + assert (m ,, lth = lastelement) by apply stn_eq, b.
         apply fromempty, neq. induction X0. apply pathsinv0, q.
-Qed.
+  Qed.
 
-Lemma kfinstruct_dec_finstruct {X : UU} : isdeceq X → kfinstruct X → finstruct X.
-Proof.
+  Lemma kfinstruct_dec_finstruct {X : UU} : isdeceq X → kfinstruct X → finstruct X.
+  Proof.
     intros deceqX [n [f surj]].
     generalize dependent X.
     induction n; intros.
@@ -347,10 +347,10 @@ Proof.
         * eapply weqcomp. 
           { eapply weqcoprodf1, s2. }
           apply removetermequiv; assumption.
-Qed.
+  Qed.
 
-Lemma iskfinitedectoisfinite {X : UU} : isdeceq X → iskfinite X → isfinite X.
-Proof.
-  intros deceqX. apply hinhfun, kfinstruct_dec_finstruct, deceqX.
-Qed.
+  Lemma iskfinitedectoisfinite {X : UU} : isdeceq X → iskfinite X → isfinite X.
+  Proof.
+    intros deceqX. apply hinhfun, kfinstruct_dec_finstruct, deceqX.
+  Qed.
 End iskfinite_isdeceq_isfinite.
