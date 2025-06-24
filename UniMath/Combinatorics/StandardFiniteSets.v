@@ -2027,11 +2027,7 @@ Proof.
 Defined.
 
 (* Functions with domain in Standard finite sets. *)
-Definition fun_stnsn_to_stnn {X : UU} {n : nat} (f : stn (S n) → X) : stn n → X.
-Proof.
-  intros [m lem].
-  apply f. apply (make_stn _  m). apply natlthtolths, lem.
-Defined.
+Definition fun_stnsn_to_stnn {X : UU} {n : nat} (f : stn (S n) → X) : stn n → X := f ∘ dni_lastelement.
 
 Definition stnfun_excludefixed {X : UU} {n : nat} (f : stn (S n) → X) : 
       ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement) → stn n → 
@@ -2059,7 +2055,7 @@ Proof.
       * intros [[m lth] eq].
         induction (natlehchoice _ _ (natlthsntoleh _ _ lth)).
         -- apply b. apply tpair with (pr1 := (m ,, a)).
-           induction eq. unfold g, fun_stnsn_to_stnn, make_stn.
+           induction eq. unfold g, fun_stnsn_to_stnn, make_stn. unfold funcomp.
            apply maponpaths, stn_eq, idpath.
         -- apply b0. unfold lastelement. induction b1, eq.
            apply maponpaths, stn_eq, idpath.
@@ -2077,7 +2073,7 @@ Proof.
     induction (natlehchoice _ _ (natlthsntoleh _ _ lth)).
     + apply tpair with (pr1 := m ,, a).
       unfold fun_stnsn_to_stnn, make_stn.
-      induction eq'. apply maponpaths, stn_eq, idpath.
+      induction eq'. unfold funcomp. apply maponpaths, stn_eq, idpath.
     + induction eq', b0. apply fromempty, b. unfold lastelement. 
       apply maponpaths, stn_eq, idpath.
 Qed.
