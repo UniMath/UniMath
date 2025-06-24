@@ -10,6 +10,13 @@
  this in the generality of comprehension categories that are not necessarily full. For this
  reason, we consider coercions between types. In a comprehension category, there is a notion
  of morphism between types, and this notion gives us a (proof relevant) subtyping relation.
+ For generalized categories with families, this idea was presented by Coraglia and Emmenegger
+ and for comprehension categories by Najmaei, Van der Weide, Ahrens, and North.
+
+ Reference
+ - "Categorical models of subtyping" by Coraglia and Emmenegger
+ - "A Type Theory for Comprehension Categories with Applications to Subtyping" by Najmaei,
+   Van der Weide, Ahrens, and North
 
  Contents
  1. Notations and accessors for comprehension categories

@@ -473,6 +473,7 @@ ComprehensionCat/Universes/CatWithUniv/UniverseDispBicat.v
 
 ComprehensionCat/Universes/CompCatUniv/CompCatOb.v
 ComprehensionCat/Universes/CompCatUniv/UniverseType.v
+ComprehensionCat/Universes/CompCatUniv/CompCatWithUniv.v
 
 ComprehensionCat/Biequivalence/InternalLanguageTopos.v
 
