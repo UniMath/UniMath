@@ -5,6 +5,17 @@ A coupling between states p,q is a joint state γ which marginalizes to p and q.
 We prove various lemmas about such couplings. For a Markov category C with conditionals, 
 couplings can be composed to form a category [couplings C]. 
 
+Table of Contents
+1. Definition of Couplings [coupling p q]
+2. Accessors/Coercions
+3. Definitions and Lemmas about Couplings
+   3.1 Coupling Composition
+   3.2 Dagger
+   3.3 Blooms
+4. Definition of the Category of Couplings [coupling C]
+5. Definition of the Dagger Structure on the Category of Couplings
+6. Univalence and Dagger Univalence for Couplings 
+
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
 **********************************************)
@@ -21,17 +32,24 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 
 Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 Require Import UniMath.CategoryTheory.MarkovCategories.Determinism.
+Require Import UniMath.CategoryTheory.MarkovCategories.Univalence.
 
 Require Import UniMath.CategoryTheory.MarkovCategories.State.
 Require Import UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.
 Require Import UniMath.CategoryTheory.MarkovCategories.AlmostSurely.
 Require Import UniMath.CategoryTheory.MarkovCategories.Conditionals.
 
+Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
+Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
+Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
+
 Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
 Local Open Scope markov.
+
+(** * 1. Definition of Couplings [coupling p q] *)
 
 Definition coupling {C : markov_category} {x y : C} (p : I_{C} --> x) (q : I_{C} --> y) : UU
   := ∑ (γ : I_{C} --> x ⊗ y), (γ · proj1 = p) × (γ · proj2 = q).
@@ -42,6 +60,8 @@ Proof.
   exists γ.
   split; assumption.
 Defined.
+
+(** * 2. Accessors/Coercions *)
 
 Coercion coupling_to_state {C : markov_category} {x y : C} 
         {p : I_{C} --> x} {q : I_{C} --> y} (γ : coupling p q) : I_{C} --> x ⊗ y := pr1 γ. 
@@ -71,6 +91,10 @@ Proposition coupling_cod {C : markov_category} {x y : C}
 Proof.
   exact (pr22 γ).
 Defined.
+
+(** * 3. Definitions and Lemmas about Couplings *)
+
+(** * 3.1 Coupling Composition *)
 
 Section CouplingCompositionLemmas.
   Context {C : markov_category_with_conditionals}.
@@ -262,6 +286,7 @@ Section CouplingCompositionLemmas.
 
 End CouplingCompositionLemmas.
 
+(** * 3.2 Dagger *)
 
 Section CouplingDaggerLemmas.
   Context {C : markov_category_with_conditionals}.
@@ -339,6 +364,7 @@ Section CouplingDaggerLemmas.
 
 End CouplingDaggerLemmas.
 
+(** * 3.3 Blooms *)
 
 Section BloomCouplingLemmas.
   Context {C : markov_category_with_conditionals}.
@@ -429,8 +455,10 @@ End BloomCouplingLemmas.
 
 #[global] Opaque coupling_composition.
 
+(** * 4. Definition of the Category of Couplings [coupling C] *)
+
 Section CouplingsCategory.
-  Context {C : markov_category_with_conditionals}.
+  Context (C : markov_category_with_conditionals).
 
   Definition cat_couplings_identity (p : state C) : coupling p p.
     Proof.
@@ -530,3 +558,57 @@ Section CouplingsCategory.
   Defined.
 
 End CouplingsCategory.
+
+(** * 5. Definition of the Dagger Structure on the Category of Couplings *)
+
+Section CouplingsDaggerStructure.
+  Context (C : markov_category_with_conditionals).
+
+  Definition couplings_dagger_structure : dagger_structure (couplings C).
+  Proof.
+    intros p q γ.
+    cbn in *.
+    use make_coupling.
+    - apply coupling_dagger. exact γ.
+    - abstract (
+        rewrite <- (coupling_cod γ);
+        apply coupling_dagger_dom).
+    - abstract (
+      rewrite <- (coupling_dom γ);
+      apply coupling_dagger_cod).
+  Defined.
+
+  Definition couplings_dagger_laws : dagger_laws couplings_dagger_structure.
+  Proof.
+    repeat split.
+    - (* identity *)
+      intros p.
+      apply coupling_ext ; cbn.
+      apply dagger_identity_coupling.
+   - (* composition *)
+      intros p q r β γ.
+      apply coupling_ext ; cbn.
+      rewrite dagger_coupling_composition ; 
+        [ reflexivity | apply couplings_composable ].
+   - (* Idempotence *)
+      intros p q γ.
+      apply coupling_ext ; cbn.
+      apply coupling_dagger_involution.
+  Defined.
+
+  Definition couplings_dagger : dagger (couplings C) 
+    := _ ,, couplings_dagger_laws.
+      
+End CouplingsDaggerStructure.
+
+(** * 6. Univalence and Dagger Univalence for Couplings *)
+
+Section Univalence.
+  Context {C : markov_category_with_conditionals}
+          (uni_C : is_markov_univalent C).
+
+  Proposition couplings_dagger_univalent : is_univalent_dagger (couplings_dagger C).
+  Proof.
+  Abort.
+
+End Univalence.
