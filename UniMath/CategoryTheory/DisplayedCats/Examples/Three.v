@@ -47,28 +47,39 @@ Defined.
 Definition three_id_comp : disp_cat_id_comp _ three_disp_ob_mor.
 Proof.
   split.
-  - simpl.
-    intros.
+  - intros.
     (* middle morphism is also identity *)
     exists (identity _).
-    split; now rewrite id_left, id_right.
-  - simpl.
-    intros.
-    destruct X as [f0 [H0 H1]].
-    destruct X0 as [g0 [K0 K1]].
+    abstract (split; now rewrite id_left, id_right).
+  - intros x y z f g xx yy zz X Y.
+    (* destruct X as [f0 [H0 H1]]. *)
+    set (f0 := pr1 X).
+    set (H0 := pr12 X).
+    set (H1 := pr22 X).
+    (* destruct Y as [g0 [K0 K1]]. *)
+    set (g0 := pr1 Y).
+    set (K0 := pr12 Y).
+    set (K1 := pr22 Y).
+
     (* middle map of composite is composite of middle maps *)
     exists (f0 · g0).
-    split.
-    * abstract (
-        rewrite assoc, H0, <- assoc;
+    abstract (
+      split; [
+        etrans; [apply assoc|];
+        etrans; [apply cancel_postcomposition, H0|];
+        etrans; [apply assoc'|];
         etrans; [apply maponpaths; exact K0|];
-        now rewrite assoc
-      ).
-    * abstract (
-        rewrite <- assoc, <- K1, assoc, assoc;
+        apply assoc
+      | apply pathsinv0;
+        etrans; [apply assoc'|];
+        etrans; [apply cancel_precomposition, (pathsinv0 K1)|];
+        etrans; [apply assoc|];
+        apply pathsinv0;
+        etrans; [apply assoc|];
         apply cancel_postcomposition;
         exact H1
-      ).
+      ]
+    ).
 Defined.
 
 Definition three_data : disp_cat_data _ :=

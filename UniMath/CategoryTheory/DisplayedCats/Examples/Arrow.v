@@ -182,7 +182,7 @@ Proof.
 
   (* arrow colim is colim of arrows *)
   use colimOfArrows.
-  - exact (λ u, arrow_mor (dob d u)).
+  - exact (dob d).
   - abstract (
       intros u v e;
       exact (arrow_mor_comm (dmor d e))
