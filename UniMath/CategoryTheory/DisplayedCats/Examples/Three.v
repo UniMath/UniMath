@@ -32,12 +32,15 @@ Proof.
   use make_disp_cat_ob_mor.
   - exact ((λ xy, ∑ z (xz : (arrow_dom xy) --> z) (zy : z --> (arrow_cod xy)), xz · zy = arrow_mor xy)).
   - (* double commutative square *)
-    simpl.
     intros xy ab H0 H1 fff.
-    destruct H0 as [z [xz [zy]]].
-    destruct H1 as [c [ac [cb]]].
-    destruct fff as [[f0 f1]].
-
+    set (z := pr1 H0).
+    set (xz := pr12 H0).
+    set (zy := pr122 H0).
+    set (c := pr1 H1).
+    set (ac := pr12 H1).
+    set (cb := pr122 H1).
+    set (f0 := pr11 fff).
+    set (f1 := pr21 fff).
     exact (∑ (f : z --> c), (xz · f = f0 · ac) × (zy · f1 = f · cb)).
 Defined.
 
@@ -88,12 +91,8 @@ Proof.
 
     (* todo: understand this *)
     etrans.
-
-    (* todo: understand this *)
-    etrans.
     use (pr1_transportf (A := x --> y)).
     cbn; apply (eqtohomot (transportf_const _ _)).
-    apply idpath.
   - apply subtypePath.
     { intro. apply isapropdirprod; apply homset_property. }
     simpl.
@@ -286,7 +285,7 @@ Defined.
 Definition three_isColimCocone : isColimCocone d three_colimit three_cocone.
 Proof.
   intros c cc.
-  transparent assert (ccbase : (cocone dbase (mor_to_arrow_ob (three_mor02 c)))).
+  transparent assert (ccbase : (cocone dbase (three_mor02 c))).
   {
     exists (λ v, pr1 (coconeIn cc v)).
     abstract (
