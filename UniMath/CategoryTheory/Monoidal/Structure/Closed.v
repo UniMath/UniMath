@@ -27,7 +27,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
@@ -41,6 +43,7 @@ Import MonoidalNotations.
  *)
 Section ClosedMonoidalCategories.
 
+  (** the choice of "left closed" for this definition follows the convention at https://ncatlab.org/nlab/show/closed+monoidal+category, but it is called "right closed" at https://en.wikipedia.org/wiki/Closed_monoidal_category *)
   Definition monoidal_leftclosed {C : category} (M : monoidal C) : UU
     := ∏ X : C, ∑ homX : functor C C,
           are_adjoints
@@ -60,148 +63,15 @@ Section ClosedMonoidalCategories.
   Definition monoidal_biclosed {C : category} (M : monoidal C) : UU
     := monoidal_leftclosed M × monoidal_rightclosed M.
 
-  Lemma adj_unique_up_to_nat_z_iso
+  Lemma adj_closed_under_nat_z_iso
         {C D : category} {F1 F2 : functor C D} (α : nat_z_iso F1 F2) (G : functor D C)
     : are_adjoints F2 G -> are_adjoints F1 G.
   Proof.
     intro adj.
-    repeat (use tpair).
-    - exact (λ x, (pr1 (pr1 adj) x) · #G (pr1 (pr2 α x))).
-    - intros x y f.
-      etrans. {
-        rewrite assoc.
-        apply cancel_postcomposition.
-        exact (pr211 adj x y f).
-      }
-
-      etrans. {
-        rewrite assoc'.
-        apply maponpaths.
-        simpl.
-        apply (! functor_comp _ _ _).
-      }
-
-      use pathscomp0.
-      3: {
-        rewrite assoc'.
-        apply maponpaths.
-        simpl.
-        apply (functor_comp _ _ _).
-      }
-
-      do 2 apply maponpaths.
-
-      etrans. {
-        apply maponpaths.
-        rewrite (! id_right _).
-        apply maponpaths.
-        exact (! pr12 (pr2 α y)).
-      }
-      etrans. {
-        rewrite assoc.
-        apply assoc.
-      }
-
-      use pathscomp0.
-      3: {
-        apply maponpaths.
-        rewrite (! id_right _).
-        apply maponpaths.
-        exact (pr12 (pr2 α y)).
-      }
-
-      use pathscomp0.
-      3: {
-        rewrite assoc.
-        rewrite (assoc ( pr1 (pr2 α x) · # F1 f)).
-        apply idpath.
-      }
-      apply cancel_postcomposition.
-      use pathscomp0.
-      3: {
-        rewrite assoc'.
-        apply maponpaths.
-        exact (! (pr21 α) x y f).
-      }
-
-      etrans. {
-        rewrite assoc'.
-        apply maponpaths.
-        apply (pr22 (pr2 α y)).
-      }
-
-      use pathscomp0.
-      3: {
-        rewrite assoc.
-        apply cancel_postcomposition.
-        apply (! pr22 (pr2 α x)).
-      }
-      rewrite id_left.
-      apply id_right.
-    - exact (λ x, (pr1 α (G x)) · (pr2 (pr1 adj) x)).
-    - intros x y f.
-
-      etrans. {
-        rewrite assoc.
-        apply cancel_postcomposition.
-        apply (pr21 α).
-      }
-
-      etrans. { apply assoc'. }
-      use pathscomp0.
-      3: { apply assoc. }
-      apply maponpaths.
-      exact (pr2 (pr21 adj) _ _ f).
-    - intro x.
-      simpl.
-
-      etrans. {
-        rewrite assoc.
-        apply cancel_postcomposition.
-        rewrite functor_comp.
-        rewrite assoc'.
-        apply cancel_precomposition.
-        apply (pr21 α).
-      }
-
-      etrans. {
-        rewrite assoc'.
-        apply cancel_precomposition.
-        rewrite assoc'.
-        apply cancel_precomposition.
-        apply (pr221 adj).
-      }
-
-      etrans. {
-        rewrite assoc.
-        apply cancel_postcomposition.
-        apply (pr21 α).
-      }
-
-      etrans. {
-        rewrite assoc.
-        apply cancel_postcomposition.
-        rewrite assoc'.
-        apply cancel_precomposition.
-        apply ((pr12 adj) x).
-      }
-      rewrite id_right.
-      apply (pr2 α).
-    - intro x.
-      refine (_ @ (pr22 adj x)).
-      cbn.
-      rewrite assoc'.
-      apply maponpaths.
-
-      rewrite (! functor_comp _ _ _).
-      etrans. {
-        apply maponpaths.
-        rewrite assoc.
-        apply cancel_postcomposition.
-        apply (pr2 α).
-      }
-      apply maponpaths.
-      apply id_left.
+    simple refine (are_adjoints_closed_under_iso F2 F1 G _ adj).
+    apply z_iso_inv.
+    apply z_iso_is_nat_z_iso.
+    assumption.
   Defined.
 
   Lemma leftclosed_symmetric_is_rightclosed {C : category} (M : monoidal C)
@@ -210,7 +80,7 @@ Section ClosedMonoidalCategories.
     intros B LC.
     intro x.
     exists (monoidal_leftclosed_exp LC x).
-    apply (adj_unique_up_to_nat_z_iso (F2 := rightwhiskering_functor M x)).
+    apply (adj_closed_under_nat_z_iso (F2 := rightwhiskering_functor M x)).
     - apply symmetric_whiskers_swap_nat_z_iso.
       exact B.
     - exact (pr2 (LC x)).
@@ -249,55 +119,56 @@ Section Builder.
                    =
                    lam x y z (g #⊗ identity _ · eval x y)).
 
+  Definition make_left_closed_coreflection_data
+      (x y : V)
+    : coreflection_data y (rightwhiskering_functor V x).
+  Proof.
+    use make_coreflection_data.
+    - exact (HomV x y).
+    - exact (eval x y).
+  Defined.
+
   Definition make_left_closed_universal
              (x y : V)
-    : is_universal_arrow_from
-        (rightwhiskering_functor V x)
-        y
-        (HomV x y)
-        (eval x y).
+    : is_coreflection (make_left_closed_coreflection_data x y).
   Proof.
-    intros z f.
-    use iscontraprop1.
+    intro f.
+    use make_coreflection_arrow.
+    - exact (lam x y _ f).
     - abstract
-        (use invproofirrelevance ;
-         intros φ₁ φ₂ ;
-         use subtypePath ; [ intro ; apply homset_property | ] ;
-         refine (etaEq _ _ _ _ @ _ @ !(etaEq _ _ _ _)) ;
-         apply maponpaths ;
-         refine (_ @ !(pr2 φ₁) @ pr2 φ₂ @ !_) ;
-         apply maponpaths_2 ;
-         refine (_ @ id_right _) ;
-         unfold rightwhiskering_on_morphisms ;
-         unfold monoidal_cat_tensor_mor ;
-         unfold functoronmorphisms1 ;
-         apply maponpaths ;
-         apply (bifunctor_leftid V)).
-    - simple refine (_ ,, _).
-      + exact (lam x y z f).
-      + abstract
-          (refine (!(betaEq x y z f) @ _) ; cbn ;
-           apply maponpaths_2 ;
-           refine (_ @ id_right _) ;
-           unfold rightwhiskering_on_morphisms ;
-           unfold monoidal_cat_tensor_mor ;
-           unfold functoronmorphisms1 ;
-           apply maponpaths ;
-           apply (bifunctor_leftid V)).
+        (refine (!betaEq x y _ f @ _) ; cbn ;
+          apply maponpaths_2 ;
+          refine (_ @ id_right _) ;
+          unfold rightwhiskering_on_morphisms ;
+          unfold monoidal_cat_tensor_mor ;
+          unfold functoronmorphisms1 ;
+          apply maponpaths ;
+          apply (bifunctor_leftid V)).
+    - abstract (
+        intros g Hg;
+        refine (etaEq _ _ _ _ @ _ @ !(etaEq _ _ _ _));
+        apply maponpaths;
+        refine (_ @ !betaEq x y _ f);
+        refine (_ @ !Hg);
+        apply maponpaths_2;
+        refine (_ @ id_right _);
+        unfold rightwhiskering_on_morphisms;
+        unfold monoidal_cat_tensor_mor;
+        unfold functoronmorphisms1;
+        apply maponpaths;
+        apply (bifunctor_leftid V)
+      ).
   Defined.
 
   Definition make_monoidal_leftclosed
     : monoidal_leftclosed V.
   Proof.
-    intros x.
-    pose (right_adjoint_from_partial
-             (rightwhiskering_functor V x)
-             (HomV x)
-             (eval x)
-             (make_left_closed_universal x))
-      as A.
-    exists (Core.G _ _ _ (make_left_closed_universal x)).
-    exact (pr2 A).
+    intro x.
+    apply coreflections_to_is_left_adjoint.
+    intro y.
+    use make_coreflection.
+    - apply make_left_closed_coreflection_data.
+    - apply make_left_closed_universal.
   Defined.
 
   Definition make_sym_mon_closed_cat
@@ -411,33 +282,25 @@ Section Accessors.
   Qed.
 End Accessors.
 
+Definition sym_mon_closed_left_tensor_left_adjoint_coreflection_data
+  {V : sym_mon_closed_cat}
+  (x y : V)
+  : coreflection_data y (monoidal_left_tensor x).
+Proof.
+  use make_coreflection_data.
+  - exact (x ⊸ y).
+  - exact (sym_mon_braiding V x (x ⊸ y) · internal_eval x y).
+Defined.
+
 Definition sym_mon_closed_left_tensor_left_adjoint_universal
            (V : sym_mon_closed_cat)
            (x y : V)
-  : is_universal_arrow_from
-      (monoidal_left_tensor x)
-      y
-      (x ⊸ y)
-      (sym_mon_braiding V x (x ⊸ y) · internal_eval x y).
+  : is_coreflection (sym_mon_closed_left_tensor_left_adjoint_coreflection_data x y).
 Proof.
-  intros z f.
-  use iscontraprop1.
+  intro f.
+  use make_coreflection_arrow.
+  - exact (internal_lam (sym_mon_braiding V _ x · f)).
   - abstract
-      (use invproofirrelevance ;
-       intros φ₁ φ₂ ;
-       use subtypePath ; [ intro ; apply homset_property | ] ;
-       refine (internal_eta _ @ _ @ !(internal_eta _)) ;
-       apply maponpaths ;
-       refine (!(id_left _) @ _ @ id_left _) ;
-       rewrite <- !sym_mon_braiding_inv ;
-       rewrite !assoc' ;
-       apply maponpaths ;
-       rewrite !assoc ;
-       rewrite <- !tensor_sym_mon_braiding ;
-       rewrite !assoc' ;
-       exact (!(pr2 φ₁) @ pr2 φ₂)).
-  - refine (internal_lam (sym_mon_braiding V z x · f) ,, _).
-    abstract
       (cbn -[sym_mon_braiding] ;
        rewrite !assoc ;
        rewrite tensor_sym_mon_braiding ;
@@ -447,6 +310,19 @@ Proof.
        rewrite sym_mon_braiding_inv ;
        rewrite id_left ;
        apply idpath).
+  - abstract (
+      intros g Hg;
+      refine (internal_eta _ @ _);
+      apply maponpaths;
+      refine (!id_left _ @ _);
+      rewrite <- sym_mon_braiding_inv;
+      refine (assoc' _ _ _ @ _);
+      apply maponpaths;
+      refine (assoc _ _ _ @ _);
+      rewrite <- tensor_sym_mon_braiding;
+      refine (assoc' _ _ _ @ _);
+      exact (!Hg)
+    ).
 Defined.
 
 Definition sym_mon_closed_left_tensor_left_adjoint
@@ -454,35 +330,39 @@ Definition sym_mon_closed_left_tensor_left_adjoint
            (x : V)
   : is_left_adjoint (monoidal_left_tensor x).
 Proof.
-  use left_adjoint_from_partial.
-  - exact (λ y, x ⊸ y).
-  - exact (λ y, sym_mon_braiding V _ _ · internal_eval _ _).
-  - exact (sym_mon_closed_left_tensor_left_adjoint_universal V x).
+  apply coreflections_to_is_left_adjoint.
+  intro y.
+  use make_coreflection.
+  - exact (sym_mon_closed_left_tensor_left_adjoint_coreflection_data x y).
+  - exact (sym_mon_closed_left_tensor_left_adjoint_universal V x y).
+Defined.
+
+Definition sym_mon_closed_left_tensor_right_adjoint_coreflection_data
+  {V : sym_mon_closed_cat}
+  (x y : V)
+  : coreflection_data y (monoidal_right_tensor x).
+Proof.
+  use make_coreflection_data.
+  - exact (x ⊸ y).
+  - exact (internal_eval x y).
 Defined.
 
 Definition sym_mon_closed_left_tensor_right_adjoint_universal
            (V : sym_mon_closed_cat)
            (x y : V)
-  : is_universal_arrow_from
-      (monoidal_right_tensor x)
-      y
-      (x ⊸ y)
-      (internal_eval x y).
+  : is_coreflection (sym_mon_closed_left_tensor_right_adjoint_coreflection_data x y).
 Proof.
-  intros z f.
-  use iscontraprop1.
-  - abstract
-      (use invproofirrelevance ;
-       intros φ₁ φ₂ ;
-       use subtypePath ; [ intro ; apply homset_property | ] ;
-       refine (internal_eta _ @ _ @ !(internal_eta _)) ;
-       apply maponpaths ;
-       exact (!(pr2 φ₁) @ pr2 φ₂)).
-  - refine (internal_lam f ,, _).
-    abstract
-      (cbn ;
-       rewrite internal_beta ;
-       apply idpath).
+  intro f.
+  use make_coreflection_arrow.
+  - apply internal_lam.
+    exact f.
+  - abstract exact (!internal_beta _).
+  - abstract (
+      intros g Hg;
+      refine (internal_eta _ @ _);
+      apply maponpaths;
+      exact (!Hg)
+    ).
 Defined.
 
 Definition sym_mon_closed_right_tensor_left_adjoint
@@ -490,10 +370,11 @@ Definition sym_mon_closed_right_tensor_left_adjoint
            (x : V)
   : is_left_adjoint (monoidal_right_tensor x).
 Proof.
-  use left_adjoint_from_partial.
-  - exact (λ y, x ⊸ y).
-  - exact (λ y, internal_eval _ _).
-  - exact (sym_mon_closed_left_tensor_right_adjoint_universal V x).
+  apply coreflections_to_is_left_adjoint.
+  intro y.
+  use make_coreflection.
+  - exact (sym_mon_closed_left_tensor_right_adjoint_coreflection_data x y).
+  - exact (sym_mon_closed_left_tensor_right_adjoint_universal V x y).
 Defined.
 
 (**
@@ -1231,5 +1112,41 @@ Section StandardFunctions.
     rewrite <- internal_pre_post_comp_as_pre_post_comp.
     rewrite <- internal_pre_post_comp_as_post_pre_comp.
     apply idpath.
+  Qed.
+
+  Definition internal_transpose
+             {x y z : V}
+             (f : x ⊗ y --> z)
+    : y --> x ⊸ z
+    := internal_lam (sym_mon_braiding _ _ _ · f).
+
+  Proposition is_inj_internal_transpose
+              {x y z : V}
+              {f g : x ⊗ y --> z}
+              (p : internal_transpose f = internal_transpose g)
+    : f = g.
+  Proof.
+    unfold internal_transpose in p.
+    pose (maponpaths
+            (λ z, sym_mon_braiding _ _ _ · z #⊗ identity _ · internal_eval _ _)
+            p)
+      as q.
+    cbn in q.
+    rewrite !assoc' in q.
+    rewrite !internal_beta in q.
+    rewrite !assoc in q.
+    rewrite !sym_mon_braiding_inv in q.
+    rewrite !id_left in q.
+    exact q.
+  Qed.
+
+  Proposition is_inj_internal_lam
+              {x y z : V}
+              {f g : x ⊗ y --> z}
+              (p : internal_lam f = internal_lam g)
+    : f = g.
+  Proof.
+    use (invmaponpathsweq (invweq (internal_hom_equiv x y z))).
+    exact p.
   Qed.
 End StandardFunctions.

@@ -8,7 +8,7 @@
  Contents
  1. Braided monoidal categories
  2. Symmetric monoidal categories
- 3. Accesors for symmetric monoidal categories
+ 3. Accessors for symmetric monoidal categories
 
 Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
 git log -- UniMath/CategoryTheory/Monoidal/BraidedMonoidalCategoriesWhiskered.v
@@ -97,12 +97,30 @@ Section BraidedSymmetricMonoidalCategories.
     : UU
     := braiding_law_naturality B × braiding_iso B Binv × braiding_law_hexagon B.
 
+  (** the following is done for the situation of symmetric monoidal categories only *)
   Definition braiding_laws_one_hexagon
              {C : category}
              {M : monoidal C}
              (B : braiding_data M)
     : UU
     := braiding_law_naturality B × braiding_iso B B × braiding_law_hexagon1 B.
+
+  (*
+  Definition braiding_laws_to_braiding_laws_one_hexagon
+             {C : category}
+             {M : monoidal C}
+             (B : braiding_data M) :
+    braiding_laws B B -> braiding_laws_one_hexagon B.
+  Proof.
+    intro Hyp.
+    split3.
+    - exact (pr1 Hyp).
+    - exact (pr12 Hyp).
+    - exact (pr122 Hyp).
+  Defined.
+
+  Coercion braiding_laws_to_braiding_laws_one_hexagon : braiding_laws >-> braiding_laws_one_hexagon.
+   *)
 
   Definition braiding_laws_one_hexagon_braiding_z_iso
              {C : category}
@@ -288,7 +306,7 @@ Section BraidedSymmetricMonoidalCategories.
 End BraidedSymmetricMonoidalCategories.
 
 (**
- 3. Accesors for symmetric monoidal categories
+ 3. Accessors for symmetric monoidal categories
  *)
 Definition sym_monoidal_cat
   : UU
@@ -298,6 +316,11 @@ Coercion sym_monoidal_cat_to_monoidal_cat
          (V : sym_monoidal_cat)
   : monoidal_cat
   := pr1 V.
+
+Coercion sym_monoidal_cat_to_symmetric
+         (V : sym_monoidal_cat)
+  : symmetric V
+  := pr2 V.
 
 Definition sym_mon_cat_laws_tensored
            (V : monoidal_cat)
@@ -388,6 +411,17 @@ Section Accessors.
     exact (pr1 (pr1 (pr222 V) x y)).
   Qed.
 
+  Proposition cancel_braiding {a x y : V} (f g : a --> x ⊗ y) :
+    (f · sym_mon_braiding _ _) = (g · sym_mon_braiding _ _) -> f = g.
+  Proof.
+    intros e.
+    transitivity (f · sym_mon_braiding _ _ · sym_mon_braiding _ _).
+    { rewrite <- assoc, sym_mon_braiding_inv, id_right. reflexivity. }
+    rewrite e.
+    rewrite <- assoc, sym_mon_braiding_inv, id_right.
+    reflexivity.
+  Qed.
+
   Definition is_z_isomorphism_sym_mon_braiding
              (x y : V)
     : is_z_isomorphism (sym_mon_braiding x y).
@@ -458,6 +492,63 @@ Section Accessors.
     apply idpath.
   Qed.
 
+  Proposition sym_mon_hexagon_lassociator1
+              (x y1 y2 z : V)
+    : mon_lassociator x (y1 ⊗ y2) z
+        · x ⊗^{ V}_{l} (mon_lassociator y1 y2 z · y1 ⊗^{ V}_{l} sym_mon_braiding y2 z)
+        · mon_rassociator x y1 (z ⊗ y2)
+      = mon_rassociator x y1 y2 ⊗^{ V}_{r} z
+          · mon_lassociator (x ⊗ y1) y2 z
+          · (x ⊗ y1) ⊗^{ V}_{l} sym_mon_braiding y2 z.
+  Proof.
+
+    apply pathsinv0.
+    use (z_iso_inv_on_left _ _ _ _ (mon_lassociator _ _ _ ,, mon_rassociator _ _ _ ,, _)).
+    { apply monoidal_associatorisolaw. }
+    cbn.
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      apply monoidal_associatornatleft.
+    }
+
+    rewrite (bifunctor_leftcomp V).
+    rewrite ! assoc.
+    apply maponpaths_2.
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      apply pathsinv0, mon_lassociator_lassociator.
+    }
+
+    rewrite ! assoc.
+    rewrite <- (when_bifunctor_becomes_leftwhiskering V).
+    apply maponpaths_2.
+    rewrite <- (when_bifunctor_becomes_rightwhiskering V).
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply tensor_comp_id_r.
+    }
+    rewrite mon_rassociator_lassociator.
+    rewrite tensor_id_id.
+    exact (! id_left _).
+  Qed.
+
+  (** a sanity check *)
+  Lemma sym_mon_cat_laws_tensored_from_sym_mon :
+    sym_mon_cat_laws_tensored V sym_mon_braiding.
+  Proof.
+    repeat split.
+    - apply sym_mon_braiding_inv.
+    - intros; apply tensor_sym_mon_braiding.
+    - apply sym_mon_hexagon_lassociator.
+  Qed.
+
   Proposition sym_mon_tensor_lassociator
               (x y z : V)
     : sym_mon_braiding x (y ⊗ z)
@@ -485,6 +576,22 @@ Section Accessors.
     apply id_left.
   Qed.
 
+  Proposition sym_mon_tensor_lassociator0
+              (x y z : V)
+    : sym_mon_braiding x (y ⊗ z)
+        · mon_lassociator y z x
+      =
+      mon_rassociator x y z
+      · sym_mon_braiding x y #⊗ identity z
+      · mon_lassociator y x z
+      · identity y #⊗ sym_mon_braiding x z.
+  Proof.
+    rewrite sym_mon_tensor_lassociator.
+    rewrite ! assoc'.
+    rewrite mon_rassociator_lassociator.
+    now rewrite id_right.
+  Qed.
+
   Proposition sym_mon_tensor_lassociator'
               (x y z : V)
     : sym_mon_braiding x y #⊗ identity z
@@ -510,6 +617,46 @@ Section Accessors.
       apply id_left.
     }
     apply mon_lassociator_rassociator.
+  Qed.
+
+  Lemma sym_mon_tensor_lassociator1 (x y z : V)
+    : mon_lassociator y x z · y ⊗^{V}_{l} sym_mon_braiding x z
+      = sym_mon_braiding y x ⊗^{V}_{r} z
+          · mon_lassociator x y z
+          · sym_mon_braiding x (y ⊗ z)
+          · mon_lassociator y z x.
+  Proof.
+    apply pathsinv0.
+
+    etrans. {
+      rewrite assoc'.
+      apply maponpaths.
+      exact (sym_mon_tensor_lassociator0 x y z).
+    }
+    etrans. {
+      rewrite ! assoc.
+      do 3 apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      apply mon_lassociator_rassociator.
+    }
+    rewrite id_right.
+    rewrite <- (when_bifunctor_becomes_leftwhiskering V).
+    rewrite <- (when_bifunctor_becomes_rightwhiskering V).
+
+    etrans. {
+      do 2 apply maponpaths_2.
+      rewrite (when_bifunctor_becomes_rightwhiskering V).
+      apply maponpaths.
+      apply (when_bifunctor_becomes_rightwhiskering V).
+    }
+    etrans. {
+      do 2 apply maponpaths_2.
+      apply pathsinv0, (bifunctor_rightcomp V).
+    }
+    rewrite sym_mon_braiding_inv.
+    rewrite bifunctor_rightid.
+    now rewrite id_left.
   Qed.
 
   Proposition sym_mon_hexagon_rassociator
@@ -558,6 +705,66 @@ Section Accessors.
     rewrite !assoc.
     rewrite mon_lassociator_rassociator.
     apply id_left.
+  Qed.
+
+  Proposition sym_mon_hexagon_rassociator0
+              (x y z : V)
+    : sym_mon_braiding (x ⊗ y) z
+        · mon_rassociator z x y
+        · sym_mon_braiding _ _ ⊗^{V}_{r} y
+        · mon_lassociator _ _ _
+      =
+        mon_lassociator x y z
+          · x ⊗^{V}_{l} sym_mon_braiding y z.
+  Proof.
+    rewrite sym_mon_tensor_rassociator.
+    rewrite ! assoc'.
+    etrans. {
+      do 4 apply maponpaths.
+      rewrite assoc.
+      now rewrite mon_lassociator_rassociator.
+    }
+    rewrite id_left.
+    apply maponpaths.
+    etrans. {
+      do 2 apply maponpaths.
+      rewrite assoc.
+      do 2 apply maponpaths_2.
+      apply (when_bifunctor_becomes_rightwhiskering V).
+    }
+
+    etrans. {
+      do 2 apply maponpaths.
+      apply maponpaths_2.
+      apply pathsinv0, (bifunctor_rightcomp V).
+    }
+    rewrite sym_mon_braiding_inv.
+    rewrite (bifunctor_rightid V).
+    rewrite id_left.
+    rewrite mon_rassociator_lassociator.
+    rewrite id_right.
+    apply (when_bifunctor_becomes_leftwhiskering V).
+  Qed.
+
+  Proposition sym_mon_hexagon_rassociator1
+              (x y z : V)
+    :  sym_mon_braiding (x ⊗ y) z · mon_rassociator z x y · sym_mon_braiding z x ⊗^{ V}_{r} y
+       = mon_lassociator x y z · x ⊗^{ V}_{l} sym_mon_braiding y z · mon_rassociator x z y.
+  Proof.
+     etrans.
+      2: {
+        apply maponpaths_2.
+        apply sym_mon_hexagon_rassociator0.
+      }
+
+      etrans.
+      2: {
+        rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, mon_lassociator_rassociator.
+      }
+      rewrite ! assoc'.
+      now rewrite id_right.
   Qed.
 
   Proposition sym_mon_braiding_lunitor

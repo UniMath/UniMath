@@ -187,7 +187,7 @@ Proof.
     + apply z_iso_after_z_iso_inv.
 Defined.
 
-Goal ∏ C:category, pregroupoid_to_precategory (@maximal_subgroupoid (C^op))
+Goal ∏ C:category, pregroupoid_to_precategory (@maximal_subgroupoid C^op)
                       = (@maximal_subgroupoid C)^op.
 Proof.
   Fail reflexivity.
@@ -201,7 +201,7 @@ Abort.
 
 (** ** Discrete categories *)
 
-(** See [Categories.categories.StandardCategories] for a proof that any discrete
+(** See [Categories.Categories.StandardCategories] for a proof that any discrete
     category is equivalent to the path groupoid of its objects. *)
 
 (** A discrete category is a univalent [pregroupoid] with an underlying [setcategory].

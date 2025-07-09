@@ -1,8 +1,25 @@
+(**************************************************************************************************
 
-(** Some important constructions on displayed categories
+  Constructions involving displayed categories
 
-Partial contents:
+  This is an index file for the folder Constructions, mostly for backwards compatibility.
 
+ **************************************************************************************************)
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedFunctorCat.
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.Product.
+
+(*
+
+(**************************************************************************************************
+
+  Constructions involving displayed categories
+
+  This is an index file for the folder Constructions, mostly for backwards compatibility.
+
+<<<<<<< HEAD
 - Full subcategory as total category of a displayed category
 - Displayed category given by a structure on objects and a proposition
    on morphisms of the base category
@@ -535,8 +552,8 @@ Definition section_nat_trans_disp
 
 Lemma isaset_section_nat_trans_disp
     {C : category}
-    {D : disp_cat C} 
-    (F F': section_disp D) : 
+    {D : disp_cat C}
+    (F F': section_disp D) :
   isaset (section_nat_trans_disp F F').
 Proof.
   apply (isofhleveltotal2 2).
@@ -1195,3 +1212,15 @@ Defined.
 
 *)
 End Functor.
+
+ **************************************************************************************************)
+(*
+
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedFunctorCat.
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.
+Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.Product.
+
+
+*)

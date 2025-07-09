@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.

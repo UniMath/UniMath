@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
@@ -75,26 +76,32 @@ Proof.
   - exact monoidal_pointed_objects_disp_tensor_data_aux2.
 Defined.
 
-Lemma monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor
-  : is_disp_bifunctor monoidal_pointed_objects_disp_tensor_data.
+Definition monoidal_pointed_objects_disp_tensor : disp_tensor cosliced Mon_V.
 Proof.
-  split5; intro; intros; apply V.
-Qed.
+  use make_disp_bifunctor_locally_prop.
+  - apply coslice_cat_disp_locally_prop.
+  - exact monoidal_pointed_objects_disp_tensor_data.
+Defined.
 
-Definition monoidal_pointed_objects_disp_tensor : disp_tensor cosliced Mon_V
-  := monoidal_pointed_objects_disp_tensor_data
-     ,,
-     monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor.
+Lemma cosliced_groupoidal : groupoidal_disp_cat cosliced.
+Proof.
+  intros x y f Hf xx yy ff.
+  use tpair.
+  - cbn in *.
+    rewrite <- ff.
+    rewrite assoc'.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    apply (z_iso_inv_after_z_iso (make_z_iso' f Hf)).
+  - split; apply coslice_cat_disp_locally_prop.
+Qed.
 
 Lemma monoidal_pointed_objects_disp_data_verif :
   disp_leftunitor_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
-    × disp_leftunitorinv_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
     × disp_rightunitor_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
-    × disp_rightunitorinv_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
-    × disp_associator_data monoidal_pointed_objects_disp_tensor
-    × disp_associatorinv_data monoidal_pointed_objects_disp_tensor.
+    × disp_associator_data monoidal_pointed_objects_disp_tensor.
 Proof.
-  split6.
+  split3.
   - intros v pv. cbn.
     unfold functoronmorphisms1.
     rewrite (bifunctor_rightid Mon_V).
@@ -105,13 +112,6 @@ Proof.
     rewrite (pr2 (monoidal_leftunitorisolaw Mon_V _)).
     apply id_left.
   - intros v pv. cbn.
-    rewrite (bifunctor_equalwhiskers Mon_V).
-    unfold functoronmorphisms2.
-    rewrite bifunctor_rightid.
-    rewrite id_right.
-    rewrite monoidal_leftunitorinvnat.
-    apply idpath.
-  - intros v pv. cbn.
     unfold functoronmorphisms1.
     rewrite (bifunctor_leftid Mon_V).
     rewrite id_right.
@@ -121,14 +121,6 @@ Proof.
     rewrite <- unitors_coincide_on_unit.
     rewrite (pr2 (monoidal_leftunitorisolaw Mon_V _)).
     apply id_left.
-  - intros v pv. cbn.
-    unfold functoronmorphisms1.
-    rewrite (bifunctor_leftid Mon_V).
-    rewrite id_right.
-    rewrite <- monoidal_rightunitorinvnat.
-    apply cancel_postcomposition.
-    apply pathsinv0.
-    apply unitorsinv_coincide_on_unit.
   - intros v w u pv pw pu. cbn.
     rewrite assoc'.
     apply maponpaths.
@@ -153,58 +145,39 @@ Proof.
     apply maponpaths.
     rewrite unitorsinv_coincide_on_unit.
     apply monoidal_rightunitorinvnat.
-  - intros v w u pv pw pu. cbn.
-    rewrite assoc'.
-    apply maponpaths.
-    rewrite !(bifunctor_equalwhiskers Mon_V).
-    unfold functoronmorphisms2.
-    rewrite !(bifunctor_rightcomp Mon_V).
-    rewrite !(bifunctor_leftcomp Mon_V).
-    rewrite !assoc'.
-    rewrite (monoidal_associatorinvnatright Mon_V).
-    rewrite !assoc.
-    apply cancel_postcomposition.
-    rewrite !assoc'.
-    rewrite (monoidal_associatorinvnatleftright Mon_V).
-    rewrite !assoc.
-    apply cancel_postcomposition.
-    etrans.
-    2: { rewrite unitorsinv_coincide_on_unit.
-         apply maponpaths.
-         apply monoidal_triangle_identity_inv. }
-    rewrite assoc.
-    apply cancel_postcomposition.
-    rewrite <- !(bifunctor_leftcomp Mon_V).
-    apply maponpaths.
-    apply monoidal_leftunitorinvnat.
 Qed.
 
 Definition monoidal_pointed_objects_disp_data : disp_monoidal_data cosliced Mon_V.
 Proof.
-  exists monoidal_pointed_objects_disp_tensor.
-  use tpair.
+  use make_disp_monoidal_data_groupoidal.
+  - exact cosliced_groupoidal.
+  - exact monoidal_pointed_objects_disp_tensor.
   - apply identity.
-  - exact monoidal_pointed_objects_disp_data_verif.
+  - apply monoidal_pointed_objects_disp_data_verif.
+  - apply monoidal_pointed_objects_disp_data_verif.
+  - apply monoidal_pointed_objects_disp_data_verif.
 Defined.
 
-Lemma monoidal_pointed_objects_disp_laws
-  : disp_monoidal_laws monoidal_pointed_objects_disp_data.
+Definition monoidal_pointed_objects_disp : disp_monoidal cosliced Mon_V.
 Proof.
-  repeat split; try intro; intros; apply V.
-Qed.
-
-Definition monoidal_pointed_objects_disp : disp_monoidal cosliced Mon_V
-  := monoidal_pointed_objects_disp_data,,monoidal_pointed_objects_disp_laws.
+  apply make_disp_monoidal_locally_prop.
+  - apply coslice_cat_disp_locally_prop.
+  - exact monoidal_pointed_objects_disp_data.
+Defined.
 
 Definition monoidal_pointed_objects : monoidal (coslice_cat_total V I_{Mon_V})
   := total_monoidal monoidal_pointed_objects_disp.
-
 Definition forget_monoidal_pointed_objects_data
   : fmonoidal_data monoidal_pointed_objects Mon_V (pr1_category cosliced).
 Proof.
   split; try intro; intros; apply identity.
 Defined.
 
+Definition forget_monoidal_pointed_objects_monoidal_generic
+  : fmonoidal monoidal_pointed_objects Mon_V (pr1_category cosliced)
+  := projection_fmonoidal monoidal_pointed_objects_disp.
+
+(** we develop a hand-crafted version since that one came first historically and is still used subsequently *)
 Lemma forget_monoidal_pointed_objects_laxlaws
   : fmonoidal_laxlaws forget_monoidal_pointed_objects_data.
 Proof.

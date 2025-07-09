@@ -10,7 +10,7 @@
  2. Properties of cartesian monoidal categories
  3. Cartesian closed categories
  4. Set as cartesian monoidal category
-
+ 5. Useful lemmas
 
 Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
 git log -- UniMath/CategoryTheory/Monoidal/CartesianMonoidalCategoriesWhiskered.v
@@ -20,18 +20,18 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 
 Local Open Scope cat.
 
@@ -462,16 +462,16 @@ Section GeneralConstruction.
   Proof.
     use make_sym_mon_closed_cat.
     - exact (cartesian_monoidalcat ,, symmetric_cartesian_monoidalcat).
-    - exact (exp expC).
-    - exact (exp_eval_alt expC).
-    - exact (λ _ _ _ f, exp_lam_alt expC f).
+    - exact (λ x, exp (expC x)).
+    - exact (λ x, exp_eval_alt (expC x)).
+    - exact (λ _ _ _ f, exp_lam_alt (expC _) f).
     - abstract
         (cbn ;
          unfold monoidal_cat_tensor_mor ;
          unfold functoronmorphisms1 ;
          cbn ;
          intros x y z f ;
-         refine (_ @ exp_beta_alt expC f) ;
+         refine (_ @ exp_beta_alt (expC _) f) ;
          apply maponpaths_2 ;
          apply prod_lwhisker_rwhisker).
     - abstract
@@ -479,7 +479,7 @@ Section GeneralConstruction.
          unfold monoidal_cat_tensor_mor ;
          unfold functoronmorphisms1 ;
          cbn ;
-         refine (exp_eta_alt expC f @ _) ;
+         refine (exp_eta_alt (expC _) f @ _) ;
          apply maponpaths ;
          apply maponpaths_2 ;
          refine (!_) ;
@@ -496,3 +496,140 @@ Proof.
   - apply BinProductsHSET.
   - apply TerminalHSET.
 Defined.
+
+(**
+ 5. Useful lemmas
+ *)
+Proposition cartesian_semi_cart_tensor_pr1
+            (VC : category)
+            (TV : Terminal VC)
+            (VP : BinProducts VC)
+            (expV : Exponentials VP)
+            (V : sym_mon_closed_cat := sym_mon_closed_cartesian_cat VC VP TV expV)
+            (x y : V)
+  : semi_cart_tensor_pr1
+      (is_semicartesian_cartesian_monoidalcat VC VP TV)
+      x
+      y
+    =
+    BinProductPr1 _ _.
+Proof.
+  unfold semi_cart_tensor_pr1 ; cbn.
+  unfold monoidal_cat_tensor_mor, functoronmorphisms1 ; cbn.
+  rewrite !assoc'.
+  rewrite BinProductOfArrowsPr1.
+  rewrite id_right.
+  rewrite BinProductOfArrowsPr1.
+  apply id_right.
+Qed.
+
+Proposition cartesian_semi_cart_tensor_pr2
+            (VC : category)
+            (TV : Terminal VC)
+            (VP : BinProducts VC)
+            (expV : Exponentials VP)
+            (V : sym_mon_closed_cat := sym_mon_closed_cartesian_cat VC VP TV expV)
+            (x y : V)
+  : semi_cart_tensor_pr2
+      (is_semicartesian_cartesian_monoidalcat VC VP TV)
+      x
+      y
+    =
+    BinProductPr2 _ _.
+Proof.
+  unfold semi_cart_tensor_pr2 ; cbn.
+  unfold monoidal_cat_tensor_mor, functoronmorphisms1 ; cbn.
+  rewrite !assoc'.
+  rewrite BinProductOfArrowsPr2.
+  rewrite id_right.
+  rewrite BinProductOfArrowsPr2.
+  apply id_right.
+Qed.
+
+Proposition lassociator_hexagon_two
+            (VC : category)
+            (TV : Terminal VC)
+            (VP : BinProducts VC)
+            (expV : Exponentials VP)
+            (V : sym_mon_closed_cat := sym_mon_closed_cartesian_cat VC VP TV expV)
+            (x y z : V)
+  : mon_lassociator x y z
+    · sym_mon_braiding V x _
+    · mon_lassociator y z x
+    · sym_mon_braiding V y _
+    · mon_lassociator z x y
+    =
+    sym_mon_braiding V _ z.
+Proof.
+  use BinProductArrowsEq ; cbn.
+  - rewrite !assoc'.
+    rewrite !BinProductPr1Commutes.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      rewrite !assoc.
+      rewrite BinProductPr1Commutes.
+      apply idpath.
+    }
+    rewrite !cartesian_semi_cart_tensor_pr2.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply BinProductPr2Commutes.
+    }
+    rewrite BinProductPr1Commutes.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply BinProductPr1Commutes.
+    }
+    rewrite !assoc.
+    rewrite !BinProductPr2Commutes.
+    apply idpath.
+  - rewrite !assoc'.
+    rewrite !BinProductPr2Commutes.
+    rewrite !cartesian_semi_cart_tensor_pr1, !cartesian_semi_cart_tensor_pr2.
+    use BinProductArrowsEq.
+    + rewrite !assoc'.
+      rewrite !BinProductPr1Commutes.
+      etrans.
+      {
+        do 3 apply maponpaths.
+        rewrite !assoc.
+        rewrite BinProductPr1Commutes.
+        apply idpath.
+      }
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !assoc.
+        rewrite !BinProductPr2Commutes.
+        apply idpath.
+      }
+      rewrite !BinProductPr2Commutes.
+      rewrite !BinProductPr1Commutes.
+      apply idpath.
+    + rewrite !assoc'.
+      rewrite !BinProductPr2Commutes.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite BinProductPr1Commutes.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite !BinProductPr1Commutes.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite !BinProductPr2Commutes.
+      rewrite !BinProductPr1Commutes.
+      apply idpath.
+Qed.

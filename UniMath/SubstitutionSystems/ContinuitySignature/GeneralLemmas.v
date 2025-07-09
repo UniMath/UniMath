@@ -6,12 +6,12 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 
 
 (** only for the last constructions that should be moved to [CategoryTheory.Chains.Omegacontfunctors] *)
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Chains.All.
 
 
@@ -205,7 +205,7 @@ Proof.
       etrans.
       2: apply pathsinv0, id_right.
 
-      transparent assert (c' : (∑ x : B ⟦ b, F a ⟧, limits.is_cone_mor b'_con (limits.mapcone F coch a_con) x)).
+      transparent assert (c' : (∑ x : B ⟦ b, F a ⟧, Limits.is_cone_mor b'_con (Limits.mapcone F coch a_con) x)).
       {
         exists (pr1 f · pr1 (pr2 i a)).
         intro v.

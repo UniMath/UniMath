@@ -33,8 +33,9 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.CommaCategories.
 
@@ -149,10 +150,14 @@ End fix_T.
 Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K A.
 Proof.
 unfold GlobalRightKanExtensionExists.
-use left_adjoint_from_partial.
-- apply R_functor.
-- apply eps.
-- intros T S α; simpl in *.
+apply coreflections_to_is_left_adjoint.
+intro T.
+use make_coreflection'.
+- exact (R_functor T).
+- exact (eps T).
+- intro α'; simpl in *.
+  pose (S := coreflection_data_object α' : _ ⟶ _).
+  pose (α := (α' : _ --> _) : _ ⟹ _).
 
   transparent assert (cc : (∏ c, cone (QT T c) (S c))).
   { intro c.
@@ -207,8 +212,9 @@ use left_adjoint_from_partial.
     apply limArrowUnique; intro u; simpl.
     destruct x as [t p]; simpl.
     assert (temp : α (pr1 u) = nat_trans_comp _ _ T (pre_whisker K t) (eps T) (pr1 u)).
-      now rewrite p.
-    rewrite temp; simpl.
+      unfold α; now rewrite p.
+    refine (_ @ !maponpaths _ temp).
+    simpl.
     destruct u as [n g]; simpl in *.
     apply pathsinv0; eapply pathscomp0;
     [rewrite assoc; apply cancel_postcomposition, (nat_trans_ax t _ _ g)|].

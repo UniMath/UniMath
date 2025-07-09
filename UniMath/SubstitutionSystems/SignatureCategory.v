@@ -19,8 +19,8 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
@@ -47,7 +47,7 @@ Local Notation "[ C , D ]" := (functor_category C D).
 (** * The category of signatures with strength *)
 Section SignatureCategory.
 
-Variables (C D D': category).
+Context (C D D': category).
 
 Local Notation "'U'" := (functor_ptd_forget C).
 Local Notation "'Ptd'" := (category_Ptd C).
@@ -55,17 +55,18 @@ Local Notation "'Ptd'" := (category_Ptd C).
 (** Define the commutative diagram used in the morphisms *)
 Section Signature_category_mor.
 
-Variables (Ht Ht' : Signature C D D').
+Context (Ht Ht' : Signature C D D').
 
 Let H := Signature_Functor Ht.
 Let H' := Signature_Functor Ht'.
 Let θ : PrestrengthForSignature Ht := theta Ht.
 Let θ' : PrestrengthForSignature Ht' := theta Ht'.
 
-Variables (α : nat_trans H H').
+Context (α : nat_trans H H').
 
 Section Signature_category_mor_diagram.
-Variables (X : [C,D']) (Y : Ptd).
+
+Context (X : [C,D']) (Y : Ptd).
 
 Let f1 : [C,D] ⟦H X • U Y,H (X • U Y)⟧ := θ (X,,Y).
 Let f2 : [C,D] ⟦H (X • U Y),H' (X • U Y)⟧ := α (X • U Y).
@@ -260,7 +261,7 @@ Defined.
 (** * Binary products in the category of signatures *)
 Section BinProducts.
 
-Variables (C : category) (BC : BinProducts C) (D : category) (BD : BinProducts D) (D' : category).
+Context (C : category) (BC : BinProducts C) (D : category) (BD : BinProducts D) (D' : category).
 
 Local Definition BCD : BinProducts [[C,D'],[C,D]].
 Proof.
@@ -348,8 +349,7 @@ End BinProducts.
 (** * Coproducts in the category of signatures *)
 Section Coproducts.
 
-Variables (I : UU).
-Variables (C D D' : category) (CD : Coproducts I D).
+Context (I : UU) (C D D' : category) (CD : Coproducts I D).
 
 Local Definition CCD : Coproducts I [[C,D'],[C,D]].
 Proof.

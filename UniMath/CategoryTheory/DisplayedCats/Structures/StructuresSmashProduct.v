@@ -201,6 +201,16 @@ End SmashProduct.
 (**
  2. Structures with smash products
  *)
+Definition pointed_hset_struct_map_from_unit
+           {P : hset_struct}
+           (Pt : pointed_hset_struct P)
+           {Y : hSet}
+           (PY : P Y)
+           (y : Y)
+           (b : bool)
+  : Y
+  := if b then y else hset_struct_point Pt PY.
+
 Definition pointed_hset_struct_unit_map
            {P : hset_struct}
            (Pt : pointed_hset_struct P)
@@ -236,6 +246,15 @@ Definition hset_struct_with_smash_laws
       hset_struct_point Pt (pr2 SP X Y PX PY)
       =
       setquotpr _ (hset_struct_point Pt PX ,, hset_struct_point Pt PY))
+     ×
+     (∏ (Y : hSet)
+        (PY : P Y)
+        (y : Y),
+      mor_hset_struct
+        P
+        (pr1 SP)
+        PY
+        (pointed_hset_struct_map_from_unit Pt PY y))
      ×
      (∏ (X Y : hSet)
         (PX : P X)
@@ -373,6 +392,22 @@ Proof.
   exact (pr122 SP X Y PX PY).
 Qed.
 
+Proposition hset_struct_with_smash_map_from_unit
+            {P : hset_cartesian_struct}
+            {Pt : pointed_hset_struct P}
+            (SP : hset_struct_with_smash P Pt)
+            {Y : hSet}
+            (PY : P Y)
+            (y : Y)
+  : mor_hset_struct
+      P
+      (hset_struct_with_smash_unit SP)
+      PY
+      (pointed_hset_struct_map_from_unit Pt PY y).
+Proof.
+  exact (pr1 (pr222 SP) Y PY y).
+Qed.
+
 Proposition hset_struct_with_smash_map_bool
             {P : hset_cartesian_struct}
             {Pt : pointed_hset_struct P}
@@ -394,7 +429,7 @@ Proposition hset_struct_with_smash_map_bool
       PY
       (pointed_hset_struct_unit_map Pt PY f g).
 Proof.
-  exact (pr1 (pr222 SP) X Y PX PY f Pf g Pg).
+  exact (pr12 (pr222 SP) X Y PX PY f Pf g Pg).
 Qed.
 
 Proposition hset_struct_with_smash_setquotpr_l
@@ -411,7 +446,7 @@ Proposition hset_struct_with_smash_setquotpr_l
       (SP X Y PX PY)
       (λ x, setquotpr (smash_eqrel P Pt PX PY) (x ,, y)).
 Proof.
-  exact (pr1 (pr2 (pr222 SP) X Y PX PY) y).
+  exact (pr1 (pr22 (pr222 SP) X Y PX PY) y).
 Qed.
 
 Proposition hset_struct_with_smash_setquotpr_r
@@ -428,7 +463,7 @@ Proposition hset_struct_with_smash_setquotpr_r
       (SP X Y PX PY)
       (λ y, setquotpr (smash_eqrel P Pt PX PY) (x ,, y)).
 Proof.
-  exact (pr12 (pr2 (pr222 SP) X Y PX PY) x).
+  exact (pr12 (pr22 (pr222 SP) X Y PX PY) x).
 Qed.
 
 Proposition hset_struct_with_smash_setquotpr
@@ -444,7 +479,7 @@ Proposition hset_struct_with_smash_setquotpr
       (SP X Y PX PY)
       (setquotpr (smash_eqrel P Pt PX PY)).
 Proof.
-  exact (pr122 (pr2 (pr222 SP) X Y PX PY)).
+  exact (pr122 (pr22 (pr222 SP) X Y PX PY)).
 Qed.
 
 Proposition hset_struct_with_smash_map_from_smash
@@ -481,7 +516,7 @@ Proposition hset_struct_with_smash_map_from_smash
       PZ
       (map_from_smash P Pt PX PY h hp₁ hp₂ hp₃).
 Proof.
-  exact (pr222 (pr2 (pr222 SP) X Y PX PY) Z PZ h Ph hp₁ hp₂ hp₃).
+  exact (pr222 (pr22 (pr222 SP) X Y PX PY) Z PZ h Ph hp₁ hp₂ hp₃).
 Qed.
 
 Proposition hset_struct_with_smash_map_from_smash'
@@ -519,7 +554,7 @@ Proposition hset_struct_with_smash_map_from_smash'
       PZ
       (map_from_smash' P Pt PX PY HZ h hp₁ hp₂ hp₃).
 Proof.
-  exact (pr222 (pr2 (pr222 SP) X Y PX PY) _ PZ h Ph hp₁ hp₂ hp₃).
+  exact (pr222 (pr22 (pr222 SP) X Y PX PY) _ PZ h Ph hp₁ hp₂ hp₃).
 Qed.
 
 (**

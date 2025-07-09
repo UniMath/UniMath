@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # This workflow contains four jobs:
+  # This workflow contains four kinds of jobs:
   #   - sanity-checks
   #   - build-Unimath-ubuntu: (Linux, docker-coq, latest Coq >= 8.16, manual cache)
   #   - build-macos: (MacOS, Opam, Coq 8.16.0, cache using actions/setup-ocaml)
@@ -27,7 +27,7 @@ jobs:
     name: Sanity Checks
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -37,7 +37,7 @@ jobs:
       - name: Run sanity checks
         run: |
           cd $GITHUB_WORKSPACE
-          time make -k sanity-checks
+          time make -k sanity-checks || time make sanity-checks
 
   # Build the current PR/branch with the latest stable release of Coq.
   build-Unimath-ubuntu:
@@ -46,25 +46,28 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         # https://github.com/coq-community/docker-coq/wiki#ocaml-versions-policy
-        coq-version: [latest, dev]
-        # coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
+        coq-version: ['latest', 'dev', '8.19', '8.20']
+        # (the following is obsolete:) coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
         ocaml-version: [default]
 
     name: Build on Linux (Coq ${{ matrix.coq-version }})
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Grab the cache if available and extract it to dune-cache/. We tell dune
       # to use $(pwd)/dune-cache/ in the custom_script when initiating the
       # docker run.
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: dune-cache
           # Example key: UniMath-Linux-coq-8.16-123456789-10
-          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+          key: UniMath-doc-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
+            UniMath-doc-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
+            UniMath-doc-${{ runner.os }}-coq-${{ matrix.coq-version }}-
+            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-
 
@@ -75,13 +78,17 @@ jobs:
           ocaml_version: ${{ matrix.ocaml-version }}
           custom_script: |
             startGroup "Workaround permission issue"
-            sudo chown -R coq:coq .
+            sudo chown -R 1000:1000 .
+            endGroup
+
+            startGroup "Install the coq shim if need be"
+            command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
             endGroup
 
             startGroup "Print versions"
             opam --version
             opam exec -- dune --version
-            opam exec -- coqc --version
+            opam exec -- coqc --version || opam exec -- rocq --version
             endGroup
 
             startGroup "Build UniMath"
@@ -94,20 +101,27 @@ jobs:
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
 
-      - uses: actions/cache/save@v3
+      - name: Upload the generated vo files
+        if: github.ref == 'refs/heads/master' && matrix.coq-version == '8.20'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: _build/default/UniMath/
+
+      - uses: actions/cache/save@v4
         if: always()
         with:
           path: dune-cache
           key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
 
   # Build UniMath on MacOS using latest stable release of Coq installed with
-  # Homebrew (currently 8.16.1). Build files are cached.
+  # Homebrew (8.18.0 still on March 18, 2024). Build files are cached.
   build-macos:
-    name: Build on macOS (Coq 8.16)
+    name: Build on macOS (latest Coq on Homebrew)
 
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Coq
         run: |
           brew install coq ocaml-findlib dune
@@ -115,7 +129,7 @@ jobs:
           coqc --version
           dune --version
 
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: dune-cache
@@ -129,39 +143,43 @@ jobs:
           export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
           dune build --display=short --error-reporting=twice --cache=enabled UniMath/
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always ()
         with:
           path: dune-cache
           key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
 
   # Build the satellites in parallel using docker-coq images with the latest
-  # stable patch-release of Coq 8.16, except for TypeTheory, which is built
+  # stable patch-release of Coq 8.19 as of March 20, 2024
+  # (outdated comment:) except for TypeTheory, which is built
   # using the latest stable 8.15 release.
   build-satellites:
     strategy:
       fail-fast: false
       matrix:
-        satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory]
-        coq-version: [latest, dev]
-        ocaml-version: [4.14-flambda]
+        satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory, Schools]
+        coq-version: ['latest', 'dev']
+        ocaml-version: [default]
+        # (outdated exception:) exclude:
+        # - satellite: GrpdHITs
+        #   coq-version: dev
     name: Build ${{ matrix.satellite }} (Coq ${{ matrix.coq-version }})
     runs-on: ubuntu-22.04
 
     steps:
       # Check out the current branch of UniMath in the current directory.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Check out the satellite we want to build in Satellite/.
       - name: Clone ${{ matrix.satellite }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: UniMath/${{ matrix.satellite }}
           path: Satellite
 
       # Grab the cache if available. We tell dune to use $(pwd)/dune-cache/ in
       # the custom_script below.
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: dune-cache
@@ -178,13 +196,17 @@ jobs:
           ocaml_version: ${{ matrix.ocaml-version }}
           custom_script: |
             startGroup "Workaround permission issue"
-            sudo chown -R coq:coq .
+            sudo chown -R 1000:1000 .
+            endGroup
+
+            startGroup "Install the coq shim if need be"
+            command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
             endGroup
 
             startGroup "Print versions"
             opam --version
             opam exec -- dune --version
-            opam exec -- coqc --version
+            opam exec -- coqc --version || opam exec -- rocq --version
             endGroup
 
             startGroup "Build Satellite"
@@ -197,8 +219,174 @@ jobs:
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always ()
         with:
           path: dune-cache
           key: ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+
+  rocqdoc:
+    name: Rocqdoc
+    if: github.ref == 'refs/heads/master'
+    needs: build-Unimath-ubuntu
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: dune-cache
+          key: UniMath-Linux-coq-latest-${{ github.run_id }}-${{ github.run_number }}
+          restore-keys: |
+            UniMath-Linux-coq-latest-${{ github.run_id }}
+            UniMath-Linux-coq-latest-
+
+      - name: Build the documentation
+        uses: coq-community/docker-coq-action@v1
+        with:
+          coq_version: latest
+          ocaml_version: default
+          custom_script: |
+            startGroup "Workaround permission issue"
+            sudo chown -R 1000:1000 .
+            endGroup
+
+            startGroup "Install the coq shim if need be"
+            command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
+            endGroup
+
+            export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
+            cd UniMath
+            opam exec -- dune build --cache=enabled @doc
+            cd ..
+
+      - name: Revert permissions
+        if: ${{ always() }}
+        run: sudo chown -R 1001:116 .
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: dune-cache
+          key: UniMath-doc-Linux-coq-latest-${{ github.run_id }}-${{ github.run_number }}
+
+      - name: Upload the generated documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: rocqdoc
+          path: _build/default/UniMath/UniMath.html
+
+  alectryon:
+    name: "Alectryon"
+    if: github.ref == 'refs/heads/master'
+    needs: build-Unimath-ubuntu
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Grab the cache if available and extract it to alectryon-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: alectryon-cache
+          key: UniMath-alectryon-${{ github.run_id }}-${{ github.run_number }}
+          restore-keys: |
+            UniMath-alectryon-${{ github.run_id }}
+            UniMath-alectryon-
+
+      - name: Download the generated vo files
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: _build/default/UniMath/
+
+      - name: Build the alectryon docs
+        uses: coq-community/docker-coq-action@v1
+        with:
+          coq_version: '8.20'
+          ocaml_version: default
+          custom_script: |
+            startGroup "Install serapi"
+              opam install -y coq-serapi
+            endGroup
+
+            startGroup "Install python"
+              sudo apt-get update
+              sudo apt-get install -y --allow-unauthenticated python3-pip python3-venv
+            endGroup
+
+            startGroup "Workaround permission issue"
+              sudo chown -R 1000:1000 .
+            endGroup
+
+            startGroup "Install Alectryon"
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip3 install --upgrade pip alectryon
+            endGroup
+
+            startGroup "Build Alectryon"
+              find UniMath -name "*.v" -exec bash -c '
+                f=${1%.v}.html;
+                echo "compiling $1";
+                /usr/bin/time -f "Time elapsed: %E" alectryon \
+                  --cache-directory alectryon-cache \
+                  --long-line-threshold 99999 \
+                  --output "alectryon/${f//\//.}" \
+                  -R _build/default/UniMath/ UniMath \
+                  --sertop-arg=--no_prelude \
+                  --sertop-arg=--indices-matter \
+                  "$1"
+              ' _ {} \;
+            endGroup
+
+      - name: Revert permissions
+        if: ${{ always() }}
+        run: sudo chown -R 1001:116 .
+
+      - name: Upload the generated alectryon files
+        uses: actions/upload-artifact@v4
+        with:
+          name: alectryon
+          path: alectryon
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: alectryon-cache
+          key: UniMath-alectryon-${{ github.run_id }}-${{ github.run_number }}
+
+  assemble-site:
+    name: Assemble the site
+    if: github.ref == 'refs/heads/master'
+    needs: [rocqdoc, alectryon]
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create the site directory
+        run: mkdir site && mkdir site/gen
+
+      - name: Copy markdown files
+        run: cp _config.yml site; find . -name "*.md" -exec cp --parents {} site \;
+
+      - name: Download the rocqdoc documentation
+        uses: actions/download-artifact@v4
+        with:
+          name: rocqdoc
+          path: site/gen/rocqdoc
+
+      - name: Download the alectryon documentation
+        uses: actions/download-artifact@v4
+        with:
+          name: alectryon
+          path: site/gen/alectryon
+
+      - name: Push to the pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: site
+          single-commit: true

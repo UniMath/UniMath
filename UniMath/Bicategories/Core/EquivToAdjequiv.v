@@ -68,7 +68,7 @@ Lemma full_spec
            (α : f ∘ k₁ ==> f ∘ k₂)
   : f ◅ (representable_full η θ Hη k₁ k₂ α) = α.
 Proof.
-  refine (representable_faithful (Hθ^-1) (f ∘ k₁) (f ∘ k₂) _ α _ _).
+  refine (representable_faithful Hθ^-1 (f ∘ k₁) (f ∘ k₂) _ α _ _).
   { is_iso. }
   apply (vcomp_lcancel (lassociator _ _ _)).
   { is_iso. }
@@ -104,7 +104,7 @@ Section EquivToAdjEquiv.
 
   Local Definition ε : f ∘ g ==> id₁ Y.
   Proof.
-    refine (representable_full (θiso^-1) (ηiso^-1) _ (f ∘ g) (id₁ Y) _).
+    refine (representable_full θiso^-1 ηiso^-1 _ (f ∘ g) (id₁ Y) _).
     { is_iso. }
     exact ((linvunitor g)
              o runitor g
@@ -136,7 +136,7 @@ Section EquivToAdjEquiv.
   Proof.
     rewrite !vassocr.
     unfold ε.
-    rewrite (full_spec (θiso^-1) (ηiso^-1) _ (is_invertible_2cell_inv _) (f ∘ g) (id₁ Y) _).
+    rewrite (full_spec θiso^-1 ηiso^-1 _ (is_invertible_2cell_inv _) (f ∘ g) (id₁ Y) _).
     rewrite <- !vassocr.
     rewrite linvunitor_lunitor, id2_right.
     rewrite !vassocr.
@@ -284,7 +284,7 @@ Section EquivToAdjEquiv.
   Proof.
     use (representable_faithful _ _ _ _ _ _ help2).
     - exact f.
-    - exact (εiso^-1).
+    - exact εiso^-1.
     - is_iso.
   Qed.
 
@@ -336,6 +336,17 @@ Proof.
       * exact ((left_equivalence_counit_iso Hf)^-1).
       * exact ((left_equivalence_unit_iso Hf)^-1).
   - split ; cbn ; is_iso.
+Defined.
+
+Definition inv_left_adjoint_equivalence
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           (Hf : left_adjoint_equivalence f)
+  : left_adjoint_equivalence (left_adjoint_right_adjoint Hf).
+Proof.
+  use equiv_to_adjequiv.
+  exact (inv_equiv (left_equivalence_of_left_adjoint_equivalence Hf)).
 Defined.
 
 Definition inv_adjequiv

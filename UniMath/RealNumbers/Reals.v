@@ -5,7 +5,7 @@ Require Export UniMath.Algebra.Groups.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Orders.
 Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.Algebra.Lattice.Lattice.
+Require Import UniMath.OrderTheory.Lattice.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
@@ -211,7 +211,7 @@ Lemma hr_to_NR_zero :
 Proof.
   unfold ringunel1, unel_is ; simpl.
   unfold hr_to_NR.
-  rewrite setquotunivcomm ; simpl.
+  refine (setquotunivcomm _ (_ ,, _) _ _ _ @ _) ; simpl.
   rewrite !minusNonnegativeReals_eq_zero.
   { reflexivity. }
   apply isrefl_leNonnegativeReals.

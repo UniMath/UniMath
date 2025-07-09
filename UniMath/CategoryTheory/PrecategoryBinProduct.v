@@ -675,6 +675,20 @@ Proof.
     apply identity_is_z_iso.
 Defined.
 
+Definition prod_nat_trans
+           {C D₁ D₂ : category}
+           {F G : C ⟶ category_binproduct D₁ D₂}
+           (τ : F ∙ pr1_functor _ _ ⟹ G ∙ pr1_functor _ _)
+           (θ : F ∙ pr2_functor _ _ ⟹ G ∙ pr2_functor _ _)
+  : F ⟹ G.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, τ x ,, θ x).
+  - abstract
+      (intros x y f ;
+       use pathsdirprod ;
+       [ apply (nat_trans_ax τ) | apply (nat_trans_ax θ) ]).
+Defined.
 
 (* A swapping functor σ : C × D → D × C. *)
 Definition binswap_pair_functor {C D : category} : (C × D) ⟶ (D × C) :=
@@ -1436,7 +1450,7 @@ Section PairingWithAnObject.
 End PairingWithAnObject.
 
 
-Definition category_op_binproduct {C D:category}: ((C^op) × (D^op)) ⟶ (C × D)^op.
+Definition category_op_binproduct {C D:category}: (C^op × D^op) ⟶ (C × D)^op.
 Proof.
   use make_functor.
   + use make_functor_data.
@@ -1448,4 +1462,23 @@ Proof.
       apply idpath.
     - repeat intro.
       apply idpath.
+Defined.
+
+(**
+ Taking the diagonal is a pseudofunctor
+ *)
+Definition pair_nat_trans
+           {C₁ C₂ C₁' C₂' : category}
+           {F₁ F₂ : C₁ ⟶ C₁'}
+           {G₁ G₂ : C₂ ⟶ C₂'}
+           (τ : F₁ ⟹ F₂)
+           (θ : G₁ ⟹ G₂)
+  : pair_functor F₁ G₁ ⟹ pair_functor F₂ G₂.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, τ (pr1 x) ,, θ (pr2 x)).
+  - abstract
+      (intros x y f ;
+       cbn ;
+       use pathsdirprod ; apply nat_trans_ax).
 Defined.

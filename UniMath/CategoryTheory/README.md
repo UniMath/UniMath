@@ -61,7 +61,7 @@ The following table offers a comparison.
 * *rezk_completion.v*
   * put the previous files together and exhibit the Rezk completion
 
-### many more files that were not needed for the Rezk completion and that go beyond the former package "Rezk Completion"; they have various authors (see the files individually that are given in alphabetic order):
+### Many more files that were not needed for the Rezk completion and that go beyond the former package "Rezk Completion"; they have various authors (see the files individually that are given in alphabetic order):
 * *AbelianToAdditive.v* --- AbelianPreCat is Additive
 * *Abelian.v* --- abelian categories
 * *AdditiveFunctors.v*

@@ -39,10 +39,10 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -64,10 +64,7 @@ Context (C : category).
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C]) .
 
-Variable terminal : Terminal C.
-
-Variable CC : BinCoproducts C.
-Variable CP : BinProducts C.
+Context (terminal : Terminal C) (CC : BinCoproducts C) (CP : BinProducts C).
 
 Local Notation "'Ptd'" := (category_Ptd C).
 
@@ -80,9 +77,9 @@ Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC: BinCoproducts EndEndC.
 
 Let one : C :=  @TerminalObject C terminal.
 
-Variable KanExt : ∏ Z : precategory_Ptd C,
+Context (KanExt : ∏ Z : precategory_Ptd C,
    RightKanExtension.GlobalRightKanExtensionExists C C
-     (U Z) C.
+     (U Z) C).
 
 
 Let Lam_S : Signature _ _ _ := Lam_Sig C terminal CC CP.
@@ -90,8 +87,8 @@ Let LamE_S : Signature _ _ _ := LamE_Sig C terminal CC CP.
 
 (* assume initial algebra for signature Lam *)
 
-Variable Lam_Initial : Initial
-     (@category_FunctorAlg [C, C] (Id_H C CC Lam_S)).
+Context (Lam_Initial : Initial
+     (@category_FunctorAlg [C, C] (Id_H C CC Lam_S))).
 
 Let Lam := InitialObject Lam_Initial.
 
@@ -113,27 +110,27 @@ Let LamHSS := InitialObject LamHSS_Initial.
 
 Definition Lam_Var : EndC ⟦functor_identity C, `Lam ⟧.
 Proof.
-  exact (BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _)  · alg_map _ Lam).
+  exact (η (pr1 LamHSS)).
 Defined.
 
 (* we later prefer leaving App and Abs bundled in the definition of LamE_algebra_on_Lam *)
 
+Definition Lam_App_Abs :  [C, C]
+   ⟦ (H C C C CC (App_H C CP) (Abs_H C terminal CC)) `Lam , `Lam ⟧.
+Proof.
+  exact (τ (pr1 LamHSS)).
+Defined.
+
 Definition Lam_App : [C, C] ⟦ (App_H C CP) `Lam , `Lam ⟧.
 Proof.
-  exact (BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · alg_map _ Lam)).
+  exact (BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · Lam_App_Abs).
 Defined.
 
 Definition Lam_Abs : [C, C] ⟦ (Abs_H C terminal CC) `Lam, `Lam ⟧.
 Proof.
-  exact (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · alg_map _ Lam)).
+  exact (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · Lam_App_Abs).
 Defined.
 
-
-Definition Lam_App_Abs :  [C, C]
-   ⟦ (H C C C CC (App_H C CP) (Abs_H C terminal CC)) `Lam , `Lam ⟧.
-Proof.
-  exact (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · alg_map _ Lam).
-Defined.
 
 (** * Definition of a "model" of the flattening arity in pure lambda calculus *)
 
@@ -168,7 +165,7 @@ Defined.
 (** now define bracket operation for a given [Z] and [f] *)
 
 (** preparations for typedness *)
-Local Definition helper_to: (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) --> (ptd_from_alg_functor CC _ Lam).
+Local Definition helper_to: (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) --> (ptd_from_alg_functor CC Lam_S Lam).
 Proof.
   use tpair.
     + apply (nat_trans_id _ ).
@@ -178,7 +175,7 @@ Proof.
          apply idpath).
 Defined.
 
-Local Definition helper_from: (ptd_from_alg_functor CC _ Lam) --> (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
+Local Definition helper_from: (ptd_from_alg_functor CC Lam_S Lam) --> (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
   use tpair.
     + apply (nat_trans_id _ ).
@@ -191,7 +188,7 @@ Defined.
 (** this iso does nothing, but is needed to make the argument to [fbracket] below well-typed *)
 (* maybe a better definition somewhere above could make this iso superfluous *)
 (* maybe don't need iso, but only morphism *)
-Local Definition bracket_property_for_LamE_algebra_on_Lam_helper : iso (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor CC _ Lam).
+Local Definition bracket_property_for_LamE_algebra_on_Lam_helper : iso (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor CC Lam_S Lam).
 Proof.
   unfold iso.
   exists helper_to.
@@ -522,9 +519,9 @@ Defined.
 
 (* assume initial algebra for signature LamE *)
 
-Variable  LamE_Initial : Initial
+Context (LamE_Initial : Initial
      (@category_FunctorAlg [C, C]
-        (Id_H C CC LamE_S)).
+        (Id_H C CC LamE_S))).
 
 
 Definition LamEHSS_Initial : Initial (hss_category CC LamE_S).

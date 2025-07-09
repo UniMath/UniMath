@@ -1,7 +1,18 @@
+(**************************************************************************************************
+
+  A skeleton of finite sets
+
+  Defines the full subcategory of SET, consisting of the sets {0, ..., n-1} and the functions
+  between them.
+
+  Contents
+  1. The category [finite_set_skeleton_category]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Definition finite_set_skeleton_precat : precategory.
 Proof.

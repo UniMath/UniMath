@@ -11,20 +11,21 @@
  1. Cones of enriched limits
  2. Limits in an enriched category
  3. Being a limit is a proposition
- 4. Instances of limits
- 4.1. Powers as limits
- 4.2. Conical limits as limits
+ 4. Some accessors for enriched limits
+ 5. Enriched limits are unique up to isomorphism
+ 6. Uniqueness of enriched limits
+ 7. Instances of limits
+ 7.1. Powers as limits
+ 7.2. Conical limits as limits
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.limits.Ends.
+Require Import UniMath.CategoryTheory.Limits.Ends.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
@@ -45,9 +46,7 @@ Section EnrichedLimit.
           (D : I ⟶ C)
           (W : I ⟶ V).
 
-  (**
-   1. Cones of enriched limits
-   *)
+  (** * 1. Cones of enriched limits *)
   Definition enriched_lim_cone
     : UU
     := ∑ (a : C),
@@ -91,9 +90,7 @@ Section EnrichedLimit.
     : enriched_lim_cone
     := a ,, fs ,, eqs.
 
-  (**
-   2. Limits in an enriched category
-   *)
+  (** * 2. Limits in an enriched category *)
   Definition weighted_hom_data
              (w : C)
     : functor_data (category_binproduct (I^opp) I) V.
@@ -227,9 +224,7 @@ Section EnrichedLimit.
     : is_lim_enriched a
     := pr2 a.
 
-  (**
-   3. Being a limit is a proposition
-   *)
+  (** * 3. Being a limit is a proposition * *)
   Proposition isaprop_is_lim_enriched
               (a : enriched_lim_cone)
     : isaprop (is_lim_enriched a).
@@ -237,15 +232,348 @@ Section EnrichedLimit.
     repeat (use impred ; intro).
     apply isapropiscontr.
   Qed.
+
+  (** * 4. Some accessors for enriched limits *)
+  Section LimMap.
+    Context (a : lim_enriched)
+            {x : C}
+            (fs : ∏ (i : I), I_{ V} --> W i ⊸ (E ⦃ x, D i ⦄))
+            (ps : ∏ (i j : I)
+                    (g : i --> j),
+                  fs i
+                  · internal_pre_post_comp (identity (W i)) (postcomp_arr E x (# D g))
+                  =
+                  fs j
+                  · internal_pre_post_comp (# W g) (postcomp_arr E x (identity (D j)))).
+
+    Lemma mor_from_lim_enriched_wedge
+      : is_wedge (weighted_hom x) (make_wedge_data (weighted_hom x) I_{ V} fs).
+    Proof.
+      intros i j g.
+      cbn.
+      rewrite !functor_id.
+      exact (ps i j g).
+    Qed.
+
+    Definition mor_from_lim_enriched
+      : x --> a
+      := enriched_to_arr
+           E
+           (mor_to_end'
+              _
+              (enriched_lim_cone_is_lim a x)
+              I_{V}
+              fs
+              mor_from_lim_enriched_wedge).
+
+    Proposition mor_from_lim_enriched_comm
+                (i : I)
+      : enriched_lim_cone_pr a i · precomp_arr E _ mor_from_lim_enriched
+        =
+        mon_linvunitor _ · (fs i #⊗ identity _) · internal_eval _ _.
+    Proof.
+      unfold mor_from_lim_enriched.
+      unfold precomp_arr.
+      rewrite enriched_from_to_arr.
+      pose (mor_to_end'_comm
+              _
+              (enriched_lim_cone_is_lim a x)
+              I_{V}
+              fs
+              mor_from_lim_enriched_wedge
+              i)
+        as q.
+      rewrite <- q.
+      cbn.
+      rewrite tensor_comp_id_r.
+      rewrite !assoc'.
+      rewrite internal_beta.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite !assoc'.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_swap.
+        rewrite !assoc'.
+        rewrite tensor_sym_mon_braiding.
+        apply idpath.
+      }
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite <- tensor_linvunitor.
+      rewrite !assoc'.
+      rewrite sym_mon_braiding_linvunitor.
+      apply idpath.
+    Qed.
+  End LimMap.
+
+  Section LimUnique.
+    Context (a : lim_enriched)
+            {x : C}
+            {f g : x --> a}
+            (p : ∏ (i : I),
+                 enriched_lim_cone_pr a i #⊗ enriched_from_arr E f
+                 · enriched_comp E x a (D i)
+                 =
+                 enriched_lim_cone_pr a i #⊗ enriched_from_arr E g
+                 · enriched_comp E x a (D i)).
+
+    Proposition enriched_lim_unique
+      : f = g.
+    Proof.
+      rewrite <- (enriched_to_from_arr E f).
+      rewrite <- (enriched_to_from_arr E g).
+      apply maponpaths.
+      use (mor_to_end_eq _ (enriched_lim_cone_is_lim a x) I_{V}).
+      intro i.
+      cbn.
+      use internal_funext.
+      intros z h.
+      rewrite !tensor_comp_r_id_r.
+      rewrite !(tensor_split (enriched_from_arr _ _) h).
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !internal_beta.
+      rewrite !assoc.
+      rewrite <- !tensor_split'.
+      rewrite !tensor_sym_mon_braiding.
+      rewrite !assoc'.
+      apply maponpaths.
+      exact (p i).
+    Qed.
+  End LimUnique.
+
+  (** * 5. Enriched limits are unique up to isomorphism *)
+  Proposition mor_enriched_lim_cone_eq
+              (a₁ a₂ : lim_enriched)
+              {i j : I}
+              (g : i --> j)
+    : internal_lam (mon_lunitor (W i) · enriched_lim_cone_pr a₁ i)
+      · internal_pre_post_comp (identity (W i)) (postcomp_arr E a₁ (# D g))
+      =
+      internal_lam (mon_lunitor (W j) · enriched_lim_cone_pr a₁ j)
+      · internal_pre_post_comp (# W g) (postcomp_arr E a₁ (identity (D j))).
+  Proof.
+    use internal_funext.
+    intros v h.
+    rewrite !tensor_comp_r_id_r.
+    rewrite !assoc'.
+    unfold internal_pre_post_comp.
+    rewrite !internal_beta.
+    rewrite tensor_id_id.
+    rewrite !id_left.
+    rewrite !assoc.
+    rewrite !(tensor_split (internal_lam _) h).
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite internal_beta.
+    rewrite tensor_swap.
+    rewrite !assoc'.
+    rewrite enriched_lim_cone_commute.
+    rewrite !assoc.
+    rewrite <- tensor_lunitor.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite internal_beta.
+    rewrite postcomp_arr_id.
+    rewrite id_right.
+    apply idpath.
+  Qed.
+
+  Definition mor_enriched_lim_cone
+             (a₁ a₂ : lim_enriched)
+    : a₁ --> a₂.
+  Proof.
+    use mor_from_lim_enriched.
+    - exact (λ i, internal_lam (mon_lunitor _ · enriched_lim_cone_pr a₁ i)).
+    - intros i j g.
+      exact (mor_enriched_lim_cone_eq a₁ a₂ g).
+  Defined.
+
+  Proposition mor_enriched_lim_cone_comp
+              (a₁ a₂ : lim_enriched)
+    : mor_enriched_lim_cone a₁ a₂ · mor_enriched_lim_cone a₂ a₁
+      =
+      identity _.
+  Proof.
+    use enriched_lim_unique.
+    intro i.
+    refine (!_).
+    etrans.
+    {
+      rewrite enriched_from_arr_id.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      rewrite <- enrichment_id_right.
+      rewrite tensor_runitor.
+      apply idpath.
+    }
+    refine (!_).
+    etrans.
+    {
+      rewrite enriched_from_arr_comp.
+      rewrite !tensor_comp_l_id_r.
+      rewrite !assoc'.
+      rewrite enrichment_assoc'.
+      etrans.
+      {
+        rewrite !assoc.
+        do 2 apply maponpaths_2.
+        rewrite !assoc'.
+        rewrite tensor_rassociator.
+        rewrite !assoc.
+        apply maponpaths_2.
+        rewrite tensor_split'.
+        rewrite mon_inv_triangle.
+        rewrite !assoc'.
+        rewrite mon_lassociator_rassociator.
+        rewrite id_right.
+        apply idpath.
+      }
+      rewrite <- tensor_comp_id_r.
+      etrans.
+      {
+        apply maponpaths_2.
+        rewrite <- !tensor_comp_mor.
+        rewrite id_left.
+        rewrite id_right.
+        rewrite tensor_split'.
+        do 2 apply maponpaths_2.
+        etrans.
+        {
+          rewrite !assoc'.
+          apply maponpaths.
+          rewrite !assoc.
+          fold (precomp_arr E (D i) (mor_enriched_lim_cone a₂ a₁)).
+          apply idpath.
+        }
+        apply mor_from_lim_enriched_comm.
+      }
+      cbn.
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        rewrite !assoc'.
+        rewrite internal_beta.
+        rewrite !assoc.
+        rewrite mon_linvunitor_lunitor.
+        rewrite id_left.
+        apply idpath.
+      }
+      refine (!(id_left _) @ _).
+      rewrite <- mon_runitor_rinvunitor.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_rinvunitor.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        fold (precomp_arr E (D i) (mor_enriched_lim_cone a₁ a₂)).
+        apply idpath.
+      }
+      apply mor_from_lim_enriched_comm.
+    }
+    cbn.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite internal_beta.
+    rewrite !assoc.
+    rewrite mon_linvunitor_lunitor.
+    apply id_left.
+  Qed.
+
+  Definition lim_enriched_z_iso
+             (a₁ a₂ : lim_enriched)
+    : z_iso a₁ a₂.
+  Proof.
+    use make_z_iso.
+    - apply mor_enriched_lim_cone.
+    - apply mor_enriched_lim_cone.
+    - abstract
+        (split ; apply mor_enriched_lim_cone_comp).
+  Defined.
+
+  (** * 6. Uniqueness of enriched limits *)
+  Proposition path_enriched_lim_cone
+              {a₁ a₂ : enriched_lim_cone}
+              (q : ob_enriched_lim_cone a₁ = ob_enriched_lim_cone a₂)
+              (r : ∏ (i : I),
+                   enriched_lim_cone_pr a₁ i
+                   =
+                   enriched_lim_cone_pr a₂ i · precomp_arr E (D i) (idtoiso q))
+    : a₁ = a₂.
+  Proof.
+    induction a₁ as [ a₁ [ f₁ p₁ ]].
+    induction a₂ as [ a₂ [ f₂ p₂ ]].
+    cbn in q.
+    induction q.
+    apply maponpaths.
+    use subtypePath.
+    {
+      intro.
+      repeat (use impred ; intro).
+      apply homset_property.
+    }
+    cbn ; cbn in r.
+    use funextsec ; intro i.
+    refine (r i @ _).
+    rewrite precomp_arr_id.
+    apply id_right.
+  Qed.
+
+  Proposition path_enriched_lim_cone_iso
+              (H : is_univalent C)
+              {a₁ a₂ : enriched_lim_cone}
+              (q : z_iso a₁ a₂)
+              (r : ∏ (i : I),
+                   enriched_lim_cone_pr a₁ i
+                   =
+                   enriched_lim_cone_pr a₂ i · precomp_arr E (D i) q)
+    : a₁ = a₂.
+  Proof.
+    use path_enriched_lim_cone.
+    - exact (isotoid C H q).
+    - rewrite idtoiso_isotoid.
+      exact r.
+  Qed.
+
+  Definition isaprop_enriched_lim_code
+             (H : is_univalent C)
+    : isaprop lim_enriched.
+  Proof.
+    use invproofirrelevance.
+    intros a₁ a₂.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_lim_enriched.
+    }
+    use path_enriched_lim_cone_iso.
+    - exact H.
+    - exact (lim_enriched_z_iso a₁ a₂).
+    - intro i.
+      cbn.
+      refine (!_).
+      refine (mor_from_lim_enriched_comm _ _ _ _ @ _).
+      rewrite !assoc'.
+      rewrite internal_beta.
+      rewrite !assoc.
+      rewrite mon_linvunitor_lunitor.
+      apply id_left.
+  Qed.
 End EnrichedLimit.
 
-(**
- 4. Instances of limits
- *)
+(** * 7. Instances of limits *)
 
-(**
- 4.1. Powers as limits
- *)
+(** * 7.1. Powers as limits *)
 Section LimitToPower.
   Context {V : sym_mon_closed_cat}
           {C : category}
@@ -350,9 +678,7 @@ Section LimitToPower.
   Defined.
 End LimitToPower.
 
-(**
- 4.2. Conical limits as limits
- *)
+(** * 7.2. Conical limits as limits *)
 Section LimitToConical.
   Context {V : sym_mon_closed_cat}
           {C : category}

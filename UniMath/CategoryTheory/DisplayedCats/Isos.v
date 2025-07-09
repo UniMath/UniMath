@@ -499,3 +499,273 @@ Section Utilities.
     apply homset_property.
   Qed.
 End Utilities.
+
+(** Lemmas for `idtoiso_disp` *)
+Proposition idtoiso_disp_inv
+            {C : category}
+            {D : disp_cat C}
+            {x : C}
+            {xx₁ xx₂ : D x}
+            (p : xx₁ = xx₂)
+  : (z_iso_inv_from_z_iso_disp (idtoiso_disp (idpath _) p) : _ -->[ _ ] _)
+    =
+    idtoiso_disp (idpath _) (!p).
+Proof.
+  induction p.
+  cbn.
+  apply idpath.
+Qed.
+
+Proposition idtoiso_disp_comp
+            {C : category}
+            {D : disp_cat C}
+            {x : C}
+            {xx₁ xx₂ xx₃ : D x}
+            (p : xx₁ = xx₂)
+            (q : xx₂ = xx₃)
+  : (idtoiso_disp (idpath _) p ;; idtoiso_disp (idpath _) q
+     =
+     transportb
+       (λ z, _ -->[ z ] _)
+       (id_left _)
+       (idtoiso_disp (idpath _) (p @ q)))%mor_disp.
+Proof.
+  induction p, q.
+  cbn.
+  rewrite id_left_disp.
+  apply idpath.
+Qed.
+
+Proposition idtoiso_disp_comp'_path
+            {C : category}
+            {D : disp_cat C}
+            {x₁ x₂ x₃: C}
+            {xx₁ : D x₁}
+            {xx₂ : D x₂}
+            {xx₃ : D x₃}
+            {p : x₁ = x₂}
+            {q : x₂ = x₃}
+            (pp : transportf D p xx₁ = xx₂)
+            (qq : transportf D q xx₂ = xx₃)
+  : transportf D (p @ q) xx₁ = xx₃.
+Proof.
+  refine (!(transport_f_f _ _ _ _) @ _).
+  refine (_ @ qq).
+  apply maponpaths.
+  exact pp.
+Defined.
+
+Proposition idtoiso_disp_comp'
+            {C : category}
+            {D : disp_cat C}
+            {x₁ x₂ x₃: C}
+            {xx₁ : D x₁}
+            {xx₂ : D x₂}
+            {xx₃ : D x₃}
+            {p : x₁ = x₂}
+            {q : x₂ = x₃}
+            (pp : transportf D p xx₁ = xx₂)
+            (qq : transportf D q xx₂ = xx₃)
+  : (idtoiso_disp p pp ;; idtoiso_disp q qq
+     =
+     transportf
+       (λ z, _ -->[ z ] _)
+       (pr1_idtoiso_concat p q)
+       (idtoiso_disp (p @ q) (idtoiso_disp_comp'_path pp qq)))%mor_disp.
+Proof.
+  induction p, q.
+  cbn in pp, qq.
+  induction pp, qq.
+  cbn.
+  rewrite id_left_disp.
+  unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+(**
+ Displayed isomorphisms are closed under transporting
+ *)
+Definition is_z_iso_disp_transportf_fun_eq
+           {C : category}
+           {D : disp_cat C}
+           {x y : C}
+           {f g : z_iso x y}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+           (p : pr1 f = pr1 g)
+           (Hff : is_z_iso_disp f ff)
+  : is_z_iso_disp
+      g
+      (transportf
+         (λ z, _ -->[ z ] _)
+         p
+         ff).
+Proof.
+  simple refine (_ ,, _ ,, _).
+  - refine (transportf
+              (λ z, _ -->[ z ] _)
+              _
+              (inv_mor_disp_from_z_iso Hff)).
+    abstract
+      (induction f as [ f Hf ] ;
+       induction g as [ g Hg ] ;
+       cbn in * ;
+       induction p ;
+       do 2 apply maponpaths ;
+       apply isaprop_is_z_isomorphism).
+  - abstract
+      (induction f as [ f Hf ] ;
+       induction g as [ g Hg ] ;
+       cbn in * ;
+       induction p ;
+       cbn ;
+       rewrite mor_disp_transportf_postwhisker ;
+       refine (maponpaths _ (z_iso_disp_after_inv_mor Hff) @ _) ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  - abstract
+      (induction f as [ f Hf ] ;
+       induction g as [ g Hg ] ;
+       cbn in * ;
+       induction p ;
+       cbn ;
+       rewrite mor_disp_transportf_prewhisker ;
+       refine (maponpaths _ (inv_mor_after_z_iso_disp Hff) @ _) ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+Defined.
+
+Definition is_z_iso_disp_transportb_fun_eq
+           {C : category}
+           {D : disp_cat C}
+           {x y : C}
+           (f : z_iso x y)
+           {g : z_iso x y}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+           (p : pr1 g = pr1 f)
+           (Hff : is_z_iso_disp f ff)
+  : is_z_iso_disp
+      g
+      (transportb
+         (λ z, _ -->[ z ] _)
+         p
+         ff).
+Proof.
+  apply is_z_iso_disp_transportf_fun_eq.
+  exact Hff.
+Defined.
+
+Definition disp_z_iso_inv_on_left
+  {C : category}
+  {D : disp_cat C}
+  {x y z : C}
+  {f : x --> y}
+  {g : y --> z}
+  {h : x --> z}
+  (Hf : is_z_isomorphism f)
+  {xx : D x}
+  {yy : D y}
+  {zz : D z}
+  {ff : xx -->[ f ] yy}
+  {gg : yy -->[ g ] zz}
+  {hh : xx -->[ h ] zz}
+  (Hff : is_z_iso_disp (f ,, Hf) ff)
+  (p : f · g = h)
+  : gg = transportf _ (z_iso_inv_on_right _ _ _ (f,,Hf) g h (! p)) (pr1 Hff ;; hh)
+  -> ff ;; gg = transportb _ p hh.
+Proof.
+  intro q.
+  rewrite q.
+  clear q.
+  rewrite mor_disp_transportf_prewhisker.
+  use transportf_transpose_right.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  etrans. {
+    apply maponpaths.
+    apply maponpaths_2.
+    exact (pr2 (pr2 Hff)).
+  }
+  unfold transportb.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+
+  etrans. {
+    apply maponpaths_2.
+    refine (_ @ idpath (id_left _)).
+    apply homset_property.
+  }
+  apply pathsinv0, id_left_disp_var.
+Qed.
+
+Definition disp_z_iso_inv_on_right
+  {C : category}
+  {D : disp_cat C}
+  {x y z : C}
+  {f : x --> y}
+  {g : y --> z}
+  {h : x --> z}
+  (Hg : is_z_isomorphism g)
+  {xx : D x}
+  {yy : D y}
+  {zz : D z}
+  (ff : xx -->[ f ] yy)
+  {gg : yy -->[ g ] zz}
+  (hh : xx -->[ h ] zz)
+  (Hgg : is_z_iso_disp (g ,, Hg) gg)
+  (p : f · g = h)
+  : ff = transportb _ (z_iso_inv_on_left _ _ _ f (g,,Hg) h (! p)) (hh ;; pr1 Hgg)
+  -> ff ;; gg = transportb _ p hh.
+Proof.
+  intro q.
+  rewrite q.
+  clear q.
+  unfold transportb.
+  rewrite mor_disp_transportf_postwhisker.
+  use transportf_transpose_right.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  etrans. {
+    do 2 apply maponpaths.
+    exact (pr1 (pr2 Hgg)).
+  }
+  unfold transportb.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+
+  etrans. {
+    apply maponpaths_2.
+    refine (_ @ idpath (id_right _)).
+    apply homset_property.
+  }
+  apply pathsinv0, id_right_disp_var.
+Qed.
+
+Lemma precomp_disp_id_left_inj
+  {C : category} {D : disp_cat C}
+  {y z : C}
+  {f : C⟦y,z⟧}
+  {yy : D y} {zz : D z}
+  (ff1 ff2 : yy -->[f] zz)
+  : id_disp yy ;; ff1 = id_disp yy ;; ff2 → ff1 = ff2.
+Proof.
+  intro p.
+  rewrite ! id_left_disp in p.
+  refine (transportb_transpose_right p @ _).
+  rewrite transport_b_b.
+  use transportf_set.
+  apply homset_property.
+Qed.

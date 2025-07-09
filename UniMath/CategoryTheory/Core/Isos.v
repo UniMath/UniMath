@@ -465,6 +465,8 @@ Proof.
   - exact (is_inverse_in_precat_comp H1 H2).
 Defined.
 
+Arguments is_z_isomorphism_comp {C a b c f1 f2} H1 H2 /.
+
 Definition is_z_isomorphism_identity {C : precategory} (c : C) : is_z_isomorphism (identity c).
 Proof.
   use make_is_z_isomorphism.
@@ -532,14 +534,6 @@ Proof.
   - exact (is_inverse_in_precat_comp I1 I2).
 Defined.
 
-Lemma is_z_iso_comp_of_is_z_isos {C : precategory} {a b c : ob C}
-      (f : a --> b) (g : b --> c) (H1 : is_z_isomorphism f) (H2 : is_z_isomorphism g) : is_z_isomorphism (f · g).
-Proof.
-  set (i1 := make_z_iso f _ H1).
-  set (i2 := make_z_iso g _ H2).
-  exact (pr2 (z_iso_comp i1 i2)).
-Defined.
-
 (* see below [identity_z_iso]
 Definition z_iso_identity {C : precategory} (c : C) : z_iso c c.
 Proof.
@@ -595,14 +589,6 @@ Proof.
   do 2 rewrite assoc in H.
   rewrite (is_inverse_in_precat2 i) in H. do 2 rewrite id_left in H.
   exact H.
-Qed.
-
-Lemma cancel_precomposition_z_iso {C : precategory} {a b c : C}
-    (f : z_iso a b) (g h : b --> c) : f · g = f · h -> g = h.
-Proof.
-  use pre_comp_with_z_iso_is_inj.
-  - exact (pr1 (pr2 f)).
-  - exact (pr2 (pr2 f)).
 Qed.
 
 Lemma pre_comp_with_z_iso_is_inj' {C : precategory} {a b b' : C} {f : a --> b}

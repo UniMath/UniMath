@@ -1,5 +1,3 @@
-(* -*- coding: utf-8 -*- *)
-
 Require Export UniMath.CategoryTheory.Core.Categories. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.Core.Isos. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.Core.Functors.
@@ -7,8 +5,8 @@ Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Export UniMath.CategoryTheory.Core.Univalence.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
-               UniMath.CategoryTheory.categories.HSET.Core
-               UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
+               UniMath.CategoryTheory.Categories.HSET.Core
+               UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
 Require Export UniMath.Foundations.Preamble.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -63,7 +61,7 @@ Proof.
   exact (λ a b, pr2 C b a).
 Defined.
 
-Notation "C '^op'" := (oppositecategory C) (at level 3, format "C ^op") : cat. (* this overwrites the previous definition *)
+Notation "C '^op'" := (oppositecategory C) (at level 1, format "C ^op") : cat. (* this overwrites the previous definition *)
 
 
 Definition precategory_obmor (C:precategory) : precategory_ob_mor :=

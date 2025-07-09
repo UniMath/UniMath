@@ -90,21 +90,11 @@ Section ImageEnriched.
            image_incl_enrichment)
         EF.
   Proof.
+    use nat_trans_enrichment_via_comp.
     intros x y ; cbn.
-    rewrite !enriched_from_arr_id.
-    rewrite tensor_comp_l_id_l.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_left.
-    rewrite tensor_lunitor.
-    rewrite !assoc.
-    rewrite tensor_split'.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_right.
-    rewrite tensor_runitor.
-    rewrite !assoc.
-    apply maponpaths_2.
-    refine (_ @ !(mon_linvunitor_lunitor _)).
-    apply mon_rinvunitor_runitor.
+    rewrite precomp_arr_id, postcomp_arr_id.
+    rewrite !id_right.
+    apply idpath.
   Qed.
 
   Definition image_factorization_enriched_commutes_inv
@@ -115,20 +105,13 @@ Section ImageEnriched.
            image_proj_enrichment
            image_incl_enrichment).
   Proof.
+    use nat_trans_enrichment_via_comp.
     intros x y ; cbn.
-    rewrite !enriched_from_arr_id.
-    rewrite tensor_comp_r_id_l.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_right.
-    rewrite tensor_runitor.
-    rewrite !assoc.
-    rewrite tensor_split.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_left.
-    rewrite tensor_lunitor.
-    rewrite !assoc.
-    apply maponpaths_2.
-    refine (_ @ !(mon_linvunitor_lunitor _)).
-    apply mon_rinvunitor_runitor.
+    rewrite precomp_arr_id, postcomp_arr_id.
+    rewrite !id_right.
+    apply idpath.
   Qed.
 End ImageEnriched.
+
+Arguments image_enrichment {V C₁ C₂} E₂ F.
+Arguments image_incl_enrichment {V C₁ C₂} E₂ F.

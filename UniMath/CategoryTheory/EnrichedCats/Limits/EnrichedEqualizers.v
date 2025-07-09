@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
-Require Import UniMath.CategoryTheory.limits.equalizers.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 
 Import MonoidalNotations.
 Local Open Scope cat.
@@ -51,7 +51,7 @@ Section EnrichedEqualizer.
          (p : I_{V} --> E ⦃ a , x ⦄),
        enriched_to_arr E p · f = enriched_to_arr E p · g.
 
-  Coercion ob_enriched_equalizer_cone
+  #[reversible] Coercion ob_enriched_equalizer_cone
            (a : enriched_equalizer_cone)
     : C
     := pr1 a.

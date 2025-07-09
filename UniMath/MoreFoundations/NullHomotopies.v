@@ -61,9 +61,3 @@ Goal ∏ X Y (y:Y) (f:X->Y) (e:∏ m:X, f m = y),
 Proof.
   reflexivity.
 Qed.
-
-(*
-Local Variables:
-compile-command: "make -C ../.. TAGS UniMath/MoreFoundations/NullHomotopies.vo"
-End:
-*)

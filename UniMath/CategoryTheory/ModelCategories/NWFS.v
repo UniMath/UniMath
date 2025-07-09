@@ -22,7 +22,6 @@ Require Import UniMath.CategoryTheory.ModelCategories.Retract.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
-Local Open Scope Cat.
 
 Section Face_maps.
 
@@ -260,30 +259,32 @@ Definition Λ {C : category} (F : functorial_factorization C) :
   pre_whisker F (c_10 C).
 
 Definition R_monad_data {C : category} (F : functorial_factorization C)
-    (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) : Monad_data (arrow C) :=
-  ((fact_R F,, Π),, (Λ F)).
+  (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F))
+  : disp_Monad_data (fact_R F)
+  := Π ,, Λ F.
 
 Definition R_monad {C : category} (F : functorial_factorization C)
     (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F))
-    (R : Monad_laws (R_monad_data F Π)) : Monad (arrow C) :=
-  (R_monad_data F Π,, R).
+    (R : disp_Monad_laws (R_monad_data F Π)) : Monad (arrow C) :=
+  (fact_R F ,, R_monad_data F Π,, R).
 
 Definition L_monad_data {C : category} (F : functorial_factorization C)
-    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) : Monad_data (op_cat (arrow C)) :=
-  ((functor_opp (fact_L F),, op_nt Σ),, op_nt (Φ F)).
+  (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F))
+  : @disp_Monad_data (op_cat (arrow C)) (functor_opp (fact_L F))
+  := op_nt Σ ,, op_nt (Φ F).
 
 Definition L_monad {C : category} (F : functorial_factorization C)
     (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F))
-    (L : Monad_laws (L_monad_data F Σ)) : Monad (op_cat (arrow C)) :=
-  (L_monad_data F Σ,, L).
+    (L : disp_Monad_laws (L_monad_data F Σ)) : Monad (op_cat (arrow C)) :=
+  (functor_opp (fact_L F) ,, L_monad_data F Σ,, L).
 
 Definition nwfs (C : category) :=
     ∑ (F : functorial_factorization C) (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) ,
-    (Monad_laws (L_monad_data F Σ)) × (Monad_laws (R_monad_data F Π)).
+    (disp_Monad_laws (L_monad_data F Σ)) × (disp_Monad_laws (R_monad_data F Π)).
 
 Definition make_nwfs {C : category} (F : functorial_factorization C)
-    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) (L : Monad_laws (L_monad_data F Σ))
-    (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) (R : Monad_laws (R_monad_data F Π))
+    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) (L : disp_Monad_laws (L_monad_data F Σ))
+    (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) (R : disp_Monad_laws (R_monad_data F Π))
         : nwfs C.
 Proof.
   exists F, Σ, Π.
@@ -410,7 +411,7 @@ Definition nwfs_mor_axioms {C : category} (n n' : nwfs C) (α : fact_mor n n') :
 Lemma isaprop_nwfs_mor_axioms {C : category} (n n' : nwfs C) (α : fact_mor n n') :
   isaprop (nwfs_mor_axioms n n' α).
 Proof.
-  apply isapropdirprod; apply isaprop_Monad_Mor_laws, homset_property.
+  apply isapropdirprod ; apply isaprop_Monad_Mor_laws.
 Qed.
 
 Definition nwfs_mor {C : category} (n n' : nwfs C) :=
@@ -459,7 +460,7 @@ Proof.
       apply pathsdirprod; cbn; trivial.
     }
     rewrite H.
-    exact (Monad_identity_laws _).
+    apply identity_Monad_Mor_laws.
   - assert (H : nwfs_R_mor (section_nat_trans_id (nwfs_fact n)) = nat_trans_id (nwfs_R_monad n)).
     {
       use nat_trans_eq; [apply homset_property|].
@@ -468,8 +469,8 @@ Proof.
       apply pathsdirprod; cbn; trivial.
     }
     rewrite H.
-    exact (Monad_identity_laws _).
-Defined.
+    apply identity_Monad_Mor_laws.
+Qed.
 
 Definition nwfs_mor_id (n : nwfs C) : nwfs_mor n n.
 Proof.
@@ -512,7 +513,7 @@ Proof.
       }
       unfold fact_mor_from_nwfs_mor.
       rewrite H.
-      exact (Monad_composition_laws (nwfs_L_monad_mor α') (nwfs_L_monad_mor α)).
+      exact (composition_Monad_Mor_laws (nwfs_L_monad_mor α') (nwfs_L_monad_mor α)).
     * assert (nwfs_R_mor (section_nat_trans_comp (pr1 α) (pr1 α')) =
               nat_trans_comp _ _ _ (nwfs_R_monad_mor α) (nwfs_R_monad_mor α')) as H.
       {
@@ -534,7 +535,7 @@ Proof.
       }
       unfold fact_mor_from_nwfs_mor.
       rewrite H.
-      exact (Monad_composition_laws (nwfs_R_monad_mor α) (nwfs_R_monad_mor α')).
+      exact (composition_Monad_Mor_laws (nwfs_R_monad_mor α) (nwfs_R_monad_mor α')).
 Defined.
 
 Definition nwfs_precategory_data : precategory_data.

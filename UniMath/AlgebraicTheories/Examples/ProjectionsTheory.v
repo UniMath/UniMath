@@ -1,49 +1,58 @@
-(** * The initial algebraic theory, with T n = {1, ..., n} and pr i = i *)
+(**************************************************************************************************
+
+  The projections theory
+
+  This algebraic theory is the free theory on the empty set. Therefore, it is also the initial
+  algebraic theory. The set T(n) just consists of the n variables.
+  This theory is called the "projections theory" because Hyland calls variables "projections". When
+  interpreting an algebraic theory as the endomorphism theory (the theory consisting of the
+  morphisms X^n -> X for some object X in some category), the variables are exactly the projections.
+
+  Contents
+  1. The definition of the projections theory [projections_theory]
+  2. The definition of a T-algebra structure on every set [projections_theory_algebra]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.AlgebraicTheories.AlgebraicBases.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractClones.
-Require Import UniMath.AlgebraicTheories.AbstractClones.AbstractCloneAlgebras.
-Require Import UniMath.AlgebraicTheories.AbstractCloneAlgebraicTheory.
+Require Import UniMath.AlgebraicTheories.Algebras.
 
-(* Construct an algebraic theory as an abstract clone *)
-Definition projections_clone_data
-  : abstract_clone_data
-  := make_abstract_clone_data
-    (make_algebraic_base
+(** * 1. The definition of the projections theory *)
+
+Definition projections_theory_data
+  : algebraic_theory_data
+  := make_algebraic_theory_data
       stnset
-      (λ _ _ f g, g f))
-    (λ _ i, i).
+      (λ _ i, i)
+      (λ _ _ f g, g f).
 
-Lemma projections_is_clone : is_abstract_clone projections_clone_data.
+Lemma projections_is_theory : is_algebraic_theory projections_theory_data.
 Proof.
-  now use make_is_abstract_clone;
+  now use make_is_algebraic_theory;
     repeat intro.
 Qed.
 
-Definition projections_clone
-  : abstract_clone
-  := make_abstract_clone _ projections_is_clone.
-
-
 Definition projections_theory
   : algebraic_theory
-  := algebraic_theory_weq_abstract_clone projections_clone.
+  := make_algebraic_theory _ projections_is_theory.
 
-Definition projections_clone_algebra_data (A : hSet)
-  : abstract_clone_algebra_data projections_clone
-  := make_abstract_clone_algebra_data A (λ _ (i : projections_clone _) f, f i).
+(** * 2. The definition of a T-algebra structure on every set *)
 
-Lemma projections_clone_algebra_is_algebra (A : hSet)
-  : is_abstract_clone_algebra (projections_clone_algebra_data A).
+Definition projections_theory_algebra_data (A : hSet)
+  : algebra_data projections_theory
+  := make_algebra_data A (λ n (i : (projections_theory n : hSet)) f, f i).
+
+Lemma projections_theory_algebra_is_algebra (A : hSet)
+  : is_algebra (projections_theory_algebra_data A).
 Proof.
-  use make_is_abstract_clone_algebra;
-    now repeat intro.
+  now use make_is_algebra;
+    repeat intro.
 Qed.
 
-Definition projections_clone_algebra (A : hSet)
-  : abstract_clone_algebra projections_clone
-  := make_abstract_clone_algebra _ (projections_clone_algebra_is_algebra A).
+Definition projections_theory_algebra (A : hSet)
+  : algebra projections_theory
+  := make_algebra _ (projections_theory_algebra_is_algebra A).

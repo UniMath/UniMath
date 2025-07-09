@@ -25,7 +25,7 @@ Proof.
   exact (isasethsubtype _).
 Defined.
 
-Definition morphism_class_set (C : category) : hSet := 
+Definition morphism_class_set (C : category) : hSet :=
     make_hSet (morphism_class C) (isasetmorphism_class (C := C)).
 
 Definition morphism_class_containedIn {C : category} : hrel (morphism_class_set C) :=
@@ -59,7 +59,7 @@ Qed.
 Definition morphism_class_intersection {C : category} (S T : morphism_class C) : morphism_class C:=
     λ X Y f, (S _ _ f) ∧ (T _ _ f).
 
-Notation "S ∩ T" := (morphism_class_intersection S T) (at level 50) : morcls.
+Notation "S ∩ T" := (morphism_class_intersection S T) : morcls.
 
 (* Back to morphism_class.lean *)
 Definition morphism_class_univ (C : category) : (morphism_class C) :=
@@ -81,13 +81,13 @@ Definition morphism_class_opp {C : category} (S : morphism_class C) : (morphism_
 Definition morphism_class_rm_opp {C : category} (S : morphism_class (op_cat C)) : (morphism_class C) :=
     λ X Y f, (S _ _) (rm_opp_mor f).
 
-Lemma morphism_class_opp_opp {C : category} (S : morphism_class C) : 
+Lemma morphism_class_opp_opp {C : category} (S : morphism_class C) :
     morphism_class_opp (morphism_class_opp S) = S.
 Proof.
   trivial.
 Defined.
 
-Definition morphism_class_opp_equal {C : category} {S T : morphism_class C} (e : morphism_class_opp S = morphism_class_opp T) : 
+Definition morphism_class_opp_equal {C : category} {S T : morphism_class C} (e : morphism_class_opp S = morphism_class_opp T) :
   S = T.
 Proof.
   rewrite <- (morphism_class_opp_opp S).
@@ -100,7 +100,7 @@ Definition morphism_class_retract_closure {C : category} (S : morphism_class C) 
 
 Notation "S ^cl" := (morphism_class_retract_closure S) (at level 70) : morcls.
 
-Lemma in_morcls_retc_if_in_morcls {C : category} (S : morphism_class C) 
+Lemma in_morcls_retc_if_in_morcls {C : category} (S : morphism_class C)
     {a b} (f : a --> b) :
   (S _ _ f) -> (S^cl _ _ f).
 Proof.

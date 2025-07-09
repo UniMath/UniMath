@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Local Open Scope cat.
@@ -45,7 +46,7 @@ Definition is_precat_opp_precat_data (C : precategory) : is_precategory (opp_pre
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
+Local Notation "C '^op'" := (opp_precat C) (at level 1, format "C ^op") : cat.
 
 Goal ∏ C:precategory, C^op^op = C. reflexivity. Qed.
 
@@ -203,7 +204,7 @@ Qed.
 
 End opp_functor_properties.
 
-Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
+Notation "C '^op'" := (opp_precat C) (at level 1, format "C ^op") : cat.
 
 Lemma functor_opp_identity {C : precategory} (hsC : has_homsets C) :
   functor_opp (functor_identity C) = functor_identity C^op.
@@ -306,7 +307,7 @@ Proof.
   - apply isaprop_is_iso.
 Defined.
 
-Definition has_homsets_op (C : category) : has_homsets (C^op).
+Definition has_homsets_op (C : category) : has_homsets C^op.
 Proof.
   intros a b.
   apply C.
@@ -351,7 +352,7 @@ Definition op_unicat (C : univalent_category)
   : univalent_category
   := (op_category C ,, op_is_univalent C).
 
-Notation "C '^op'" := (op_category C) (at level 3, format "C ^op") : cat.
+Notation "C '^op'" := (op_category C) (at level 1, format "C ^op") : cat.
 
 
 Definition op_ob {C : category} (c : ob C) : ob C^op := c.
@@ -365,7 +366,7 @@ Definition rm_op_mor {C : category} {b c : C} (f : C^op⟦c, b⟧) : C⟦b, c⟧
 (** Functoriality of taking the opposite *)
 Definition functor_identity_op
            (C : category)
-  : functor_identity (C^op)
+  : functor_identity C^op
     ⟹
     functor_opp (functor_identity C).
 Proof.
@@ -388,7 +389,7 @@ Defined.
 Definition functor_identity_op_nat_z_iso
            (C : category)
   : nat_z_iso
-      (functor_identity (C^op))
+      (functor_identity C^op)
       (functor_opp (functor_identity C)).
 Proof.
   use make_nat_z_iso.
@@ -564,4 +565,37 @@ Proof.
   - exact (op_unit_inv_unit_nat_trans C).
   - intro.
     apply identity_is_z_iso.
+Defined.
+
+(**
+ idtoiso in the opposite
+ *)
+Proposition idtoiso_opp
+            {C : category}
+            {x y : C}
+            (p : x = y)
+  : pr1 (@idtoiso C^op _ _ p) = pr1 (@idtoiso C _ _ (!p)).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
+(** The opposite of a setcategory *)
+Definition is_setcategory_opp
+           {C : category}
+           (HC : is_setcategory C)
+  : is_setcategory C^op.
+Proof.
+  split.
+  - apply HC.
+  - apply homset_property.
+Qed.
+
+Definition opp_setcategory
+           (C : setcategory)
+  : setcategory.
+Proof.
+  use make_setcategory.
+  - exact C^op.
+  - apply C.
 Defined.

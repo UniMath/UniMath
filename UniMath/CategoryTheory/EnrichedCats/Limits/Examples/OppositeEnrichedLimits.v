@@ -33,10 +33,10 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.equalizers.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 
 Local Open Scope cat.
 Local Open Scope moncat.
@@ -91,6 +91,11 @@ Section OppositeLimits.
       - exact opposite_binary_prod_enriched_is_prod.
     Defined.
   End OppositeBinaryProducts.
+
+  Definition opposite_enrichment_binary_prod
+             (H : enrichment_binary_coprod E)
+    : enrichment_binary_prod E'
+    := λ x y, opposite_binary_prod_enriched (H x y).
 
   (**
    3. Equalizers
@@ -182,3 +187,11 @@ Proof.
      rewrite sym_mon_braiding_inv ;
      apply id_left).
 Defined.
+
+Definition opposite_enrichment_power
+           {V : sym_mon_closed_cat}
+           {C : category}
+           (E : enrichment C V)
+           (HE : enrichment_copower E)
+  : enrichment_power (op_enrichment V E)
+  := λ v x, pr1 (HE v x) ,, opposite_power_enriched _ _ (pr2 (HE v x)).

@@ -10,7 +10,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 Local Open Scope cat.
 

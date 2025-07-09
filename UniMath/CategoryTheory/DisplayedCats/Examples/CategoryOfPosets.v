@@ -17,26 +17,27 @@
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.Posets.
+Require Import UniMath.OrderTheory.Posets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.equalizers.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
-Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.Exponentials.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
 
 Local Open Scope cat.
 
@@ -53,6 +54,11 @@ Proof.
   - exact (λ X R, idfun_is_monotone R).
   - exact (λ X₁ X₂ X₃ R₁ R₂ R₃ f g Hf Hg, comp_is_monotone Hf Hg).
 Defined.
+
+Lemma poset_disp_cat_locally_prop : locally_propositional poset_disp_cat.
+Proof.
+  intro; intros; apply isaprop_is_monotone.
+Qed.
 
 Proposition is_univalent_poset_disp_cat
   : is_univalent_disp poset_disp_cat.
@@ -94,15 +100,11 @@ Defined.
 Definition dispTerminal_poset_disp_cat
   : dispTerminal poset_disp_cat TerminalHSET.
 Proof.
-  simple refine (_ ,, _).
+  use make_dispTerminal_locally_prop.
+  - exact poset_disp_cat_locally_prop.
   - exact unit_PartialOrder.
   - intros X RX.
-    use iscontraprop1.
-    + abstract
-        (use invproofirrelevance ;
-         intros f g ;
-         apply isaprop_is_monotone).
-    + exact (λ x y p, tt).
+    exact (λ x y p, tt).
 Defined.
 
 Definition Terminal_category_of_posets
@@ -120,27 +122,15 @@ Definition dispBinProducts_poset_disp_cat
   : dispBinProducts poset_disp_cat BinProductsHSET.
 Proof.
   intros X₁ X₂ R₁ R₂.
-  simple refine ((_ ,, _) ,, _).
-  - exact (prod_PartialOrder R₁ R₂).
-  - split ; cbn.
+  use make_dispBinProduct_locally_prop.
+  - exact poset_disp_cat_locally_prop.
+  - exists (prod_PartialOrder R₁ R₂).
+    split ; cbn.
     + exact (dirprod_pr1_is_monotone R₁ R₂).
     + exact (dirprod_pr2_is_monotone R₁ R₂).
   - cbn.
     intros W f g RW Hf Hg.
-    use iscontraprop1.
-    + abstract
-        (use invproofirrelevance ;
-         intros φ₁ φ₂ ;
-         use subtypePath ;
-         [ intro ;
-           apply isapropdirprod ;
-           apply poset_disp_cat
-         | ] ;
-         apply isaprop_is_monotone).
-    + simple refine (_ ,, _ ,, _).
-      * exact (prodtofun_is_monotone Hf Hg).
-      * apply isaprop_is_monotone.
-      * apply isaprop_is_monotone.
+    exact (prodtofun_is_monotone Hf Hg).
 Defined.
 
 Definition BinProducts_category_of_posets
@@ -219,23 +209,25 @@ Defined.
 Definition Exponentials_category_of_posets
   : Exponentials BinProducts_category_of_posets.
 Proof.
-  intros X.
-  use left_adjoint_from_partial.
-  - exact (λ Y, _ ,, monotone_function_PartialOrder (pr2 X) (pr2 Y)).
-  - exact (λ Y, eval_monotone_function (pr2 X) (pr2 Y)).
-  - refine (λ Y Z f, _).
-    use iscontraprop1.
-    + abstract
-        (use invproofirrelevance ;
-         intros g₁ g₂ ;
-         use subtypePath ; [ intro ; apply homset_property | ] ;
-         use eq_monotone_function ; intro z ;
-         use eq_monotone_function ; intro x ;
-         refine (!(eqtohomot (maponpaths pr1 (pr2 g₁)) (x ,, z)) @ _) ;
-         exact (eqtohomot (maponpaths pr1 (pr2 g₂)) (x ,, z))).
-    + simple refine (_ ,, _).
-      * exact (lam_monotone_function (pr2 X) (pr2 Y) f).
-      * abstract
-          (use subtypePath ; [ intro ; apply isaprop_is_monotone | ] ;
-           apply idpath).
+  intro X.
+  apply coreflections_to_is_left_adjoint.
+  intro Y.
+  use make_coreflection'.
+  - exact (_ ,, monotone_function_PartialOrder (pr2 X) (pr2 Y)).
+  - exact (eval_monotone_function (pr2 X) (pr2 Y)).
+  - intro f.
+    use make_coreflection_arrow.
+    + exact (lam_monotone_function (pr2 X) (pr2 Y) (f : _ --> _)).
+    + abstract (
+        apply (maponpaths (tpair _ _));
+        apply isaprop_is_monotone
+      ).
+    + abstract (
+        intros g Hg;
+        apply eq_monotone_function;
+        intro z;
+        apply eq_monotone_function;
+        intro x;
+        exact (!eqtohomot (base_paths _ _ Hg) (x ,, z))
+      ).
 Defined.

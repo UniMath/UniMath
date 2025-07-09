@@ -9,28 +9,30 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Chains.All.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 
 Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.
@@ -39,7 +41,7 @@ Require Import UniMath.SubstitutionSystems.ContinuitySignature.GeneralLemmas.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.CommutingOfOmegaLimitsAndCoproducts.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
 
-Require Import UniMath.CategoryTheory.limits.Preservation.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Local Open Scope cat.
 
@@ -335,8 +337,8 @@ End A.
 
 Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunctor.
 
-  Variables (sort : UU) (Hsort_set : isaset sort) (C : category).
-  Variables (TC : Terminal C) (IC : Initial C)
+  Context (sort : UU) (Hsort_set : isaset sort) (C : category)
+          (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
           (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
 
@@ -345,27 +347,13 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
   Let sort_cat : category := path_pregroupoid sort Hsort.
 
   (** This represents "sort → C" *)
-  Let sortToC : category := [sort_cat,C].
-  Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+  Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-  Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-  Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+  Let BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
 
-  Let TsortToCC : Terminal [sortToC,C] := Terminal_functor_precat _ _ TC.
+  Let TsortToCC : Terminal [sortToC,C] := SortIndexing.TsortToCC sort Hsort _ TC.
 
-
-  Lemma sortToC_hasbinproducts
-    : BinProducts [sortToC, sortToC].
-  Proof.
-    repeat (apply BinProducts_functor_precat) ; exact BP.
-  Defined.
-
-  Lemma sortToC_hascoproducts
-    : ∏ I : UU, isaset I -> Coproducts I [sortToC, sortToC].
-  Proof.
-    intros I Iset.
-    repeat (apply Coproducts_functor_precat) ; exact (CC I Iset).
-  Defined.
+  Let sortToC2 : category := SortIndexing.sortToC2 sort Hsort C.
 
   Let hat_exp_functor_list'_piece0
       := hat_exp_functor_list'_piece sort Hsort C TC BC CC.
@@ -675,6 +663,23 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
         apply assoc.
   Defined.
 
+  Definition hat_exp_functor_list'_test_aux (x : list sort × sort) (xs : list (list sort × sort)) :
+    nat_z_iso (exp_functor_list sort Hsort C TC BP BC CC (cons x xs))
+      (BinProduct_of_functors BPsortToCC
+         (exp_functor_list sort Hsort C TC BP BC CC xs)
+         (exp_functor sort Hsort C TC BC CC x)).
+  Proof.
+    induction xs as [[|n] xs].
+    - induction xs. unfold exp_functor_list at 1. change (cons x (0,, tt)) with (cons x nil). rewrite foldr1_map_cons_nil.
+      unfold exp_functor_list at 1. change (0,, tt) with (nil(A:=list sort × sort)). rewrite foldr1_map_nil.
+      apply nat_z_iso_inv.
+      exact (terminal_BinProduct_of_functors_unit_l _ _ BPsortToCC TsortToCC (exp_functor sort Hsort C TC BC CC x)).
+    - induction xs.
+      change (cons x (S n,, pr1,, pr2)) with  (cons x (cons pr1 (n,,pr2))).
+      rewrite MultiSorted_alt.exp_functor_list_cons.
+      apply BinProduct_of_functors_commutes.
+  Defined.
+
   Definition hat_exp_functor_list'_test
              (xst : list (list sort × sort) × sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
@@ -684,8 +689,8 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
     induction xst as [a t] ; revert a.
     use list_ind.
     - use tpair.
-      + apply (nat_trans_id (C := [sortToC,sortToC]) (C' := [sortToC,sortToC])).
-      + intro ; apply (identity_is_z_iso (C := [sortToC,sortToC])).
+      + apply (nat_trans_id (C := sortToC2) (C' := sortToC2)).
+      + intro ; apply (identity_is_z_iso (C := sortToC2)).
     - intros x xs IHn.
 
       use nat_z_iso_comp.
@@ -695,24 +700,7 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
         2: exact (hat_exp_functor_list'_piece_test (x ,, t)).
       }
       clear IHn.
-
-      transparent assert (q : (nat_z_iso (exp_functor_list sort Hsort C TC BP BC CC (cons x xs)) (BinProduct_of_functors BPC (exp_functor_list sort Hsort C TC BP BC CC xs) (exp_functor sort Hsort C TC BC CC x)))).
-      {
-        induction xs as [[|n] xs].
-        - induction xs. unfold exp_functor_list at 1. change (cons x (0,, tt)) with (cons x nil). rewrite foldr1_map_cons_nil.
-          unfold exp_functor_list at 1. change (0,, tt) with (nil(A:=list sort × sort)). rewrite foldr1_map_nil.
-          apply nat_z_iso_inv.
-          exact (terminal_BinProduct_of_functors_unit_l _ _ BPC TsortToCC (exp_functor sort Hsort C TC BC CC x)).
-        - induction xs.
-          change (cons x (S n,, pr1,, pr2)) with  (cons x (cons pr1 (n,,pr2))).
-          unfold exp_functor_list at 1.
-          rewrite foldr1_map_cons.
-          change (nat_z_iso (BinProduct_of_functors BPC (exp_functor sort Hsort C TC BC CC x) (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) ) (BinProduct_of_functors BPC (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) (exp_functor sort Hsort C TC BC CC x))).
-          apply BinProduct_of_functors_commutes.
-      }
-
-      use (nat_z_iso_comp (post_whisker_nat_z_iso q _)).
-
+      use (nat_z_iso_comp (post_whisker_nat_z_iso (hat_exp_functor_list'_test_aux x xs) _)).
       apply BinProduct_of_functors_distr.
       apply post_comp_functor_preserves_binproduct.
       + apply BP.
@@ -721,53 +709,38 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
         exact c.
   Defined.  (* the result will not be needed in the sequel *)
 
-
   Definition hat_exp_functor_list'_optimized_test
              (xst : list (list sort × sort) × sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
     : nat_z_iso (hat_exp_functor_list0 xst)
                 (hat_exp_functor_list'_optimized0 xst).
   Proof.
-    induction xst as [xs t]; revert t.
-    induction xs as [[|n] xs].
-    - induction xs.
-      intro t.
-      use tpair.
-      + apply (nat_trans_id (C := [sortToC,sortToC]) (C' := [sortToC,sortToC])).
-      + intro ; apply (identity_is_z_iso (C := [sortToC,sortToC])).
-    - induction n as [|n IH].
-      + induction xs as [m []].
-        change (1,, m,, tt) with (cons m nil).
-        intro t.
-        unfold hat_exp_functor_list'_optimized0, hat_exp_functor_list'_optimized.
-        rewrite foldr1_map_cons_nil.
-        (* unfold hat_exp_functor_list0, hat_exp_functor_list. *)
-        exact (hat_exp_functor_list'_piece_test (m,,t)).
-      + induction xs as [m [k xs]].
-        intro t.
-        assert (IHinst := IH (k,,xs) t).
-        change (S (S n),, m,, k,, xs) with (cons m (cons k (n,,xs))).
-        unfold hat_exp_functor_list'_optimized0, hat_exp_functor_list'_optimized.
-        rewrite foldr1_map_cons.
-        change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
-        unfold hat_exp_functor_list'_optimized0, hat_exp_functor_list'_optimized in IHinst.
-        use nat_z_iso_comp.
-        3: {
-          use nat_z_iso_BinProduct_of_functors.
-          4: exact IHinst.
-          2: exact (hat_exp_functor_list'_piece_test (m ,, t)).
-        }
-        clear IH IHinst.
-        unfold hat_exp_functor_list0, hat_exp_functor_list.
-        unfold exp_functor_list.
-        change (pr1 (cons m (cons k (n,, xs)),, t)) with (cons m (cons k (n,, xs))).
-        rewrite foldr1_map_cons.
-        apply BinProduct_of_functors_distr.
-        apply post_comp_functor_preserves_binproduct.
-        * apply BP.
-        * apply (BinProducts_functor_precat _ C BP).
-        * apply hat_functor_preserves_binproducts.
-          exact c.
+    induction xst as [xs t].
+    set (P := fun xs b' => nat_z_iso (hat_exp_functor_list0 (xs,, t)) b').
+    refine (foldr1_map_ind _ _ _ P _ _ _ xs).
+    - use tpair.
+      + apply (nat_trans_id (C := sortToC2) (C' := sortToC2)).
+      + intro ; apply (identity_is_z_iso (C := sortToC2)).
+    - intro lt. exact (hat_exp_functor_list'_piece_test (lt,,t)).
+    - intros k xs' m F Hyp.
+      red.
+      use nat_z_iso_comp.
+      3: {
+        use nat_z_iso_BinProduct_of_functors.
+        4: exact Hyp.
+        2: exact (hat_exp_functor_list'_piece_test (m ,, t)).
+      }
+      clear F Hyp.
+      unfold hat_exp_functor_list0, hat_exp_functor_list.
+      unfold exp_functor_list.
+      change (pr1 (cons m (cons k xs'),, t)) with (cons m (cons k xs')).
+      rewrite foldr1_map_cons.
+      apply BinProduct_of_functors_distr.
+      apply post_comp_functor_preserves_binproduct.
+      + apply BP.
+      + apply (BinProducts_functor_precat _ C BP).
+      + apply hat_functor_preserves_binproducts.
+        exact c.
   Defined.
 
   Definition MultiSortedSigToFunctor_test

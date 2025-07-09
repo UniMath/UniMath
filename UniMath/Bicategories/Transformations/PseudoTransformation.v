@@ -8,6 +8,7 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
@@ -191,6 +192,39 @@ Proof.
   exact (pstrans_id η X).
 Qed.
 
+Proposition pstrans_id_inv
+            {B₁ B₂ : bicat}
+            {F G : psfunctor B₁ B₂}
+            (τ : pstrans F G)
+            (x : B₁)
+  : (psnaturality_of τ (id₁ x))^-1 • (τ x ◃ (psfunctor_id G x)^-1)
+    =
+    ((psfunctor_id F x)^-1 ▹ τ x) • lunitor _ • rinvunitor _.
+Proof.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  use vcomp_move_R_Mp ; [ is_iso | ].
+  use vcomp_move_L_pM; [ is_iso | ].
+  cbn -[psfunctor_id].
+  rewrite !vassocr.
+  exact (!(pstrans_id τ x)).
+Qed.
+
+Proposition pstrans_id_inv_alt
+            {B₁ B₂ : bicat}
+            {F G : psfunctor B₁ B₂}
+            (τ : pstrans F G)
+            (x : B₁)
+  : (psfunctor_id F x ▹ τ x) • (psnaturality_of τ (id₁ x))^-1
+    =
+    lunitor _ • rinvunitor _ • (τ x ◃ psfunctor_id G x).
+Proof.
+  use vcomp_move_R_pM ; [ is_iso ; apply property_from_invertible_2cell | ].
+  rewrite !vassocr.
+  use vcomp_move_L_Mp ; [ is_iso ; apply property_from_invertible_2cell | ].
+  cbn -[psfunctor_id].
+  apply pstrans_id_inv.
+Qed.
+
 Definition pstrans_comp_alt
            {C D : bicat}
            {F G : psfunctor C D}
@@ -344,6 +378,32 @@ Section PointwiseAdjequivIsAdjequiv.
     - apply disp_left_adjoint_equivalence_fullsubbicat.
   Qed.
 End PointwiseAdjequivIsAdjequiv.
+
+Definition right_adjoint_pointwise_adjequiv
+           {B₁ B₂ : bicat}
+           (HB₂ : is_univalent_2 B₂)
+           {F₁ F₂ : psfunctor B₁ B₂}
+           (σ : pstrans F₁ F₂)
+           (H : ∏ (x : B₁), left_adjoint_equivalence (σ x))
+           (x : B₁)
+  : (left_adjoint_right_adjoint (pointwise_adjequiv_to_adjequiv HB₂ σ H) : pstrans F₂ F₁) x
+    =
+    left_adjoint_right_adjoint (H x).
+Proof.
+  assert (H x
+          =
+          pointwise_adjequiv
+            _
+            (pointwise_adjequiv_to_adjequiv HB₂ σ H)
+            x)
+    as p.
+  {
+    apply isaprop_left_adjoint_equivalence.
+    apply HB₂.
+  }
+  rewrite p.
+  apply idpath.
+Qed.
 
 (** Pseudotansformations between psfunctor data *)
 Definition pstrans_data_on_data

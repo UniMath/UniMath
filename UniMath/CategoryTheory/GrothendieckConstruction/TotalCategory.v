@@ -14,7 +14,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
-Require Import UniMath.CategoryTheory.categories.CategoryOfSetCategories.
+Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
 
 Local Open Scope cat.
 
@@ -23,7 +23,7 @@ Definition total_precategory_ob_mor_of_set_functor
            (F : C ⟶ cat_of_setcategory)
   : precategory_ob_mor.
 Proof.
-  simple refine (_ ,, _).
+  use make_precategory_ob_mor.
   - exact (∑ (x : ob C), ob (pr1 (F x))).
   - exact (λ x y, ∑ (f : pr1 x --> pr1 y), pr1 (#F f) (pr2 x) --> pr2 y).
 Defined.
@@ -138,7 +138,7 @@ Proof.
       {
         apply maponpaths_2.
         apply maponpaths.
-        exact (from_eq_cat_of_setcategory (functor_id F (pr1 y)) (pr2 f)).
+        exact (path_functor_mor_right (functor_id F (pr1 y)) (pr2 f)).
       }
       cbn.
       rewrite !assoc.
@@ -187,7 +187,7 @@ Proof.
       {
         apply maponpaths_2.
         apply maponpaths.
-        exact (from_eq_cat_of_setcategory (functor_comp F (pr1 g) (pr1 h)) (pr2 f)).
+        exact (path_functor_mor_right (functor_comp F (pr1 g) (pr1 h)) (pr2 f)).
       }
       cbn.
       rewrite !assoc'.

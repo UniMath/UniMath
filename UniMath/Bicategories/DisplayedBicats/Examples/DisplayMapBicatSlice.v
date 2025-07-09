@@ -769,7 +769,7 @@ Definition discrete_disp_map_slice
            (HD₂ : contained_in_discrete D)
            (b : B)
   : category
-  := discrete_bicat_to_category
+  := locally_posetal_bicat_to_category
        (is_discrete_disp_map_slice HB HD₁ HD₂ b).
 
 (**

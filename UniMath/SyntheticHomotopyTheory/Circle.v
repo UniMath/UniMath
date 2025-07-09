@@ -358,9 +358,3 @@ Section A.
   Abort.
 
 End A.
-
-(*
-Local Variables:
-compile-command: "make -C ../.. UniMath/SyntheticHomotopyTheory/Circle.vo"
-End:
-*)

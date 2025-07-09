@@ -17,8 +17,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import
         UniMath.CategoryTheory.Equivalences.Core
-        UniMath.CategoryTheory.categories.HSET.Core
-        UniMath.CategoryTheory.categories.HSET.MonoEpiIso
+        UniMath.CategoryTheory.Categories.HSET.Core
+        UniMath.CategoryTheory.Categories.HSET.MonoEpiIso
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.Presheaf
@@ -189,7 +189,7 @@ Section elems_slice_equiv.
     exact (maponpaths (# (pr1 P) f) (pr2 s)).
   Defined.
 
-  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data ((∫P)^op) HSET :=
+  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data (∫P)^op HSET :=
     slice_to_PreShv_ob_ob Q ,, @slice_to_PreShv_ob_mor Q.
 
   Definition slice_to_PreShv_ob_is_funct (Q : PreShv C / P) : is_functor (slice_to_PreShv_ob_funct_data Q).
@@ -208,7 +208,7 @@ Section elems_slice_equiv.
   Definition slice_to_PreShv_ob : PreShv C / P → PreShv ∫P :=
     λ Q,  slice_to_PreShv_ob_funct_data Q ,,  slice_to_PreShv_ob_is_funct Q.
 
-  Definition slice_to_PreShv_ob_nat {X Y : PreShv C / P} (F : X --> Y) (e : ∫P^op) :
+  Definition slice_to_PreShv_ob_nat {X Y : PreShv C / P} (F : X --> Y) (e : (∫P)^op) :
     (slice_to_PreShv_ob_ob X) e --> (slice_to_PreShv_ob_ob Y) e.
   Proof.
     induction e as [e Pe].
@@ -394,6 +394,6 @@ Section elems_slice_equiv.
     (PreShv_to_slice ,,  slice_to_PreShv ,, PreShv_unit ,, slice_counit) ,, (PreShv_all_iso ,, slice_all_z_iso).
 
   Definition PreShv_of_elems_slice_of_PreShv_adj_equiv : adj_equivalence_of_cats PreShv_to_slice :=
-    @adjointificiation (PreShv ∫P) (PreShv C / P) PreShv_of_elems_slice_of_PreShv_equiv.
+    @adjointification (PreShv ∫P) (PreShv C / P) PreShv_of_elems_slice_of_PreShv_equiv.
 
 End elems_slice_equiv.

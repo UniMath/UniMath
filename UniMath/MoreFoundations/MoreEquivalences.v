@@ -210,8 +210,23 @@ Proof.
   intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
 Defined.
 
-(*
-Local Variables:
-compile-command: "make -C ../.. TAGS TAGS-Ktheory UniMath/Ktheory/Equivalences.vo"
-End:
-*)
+Definition total2_contr
+  {X : UU}
+  (P : X → UU)
+  (H : ∏ x, iscontr (P x))
+  : (∑ x, P x) ≃ X.
+Proof.
+  use weq_iso.
+  - exact pr1.
+  - intro x.
+    exact (x ,, iscontrpr1 (H x)).
+  - abstract (
+      intro x;
+      apply subtypePath;
+      [ intro;
+        apply isapropifcontr;
+        apply H
+      | reflexivity ]
+    ).
+  - reflexivity.
+Defined.

@@ -3,15 +3,15 @@
 Require Export UniMath.Foundations.All.
 Require Export UniMath.CategoryTheory.Monics.
 Require Export UniMath.CategoryTheory.Epis.
-Require Export UniMath.CategoryTheory.limits.zero.
-Require Export UniMath.CategoryTheory.limits.kernels.
-Require Export UniMath.CategoryTheory.limits.cokernels.
-Require Export UniMath.CategoryTheory.limits.binproducts.
-Require Export UniMath.CategoryTheory.limits.bincoproducts.
-Require Export UniMath.CategoryTheory.limits.pullbacks.
-Require Export UniMath.CategoryTheory.limits.pushouts.
-Require Export UniMath.CategoryTheory.limits.BinDirectSums.
-Require Export UniMath.CategoryTheory.limits.Opp.
+Require Export UniMath.CategoryTheory.Limits.Zero.
+Require Export UniMath.CategoryTheory.Limits.Kernels.
+Require Export UniMath.CategoryTheory.Limits.Cokernels.
+Require Export UniMath.CategoryTheory.Limits.BinProducts.
+Require Export UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Export UniMath.CategoryTheory.Limits.Pullbacks.
+Require Export UniMath.CategoryTheory.Limits.Pushouts.
+Require Export UniMath.CategoryTheory.Limits.BinDirectSums.
+Require Export UniMath.CategoryTheory.Limits.Opp.
 Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Export UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -29,7 +29,6 @@ Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids.
 Require Export UniMath.Algebra.Groups.
-Import AddNotation.
 Local Open Scope addmonoid.
 Local Open Scope abgr.
 Local Open Scope logic.
@@ -150,7 +149,7 @@ Goal ∏ (M:precategory) (P:MorphismPair M), MorphismPair_opp (MorphismPair_opp 
 Proof.
   reflexivity.
 Qed.
-Goal ∏ (M:category) (p:MorphismPair (M^op)), MorphismPair M.
+Goal ∏ (M:category) (p:MorphismPair M^op), MorphismPair M.
   intros. exact (MorphismPair_opp p).
 Qed.
 Goal ∏ (M:category) (P Q : MorphismPair M^op) (f:MorphismPairIsomorphism P Q),

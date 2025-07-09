@@ -31,6 +31,14 @@ Proof.
   exact (identity_z_iso a).
 Defined.
 
+Proposition idtoiso_idpath
+            {C : category}
+            (x : C)
+  : pr1 (idtoiso (idpath x)) = identity x.
+Proof.
+  apply idpath.
+Qed.
+
 (* use eta expanded version to force printing of object arguments *)
 Definition is_univalent (C : category) :=
   ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p).
@@ -105,6 +113,44 @@ Qed.
 Definition double_transport {C : precategory_ob_mor} {a a' b b' : ob C}
    (p : a = a') (q : b = b') (f : a --> b) : a' --> b' :=
   transportf (λ c, a' --> c) q (transportf (λ c, c --> b) p f).
+
+Lemma double_transport_transpose
+  {C : precategory_ob_mor}
+  {a a' b b' : C} {f : a --> b} {g : a' --> b'}
+  {px : a' = a} {py : b' = b}
+  : double_transport px py g = f -> g = double_transport (!px) (!py) f.
+Proof.
+  intro H.
+  destruct H.
+  destruct px, py.
+  reflexivity.
+Qed.
+
+Lemma double_transport_transpose'
+  {C : precategory_ob_mor}
+  {a a' b b' : C} {f : a' --> b'} {g : a --> b}
+  {px : a' = a} {py : b' = b}
+  : f = double_transport (!px) (!py) g -> double_transport px py f = g.
+Proof.
+  intro H.
+  destruct (!H).
+  destruct px, py.
+  reflexivity.
+Qed.
+
+Lemma double_transport_compose
+  {C : precategory}
+  {a a' b  b' c c' : C} {f : a --> b} {g : b --> c}
+  {px : a = a'} {py : b = b'} {pz : c = c'}
+  : double_transport px py f
+  · double_transport py pz g =
+  double_transport px pz (f · g).
+Proof.
+  unfold double_transport.
+  destruct px, py, pz.
+  reflexivity.
+Qed.
+
 
 Lemma idtoiso_postcompose (C : precategory) (a b b' : ob C)
   (p : b = b') (f : a --> b) :

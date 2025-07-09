@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.Bicategories.Core.Bicat.
@@ -35,23 +35,6 @@ Require Import UniMath.Bicategories.Limits.PullbackFunctions.
 Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
 
 Local Open Scope cat.
-
-Definition transportf_z_iso_functors
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-           {x₁ x₂ : C₁}
-           (y : C₂)
-           (p : x₁ = x₂)
-           (i : z_iso (F x₁) y)
-  : pr1 (transportf (λ (x : C₁), z_iso (F x) y) p i)
-    =
-    #F (inv_from_z_iso (idtoiso p)) · i.
-Proof.
-  induction p ; cbn.
-  rewrite functor_id.
-  rewrite id_left.
-  apply idpath.
-Qed.
 
 (**
  1. Esos
@@ -287,7 +270,7 @@ Section EssentiallySurjectiveIsEso.
     - apply homset_property.
     - intro xx.
       induction xx as [ x i ].
-      use (cancel_precomposition_z_iso (functor_on_z_iso H₁ i)).
+      use (cancel_z_iso' (functor_on_z_iso H₁ i)).
       cbn.
       rewrite !nat_trans_ax.
       apply maponpaths_2.
@@ -361,18 +344,6 @@ Section EssentiallySurjectiveIsEso.
                    (functor_on_z_iso H₂ (pr2 z))).
     Defined.
 
-    (* upstream *)
-    Local Lemma cancel_postcomposition_z_iso : ∏ {C : precategory} {a b c : C} (h : z_iso b c) (f g : C ⟦ a, b ⟧), f · h = g · h → f = g.
-    Proof.
-      intros.
-      use post_comp_with_z_iso_is_inj.
-      - exact c.
-      - exact (pr1 h).
-      - exact (pr1 (pr2 h)).
-      - exact (pr2 (pr2 h)).
-      - assumption.
-    Qed.
-
     Local Definition isaprop_mor_fiber
                {y₁ y₂ : pr1 C₂}
                (g : y₁ --> y₂)
@@ -389,7 +360,7 @@ Section EssentiallySurjectiveIsEso.
         apply homset_property.
       }
       use (invmaponpathsweq (make_weq _ (HG' x₁ x₂))) ; cbn.
-      use (cancel_postcomposition_z_iso i₂).
+      use (cancel_z_iso _ _ i₂).
       exact (!(pr2 φ₁) @ pr2 φ₂).
     Qed.
 
@@ -533,7 +504,7 @@ Section EssentiallySurjectiveIsEso.
       }
       rewrite !assoc'.
       apply maponpaths.
-      apply (nat_trans_ax (α^-1)).
+      apply (nat_trans_ax α^-1).
     Qed.
 
     Definition essentially_surjective_is_eso_lift_left_nat_trans
@@ -554,7 +525,7 @@ Section EssentiallySurjectiveIsEso.
       - exact essentially_surjective_is_eso_lift_left_nat_trans.
       - intro.
         use (fully_faithful_reflects_iso_proof _ _ _ HG' _ _ (make_z_iso' _ _)).
-        use is_z_iso_comp_of_is_z_isos.
+        use is_z_isomorphism_comp.
         + apply z_iso_is_z_isomorphism.
         + apply is_z_iso_inv_from_z_iso.
     Defined.
@@ -651,12 +622,12 @@ Definition eso_ff_factorization_bicat_of_univ_cats
   : eso_ff_factorization bicat_of_univ_cats.
 Proof.
   intros C₁ C₂ F.
-  refine (univalent_image F ,, sub_precategory_inclusion _ _ ,, functor_full_img _ ,, _).
+  refine (univalent_image F ,, functor_full_img _ ,, sub_precategory_inclusion _ _ ,, _).
   simple refine (_ ,, _ ,, _).
-  - use cat_fully_faithful_is_fully_faithful_1cell.
-    apply fully_faithful_sub_precategory_inclusion.
   - use essentially_surjective_is_eso.
     apply functor_full_img_essentially_surjective.
+  - use cat_fully_faithful_is_fully_faithful_1cell.
+    apply fully_faithful_sub_precategory_inclusion.
   - use nat_z_iso_to_invertible_2cell.
     exact (full_image_inclusion_commute_nat_iso F).
 Defined.

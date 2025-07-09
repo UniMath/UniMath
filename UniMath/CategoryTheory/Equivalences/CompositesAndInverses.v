@@ -27,25 +27,6 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
 
-(** ** Preliminaries *)
-
-Lemma is_z_iso_comp_is_z_iso {C : category} {a b c : ob C}
-  (f : C⟦a, b⟧) (g : C⟦b, c⟧)
-  : is_z_isomorphism f -> is_z_isomorphism g -> is_z_isomorphism (f · g).
-Proof.
-  intros Hf Hg.
-  apply (is_z_iso_comp_of_is_z_isos f g Hf Hg).
-Defined.
-
-Lemma functor_is_z_iso_is_z_iso {C C' : category} (F : functor C C')
-    {a b : ob C} (f : C ⟦a,b⟧) (fH : is_z_isomorphism f) : is_z_isomorphism (#F f).
-Proof.
-  apply (z_iso_is_z_isomorphism (functor_on_z_iso F (make_z_iso' f fH))).
-Defined.
-
-Coercion left_adj_from_adj_equiv (X Y : category) (K : functor X Y)
-         (HK : adj_equivalence_of_cats K) : is_left_adjoint K := pr1 HK.
-
 (** ** Equivalences *)
 
 Section A.
@@ -132,23 +113,29 @@ Section eqv_comp.
     exists (is_left_adjoint_functor_composite HF HF').
     use tpair.
     - intro.
-      apply is_z_iso_comp_is_z_iso.
+      apply is_z_isomorphism_comp.
       + apply (pr1 (pr2 HF)).
       + simpl.
         refine (eqweqmap (maponpaths is_z_isomorphism _) _).
         refine (_ @ !id_right _).
         exact (!id_left _).
-        apply functor_is_z_iso_is_z_iso, (pr1 (pr2 HF')).
-    - cbn. intro. apply is_z_iso_comp_is_z_iso.
-      +
-        refine (eqweqmap (maponpaths is_z_isomorphism _) _).
+        apply functor_on_is_z_isomorphism, (pr1 (pr2 HF')).
+    - cbn. intro. apply is_z_isomorphism_comp.
+      + refine (eqweqmap (maponpaths is_z_isomorphism _) _).
         refine (_ @ !id_left _).
         refine (_ @ !id_left _).
         exact (!id_right _).
-        apply functor_is_z_iso_is_z_iso, (pr2 (pr2 HF)).
+        apply functor_on_is_z_isomorphism, (pr2 (pr2 HF)).
       + apply (pr2 (pr2 HF')).
   Defined.
 End eqv_comp.
+
+Definition comp_adj_equiv
+  {A B C : category}
+  (F : adj_equiv A B)
+  (G : adj_equiv B C)
+  : adj_equiv A C
+  := (F ∙ G) ,, comp_adj_equivalence_of_cats F G.
 
 (** ** Inverses *)
 
@@ -183,7 +170,7 @@ Section eqv_inv.
 
       (** Transform it by precomposing with the inverse isos *)
       apply (pre_comp_with_z_iso_is_inj' (f:=#G (nat_z_iso_to_pointwise_z_iso εiso b)));
-      [apply (functor_is_z_iso_is_z_iso G), z_iso_is_z_isomorphism |].
+      [apply (functor_on_is_z_isomorphism G), z_iso_is_z_isomorphism |].
 
       (** Cancel the isos *)
       unfold adjunit; unfold adjcounit.
@@ -220,7 +207,7 @@ Section eqv_inv.
       rewrite id_left.
 
       apply (pre_comp_with_z_iso_is_inj' (f:=#F (nat_z_iso_to_pointwise_z_iso ηiso a)));
-        [apply (functor_is_z_iso_is_z_iso F), z_iso_is_z_isomorphism |].
+        [apply (functor_on_is_z_isomorphism F), z_iso_is_z_isomorphism |].
       unfold adjunit; unfold adjcounit.
       unfold right_functor.
       unfold pr2, pr1.
@@ -258,6 +245,67 @@ Section eqv_inv.
 
 End eqv_inv.
 
+Definition adj_equiv_inv
+  {A B : category}
+  (F : adj_equiv A B)
+  : adj_equiv B A
+  := adj_equivalence_inv F ,, adj_equivalence_of_cats_inv F.
+
+Section Transpositions.
+
+  Context {C D : category}.
+  Context {F : adj_equiv C D}.
+
+  Definition adj_equiv_inv_transpose_left
+    {X : D}
+    {Y : C}
+    (f : z_iso X (F Y))
+    : z_iso (adj_equiv_inv F X) Y.
+  Proof.
+    refine (z_iso_comp _ (z_iso_inv (unit_pointwise_z_iso_from_adj_equivalence F Y))).
+    apply weq_ff_functor_on_weq_isobandf.
+    - apply right_adj_equiv_is_ff.
+    - exact f.
+  Defined.
+
+  Definition adj_equiv_inv_transpose_right
+    {X : C}
+    {Y : D}
+    (f : z_iso (F X) Y)
+    : z_iso X (adj_equiv_inv F Y).
+  Proof.
+    refine (z_iso_comp (unit_pointwise_z_iso_from_adj_equivalence F X) _).
+    apply weq_ff_functor_on_weq_isobandf.
+    - apply right_adj_equiv_is_ff.
+    - exact f.
+  Defined.
+
+  Definition adj_equiv_transpose_left
+    {X : C}
+    {Y : D}
+    (f : z_iso X (adj_equiv_inv F Y))
+    : z_iso (F X) Y.
+  Proof.
+    refine (z_iso_comp _ (counit_pointwise_z_iso_from_adj_equivalence F Y)).
+    apply weq_ff_functor_on_weq_isobandf.
+    - exact (right_adj_equiv_is_ff _ _ _ (adj_equiv_inv F)).
+    - exact f.
+  Defined.
+
+  Definition adj_equiv_transpose_right
+    {X : D}
+    {Y : C}
+    (f : z_iso (adj_equiv_inv F X) Y)
+    : z_iso X (F Y).
+  Proof.
+    refine (z_iso_comp (z_iso_inv (counit_pointwise_z_iso_from_adj_equivalence F X)) _).
+    apply weq_ff_functor_on_weq_isobandf.
+    - exact (right_adj_equiv_is_ff _ _ _ (adj_equiv_inv F)).
+    - exact f.
+  Defined.
+
+End Transpositions.
+
 (** Closure under natural isomorphisms *)
 Definition nat_z_iso_equivalence_of_cats
            {C₁ C₂ : category}
@@ -281,12 +329,12 @@ Proof.
                (adjcounit HF)).
   - split.
     + intro x ; cbn.
-      use is_z_iso_comp_of_is_z_isos.
+      use is_z_isomorphism_comp.
       * apply (unit_nat_z_iso_from_adj_equivalence_of_cats HF).
-      * apply functor_is_z_iso_is_z_iso.
+      * apply functor_on_is_z_isomorphism.
         apply Hα.
     + intro x ; cbn.
-      use is_z_iso_comp_of_is_z_isos.
+      use is_z_isomorphism_comp.
       * apply (is_z_iso_inv_from_z_iso(_,,(Hα (pr1 (pr1 HF) x)))).
       * apply (counit_nat_z_iso_from_adj_equivalence_of_cats HF).
 Defined.
@@ -298,7 +346,7 @@ Definition nat_iso_adj_equivalence_of_cats
            (Hα : is_nat_z_iso α)
            (HF : adj_equivalence_of_cats F)
   : adj_equivalence_of_cats G
-  := adjointificiation (nat_z_iso_equivalence_of_cats α Hα HF).
+  := adjointification (nat_z_iso_equivalence_of_cats α Hα HF).
 
 (**
  2 out of 3 property
@@ -487,4 +535,4 @@ Definition pair_adj_equivalence_of_cats
            (HF : adj_equivalence_of_cats F)
            (HG : adj_equivalence_of_cats G)
   : adj_equivalence_of_cats (pair_functor F G)
-  := adjointificiation (pair_equivalence_of_cats HF HG).
+  := adjointification (pair_equivalence_of_cats HF HG).

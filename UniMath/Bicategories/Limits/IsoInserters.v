@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
-Require Import UniMath.CategoryTheory.categories.CatIsoInserter.
+Require Import UniMath.CategoryTheory.Categories.CatIsoInserter.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -370,7 +370,7 @@ Section IsoInserters.
     Let inv : u₂ ==> u₁
       := iso_inserter_ump_cell
            H
-           (Hα^-1)
+           Hα^-1
            is_invertible_2cell_iso_inserter_ump_cell_inv_path.
 
     Local Lemma is_invertible_2cell_iso_inserter_ump_cell_inv_right
@@ -903,7 +903,7 @@ Section Iso_inserterConservative.
     : g₂ ==> g₁.
   Proof.
     use (iso_inserter_ump_cell H).
-    - exact (Hβ^-1).
+    - exact Hβ^-1.
     - abstract
         (cbn ;
          use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;

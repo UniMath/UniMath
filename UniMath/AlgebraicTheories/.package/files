@@ -1,19 +1,52 @@
 FiniteSetSkeleton.v
-AlgebraicBases.v
+IndexedSetCategory.v
+ReflexiveObjects.v
 
+AlgebraicTheoryCategoryCore.v
 AlgebraicTheories.v
 AlgebraicTheoryMorphisms.v
+AlgebraicTheoryCategory.v
 
-AbstractClones/AbstractClones.v
-AbstractClones/AbstractCloneMorphisms.v
-AbstractClones/AbstractCloneAlgebras.v
-AbstractClones/AbstractCloneCategory.v
+AlgebraCategoryCore.v
+Algebras.v
+AlgebraMorphisms.v
+AlgebraCategory.v
 
-AbstractCloneAlgebraicTheory.v
+LambdaCalculus.v
+LambdaTheoryCategoryCore.v
+LambdaTheories.v
+LambdaTheoryMorphisms.v
+LambdaTheoryCategory.v
 
-Examples/OnePointTheory.v
-Examples/ProjectionsTheory.v
+PresheafCategoryCore.v
+Presheaves.v
+PresheafMorphisms.v
+PresheafCategory.v
+
 Examples/EndomorphismTheory.v
+Examples/FreeObjectTheory.v
 Examples/FreeMonoidTheory.v
+Examples/FreeTheory.v
+Examples/LambdaCalculus.v
+Examples/OnePointTheory.v
+Examples/Plus1Presheaf.v
+Examples/ProjectionsTheory.v
+Examples/TheoryAlgebra.v
+Examples/ExtensionsTheory.v
+Examples/EmptyPresheaf.v
+Examples/PuncturedTheory.v
 
-AbstractCloneAlgebraEndomorphism.v
+AlgebraicTheoryToLawvereTheory.v
+AlgebraicTheoryToMonoid.v
+PresheafEquivalence.v
+
+Combinators.v
+CategoryOfRetracts.v
+LambdaTheoryToMonoid.v
+OriginalRepresentationTheorem.v
+RepresentationTheorem.v
+RepresentationTheoremsRelation.v
+
+FundamentalTheorem/SurjectivePrecomposition.v
+FundamentalTheorem/CommonUtilities/MonoidActions.v
+FundamentalTheorem/AlgebraToTheory.v

@@ -7,30 +7,28 @@
 
  Contents
  1. Functors with enrichments
- 2. Fully faithful functors
+ 2. Properties for enriched functors
+ 2.1. Fully faithful functors
+ 2.2. Weak equivalences
  3. The enriched identity functor
  4. The composition of enriched functors
  5. The constant functor
+ 6. Lemmas for pre- and postcomposition
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
 
-(**
- 1. Functors with enrichments
- *)
+(** * 1. Functors with enrichments *)
 Definition functor_enrichment_data
            {V : monoidal_cat}
            {C₁ C₂ : category}
@@ -152,6 +150,19 @@ Section FunctorLaws.
   Proof.
     exact (pr222 FE x y f).
   Qed.
+
+  Proposition functor_enrichment_to_arr
+              {x y : C₁}
+              (f : I_{V} --> E₁ ⦃ x , y ⦄)
+    : enriched_to_arr E₂ (f · FE x y)
+      =
+      #F (enriched_to_arr E₁ f).
+  Proof.
+    use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E₂ _ _))) ; cbn.
+    rewrite functor_enrichment_from_arr.
+    rewrite !enriched_from_to_arr.
+    apply idpath.
+  Qed.
 End FunctorLaws.
 
 Definition functor_with_enrichment
@@ -169,9 +180,9 @@ Coercion functor_with_enrichment_to_functor
   : E₁ ⟶ E₂
   := pr1 F.
 
-(**
- 2. Fully faithful functors
- *)
+(** * 2. Properties for enriched functors *)
+
+(** ** 2.1. Fully faithful functors *)
 Definition fully_faithful_enriched_functor
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
@@ -181,6 +192,18 @@ Definition fully_faithful_enriched_functor
            (EF : functor_enrichment F E₁ E₂)
   : UU
   := ∏ (x y : C₁), is_z_isomorphism (EF x y).
+
+Definition fully_faithful_enriched_functor_z_iso
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {V : monoidal_cat}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {EF : functor_enrichment F E₁ E₂}
+           (HF : fully_faithful_enriched_functor EF)
+           (x y : C₁)
+  : z_iso (E₁ ⦃ x , y ⦄) (E₂ ⦃ F x , F y ⦄)
+  := _ ,, HF x y.
 
 Definition isaprop_fully_faithful_enriched_functor
            {C₁ C₂ : category}
@@ -216,15 +239,67 @@ Proof.
   refine (!(enriched_to_from_arr E₁ (pr1 φ₁)) @ _).
   refine (_ @ enriched_to_from_arr E₁ (pr1 φ₂)).
   apply maponpaths.
-  use (cancel_z_iso _ _ (_ ,, HEF x y)) ; cbn.
+  use (cancel_z_iso _ _ (fully_faithful_enriched_functor_z_iso HEF x y)) ; cbn.
   pose (maponpaths (enriched_from_arr E₂) (pr2 φ₁ @ !(pr2 φ₂))) as p.
   rewrite !(functor_enrichment_from_arr EF) in p.
   exact p.
 Qed.
 
-(**
- 3. The enriched identity functor
- *)
+Definition fully_faithful_enriched_functor_to_full
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {V : monoidal_cat}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (EF : functor_enrichment F E₁ E₂)
+           (HEF : fully_faithful_enriched_functor EF)
+  : full F.
+Proof.
+  intros x y f.
+  use hinhpr.
+  simple refine (_ ,, _).
+  - exact (enriched_to_arr
+             E₁
+             (enriched_from_arr E₂ f
+              · inv_from_z_iso (fully_faithful_enriched_functor_z_iso HEF x y))).
+  - cbn.
+    rewrite <- (functor_enrichment_to_arr EF).
+    refine (_ @ enriched_to_from_arr E₂ f).
+    apply maponpaths.
+    rewrite !assoc'.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    apply z_iso_after_z_iso_inv.
+Qed.
+
+Definition fully_faithful_enriched_functor_to_fully_faithful
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {V : monoidal_cat}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (EF : functor_enrichment F E₁ E₂)
+           (HEF : fully_faithful_enriched_functor EF)
+  : fully_faithful F.
+Proof.
+  use full_and_faithful_implies_fully_faithful.
+  split.
+  - exact (fully_faithful_enriched_functor_to_full EF HEF).
+  - exact (fully_faithful_enriched_functor_to_faithful EF HEF).
+Qed.
+
+(** ** 2.2. Weak equivalences *)
+Definition enriched_weak_equivalence
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {V : monoidal_cat}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (EF : functor_enrichment F E₁ E₂)
+  : UU
+  := essentially_surjective F × fully_faithful_enriched_functor EF.
+
+(** 3. The enriched identity functor *)
 Definition functor_id_enrichment
            {V : monoidal_cat}
            {C : category}
@@ -258,9 +333,7 @@ Proof.
   apply is_z_isomorphism_identity.
 Defined.
 
-(**
- 4. The composition of enriched functors
- *)
+(** * 4. The composition of enriched functors *)
 Definition functor_comp_enrichment
            {V : monoidal_cat}
            {C₁ C₂ C₃ : category}
@@ -325,14 +398,12 @@ Definition functor_comp_enrichment_fully_faithful
   : fully_faithful_enriched_functor (functor_comp_enrichment FE₁ FE₂).
 Proof.
   intros x y ; cbn.
-  use is_z_iso_comp_of_is_z_isos.
+  use is_z_isomorphism_comp.
   - apply HF₁.
   - apply HF₂.
 Defined.
 
-(**
- 5. The constant functor
- *)
+(** * 5. The constant functor *)
 Definition functor_constant_enrichment
            {V : monoidal_cat}
            (HV : isTerminal V (I_{V}))
@@ -377,3 +448,58 @@ Proof.
        apply maponpaths_2 ;
        apply (@TerminalArrowEq _ (_ ,, HV))).
 Defined.
+
+(** * 6. Lemmas for pre- and postcomposition *)
+Definition functor_enrichment_precomp_arr
+           {V : monoidal_cat}
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (FE : functor_enrichment F E₁ E₂)
+           {w x y : C₁}
+           (f : w --> x)
+  : FE x y · precomp_arr E₂ (F y) (#F f)
+    =
+    precomp_arr E₁ y f · FE w y.
+Proof.
+  unfold precomp_arr.
+  rewrite !assoc.
+  rewrite tensor_rinvunitor.
+  rewrite !assoc'.
+  apply maponpaths.
+  rewrite !assoc.
+  rewrite <- tensor_split'.
+  rewrite (functor_enrichment_from_arr FE).
+  rewrite tensor_comp_l_id_l.
+  rewrite !assoc'.
+  rewrite functor_enrichment_comp.
+  apply idpath.
+Qed.
+
+Definition functor_enrichment_postcomp_arr
+           {V : monoidal_cat}
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (FE : functor_enrichment F E₁ E₂)
+           {x y z : C₁}
+           (f : y --> z)
+  : FE x y · postcomp_arr E₂ (F x) (#F f)
+    =
+    postcomp_arr E₁ x f · FE x z.
+Proof.
+  unfold postcomp_arr.
+  rewrite !assoc.
+  rewrite tensor_linvunitor.
+  rewrite !assoc'.
+  apply maponpaths.
+  rewrite !assoc.
+  rewrite <- tensor_split.
+  rewrite (functor_enrichment_from_arr FE).
+  rewrite tensor_comp_r_id_l.
+  rewrite !assoc'.
+  rewrite functor_enrichment_comp.
+  apply idpath.
+Qed.

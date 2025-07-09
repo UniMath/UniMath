@@ -172,7 +172,7 @@ Definition strict_psfunctor_is_iso
   : is_invertible_2cell (##F α).
 Proof.
   use tpair.
-  - exact (##F (α^-1)).
+  - exact (##F α^-1).
   - split ; cbn
     ; rewrite <- strict_psfunctor_vcomp, <- strict_psfunctor_id2 ; apply maponpaths.
     + apply vcomp_rinv.

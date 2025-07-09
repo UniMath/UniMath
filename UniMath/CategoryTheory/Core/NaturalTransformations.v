@@ -13,8 +13,8 @@ Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
   - Natural isomorphisms
  *)
 
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -376,6 +376,14 @@ Proof.
   exact is_z_iso.
 Defined.
 
+Lemma nat_z_iso_id {C D:category} (F: C ⟶ D): nat_z_iso F F.
+Proof.
+  apply (make_nat_z_iso F F (nat_trans_id F)).
+  intro c.
+  exists (identity (F c)).
+  split; apply id_left.
+Defined.
+
 Definition nat_z_iso_to_trans {C D : precategory_data} {F G : C ⟶ D} (μ : nat_z_iso F G) : F ⟹ G :=
   pr1 μ.
 
@@ -415,6 +423,19 @@ Proof.
   - apply (pr1 (is_z_isomorphism_is_inverse_in_precat (pr2 μ c))).
 Defined.
 
+ Lemma nat_z_iso_inv_id {C D : category} {F : C ⟶ D}
+  : nat_z_iso_inv (nat_z_iso_id F) = nat_z_iso_id F.
+Proof.
+  use total2_paths_f.
+  - use total2_paths_f.
+      * reflexivity.
+      * apply proofirrelevance.
+        apply isaprop_is_nat_trans.
+        apply homset_property.
+  - apply proofirrelevance.
+    apply isaprop_is_nat_z_iso.
+Qed.
+
 Definition is_nat_z_iso_comp {C : precategory_data} {D : precategory} {F G H: C ⟶ D} {μ : F ⟹ G} {ν : G ⟹ H}
            (isμ: is_nat_z_iso μ) (isν: is_nat_z_iso ν) : is_nat_z_iso (nat_trans_comp F G H μ ν).
 Proof.
@@ -434,9 +455,28 @@ Defined.
 
 Definition is_nat_z_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_z_iso F G) : UU :=
   ∏ (c : C), nat_comp_to_endo eq (nat_z_iso_to_trans ν c) = identity (F c).
+Lemma comp_nat_z_iso_id_left {C D:category} {F G:functor C D} (α: nat_z_iso F G)
+  :nat_z_iso_comp (nat_z_iso_id F) α = α.
+Proof.
+  induction α as (α, α_is_nat_z_iso).
+  use total2_paths_f; cbn.
+  - exact (nat_trans_comp_id_left (pr2 D) F G α).
+  - apply proofirrelevance.
+    apply isaprop_is_nat_z_iso.
+Qed.
+
+Lemma comp_nat_z_iso_id_right {C D:category} {F G:functor C D} (α: nat_z_iso F G)
+  :nat_z_iso_comp α (nat_z_iso_id G) = α.
+Proof.
+  induction α as (α, α_is_nat_z_iso).
+  use total2_paths_f; cbn.
+  - exact (nat_trans_comp_id_right (pr2 D) F G α).
+  - apply proofirrelevance.
+    apply isaprop_is_nat_z_iso.
+Qed.
 
 
-Lemma is_nat_z_iso_nat_trans_id {C D : precategory} (F : C ⟶ D): is_nat_z_iso (nat_trans_id F).
+ Lemma is_nat_z_iso_nat_trans_id {C D : precategory} (F :functor_data C D): is_nat_z_iso (nat_trans_id F).
 Proof.
   intro c.
   exists (identity (F c)).
@@ -444,6 +484,25 @@ Proof.
 Defined.
 
 End nat_trans.
+
+Definition to_constant_nat_trans
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (y : C₂)
+           (fs : ∏ (x : C₁), F x --> y)
+           (ps : ∏ (x₁ x₂ : C₁)
+                   (g : x₁ --> x₂),
+                 # F g · fs x₂ = fs x₁)
+  : nat_trans F (constant_functor C₁ C₂ y).
+Proof.
+  use make_nat_trans.
+  - exact (λ x, fs x).
+  - abstract
+      (intros x₁ x₂ g ; cbn ;
+       rewrite id_right ;
+       rewrite ps ;
+       apply idpath).
+Defined.
 
 Definition constant_nat_trans
            (C₁ : category)
@@ -510,4 +569,23 @@ Proof.
   { apply homset_property. }
   intro.
   apply assoc.
+Qed.
+
+(** Essential surjectivity is preserved under natural isomorphism *)
+Definition essentially_surjective_nat_z_iso
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (τ : nat_z_iso F G)
+           (HF : essentially_surjective F)
+  : essentially_surjective G.
+Proof.
+  intro y.
+  assert (H := HF y).
+  revert H.
+  use factor_through_squash_hProp.
+  intros x.
+  induction x as [ x f ].
+  refine (hinhpr (x ,, _)).
+  refine (z_iso_comp _ f).
+  exact (nat_z_iso_pointwise_z_iso (nat_z_iso_inv τ) x).
 Qed.

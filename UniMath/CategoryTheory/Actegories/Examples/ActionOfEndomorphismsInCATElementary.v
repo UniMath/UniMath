@@ -20,8 +20,8 @@ Require Import UniMath.CategoryTheory.Actegories.Actegories.
 Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
 
 Local Open Scope cat.
@@ -134,7 +134,7 @@ Lemma lax_lineators_for_actegory_from_precomp_CAT_and_self_action_agree (F : fun
 Proof.
   apply idpath.
 Qed.
-(** in fact, we need this with lifted actegories everywhere *)
+(** in fact, we need this with reindexed actegories everywhere *)
 
 End TheHomogeneousCase.
 

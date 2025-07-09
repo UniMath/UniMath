@@ -157,7 +157,7 @@ Definition is_invertible_2cell_to_is_nat_z_iso
 Proof.
   intros Hη X.
   use tpair.
-  - apply (Hη^-1).
+  - apply Hη^-1.
   - abstract
       (split ; cbn ;
        [ exact (nat_trans_eq_pointwise (vcomp_rinv Hη) X)

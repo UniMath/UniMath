@@ -425,7 +425,7 @@ Section EquivalenceFromTensorWithUnit.
     : fully_faithful (leftwhiskering_functor (actegory_action _ Act) I_{Mon_V}).
   Proof.
     apply fully_faithful_from_equivalence.
-    exact (adjointificiation lequivalence_from_action_with_unit).
+    exact (adjointification lequivalence_from_action_with_unit).
   Defined.
 
   Lemma leftwhiskering_faithful_action

@@ -1,6 +1,6 @@
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -13,6 +13,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
@@ -165,6 +166,30 @@ Section Fiber.
     apply is_univalent_fiber_cat.
   Defined.
 
+  Definition fiber_to_total_functor_data
+  : functor_data fiber_category (total_category D).
+  Proof.
+    use make_functor_data.
+    - exact (tpair _ c).
+    - exact (λ _ _, tpair _ (identity c)).
+  Defined.
+
+  Lemma fiber_to_total_is_functor
+    : is_functor fiber_to_total_functor_data.
+  Proof.
+    use tpair.
+    - now intro.
+    - do 5 intro.
+      use total2_paths_f.
+      + exact (!id_right _).
+      + refine (transport_f_f _ _ _ _ @ _).
+        now rewrite pathsinv0r.
+  Qed.
+
+  Definition fiber_to_total_functor
+    : fiber_category ⟶ total_category D
+    := make_functor _ fiber_to_total_is_functor.
+
 End Fiber.
 
 Arguments fiber_precategory {_} _ _ .
@@ -198,6 +223,31 @@ Section UnivalentFiber.
       apply H.
   Defined.
 End UnivalentFiber.
+
+Definition univalent_fiber_category
+           {C : category}
+           (D : disp_univalent_category C)
+           (c : C)
+  : univalent_category.
+Proof.
+  refine (D [{ c }] ,, _).
+  apply is_univalent_fiber.
+  exact (pr2 D).
+Defined.
+
+Proposition idtoiso_fiber_category
+            {C : category}
+            {D : disp_cat C}
+            {x : C}
+            {xx yy : D x}
+            (p : xx = yy)
+  : pr1 (@idtoiso (D [{ x }]) xx yy p)
+    =
+    pr1 (@idtoiso_disp C D x x (idpath x) xx yy p).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
 
 (** ** Fiber functors
 
@@ -300,4 +350,123 @@ Section Fiber_Functors.
     - apply isweqtransportf.
   Defined.
 
+  Definition fiber_functor_essentially_surjective
+             {C₁ C₂ : category}
+             {F : C₁ ⟶ C₂}
+             {D₁ : disp_cat C₁}
+             {D₂ : disp_cat C₂}
+             (FF : disp_functor F D₁ D₂)
+             (HFF : disp_functor_disp_ess_surj FF)
+             (x : C₁)
+    : essentially_surjective (fiber_functor FF x).
+  Proof.
+    intros y.
+    pose proof (HFF x y) as H.
+    revert H.
+    use factor_through_squash_hProp.
+    intros xxff.
+    induction xxff as [ xx ff ].
+    refine (hinhpr (xx ,, _)).
+    use z_iso_fiber_from_z_iso_disp.
+    exact ff.
+  Qed.
 End Fiber_Functors.
+
+(**
+ Fiber fucntor of the identity and the composition
+ *)
+Definition fiber_functor_identity
+           {C : category}
+           (D : disp_cat C)
+           (x : C)
+  : nat_z_iso
+      (functor_identity _)
+      (fiber_functor (disp_functor_identity D) x).
+Proof.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + exact (λ _, identity _).
+    + intros xx yy ff ; cbn.
+      rewrite id_right_disp.
+      rewrite id_left_disp.
+      unfold transportb.
+      rewrite !transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  - intros xx.
+    apply (@is_z_isomorphism_identity (fiber_category D x)).
+Defined.
+
+Definition fiber_functor_comp
+           {C : category}
+           {D₁ D₂ D₃ : disp_cat C}
+           (F : disp_functor (functor_identity C) D₁ D₂)
+           (G : disp_functor (functor_identity C) D₂ D₃)
+           (x : C)
+  : nat_z_iso
+      (fiber_functor F x ∙ fiber_functor G x)
+      (fiber_functor (disp_functor_over_id_composite F G) x).
+Proof.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + exact (λ _, identity _).
+    + intros xx yy ff ; cbn.
+      rewrite id_right_disp.
+      rewrite id_left_disp.
+      unfold transportb.
+      rewrite !transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  - intros xx.
+    apply (@is_z_isomorphism_identity (fiber_category _ x)).
+Defined.
+
+(**
+   Note: the previous lemma only considers displayed functor over the identity
+   whereas the next one is the more general case.
+   Note that the previous lemma also uses a more specialized composition operation.
+ *)
+Definition fiber_functor_comp_nat_trans
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {D₃ : disp_cat C₃}
+           (FF : disp_functor F D₁ D₂)
+           (GG : disp_functor G D₂ D₃)
+           (x : C₁)
+  : fiber_functor FF x ∙ fiber_functor GG (F x)
+    ⟹
+    fiber_functor (disp_functor_composite FF GG) x.
+Proof.
+  use make_nat_trans.
+  - exact (λ _, identity _).
+  - abstract
+      (intros xx yy ff ;
+       refine (id_right _ @ _ @ !(id_left _)) ;
+       cbn ;
+       rewrite disp_functor_transportf ;
+       rewrite transport_f_f ;
+       apply idpath).
+Defined.
+
+Definition fiber_functor_comp_nat_z_iso
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {D₃ : disp_cat C₃}
+           (FF : disp_functor F D₁ D₂)
+           (GG : disp_functor G D₂ D₃)
+           (x : C₁)
+  : nat_z_iso
+      (fiber_functor FF x ∙ fiber_functor GG (F x))
+      (fiber_functor (disp_functor_composite FF GG) x).
+Proof.
+  use make_nat_z_iso.
+  - exact (fiber_functor_comp_nat_trans FF GG x).
+  - intro xx.
+    apply is_z_isomorphism_identity.
+Defined.

@@ -38,12 +38,15 @@ Local Open Scope cat.
 Section LimitsSubbicat.
   Context {B : bicat}
           (P₀ : B → UU)
-          (P₁ : ∏ (x y : B), x --> y → UU)
-          (Pid : ∏ (x : B), P₁ x x (id₁ x))
+          (P₁ : ∏ (x y : B), P₀ x → P₀ y → x --> y → UU)
+          (Pid : ∏ (x : B) (Px : P₀ x), P₁ x x Px Px (id₁ x))
           (Pcomp : ∏ (x y z : B)
+                     (Px : P₀ x)
+                     (Py : P₀ y)
+                     (Pz : P₀ z)
                      (f : x --> y)
                      (g : y --> z),
-              P₁ x y f → P₁ y z g → P₁ x z (f · g)).
+              P₁ x y Px Py f → P₁ y z Py Pz g → P₁ x z Px Pz (f · g)).
 
   Definition subbicat_disp_2cell_over
              {x y : B}
@@ -63,19 +66,19 @@ Section LimitsSubbicat.
              (HB : bifinal_obj B)
              (P_final : P₀ (pr1 HB))
              (P_mor : ∏ (x : subbicat P₀ P₁ Pid Pcomp),
-                      P₁ _ _ (is_bifinal_1cell_property (pr2 HB) (pr1 x)))
+                      P₁ _ _ (pr12 x) P_final (is_bifinal_1cell_property (pr2 HB) (pr1 x)))
     : disp_bifinal_obj (disp_subbicat P₀ P₁ Pid Pcomp) HB.
   Proof.
     simple refine (_ ,, _).
-    - exact (tt ,, P_final).
-    - exact (λ x xx, P_mor (x ,, xx) ,, tt).
+    - exact (P_final ,, tt).
+    - exact (λ x xx, tt ,, P_mor (x ,, xx)).
   Defined.
 
   Definition subbicat_final
              (HB : bifinal_obj B)
              (P_final : P₀ (pr1 HB))
              (P_mor : ∏ (x : subbicat P₀ P₁ Pid Pcomp),
-                      P₁ _ _ (is_bifinal_1cell_property (pr2 HB) (pr1 x)))
+                      P₁ _ _ (pr12 x) P_final (is_bifinal_1cell_property (pr2 HB) (pr1 x)))
     : bifinal_obj (subbicat P₀ P₁ Pid Pcomp).
   Proof.
     use total_bicat_final.
@@ -94,24 +97,32 @@ Section LimitsSubbicat.
              (Hcone : ∏ (x y : subbicat P₀ P₁ Pid Pcomp),
                       P₀ (pr1 (HB (pr1 x) (pr1 y))))
              (Hπ₁ : ∏ (x y : subbicat P₀ P₁ Pid Pcomp),
-                    P₁ _ _ (binprod_cone_pr1 (pr1 (HB (pr1 x) (pr1 y)))))
+                    P₁ _ _
+                      (Hcone x y)
+                      (pr12 x)
+                      (binprod_cone_pr1 (pr1 (HB (pr1 x) (pr1 y)))))
              (Hπ₂ : ∏ (x y : subbicat P₀ P₁ Pid Pcomp),
-                    P₁ _ _ (binprod_cone_pr2 (pr1 (HB (pr1 x) (pr1 y)))))
+                    P₁ _ _
+                      (Hcone x y)
+                      (pr12 y)
+                      (binprod_cone_pr2 (pr1 (HB (pr1 x) (pr1 y)))))
              (Hpair : ∏ (x y : subbicat P₀ P₁ Pid Pcomp)
                         (q : binprod_cone x y),
                       P₁ _ _
-                        (binprod_ump_1cell
-                           (pr2 (HB (pr1 x) (pr1 y)))
-                           (pr1 (binprod_cone_pr1 q))
-                           (pr1 (binprod_cone_pr2 q))))
+                         (pr121 q)
+                         (Hcone x y)
+                         (binprod_ump_1cell
+                            (pr2 (HB (pr1 x) (pr1 y)))
+                            (pr1 (binprod_cone_pr1 q))
+                            (pr1 (binprod_cone_pr2 q))))
     : disp_has_binprod (disp_subbicat P₀ P₁ Pid Pcomp) HB.
   Proof.
     intros x y.
     simple refine (_ ,, _ ,, _ ,, _).
-    - exact (tt ,, Hcone x y).
-    - exact (Hπ₁ x y ,, tt).
-    - exact (Hπ₂ x y ,, tt).
-    - exact (λ z f g, Hpair x y (make_binprod_cone z f g) ,, tt).
+    - exact (Hcone x y ,, tt).
+    - exact (tt ,, Hπ₁ x y).
+    - exact (tt ,, Hπ₂ x y).
+    - exact (λ z f g, tt ,, Hpair x y (make_binprod_cone z f g)).
   Defined.
 
   Definition subbicat_binprod
@@ -120,16 +131,24 @@ Section LimitsSubbicat.
              (Hcone : ∏ (x y : subbicat P₀ P₁ Pid Pcomp),
                       P₀ (pr1 (HB (pr1 x) (pr1 y))))
              (Hπ₁ : ∏ (x y : subbicat P₀ P₁ Pid Pcomp),
-                    P₁ _ _ (binprod_cone_pr1 (pr1 (HB (pr1 x) (pr1 y)))))
+                    P₁ _ _
+                      (Hcone x y)
+                      (pr12 x)
+                      (binprod_cone_pr1 (pr1 (HB (pr1 x) (pr1 y)))))
              (Hπ₂ : ∏ (x y : subbicat P₀ P₁ Pid Pcomp),
-                    P₁ _ _ (binprod_cone_pr2 (pr1 (HB (pr1 x) (pr1 y)))))
+                    P₁ _ _
+                      (Hcone x y)
+                      (pr12 y)
+                      (binprod_cone_pr2 (pr1 (HB (pr1 x) (pr1 y)))))
              (Hpair : ∏ (x y : subbicat P₀ P₁ Pid Pcomp)
                         (q : binprod_cone x y),
                       P₁ _ _
-                        (binprod_ump_1cell
-                           (pr2 (HB (pr1 x) (pr1 y)))
-                           (pr1 (binprod_cone_pr1 q))
-                           (pr1 (binprod_cone_pr2 q))))
+                         (pr121 q)
+                         (Hcone x y)
+                         (binprod_ump_1cell
+                            (pr2 (HB (pr1 x) (pr1 y)))
+                            (pr1 (binprod_cone_pr1 q))
+                            (pr1 (binprod_cone_pr2 q))))
     : has_binprod (subbicat P₀ P₁ Pid Pcomp).
   Proof.
     use total_bicat_prod.
@@ -139,8 +158,7 @@ Section LimitsSubbicat.
     - use disp_locally_groupoid_subbicat.
       exact HB'.
     - exact HB.
-    - apply subbicat_disp_binprod.
-      + exact Hcone.
+    - use (subbicat_disp_binprod HB Hcone).
       + exact Hπ₁.
       + exact Hπ₂.
       + exact Hpair.
@@ -158,16 +176,24 @@ Section LimitsSubbicat.
              (Hπ₁ : ∏ (x y z : subbicat P₀ P₁ Pid Pcomp)
                       (f : x --> z)
                       (g : y --> z),
-                    P₁ _ _ (pb_cone_pr1 (pr1 (HB _ _ _ (pr1 f) (pr1 g)))))
+                    P₁ _ _
+                       (Hcone x y z f g)
+                       (pr12 x)
+                       (pb_cone_pr1 (pr1 (HB _ _ _ (pr1 f) (pr1 g)))))
              (Hπ₂ : ∏ (x y z : subbicat P₀ P₁ Pid Pcomp)
                       (f : x --> z)
                       (g : y --> z),
-                    P₁ _ _ (pb_cone_pr2 (pr1 (HB _ _ _ (pr1 f) (pr1 g)))))
+                    P₁ _ _
+                       (Hcone x y z f g)
+                       (pr12 y)
+                       (pb_cone_pr2 (pr1 (HB _ _ _ (pr1 f) (pr1 g)))))
              (H_ump_mor : ∏ (x y z : subbicat P₀ P₁ Pid Pcomp)
                             (f : x --> z)
                             (g : y --> z)
                             (q : pb_cone f g),
                           P₁ _ _
+                            (pr121 q)
+                            (Hcone x y z f g)
                             (pb_ump_mor
                                (pr2 (HB (pr1 x) (pr1 y) (pr1 z) (pr1 f) (pr1 g)))
                                (total_pb_cone_help_cone _ q)))
@@ -175,10 +201,10 @@ Section LimitsSubbicat.
   Proof.
     intros x y z f g.
     simple refine (_ ,, _ ,, _ ,, _).
-    - exact (tt ,, Hcone x y z f g).
-    - exact (Hπ₁ x y z f g ,, tt).
-    - exact (Hπ₂ x y z f g ,, tt).
-    - exact (λ q, H_ump_mor x y z f g q ,, tt).
+    - exact (Hcone x y z f g ,, tt).
+    - exact (tt ,, Hπ₁ x y z f g).
+    - exact (tt ,, Hπ₂ x y z f g).
+    - exact (λ q, tt ,, H_ump_mor x y z f g q).
   Defined.
 
   Definition subbicat_has_pb
@@ -191,16 +217,24 @@ Section LimitsSubbicat.
              (Hπ₁ : ∏ (x y z : subbicat P₀ P₁ Pid Pcomp)
                       (f : x --> z)
                       (g : y --> z),
-                    P₁ _ _ (pb_cone_pr1 (pr1 (HB _ _ _ (pr1 f) (pr1 g)))))
+                    P₁ _ _
+                       (Hcone x y z f g)
+                       (pr12 x)
+                       (pb_cone_pr1 (pr1 (HB _ _ _ (pr1 f) (pr1 g)))))
              (Hπ₂ : ∏ (x y z : subbicat P₀ P₁ Pid Pcomp)
                       (f : x --> z)
                       (g : y --> z),
-                    P₁ _ _ (pb_cone_pr2 (pr1 (HB _ _ _ (pr1 f) (pr1 g)))))
+                    P₁ _ _
+                       (Hcone x y z f g)
+                       (pr12 y)
+                       (pb_cone_pr2 (pr1 (HB _ _ _ (pr1 f) (pr1 g)))))
              (H_ump_mor : ∏ (x y z : subbicat P₀ P₁ Pid Pcomp)
                             (f : x --> z)
                             (g : y --> z)
                             (q : pb_cone f g),
                           P₁ _ _
+                            (pr121 q)
+                            (Hcone x y z f g)
                             (pb_ump_mor
                                (pr2 (HB (pr1 x) (pr1 y) (pr1 z) (pr1 f) (pr1 g)))
                                (total_pb_cone_help_cone _ q)))
@@ -213,13 +247,11 @@ Section LimitsSubbicat.
     - use disp_locally_groupoid_subbicat.
       exact HB'.
     - exact HB.
-    - apply subbicat_disp_has_pb.
-      + exact Hcone.
+    - apply (subbicat_disp_has_pb HB Hcone).
       + exact Hπ₁.
       + exact Hπ₂.
       + exact H_ump_mor.
   Defined.
-
 
   (**
    4. Eilenberg-Moore objects
@@ -230,6 +262,8 @@ Section LimitsSubbicat.
                       P₀ (pr11 (HB (pr1_of_mnd_total_bicat m))))
              (Hmor : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp))),
                      P₁ _ _
+                        (Hcone m)
+                        (pr121 m)
                         (mor_of_mnd_mor
                            (mor_of_em_cone
                               _
@@ -237,18 +271,20 @@ Section LimitsSubbicat.
              (Hump : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp)))
                        (q : em_cone m),
                      P₁ _ _
-                       (em_ump_1_mor
-                          (pr1_of_mnd_total_bicat m)
-                          (pr2 (HB (pr1_of_mnd_total_bicat m)))
-                          (pr1_of_em_cone (disp_subbicat P₀ P₁ Pid Pcomp) m q)))
+                        (pr121 q)
+                        (Hcone m)
+                        (em_ump_1_mor
+                           (pr1_of_mnd_total_bicat m)
+                           (pr2 (HB (pr1_of_mnd_total_bicat m)))
+                           (pr1_of_em_cone (disp_subbicat P₀ P₁ Pid Pcomp) m q)))
     : disp_has_em (disp_subbicat P₀ P₁ Pid Pcomp) HB.
   Proof.
     intro m.
     simple refine (_ ,, _ ,, _ ,, _).
-    - exact (tt ,, Hcone m).
-    - exact (Hmor m ,, tt).
+    - exact (Hcone m ,, tt).
+    - exact (tt ,, Hmor m).
     - exact (tt ,, tt).
-    - exact (λ q, Hump m q ,, tt).
+    - exact (λ q, tt ,, Hump m q).
   Defined.
 
   Definition subbicat_has_em
@@ -258,6 +294,8 @@ Section LimitsSubbicat.
                       P₀ (pr11 (HB (pr1_of_mnd_total_bicat m))))
              (Hmor : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp))),
                      P₁ _ _
+                        (Hcone m)
+                        (pr121 m)
                         (mor_of_mnd_mor
                            (mor_of_em_cone
                               _
@@ -265,10 +303,12 @@ Section LimitsSubbicat.
              (Hump : ∏ (m : mnd (total_bicat (disp_subbicat P₀ P₁ Pid Pcomp)))
                        (q : em_cone m),
                      P₁ _ _
-                       (em_ump_1_mor
-                          (pr1_of_mnd_total_bicat m)
-                          (pr2 (HB (pr1_of_mnd_total_bicat m)))
-                          (pr1_of_em_cone (disp_subbicat P₀ P₁ Pid Pcomp) m q)))
+                        (pr121 q)
+                        (Hcone m)
+                        (em_ump_1_mor
+                           (pr1_of_mnd_total_bicat m)
+                           (pr2 (HB (pr1_of_mnd_total_bicat m)))
+                           (pr1_of_em_cone (disp_subbicat P₀ P₁ Pid Pcomp) m q)))
     : bicat_has_em (subbicat P₀ P₁ Pid Pcomp).
   Proof.
     use total_bicat_has_em.
@@ -278,8 +318,7 @@ Section LimitsSubbicat.
     - use disp_locally_groupoid_subbicat.
       exact HB'.
     - exact HB.
-    - apply subbicat_disp_has_em.
-      + exact Hcone.
+    - apply (subbicat_disp_has_em HB Hcone).
       + exact Hmor.
       + exact Hump.
   Defined.

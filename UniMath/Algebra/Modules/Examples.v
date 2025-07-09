@@ -1,92 +1,93 @@
-(** Authors Langston Barrett (@siddharthist), November-December 2017 *)
+(**
 
+  Examples of Ring Modules
+
+  This file lists some examples of ring modules, like the identity multimodule morphism, the
+  R-module structure on a ring S from a morphism R → S (the identity on R gives the R-module
+  structure on R). It also gives the zero module, and the definition of R-S bimodules (a module with
+  a left R-action and a right S-action) via multimodules.
+
+  Contents
+  1. The identity multimodule morphism
+  2. Constructing a module from a ring morphism
+  3. The zero module
+  4. Bimodules
+
+  Originally written by Langston Barrett (@siddharthist), November-December 2017
+
+ *)
+Require Import UniMath.Foundations.All.
+Require Import UniMath.CategoryTheory.Categories.ModuleCore.
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Modules.Multimodules.
-Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.MoreFoundations.Tactics.
 
-(** ** Contents
-- Morphisms
-- (Multi)modules
- - Bimodules
-*)
-
-(** ** Morphisms *)
 Local Open Scope ring_scope.
 
-(** The identity function is linear *)
-Definition idfun_linear {R : ring} (M : module R) : islinear (idfun M).
-Proof. easy. Defined.
+(** * 1. The identity multimodule morphism *)
 
 (** The identity function is multilinear *)
-Definition idfun_multilinear {I : UU} {rings : I -> ring} (MM : multimodule rings) :
-  @ismultilinear I rings MM MM (idfun MM) :=
-  (fun i => idfun_linear (ith_module MM i)).
-
-(** The identity function is a morphism of modules *)
-Definition id_modulefun {R : ring} (M : module R) : ismodulefun (idfun M).
-Proof. easy. Defined.
-
-(** The identity function is a morphism of modules *)
-Definition idmoduleiso {R : ring} (M : module R) : moduleiso M M.
+Lemma idfun_multilinear {I : UU} {rings : I -> ring} (MM : multimodule rings) :
+  ismultilinear (rings := rings) (idfun MM).
 Proof.
-   use make_moduleiso.
-   - exact (idweq (pr1module M)).
-   - apply make_dirprod.
-     + intros x y. apply idpath.
-     + intros r x. apply idpath.
-Defined.
+  easy.
+Qed.
 
 (** The identity function is a multimodule morphism *)
-Definition id_multimodulefun {I : UU} {rings : I -> ring} (MM : multimodule rings)
-  : @ismultimodulefun I rings MM MM (idfun MM) :=
-  (make_dirprod (λ x y : MM, idpath _) (fun i => idfun_linear (ith_module MM i))).
+Lemma id_multimodulefun {I : UU} {rings : I -> ring} (MM : multimodule rings)
+  : ismultimodulefun (rings := rings) (idfun MM).
+Proof.
+  easy.
+Qed.
 
-(** ** (Multi)modules *)
+(** * 2. Constructing a module from a ring morphism *)
 
 (** The left action of a ring through a ring homomorphism
     See Bourbaki's Algebra, II §1.4, no. 1, Example 1.
  *)
 Definition ringfun_left_mult {R S : ring} (f : ringfun R S) (r : R)
-: ringofendabgr S.
+  : group_endomorphism_ring S.
 Proof.
-  refine
-  (* This is the actual definition of the function *)
-  ((λ x : S, (f r * x)),,
-   (* And this is the justification that it's a monoid morphism *)
-                       (λ _ _, _),, _).
-  apply (rigldistr S _ _ _). apply (rigmultx0 S).
+  use make_abelian_group_morphism.
+  - intro x.
+    exact (f r * x).
+  - do 2 intro.
+    apply (rigldistr S _ _ _).
 Defined.
 
 (** An important special case: the left action of a ring on itself *)
-Example ring_left_mult {R : ring} : R -> ringofendabgr R :=
+Example ring_left_mult {R : ring} : R → group_endomorphism_ring R :=
   ringfun_left_mult (rigisotorigfun (idrigiso R)).
 
 
 (** A ring morphism R -> S defines an R-module structure on the additive abelian
     group of S *)
 Definition ringfun_module {R S : ring} (f : ringfun R S) : module R.
-  refine (@ringaddabgr S,, _).
-  apply (@mult_to_module_struct R S (pr1 ∘ ringfun_left_mult f)%functions);
+  apply (make_module (@ringaddabgr S)).
+  apply (@mult_to_module_struct R S (λ x, (ringfun_left_mult f x : abelian_group_morphism _ _)));
     unfold funcomp, pr1, ringfun_left_mult.
-  - exact (fun r x y => ringldistr S x y (f r)).
-  - exact (fun r s x => (maponpaths (λ x, x * _) ((pr1 (pr1 (pr2 f))) r s)) @
-                        (ringrdistr _ (f r) (f s) x)).
-  - exact (fun r s x => ((maponpaths (fun y => y * x) ((pr1 (pr2 (pr2 f))) r s) @
-                         (rigassoc2 S (f r) (f s) x)))).
-  - exact (fun x => maponpaths (fun y => y * x) (pr2 (pr2 (pr2 f))) @
-                               (@riglunax2 S x)).
+  - intros r x y.
+    apply ringldistr.
+  - intros r s x.
+    refine (_ @ ringrdistr _ _ _ _).
+    apply (maponpaths (λ x, x * _)).
+    apply (binopfunisbinopfun (ringaddfun f)).
+  - intros r s x.
+    refine (_ @ rigassoc2 S _ _ _).
+    apply (maponpaths (λ x, x * _)).
+    apply (binopfunisbinopfun (ringmultfun f)).
+  - intro x.
+    refine (_ @ riglunax2 S _).
+    apply (maponpaths (λ x, x * _)).
+    apply (monoidfununel (ringmultfun f)).
 Defined.
 
 (** An important special case: a ring is a module over itself *)
 Definition ring_is_module (R : ring) : module R :=
   ringfun_module (rigisotorigfun (idrigiso R)).
 
-(** The zero module is the unique R-module structure on the zero group (the
-    group with a single element) *)
+(** * 3. The zero module *)
 Definition zero_module (R : ring) : module R.
 Proof.
   refine (unitabgr,, _).
@@ -94,7 +95,7 @@ Proof.
     easy.
 Defined.
 
-(** *** Bimodules *)
+(** 4. Bimodules *)
 
 Local Open Scope ring.
 
@@ -147,6 +148,6 @@ Example commring_bimodule (R : commring) : bimodule R R.
   intros x.
   exact (!@rigassoc2 R r s x @ (maponpaths (fun z => z * x) (@ringcomm2 R r s))
                       @ (rigassoc2 R s r x)).
-  Defined. (* TODO: this line takes a while, not sure why *)
+Defined.
 
 Local Close Scope ring.

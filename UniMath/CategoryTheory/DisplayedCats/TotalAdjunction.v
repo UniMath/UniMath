@@ -168,7 +168,7 @@ Section TotalAdjunction.
          assert (hh : (# (left_functor F))
    (identity (pr1 x) · (η (pr1 x) · identity (right_functor F (left_functor F (pr1 x)))))
  · ε (left_functor F (pr1 x)) =
-                        (# (left_functor F))%Cat (adjunit F (pr1 x)) · adjcounit F (left_functor F (pr1 x))).
+                        (# (left_functor F)) (adjunit F (pr1 x)) · adjcounit F (left_functor F (pr1 x))).
          {
            apply maponpaths_2.
            apply maponpaths.
@@ -260,10 +260,10 @@ Section TotalAdjunction.
 
       assert (p : identity (right_functor F (pr1 x))
  · (η (right_functor F (pr1 x)) · identity (right_functor F (left_functor F (right_functor F (pr1 x)))))
- · (# (right_functor F))%Cat
+ · (# (right_functor F))
      (identity (left_functor F (right_functor F (pr1 x))) · (ε (pr1 x) · identity (pr1 x))) =
  unit_from_are_adjoints F (right_functor F (pr1 x))
-                        · (# (right_functor F))%Cat (counit_from_are_adjoints F (pr1 x))).
+                        · (# (right_functor F)) (counit_from_are_adjoints F (pr1 x))).
       {
         rewrite ! id_left.
         now rewrite ! id_right.
@@ -292,8 +292,8 @@ Section TotalAdjunction.
       assert (qq : identity (right_functor F (pr1 x))
  · (adjunit F (right_functor F (pr1 x))
     · identity (right_functor F (left_functor F (right_functor F (pr1 x)))))
- · (# (right_functor F))%Cat (adjcounit F (pr1 x)) =
-                    adjunit F (right_functor F (pr1 x)) · (# (right_functor F))%Cat (adjcounit F (pr1 x))).
+ · (# (right_functor F)) (adjcounit F (pr1 x)) =
+                    adjunit F (right_functor F (pr1 x)) · (# (right_functor F)) (adjcounit F (pr1 x))).
       {
         rewrite ! id_left.
         now rewrite ! id_right.
@@ -357,9 +357,9 @@ Section TotalEquivalence.
     : ∏ x : total_category D1, is_z_isomorphism (pr1 (adjunit (total_adjunction FF) x)).
   Proof.
     intro x.
-    use is_z_iso_comp_of_is_z_isos.
+    use is_z_isomorphism_comp.
     - apply Isos.identity_is_z_iso.
-    - use Isos.is_z_iso_comp_of_is_z_isos.
+    - use is_z_isomorphism_comp.
       + apply (adj_equiv_of_cats_from_adj F).
       + apply Isos.identity_is_z_iso.
   Defined.
@@ -451,9 +451,9 @@ Section TotalEquivalence.
     :  ∏ b : total_category D2, Isos.is_z_isomorphism (pr1 (adjcounit (total_adjunction FF) b)).
   Proof.
     intro.
-    use Isos.is_z_iso_comp_of_is_z_isos.
+    use is_z_isomorphism_comp.
     - apply Isos.identity_is_z_iso.
-    - use Isos.is_z_iso_comp_of_is_z_isos.
+    - use is_z_isomorphism_comp.
       + apply (adj_equiv_of_cats_from_adj F).
       + apply Isos.identity_is_z_iso.
   Defined.

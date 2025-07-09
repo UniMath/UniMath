@@ -119,7 +119,7 @@ Section DispCatOnTwoSidedDispCat.
             {f : x₁ --> x₂}
             {y₁ y₂ : C₂}
             {g₁ g₂ : y₁ --> y₂}
-            (p : g₁ = g₂)
+            (p : g₂ = g₁)
             {xy₁ : sigma_twosided_disp_cat_data x₁ y₁}
             {xy₂ : sigma_twosided_disp_cat_data x₂ y₂}
             (fg : xy₁ -->[ f ][ g₂ ] xy₂).
@@ -127,9 +127,9 @@ Section DispCatOnTwoSidedDispCat.
     Let q₁ : total_twosided_disp_category D₁ := x₁ ,, y₁ ,, pr1 xy₁.
     Let q₂ : total_twosided_disp_category D₁ := x₂ ,, y₂ ,, pr1 xy₂.
     Let h₁ : q₁ --> q₂ := f ,, g₂ ,, pr1 fg.
-    Let h₂ : q₁ --> q₂ := f ,, g₁ ,, transportb (λ z, _ -->[ f ][ z ] _) p (pr1 fg).
+    Let h₂ : q₁ --> q₂ := f ,, g₁ ,, transportf (λ z, _ -->[ f ][ z ] _) p (pr1 fg).
 
-    Definition sigma_transportb_left_path
+    Definition sigma_transportf_left_path
       : h₁ = h₂.
     Proof.
       induction p.
@@ -137,29 +137,29 @@ Section DispCatOnTwoSidedDispCat.
     Defined.
   End SigmaLeft.
 
-  Definition sigma_transportb_left
+  Definition sigma_transportf_left
              {x₁ x₂ : C₁}
              {f : x₁ --> x₂}
              {y₁ y₂ : C₂}
              {g₁ g₂ : y₁ --> y₂}
-             (p : g₁ = g₂)
+             (p : g₂ = g₁)
              {xy₁ : sigma_twosided_disp_cat_data x₁ y₁}
              {xy₂ : sigma_twosided_disp_cat_data x₂ y₂}
              (fg : xy₁ -->[ f ][ g₂ ] xy₂)
-      : transportb
-          (λ z, xy₁ -->[ f ][ z ] xy₂)
-          p
-          fg
-        =
-        transportb
-          (λ z, _ -->[ f ][ z ] _)
-          p
-          (pr1 fg)
-        ,,
-        transportf
-          (λ z, @mor_disp _ D₂ _ _ (pr2 xy₁) (pr2 xy₂) z)
-          (sigma_transportb_left_path p fg)
-          (pr2 fg).
+    : transportf
+        (λ z, xy₁ -->[ f ][ z ] xy₂)
+        p
+        fg
+      =
+      transportf
+        (λ z, _ -->[ f ][ z ] _)
+        p
+        (pr1 fg)
+      ,,
+      transportf
+        (λ z, @mor_disp _ D₂ _ _ (pr2 xy₁) (pr2 xy₂) z)
+        (sigma_transportf_left_path p fg)
+        (pr2 fg).
   Proof.
     induction p ; cbn.
     apply idpath.
@@ -168,7 +168,7 @@ Section DispCatOnTwoSidedDispCat.
   Section SigmaRight.
     Context {x₁ x₂ : C₁}
             {f₁ f₂ : x₁ --> x₂}
-            (p : f₁ = f₂)
+            (p : f₂ = f₁)
             {y₁ y₂ : C₂}
             {g : y₁ --> y₂}
             {xy₁ : sigma_twosided_disp_cat_data x₁ y₁}
@@ -178,9 +178,9 @@ Section DispCatOnTwoSidedDispCat.
     Let q₁ : total_twosided_disp_category D₁ := x₁ ,, y₁ ,, pr1 xy₁.
     Let q₂ : total_twosided_disp_category D₁ := x₂ ,, y₂ ,, pr1 xy₂.
     Let h₁ : q₁ --> q₂ := f₂ ,, g ,, pr1 fg.
-    Let h₂ : q₁ --> q₂ := f₁ ,, g ,, transportb (λ z, _ -->[ z ][ g ] _) p (pr1 fg).
+    Let h₂ : q₁ --> q₂ := f₁ ,, g ,, transportf (λ z, _ -->[ z ][ g ] _) p (pr1 fg).
 
-    Definition sigma_transportb_right_path
+    Definition sigma_transportf_right_path
       : h₁ = h₂.
     Proof.
       induction p.
@@ -188,28 +188,28 @@ Section DispCatOnTwoSidedDispCat.
     Defined.
   End SigmaRight.
 
-  Definition sigma_transportb_right
+  Definition sigma_transportf_right
              {x₁ x₂ : C₁}
              {f₁ f₂ : x₁ --> x₂}
-             (p : f₁ = f₂)
+             (p : f₂ = f₁)
              {y₁ y₂ : C₂}
              {g : y₁ --> y₂}
              {xy₁ : sigma_twosided_disp_cat_data x₁ y₁}
              {xy₂ : sigma_twosided_disp_cat_data x₂ y₂}
              (fg : xy₁ -->[ f₂ ][ g ] xy₂)
-    : transportb
+    : transportf
         (λ z, xy₁ -->[ z ][ g ] xy₂)
         p
         fg
       =
-      transportb
+      transportf
         (λ z, _ -->[ z ][ g ] _)
         p
         (pr1 fg)
       ,,
       transportf
         (λ z, @mor_disp _ D₂ _ _ (pr2 xy₁) (pr2 xy₂) z)
-        (sigma_transportb_right_path p fg)
+        (sigma_transportf_right_path p fg)
         (pr2 fg).
   Proof.
     induction p ; cbn.
@@ -221,8 +221,9 @@ Section DispCatOnTwoSidedDispCat.
   Proof.
     repeat split.
     - intros x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg.
-      rewrite sigma_transportb_left.
-      rewrite sigma_transportb_right.
+      unfold transportb_disp_mor2, transportf_disp_mor2.
+      rewrite sigma_transportf_left.
+      rewrite sigma_transportf_right.
       use sigma_twosided_disp_cat_mor_eq.
       + apply id_two_disp_left.
       + cbn.
@@ -237,8 +238,9 @@ Section DispCatOnTwoSidedDispCat.
         apply transportf_hset_eq.
         apply (total_twosided_disp_category D₁).
     - intros x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg.
-      rewrite sigma_transportb_left.
-      rewrite sigma_transportb_right.
+      unfold transportb_disp_mor2, transportf_disp_mor2.
+      rewrite sigma_transportf_left.
+      rewrite sigma_transportf_right.
       use sigma_twosided_disp_cat_mor_eq.
       + apply id_two_disp_right.
       + cbn.
@@ -253,8 +255,9 @@ Section DispCatOnTwoSidedDispCat.
         apply transportf_hset_eq.
         apply (total_twosided_disp_category D₁).
     - intros x₁ x₂ x₃ x₄ y₁ y₂ y₃ y₄ xy₁ xy₂ xy₃ xy₄ f₁ f₂ f₃ g₁ g₂ g₃ fg₁ fg₂ fg₃.
-      rewrite sigma_transportb_left.
-      rewrite sigma_transportb_right.
+      unfold transportb_disp_mor2, transportf_disp_mor2.
+      rewrite sigma_transportf_left.
+      rewrite sigma_transportf_right.
       use sigma_twosided_disp_cat_mor_eq.
       + apply assoc_two_disp.
       + cbn.
@@ -329,42 +332,28 @@ Section DispCatOnTwoSidedDispCat.
     - exact (pr1 f ,, pr1 g).
     - exact (pr12 f ,, inv_mor_disp_from_z_iso g).
     - abstract
-        (cbn ;
-         refine (!_) ;
-         etrans ;
-         [ apply maponpaths ;
-           apply sigma_transportb_left
-         | ] ;
-         etrans ;
-         [ apply sigma_transportb_right | ] ;
-         refine (!_) ;
-         use sigma_twosided_disp_cat_mor_eq ; cbn ;
-         [  exact (pr122 f) | ] ;
+        (unfold transportb_disp_mor2, transportf_disp_mor2 ;
+         rewrite sigma_transportf_left ;
+         rewrite sigma_transportf_right ;
+         use sigma_twosided_disp_cat_mor_eq ; [ exact (pr122 f) | ] ;
          etrans ;
          [ apply maponpaths ;
            exact (inv_mor_after_z_iso_disp g)
          | ] ;
-         unfold transportb ;
+         unfold transportb ; cbn ;
          rewrite !transport_f_f ;
          apply transportf_hset_eq ;
          apply (total_twosided_disp_category D₁)).
     - abstract
-        (cbn ;
-         refine (!_) ;
-         etrans ;
-         [ apply maponpaths ;
-           apply sigma_transportb_left
-         | ] ;
-         etrans ;
-         [ apply sigma_transportb_right | ] ;
-         refine (!_) ;
-         use sigma_twosided_disp_cat_mor_eq ; cbn ;
-         [  exact (pr222 f) | ] ;
+        (unfold transportb_disp_mor2, transportf_disp_mor2 ;
+         rewrite sigma_transportf_left ;
+         rewrite sigma_transportf_right ;
+         use sigma_twosided_disp_cat_mor_eq ; [ exact (pr222 f) | ] ;
          etrans ;
          [ apply maponpaths ;
            exact (z_iso_disp_after_inv_mor g)
          | ] ;
-         unfold transportb ;
+         unfold transportb ; cbn ;
          rewrite !transport_f_f ;
          apply transportf_hset_eq ;
          apply (total_twosided_disp_category D₁)).
@@ -399,16 +388,9 @@ Section DispCatOnTwoSidedDispCat.
              (id_two_disp _)).
     Proof.
       refine (maponpaths pr1 (pr122 f) @ _).
-      etrans.
-      {
-        do 2 apply maponpaths.
-        apply sigma_transportb_left.
-      }
-      etrans.
-      {
-        apply maponpaths.
-        apply sigma_transportb_right.
-      }
+      unfold transportb_disp_mor2, transportf_disp_mor2.
+      rewrite sigma_transportf_left.
+      rewrite sigma_transportf_right.
       apply idpath.
     Qed.
 
@@ -424,16 +406,9 @@ Section DispCatOnTwoSidedDispCat.
              (id_two_disp _)).
     Proof.
       refine (maponpaths pr1 (pr222 f) @ _).
-      etrans.
-      {
-        do 2 apply maponpaths.
-        apply sigma_transportb_left.
-      }
-      etrans.
-      {
-        apply maponpaths.
-        apply sigma_transportb_right.
-      }
+      unfold transportb_disp_mor2, transportf_disp_mor2.
+      rewrite sigma_transportf_left.
+      rewrite sigma_transportf_right.
       apply idpath.
     Qed.
 
@@ -468,8 +443,8 @@ Section DispCatOnTwoSidedDispCat.
       - exact (pr212 f).
       - abstract
           (assert (p := pr222 f
-                        @ maponpaths _ (sigma_transportb_left _ _)
-                        @ sigma_transportb_right _ _) ;
+                        @ maponpaths _ (sigma_transportf_left _ _)
+                        @ sigma_transportf_right _ _) ;
            cbn in p ;
            rewrite transport_f_f in p ;
            refine (sigma_mor_eq p @ _) ;
@@ -480,8 +455,8 @@ Section DispCatOnTwoSidedDispCat.
            apply (total_twosided_disp_category D₁)).
       - abstract
           (assert (p := pr122 f
-                        @ maponpaths _ (sigma_transportb_left _ _)
-                        @ sigma_transportb_right _ _) ;
+                        @ maponpaths _ (sigma_transportf_left _ _)
+                        @ sigma_transportf_right _ _) ;
            cbn in p ;
            rewrite transport_f_f in p ;
            refine (sigma_mor_eq p @ _) ;
@@ -586,7 +561,7 @@ Section DispCatOnTwoSidedDispCat.
            _ _ D₁
            _ _ _ _ _ _
            _ _
-           (idtoiso_twosided_disp (idpath _) (idpath _) _ _ p))
+           (idtoiso_twosided_disp (idpath _) (idpath _) p))
         (pr2 xy₁)
         (pr2 xy₂).
   Proof.

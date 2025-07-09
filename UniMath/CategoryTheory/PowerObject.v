@@ -21,15 +21,15 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Local Open Scope cat.
@@ -83,7 +83,7 @@ Proof.
     exact (ExpFun b Ω).
   + intro b.
     use (ExpEv b).
-  + (*This proof should be generalized to any adjunction, it would essentialy be the inverse result of [[right_adjoint_from_partial]]*)
+  + (*This proof should be generalized to any adjunction, it would essentialy be the inverse result of [[reflections_to_is_right_adjoint]]*)
     intros c b f.
     use make_iscontr.
     - split with
@@ -338,7 +338,7 @@ Definition PowerObject_charname_nattrans := nat_trans_comp _ _ _ idxT_whiskered_
 Definition PowerObject_charname_is_nat_z_iso : is_nat_z_iso PowerObject_charname_nattrans.
 Proof.
   intro c.
-  use is_z_iso_comp_of_is_z_isos.
+  use is_z_isomorphism_comp.
   + generalize c.
     use post_whisker_z_iso_is_z_iso.
     use op_nt_is_z_iso.

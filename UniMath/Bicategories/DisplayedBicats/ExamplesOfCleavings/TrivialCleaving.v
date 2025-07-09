@@ -237,7 +237,8 @@ Section ConstantCleaving.
                    (adj_equiv_fully_faithful Hg)
                    (pr12 Lh
                     • δ
-                    • trivial_disp_invertible_to_invertible_2cell (pr2 Lh')^-1)).
+                    • (trivial_disp_invertible_to_invertible_2cell
+                         (pr2 Lh'))^-1)).
         + abstract
             (rewrite transportf_const ; cbn ;
              etrans ;

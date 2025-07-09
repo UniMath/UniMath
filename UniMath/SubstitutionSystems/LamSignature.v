@@ -31,9 +31,9 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
@@ -45,16 +45,14 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 
 
 Section Preparations.
 
-Variable C : category.
-Variable CP : BinProducts C.
-Variable CC : BinCoproducts C.
+Context (C : category) (CP : BinProducts C) (CC : BinCoproducts C).
 
 Definition square_functor := BinProduct_of_functors C C CP (functor_identity C) (functor_identity C).
 
@@ -62,15 +60,14 @@ End Preparations.
 
 Section Lambda.
 
-Variable C : category.
+Context (C : category).
 
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C]) .
 
-Variable terminal : Terminal C.
-
-Variable CC : BinCoproducts C.
-Variable CP : BinProducts C.
+Context (terminal : Terminal C)
+        (CC : BinCoproducts C)
+        (CP : BinProducts C).
 
 Let one : C :=  @TerminalObject C terminal.
 

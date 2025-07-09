@@ -33,7 +33,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
@@ -62,20 +62,20 @@ Section prep_hss.
 
 Context (H : functor [C, C] [C, C]).
 
-Definition Id_H
-: functor EndC EndC
-  := BinCoproduct_of_functors _ _ CPEndC
-                       (constant_functor _ _ (functor_identity _ : EndC))
-                       H.
+Definition Const_plus_H (X : EndC) : functor EndC EndC
+  := BinCoproduct_of_functors _ _ CPEndC (constant_functor _ _ X) H.
 
-(* An Id_H algebra is a pointed functor *)
+Definition Id_H : functor EndC EndC
+  := Const_plus_H (functor_identity _ : EndC).
 
-Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  `T ⟧.
+Definition eta_from_alg {X : EndC} (T : algebra_ob (Const_plus_H X)) : EndC ⟦ X ,  `T ⟧.
 Proof.
-  exact (BinCoproductIn1 (CPEndC _ _) · alg_map _ T).
+  exact (tau1_from_alg CPEndC (constant_functor _ _ X) H T).
 Defined.
 
 Local Notation η := eta_from_alg.
+
+(* An Id_H algebra is a pointed functor *)
 
 Definition ptd_from_alg (T : algebra_ob Id_H) : Ptd.
 Proof.
@@ -83,10 +83,11 @@ Proof.
   exact (η T).
 Defined.
 
-Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H `T, `T⟧.
+Definition tau_from_alg {X : EndC} (T : algebra_ob (Const_plus_H X)) : EndC ⟦H `T, `T⟧.
 Proof.
-  exact (BinCoproductIn2 (CPEndC _ _) · alg_map _ T).
+  exact (tau2_from_alg CPEndC (constant_functor _ _ X) H T).
 Defined.
+
 Local Notation τ := tau_from_alg.
 
 (*
@@ -695,8 +696,8 @@ Section hssMor_equality.
 
 (** Show that equality of hssMor is equality of underlying nat. transformations *)
 
-Variables T T' : hss.
-Variables β β' : hssMor T T'.
+Context (T T' : hss) (β β' : hssMor T T').
+
 Definition hssMor_eq1 : β = β' ≃ (pr1 β = pr1 β').
 Proof.
   apply subtypeInjectivity.
@@ -826,8 +827,8 @@ Arguments fbracket_unique {_ _ _ } _ {_} _ {_} _ .
 (* Arguments Alg {_ _} _. *)
 Arguments hss_precategory {_} _ _ .
 Arguments hss_category {_} _ _ .
-Arguments eta_from_alg {_ _ _} _.
-Arguments tau_from_alg {_ _ _} _.
+Arguments eta_from_alg {_ _ _ _} _.
+Arguments tau_from_alg {_ _ _ _} _.
 Arguments ptd_from_alg {_ _ _} _.
 Arguments ptd_from_alg_functor {_} _ _ .
 Arguments bracket_property {_ _ _ _ } _ _ _ _ .

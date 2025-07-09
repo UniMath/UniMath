@@ -491,7 +491,7 @@ Definition is_disp_invertible_2cell_cod
 Proof.
   use tpair.
   - use tpair.
-    + exact (Hαα^-1).
+    + exact Hαα^-1.
     + abstract
         (simpl ;
          use vcomp_move_R_Mp ; is_iso ;
@@ -659,17 +659,27 @@ Section UnivalenceOfCodomain.
       use make_is_invertible_2cell.
       + exact (pr1 (disp_inv_cell α)).
       + abstract
-          (pose (maponpaths pr1 (disp_vcomp_rinv α)) as p ;
+          (assert (p := maponpaths pr1 (disp_vcomp_rinv α));
            cbn in p ;
-           unfold transportb in p ;
-           rewrite pr1_transportf, transportf_const in p ;
-           exact p).
+           (etrans; [exact p |]) ;
+           clear p ;
+           unfold transportb ;
+           (etrans ;
+            [exact (pr1_transportf (! id2_left (id₂ f)) (id₂ (pr1 ψ₁),, disp_id2 (pr2 ψ₁))) |]) ;
+           cbn ;
+           rewrite transportf_const ;
+           apply idpath).
       + abstract
-          (pose (maponpaths pr1 (disp_vcomp_linv α)) as p ;
+          (assert (p := maponpaths pr1 (disp_vcomp_linv α));
            cbn in p ;
-           unfold transportb in p ;
-           rewrite pr1_transportf, transportf_const in p ;
-           exact p).
+           (etrans; [exact p |]) ;
+           clear p ;
+           unfold transportb ;
+           (etrans ;
+            [exact (pr1_transportf (! id2_left (id₂ f)) (id₂ (pr1 ψ₂),, disp_id2 (pr2 ψ₂))) |]) ;
+           cbn ;
+           rewrite transportf_const ;
+           apply idpath).
     - exact (pr21 α).
   Defined.
 

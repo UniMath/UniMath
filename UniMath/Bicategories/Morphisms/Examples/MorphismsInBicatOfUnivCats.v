@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
@@ -24,11 +24,15 @@ Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
+Require Import UniMath.Bicategories.Core.UnivalenceOp.
+Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.DiscreteMorphisms.
+Require Import UniMath.Bicategories.Morphisms.Examples.MorphismsInOp1Bicat.
 
 Local Open Scope cat.
 
@@ -530,4 +534,168 @@ Proof.
          refine (maponpaths (λ z, _ ,, z) _) ;
          use subtypePath ; [ intro ; apply isaprop_form_adjunction | ] ;
          apply idpath).
+Defined.
+
+Proposition isaprop_is_left_adjoint
+            {C₁ C₂ : bicat_of_univ_cats}
+            (F : C₁ --> C₂)
+  : isaprop (is_left_adjoint F).
+Proof.
+  use (isofhlevelweqf _ (left_adjoint_weq_is_left_adjoint F)).
+  use isaprop_left_adjoint.
+  exact univalent_cat_is_univalent_2_1.
+Qed.
+
+Definition right_adjoint_to_is_right_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           {F : C₁ --> C₂}
+           (HF : internal_right_adj F)
+  : is_right_adjoint F.
+Proof.
+  refine (internal_right_adj_left_adjoint HF ,, _).
+  use make_are_adjoints.
+  - exact (internal_right_adj_unit HF).
+  - exact (internal_right_adj_counit HF).
+  - split.
+    + abstract
+        (intro x ; cbn ;
+         pose (nat_trans_eq_pointwise
+                 (pr12 HF)
+                 x)
+           as p ;
+         cbn in p ;
+         rewrite !id_left, !id_right in p ;
+         exact p).
+    + abstract
+        (intro x ; cbn ;
+         pose (nat_trans_eq_pointwise
+                 (pr22 HF)
+                 x)
+           as p ;
+         cbn in p ;
+         rewrite !id_left, !id_right in p ;
+         exact p).
+Defined.
+
+Definition is_right_adjoint_to_right_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           {F : C₁ --> C₂}
+           (HF : is_right_adjoint F)
+  : internal_right_adj F.
+Proof.
+  simple refine ((pr1 HF ,, _ ,, _) ,, (_ ,, _)).
+  - exact (pr112 HF).
+  - exact (pr212 HF).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       exact (pr122 HF x)).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       exact (pr222 HF x)).
+Defined.
+
+Definition right_adjoint_weq_is_right_adjoint
+           {C₁ C₂ : bicat_of_univ_cats}
+           (F : C₁ --> C₂)
+  : internal_right_adj F ≃ is_right_adjoint F.
+Proof.
+  use make_weq.
+  - exact right_adjoint_to_is_right_adjoint.
+  - use isweq_iso.
+    + exact is_right_adjoint_to_right_adjoint.
+    + abstract
+        (intro HF ;
+         use subtypePath ; [ intro ; apply isapropdirprod ; apply cellset_property | ] ;
+         apply idpath).
+    + abstract
+        (intro HF ;
+         refine (maponpaths (λ z, _ ,, z) _) ;
+         use subtypePath ; [ intro ; apply isaprop_form_adjunction | ] ;
+         apply idpath).
+Defined.
+
+Proposition isaprop_is_right_adjoint
+            {C₁ C₂ : bicat_of_univ_cats}
+            (F : C₁ --> C₂)
+  : isaprop (is_right_adjoint F).
+Proof.
+  use (isofhlevelweqf _ (right_adjoint_weq_is_right_adjoint F)).
+  use (isofhlevelweqf _ op1_left_adjoint_weq_right_adjoint).
+  use isaprop_left_adjoint.
+  use op1_bicat_is_univalent_2_1.
+  exact univalent_cat_is_univalent_2_1.
+Qed.
+
+Definition adjunction_from_adjunction_univ_cats
+           {C₁ C₂ : bicat_of_univ_cats}
+  : Bicategories.Morphisms.Adjunctions.adjunction C₁ C₂
+    →
+    CategoryTheory.Adjunctions.Core.adjunction (pr1 C₁) (pr1 C₂).
+Proof.
+  intros L.
+  simple refine ((_ ,, (_ ,, (_ ,, _))) ,, (_ ,, _)).
+  - exact (arrow_of_adjunction L).
+  - exact (internal_right_adjoint L).
+  - exact (left_adjoint_unit (left_adjoint_of_adjunction L)).
+  - exact (left_adjoint_counit (left_adjoint_of_adjunction L)).
+  - abstract
+      (intro x ; cbn ;
+       pose (nat_trans_eq_pointwise (pr122 L) x) as p ;
+       cbn in p ;
+       rewrite !id_left, !id_right in p ;
+       exact p).
+  - abstract
+      (intro x ; cbn ;
+       pose (nat_trans_eq_pointwise (pr222 L) x) as p ;
+       cbn in p ;
+       rewrite !id_left, !id_right in p ;
+       exact p).
+Defined.
+
+Definition adjunction_to_adjunction_univ_cats
+           {C₁ C₂ : bicat_of_univ_cats}
+  : CategoryTheory.Adjunctions.Core.adjunction (pr1 C₁) (pr1 C₂)
+    →
+    Bicategories.Morphisms.Adjunctions.adjunction C₁ C₂.
+Proof.
+  intros L.
+  simple refine (_ ,, ((_ ,, (_ ,, _)) ,, (_ ,, _))).
+  - exact (pr11 L).
+  - exact (pr121 L).
+  - exact (pr1 (pr221 L)).
+  - exact (pr2 (pr221 L)).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       exact (pr12 L x)).
+  - abstract
+      (use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite !id_left, !id_right ;
+       exact (pr22 L x)).
+Defined.
+
+Definition adjunction_weq_adjunction_univ_cats
+           (C₁ C₂ : bicat_of_univ_cats)
+  : Bicategories.Morphisms.Adjunctions.adjunction C₁ C₂
+    ≃
+    CategoryTheory.Adjunctions.Core.adjunction (pr1 C₁) (pr1 C₂).
+Proof.
+  use weq_iso.
+  - exact adjunction_from_adjunction_univ_cats.
+  - exact adjunction_to_adjunction_univ_cats.
+  - abstract
+      (intro L ;
+       use subtypePath ;
+       [ use isaprop_left_adjoint ; exact univalent_cat_is_univalent_2_1 | ] ;
+       apply idpath).
+  - abstract
+      (intro L ;
+       use subtypePath ; [ intro ; apply isaprop_form_adjunction | ] ;
+       apply idpath).
 Defined.

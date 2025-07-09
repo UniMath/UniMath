@@ -13,37 +13,21 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Local Open Scope cat.
 
 (** * Definition of a cartesian displayed functor *)
-
-(* TODO: upstream to with definition of fibrations/cartesianness *)
-Definition is_cartesian_disp_functor
-  {C C' : category} {F : functor C C'}
-  {D : disp_cat C} {D' : disp_cat C'} (FF : disp_functor F D D') : UU
-:= ∏  (c c' : C) (f : c' --> c)
-      (d : D c) (d' : D c') (ff : d' -->[f] d),
-  is_cartesian ff -> is_cartesian (♯ FF ff).
-
-
-(* TODO: upstream *)
-Lemma isaprop_is_cartesian
-    {C : category} {D : disp_cat C}
-    {c c' : C} {f : c' --> c}
-    {d : D c} {d' : D c'} (ff : d' -->[f] d)
-  : isaprop (is_cartesian ff).
-Proof.
-  repeat (apply impred_isaprop; intro).
-  apply isapropiscontr.
-Qed.
 
 (* TODO: upstream *)
 Lemma is_cartesian_from_z_iso_to_cartesian
@@ -87,9 +71,6 @@ Proof.
     apply maponpaths_2, homset_property.
 Defined.
 
-(* TODO: upstream *)
-
-(* TODO: upstream also *)
 (** For a functor to be cartesian, it’s enough to show that it preserves _some_ cartesian lift of each lifting problem.
 
   Of course, this can only happen when the domain is a fibration; and in practice, it is useful exactly in the case where one has shown it is a fibration by exhibiting some particular construction of (mere existence of) cartesian lifts. *)
@@ -151,4 +132,108 @@ Definition comprehension_cat_structure (C : category) : UU
      (F : disp_functor (functor_identity _ ) D (disp_codomain C)),
      is_cartesian_disp_functor F.
 
-Arguments comprehension_cat_structure _ : clear implicits.
+Definition make_comprehension_cat_structure
+  {C : category}
+  (D : disp_cat C)
+  {clD : cleaving D}
+  (χ : disp_functor (functor_identity C) D (disp_codomain C))
+  (H : forall c c' f d, is_cartesian (♯ χ (clD c c' f d)))
+  (* (Hχ : is_cartesian_disp_functor χ) *)
+  : comprehension_cat_structure C :=
+  (D ,, clD ,, χ ,, cartesian_functor_from_cleaving clD H).
+
+Definition comprehension {C : category} (CC : comprehension_cat_structure C)
+  : disp_functor (functor_identity C) (pr1 CC) (disp_codomain C) :=
+  pr122 CC.
+Declare Scope comp_cat_struct.
+Local Open Scope comp_cat_struct.
+Notation "'π_χ'" := comprehension : comp_cat_struct.
+
+(** Pseudo Map between Comprehension Categories *)
+Definition pseudo_map_structure {C C' : category} (CC : comprehension_cat_structure C) (CC' : comprehension_cat_structure C') :=
+  ∑ (F : C ⟶ C') (F_bar : disp_functor F (pr1 CC) (pr1 CC')),
+    disp_nat_z_iso (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (disp_functor_composite F_bar (π_χ CC')) (nat_z_iso_id F).
+
+Definition make_pseudo_map_structure
+  {C C' : category} {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  {F : C ⟶ C'}
+  (F_bar : disp_functor F (pr1 CC) (pr1 CC'))
+  (ϕ : disp_nat_z_iso (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (disp_functor_composite F_bar (π_χ CC')) (nat_z_iso_id F))
+  : pseudo_map_structure CC CC'
+  := (F ,, F_bar ,, ϕ).
+
+(** Transformation between Pseudo Maps *)
+Lemma base_nat_trans_equality
+  {C₁ C₂ : category} {F₁ F₂: C₁ ⟶ C₂} (α : nat_trans F₁ F₂)
+  : nat_trans_comp
+      (functor_identity C₁ ∙ F₁)
+      (functor_identity C₁ ∙ F₂)
+      (F₂ ∙ functor_identity C₂)
+      (pre_whisker (functor_identity C₁) α) (nat_z_iso_id F₂)
+    =
+    nat_trans_comp
+      (functor_identity C₁ ∙ F₁)
+      (F₁ ∙ functor_identity C₂)
+      (F₂ ∙ functor_identity C₂)
+      (nat_z_iso_id F₁) (post_whisker α (functor_identity C₂)).
+Proof.
+  simpl.
+  rewrite identity_pre_whisker.
+  rewrite identity_post_whisker.
+  rewrite (nat_trans_comp_id_left (pr2 C₂) F₁ F₂ _).
+  rewrite (nat_trans_comp_id_right (pr2 C₂) F₁ F₂ _).
+  apply idpath.
+Qed.
+
+Definition transformation_structure_axiom'
+  {C C' : category}
+  {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  {F F': pseudo_map_structure CC CC'}
+  {α : nat_trans (pr1 F) (pr1 F')}
+  (α_bar : disp_nat_trans α (pr12 F) (pr12 F'))
+  :=
+  disp_nat_trans_comp (pre_whisker_disp_nat_trans (π_χ CC) (disp_codomain_nat_trans α)) (pr22 F')
+    =
+      transportb
+        (λ n, disp_nat_trans n _ _)
+        (base_nat_trans_equality α)
+      (disp_nat_trans_comp (pr22 F) (post_whisker_disp_nat_trans α_bar (π_χ CC'))).
+
+Definition mor_base_equal
+  {C C' : category}
+  {F F' : C ⟶ C'}
+  (α : F ⟹ F')
+  : ∏ x : C,
+      nat_z_iso_id F x · #(functor_identity C') (α x)
+      =
+        α (functor_identity C x) · nat_z_iso_id F' x.
+Proof.
+  intros x. simpl.
+  rewrite id_left, id_right.
+  exact (idpath _).
+Qed.
+
+(** Pointwise version to mirror other definitions (they are equivalent). *)
+Definition transformation_structure_axiom
+  {C C' : category}
+  {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  {F F': pseudo_map_structure CC CC'}
+  {α : nat_trans (pr1 F) (pr1 F')}
+  (α_bar : disp_nat_trans α (pr12 F) (pr12 F'))
+  :=
+  ∏ (x : C) (xx : (pr1 CC) x),
+    comp_disp ((pr22 F) _ xx) (♯(π_χ CC') (α_bar x xx))
+    =
+    transportb
+      (λ f, _ -->[ f ] _)
+      (mor_base_equal α x)
+    (comp_disp ((disp_codomain_nat_trans α) _ (π_χ CC _ xx)) ((pr22 F') _ xx)).
+
+Definition transformation_structure
+  {C C' : category}
+  {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  (F F': pseudo_map_structure CC CC')
+  :=
+  ∑ (α : nat_trans (pr1 F) (pr1 F')) (α_bar : disp_nat_trans α (pr12 F) (pr12 F')),
+    transformation_structure_axiom α_bar
+.

@@ -88,7 +88,7 @@ Section EnrichmentMonads.
                (x : C₁)
       : #F (η₁ x) = η₂ (F x) · Fm x.
     Proof.
-      pose (maponpaths (λ z, pr11 z x) (mnd_mor_unit f)) as p.
+      pose (from_eq_enriched_nat_trans (mnd_mor_unit f) x) as p.
       cbn in p.
       rewrite !id_left in p.
       exact p.
@@ -98,7 +98,7 @@ Section EnrichmentMonads.
                (x : C₁)
       : #M₂ (Fm x) · Fm (M₁ x) · #F (μ₁ x) = μ₂ (F x) · Fm x.
     Proof.
-      pose (maponpaths (λ z, pr11 z x) (mnd_mor_mu f)) as p.
+      pose (from_eq_enriched_nat_trans (mnd_mor_mu f) x) as p.
       cbn in p.
       rewrite !id_left in p.
       rewrite !id_right in p.
@@ -129,7 +129,7 @@ Section EnrichmentMonads.
                (x : C₁)
       : Fm₁ x · τc (M₁ x) = #M₂ (τc x) · Fm₂ x.
     Proof.
-      pose (maponpaths (λ z, pr11 z x) (mnd_cell_endo τ)) as p.
+      pose (from_eq_enriched_nat_trans (mnd_cell_endo τ) x) as p.
       exact p.
     Qed.
   End MonadCellProjections.

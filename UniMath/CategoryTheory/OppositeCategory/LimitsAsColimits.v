@@ -4,9 +4,9 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 
-Require Import UniMath.CategoryTheory.limits.cones.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.Limits.Cones.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
 
@@ -70,14 +70,39 @@ Section ColimitsAsLimits.
     apply (cc_lim c0 (cocone_op cc0)).
   Defined.
 
+  Definition ColimCocone_op
+             {C : category} {g : graph} {d : diagram g C}
+             (cc : ColimCocone d)
+    : LimCone (diagram_op d).
+  Proof.
+    use make_LimCone.
+    - exact (colim cc).
+    - exact (cocone_op (colimCocone cc)).
+    - apply (iscolimcocone_op (isColimCocone_from_ColimCocone cc)).
+  Defined.
+
   Definition LimCone_op
              {C : category} {g : graph} {d : diagram g C}
              (cc : LimCone d)
     : ColimCocone (diagram_op d).
   Proof.
-    exists (pr1 (pr1 cc) ,, cone_op (pr2 (pr1 cc))).
-    exact (islimcone_op (pr2 cc)).
+    use make_ColimCocone.
+    - exact (lim cc).
+    - exact (cone_op (limCone cc)).
+    - apply (islimcone_op (isLimCone_from_LimCone cc)).
   Defined.
+
+  Definition Colims_op
+    {C : category}
+    (H : Colims C)
+    : Lims (C^opp)
+    := λ g d, ColimCocone_op (H (graph_op g) (diagram_op d)).
+
+  Definition Lims_op
+    {C : category}
+    (H : Lims C)
+    : Colims (C^opp)
+    := λ g d, LimCone_op (H (graph_op g) (diagram_op d)).
 
   Definition chain_op {C : category} (ch : chain C)
     : cochain (opp_cat C).

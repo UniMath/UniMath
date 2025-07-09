@@ -16,6 +16,7 @@ Definition maponpaths_1 {X A : UU} (f : X -> A) {x x'} (e : x = x')
   : f x = f x'
 := maponpaths f e.
 
+
 Definition maponpaths_2 {Y X A : UU} (f : Y -> X -> A)
     {y y'} (e_y : y = y') x
   : f y x = f y' x
@@ -240,9 +241,26 @@ Proof.
   apply (transport_map (λ a, pr1 (P := P a))).
 Defined.
 
+Lemma pr1_transportb {A : UU} {B : A -> UU} {P : ∏ a, B a -> UU}
+   {a a' : A} (e : a = a') (xs : ∑ b : B a', P _ b):
+   pr1 (transportb (λ x, ∑ b : B x, P _ b) e xs) =
+     transportb (λ x, B x) e (pr1 xs).
+Proof.
+  apply pathsinv0.
+  apply (transport_map (λ a, pr1 (P := P a))).
+Defined.
+
 Lemma pr2_transportf {A} {B1 B2 : A → UU}
     {a a' : A} (e : a = a') (xs : B1 a × B2 a)
   : pr2 (transportf (λ a, B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
+Proof.
+  apply pathsinv0.
+  apply (transport_map (λ a, pr2 (P := λ _, B2 a))).
+Defined.
+
+Lemma pr2_transportb {A} {B1 B2 : A → UU}
+    {a a' : A} (e : a = a') (xs : B1 a' × B2 a')
+  : pr2 (transportb (λ a, B1 a × B2 a) e xs) = transportb _ e (pr2 xs).
 Proof.
   apply pathsinv0.
   apply (transport_map (λ a, pr2 (P := λ _, B2 a))).
@@ -399,6 +417,12 @@ Proof.
   intros.
   apply HB.
 Defined.
+
+Lemma iscontr_prod (X Y : UU)
+  : iscontr X -> iscontr Y -> iscontr (X × Y).
+Proof.
+  exact (isofhleveldirprod 0 _ _).
+Qed.
 
 (** ** Pointed types *)
 
@@ -593,6 +617,73 @@ Defined.
 Definition from_total2 {X} {P:X->Type} {Y} : (∏ x, P x->Y) -> total2 P -> Y.
 Proof.
   intros f [x p]. exact (f x p).
+Defined.
+
+
+(** ** Paths in coproducts *)
+
+Definition inv_equality_by_case_equality_by_case
+           {A B : UU}
+           {x y : A ⨿ B}
+           (p : x = y)
+  : @inv_equality_by_case A B x y (equality_by_case p) = p.
+Proof.
+  induction x, y, p ; apply idpath.
+Defined.
+
+Definition equality_by_case_inv_equality_by_case
+           {A B : UU}
+           {x y : A ⨿ B}
+           (p : equality_cases x y)
+  : equality_by_case (inv_equality_by_case p) = p.
+Proof.
+  induction x, y, p; apply idpath.
+Defined.
+
+Lemma equality_by_case_equiv {A B} (t u : A ⨿ B) : (t = u) ≃ equality_cases t u.
+Proof.
+  use weq_iso.
+  - apply equality_by_case.
+  - apply inv_equality_by_case.
+  - apply inv_equality_by_case_equality_by_case.
+  - apply equality_by_case_inv_equality_by_case.
+Defined.
+
+Definition paths_inl_inl_equiv {A B : UU} (a a' : A)
+  : @inl A B a = inl a' ≃ a = a'.
+Proof.
+  apply @equality_by_case_equiv.
+Defined.
+
+Definition paths_inl_inr_equiv {A B : UU} (a : A) (b : B)
+  : inl a = inr b ≃ empty.
+Proof.
+  apply @equality_by_case_equiv.
+Defined.
+
+Definition paths_inr_inr_equiv {A B : UU} (b b' : B)
+  : @inr A B b = inr b' ≃ b = b'.
+Proof.
+  apply @equality_by_case_equiv.
+Defined.
+
+Definition paths_inr_inl_equiv {A B : UU} (a : A) (b : B)
+  : inr b = inl a ≃ empty.
+Proof.
+  apply @equality_by_case_equiv.
+Defined.
+
+(* Note: the following lemmas are near-duplicates of [isinclii1], [isinclii2] provided in [Foundations]. *)
+Lemma isInjective_inl {A B : UU} : isInjective (@inl A B).
+Proof.
+  intros ? ?.
+  refine (isweqinvmap (@paths_inl_inl_equiv _ _ _ _)).
+Defined.
+
+Lemma isInjective_inr {A B : UU} : isInjective (@inr A B).
+Proof.
+  intros ? ?.
+  refine (isweqinvmap (@paths_inr_inr_equiv _ _ _ _)).
 Defined.
 
 (** ** Sections and functions *)
@@ -1311,6 +1402,8 @@ Proof.
   - apply idweq.
   - apply weqdirprodcomm.
 Defined.
+
+(** ** Surjectivity *)
 
 Section surjectivity.
   Lemma issurjective_idfun (X : UU) : issurjective (idfun X).

@@ -40,7 +40,7 @@ f |   α   |λf  η  | f
      s       ρ_f
 *)
 Lemma L_map_section {C : category} {n : nwfs C} {a b : C} {f : a --> b} (hf : nwfs_L_maps_class n _ _ f) :
-    ∃ s, f · s = arrow_mor (fact_L n f) × 
+    ∃ s, f · s = arrow_mor (fact_L n f) ×
          s · arrow_mor (fact_R n f) = identity _.
 Proof.
   use (hinhuniv _ hf).
@@ -67,7 +67,7 @@ Proof.
   split.
   - (* f ⋅ s = λ_f *)
     (* commutativity and ida = identity a *)
-    specialize (αfcomm) as αfcomm'. 
+    specialize (αfcomm) as αfcomm'.
     rewrite Hida, id_left in αfcomm'.
     apply pathsinv0.
     exact αfcomm'.
@@ -87,7 +87,7 @@ g |   η   |ρg  α  | g
   D ===== D ===== D  ~~> id_D
 *)
 Lemma R_map_section {C : category} {n : nwfs C} {c d : C} {g : c --> d} (hg : nwfs_R_maps_class n _ _ g) :
-    ∃ p, p · g = arrow_mor (fact_R n g) × 
+    ∃ p, p · g = arrow_mor (fact_R n g) ×
          arrow_mor (fact_L n g) · p = identity _.
 Proof.
   use (hinhuniv _ hg).
@@ -114,7 +114,7 @@ Proof.
   split.
   - (* p ⋅ g = ρ_g *)
     (* commutativity and ida = identity a *)
-    specialize (αgcomm) as αgcomm'. 
+    specialize (αgcomm) as αgcomm'.
     rewrite Hidd, id_right in αgcomm'.
     exact αgcomm'.
   - (* λg · p = id_c *)
@@ -144,14 +144,14 @@ Proof.
   set (hk := mors_to_arrow_mor f g h k H).
   set (Fhk := functor_on_morphisms (fact_functor n) hk).
   (* Kf --> Kg *)
-  set (Khk := three_mor11 Fhk). 
+  set (Khk := three_mor11 Fhk).
 
   (* commutativity in diagrams *)
   set (Hhk := three_mor_comm Fhk).
   simpl in Hhk.
   destruct Hhk as [Hhk0 Hhk1].
 
-  (*    
+  (*
               h
     A ==== A ----> C
     |      |       |
@@ -224,7 +224,7 @@ Lemma nwfs_L_maps_cl_subs_llp_R_maps_cl {C : category} (n : nwfs C) :
 Proof.
   intros a b f Hf.
   intros c d g Hg.
-  
+
   use (Hf).
   intro H.
   destruct H as [x [y [f' [Lf' Retff']]]].
@@ -242,7 +242,7 @@ Lemma nwfs_R_maps_cl_subs_rlp_L_maps_cl {C : category} (n : nwfs C) :
 Proof.
   intros c d g Hg.
   intros a b f Hf.
-  
+
   use (Hf).
   intro H.
   destruct H as [x [y [f' [Lf' Retff']]]].
@@ -340,7 +340,7 @@ Proof.
     exists _, _, Lf.
     split.
     * exact (nwfs_Lf_is_L_map n f).
-    (* 
+    (*
       A ===== A ===== A
       |       |       |
     f |       | λf    | f
@@ -366,7 +366,7 @@ Qed.
 Lemma nwfs_rlp_L_maps_cl_subs_R_maps_cl {C : category} (n : nwfs C) :
     rlp ((nwfs_L_maps_class n)^cl) ⊆ ((nwfs_R_maps_class n)^cl).
 Proof.
-  (* Want to construct R-map with retract from f using lift. 
+  (* Want to construct R-map with retract from f using lift.
      The map will be Rf *)
   intros a b f hf.
 
@@ -393,7 +393,7 @@ Proof.
     exists _, _, Rf.
     split.
     * exact (nwfs_Rf_is_R_map n f).
-    (* 
+    (*
          λf       l
       A ---> Kf ----> A
       |       |       |
@@ -439,8 +439,8 @@ Proof.
 
       repeat split.
       + apply in_morcls_retc_if_in_morcls.
-        exact (nwfs_Lf_is_L_map n (three_mor02 fact)).
+        exact (nwfs_Lf_is_L_map n (mor_to_arrow_ob (three_mor02 fact))).
       + apply in_morcls_retc_if_in_morcls.
-        exact (nwfs_Rf_is_R_map n (three_mor02 fact)).
+        exact (nwfs_Rf_is_R_map n (mor_to_arrow_ob (three_mor02 fact))).
       + exact (three_comp fact).
 Defined.

@@ -4,6 +4,14 @@
     February 2018
 
  Displayed bicategory of displayed structures on 1-categories.
+
+ Contents
+ 1. The displayed bicategory of displayed categories
+ 2. Invertible 2-cells in the displayed bicategory of displayed categories
+ 3. The local univalence
+ 4. Adjoints equivalences
+ 5. The global univalence
+
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
@@ -18,13 +26,25 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Adjunctions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
+Require Import UniMath.CategoryTheory.DisplayedCats.DisplayedFunctorEq.
+Require Import UniMath.CategoryTheory.DisplayedCats.EquivalenceOverId.
+Require Import UniMath.CategoryTheory.DisplayedCats.DisplayedCatEq.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Invertible_2cells.
+Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
+Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
@@ -33,6 +53,9 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+(**
+ 1. The displayed bicategory of displayed categories
+ *)
 Definition disp_bicat_of_univ_disp_cats_disp_cat_data
   : disp_cat_data bicat_of_univ_cats.
 Proof.
@@ -209,7 +232,6 @@ Proof.
     apply maponpaths_2. apply homset_property.
 Qed.
 
-
 Definition disp_prebicat_of_univ_disp_cats
   : disp_prebicat bicat_of_univ_cats
   := _ ,, disp_prebicat_of_univ_disp_cats_laws.
@@ -225,7 +247,9 @@ Proof.
        exact (@isaset_disp_nat_trans C₁ C₂ D₁ D₂ F₁ F₂ n FF₁ FF₂)).
 Defined.
 
-(** Condition for displayed invertible 2-cells in this bicategory *)
+(**
+ 2. Invertible 2-cells in the displayed bicategory of displayed categories
+ *)
 Definition disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell
            {C C' : bicat_of_univ_cats}
            {F : C --> C'}
@@ -233,10 +257,7 @@ Definition disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell
            {D' : disp_bicat_of_univ_disp_cats C'}
            {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
            (αα : FF ==>[ id₂ F ] GG)
-           (Hαα : ∏ (x : (C : univalent_category)) (xx : pr1 D x),
-                  is_z_iso_disp
-                    (identity_z_iso (pr1 F x))
-                    (pr1 αα x xx))
+           (Hαα : is_disp_nat_z_iso (nat_z_iso_id _) αα)
   : is_disp_invertible_2cell (id2_invertible_2cell F) αα.
 Proof.
   use tpair.
@@ -272,6 +293,332 @@ Proof.
                    @ _) ;
          apply transportf_paths ;
          apply homset_property).
+Defined.
+
+(**
+ This function is more convenient to use in certain cases. In the proof of global
+ univalence, we look at invertible 2-cells over the unitors. The data of these
+ 2-cells are equal to the identity transformations, but they have a different
+ proof of invertibility.
+ *)
+Lemma disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell_help
+      {C C' : bicat_of_univ_cats}
+      {F : C --> C'}
+      {D : disp_bicat_of_univ_disp_cats C}
+      {D' : disp_bicat_of_univ_disp_cats C'}
+      {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
+      (αα : FF ==>[ id₂ F ] GG)
+      (Hαα : is_disp_nat_z_iso (nat_z_iso_id _) αα)
+      (H : @is_invertible_2cell
+             bicat_of_univ_cats
+             C C'
+             F F
+             (nat_trans_id _))
+  : is_disp_invertible_2cell H αα.
+Proof.
+  refine (transportf
+            (λ z, is_disp_invertible_2cell z αα)
+            _
+            (disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell αα Hαα)).
+  apply isaprop_is_invertible_2cell.
+Qed.
+
+Definition from_disp_bicat_of_univ_disp_cats_disp_invertible_2cell
+           {C C' : bicat_of_univ_cats}
+           {F : C --> C'}
+           {D : disp_bicat_of_univ_disp_cats C}
+           {D' : disp_bicat_of_univ_disp_cats C'}
+           {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
+           (αα : FF ==>[ id₂ F ] GG)
+           (Hαα : is_disp_invertible_2cell (id2_invertible_2cell F) αα)
+  : is_disp_nat_z_iso (nat_z_iso_id _) αα.
+Proof.
+  intros x xx.
+  simple refine (_ ,, _ ,, _).
+  - exact (pr11 Hαα x xx).
+  - abstract
+      (refine (maponpaths (λ z, pr1 z x xx) (pr22 Hαα) @ _) ;
+       cbn ;
+       unfold transportb ;
+       rewrite disp_nat_trans_transportf ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  - abstract
+      (refine (maponpaths (λ z, pr1 z x xx) (pr12 Hαα) @ _) ;
+       cbn ;
+       unfold transportb ;
+       rewrite disp_nat_trans_transportf ;
+       apply maponpaths_2 ;
+       apply homset_property).
+Defined.
+
+(**
+ This function is more convenient to use in certain cases. In the proof of global
+ univalence, we look at invertible 2-cells over the unitors. The data of these
+ 2-cells are equal to the identity transformations, but they have a different
+ proof of invertibility.
+ *)
+Lemma from_disp_bicat_of_univ_disp_cats_disp_invertible_2cell_help
+      {C C' : bicat_of_univ_cats}
+      {F : C --> C'}
+      {D : disp_bicat_of_univ_disp_cats C}
+      {D' : disp_bicat_of_univ_disp_cats C'}
+      {FF : D -->[ F ] D'} {GG : D -->[ F ] D'}
+      (αα : FF ==>[ id₂ F ] GG)
+      (H : @is_invertible_2cell
+             bicat_of_univ_cats
+             C C'
+             F F
+             (nat_trans_id _))
+      (Hαα : is_disp_invertible_2cell H αα)
+  : is_disp_nat_z_iso (nat_z_iso_id _) αα.
+Proof.
+  apply from_disp_bicat_of_univ_disp_cats_disp_invertible_2cell.
+  refine (transportf
+            (λ z, is_disp_invertible_2cell z αα)
+            _
+            Hαα).
+  apply isaprop_is_invertible_2cell.
+Qed.
+
+Definition disp_bicat_of_univ_disp_cats_inv2cell_weq
+           {C₁ C₂ : bicat_of_univ_cats}
+           {F : C₁ --> C₂}
+           {D₁ : disp_bicat_of_univ_disp_cats C₁}
+           {D₂ : disp_bicat_of_univ_disp_cats C₂}
+           (FF GG : D₁ -->[ F ] D₂)
+  : disp_nat_z_iso FF GG (nat_z_iso_id F)
+    ≃
+    disp_invertible_2cell (id2_invertible_2cell F) FF GG.
+Proof.
+  use weqfibtototal.
+  intro τ.
+  use weqimplimpl.
+  - exact (disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell τ).
+  - exact (from_disp_bicat_of_univ_disp_cats_disp_invertible_2cell τ).
+  - apply isaprop_is_disp_nat_z_iso.
+  - apply isaprop_is_disp_invertible_2cell.
+Defined.
+
+(**
+ 3. The local univalence
+ *)
+Proposition disp_univalent_2_1_disp_bicat_of_univ_disp_cat
+  : disp_univalent_2_1 disp_bicat_of_univ_disp_cats.
+Proof.
+  use fiberwise_local_univalent_is_univalent_2_1.
+  intros C₁ C₂ F D₁ D₂ FF GG.
+  use weqhomot.
+  - exact (disp_bicat_of_univ_disp_cats_inv2cell_weq FF GG
+           ∘ disp_functor_eq_weq FF GG (pr2 D₂))%weq.
+  - abstract
+      (intro p ;
+       cbn in p ;
+       induction p ;
+       use subtypePath ; [ intro ; apply isaprop_is_disp_invertible_2cell | ] ;
+       use disp_nat_trans_eq ;
+       intros x xx ;
+       cbn ;
+       apply idpath).
+Defined.
+
+(**
+ 4. Adjoints equivalences
+ *)
+Definition disp_left_adjoint_equivalence_disp_bicat_of_univ_cats
+           {C : bicat_of_univ_cats}
+           {D₁ D₂ : disp_bicat_of_univ_disp_cats C}
+           (F : D₁ -->[ functor_identity _ ] D₂)
+           (HF : is_equiv_over_id F)
+  : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity C) F.
+Proof.
+  simple refine ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+  - exact (pr111 HF).
+  - exact (pr1 (pr211 HF)).
+  - exact (pr2 (pr211 HF)).
+  - abstract
+      (use disp_nat_trans_eq ;
+       intros x xx ; cbn ;
+       rewrite id_left_disp ;
+       rewrite !id_right_disp ;
+       unfold transportb ;
+       rewrite !mor_disp_transportf_postwhisker ;
+       rewrite !transport_f_f ;
+       etrans ;
+       [ apply maponpaths ;
+         exact (pr121 HF x xx)
+       | ] ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       refine (!_) ;
+       refine (disp_nat_trans_transportf
+                 _ _
+                 _ _
+                 (!(internal_triangle1 (is_internal_adjunction_identity C)))
+                 _ _
+                 (disp_nat_trans_id _)
+                 x xx
+               @ _) ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  - abstract
+      (use disp_nat_trans_eq ;
+       intros x xx ; cbn ;
+       rewrite id_left_disp ;
+       rewrite !id_right_disp ;
+       unfold transportb ;
+       rewrite !mor_disp_transportf_postwhisker ;
+       rewrite !transport_f_f ;
+       etrans ;
+       [ apply maponpaths ;
+         exact (pr221 HF x xx)
+       | ] ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       refine (!_) ;
+       refine (disp_nat_trans_transportf
+                 _ _
+                 _ _
+                 (!(internal_triangle2 (is_internal_adjunction_identity C)))
+                 _ _
+                 (disp_nat_trans_id _)
+                 x _
+               @ _) ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  - abstract
+      (use disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell_help ;
+       cbn ;
+       intros x xx ;
+       exact (pr12 HF x xx)).
+  - abstract
+      (use disp_bicat_of_univ_disp_cats_is_disp_invertible_2cell_help ;
+       cbn ;
+       intros x xx ;
+       exact (pr22 HF x xx)).
+Defined.
+
+Definition from_disp_left_adjoint_equivalence_disp_bicat_of_univ_cats
+           {C : bicat_of_univ_cats}
+           {D₁ D₂ : disp_bicat_of_univ_disp_cats C}
+           (F : D₁ -->[ functor_identity _ ] D₂)
+           (HF : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity C) F)
+  : is_equiv_over_id F.
+Proof.
+  simple refine (((_ ,, (_ ,, _)) ,, (_ ,, _)) ,, (_ ,, _)).
+  - exact (pr11 HF).
+  - exact (pr121 HF).
+  - exact (pr221 HF).
+  - abstract
+      (intros x xx ;
+       cbn ;
+       pose (maponpaths (λ z, pr1 z x xx) (pr112 HF)) as p ;
+       cbn in p ;
+       rewrite !id_left_disp in p ;
+       rewrite !id_right_disp in p ;
+       unfold transportb in p ;
+       rewrite !mor_disp_transportf_postwhisker in p ;
+       rewrite !transport_f_f in p ;
+       refine (transportb_transpose_right p @ _) ;
+       etrans ;
+       [ apply maponpaths ;
+         apply (disp_nat_trans_transportf
+                  _ _
+                  _ _
+                  (!(internal_triangle1 (is_internal_adjunction_identity C)))
+                  _ _
+                  (disp_nat_trans_id _)
+                  x xx)
+       | ] ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  - abstract
+      (intros x xx ;
+       cbn ;
+       pose (maponpaths (λ z, pr1 z x xx) (pr212 HF)) as p ;
+       cbn in p ;
+       rewrite !id_left_disp in p ;
+       rewrite !id_right_disp in p ;
+       unfold transportb in p ;
+       rewrite !mor_disp_transportf_postwhisker in p ;
+       rewrite !transport_f_f in p ;
+       refine (transportb_transpose_right p @ _) ;
+       etrans ;
+       [ apply maponpaths ;
+         apply (disp_nat_trans_transportf
+                  _ _
+                  _ _
+                  (!(internal_triangle2 (is_internal_adjunction_identity C)))
+                  _ _
+                  (disp_nat_trans_id _)
+                  x xx)
+       | ] ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  - abstract
+      (cbn ;
+       intros x xx ;
+       apply (from_disp_bicat_of_univ_disp_cats_disp_invertible_2cell_help
+                _ _
+                (pr122 HF))).
+- abstract
+      (cbn ;
+       intros x xx ;
+       apply (from_disp_bicat_of_univ_disp_cats_disp_invertible_2cell_help
+                _ _
+                (pr222 HF))).
+Defined.
+
+Definition disp_bicat_of_univ_disp_cats_adjequiv_weq
+           {C : bicat_of_univ_cats}
+           (D₁ : disp_bicat_of_univ_disp_cats C)
+           (D₂ : disp_bicat_of_univ_disp_cats C)
+  : (∑ (F : disp_functor (functor_identity _) (pr1 D₁) (pr1 D₂)), is_equiv_over_id F)
+    ≃
+    disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) D₁ D₂.
+Proof.
+  use weqfibtototal.
+  intro F.
+  use weqimplimpl.
+  - exact (disp_left_adjoint_equivalence_disp_bicat_of_univ_cats F).
+  - exact (from_disp_left_adjoint_equivalence_disp_bicat_of_univ_cats F).
+  - apply isaprop_is_equiv_over_id.
+    + exact (pr2 D₁).
+    + exact (pr2 D₂).
+  - use isaprop_disp_left_adjoint_equivalence.
+    + exact univalent_cat_is_univalent_2_1.
+    + exact disp_univalent_2_1_disp_bicat_of_univ_disp_cat.
+Defined.
+
+(**
+ 5. The global univalence
+ *)
+Proposition disp_univalent_2_0_disp_bicat_of_univ_disp_cat
+  : disp_univalent_2_0 disp_bicat_of_univ_disp_cats.
+Proof.
+  use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+  intros C D₁ D₂.
+  use weqhomot.
+  - refine (disp_bicat_of_univ_disp_cats_adjequiv_weq D₁ D₂
+            ∘ univ_disp_cat_eq (pr1 D₁) (pr1 D₂) (pr2 D₁) (pr2 D₂)
+            ∘ path_sigma_hprop _ _ _ _)%weq.
+    apply isaprop_is_univalent_disp.
+  - abstract
+      (intro p ;
+       cbn in p ;
+       induction p ;
+       use subtypePath ;
+       [ intro ;
+         use (isaprop_disp_left_adjoint_equivalence
+                _ _
+                univalent_cat_is_univalent_2_1
+                disp_univalent_2_1_disp_bicat_of_univ_disp_cat)
+       | ] ;
+       apply idpath).
 Defined.
 
 (** Displayed bicategory of fibrations *)

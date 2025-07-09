@@ -322,7 +322,7 @@ Section CommaObject.
 
     Definition is_invertible_2cell_comma_ump_cell_inv : ψ ==> φ.
     Proof.
-      use (comma_ump_cell Hp _ _ (Hα^-1) (Hβ^-1)).
+      use (comma_ump_cell Hp _ _ Hα^-1 Hβ^-1).
       abstract
         (do 3 (use vcomp_move_R_Mp ; [ is_iso | ]) ;
          rewrite !vassocl ;

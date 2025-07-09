@@ -65,7 +65,7 @@ Definition succ := S.
 Declare Scope nat_scope.
 Delimit Scope nat_scope with nat.
 Bind Scope nat_scope with nat.
-Arguments S _%nat.
+Arguments S _%_nat.
 Open Scope nat_scope.
 
 Fixpoint add n m :=

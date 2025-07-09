@@ -31,7 +31,7 @@
  *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.Posets.
+Require Import UniMath.OrderTheory.Posets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -49,10 +49,10 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.PosetsMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.equalizers.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 
 Local Open Scope cat.
 Local Open Scope moncat.

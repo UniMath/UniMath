@@ -34,25 +34,25 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Slice.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Slice.
+Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.slicecat.
 
@@ -83,7 +83,7 @@ Arguments Sum_of_Signatures _ {_ _ _} _ _.
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.
 
-Variables (sort : hSet).
+Context (sort : hSet).
 
 Local Definition HSET_over_sort : category.
 Proof.
@@ -186,9 +186,9 @@ Defined.
 Local Definition exp_functor_list (xs : list (list sort × sort)) :
   functor [HSET_over_sort,HSET_over_sort] [HSET_over_sort,HSET].
 Proof.
-(* If the list is empty we output the constant functor *)
-set (T := constant_functor [HSET_over_sort,HSET_over_sort] [HSET_over_sort,HSET]
-                           (constant_functor HSET_over_sort HSET TerminalHSET)).
+  (* If the list is empty we output the constant functor *)
+set (T0 := (Terminal_functor_precat _ _ TerminalHSET) : Terminal [HSET_over_sort, HSET]).
+set (T := constant_functor [HSET_over_sort,HSET_over_sort] _ T0).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
 set (XS := map exp_functor xs).
 (* This should be foldr1 in order to avoid composing with the
@@ -361,7 +361,7 @@ Defined.
 
 Local Lemma is_left_adjoint_proj_functor (s : sort) : is_left_adjoint (proj_functor s).
 Proof.
-apply (is_left_adjoint_z_iso _ _ (_,,is_z_iso_nat_trans_proj_functor s)).
+apply (is_left_adjoint_closed_under_iso _ _ (_,,is_z_iso_nat_trans_proj_functor s)).
 apply is_left_adjoint_proj_functor'.
 Defined.
 

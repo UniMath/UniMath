@@ -1,0 +1,11 @@
+LinearLogic/LinearNonLinear.v
+LinearLogic/LafontCategory.v
+LinearLogic/LinearCategory.v
+LinearLogic/LinearCategoryEilenbergMooreAdjunction.v
+LinearLogic/LinearToLinearNonLinear.v
+LinearLogic/RelationalModel.v
+LinearLogic/LiftingModel.v
+
+EnrichedEffectCalculus/EECModel.v
+EnrichedEffectCalculus/ContinuationModel.v
+EnrichedEffectCalculus/CopowerModel.v

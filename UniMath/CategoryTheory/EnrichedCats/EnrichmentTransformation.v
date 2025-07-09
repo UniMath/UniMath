@@ -120,6 +120,111 @@ Proof.
     apply homset_property.
 Qed.
 
+Proposition nat_trans_enrichment_via_comp
+            {V : monoidal_cat}
+            {C₁ C₂ : category}
+            {F G : C₁ ⟶ C₂}
+            (τ : nat_trans_data F G)
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            {EF : functor_enrichment F E₁ E₂}
+            {EG : functor_enrichment G E₁ E₂}
+            (p : ∏ (x y : C₁),
+                 EG x y · precomp_arr E₂ (G y) (τ x)
+                 =
+                 EF x y · postcomp_arr E₂ (F x) (τ y))
+  : nat_trans_enrichment τ EF EG.
+Proof.
+  intros x y.
+  refine (_ @ p x y @ _) ; unfold postcomp_arr, precomp_arr.
+  - rewrite !assoc.
+    apply maponpaths_2.
+    rewrite tensor_rinvunitor.
+    rewrite !assoc'.
+    rewrite <- tensor_split'.
+    apply idpath.
+  - rewrite !assoc.
+    apply maponpaths_2.
+    rewrite tensor_linvunitor.
+    rewrite !assoc'.
+    rewrite <- tensor_split.
+    apply idpath.
+Qed.
+
+Proposition nat_trans_enrichment_to_comp
+            {V : monoidal_cat}
+            {C₁ C₂ : category}
+            {F G : C₁ ⟶ C₂}
+            {τ : nat_trans_data F G}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            {EF : functor_enrichment F E₁ E₂}
+            {EG : functor_enrichment G E₁ E₂}
+            (Eτ : nat_trans_enrichment τ EF EG)
+            (x y : C₁)
+  : EG x y · precomp_arr E₂ (G y) (τ x)
+    =
+    EF x y · postcomp_arr E₂ (F x) (τ y).
+Proof.
+  refine (_ @ Eτ x y @ _) ; unfold postcomp_arr, precomp_arr.
+  - rewrite !assoc.
+    apply maponpaths_2.
+    rewrite tensor_rinvunitor.
+    rewrite !assoc'.
+    rewrite <- tensor_split'.
+    apply idpath.
+  - rewrite !assoc.
+    apply maponpaths_2.
+    rewrite tensor_linvunitor.
+    rewrite !assoc'.
+    rewrite <- tensor_split.
+    apply idpath.
+Qed.
+
+Proposition nat_z_iso_inv_enrichment
+            {V : monoidal_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            {F G : C₁ ⟶ C₂}
+            {EF : functor_enrichment F E₁ E₂}
+            {EG : functor_enrichment G E₁ E₂}
+            (τ : nat_z_iso F G)
+            (Eτ : nat_trans_enrichment τ EF EG)
+  : nat_trans_enrichment (nat_z_iso_inv τ) EG EF.
+Proof.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn.
+  refine (!(id_right _) @ _).
+  rewrite <- postcomp_arr_id.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (!(z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso τ y))).
+  }
+  rewrite postcomp_arr_comp.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  rewrite precomp_postcomp_arr.
+  cbn.
+  rewrite !assoc.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply (!nat_trans_enrichment_to_comp Eτ x y).
+  }
+  rewrite !assoc'.
+  rewrite <- precomp_arr_comp.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso τ x)).
+  }
+  rewrite precomp_arr_id.
+  apply id_right.
+Qed.
+
 (**
  2. The identity transformation
  *)
@@ -132,26 +237,11 @@ Definition id_trans_enrichment
            (FE : functor_enrichment F E₁ E₂)
   : nat_trans_enrichment (nat_trans_id F) FE FE.
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
-  rewrite <- !(functor_enrichment_id FE).
-  rewrite (tensor_comp_l_id_l (FE x y)).
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  rewrite (tensor_comp_r_id_l _ _ (FE x y)).
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  rewrite !assoc.
-  apply maponpaths_2.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left.
-  rewrite <- enrichment_id_right.
-  etrans.
-  {
-    apply mon_rinvunitor_runitor.
-  }
-  refine (!_).
-  apply mon_linvunitor_lunitor.
+  rewrite precomp_arr_id, postcomp_arr_id.
+  rewrite !id_right.
+  apply idpath.
 Qed.
 
 (**
@@ -169,33 +259,11 @@ Definition lunitor_enrichment
       (functor_comp_enrichment (functor_id_enrichment _) FE)
       FE.
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
-  rewrite <- !(functor_enrichment_id FE).
-  rewrite (tensor_comp_l_id_l (FE x y)).
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  refine (!_).
-  etrans.
-  {
-    apply maponpaths.
-    apply maponpaths_2.
-    apply tensor_comp_mor.
-  }
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  rewrite !assoc.
-  apply maponpaths_2.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left.
-  rewrite <- enrichment_id_right.
-  refine (!_).
-  etrans.
-  {
-    apply mon_rinvunitor_runitor.
-  }
-  refine (!_).
-  apply mon_linvunitor_lunitor.
+  rewrite precomp_arr_id, postcomp_arr_id.
+  rewrite !id_left, !id_right.
+  apply idpath.
 Qed.
 
 Definition linvunitor_enrichment
@@ -210,51 +278,11 @@ Definition linvunitor_enrichment
       FE
       (functor_comp_enrichment (functor_id_enrichment _) FE).
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
-  rewrite <- !(functor_enrichment_id FE).
-  etrans.
-  {
-    apply maponpaths_2.
-    apply maponpaths.
-    apply tensor_comp_mor.
-  }
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  etrans.
-  {
-    apply maponpaths.
-    rewrite !assoc.
-    apply maponpaths_2.
-    refine (!_).
-    apply enrichment_id_right.
-  }
-  rewrite !assoc.
-  etrans.
-  {
-    apply maponpaths_2.
-    apply mon_rinvunitor_runitor.
-  }
-  refine (id_left _ @ _).
-  refine (!_).
-  rewrite (tensor_comp_r_id_l _ _ (FE x y)).
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  etrans.
-  {
-    apply maponpaths.
-    rewrite !assoc.
-    apply maponpaths_2.
-    refine (!_).
-    apply enrichment_id_left.
-  }
-  rewrite !assoc.
-  etrans.
-  {
-    apply maponpaths_2.
-    apply mon_linvunitor_lunitor.
-  }
-  apply id_left.
+  rewrite precomp_arr_id, postcomp_arr_id.
+  rewrite !id_left, !id_right.
+  apply idpath.
 Qed.
 
 Definition runitor_enrichment
@@ -269,27 +297,11 @@ Definition runitor_enrichment
       (functor_comp_enrichment FE (functor_id_enrichment _))
       FE.
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
-  rewrite <- !(functor_enrichment_id FE).
-  rewrite (tensor_comp_l_id_l (FE x y)).
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  rewrite id_right.
-  rewrite (tensor_comp_r_id_l _ _ (FE x y)).
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  rewrite !assoc.
-  apply maponpaths_2.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left.
-  rewrite <- enrichment_id_right.
-  etrans.
-  {
-    apply mon_rinvunitor_runitor.
-  }
-  refine (!_).
-  apply mon_linvunitor_lunitor.
+  rewrite precomp_arr_id, postcomp_arr_id.
+  rewrite !id_right.
+  apply idpath.
 Qed.
 
 Definition rinvunitor_enrichment
@@ -304,27 +316,11 @@ Definition rinvunitor_enrichment
       FE
       (functor_comp_enrichment FE (functor_id_enrichment _)).
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
-  rewrite <- !(functor_enrichment_id FE).
-  rewrite (tensor_comp_r_id_l _ _ (FE x y)).
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  rewrite id_right.
-  rewrite (tensor_comp_l_id_l (FE x y)).
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
-  rewrite !assoc.
-  apply maponpaths_2.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left.
-  rewrite <- enrichment_id_right.
-  etrans.
-  {
-    apply mon_rinvunitor_runitor.
-  }
-  refine (!_).
-  apply mon_linvunitor_lunitor.
+  rewrite precomp_arr_id, postcomp_arr_id.
+  rewrite !id_right.
+  apply idpath.
 Qed.
 
 (**
@@ -348,102 +344,11 @@ Definition lassociator_enrichment
       (functor_comp_enrichment (functor_comp_enrichment FE GE) HE)
       (functor_comp_enrichment FE (functor_comp_enrichment GE HE)).
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
+  rewrite precomp_arr_id, postcomp_arr_id.
+  rewrite !id_right.
   rewrite !assoc'.
-  rewrite <- !(functor_enrichment_id HE).
-  rewrite <- !(functor_enrichment_id GE).
-  rewrite <- !(functor_enrichment_id FE).
-  etrans.
-  {
-    apply maponpaths.
-    apply maponpaths_2.
-    rewrite !assoc.
-    refine (tensor_comp_mor _ _ _ _ @ _).
-    apply maponpaths_2.
-    refine (tensor_comp_mor _ _ _ _ @ _).
-    apply maponpaths_2.
-    apply tensor_comp_l_id_l.
-  }
-  rewrite !assoc'.
-  rewrite <- (functor_enrichment_comp HE).
-  etrans.
-  {
-    apply maponpaths.
-    etrans.
-    {
-      apply maponpaths.
-      etrans.
-      {
-        apply maponpaths.
-        rewrite assoc.
-        rewrite <- (functor_enrichment_comp GE).
-        apply idpath.
-      }
-      rewrite !assoc.
-      rewrite <- (functor_enrichment_comp FE).
-      apply idpath.
-    }
-    rewrite !assoc.
-    do 3 apply maponpaths_2.
-    refine (!_).
-    apply enrichment_id_right.
-  }
-  rewrite !assoc.
-  etrans.
-  {
-    do 2 apply maponpaths_2.
-    etrans.
-    {
-      apply maponpaths_2.
-      apply mon_rinvunitor_runitor.
-    }
-    apply id_left.
-  }
-  refine (!_).
-  etrans.
-  {
-    rewrite !assoc'.
-    apply maponpaths.
-    apply maponpaths_2.
-    rewrite !assoc.
-    refine (tensor_comp_mor _ _ _ _ @ _).
-    apply maponpaths_2.
-    refine (tensor_comp_mor _ _ _ _ @ _).
-    apply maponpaths_2.
-    apply tensor_comp_r_id_l.
-  }
-  rewrite !assoc'.
-  rewrite <- (functor_enrichment_comp HE).
-  etrans.
-  {
-    apply maponpaths.
-    etrans.
-    {
-      apply maponpaths.
-      etrans.
-      {
-        apply maponpaths.
-        rewrite assoc.
-        rewrite <- (functor_enrichment_comp GE).
-        apply idpath.
-      }
-      rewrite !assoc.
-      rewrite <- (functor_enrichment_comp FE).
-      apply idpath.
-    }
-    rewrite !assoc.
-    do 3 apply maponpaths_2.
-    refine (!_).
-    apply enrichment_id_left.
-  }
-  rewrite !assoc.
-  etrans.
-  {
-    do 3 apply maponpaths_2.
-    apply mon_linvunitor_lunitor.
-  }
-  rewrite id_left.
   apply idpath.
 Qed.
 
@@ -465,102 +370,11 @@ Definition rassociator_enrichment
       (functor_comp_enrichment FE (functor_comp_enrichment GE HE))
       (functor_comp_enrichment (functor_comp_enrichment FE GE) HE).
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
+  rewrite precomp_arr_id, postcomp_arr_id.
+  rewrite !id_right.
   rewrite !assoc'.
-  rewrite <- !(functor_enrichment_id HE).
-  rewrite <- !(functor_enrichment_id GE).
-  rewrite <- !(functor_enrichment_id FE).
-  etrans.
-  {
-    apply maponpaths.
-    apply maponpaths_2.
-    rewrite !assoc.
-    refine (tensor_comp_mor _ _ _ _ @ _).
-    apply maponpaths_2.
-    refine (tensor_comp_mor _ _ _ _ @ _).
-    apply maponpaths_2.
-    apply tensor_comp_l_id_l.
-  }
-  rewrite !assoc'.
-  rewrite <- (functor_enrichment_comp HE).
-  etrans.
-  {
-    apply maponpaths.
-    etrans.
-    {
-      apply maponpaths.
-      etrans.
-      {
-        apply maponpaths.
-        rewrite assoc.
-        rewrite <- (functor_enrichment_comp GE).
-        apply idpath.
-      }
-      rewrite !assoc.
-      rewrite <- (functor_enrichment_comp FE).
-      apply idpath.
-    }
-    rewrite !assoc.
-    do 3 apply maponpaths_2.
-    refine (!_).
-    apply enrichment_id_right.
-  }
-  rewrite !assoc.
-  etrans.
-  {
-    do 2 apply maponpaths_2.
-    etrans.
-    {
-      apply maponpaths_2.
-      apply mon_rinvunitor_runitor.
-    }
-    apply id_left.
-  }
-  refine (!_).
-  etrans.
-  {
-    rewrite !assoc'.
-    apply maponpaths.
-    apply maponpaths_2.
-    rewrite !assoc.
-    refine (tensor_comp_mor _ _ _ _ @ _).
-    apply maponpaths_2.
-    refine (tensor_comp_mor _ _ _ _ @ _).
-    apply maponpaths_2.
-    apply tensor_comp_r_id_l.
-  }
-  rewrite !assoc'.
-  rewrite <- (functor_enrichment_comp HE).
-  etrans.
-  {
-    apply maponpaths.
-    etrans.
-    {
-      apply maponpaths.
-      etrans.
-      {
-        apply maponpaths.
-        rewrite assoc.
-        rewrite <- (functor_enrichment_comp GE).
-        apply idpath.
-      }
-      rewrite !assoc.
-      rewrite <- (functor_enrichment_comp FE).
-      apply idpath.
-    }
-    rewrite !assoc.
-    do 3 apply maponpaths_2.
-    refine (!_).
-    apply enrichment_id_left.
-  }
-  rewrite !assoc.
-  etrans.
-  {
-    do 3 apply maponpaths_2.
-    apply mon_linvunitor_lunitor.
-  }
-  rewrite id_left.
   apply idpath.
 Qed.
 
@@ -582,257 +396,15 @@ Definition comp_trans_enrichment
            (τE₂ : nat_trans_enrichment τ₂ FE₂ FE₃)
   : nat_trans_enrichment (nat_trans_comp _ _ _ τ₁ τ₂) FE₁ FE₃.
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  pose (p := τE₁ x y).
-  pose (q := τE₂ x y).
-  rewrite !enriched_from_arr_comp.
-  etrans.
-  {
-    rewrite !assoc'.
-    apply maponpaths.
-    apply maponpaths_2.
-    apply maponpaths.
-    rewrite mon_linvunitor_I_mon_rinvunitor_I.
-    rewrite tensor_split'.
-    rewrite !assoc.
-    do 2 apply maponpaths_2.
-    refine (!_).
-    apply tensor_rinvunitor.
-  }
+  rewrite precomp_arr_comp, postcomp_arr_comp.
   rewrite !assoc.
-  etrans.
-  {
-    apply maponpaths_2.
-    rewrite !assoc'.
-    rewrite tensor_comp_l_id_r.
-    apply idpath.
-  }
+  rewrite (nat_trans_enrichment_to_comp τE₂).
+  rewrite !assoc'.
+  rewrite <- precomp_postcomp_arr.
   rewrite !assoc.
-  etrans.
-  {
-    apply maponpaths_2.
-    apply maponpaths.
-    apply tensor_comp_l_id_r.
-  }
-  rewrite !assoc'.
-  etrans.
-  {
-    do 3 apply maponpaths.
-    apply enrichment_assoc'.
-  }
-  etrans.
-  {
-    do 2 apply maponpaths.
-    rewrite !assoc.
-    do 2 apply maponpaths_2.
-    etrans.
-    {
-      apply maponpaths_2.
-      apply tensor_comp_l_id_r.
-    }
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      apply tensor_rassociator.
-    }
-    rewrite !assoc.
-    apply maponpaths_2.
-    apply mon_rinvunitor_triangle.
-  }
-  rewrite tensor_id_id.
-  etrans.
-  {
-    do 2 apply maponpaths.
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite !assoc.
-      apply maponpaths_2.
-      apply tensor_swap'.
-    }
-    rewrite !assoc.
-    do 2 apply maponpaths_2.
-    refine (!_).
-    apply tensor_rinvunitor.
-  }
-  rewrite !assoc.
-  etrans.
-  {
-    do 3 apply maponpaths_2.
-    exact q.
-  }
-  clear q.
-  rewrite !assoc'.
-  apply maponpaths.
-  etrans.
-  {
-    apply maponpaths.
-    rewrite !assoc.
-    rewrite tensor_rinvunitor.
-    apply maponpaths_2.
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      apply tensor_swap.
-    }
-    apply idpath.
-  }
-  rewrite !assoc'.
-  etrans.
-  {
-    do 3 apply maponpaths.
-    apply enrichment_assoc.
-  }
-  etrans.
-  {
-    do 2 apply maponpaths.
-    rewrite !assoc.
-    do 2 apply maponpaths_2.
-    etrans.
-    {
-      do 2 apply maponpaths_2.
-      refine (!_).
-      apply tensor_id_id.
-    }
-    apply tensor_lassociator.
-  }
-  etrans.
-  {
-    apply maponpaths.
-    rewrite !assoc.
-    do 3 apply maponpaths_2.
-    rewrite <- mon_rinvunitor_triangle.
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      apply mon_rassociator_lassociator.
-    }
-    apply id_right.
-  }
-  etrans.
-  {
-    apply maponpaths_2.
-    apply tensor_split'.
-  }
-  rewrite !assoc'.
-  etrans.
-  {
-    apply maponpaths.
-    rewrite !assoc.
-    apply maponpaths_2.
-    etrans.
-    {
-      do 2 apply maponpaths_2.
-      refine (!_).
-      apply tensor_comp_id_l.
-    }
-    etrans.
-    {
-      apply maponpaths_2.
-      refine (!_).
-      apply tensor_comp_id_l.
-    }
-    etrans.
-    {
-      refine (!_).
-      apply tensor_comp_id_l.
-    }
-    apply maponpaths.
-    etrans.
-    {
-      do 2 apply maponpaths_2.
-      apply tensor_rinvunitor.
-    }
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite assoc.
-      apply maponpaths_2.
-      refine (!_).
-      apply tensor_split'.
-    }
-    rewrite assoc.
-    exact p.
-  }
-  clear p.
-  rewrite !assoc.
-  rewrite tensor_comp_l_id_l.
-  rewrite !assoc'.
-  etrans.
-  {
-    do 2 apply maponpaths.
-    apply enrichment_assoc'.
-  }
-  rewrite !assoc.
-  apply maponpaths_2.
-  rewrite tensor_comp_l_id_r.
-  rewrite !assoc'.
-  etrans.
-  {
-    do 2 apply maponpaths.
-    rewrite !assoc.
-    apply maponpaths_2.
-    apply tensor_rassociator.
-  }
-  rewrite !assoc'.
-  etrans.
-  {
-    apply maponpaths.
-    rewrite !assoc.
-    do 2 apply maponpaths_2.
-    etrans.
-    {
-      apply maponpaths_2.
-      apply mon_inv_triangle.
-    }
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      apply mon_lassociator_rassociator.
-    }
-    apply id_right.
-  }
-  rewrite !assoc.
-  etrans.
-  {
-    do 2 apply maponpaths_2.
-    etrans.
-    {
-      refine (!_).
-      apply tensor_comp_id_r.
-    }
-    apply maponpaths_2.
-    apply tensor_rinvunitor.
-  }
-  etrans.
-  {
-    apply maponpaths_2.
-    refine (!_).
-    apply tensor_comp_mor.
-  }
-  rewrite id_left.
-  etrans.
-  {
-    apply maponpaths_2.
-    apply maponpaths_2.
-    rewrite !assoc'.
-    apply maponpaths.
-    refine (!_).
-    apply tensor_split'.
-  }
-  etrans.
-  {
-    refine (!_).
-    apply tensor_comp_mor.
-  }
-  rewrite id_right.
-  rewrite mon_linvunitor_I_mon_rinvunitor_I.
+  rewrite (nat_trans_enrichment_to_comp τE₁).
   apply idpath.
 Qed.
 
@@ -854,30 +426,12 @@ Definition pre_whisker_enrichment
       (functor_comp_enrichment FE GE₁)
       (functor_comp_enrichment FE GE₂).
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  pose (p := τE (F x) (F y)).
-  rewrite tensor_comp_r_id_l.
-  rewrite !assoc.
-  etrans.
-  {
-    do 2 apply maponpaths_2.
-    refine (!_).
-    apply tensor_rinvunitor.
-  }
   rewrite !assoc'.
-  etrans.
-  {
-    apply maponpaths.
-    rewrite !assoc.
-    exact p.
-  }
-  clear p.
-  rewrite !assoc.
-  apply maponpaths_2.
-  rewrite tensor_comp_l_id_l.
-  rewrite !assoc.
-  apply maponpaths_2.
-  apply tensor_linvunitor.
+  apply maponpaths.
+  rewrite (nat_trans_enrichment_to_comp τE).
+  apply idpath.
 Qed.
 
 Definition post_whisker_enrichment
@@ -898,23 +452,14 @@ Definition post_whisker_enrichment
       (functor_comp_enrichment FE₁ GE)
       (functor_comp_enrichment FE₂ GE).
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn.
-  pose (p := τE x y).
-  rewrite !(functor_enrichment_from_arr GE).
-  rewrite (tensor_comp_mor (FE₂ x y)).
   rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
+  rewrite (functor_enrichment_precomp_arr GE).
+  rewrite (functor_enrichment_postcomp_arr GE).
   rewrite !assoc.
-  etrans.
-  {
-    apply maponpaths_2.
-    exact p.
-  }
-  rewrite !assoc'.
-  apply maponpaths.
-  rewrite (tensor_comp_mor (enriched_from_arr E₂ (pr1 τ y))).
-  rewrite !assoc'.
-  rewrite <- functor_enrichment_comp.
+  apply maponpaths_2.
+  rewrite (nat_trans_enrichment_to_comp τE).
   apply idpath.
 Qed.
 
@@ -934,7 +479,7 @@ Definition is_nat_trans_from_enrichment
   : is_nat_trans _ _ τ.
 Proof.
   intros x y f.
-  pose (H x y).
+  pose (H x y) as p.
   cbn in p.
   use (invmaponpathsweq (_ ,, isweq_enriched_from_arr E₂ _ _)).
   cbn.
