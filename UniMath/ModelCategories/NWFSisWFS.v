@@ -273,9 +273,9 @@ Proof.
 
       repeat split.
       + apply in_morcls_retc_if_in_morcls.
-        exact (nwfs_Lf_is_L_map n (mor_to_arrow_ob (three_mor02 fact))).
+        exact (nwfs_Lf_is_L_map n (three_mor02 fact)).
       + apply in_morcls_retc_if_in_morcls.
-        exact (nwfs_Rf_is_R_map n (mor_to_arrow_ob (three_mor02 fact))).
+        exact (nwfs_Rf_is_R_map n (three_mor02 fact)).
       + exact (three_comp fact).
 Defined.
 
@@ -399,7 +399,7 @@ Proof.
   induction v as [|v Hv].
   - use tpair.
       * use mors_to_arrow_mor.
-        + exact (arrow_mor (fact_L n (colimIn CC 0))).
+        + exact (fact_L n (colimIn CC 0)).
         + exact (colimIn CC 1).
         + abstract (
             etrans; [exact (three_comp (fact_functor n (colimIn CC 0)))|];
@@ -484,7 +484,7 @@ Local Lemma nwfs_tfcomp_lp_unit_compat
     (v : vertex nat_graph)
     (Hv := nwfs_tfcomp_lp CC Hd v) :
   arrow_mor00 (pr1 Hv)
-  · arrow_mor (fact_R n (colimIn CC 0))
+  · fact_R n (colimIn CC 0)
   = colimIn CC v.
 Proof.
   etrans. exact (arrow_mor_comm (pr1 Hv)).
@@ -512,7 +512,7 @@ Lemma nwfs_wfs_closed_transfinite_composition
     {n : nwfs C}
     (CC : ColimCocone d)
     (Hd : chain_L_map d n) :
-  ∑ (f : arrow C), nwfs_L_maps_class n _ _ (arrow_mor f) × retract (arrow_mor f) (colimIn CC 0).
+  ∑ (f : arrow C), nwfs_L_maps_class n _ _ f × retract f (colimIn CC 0).
 Proof.
   exists (fact_L n (colimIn CC 0)).
   split; [exact (nwfs_Lf_is_L_map _ _)|].
@@ -520,7 +520,7 @@ Proof.
   - exact (identity _).
   - exact (identity _).
   - exact (arrow_mor11 (nwfs_tfcomp_alg_map CC Hd)).
-  - exact (arrow_mor (fact_R n (colimIn CC 0))).
+  - exact (fact_R n (colimIn CC 0)).
   - use make_is_retract.
     * apply id_left.
     * apply pathsinv0.

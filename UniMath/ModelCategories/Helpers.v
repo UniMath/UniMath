@@ -38,7 +38,7 @@ Qed.
 
 Lemma section_disp_on_eq_morphisms' {C : category}
     (F : section_disp (three_disp C)) {f f' : arrow C} {γ : f --> f'}
-    (H : arrow_mor00 γ · arrow_mor f' = arrow_mor f · arrow_mor11 γ) :
+    (H : arrow_mor00 γ · f' = f · arrow_mor11 γ) :
   let alternate := ((arrow_mor00 γ,, arrow_mor11 γ),, H) : f --> f' in
   pr1 (section_disp_on_morphisms F alternate) =
     pr1 (section_disp_on_morphisms F γ).

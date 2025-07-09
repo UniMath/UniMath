@@ -46,21 +46,21 @@ Section preliminaries.
 Context {C : category}.
 
 Definition morcls_disp (J : morphism_class C) : disp_cat (arrow C) :=
-    disp_full_sub (arrow C) (λ g, J _ _ (arrow_mor g)).
+    disp_full_sub (arrow C) (λ g, J _ _ g).
 
 Coercion total_morcls_disp_arrow
     {J : morphism_class C} (g : total_category (morcls_disp J)) :=
   pr1 g.
 
 Definition right_lifting_data (J : morphism_class C) (f : arrow C) : UU :=
-    ∏ (g : arrow C), (J _ _ (arrow_mor g)) -> elp (arrow_mor g) (arrow_mor f).
+    ∏ (g : arrow C), (J _ _ g) -> elp g f.
 
 Lemma right_lifting_data_retract (J : morphism_class C) {f f' : arrow C}
-    (Rff' : retract (arrow_mor f) (arrow_mor f')) :
+    (Rff' : retract f f') :
   right_lifting_data J f -> right_lifting_data J f'.
 Proof.
   intros rldJf g Jg.
-  apply (elp_of_retracts (retract_self (arrow_mor g)) (Rff')).
+  apply (elp_of_retracts (retract_self g) (Rff')).
   exact (rldJf g Jg).
 Defined.
 
@@ -68,7 +68,7 @@ Defined.
    g --> f --> f' in the right way *)
 Definition right_lifting_data_comp {J : morphism_class C} {f f' : arrow C}
     (δ : right_lifting_data J f) (δ' : right_lifting_data J f') (mn : f --> f') : UU :=
-  ∏ (g : arrow C) (H : J _ _ (arrow_mor g)) (S : g --> f),
+  ∏ (g : arrow C) (H : J _ _ g) (S : g --> f),
   (filler_map (δ g H _ _ (arrow_mor_comm S))) · (arrow_mor00 mn) =
     filler_map (δ' g H _ _ (arrow_mor_comm (S · mn))).
 
@@ -371,7 +371,7 @@ Defined.
    wfs_closed_coproducts, but we do _not_ need the axiom of choice here,
    since we know the actual lifting data. *)
 Lemma lifting_data_impl_lifting_coprod_lp :
-  right_lifting_data J f -> elp (morcls_lp_coprod) (arrow_mor f).
+  right_lifting_data J f -> elp (morcls_lp_coprod) f.
 Proof.
   intro rldJf.
   intros h k S.
@@ -380,7 +380,7 @@ Proof.
   set (kj := λ (j : morcls_lp J f), (CoproductIn _ j) · k).
 
   (* fill-in for each square *)
-  assert (∏ (j : morcls_lp J f), ∑ lj, ((arrow_mor (pr1 (morcls_lp_map j))) · lj = hj j) × (lj · arrow_mor f = kj j)) as jlift.
+  assert (∏ (j : morcls_lp J f), ∑ lj, ((pr1 (morcls_lp_map j)) · lj = hj j) × (lj · f = kj j)) as jlift.
   {
     intro j.
     (* use lifting data of j with respect to g *)
@@ -483,7 +483,7 @@ Proof.
     apply pathsinv0.
 
     (* commutativity of g with inclusions of domain / codomain *)
-    assert (arrow_mor g · codg_in = domg_in · (morcls_lp_coprod)) as Hg.
+    assert (g · codg_in = domg_in · (morcls_lp_coprod)) as Hg.
     {
       unfold codg_in, domg_in, morcls_lp_coprod.
       rewrite (CoproductOfArrows'In _ _ (morcls_lp_dom_coprod)).
@@ -561,9 +561,9 @@ Definition ρ1 : E1 --> (arrow_cod f) :=
   PushoutArrow
     morcls_lp_coprod_diagram_pushout
     _ (arrow_mor11 morcls_lp_coprod_diagram)
-    (arrow_mor f) (pathsinv0 (arrow_mor_comm morcls_lp_coprod_diagram)).
+    f (pathsinv0 (arrow_mor_comm morcls_lp_coprod_diagram)).
 
-Definition λ1_ρ1_compat : λ1 · ρ1 = arrow_mor f.
+Definition λ1_ρ1_compat : λ1 · ρ1 = f.
 Proof.
   etrans. apply PushoutArrow_PushoutIn2.
   reflexivity.

@@ -46,8 +46,7 @@ Proof.
     set (l'rf := fact_L F' rf).
     set (r'rf := fact_R F' rf).
     exists (arrow_cod l'rf).
-    exists (arrow_mor lf · arrow_mor l'rf).
-    exists (arrow_mor r'rf).
+    exists (lf · l'rf), r'rf.
     abstract (
       etrans; [apply assoc'|];
       etrans; [apply maponpaths;
@@ -123,8 +122,7 @@ Proof.
   use tpair.
   - intro f.
     exists (arrow_dom f).
-    exists (identity _).
-    exists (arrow_mor f).
+    exists (identity _), f.
     abstract (apply id_left).
   - intros f f' γ.
     exists (arrow_mor00 γ).
@@ -553,7 +551,7 @@ Definition Ff_l_point_data (F : Ff C) :
     section_nat_trans_disp_data Ff_lcomp_unit F.
 Proof.
   intro f.
-  exists (arrow_mor (fact_L F f)).
+  exists (fact_L F f).
   abstract (
     split; [
       reflexivity|
