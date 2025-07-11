@@ -399,7 +399,7 @@ Section BloomCouplingLemmas.
   Proposition bloom_coupling_conditional_1_ase {x y : C} (p : I_{C} --> x) (f : x --> y) :
     (bloom_coupling p f)|1 =_{p} f.
   Proof.
-    unfold equal_almost_surely.
+    apply make_equal_almost_surely_r.
 
     assert(e :   p · ⟨ identity x, (bloom_coupling p f) |1 ⟩ 
                = bloom_coupling p f · proj1 · ⟨ identity x, (bloom_coupling p f) |1 ⟩).  
@@ -413,7 +413,7 @@ Section BloomCouplingLemmas.
   Proposition bloom_coupling_conditional_2_ase {x y : C} (p : I_{C} --> x) (f : x --> y) :
     (bloom_coupling p f)|2 =_{p · f} bayesian_inverse p f.
   Proof.
-    unfold equal_almost_surely.
+    apply make_equal_almost_surely_r.
 
     assert(e :    p · f · ⟨ identity y, (bloom_coupling p f) |2 ⟩ 
                 = bloom_coupling p f · proj2 · ⟨ identity y, (bloom_coupling p f) |2 ⟩).  

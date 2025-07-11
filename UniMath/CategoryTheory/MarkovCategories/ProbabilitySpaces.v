@@ -46,8 +46,6 @@ Local Open Scope cat.
 Local Open Scope moncat.
 Local Open Scope markov.
 
-Opaque equal_almost_surely.
-
 Section ProbabilitySpaces.
   Context {C : markov_category}
           (causality : is_causal C).

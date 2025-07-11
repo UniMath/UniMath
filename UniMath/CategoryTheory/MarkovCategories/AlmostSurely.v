@@ -186,3 +186,5 @@ Section AlmostSurelyDeterministic.
   Qed.
 
 End AlmostSurelyDeterministic.
+
+#[global] Opaque equal_almost_surely.

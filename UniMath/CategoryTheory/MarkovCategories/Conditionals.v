@@ -156,7 +156,7 @@ Section ConditionalDistributions.
     p = p · proj1 · ⟨identity x, f⟩ -> f =_{p · proj1} p|1.
   Proof.
     intros e.
-    unfold equal_almost_surely.
+    apply make_equal_almost_surely_r.
     rewrite <- conditional_distribution_1_eq.
     rewrite <- e.
     reflexivity.
@@ -166,7 +166,7 @@ Section ConditionalDistributions.
     p = p · proj2 · ⟨f, identity y⟩ -> f =_{p · proj2} p|2.
   Proof.
     intros e.
-    unfold equal_almost_surely.
+    apply make_equal_almost_surely_r.
     apply cancel_braiding.
     rewrite !assoc'.
     rewrite !pairing_sym_mon_braiding.
@@ -196,6 +196,7 @@ Section DefBayesianInverse.
     : g1 =_{p · f} g2.
   Proof.
     unfold is_bayesian_inverse in *.
+    apply make_equal_almost_surely_r.
     apply pairing_flip.
     rewrite <- b1, <- b2.
     reflexivity.
