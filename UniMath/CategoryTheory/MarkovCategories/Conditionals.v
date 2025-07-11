@@ -9,13 +9,17 @@ various consequences of the existence of conditionals for information flow axiom
 2. Accessors
    - Specialized definitions and lemmas for conditional distributions
 3. Bayesian Inverses
-   - Definition of the Bayesian inverse (dagger)
-   - Every Markov category with conditonals comes with a 
-     canonical choice of Bayesian inverse
-4. Consequences and derived Information Flow Axioms
+   - Definition of the Bayesian inverse (dagger) [is_bayesian_inverse]
+   - Uniqueness and stability under [equal_almost_surely]
+4. Laws and Properties of Bayesian inverses
+   - dagger laws (identity, idempotence, composition)
+   - almost sure determinism is dagger-coisometry
+5. Construction of [bayesian_inverse]
+   - Every Markov category with conditionals comes with a 
+     canonical choice [bayesian_inverse] of Bayesian inverse
+6. Consequences and Derived Information Flow Axioms
    - Every Markov category with conditionals is causal
    - Every Markov category with conditionals is positive
-5. The Dagger Structure of Bayesian Inverses
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -185,17 +189,121 @@ Section DefBayesianInverse.
   Definition is_bayesian_inverse {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) : UU
     := p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
 
-  Definition bayesian_inverse_ase_unique {x y : C} (p : I_{C} --> x) (f : x --> y) (g1 g2 : y --> x)
-                                         (b1 : is_bayesian_inverse p f g1) (b2 : is_bayesian_inverse p f g2) :
-    g1 =_{p · f} g2.
+  (* Bayesian inverses are almost surely unique *)
+  Proposition bayesian_inverse_ase_unique 
+      {x y : C} (p : I_{C} --> x) (f : x --> y) (g1 g2 : y --> x)
+      (b1 : is_bayesian_inverse p f g1) (b2 : is_bayesian_inverse p f g2)
+    : g1 =_{p · f} g2.
   Proof.
     unfold is_bayesian_inverse in *.
     apply pairing_flip.
     rewrite <- b1, <- b2.
     reflexivity.
   Qed.
+
+  (* Useful reformulation that generates an auxiliary equality goal *)
+  Lemma bayesian_inverse_ase_unique' 
+    {x y : C} (p : I_{C} --> x) (q : I_{C} --> y) (f : x --> y) (g1 g2 : y --> x)
+    (e : p · f = q) (b1 : is_bayesian_inverse p f g1) (b2 : is_bayesian_inverse p f g2) 
+  : g1 =_{q} g2.
+  Proof.
+    rewrite <- e.
+    apply bayesian_inverse_ase_unique; assumption.
+  Qed.
+
+  (* Being a bayesian inverse is stable under almost sure equality *)
+  Proposition is_bayesian_inverse_ase_cong
+    {x y : C} (p : I_{C} --> x) (f1 f2 : x --> y) (g1 g2 : y --> x) 
+    (fase : f1 =_{ p } f2) (gase : g1 =_{ p · f1 } g2)
+    (b1 : is_bayesian_inverse p f1 g1) 
+    : is_bayesian_inverse p f2 g2.
+  Proof.
+    unfold is_bayesian_inverse in *.
+    rewrite <- (equal_almost_surely_r _ _ _ fase).
+    rewrite (equal_almost_surely_composition _ _ _ fase) in gase.
+    rewrite <- (equal_almost_surely_l _ _ _ gase).
+    rewrite <- (equal_almost_surely_composition _ _ _ fase).
+    rewrite b1.
+    reflexivity.
+  Qed. 
     
 End DefBayesianInverse.
+
+(** * 4. Laws and Properties of Bayesian inverses *)
+
+Section BayesianInverseLaws.
+  Context {C : markov_category}.
+
+  Proposition is_bayesian_inverse_state_preservation
+      {x y : C} (p : I_{C} --> x) (f : x --> y) (g : y --> x)
+    : is_bayesian_inverse p f g -> p · f · g = p.
+  Proof.
+    intros e.
+    rewrite <- id_right.
+    rewrite <- (pairing_proj1 (identity x) f).
+    rewrite <- (pairing_proj1 g (identity y)).
+    rewrite !assoc.
+    rewrite e.
+    reflexivity. 
+  Qed.
+
+  Proposition bayesian_inverse_identity {x : C} (p : I_{C} --> x) :
+    is_bayesian_inverse p (identity x) (identity x).
+  Proof.
+    unfold is_bayesian_inverse.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
+  Proposition bayesian_inverse_idempotent 
+    {x y : C} (p : I_{C} --> x) (f : x --> y) (g : y --> x)
+    : is_bayesian_inverse p f g -> is_bayesian_inverse (p · f) g f.
+  Proof.
+    intros e.
+    unfold is_bayesian_inverse in *.
+    assert(e2 : p · f · g = p).
+    {
+      rewrite <- id_right.
+      rewrite <- (pairing_proj1 (identity x) f).
+      rewrite <- (pairing_proj1 g (identity y)).
+      rewrite !assoc.
+      rewrite e.
+      reflexivity. 
+    }
+    rewrite e2.
+    apply pairing_flip.
+    rewrite <- e.
+    reflexivity.
+  Qed.
+
+  Proposition bayesian_inverse_comp 
+    {x y z : C} (p : I_{C} --> x) (f : x --> y) (g : y --> z) (fi : y --> x) (gi : z --> y)
+    (bf : is_bayesian_inverse p f fi) (bg : is_bayesian_inverse (p · f) g gi)
+  : is_bayesian_inverse p (f · g) (gi · fi).
+  Proof.
+    unfold is_bayesian_inverse in *.
+    etrans. { 
+      rewrite <- pairing_tensor_r.
+      rewrite assoc.
+      rewrite bf.
+      rewrite <- assoc.
+      rewrite pairing_tensor_r.
+      rewrite id_left.
+      rewrite pairing_split_l.
+      rewrite assoc.
+      rewrite bg.
+      rewrite <- assoc.
+      rewrite pairing_tensor_l.
+      reflexivity.
+    }
+    rewrite assoc.
+    reflexivity.
+  Qed. 
+     
+End BayesianInverseLaws.
+
+
+(** 5. Construction of [bayesian_inverse] *)
 
 Section ConstructionBayesianInverse.
   Context {C : markov_category_with_conditionals}.
@@ -247,12 +355,20 @@ Section ConstructionBayesianInverse.
     rewrite !assoc', !pairing_sym_mon_braiding, assoc.
     apply bayesian_inverse_eq_l.
   Qed.
-      
+    
+  Proposition bayesian_inverse_state_preservation
+      {y : C} (f : x --> y) 
+    : p · f · bayesian_inverse f = p.
+  Proof.
+    apply is_bayesian_inverse_state_preservation.
+    apply bayesian_inverse_eq.
+  Qed.
+  
 End ConstructionBayesianInverse.
 
 #[global] Opaque bayesian_inverse.
 
-(** * 4. Consequences and derived information flow axioms *)
+(** 6. Consequences and Derived Information Flow Axioms *)
 
 Section Lemmas.
   Context {C : markov_category_with_conditionals}.
@@ -413,7 +529,7 @@ Proof.
   apply causality_conclusion.
 Qed.
 
-(** * 5. The Dagger Structure of Bayesian Inverses *)
+(** * The Dagger Structure of Bayesian Inverses *)
 
 Section DaggerLemmas.
   Context {C : markov_category_with_conditionals}.

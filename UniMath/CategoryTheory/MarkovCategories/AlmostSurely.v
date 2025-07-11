@@ -65,7 +65,18 @@ Section DefAlmostSurely.
     apply equal_almost_surely_r.
     assumption.
   Qed.
-    
+
+  Definition equal_almost_surely_composition {a x y : C} (p : a --> x) (f g : x --> y) :
+    equal_almost_surely p f g -> (p · f) = (p · g).
+  Proof.
+    intros e.
+    rewrite <- (pairing_proj1 f (identity _)).
+    rewrite <- (pairing_proj1 g (identity _)).
+    rewrite !assoc.
+    rewrite (equal_almost_surely_l _ _ _ e).
+    reflexivity.
+  Qed.
+
   Proposition make_equal_almost_surely_r {a x y : C} (p : a --> x) (f g : x --> y) :
     p · ⟨identity _, f⟩ = p · ⟨identity _, g⟩ -> equal_almost_surely p f g.
   Proof. 

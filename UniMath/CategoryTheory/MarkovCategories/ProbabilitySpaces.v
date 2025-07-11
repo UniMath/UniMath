@@ -6,7 +6,7 @@ We define the categories of probability spaces over a causal Markov category C.
   * this is definitionally the same as the type [state C] of `State.v`
   * it is also definitionally the same as the type of objects of the slice category I/C
 - morphisms f : (X,p) --> (Y,q) are p-almost sure equivalence classes of morphisms f : X --> Y
-  which preserve the state (i.e. pf = q)
+  which preserve the state (i.e. p · f = q)
 
 To construct this category, we use the quotient construction [mor_quot_category] of
 the slice category I/C under the congruence relation given by almost-sure equality.
@@ -36,11 +36,17 @@ Require Import UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.
 Require Import UniMath.CategoryTheory.MarkovCategories.AlmostSurely.
 Require Import UniMath.CategoryTheory.MarkovCategories.Conditionals.
 
+Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
+Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
+Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
+
 Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
 Local Open Scope markov.
+
+Opaque equal_almost_surely.
 
 Section ProbabilitySpaces.
   Context {C : markov_category}
@@ -121,3 +127,90 @@ Section ProbabilitySpaces.
   Defined.
 
 End ProbabilitySpaces.
+
+(** Define a Dagger Structure on Probability Spaces *)
+
+Section ProbabilitySpacesDagger.
+  Context (C : markov_category_with_conditionals).
+  
+  Let C_is_causal : is_causal C := conditionals_imply_causality.
+
+  Definition prob_space_dagger_structure : dagger_structure (prob_space C_is_causal).
+  Proof.
+    intros [x p] [y q].
+    use setquotfun.
+    - (* Use [bayesian_inverse] as the dagger *)
+      intros [f e].
+      simple refine (bayesian_inverse p f ,, _).
+      + abstract (rewrite <- e; apply bayesian_inverse_state_preservation).   
+ 
+    - (* bayesian inverse is compatible with almost sure equality *)
+      intros [f fpres] [g gpres].
+      intros e.
+      cbn. cbn in *.
+      use bayesian_inverse_ase_unique'.
+      + exact p. 
+      + exact f.
+      + assumption.
+      + apply bayesian_inverse_eq.
+      + use is_bayesian_inverse_ase_cong.
+        * exact g.  
+        * exact (bayesian_inverse p g).
+        * apply ase_symm; assumption.
+        * apply ase_refl.
+        * apply bayesian_inverse_eq.    
+  Defined.
+
+  Definition prob_space_dagger_laws : dagger_laws prob_space_dagger_structure.
+  Proof.
+    repeat split.
+    - (* Identity *)
+      intros [x p].
+      apply iscompsetquotpr.
+      use bayesian_inverse_ase_unique'.
+      + exact p.
+      + exact (identity x).
+      + rewrite id_right. reflexivity.
+      + apply bayesian_inverse_eq.
+      + apply bayesian_inverse_identity. 
+
+    - (* Composition *)
+      intros [x p] [y q] [z r].
+      use setquotunivprop'.
+      { 
+        intro.
+        use impred.
+        intro.
+        apply homset_property.
+      }
+      intros [f e]. 
+      use setquotunivprop'. { intro. apply homset_property. }   
+      intros [g h].
+      apply iscompsetquotpr.
+      cbn. cbn in *.
+      use bayesian_inverse_ase_unique'.
+      + exact p.
+      + exact (f · g).
+      + rewrite assoc, e, h. reflexivity.
+      + apply bayesian_inverse_eq.
+      + apply bayesian_inverse_comp.
+        * apply bayesian_inverse_eq.
+        * rewrite e; apply bayesian_inverse_eq.
+                
+    - (* Idempotence *) 
+      intros [x p] [y q].
+      use setquotunivprop'. { intro ; apply homset_property. }
+      intros [f e].
+      apply iscompsetquotpr.
+      cbn. cbn in e.
+      rewrite <- e.
+      use bayesian_inverse_ase_unique'.
+      + exact (p · f).
+      + exact (bayesian_inverse p f).
+      + apply bayesian_inverse_state_preservation.
+      + apply bayesian_inverse_eq.
+      + apply bayesian_inverse_idempotent.
+        apply bayesian_inverse_eq. 
+  Defined.
+
+End ProbabilitySpacesDagger.
