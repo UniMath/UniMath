@@ -11,9 +11,13 @@ We define the categories of probability spaces over a causal Markov category C.
 To construct this category, we use the quotient construction [mor_quot_category] of
 the slice category I/C under the congruence relation given by almost-sure equality.
 
-The following theorems need to be added to this file: 
-* If C has conditionals, then probability spaces become a dagger category, 
-* This category is equivalent as a dagger category to the category of couplings from Couplings.v
+Table of Contents
+1. Definition of the Category of Probability Spaces
+2. Definition of the Dagger Structure on Probability Spaces, given by Bayesian Inversion
+
+The following future work needs to be added to this file: 
+* Proof that probability spaces are equivalent as a dagger category to the category of couplings from Couplings.v
+* Think about univalence of the probability space construction
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -46,6 +50,8 @@ Local Open Scope cat.
 Local Open Scope moncat.
 Local Open Scope markov.
 
+(** 1. Definition of the Category of Probability Spaces *)
+
 Section ProbabilitySpaces.
   Context {C : markov_category}
           (causality : is_causal C).
@@ -60,7 +66,7 @@ Section ProbabilitySpaces.
   (**
   In the next definition we use that states are definitionally the same as objects of states_cat.
   If that was not the case, that definition would not type check.
-   *)
+  *)
 
   Definition state_mor (p q : state C) : UU := states_cat ⟦ p, q ⟧ .
 
@@ -126,7 +132,7 @@ Section ProbabilitySpaces.
 
 End ProbabilitySpaces.
 
-(** Define a Dagger Structure on Probability Spaces *)
+(** 2. Definition of the Dagger Structure on Probability Spaces, given by Bayesian Inversion *)
 
 Section ProbabilitySpacesDagger.
   Context (C : markov_category_with_conditionals).
