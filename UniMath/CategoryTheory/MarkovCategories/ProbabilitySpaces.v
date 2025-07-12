@@ -39,6 +39,7 @@ Require Import UniMath.CategoryTheory.MarkovCategories.State.
 Require Import UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.
 Require Import UniMath.CategoryTheory.MarkovCategories.AlmostSurely.
 Require Import UniMath.CategoryTheory.MarkovCategories.Conditionals.
+Require Import UniMath.CategoryTheory.MarkovCategories.Couplings.
 
 Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
 Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
@@ -221,3 +222,65 @@ Section ProbabilitySpacesDagger.
     := _ ,, prob_space_dagger_laws.
 
 End ProbabilitySpacesDagger.
+
+Section ProbabilitySpacesToCouplings.
+  Context {C : markov_category_with_conditionals}.
+
+  Let C_is_causal : is_causal C := conditionals_imply_causality. 
+  Let PS := prob_space (C_is_causal).
+
+  Let dag : dagger PS := prob_space_dagger C.
+
+  Definition ps_bloom {p q : PS} (f : p --> q) : homset I_{C} ((pr1 p) ⊗ (pr1 q)).
+  Proof.
+    destruct p as [x p].
+    destruct q as [y q].
+    revert f.
+    use setquotuniv.
+    { 
+      intros [f e].
+      apply (bloom_coupling p f). 
+    }
+    abstract (intros [f e] [g h] ase; apply equal_almost_surely_r; exact ase).
+  Defined.
+
+  Proposition ps_bloom_dom {p q : PS} {f : p --> q} : ps_bloom f · proj1 = pr2 p.
+  Proof.
+    unfold ps_bloom.
+    revert f.
+    apply setquotunivprop'. { intros. apply homset_property. } 
+    intros [f e].
+    cbn.
+    apply bloom_coupling_dom.
+  Qed.
+
+  Proposition ps_bloom_cod {p q : PS} {f : p --> q} : ps_bloom f · proj2 = pr2 q.
+  Proof.
+    unfold ps_bloom.
+    revert f.
+    apply setquotunivprop'. { intros. apply homset_property. } 
+    intros [f e].
+    cbn in *.
+    rewrite <- e.
+    apply bloom_coupling_cod.
+  Qed.  
+  
+  Definition ps_to_coupling {p q : PS} (f : p --> q) : coupling (pr2 p) (pr2 q).
+  Proof.
+    use make_coupling.
+    - exact (ps_bloom f).
+    - apply ps_bloom_dom.
+    - apply ps_bloom_cod.
+  Defined.  
+
+End ProbabilitySpacesToCouplings.
+
+Section CouplingsToProbabilitySpaces.
+  Context {C : markov_category_with_conditionals}.
+
+  Let C_is_causal : is_causal C := conditionals_imply_causality. 
+  Let PS := prob_space (C_is_causal).
+
+  Let dag : dagger PS := prob_space_dagger C.
+
+End CouplingsToProbabilitySpaces.
