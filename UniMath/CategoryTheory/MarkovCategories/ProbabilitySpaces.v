@@ -183,7 +183,7 @@ Section ProbabilitySpacesDagger.
       use setquotunivprop'.
       { 
         intro.
-        use impred.
+        use impred. (* TODO this line is very slow *)
         intro.
         apply homset_property.
       }
@@ -216,5 +216,8 @@ Section ProbabilitySpacesDagger.
       + apply bayesian_inverse_idempotent.
         apply bayesian_inverse_eq. 
   Defined.
+
+  Definition prob_space_dagger : dagger (prob_space C_is_causal)
+    := _ ,, prob_space_dagger_laws.
 
 End ProbabilitySpacesDagger.
