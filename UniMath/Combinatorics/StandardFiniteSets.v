@@ -2044,15 +2044,15 @@ Lemma isdeceq_isdecsurj {X : UU} {n : nat} (f : ⟦ n ⟧ → X ) (y : X) :
 Proof.
   generalize dependent X.
   induction n; intros X f x deceqX.
-  - right. intros [contra eq]. apply weqstn0toempty, contra.
+  - right. intros contra. eapply weqstn0toempty, pr1, contra.
   - set (g := fun_stnsn_to_stnn f). specialize IHn with (f := g) (y := x).
     set (H := IHn deceqX).
     induction H.
-    + left. destruct a as [[m lth] eq].
+    + left. induction a as [p eq]. induction p as [m lth].
       apply tpair with (pr1 := (m ,, (natlthtolths _ _ lth))), eq.
     + induction (deceqX (f (lastelement)) x); [left | right].
       * apply (tpair _ lastelement). assumption.
-      * intros [[m lth] eq].
+      * intros H. induction H as [p eq]. induction p as [m lth]. 
         induction (natlehchoice _ _ (natlthsntoleh _ _ lth)).
         -- apply b. apply tpair with (pr1 := (m ,, a)).
            induction eq. unfold g, fun_stnsn_to_stnn, make_stn. unfold funcomp.
@@ -2064,16 +2064,16 @@ Qed.
 Lemma surj_fun_stnsn_to_stnn {X : UU} {n : nat} (f : ⟦ S n ⟧ → X) : isdeceq X → issurjective f → 
       hfiber (fun_stnsn_to_stnn f) (f lastelement) → issurjective (fun_stnsn_to_stnn f).
 Proof.
-  intros deceqX surj [x eq].
+  intros deceqX surj x. induction x as [x eq].
   intros y'.
   induction (deceqX (f lastelement) y').
   - induction a. apply hinhpr, tpair with (pr1 := x), eq.
   - apply (squash_to_prop (surj y')); try apply propproperty.
-    intros [[m lth] eq']. apply hinhpr.
+    intros m. induction m as [m eq']; induction m as [m lth]. apply hinhpr.
     induction (natlehchoice _ _ (natlthsntoleh _ _ lth)).
     + apply tpair with (pr1 := m ,, a).
-      unfold fun_stnsn_to_stnn, make_stn.
-      induction eq'. unfold funcomp. apply maponpaths, stn_eq, idpath.
-    + induction eq', b0. apply fromempty, b. unfold lastelement. 
+      unfold fun_stnsn_to_stnn, make_stn, funcomp.
+      induction eq'. apply maponpaths, stn_eq, idpath.
+    + induction eq', b0. apply fromempty, b. 
       apply maponpaths, stn_eq, idpath.
 Qed.
