@@ -115,7 +115,7 @@ Section WeakEquivLiftPreservationCoequalizers.
   Proof.
     use (invweq (preserves_coequalizer_opp H)).
     set (oF_pe := pr1weq (preserves_coequalizer_opp F) Feq).
-    use (weak_equiv_lifts_preserves_equalizers oC₂ oC₃
+    use (weak_equiv_lifts_preserves_equalizers
            (F := functor_op F) _ (opp_is_weak_equiv Gw) oF_pe).
     exact (nat_z_iso_inv (make_nat_z_iso _ _ _ (op_nt_is_z_iso α (pr2 α)))).
   Qed.

@@ -4,7 +4,7 @@
   In this file, we show how the Rezk completion for categories with binary coproducts lifts to extensive categories.
 
   Contents.
-  1. Lifting Of Rezk Completions To Regular Categories [disp_bicat_extensive_has_Rezk_completion]
+  1. Lifting Of Rezk Completions To Extensive Categories [disp_bicat_extensive_has_Rezk_completion]
 
 *)
 
