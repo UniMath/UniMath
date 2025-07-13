@@ -231,6 +231,7 @@ Section ProbabilitySpacesToCouplings.
 
   Let dag : dagger PS := prob_space_dagger C.
 
+  (* Extract the bloom couplings from a PS-morphism *)
   Definition ps_bloom {p q : PS} (f : p --> q) : homset I_{C} ((pr1 p) ⊗ (pr1 q)).
   Proof.
     destruct p as [x p].
@@ -273,6 +274,37 @@ Section ProbabilitySpacesToCouplings.
     - apply ps_bloom_cod.
   Defined.  
 
+  Definition ps_to_couplings_data : functor_data PS (couplings C).
+  Proof.
+    use make_functor_data.
+    - exact (λ p, p).
+    - intros [x p] [y q] f.
+      exact (ps_to_coupling f).
+  Defined.  
+
+  (* The functor from probability spaces to couplings *)
+  Definition ps_to_couplings : functor PS (couplings C).
+  Proof.
+    use make_functor. { exact ps_to_couplings_data. }
+    split.
+    - (* Identity law *)
+      intros [x p].
+      apply coupling_ext.
+      apply bloom_coupling_id.
+      
+    - (* Composition law *)
+      intros [x p] [y q] [z r].
+      use setquotunivprop'. { intro. use impred. intro. apply homset_property. }
+      intros [f e].
+      use setquotunivprop'. { intro. apply homset_property. }
+      intros [g h].
+      apply coupling_ext.
+      cbn in *.
+      rewrite <- e.
+      symmetry.
+      apply bloom_coupling_composition.
+  Defined.
+
 End ProbabilitySpacesToCouplings.
 
 Section CouplingsToProbabilitySpaces.
@@ -282,5 +314,70 @@ Section CouplingsToProbabilitySpaces.
   Let PS := prob_space (C_is_causal).
 
   Let dag : dagger PS := prob_space_dagger C.
+
+  Definition coupling_cond {p q : couplings C} (γ : p --> q) : (pr1 p) --> (pr1 q)
+    := ((coupling_to_state γ) |1).
+
+  Lemma coupling_cond_state_preservation {p q : couplings C} (γ : p --> q) 
+    : (pr2 p) · (coupling_cond γ) = (pr2 q).
+  Proof.
+    destruct p as [x p], q as [y q], γ as [γ [dom cod]].
+    unfold coupling_cond.
+    cbn in *.
+    assert(E : p · γ |1 = (γ · proj1) · ⟨identity _, γ |1⟩ · proj2).
+    { 
+      rewrite dom. 
+      rewrite <- assoc.
+      rewrite pairing_proj2.
+      reflexivity. 
+    }  
+    rewrite E.
+    rewrite <- conditional_distribution_1_eq.
+    exact cod.
+  Qed.
+    
+  Definition coupling_to_ps {p q : couplings C} (γ : p --> q) : PS ⟦ p,  q ⟧.
+  Proof.
+    apply setquotpr.
+    exists (coupling_cond γ).
+    apply coupling_cond_state_preservation.
+  Defined.
+
+  Definition couplings_to_ps_data : functor_data (couplings C) PS.
+  Proof.
+    use make_functor_data.
+    - exact (λ p, p).
+    - intros [x p] [y q] γ.
+      exact (coupling_to_ps γ).
+  Defined.
+  
+  Definition couplings_to_ps : functor (couplings C) PS.
+  Proof.
+    use make_functor. { exact couplings_to_ps_data. }
+    split.
+    - (* Identitiy law *)
+      intros [x p].
+      apply iscompsetquotpr.
+      unfold coupling_cond.
+      cbn.
+      apply ase_symm.
+      use conditional_distribution_1_ase_unique'. { apply identity_coupling_dom. }
+      unfold identity_coupling.
+      rewrite pairing_id.
+      reflexivity.
+    
+    - (* Composition law *)
+      intros [x p] [y q] [z r] [β [domβ codβ]] [γ [domγ codγ]].
+      apply iscompsetquotpr.
+      unfold coupling_cond.
+      cbn in *.
+      assert(compat : β · proj2 = γ · proj1). { rewrite codβ, domγ. reflexivity. }
+      apply ase_symm.
+      use conditional_distribution_1_ase_unique'. {
+        rewrite coupling_composition_dom; assumption.
+      }
+      rewrite <- domβ.
+      apply coupling_composition_eq_4; assumption.
+  Qed.      
 
 End CouplingsToProbabilitySpaces.

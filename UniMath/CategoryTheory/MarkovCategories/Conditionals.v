@@ -177,6 +177,23 @@ Section ConditionalDistributions.
     reflexivity.
   Qed.
 
+  (* Convenient helper functions that generates an additional equality goal *)
+  Proposition conditional_distribution_1_ase_unique'
+      {x y : C} {p : I_{C} --> x ⊗ y} (p1 : I_{C} --> x) (f : x --> y) (e : p · proj1 = p1)
+    : p = p1 · ⟨identity x, f⟩ -> f =_{p1} p|1.
+  Proof.
+    rewrite <- e.
+    apply conditional_distribution_1_ase_unique.    
+  Qed.
+
+  Proposition conditional_distribution_2_ase_unique'
+    {x y : C} {p : I_{C} --> x ⊗ y} (p2 : I_{C} --> y) (f : y --> x) (e : p · proj2 = p2)
+  : p = p2 · ⟨f, identity y⟩ -> f =_{p2} p|2.
+  Proof.
+    rewrite <- e.
+    apply conditional_distribution_2_ase_unique.    
+  Qed.
+  
 End ConditionalDistributions.
 
 Notation "p |1" := (conditional_distribution_1 p) : markov.

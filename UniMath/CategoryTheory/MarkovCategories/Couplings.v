@@ -240,6 +240,17 @@ Section CouplingCompositionLemmas.
     reflexivity.
   Qed.
 
+  Proposition coupling_composition_eq_4 {x y z : C} 
+          (β : I_{C} --> x ⊗ y) (γ : I_{C} --> y ⊗ z)
+          (e : β · proj2 = γ · proj1) 
+    : coupling_composition β γ = β · proj1 · ⟨ identity _, (β|1) · (γ|1) ⟩.
+  Proof.
+    unfold coupling_composition.
+    rewrite <- (id_right (β|2)).
+    rewrite <- conditional_distribution_1_to_2.
+    reflexivity.
+  Qed.
+
   Proposition coupling_composition_assoc {x y z w : C} 
     (β : I_{C} --> x ⊗ y)
     (γ : I_{C} --> y ⊗ z)
