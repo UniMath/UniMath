@@ -14,9 +14,12 @@ the slice category I/C under the congruence relation given by almost-sure equali
 Table of Contents
 1. Definition of the Category of Probability Spaces
 2. Definition of the Dagger Structure on Probability Spaces, given by Bayesian Inversion
+3. Defining an Isomorphism of Dagger Categories between Probability Spaces and Couplings
+  3.1 Defining the Dagger Functor from Probability Spaces to Couplings
+  3.2 Defining the Dagger Functor from Couplings to Probability Spaces
+  3.3 Proof that the Functors are Inverses
 
-The following future work needs to be added to this file: 
-* Proof that probability spaces are equivalent as a dagger category to the category of couplings from Couplings.v
+The following future work needs to be added to this file:
 * Think about univalence of the probability space construction
 
 References
@@ -224,6 +227,11 @@ Section ProbabilitySpacesDagger.
 
 End ProbabilitySpacesDagger.
 
+
+(** * 3. Defining an Isomorphism of Dagger Categories between Probability Spaces and Couplings *)
+
+(** * 3.1 Defining the Dagger Functor from Probability Spaces to Couplings *)
+
 Section ProbabilitySpacesToCouplings.
   Context {C : markov_category_with_conditionals}.
 
@@ -320,6 +328,9 @@ Section ProbabilitySpacesToCouplings.
   Qed.
     
 End ProbabilitySpacesToCouplings.
+
+
+(** * 3.2 Defining the Dagger Functor from Couplings to Probability Spaces *)
 
 Section CouplingsToProbabilitySpaces.
   Context {C : markov_category_with_conditionals}.
@@ -434,3 +445,42 @@ Section CouplingsToProbabilitySpaces.
   Qed.    
 
 End CouplingsToProbabilitySpaces.
+
+(** * 3.3 Proof that the Functors are Inverses *)
+
+Section EquivalenceProof.
+  Context {C : markov_category_with_conditionals}.
+
+  Let C_is_causal : is_causal C := conditionals_imply_causality. 
+  Let PS := prob_space (C_is_causal).
+
+  Let dag : dagger PS := prob_space_dagger C.
+
+  Proposition couplings_ps_couplings_id {p q : couplings C} (γ : p --> q) 
+    : # ps_to_couplings (# couplings_to_ps γ) = γ.
+  Proof.
+    destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
+    apply coupling_ext.
+    cbn in *.
+    unfold ps_to_couplings, bloom_coupling, coupling_cond.
+    rewrite <- domγ.
+    rewrite <- conditional_distribution_1_eq.
+    reflexivity.
+  Qed.
+
+  Proposition ps_couplings_ps_id {p q : PS} (f : p --> q)
+    : # couplings_to_ps (ps_to_coupling f) = f.
+  Proof.
+    destruct p as [x p], q as [y q].
+    revert f.
+    apply setquotunivprop'. { intro. apply homset_property. }
+    intros [f e].
+    apply iscompsetquotpr.
+    unfold coupling_cond, ps_to_coupling.
+    apply ase_symm.
+    use conditional_distribution_1_ase_unique'.
+    - apply bloom_coupling_dom.
+    - reflexivity.
+  Qed. 
+    
+End EquivalenceProof.
