@@ -2,9 +2,8 @@
    Rezk Completion Of Slice Categories
 
    In this file, we show that any weak equivalence induces a weak equivalence between the slices.
-   That is, if F : C₀ → C₁ is a weak equivalence, then for every x : C₀,
-   there is a weak equivalence F^(x) : C₀/x → C₁/F(x).
-   Consequently, if C₁ is univalent, the C₁/F(x) is the Rezk completion of C₀/x.
+   That is, if F : C₀ → C₁ is a weak equivalence, then for every x : C₀ there is a weak equivalence F^(x) : C₀/x → C₁/F(x).
+   Consequently, if C₁ is univalent, then C₁/F(x) is the Rezk completion of C₀/x.
 
    Contents
    1. Proof that F^(x) is a weak equivalence if F is a weak equivalence [functor_to_functor_on_slice_is_weq]
@@ -31,7 +30,6 @@ Section RezkCompletionOfSliceCategories.
     (Ff : fully_faithful F)
     : fully_faithful (codomain_functor F x).
   Proof.
-    (* use fiber_functor_fully_faithful *)
     intros a b.
     use isweq_iso.
     - intro f.
@@ -62,7 +60,6 @@ Section RezkCompletionOfSliceCategories.
     (F_weq : is_weak_equiv F)
     : essentially_surjective (codomain_functor F x).
   Proof.
-    (* use fiber_functor_essentially_surjective.*)
     intros [b₁ f₁].
     use (factor_through_squash _ _ (eso_from_weak_equiv _ F_weq b₁)).
     { apply isapropishinh. }

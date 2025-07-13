@@ -80,6 +80,4 @@ Section FinitelyCompleteCategoriesWithExponentials.
     - apply disp_2cells_iscontr_sub1cell_bicat.
   Qed.
 
-
-
 End FinitelyCompleteCategoriesWithExponentials.
