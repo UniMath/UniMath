@@ -23,12 +23,14 @@
  5. The adjunction
  6. The Beck-Chevalley condition
  7. Dependent sums for the codomain
+ 8. The left adjoint is an isomorphism
 
  ***************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -531,3 +533,31 @@ Proof.
   - exact (λ x y f, is_right_adjoint_cod_fiber_functor HC f).
   - exact (λ w x y z f g h k p H, cod_left_beck_chevalley HC f g h k p H).
 Defined.
+
+(** * 8. The left adjoint is an isomorphism *)
+Definition functor_on_slices_iso_is_adj_equiv {C : category} {c c' : C} (i : z_iso c c')
+  : adj_equivalence_of_cats (comp_functor i).
+Proof.
+  use rad_equivalence_of_cats'.
+  - intros [a f] [b g].
+    use isweq_iso.
+    + intros [h ph].
+      simpl in *.
+      exists h.
+      use (cancel_z_iso _ _ i).
+      rewrite assoc', ph.
+      now do 2 rewrite id_right.
+    + intro.
+      use eq_mor_cod_fib.
+      apply idpath.
+    + intro.
+      use eq_mor_cod_fib.
+      apply idpath.
+  - intros [a f].
+    exists (a ,, f · z_iso_inv i).
+    use make_z_iso_in_slice.
+    + apply identity_z_iso.
+    + refine (id_left _ @ ! id_right _ @ _ @ assoc _ _ _).
+      apply maponpaths, pathsinv0.
+      apply z_iso_after_z_iso_inv.
+Qed.
