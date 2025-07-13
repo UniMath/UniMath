@@ -257,6 +257,7 @@ WeakEquivalences/Exact.v
 WeakEquivalences/Preservation/NNO.v
 WeakEquivalences/PNNO.v
 WeakEquivalences/Slice.v
+WeakEquivalences/Extensivity.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 

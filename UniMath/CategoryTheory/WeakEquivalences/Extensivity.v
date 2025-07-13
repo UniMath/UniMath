@@ -39,7 +39,6 @@ Section WeakEquivalenceSliceOverCoprod.
 
   Context {C D : category} (cC : BinCoproducts C) (cD : BinCoproducts D)
     {F : functor C D} (F_pc : preserves_bincoproduct F).
-  Check comp_functor_on_coprod.
 
   Lemma functor_to_functor_on_slices_between_coprod_is_ff (a b : C)
     (ff : fully_faithful F)
@@ -155,7 +154,7 @@ Section ExtensivityAlongRC.
 
   Context {C D : category} (D_univ : is_univalent D)
     {F : functor C D}
-    {F_weq : is_weak_equiv F}
+    (F_weq : is_weak_equiv F)
     {cC : BinCoproducts C} (E : is_extensive cC).
 
   Context (cD : BinCoproducts D).
