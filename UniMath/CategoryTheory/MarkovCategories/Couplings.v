@@ -462,6 +462,18 @@ Section BloomCouplingLemmas.
     exact target.
   Qed.    
 
+  Proposition bloom_coupling_bayesian_inverse {x y : C} {p : I_{C} --> x} {f : x --> y} {g : y --> x}
+    : is_bayesian_inverse p f g -> bloom_coupling (p · f) g = coupling_dagger (bloom_coupling p f).
+  Proof.
+    intros bi.
+    unfold bloom_coupling, coupling_dagger.
+    rewrite <- !assoc.
+    rewrite pairing_sym_mon_braiding.
+    rewrite assoc.
+    apply pairing_flip.
+    exact (!bi).
+  Qed.     
+
 End BloomCouplingLemmas.
 
 #[global] Opaque coupling_composition.

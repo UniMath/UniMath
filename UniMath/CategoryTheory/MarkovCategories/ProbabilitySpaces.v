@@ -42,6 +42,7 @@ Require Import UniMath.CategoryTheory.MarkovCategories.Conditionals.
 Require Import UniMath.CategoryTheory.MarkovCategories.Couplings.
 
 Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
+Require Import UniMath.CategoryTheory.DaggerCategories.Functors.
 Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
 Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
 
@@ -305,6 +306,19 @@ Section ProbabilitySpacesToCouplings.
       apply bloom_coupling_composition.
   Defined.
 
+  Proposition ps_to_couplings_is_dagger : 
+    is_dagger_functor (prob_space_dagger C) (couplings_dagger C) ps_to_couplings.
+  Proof.
+    intros [x p] [y q].
+    apply setquotunivprop'. { intros. apply homset_property. }
+    intros [f e].
+    apply coupling_ext.
+    cbn in *.
+    rewrite <- e.
+    apply bloom_coupling_bayesian_inverse.
+    apply bayesian_inverse_eq.
+  Qed.
+    
 End ProbabilitySpacesToCouplings.
 
 Section CouplingsToProbabilitySpaces.
@@ -378,6 +392,45 @@ Section CouplingsToProbabilitySpaces.
       }
       rewrite <- domβ.
       apply coupling_composition_eq_4; assumption.
-  Qed.      
+  Defined.      
+
+  Proposition couplings_to_ps_is_dagger : 
+    is_dagger_functor (couplings_dagger C) (prob_space_dagger C) couplings_to_ps.
+  Proof.
+    intros [x p] [y q] [γ [domγ codγ]].
+    apply iscompsetquotpr.
+    unfold coupling_cond, couplings_dagger_structure.  
+    cbn in *.
+    use conditional_distribution_1_ase_unique'.
+    - rewrite <- sym_mon_braiding_proj2.
+      rewrite assoc.
+      etrans. {
+        apply maponpaths_2.
+        rewrite <- assoc.
+        rewrite pairing_sym_mon_braiding.
+        reflexivity.
+      }
+      rewrite <- domγ.
+      rewrite <- conditional_distribution_1_eq.
+      exact codγ.
+    - rewrite <- domγ.
+      apply pairing_flip.
+      rewrite <- conditional_distribution_1_eq.
+      unfold coupling_dagger.
+      apply cancel_braiding.
+      rewrite <- assoc.
+      rewrite pairing_sym_mon_braiding.
+      pose(γ' := γ · sym_mon_braiding C x y).
+      assert(D : γ' = γ · sym_mon_braiding C x y) by reflexivity.
+      rewrite <- D.
+      assert(E : q = γ' · proj1). {
+       unfold  γ'.
+       rewrite <- assoc.
+       rewrite sym_mon_braiding_proj1.
+       exact (!codγ).
+      }
+      rewrite E.
+      apply conditional_distribution_1_eq.
+  Qed.    
 
 End CouplingsToProbabilitySpaces.

@@ -207,6 +207,21 @@ Section DefBayesianInverse.
   Definition is_bayesian_inverse {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) : UU
     := p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
 
+  (* Assessors *)
+  Proposition is_bayesian_inverse_l {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) 
+    : is_bayesian_inverse p f fi -> p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
+  Proof.
+    intros bi. exact bi.
+  Qed.
+
+  Proposition is_bayesian_inverse_r {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) 
+  : is_bayesian_inverse p f fi -> p · ⟨f, identity x⟩ = (p · f) · ⟨identity y, fi⟩.
+  Proof.
+    intros bi. 
+    apply pairing_flip.
+    exact bi.
+  Qed.
+
   (* Bayesian inverses are almost surely unique *)
   Proposition bayesian_inverse_ase_unique 
       {x y : C} (p : I_{C} --> x) (f : x --> y) (g1 g2 : y --> x)
@@ -387,7 +402,7 @@ End ConstructionBayesianInverse.
 
 #[global] Opaque bayesian_inverse.
 
-(** 6. Consequences and Derived Information Flow Axioms *)
+(** 6. Consequences and derived Information Flow Axioms *)
 
 Section InformationFlowLemmas.
   Context {C : markov_category_with_conditionals}.
