@@ -752,6 +752,7 @@ Monoidal/RezkCompletion/MonoidalRezkCompletion.v
 # Dagger categories
 DaggerCategories/Categories.v
 DaggerCategories/Unitary.v
+DaggerCategories/Isometry.v
 DaggerCategories/Univalence.v
 DaggerCategories/Functors.v
 DaggerCategories/Transformations.v
