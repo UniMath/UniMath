@@ -76,6 +76,63 @@ Section DaggerLemmas.
   
 End DaggerLemmas.
 
+Section Dilators.
+  Context (C : dagger_category).
+  Local Notation "f †" := (C _ _ f).
+
+  Definition dilation {x y : C} (f : x --> y) :=
+    ∑ p : C, 
+      ∑ (u : coisometry C p x) (v : coisometry C p y),
+      u † · v = f.
+
+  Definition dilation_map {x y : C} {f : x --> y} (d1 : dilation f) (d2 : dilation f) : UU.
+  Proof.
+    destruct d1 as (p & u1 & v1 & e1).
+    destruct d2 as (q & u2 & v2 & e2).
+    exact (∑ h : coisometry C p q, 
+      (h · u2 = u1) × (h · v2 = v1)).
+  Defined.
+
+  Proposition dilation_map_eq {x y : C} {f : x --> y} {d e : dilation f} (h1 h2 : dilation_map d e)
+    : pr1 h1 = pr1 h2 -> h1 = h2.
+  Proof.
+    intros p.
+    use subtypePath.
+    { intro. use isapropdirprod; use homset_property. }
+    exact p.
+  Qed.    
+
+  Definition is_dilator {x y : C} {f : x --> y} (e : dilation f) : UU
+    := ∏ d : dilation f, iscontr (dilation_map d e).
+
+  Lemma isaprop_is_dilator {x y : C} {f : x --> y} {d : dilation f} 
+    : isaprop (is_dilator d).
+  Proof.
+    apply impred.
+    intro.
+    apply isapropiscontr.
+  Qed.
+
+  Definition dilator {x y : C} (f : x --> y) : UU
+    := ∑ d : dilation f, is_dilator d.
+
+  Definition with_dilators : UU :=
+    ∏ (x y : C) (f : x --> y), dilator f.
+
+  Definition has_dilators : UU :=
+    ∏ (x y : C) (f : x --> y), ∥dilator f∥.
+
+  (* Example: dilation of the identity *)
+  Definition dilation_id_id (x : C) : dilation (identity x).
+  Proof.
+    refine (x ,, coisometry_id C x ,, coisometry_id C x ,, _).
+    cbn.
+    rewrite dagger_to_law_id, id_left.
+    reflexivity.
+  Defined.
+
+End Dilators.
+
 Section DaggerPropositions.
   Context {C : markov_category_with_conditionals}.
 
