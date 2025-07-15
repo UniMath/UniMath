@@ -1,12 +1,11 @@
 (**
    Rezk Completions For Topoi
 
-   In this file, we show how the Rezk completion for categories lifts to the following types of topoi: pretopoi, elementary topoi, and arithmetic topoi.
+   In this file, we show how the Rezk completion for categories lifts to the following types of topoi: elementary topoi, and arithmetic topoi.
 
    Contents.
-   1. [disp_bicat_pretopoi_has_RezkCompletion] proves the lifting of Rezk completions to pretopoi
-   2. [disp_bicat_elementarytopoi_has_RezkCompletion] proves the lifting to elementary topoi
-   3. [disp_bicat_arithmetic_elementarytopoi_has_RezkCompletion, disp_bicat_arithmetic_elementarytopoi_has_RezkCompletion] proves the lifting to elementary, resp. pre-, topoi with a parameterized NNO.
+   1. [disp_bicat_elementarytopoi_has_RezkCompletion] proves the lifting to elementary topoi
+   2. [disp_bicat_arithmetic_elementarytopoi_has_RezkCompletion] proves the lifting to elementary with a parameterized NNO.
 *)
 
 Require Import UniMath.Foundations.All.
@@ -49,36 +48,10 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStruc
 Require Import UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.
 Require Import UniMath.Bicategories.RezkCompletions.StructuredCats.FiniteLimits.
 Require Import UniMath.Bicategories.RezkCompletions.StructuredCats.RegularAndExact.
-Require Import UniMath.Bicategories.RezkCompletions.StructuredCats.Extensive.
 
 Local Open Scope cat.
 
-(** * 1. Lifting Of Rezk Completions To Pretopoi *)
-Section PretopoiAdmitRezkCompletions.
-
-  Context (LUR : left_universal_arrow univ_cats_to_cats)
-    (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
-
-  Lemma disp_bicat_pretopoi_has_RC
-    : cat_with_struct_has_RC η_weak_equiv disp_bicat_pretopoi.
-  Proof.
-    unfold disp_bicat_pretopoi.
-    use make_cat_with_struct_has_RC_from_dirprod.
-    - exact (disp_bicat_exact_has_RC LUR η_weak_equiv).
-    - exact (disp_bicat_extensive_has_RC LUR η_weak_equiv).
-  Defined.
-
-  Theorem disp_bicat_pretopoi_has_RezkCompletion
-    : cat_with_structure_has_RezkCompletion disp_bicat_pretopoi.
-  Proof.
-    apply (make_RezkCompletion_from_locally_contractible η_weak_equiv).
-    - exact disp_bicat_pretopoi_has_RC.
-    - apply disp_bicat_pretopoi_is_locally_contractible.
-  Defined.
-
-End PretopoiAdmitRezkCompletions.
-
-(** * 2. Lifting Of Rezk Completions To Elementary Topoi *)
+(** * 1. Lifting Of Rezk Completions To Elementary Topoi *)
 Section ElementaryTopoiAdmitRezkCompletions.
 
   Context (LUR : left_universal_arrow univ_cats_to_cats)
@@ -126,42 +99,11 @@ Section ElementaryTopoiAdmitRezkCompletions.
 
 End ElementaryTopoiAdmitRezkCompletions.
 
-(** * 3. Lifting Of Rezk Completions To Arithmetic Topoi *)
+(** * 2. Lifting Of Rezk Completions To Arithmetic Topoi *)
 Section ArithmeticTopoiAdmitRezkCompletions.
 
   Context (LUR : left_universal_arrow univ_cats_to_cats)
     (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
-
-  Lemma disp_bicat_arithmetic_pretopoi_has_RC
-    : cat_with_struct_has_RC η_weak_equiv disp_bicat_arithmetic_pretopoi.
-  Proof.
-    use make_cat_with_struct_has_RC_from_sigma.
-    - exact (disp_bicat_pretopoi_has_RC LUR η_weak_equiv).
-    - simpl.
-      intros ? ? ? ? F_weq ? [N₁ ?].
-      refine (_ ,, tt).
-      apply (weak_equiv_creates_parameterized_NNO F_weq N₁).
-    - intro ; intros.
-      refine (tt ,, _).
-      apply weak_equiv_preserves_parameterized_NNO'.
-    - cbn ; intros C₁ C₂ C₃ F G H α
-        ? [N₁ ?]
-        ? [N₂ ?]
-        ? [N₃ ?]
-        G_weq
-        ?
-        [? FN].
-      refine (tt ,, _).
-      exact (weak_equiv_lifts_preserves_parameterized_NNO α G_weq N₁ N₂ N₃ FN).
-  Defined.
-
-  Theorem disp_bicat_arithmetic_pretopoi_has_RezkCompletion
-    : cat_with_structure_has_RezkCompletion disp_bicat_arithmetic_pretopoi.
-  Proof.
-    apply (make_RezkCompletion_from_locally_contractible η_weak_equiv).
-    - exact disp_bicat_arithmetic_pretopoi_has_RC.
-    - apply disp_bicat_arithmetic_pretopoi_is_locally_contractible.
-  Defined.
 
   Lemma disp_bicat_arithmetic_elementarytopoi_has_RC
     : cat_with_struct_has_RC η_weak_equiv disp_bicat_arithmetic_elementarytopoi.

@@ -546,17 +546,22 @@ Section IsoInSlice.
     use make_is_z_isomorphism.
     - use tpair.
       + exact (inv_from_z_iso (_,, i)).
-      + simpl.
-        refine (_ @ ! id_right _).
-        rewrite (! id_right _ @ ! pr2 f).
-        rewrite assoc.
-        rewrite z_iso_after_z_iso_inv.
-        apply id_left.
-    - split ; use eq_mor_cod_fib.
-      + etrans. { apply transportf_cod_disp. }
-        exact (z_iso_inv_after_z_iso (_ ,, i)).
-      + etrans. { apply transportf_cod_disp. }
-        exact (z_iso_after_z_iso_inv (_ ,, i)).
+      + abstract (
+            simpl;
+            refine (_ @ ! id_right _);
+            rewrite (! id_right _ @ ! pr2 f);
+            rewrite assoc;
+            rewrite z_iso_after_z_iso_inv;
+            apply id_left).
+    - abstract (
+          split ; use eq_mor_cod_fib;
+          [ etrans;
+            [ apply transportf_cod_disp
+            | exact (z_iso_inv_after_z_iso (_ ,, i)) ]
+          | etrans ;
+            [ apply transportf_cod_disp
+            | exact (z_iso_after_z_iso_inv (_ ,, i)) ]
+          ]).
   Defined.
 
   Lemma make_z_iso_in_slice
@@ -566,7 +571,7 @@ Section IsoInSlice.
   Proof.
     use make_z_iso'.
     - exists i.
-      exact (pf @ ! id_right _).
+      abstract (exact (pf @ ! id_right _)).
     - use make_is_z_iso_in_slice.
       apply i.
   Defined.

@@ -75,9 +75,7 @@ Section FinitelyCompleteCategoriesWithExponentials.
   Lemma disp_2cells_iscontr_exponentials_over_lim
     : disp_2cells_iscontr disp_bicat_exponentials_over_lim.
   Proof.
-    apply disp_2cells_of_sigma_iscontr.
-    - apply disp_2cells_iscontr_fullsubbicat.
-    - apply disp_2cells_iscontr_sub1cell_bicat.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End FinitelyCompleteCategoriesWithExponentials.
