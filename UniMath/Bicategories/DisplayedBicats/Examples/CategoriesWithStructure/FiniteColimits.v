@@ -1,4 +1,4 @@
-(*
+(**
   Bicategories for finite colimits
 
   We define the bicategory of finitely cocomplete categories and finite colimit preserving functors.

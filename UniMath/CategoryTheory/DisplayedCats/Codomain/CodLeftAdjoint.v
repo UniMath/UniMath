@@ -534,7 +534,7 @@ Proof.
   - exact (λ w x y z f g h k p H, cod_left_beck_chevalley HC f g h k p H).
 Defined.
 
-(** * 8. The left adjoint is an isomorphism *)
+(** * 8. The left adjoint is an adjoint equivalence *)
 Definition functor_on_slices_iso_is_adj_equiv {C : category} {c c' : C} (i : z_iso c c')
   : adj_equivalence_of_cats (comp_functor i).
 Proof.

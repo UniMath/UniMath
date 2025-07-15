@@ -1,4 +1,4 @@
-(*
+(**
   Lifting Of Rezk Completions To Extensive Categories.
 
   In this file, we show how the Rezk completion for categories with binary coproducts lifts to extensive categories.
