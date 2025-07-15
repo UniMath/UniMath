@@ -1,4 +1,4 @@
-(*
+(**
 In this file, we conclude that the Rezk completion for categories lifts to finitely cocomplete categories.
 
 Contents:

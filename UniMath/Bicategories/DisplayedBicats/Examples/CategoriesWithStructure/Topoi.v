@@ -1,4 +1,4 @@
-(*
+(**
   Displayed Bicategories Of Topoi
 
   In this file, we define bicategories of topoi.
