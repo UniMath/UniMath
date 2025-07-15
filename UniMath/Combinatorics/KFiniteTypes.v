@@ -277,36 +277,10 @@ Section iskfinite_isdeceq_isfinite.
   X ≃ X / y + 1 ≃ stn m + 1 ≃ stn (S m). Thus, X is Bishop finite.
 
   *)
-  Definition singleton_complement {X : UU} (y : X) : X → UU := λ x, x != y.
 
-  Lemma isPredicate_singleton_complement {X : UU} (y : X) : isPredicate (singleton_complement y).
-  Proof.
-    intros x. apply isapropneg.
-  Qed.
-
-  Lemma weq_singleton_complement_unit {X : UU} (y : X) : isdeceq X → (∑ (x : X), ¬ (x = y)) ⨿ unit ≃ X.
-  Proof.
-    intros deceqx.
-    use weq_iso.
-    - intros [[x neq] | tt]; [apply x | apply y].
-    - intros x. induction (deceqx x y); [right; apply tt | left].
-      apply tpair with (pr1 := x), b. 
-    - intros [[x neq] | tt].
-      + induction (deceqx x y).
-        * apply fromempty, neq, a.
-        * simpl. apply maponpaths, subtypePath; 
-          [apply isPredicate_singleton_complement | apply idpath].
-      + induction (deceqx y y).
-        * induction tt. apply idpath.
-        * apply fromempty, b, idpath.
-    - intros x; cbn beta.
-      induction (deceqx x y); simpl;
-      try induction a; apply idpath.
-  Qed.
-
-  Lemma issurjective_stnfun_excludefixed {X : UU} {n : nat} (f : stn (S n) → X) 
+  Lemma issurjective_stnfun_singleton_complement {X : UU} {n : nat} (f : stn (S n) → X) 
         (nfib : ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement)) : issurjective f → 
-        issurjective (stnfun_excludefixed f nfib).
+        issurjective (stnfun_singleton_complement f nfib).
   Proof.
     intros surjf y.
     destruct y as [x neq].
@@ -317,11 +291,11 @@ Section iskfinite_isdeceq_isfinite.
     - intros [[m lth] q]; clear surjf. apply hinhpr.
       induction (natlehchoice _ _ (natlthsntoleh _ _ lth)).
       + apply (tpair _ (m ,, a)).
-        unfold stnfun_excludefixed, fun_stnsn_to_stnn, make_stn.
-        apply subtypePath; try (apply isPredicate_singleton_complement); simpl.
+        unfold stnfun_singleton_complement, fun_stnsn_to_stnn, make_stn.
+        apply subtypePath; try (apply isPredicate_singleton_complement); cbn.
         induction q. apply maponpaths, stn_eq, idpath. 
       + assert (H : (m ,, lth = lastelement)) by apply stn_eq, b.
-        apply fromempty, neq. induction H. apply pathsinv0, q.
+        apply fromempty. induction neq. induction H. apply pathsinv0, q.
   Qed.
 
   Lemma kfinstruct_dec_finstruct {X : UU} : isdeceq X → kfinstruct X → finstruct X.
@@ -330,15 +304,15 @@ Section iskfinite_isdeceq_isfinite.
     generalize dependent X.
     induction n; intros.
     - apply tpair with (pr1 := 0).
-      apply surjfromstn0toneg with (f := f). assumption. 
+      apply surj_from_stn0_to_neg with (f := f). assumption. 
     - set (g := fun_stnsn_to_stnn f).
       set (y := f lastelement).
       induction (isdeceq_isdecsurj g y deceqX).
       + apply IHn with (f := g); try apply surj_fun_stnsn_to_stnn; assumption.
-      + set (g' := stnfun_excludefixed f b).
-        set (surjg' := (issurjective_stnfun_excludefixed f b surj)).
+      + set (g' := stnfun_singleton_complement f b).
+        set (surjg' := (issurjective_stnfun_singleton_complement f b surj)).
         specialize IHn with (f := g').
-        apply IHn in surjg'; 
+        apply IHn in surjg';
         [ | apply isdeceq_subtype; try assumption; intros x; apply isapropneg ].
         destruct surjg' as [s1 s2].
         apply tpair with (pr1 := (S s1)); unfold nelstruct.
@@ -349,8 +323,9 @@ Section iskfinite_isdeceq_isfinite.
           apply weq_singleton_complement_unit; assumption.
   Qed.
 
-  Lemma iskfinitedectoisfinite {X : UU} : isdeceq X → iskfinite X → isfinite X.
+  Lemma iskfinite_dec_to_isfinite {X : UU} : isdeceq X → iskfinite X → isfinite X.
   Proof.
     intros deceqX. apply hinhfun, kfinstruct_dec_finstruct, deceqX.
   Qed.
+
 End iskfinite_isdeceq_isfinite.

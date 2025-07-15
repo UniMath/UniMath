@@ -2029,9 +2029,9 @@ Defined.
 (* Functions with domain in Standard finite sets. *)
 Definition fun_stnsn_to_stnn {X : UU} {n : nat} (f : stn (S n) → X) : stn n → X := f ∘ dni_lastelement.
 
-Definition stnfun_excludefixed {X : UU} {n : nat} (f : stn (S n) → X) : 
+Definition stnfun_singleton_complement {X : UU} {n : nat} (f : stn (S n) → X) : 
       ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement) → stn n → 
-      (∑ (x : X), ¬ (x = (f lastelement))).
+      (singleton_complement (f lastelement)).
 Proof.
   intros.
   exists (fun_stnsn_to_stnn f X1).
