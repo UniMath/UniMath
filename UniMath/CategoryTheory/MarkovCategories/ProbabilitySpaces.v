@@ -18,9 +18,7 @@ Table of Contents
   3.1 Defining the Dagger Functor from Probability Spaces to Couplings
   3.2 Defining the Dagger Functor from Couplings to Probability Spaces
   3.3 Proof that the Functors are Inverses
-
-The following future work needs to be added to this file:
-* Think about univalence of the probability space construction
+  3.4 Deriving the equality [couplings = prob_space]
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -29,9 +27,15 @@ References
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.coslicecat.
+Require Import UniMath.CategoryTheory.CategoryEquality.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Categories.Quotient.
+
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
+
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
@@ -482,5 +486,31 @@ Section EquivalenceProof.
     - apply bloom_coupling_dom.
     - reflexivity.
   Qed. 
-    
+
+  (** * 3.4 Deriving the equality [couplings = prob_space] *)
+
+  Proposition couplings_to_ps_fully_faithful : fully_faithful (@couplings_to_ps C).
+  Proof.
+    intros p q.
+    use isweq_iso.
+    + exact # ps_to_couplings.
+    + exact couplings_ps_couplings_id.
+    + exact ps_couplings_ps_id.
+  Qed.
+
+  Proposition couplings_to_ps_catiso : catiso (couplings C) PS.
+  Proof.
+    exists couplings_to_ps.
+    split.
+    - apply couplings_to_ps_fully_faithful.
+    - apply idisweq.
+  Defined. 
+
+  Definition couplings_equals_ps : couplings C = PS.
+  Proof.
+    use (invweq _). 
+    - apply catiso_is_path_cat.
+    - exact couplings_to_ps_catiso. 
+  Defined.
+
 End EquivalenceProof.
