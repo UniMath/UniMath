@@ -80,7 +80,6 @@ DisplayedBicats/Examples/CategoriesWithStructure/SubobjectClassifier.v
 DisplayedBicats/Examples/CategoriesWithStructure/RegularAndExact.v
 DisplayedBicats/Examples/CategoriesWithStructure/ParameterizedNNO.v
 DisplayedBicats/Examples/CategoriesWithStructure/Exponentials.v
-DisplayedBicats/Examples/CategoriesWithStructure/Extensive.v
 DisplayedBicats/Examples/CategoriesWithStructure/Topoi.v
 
 MonoidalCategories/MonoidalFromBicategory.v
@@ -508,7 +507,6 @@ RezkCompletions/StructuredCats/FiniteLimits.v
 RezkCompletions/StructuredCats/FiniteColimits.v
 RezkCompletions/StructuredCats/SubobjectClassifier.v
 RezkCompletions/StructuredCats/RegularAndExact.v
-RezkCompletions/StructuredCats/Extensive.v
 RezkCompletions/StructuredCats/ParameterizedNNO.v
 RezkCompletions/StructuredCats/Exponentials.v
 RezkCompletions/StructuredCats/Topoi.v

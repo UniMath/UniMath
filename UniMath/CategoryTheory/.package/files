@@ -135,7 +135,6 @@ DisplayedCats/Codomain/IteratedSlice.v
 DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
 DisplayedCats/Codomain/CodRegular.v
-DisplayedCats/Codomain/CodExtensivity.v
 
 DisplayedCats/MonoCodomain/FiberMonoCod.v
 DisplayedCats/MonoCodomain/MonoCodFunctor.v
@@ -257,7 +256,6 @@ WeakEquivalences/Exact.v
 WeakEquivalences/Preservation/NNO.v
 WeakEquivalences/PNNO.v
 WeakEquivalences/Slice.v
-WeakEquivalences/Extensivity.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 
