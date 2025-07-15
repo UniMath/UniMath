@@ -261,8 +261,28 @@ Section IsometryCoisometryProperties.
     - assumption.
   Qed.
 
-  (* Cancellation stuff *)
+  (* Cancellation lemmas *)
 
-  (* TODO: isometries are mono, coisometries epi *)
+  Proposition coisometry_epi {x y z : C} (f : coisometry dag x y) (g1 g2 : y --> z) 
+    : f · g1 = f · g2 -> g1 = g2.
+  Proof. 
+    intros e.
+    rewrite <- (id_left g1), <- (id_left g2).
+    rewrite <- (coisometry_property dag f).
+    rewrite <- !assoc.
+    rewrite e.
+    reflexivity.
+  Qed.
+
+  Proposition isometry_mono {x y z : C} (f : isometry dag y z) (g1 g2 : x --> y) 
+    : g1 · f = g2 · f -> g1 = g2.
+  Proof. 
+    intros e.
+    rewrite <- (id_right g1), <- (id_right g2).
+    rewrite <- (isometry_property dag f).
+    rewrite !assoc.
+    rewrite e.
+    reflexivity.
+  Qed.
 
 End IsometryCoisometryProperties.

@@ -123,6 +123,7 @@ Section Dilators.
     ∏ (x y : C) (f : x --> y), ∥dilator f∥.
 
   (* Example: dilation of the identity *)
+
   Definition dilation_id_id (x : C) : dilation (identity x).
   Proof.
     refine (x ,, coisometry_id C x ,, coisometry_id C x ,, _).
@@ -131,6 +132,50 @@ Section Dilators.
     reflexivity.
   Defined.
 
+  (* If C has dilators, then [dilation_id_id] is one as well *)
+  Lemma dilator_id_id (x : C) (dil : with_dilators) : is_dilator (dilation_id_id x).
+  Proof.
+    intros d.
+
+    (* Find a dilator of the identity *)
+    destruct (dil _ _ (identity x)) as ((q & [s sco] & [t tco] & ee) & is_dil).
+
+    (* Factor the dilation (id,id) *)
+    destruct (pr1 (is_dil (dilation_id_id x))) as (w & e1 & e2).
+
+    (* Factor the dilation d*)
+    destruct (pr1 (is_dil d)) as (h & f1 & f2).
+
+    destruct d as (p & [u uco] & [v vco] & e); cbn in *.
+
+    assert(eq1 : s = t). {
+      refine (coisometry_epi _ w _ _ _).
+      rewrite e2.
+      exact e1.       
+    } 
+    
+    assert(eq2 : u = v). { 
+      rewrite <- f1, <- f2.
+      rewrite eq1.
+      reflexivity.
+    }
+
+    unfold dilation_map.
+    cbn.
+    rewrite eq2.
+    use make_iscontr.
+    - exists (v ,, vco).
+      rewrite !id_right.
+      split ; reflexivity.
+    - intros [h2 [P Q]].
+      use subtypePath.
+      { intro. use isapropdirprod; use homset_property. }
+      apply coisometry_eq.
+      cbn.
+      rewrite <- (id_right (pr1 h2)).
+      exact P.
+  Qed.  
+       
 End Dilators.
 
 Section DaggerPropositions.
