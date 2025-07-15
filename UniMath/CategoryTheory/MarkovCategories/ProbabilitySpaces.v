@@ -18,7 +18,7 @@ Table of Contents
   3.1 Defining the Dagger Functor from Probability Spaces to Couplings
   3.2 Defining the Dagger Functor from Couplings to Probability Spaces
   3.3 Proof that the Functors are Inverses
-  3.4 Deriving the equality [couplings = prob_space]
+  3.4 Deriving the equality between dagger categories of Probability Spaces and Couplings
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -49,6 +49,7 @@ Require Import UniMath.CategoryTheory.MarkovCategories.Conditionals.
 Require Import UniMath.CategoryTheory.MarkovCategories.Couplings.
 
 Require Import UniMath.CategoryTheory.DaggerCategories.Categories.
+Require Import UniMath.CategoryTheory.DaggerCategories.CatIso.
 Require Import UniMath.CategoryTheory.DaggerCategories.Functors.
 Require Import UniMath.CategoryTheory.DaggerCategories.Unitary.
 Require Import UniMath.CategoryTheory.DaggerCategories.Univalence.
@@ -228,6 +229,12 @@ Section ProbabilitySpacesDagger.
 
   Definition prob_space_dagger : dagger (prob_space C_is_causal)
     := _ ,, prob_space_dagger_laws.
+
+  Definition prob_space_dagger_cat : dagger_category.
+  Proof.
+    exists (prob_space C_is_causal).
+    exact prob_space_dagger.
+  Defined.
 
 End ProbabilitySpacesDagger.
 
@@ -498,7 +505,7 @@ Section EquivalenceProof.
     + exact ps_couplings_ps_id.
   Qed.
 
-  Proposition couplings_to_ps_catiso : catiso (couplings C) PS.
+  Definition couplings_to_ps_catiso : catiso (couplings C) PS.
   Proof.
     exists couplings_to_ps.
     split.
@@ -512,5 +519,20 @@ Section EquivalenceProof.
     - apply catiso_is_path_cat.
     - exact couplings_to_ps_catiso. 
   Defined.
+
+  (* Extending this to an equality of dagger categories *)
+
+  Definition couplings_to_ps_daggercatiso : daggercatiso (couplings_dagger_cat C) (prob_space_dagger_cat C).
+  Proof.
+    exists couplings_to_ps_catiso.
+    exact couplings_to_ps_is_dagger.
+  Defined.
+
+  Definition couplings_equals_ps_dagger : couplings_dagger_cat C = prob_space_dagger_cat C.
+  Proof.
+    use (invweq _).
+    - apply daggercatiso_is_path_cat.
+    - exact couplings_to_ps_daggercatiso.
+  Defined. 
 
 End EquivalenceProof.

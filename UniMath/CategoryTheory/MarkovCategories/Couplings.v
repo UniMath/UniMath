@@ -621,6 +621,12 @@ Section CouplingsDaggerStructure.
 
   Definition couplings_dagger : dagger (couplings C) 
     := _ ,, couplings_dagger_laws.
+
+  Definition couplings_dagger_cat : dagger_category.
+  Proof.
+    exists (couplings C).
+    exact couplings_dagger.
+  Defined.
       
 End CouplingsDaggerStructure.
 

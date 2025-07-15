@@ -75,49 +75,118 @@ Section DaggerLemmas.
   
 End DaggerLemmas.
 
-(* TODO Should be under /DaggerCategories *)
-Section IsometriesCoisometries.
-  (* TODO The definitions only require a dagger_structure! *)
-  Context {C : category} (dag : dagger C).
 
-  Notation "f †" := (dag _ _ f). (* TODO level etc *)
+(* TODO Should be under /DaggerCategories *)
+
+Section IsometriesDef.
+  Context {C : category} (dag : dagger_structure C).
+  Local Notation "f †" := (dag _ _ f).
 
   Definition is_isometry {x y : C} (f : x --> y) : UU
-    := f · (f †) = identity x.
+  := f · (f †) = identity x.
+
+  Definition isometry (x y : C) : UU
+  := ∑ f : x --> y, is_isometry f.
+
+  Definition make_isometry {x y : C} (f : x --> y) (p : is_isometry f) : isometry x y
+    := f ,, p.
+
+  Coercion isometry_to_mor {x y : C} (f : isometry x y) : x --> y 
+    := pr1 f.
+
+  Proposition isometry_property {x y : C} (f : isometry x y) : is_isometry f.
+  Proof.
+    exact (pr2 f).
+  Qed. 
+
+  Lemma isaprop_is_isometry {x y : C} (f : x --> y) 
+    : isaprop (is_isometry f).
+  Proof.
+    apply homset_property.
+  Qed.
+
+  Lemma isaset_isometry {x y : C} : isaset (isometry x y).
+  Proof.
+    apply isaset_total2.
+    - apply homset_property.
+    - intro ; apply isasetaprop ; apply isaprop_is_isometry.
+  Qed.
+
+  Lemma isometry_eq {x y : C} (f g : isometry x y) :
+    pr1 f = pr1 g -> f = g.
+  Proof.
+    intro p.
+    apply (total2_paths_f p).
+    apply isaprop_is_isometry.
+  Qed.
+
+End IsometriesDef.
+
+Section CoisometriesDef.
+  Context {C : category} (dag : dagger_structure C).
+  Local Notation "f †" := (dag _ _ f).
 
   Definition is_coisometry {x y : C} (f : x --> y) : UU
     := (f †) · f = identity y.
 
-  Proposition isometry_coisometry_dagger {x y : C} {f : x --> y} :
-    is_isometry f <-> is_coisometry (f †).
+  Definition coisometry (x y : C) : UU
+  := ∑ f : x --> y, is_coisometry f.
+
+  Definition make_coisometry {x y : C} (f : x --> y) (p : is_coisometry f) : coisometry x y
+    := f ,, p.
+
+  Coercion coisometry_to_mor {x y : C} (f : coisometry x y) : x --> y 
+    := pr1 f.
+
+  Proposition coisometry_property {x y : C} (f : coisometry x y) : is_coisometry f.
   Proof.
-    unfold is_isometry, is_coisometry.
-    split ; (intros ; rewrite dagger_to_law_idemp in *; assumption).
+    exact (pr2 f).
+  Qed. 
+
+  Lemma isaprop_is_coisometry {x y : C} (f : x --> y) 
+    : isaprop (is_coisometry f).
+  Proof.
+    apply homset_property.
   Qed.
 
-  Proposition coisometry_isometry_dagger {x y : C} {f : x --> y} :
-    is_coisometry f <-> is_isometry (f †).
+  Lemma isaset_coisometry {x y : C} : isaset (coisometry x y).
   Proof.
-    unfold is_isometry, is_coisometry.
-    split ; (intros ; rewrite dagger_to_law_idemp in *; assumption).
+    apply isaset_total2.
+    - apply homset_property.
+    - intro ; apply isasetaprop ; apply isaprop_is_coisometry.
   Qed.
 
-  Proposition isometry_id {x : C} : is_isometry (identity x).
+  Lemma coisometry_eq {x y : C} (f g : coisometry x y) :
+    pr1 f = pr1 g -> f = g.
+  Proof.
+    intro p.
+    apply (total2_paths_f p).
+    apply isaprop_is_coisometry.
+  Qed.
+
+End CoisometriesDef.
+
+Section IsometryCoisometryProperties.
+  Context {C : category} (dag : dagger C).
+  Local Notation "f †" := (dag _ _ f).
+
+  (* Isometries: Identity and composition *)
+  Proposition is_isometry_id {x : C} : is_isometry dag (identity x).
   Proof.
     unfold is_isometry.
     rewrite dagger_to_law_id.
     apply id_left.
   Qed.
 
-  Proposition coisometry_id {x : C} : is_coisometry (identity x).
+  Definition isometry_id (x : C) : isometry dag x x.
   Proof.
-    unfold is_coisometry.
-    rewrite dagger_to_law_id.
-    apply id_left.
-  Qed.
+    use make_isometry.
+    - exact (identity x).
+    - apply is_isometry_id.
+  Defined.
 
-  Proposition isometry_comp {x y z : C} {f : x --> y} {g : y --> z} 
-    : is_isometry f -> is_isometry g -> is_isometry (f · g).
+  Proposition is_isometry_comp {x y z : C} {f : x --> y} {g : y --> z} 
+  : is_isometry dag f -> is_isometry dag g -> is_isometry dag (f · g).
   Proof.
     unfold is_isometry. 
     intros isomf isomg.
@@ -127,24 +196,96 @@ Section IsometriesCoisometries.
     reflexivity.
   Qed.
 
-  Proposition coisometry_comp {x y z : C} {f : x --> y} {g : y --> z} 
-    : is_coisometry f -> is_coisometry g -> is_coisometry (f · g).
+  Definition isometry_comp {x y z : C} (f : isometry dag x y) (g : isometry dag y z) 
+    : isometry dag x z.
   Proof.
-    intros coismf coisomg.
-    apply coisometry_isometry_dagger.
-    rewrite dagger_to_law_comp.
-    apply isometry_comp ; apply coisometry_isometry_dagger; assumption.
+    use make_isometry.
+    - exact (f · g).
+    - apply is_isometry_comp; apply isometry_property.
+  Defined.
+
+  (* Coisometries: Identity and composition *)
+  Proposition is_coisometry_id {x : C} : is_coisometry dag (identity x).
+  Proof.
+    unfold is_coisometry.
+    rewrite dagger_to_law_id.
+    apply id_left.
   Qed.
 
+  Definition coisometry_id (x : C) : coisometry dag x x.
+  Proof.
+    use make_coisometry.
+    - exact (identity x).
+    - apply is_coisometry_id.
+  Defined.
+
+  Proposition is_coisometry_comp {x y z : C} {f : x --> y} {g : y --> z} 
+  : is_coisometry dag f -> is_coisometry dag g -> is_coisometry dag (f · g).
+  Proof.
+    unfold is_coisometry. 
+    intros coisomf coisomg.
+    rewrite dagger_to_law_comp.
+    assert(e : g † · f † · (f · g) = g † · (f † · f) · g). { rewrite !assoc. reflexivity. }
+    rewrite e, coisomf, id_right, coisomg.
+    reflexivity.
+  Qed.
+
+  Definition coisometry_comp {x y z : C} (f : coisometry dag x y) (g : coisometry dag y z)
+    : coisometry dag x z.
+  Proof.
+    use make_coisometry.
+    - exact (f · g).
+    - apply is_coisometry_comp; apply coisometry_property.
+  Defined.
+
+  (* Dagger lemmas *)
+
+  Proposition isometry_coisometry_dagger {x y : C} {f : x --> y}
+    : is_isometry dag f <-> is_coisometry dag (f †).
+  Proof.
+    unfold is_isometry, is_coisometry.
+    split ; (intros ; rewrite dagger_to_law_idemp in *; assumption).
+  Qed.
+
+  Proposition coisometry_isometry_dagger {x y : C} {f : x --> y}
+    : is_coisometry dag f <-> is_isometry dag (f †).
+  Proof.
+    unfold is_isometry, is_coisometry.
+    split ; (intros ; rewrite dagger_to_law_idemp in *; assumption).
+  Qed.
+
+  Definition isometry_dag {x y : C} (f : isometry dag x y) : coisometry dag y x.
+  Proof.
+    use make_coisometry.
+    - exact (f †).
+    - abstract (apply isometry_coisometry_dagger; apply isometry_property).
+    Defined.  
+
+  Definition coisometry_dag {x y : C} (f : coisometry dag x y) : isometry dag y x.
+  Proof.
+    use make_isometry.
+    - exact (f †).
+    - abstract (apply coisometry_isometry_dagger; apply coisometry_property).
+  Defined. 
+
+  (* Relation with unitaries *)
+
   Proposition unitary_isometry_coisometry {x y : C} {f : x --> y} 
-    : is_unitary dag f <-> (is_isometry f) × (is_coisometry f).
+    : is_unitary dag f <-> (is_isometry dag f) × (is_coisometry dag f).
   Proof.
     unfold is_unitary, is_inverse_in_precat, is_isometry, is_coisometry.
     split; intros p; exact p.
-  Qed. 
+  Qed.
+  
+  Definition unitary_to_isometry {x y : C} (f : unitary dag x y) : isometry dag x y.
+  Proof.
+    use make_isometry.
+    - exact f.
+    - abstract (apply unitary_isometry_coisometry; exact (pr2 f)).
+  Defined.  
 
   Lemma z_iso_isometry_unitary {x y : C} (f : z_iso x y) 
-    : is_isometry f -> is_unitary dag f.
+    : is_isometry dag f -> is_unitary dag f.
   Proof.
     unfold is_isometry.
     intros isomf.
@@ -163,7 +304,7 @@ Section IsometriesCoisometries.
   Qed.
 
   Lemma z_iso_coisometry_unitary {x y : C} (f : z_iso x y) 
-    : is_coisometry f -> is_unitary dag f.
+    : is_coisometry dag f -> is_unitary dag f.
   Proof.
     unfold is_coisometry.
     intros coisomf.
@@ -181,7 +322,11 @@ Section IsometriesCoisometries.
     - assumption.
   Qed.
 
-End IsometriesCoisometries.
+  (* Cancellation stuff *)
+
+  (* TODO: isometries are mono, coisometries epi *)
+
+End IsometryCoisometryProperties.
 
 Section DaggerPropositions.
   Context {C : markov_category_with_conditionals}.
