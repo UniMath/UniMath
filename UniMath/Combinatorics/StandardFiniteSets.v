@@ -2033,7 +2033,7 @@ Definition stnfun_singleton_complement {X : UU} {n : nat} (f : stn (S n) → X) 
       ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement) → stn n → 
       (singleton_complement (f lastelement)).
 Proof.
-  intros.
+  intros X0 X1.
   exists (fun_stnsn_to_stnn f X1).
   intros contra. apply X0.
   eexists. apply contra.

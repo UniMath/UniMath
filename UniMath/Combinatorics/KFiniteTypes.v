@@ -292,7 +292,7 @@ Section iskfinite_isdeceq_isfinite.
       induction (natlehchoice _ _ (natlthsntoleh _ _ lth)).
       + apply (tpair _ (m ,, a)).
         unfold stnfun_singleton_complement, fun_stnsn_to_stnn, make_stn.
-        apply subtypePath; try (apply isPredicate_singleton_complement); cbn.
+        apply subtypePath_prop; cbn.
         induction q. apply maponpaths, stn_eq, idpath. 
       + assert (H : (m ,, lth = lastelement)) by apply stn_eq, b.
         apply fromempty. induction neq. induction H. apply pathsinv0, q.

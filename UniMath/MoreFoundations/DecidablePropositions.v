@@ -468,11 +468,6 @@ Qed.
 
   Definition singleton_complement {X : UU} (y : X) : hsubtype X := λ x, make_hProp (x != y) (isapropneg (x = y)).
 
-  Lemma isPredicate_singleton_complement {X : UU} (y : X) : isPredicate (singleton_complement y).
-  Proof.
-    intros x. apply isapropneg.
-  Qed.
-
   Lemma weq_singleton_complement_unit {X : UU} (y : X) : isdeceq X → carrier (singleton_complement y) ⨿ unit ≃ X.
   Proof.
     intros deceqx.
@@ -483,8 +478,7 @@ Qed.
     - intros [[x neq] | tt].
       + induction (deceqx x y).
         * apply fromempty. induction neq. assumption.
-        * cbn. apply maponpaths, subtypePath; 
-          [apply isPredicate_singleton_complement | apply idpath].
+        * cbn. apply maponpaths, subtypePath_prop, idpath. 
       + induction (deceqx y y).
         * induction tt. apply idpath.
         * apply fromempty, b, idpath.
