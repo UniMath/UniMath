@@ -9,20 +9,11 @@
 
     Author: Dominik Kirst (@dominik-kirst) and Ralph Matthes (@rmatthes)
 
-    massive overhaul by Ralph Matthes (May to July 2025):
-    - clearer mathematical display of what the refinement brings w.r.t.
-      the supposed final coalgebra
-    - computable elements are now called purely coiterative elements, and
-      their property is isolated
-    - more typing information given
-    - better use of documentation facilities
-    - new lemma destrM'_aux to encapsulate the equational part of destrM'
-    - more readable proof of eq_corecM0
-    - the crucial element of the overhaul is the total rewrite of the proof
-      of Lemma P_isaprop that now tries to generate the new goals as much as
-      possible, while the previous version announced the intermediate goals
-      through intermediate_weq with formulas conceived in the UniMath 2017
-      school formalization
+    massive overhaul by Ralph Matthes (May to July 2025), the crucial element
+    being the total rewrite of the proof of Lemma P_isaprop that now tries to
+    generate the new goals as much as possible, while the previous version
+    announced the intermediate goals through intermediate_weq with formulas
+    conceived in the UniMath 2017 school formalization
 
 *)
 
@@ -231,9 +222,9 @@ Section Refinement.
   Defined.
 
   (** for the moment only an experiment *)
-  Lemma truth_of_P (m0 : carrierM0) : P m0 -> is_purelycoiterativeM0 m0.
+  Goal ∏ (m0 : carrierM0), P m0 -> is_purelycoiterativeM0 m0.
   Proof.
-    intros [[a f] Hyp].
+    intros m0 [[a f] Hyp].
     simpl in Hyp.
     unfold polynomial_functor_arr in Hyp.
     simpl in Hyp.
