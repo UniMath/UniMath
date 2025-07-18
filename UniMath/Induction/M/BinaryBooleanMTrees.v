@@ -52,28 +52,36 @@ Local Definition corec_C1 := ComputationalMWithSets.corecC B C' C'_isfinal.
 Local Definition c1 : UU := pr11 C'1.
 Local Definition destr_c1 : c1 -> F c1 := pr2 C'1.
 
-Lemma Get_list_at_depth (t : c1) (depth : nat) : list bool.
+Definition Get_subtrees_list_rec_step (t0 : c1) (acc : list c1) : list c1
+  := match destr_c1 t0 with
+     | (ii1 _,, _) => acc
+     | (ii2 _,, f) => cons (f (ii1 tt)) (cons (f (ii2 tt)) acc)
+     end.
+
+Definition Get_subtrees_list_at_depth (t : c1) (depth : nat) : list c1.
 Proof.
-  assert (l : list c1). (* List of subtrees at given depth *)
-  {
-    induction depth.
-    - exact (cons t nil).
-    - exact (list_ind
-               (λ _, list c1)
-               nil
-               (λ t0 _ acc, match destr_c1 t0 with
-                            | (ii1 _,, _) => acc
-                            | (ii2 _,, f) => cons (f (ii1 tt)) (cons (f (ii2 tt)) acc)
-                            end)
-               IHdepth).
-  }
+  induction depth.
+  - exact (cons t nil).
+  - exact (list_ind
+             (λ _, list c1)
+             nil
+             (λ t0 _ acc, Get_subtrees_list_rec_step t0 acc)
+             IHdepth).
+Defined.
+
+Definition Get_labels_list_rec_step (t0 : c1) (acc : list bool) : list bool
+  := match destr_c1 t0 with
+     | (ii1 _,, _) => acc
+     | (ii2 b,, _) => cons b acc
+     end.
+
+Definition Get_labels_list_at_depth (t : c1) (depth : nat) : list bool.
+Proof.
+  set (l := Get_subtrees_list_at_depth t depth).
   exact (list_ind
            (λ _, list bool)
            nil
-           (λ t0 _ acc, match destr_c1 t0 with
-                        | (ii1 _,, _) => acc
-                        | (ii2 b,, _) => cons b acc
-                        end)
+           (λ t0 _ acc, Get_labels_list_rec_step t0 acc)
            l).
 Defined.
 
@@ -85,7 +93,7 @@ Proof.
   exact (corec_C1 (c,, s_c) tt).
 Defined.
 
-Lemma only_true : Get_list_at_depth t0 4 = functionToList 16 (λ _, true).
+Lemma only_true : Get_labels_list_at_depth t0 4 = functionToList 16 (λ _, true).
 Proof.
   apply idpath.
 Defined.
@@ -122,7 +130,98 @@ Proof.
   exact (corec_C1 (c,, s_c) 0).
 Defined.
 
-Lemma row2 : Get_list_at_depth t1 2 = cons true (cons true (cons false nil)).
+Lemma row2 : Get_labels_list_at_depth t1 2 = cons true (cons true (cons false nil)).
 Proof.
   apply idpath.
 Defined.
+
+(* Note though that the refinement of ComputationalM is needed to have
+   proofs by idpath. *)
+Local Definition C : coalgebra F := MWithSets.C0 B C'.
+Local Definition C_isfinal : is_final C := MWithSets.C0_is_final B C' C'_isfinal.
+Local Definition corec_C := ComputationalM.corecM0 _ _ C C_isfinal.
+Local Definition c : UU := pr1 C.
+Local Definition destr_c : c -> F c := pr2 C.
+
+Definition Get_subtrees_list_rec_step_alt (t0 : c) (acc : list c) : list c
+  := match destr_c t0 with
+     | (ii1 _,, _) => acc
+     | (ii2 _,, f) => cons (f (ii1 tt)) (cons (f (ii2 tt)) acc)
+     end.
+
+Definition Get_subtrees_list_at_depth_alt (t : c) (depth : nat) : list c.
+Proof.
+  induction depth.
+  - exact (cons t nil).
+  - exact (list_ind
+             (λ _, list c)
+             nil
+             (λ t0 _ acc, Get_subtrees_list_rec_step_alt t0 acc)
+             IHdepth).
+Defined.
+
+Definition Get_labels_list_rec_step_alt (t0 : c) (acc : list bool) : list bool
+  := match destr_c t0 with
+     | (ii1 _,, _) => acc
+     | (ii2 b,, _) => cons b acc
+     end.
+
+Definition Get_labels_list_at_depth_alt (t : c) (depth : nat) : list bool.
+Proof.
+  set (l := Get_subtrees_list_at_depth_alt t depth).
+  exact (list_ind
+           (λ _, list bool)
+           nil
+           (λ t0 _ acc, Get_labels_list_rec_step_alt t0 acc)
+           l).
+Defined.
+
+(* In some simple cases we do have a proof by idpath *)
+Definition t0_alt : c.
+Proof.
+  set (c := unit).
+  set (s_c := λ _ : c, (ii2 true,, λ _, tt) : F c).
+  exact (corec_C (c,, s_c) tt).
+Defined.
+
+Lemma only_true_alt : Get_labels_list_at_depth_alt t0_alt 4 = functionToList 16 (λ _, true).
+Proof.
+  apply idpath.
+Defined.
+
+(* In more complex cases a more complex proof is needed *)
+Definition coalg_t1_alt : coalgebra F.
+Proof.
+  set (c := nat).
+  set (a0 := ii2 true : A).
+  set (a1 := ii2 false : A).
+  set (a2 := ii2 true : A).
+  set (s_c := λ x : c, match x with
+                       | 0 => (a0,, λ y : pr1hSet (B a0), match y with
+                                                         | ii1 _ => 1
+                                                         | ii2 _ => 2
+                                                         end : c)
+                       | 1 => (a1,, λ y : pr1hSet (B a1), match y with
+                                                         | ii1 _ => 3
+                                                         | ii2 _ => 5
+                                                         end : c)
+                       | 2 => (a2,, λ y : pr1hSet (B a2), match y with
+                                                        | ii1 _ => 3
+                                                        | ii2 _ => 4
+                                                        end : c)
+                       | 3 => (ii2 true,, λ _, 5)
+                       | 4 => (ii2 false,, λ _, 5)
+                       | _ => (ii1 tt,, λ _, 5)
+                       end : F c).
+  exact (c,, s_c).
+Defined.
+
+Definition t1_alt : c.
+Proof.
+  exact (corec_C coalg_t1_alt 0).
+Defined.
+
+Lemma row2_alt : Get_labels_list_at_depth_alt t1_alt 2 = cons true (cons true (cons false nil)).
+Proof.
+  Fail apply idpath.
+Abort.

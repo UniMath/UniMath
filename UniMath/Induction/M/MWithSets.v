@@ -12,6 +12,8 @@ Require Import UniMath.Induction.FunctorCoalgebras_legacy.
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.SetBasedPolynomialFunctors.
 Require Import UniMath.Induction.M.Core.
+Require UniMath.Induction.FunctorCoalgebras_legacy_alt_UU.
+Require UniMath.Induction.FunctorCoalgebras_legacy_alt_HSET.
 
 Require Import UniMath.CategoryTheory.Categories.Type.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -20,6 +22,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require UniMath.CategoryTheory.FunctorCoalgebras.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Local Open Scope cat.
 
@@ -212,4 +216,200 @@ Section M.
   Defined.
 
   End FromFinalInHSET.
+
+  Section FunctorAdjunctions_UU_HSET.
+
+   (** If the definition of a coalgebra is tweaked, we can show an adjunction between the
+       two functors going from UU coalgebras to HSET coalgebras and vice versa.
+       This result shall not be used for other purposes but rather gives an intuition for
+       the results above.
+    *)
+
+    Local Definition cat1 := UniMath.Induction.FunctorCoalgebras_legacy_alt_UU.CoAlg_precategory F.
+    Local Definition cat2 := UniMath.Induction.FunctorCoalgebras_legacy_alt_HSET.CoAlg_precategory F'.
+
+    (* HSET -> UU coalgebras functor*)
+
+    Definition functor_coalgebra_HSET_to_UU_obj (C : FunctorCoalgebras.coalgebra_ob F') : (coalgebra F).
+    Proof.
+      exact (pr1 (pr1 C),, pr2 C).
+    Defined.
+
+    Definition functor_coalgebra_HSET_to_UU_data : functor_data cat2 cat1.
+    Proof.
+      use make_functor_data.
+      - exact functor_coalgebra_HSET_to_UU_obj.
+      - intros a b f.
+        exact f.
+    Defined.
+
+    Lemma functor_coalgebra_HSET_to_UU_is_functor : is_functor functor_coalgebra_HSET_to_UU_data.
+    Proof.
+      split.
+      - unfold functor_idax.
+        intro.
+        use total2_paths_f.
+        + apply idpath.
+        + use funextsec. intro.
+          apply isapropishinh.
+      - unfold functor_compax.
+        intros.
+        use total2_paths_f.
+        + apply idpath.
+        + use funextsec. intro.
+          apply isapropishinh.
+    Defined.
+
+    Definition functor_coalgebra_HSET_to_UU : functor cat2 cat1 := _,, functor_coalgebra_HSET_to_UU_is_functor.
+
+    (* UU -> HSET coalgebras functor *)
+
+    Definition functor_coalgebra_UU_to_HSET_obj (C : coalgebra F) : FunctorCoalgebras.coalgebra_ob F'.
+    Proof.
+      exact (coalg_set_trunc C).
+    Defined.
+
+    Lemma is_morph_UU_to_HSET {a b : coalgebra F} {f : type_precat ⟦ pr1 a, pr1 b ⟧} (x : pr1 a) (p : ((pr2 a) · #F f) x = (f · (pr2 b)) x ) :
+      tpair (λ a, pr1hSet (B a) -> settrunc (pr1 b)) (pr1 (((pr2 a) · #F f) x)) (λ y, settruncin _ (pr2 (((pr2 a) · #F f) x) y)) = tpair (λ a, pr1hSet (B a) -> settrunc (pr1 b)) (pr1 ((f · (pr2 b)) x)) (λ y, settruncin _ (pr2 ((f · (pr2 b)) x) y)).
+    Proof.
+      induction p.
+      apply idpath.
+    Defined.
+
+    Definition functor_coalgebra_UU_to_HSET_data : functor_data cat1 cat2.
+    Proof.
+      use make_functor_data.
+      - exact functor_coalgebra_UU_to_HSET_obj.
+      - intros a b f.
+        cbn.
+        unfold FunctorCoalgebras_legacy_alt_HSET.coalgebra_homo.
+        cbn -[settrunc].
+        set (f0 := settrunc_rec _ (λ x, settruncin _ (pr1 f x)) :  SET ⟦ pr1 (functor_coalgebra_UU_to_HSET_obj a), pr1 (functor_coalgebra_UU_to_HSET_obj b) ⟧).
+        assert (p1 : ∏ x : pr1 a, ∥ (FunctorCoalgebras_legacy_alt_HSET.coalgebra_mor F' (functor_coalgebra_UU_to_HSET_obj a) · # F' f0) (settruncin _ x) = (f0 · FunctorCoalgebras_legacy_alt_HSET.coalgebra_mor F' (functor_coalgebra_UU_to_HSET_obj b)) (settruncin _ x) ∥ ).
+        {
+          intro x.
+          cbn -[F'].
+          set (goal := ∥ # F' f0 (out_set_trunc a x) = out_set_trunc b (pr1 f x) ∥).
+          set (p11 := UniMath.Induction.FunctorCoalgebras_legacy_alt_UU.coalgebra_homo_commutes F f x goal).
+          apply p11.
+          cbn -[F F'].
+          intro p12.
+          set (p13 := is_morph_UU_to_HSET x p12).
+          exact (hinhpr p13).
+        }
+        assert (p2 : ∏ x : pr1 (settrunc (coalgebra_ob F a)), ∥ (FunctorCoalgebras_legacy_alt_HSET.is_coalgebra_homo F' f0 x) ∥).
+        {
+          unfold FunctorCoalgebras_legacy_alt_HSET.is_coalgebra_homo.
+          use setquotunivprop'.
+          - intro. apply propproperty.
+          - apply p1.
+        }
+        exact (f0,, p2).
+    Defined.
+
+    Lemma functor_coalgebra_UU_to_HSET_is_functor : is_functor functor_coalgebra_UU_to_HSET_data.
+    Proof.
+      split.
+      - intro.
+        use total2_paths_f.
+        + cbn -[settrunc].
+          assert (p : ∏ x : pr1 a, settrunc_rec (FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F a) (λ x : FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F a, settruncin (FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F a) x) (settruncin _ x) = (λ x : settrunc (coalgebra_ob F a), x) (settruncin _ x)).
+          { intro x.
+            apply idpath.
+          }
+          apply (settrunc_rec_unique _ _ _ p).
+        + use funextsec. intro. apply isapropishinh.
+      - unfold functor_compax.
+        intros.
+        use total2_paths_f.
+        + assert (p : ∏ x : pr1 a, pr1 (# functor_coalgebra_UU_to_HSET_data (f · g)) (settruncin _ x)=
+                                     pr1 (# functor_coalgebra_UU_to_HSET_data f · # functor_coalgebra_UU_to_HSET_data g) (settruncin _ x)).
+          { intro x. apply idpath. }
+          apply (settrunc_rec_unique _ _ _ p).
+        + use funextsec. intro. apply isapropishinh.
+    Defined.
+
+    Definition functor_coalgebra_UU_to_HSET : functor cat1 cat2 := _,, functor_coalgebra_UU_to_HSET_is_functor.
+
+    (* Adjunction *)
+
+    Definition adj_unit_coalg_data : nat_trans_data (pr1 (functor_identity cat1)) (pr1 (functor_coalgebra_UU_to_HSET ∙ functor_coalgebra_HSET_to_UU)).
+    Proof.
+      unfold nat_trans_data.
+      intro X.
+      cbn.
+      unfold FunctorCoalgebras_legacy_alt_UU.coalgebra_homo.
+      cbn -[F F' settrunc].
+      set (f := (settruncin (pr1 X)) : type_precat ⟦ FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F X, FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F ((functor_coalgebra_UU_to_HSET ∙ functor_coalgebra_HSET_to_UU) X) ⟧).
+      assert (p : ∏ x : FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F X, ∥ (FunctorCoalgebras_legacy_alt_UU.is_coalgebra_homo F f x) ∥).
+      {
+        intro x.
+        exact (hinhpr (idpath ((#F f ∘ (pr2 X)) x))).
+      }
+      exact (f,, p).
+    Defined.
+
+    Lemma adj_unit_coalg_is_nat_trans : is_nat_trans _ _ adj_unit_coalg_data.
+    Proof.
+      unfold is_nat_trans.
+      intros.
+      cbn -[F F' functor_coalgebra_UU_to_HSET functor_coalgebra_HSET_to_UU].
+      use total2_paths_f.
+      - apply idpath.
+      - use funextsec. intro. apply isapropishinh.
+    Defined.
+
+    Definition adj_unit_coalg : nat_trans _ _ := _,, adj_unit_coalg_is_nat_trans.
+
+    Definition adj_counit_coalg_data : nat_trans_data (pr1 (functor_coalgebra_HSET_to_UU ∙ functor_coalgebra_UU_to_HSET)) (pr1 (functor_identity cat2)).
+    Proof.
+      unfold nat_trans_data.
+      intro X.
+      cbn.
+      unfold FunctorCoalgebras_legacy_alt_HSET.coalgebra_homo.
+      cbn -[F F' settrunc].
+      set (f := settrunc_rec _ (λ x : pr11 X, x) : SET ⟦ FunctorCoalgebras_legacy_alt_HSET.coalgebra_ob F' ((functor_coalgebra_HSET_to_UU ∙ functor_coalgebra_UU_to_HSET) X), FunctorCoalgebras_legacy_alt_HSET.coalgebra_ob F' X ⟧).
+      assert (p :  ∏ x : pr1 (settrunc (pr11 X)), ∥ FunctorCoalgebras_legacy_alt_HSET.is_coalgebra_homo F' f x ∥).
+      {
+        use setquotunivprop'.
+        - intro. apply propproperty.
+        - intro. exact (hinhpr (idpath (((pr2 X) ∘ f) (settruncin _ x)))).
+      }
+      exact (f,, p).
+    Defined.
+
+    Lemma adj_counit_coalg_is_nat_trans : is_nat_trans _ _ adj_counit_coalg_data.
+    Proof.
+      unfold is_nat_trans.
+      intros.
+      cbn  -[F F' functor_coalgebra_UU_to_HSET functor_coalgebra_HSET_to_UU].
+      use total2_paths_f.
+      - cbn -[F F' settrunc].
+        use settrunc_rec_unique.
+        intro. apply idpath.
+      - use funextsec. intro. apply isapropishinh.
+    Defined.
+
+    Definition adj_counit_coalg : nat_trans _ _ := _,, adj_counit_coalg_is_nat_trans.
+
+    Lemma adj_coalg : are_adjoints functor_coalgebra_UU_to_HSET functor_coalgebra_HSET_to_UU.
+    Proof.
+      assert (p : form_adjunction _ _ adj_unit_coalg adj_counit_coalg).
+      {
+        use make_form_adjunction.
+        - intro.
+          use total2_paths_f.
+          + cbn -[F F' settrunc].
+            use settrunc_rec_unique.
+            intro. apply idpath.
+          + use funextsec. intro. apply isapropishinh.
+        - intro.
+          use total2_paths_f.
+          + apply idpath.
+          + use funextsec. intro. apply isapropishinh.
+      }
+      exact ((adj_unit_coalg,, adj_counit_coalg),, p).
+    Defined.
+
+  End FunctorAdjunctions_UU_HSET.
 End M.
