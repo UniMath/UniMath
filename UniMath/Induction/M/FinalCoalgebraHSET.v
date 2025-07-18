@@ -54,10 +54,10 @@ Section MTypesAreSets.
 
   Lemma GetMType_HSET : Terminal (CoAlg_category (OmegaContPolynomialFunctors.F' B)).
   Proof.
-    exact (limCoAlgTerminal SET_terminal (F'_omega_cont B) (LimConeHSET _ (termCochain SET_terminal (OmegaContPolynomialFunctors.F' B)))).
+    exact (limCoAlgTerminal SET_terminal (PolyFunctor_omega_cont B) (LimConeHSET _ (termCochain SET_terminal (OmegaContPolynomialFunctors.F' B)))).
   Defined.
 
-  Lemma F'CoalgAreSets (C : coalgebra F) (C_isfinal : is_final C) : isaset (pr1 C).
+  Lemma FinalCoalgAreSets (C : coalgebra F) (C_isfinal : is_final C) : isaset (pr1 C).
   Proof.
     set (C1'_t := GetMType_HSET).
     unfold Terminal in C1'_t.

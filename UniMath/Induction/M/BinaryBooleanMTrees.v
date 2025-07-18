@@ -1,4 +1,4 @@
-(** ** Exemple of construction of M Types using ComputationalMWithSets
+(** ** Example of construction of M Types using ComputationalMWithSets
 
     Author : Antoine Fisse (@AextraT), 2025
 *)
@@ -38,15 +38,19 @@ Local Definition B : pr1hSet A -> SET :=
 Local Definition F := MWithSets.F B.
 Local Definition F' := MWithSets.F' B.
 
-(* The final coalgebra obtained corresponds to the type of possibly infinite binary trees labeled with booleands. *)
-Local Definition C' := pr1 (GetMType_HSET B).
-Local Definition C'_isfinal := pr2 (GetMType_HSET B).
+(* The final coalgebra obtained corresponds to the type of possibly infinite binary trees labeled with booleans. *)
+Local Definition C' : FunctorCoalgebras.CoAlg_category F'
+  := pr1 (GetMType_HSET B).
+Local Definition C'_isfinal : isTerminal (FunctorCoalgebras.CoAlg_category F') C'
+  := pr2 (GetMType_HSET B).
 
-Local Definition C'1 := ComputationalMWithSets.C' B C' C'_isfinal.
-Local Definition C'1_isfinal : isTerminal (CoAlg_category F') C'1 := ComputationalMWithSets.finalC' B C' C'_isfinal.
+Local Definition C'1 : FunctorCoalgebras.CoAlg_category F'
+  := ComputationalMWithSets.C' B C' C'_isfinal.
+Local Definition C'1_isfinal : isTerminal (CoAlg_category F') C'1
+  := ComputationalMWithSets.finalC' B C' C'_isfinal.
 Local Definition corec_C1 := ComputationalMWithSets.corecC B C' C'_isfinal.
-Local Definition c1 := pr11 C'1.
-Local Definition destr_c1 := pr2 C'1.
+Local Definition c1 : UU := pr11 C'1.
+Local Definition destr_c1 : c1 -> F c1 := pr2 C'1.
 
 Lemma Get_list_at_depth (t : c1) (depth : nat) : list bool.
 Proof.

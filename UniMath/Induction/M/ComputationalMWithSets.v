@@ -1,5 +1,9 @@
 (** ** Refinement of M-Types in the case of sets
 
+    The file starts with a final coalgebra in HSET and uses
+    ComputationalM to get a new final coalgebra, still in HSET
+    and that satisfies the computational rule.
+
     Author : Antoine Fisse (@AextraT), 2025
 
  *)

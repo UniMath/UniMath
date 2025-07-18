@@ -1,4 +1,4 @@
-(** ** Polynomial Functors are omega-continuous
+(** ** Set-Based Polynomial Functors are omega-continuous
 
     Author : Antoine Fisse (@AextraT), 2025
 *)
@@ -30,7 +30,7 @@ Section OmegaContinuity.
 
   Context {A : ob HSET} (B : pr1hSet A → ob HSET).
 
-  Definition F' := MWithSets.F' B.
+  Local Definition F' := MWithSets.F' B.
 
   Lemma comp_right_eq_hset
     {X Y Z : UU}
@@ -43,13 +43,7 @@ Section OmegaContinuity.
     apply homotfun.
     induction p.
     apply homotrefl.
-  Qed.
-
-  Lemma rev_proof {X : UU} {x y : X} (q : x = y) : y = x.
-  Proof.
-    symmetry. apply q.
   Defined.
-
 
   Lemma pullback_cone_edge
     {X Y0 Y1 Y2: SET}
@@ -185,7 +179,7 @@ Section OmegaContinuity.
     (f : SET ⟦ B (h2 x), Y ⟧)
     (g : SET ⟦ Y, Z ⟧ )
     (q : h1 = h2)
-    : g ∘ (transportf (λ a, SET ⟦ B a, Y ⟧) (rev_proof (toforallpaths _ _ _ q x)) f) = λ b, g (f (transportf (λ φ, pr1hSet (B (φ x))) q b)).
+    : g ∘ (transportf (λ a, SET ⟦ B a, Y ⟧) (pathsinv0 (toforallpaths _ _ _ q x)) f) = λ b, g (f (transportf (λ φ, pr1hSet (B (φ x))) q b)).
   Proof.
     induction q.
     cbn.
@@ -208,7 +202,7 @@ Section OmegaContinuity.
     cbn.
     set (q'x := toforallpaths _ _ _ q' x).
     cbn in q'x.
-    set (q'x' := rev_proof q'x).
+    set (q'x' := pathsinv0 q'x).
     assert (r : q'x' = q) by apply (setproperty A).
     induction r.
     apply (move_proof (pr1 ∘ h0) (pr1 ∘ # F' g ∘ f) (pr2 (f x)) g q').
@@ -265,7 +259,7 @@ Section OmegaContinuity.
       apply (maponpaths (λ z, pr1 z) (pr2 (c_limcone cx ccx) (f'2,, f'2_cone_mor))).
   Defined.
 
-  Lemma F'_omega_cont : is_omega_cont F'.
+  Lemma PolyFunctor_omega_cont : is_omega_cont F'.
   Proof.
     unfold is_omega_cont.
     unfold Limits.preserves_limit.
