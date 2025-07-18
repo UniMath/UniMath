@@ -27,15 +27,15 @@ Section Upstream.
 
   Context {A : ob HSET} (B : pr1hSet A → ob HSET).
 
-  Local Definition F := MWithSetsV5.F B.
-  Local Definition F' := MWithSetsV5.F' B.
+  Local Definition F := MWithSets.F B.
+  Local Definition F' := MWithSets.F' B.
 
   Context (C0' : UniMath.CategoryTheory.FunctorCoalgebras.coalgebra_ob F') (C0'_is_final : isTerminal (UniMath.CategoryTheory.FunctorCoalgebras.CoAlg_category F') C0').
 
   Local Definition c0' : hSet :=  UniMath.CategoryTheory.FunctorCoalgebras.coalg_carrier F' C0'.
 
-  Local Definition C0 : coalgebra F := MWithSetsV5.C0 B C0'.
-  Local Definition finalC0 : is_final C0 := MWithSetsV5.C0_is_final B C0' C0'_is_final.
+  Local Definition C0 : coalgebra F := MWithSets.C0 B C0'.
+  Local Definition finalC0 : is_final C0 := MWithSets.C0_is_final B C0' C0'_is_final.
 
   Local Definition C : coalgebra F := ComputationalM.M (pr1 A) (λ a, pr1 (B a)) C0 finalC0.
   Local Definition finalC : is_final C := finalM (pr1 A) (λ a, pr1 (B a)) C0 finalC0.
@@ -49,8 +49,8 @@ Section Upstream.
     apply (isaset_total2_hSet c0' (λ m0, hProp_to_hSet (∃ (C : coalgebra F) (c : coalgebra_ob F C), (pr11 (finalC0 C)) c = m0))).
   Defined.
 
-  Local Definition C' := MWithSetsV5.C0' B C c_isaset.
-  Local Definition finalC' := MWithSetsV5.C0'_is_final B C c_isaset finalC.
+  Local Definition C' := MWithSets.C0' B C c_isaset.
+  Local Definition finalC' := MWithSets.C0'_is_final B C c_isaset finalC.
 
   Local Definition corecC := ComputationalM.corecM (pr1 A) (λ a, pr1 (B a)) C0 finalC0.
 
