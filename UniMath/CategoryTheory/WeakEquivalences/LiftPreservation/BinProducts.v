@@ -25,8 +25,7 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Binproducts.
 Local Open Scope cat.
 
 Lemma weak_equiv_lifts_preserves_binproducts
-    {C1 : category}
-    (C2 C3 : univalent_category)
+    {C1 C2 C3 : category}
     {F : C1 ⟶ C3}
     {G : C1 ⟶ C2}
     {H : C2 ⟶ C3}

@@ -226,6 +226,7 @@ CategoryEquality.v
 Core/PosetCat.v
 
 WeakEquivalences/Core.v
+WeakEquivalences/TwoOutOfThree.v
 WeakEquivalences/Opp.v
 WeakEquivalences/Terminal.v
 WeakEquivalences/Initial.v
@@ -254,6 +255,7 @@ WeakEquivalences/Regular.v
 WeakEquivalences/Exact.v
 WeakEquivalences/Preservation/NNO.v
 WeakEquivalences/PNNO.v
+WeakEquivalences/Slice.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 

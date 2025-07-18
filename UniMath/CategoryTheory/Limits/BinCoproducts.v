@@ -233,6 +233,16 @@ Proof.
   apply (base_paths _ _ X').
 Qed.
 
+Lemma BinCoproduct_of_identities {a b : C} (CC : BinCoproduct a b)
+  : BinCoproductOfArrows CC CC (identity a) (identity b) = identity CC.
+Proof.
+  apply pathsinv0, BinCoproduct_endo_is_identity.
+  - etrans. { apply BinCoproductOfArrowsIn1. }
+    apply id_left.
+  - etrans. { apply BinCoproductOfArrowsIn2. }
+    apply id_left.
+Qed.
+
 Definition from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
   : BinCoproductObject CC --> BinCoproductObject CC'.
 Proof.
