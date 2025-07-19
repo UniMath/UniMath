@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Exponentials.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**</span>
+<span class="sd">In this file, we show how the Rezk completion for categories with binary products lifts to those equipped with exponentials.</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.Exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.UniversalArrow.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.RezkCompletions.StructuredCats.BinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesExponentialsAdmitRezkCompletions</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">LUR</span> : left_universal_arrow univ_cats_to_cats)
+    (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (pr12 LUR C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk1"><span class="kn">Lemma</span> <span class="nf">disp_bicat_exponentials_has_RC</span>
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_exponentials.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_exponentials</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_exponentials</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk3">use make_cat_with_struct_has_RC_from_sigma ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  BinProducts.disp_bicat_binproducts</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="exponentials-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="exponentials-v-chk4"><hr></label><div class="goal-conclusion">∏ (C1 C2 : category) 
+(H : is_univalent C2) 
+(F : C1 ⟶ C2) (F_weq : is_weak_equiv F)
+(d : ∑ _ : BinProducts C1, unit),
+(∑ _ : Exponentials (pr1 d), unit)
+→ ∑
+  _ : Exponentials
+        (pr1
+           (cat_with_struct_has_RC_transport_weak_equiv
+              η_weak_equiv
+              BinProducts.disp_bicat_binproducts 
+              <span class="nl">?Goal</span> H F_weq d)), unit</div></blockquote><input class="alectryon-extra-goal-toggle" id="exponentials-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="exponentials-v-chk5"><hr></label><div class="goal-conclusion">∏ (C : category) (d : ∑ _ : BinProducts C, unit)
+(e : ∑ _ : Exponentials (pr1 d), unit),
+∑ _ : unit,
+preserves_exponentials 
+  (pr1 e)
+  (pr1
+     (<span class="nl">?Goal0</span> C (pr1 (pr1 LUR C)) 
+        (pr2 (pr1 LUR C)) 
+        ((pr12 LUR) C) 
+        (η_weak_equiv C) d e))
+  (pr2
+     (cat_with_struct_has_RC_weak_equiv_preserves_struct
+        η_weak_equiv
+        BinProducts.disp_bicat_binproducts 
+        <span class="nl">?Goal</span> d))</div></blockquote><input class="alectryon-extra-goal-toggle" id="exponentials-v-chk6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="exponentials-v-chk6"><hr></label><div class="goal-conclusion">∏ (C1 : category) (C2 C3 : univalent_category)
+(F : C1 ⟶ C3) (G : C1 ⟶ C2) 
+(H : C2 ⟶ C3) (n : nat_z_iso (G ∙ H) F)
+(d1 : ∑ _ : BinProducts C1, unit)
+(e1 : ∑ _ : Exponentials (pr1 d1), unit)
+(d2 : ∑ _ : BinProducts (pr1 C2), unit)
+(e2 : ∑ _ : Exponentials (pr1 d2), unit)
+(d3 : ∑ _ : BinProducts (pr1 C3), unit)
+(e3 : ∑ _ : Exponentials (pr1 d3), unit)
+(G_weq : is_weak_equiv G)
+(f_D : ∑ _ : unit, preserves_binproduct F),
+(∑ _ : unit,
+ preserves_exponentials (pr1 e1) (pr1 e3) (pr2 f_D))
+→ ∑ _ : unit,
+  preserves_exponentials 
+    (pr1 e2) (pr1 e3)
+    (pr2
+       (cat_with_struct_has_RC_lift_struct_along_weak_equiv
+          η_weak_equiv
+          BinProducts.disp_bicat_binproducts 
+          <span class="nl">?Goal</span> C2 C3 n d1 d2 d3 G_weq f_D))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  BinProducts.disp_bicat_binproducts</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (disp_bicat_binproducts_has_RC η_weak_equiv).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C1 C2 : category) (H : is_univalent C2)
+(F : C1 ⟶ C2) (F_weq : is_weak_equiv F)
+(d : ∑ _ : BinProducts C1, unit),
+(∑ _ : Exponentials (pr1 d), unit)
+→ ∑
+  _ : Exponentials
+        (pr1
+           (cat_with_struct_has_RC_transport_weak_equiv
+              η_weak_equiv
+              BinProducts.disp_bicat_binproducts
+              (disp_bicat_binproducts_has_RC
+                 η_weak_equiv) H F_weq d)), unit</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk9"><span class="nb">simpl</span> ; <span class="nb">intros</span> C₁ C₂ C₂_univ F F_weq [P₁ ?] [E₁ ?].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂_univ</var><span class="hyp-type"><b>: </b><span>is_univalent C₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>F_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv F</span></span></span><br><span><var>P₁</var><span class="hyp-type"><b>: </b><span>BinProducts C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E₁</var><span class="hyp-type"><b>: </b><span>Exponentials (pr1 (P₁,, pr2))</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑
+_ : Exponentials
+      (BinProducts.weak_equiv_into_univ_creates_binproducts
+         C₂_univ F_weq P₁), unit</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chka"><span class="nb">refine</span> (_ ,, tt).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂_univ</var><span class="hyp-type"><b>: </b><span>is_univalent C₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>F_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv F</span></span></span><br><span><var>P₁</var><span class="hyp-type"><b>: </b><span>BinProducts C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E₁</var><span class="hyp-type"><b>: </b><span>Exponentials (pr1 (P₁,, pr2))</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Exponentials
+  (BinProducts.weak_equiv_into_univ_creates_binproducts
+     C₂_univ F_weq P₁)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (weak_equiv_into_univ_creates_exponentials F_weq C₂_univ E₁).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C : category) (d : ∑ _ : BinProducts C, unit)
+(e : ∑ _ : Exponentials (pr1 d), unit),
+∑ _ : unit,
+preserves_exponentials (pr1 e)
+  (pr1
+     (((<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : category)
+        (<span class="nv">C₂_univ</span> : is_univalent C₂) (<span class="nv">F</span> : C₁ ⟶ C₂)
+        (<span class="nv">F_weq</span> : is_weak_equiv F)
+        (<span class="nv">d0</span> : ∑ _ : BinProducts C₁, unit),
+        (<span class="kr">λ</span> (<span class="nv">P₁</span> : BinProducts C₁) (<span class="nv">pr2</span> : unit)
+         (<span class="nv">X</span> : ∑ _ : Exponentials (pr1 (P₁,, pr2)),
+              unit),
+         (<span class="kr">λ</span> (<span class="nv">E₁</span> : Exponentials (pr1 (P₁,, pr2)))
+          (<span class="nv">_</span> : unit),
+          weak_equiv_into_univ_creates_exponentials
+            F_weq C₂_univ E₁
+            (BinProducts.weak_equiv_into_univ_creates_binproducts
+               C₂_univ F_weq P₁),, tt) (pr1 X)
+           (Preamble.pr2 X)) (pr1 d0) (pr2 d0))
+       :
+       ∏ (C1 C2 : category) (H : is_univalent C2)
+       (F : C1 ⟶ C2) (F_weq : is_weak_equiv F)
+       (d0 : ∑ _ : BinProducts C1, unit),
+       (∑ _ : Exponentials (pr1 d0), unit)
+       → ∑
+         _ : Exponentials
+               (pr1
+                  (cat_with_struct_has_RC_transport_weak_equiv
+                     η_weak_equiv
+                     BinProducts.disp_bicat_binproducts
+                     (disp_bicat_binproducts_has_RC
+                        η_weak_equiv) H F_weq d0)),
+         unit) C (pr1 (pr1 LUR C)) (pr2 (pr1 LUR C))
+        ((pr12 LUR) C) (η_weak_equiv C) d e))
+  (pr2
+     (cat_with_struct_has_RC_weak_equiv_preserves_struct
+        η_weak_equiv
+        BinProducts.disp_bicat_binproducts
+        (disp_bicat_binproducts_has_RC η_weak_equiv) d))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chkc"><span class="nb">cbn</span> ; <span class="nb">intros</span> C [P ?] [E ?].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E</var><span class="hyp-type"><b>: </b><span>Exponentials (pr1 (P,, pr2))</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ _ : unit,
+preserves_exponentials (pr1 (E,, pr0))
+  (weak_equiv_into_univ_creates_exponentials
+     (η_weak_equiv C) (Preamble.pr2 (pr1 LUR C)) E
+     (BinProducts.weak_equiv_into_univ_creates_binproducts
+        (Preamble.pr2 (pr1 LUR C)) (η_weak_equiv C) P))
+  (Binproducts.weak_equiv_preserves_binproducts
+     (η_weak_equiv C))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chkd"><span class="nb">refine</span> (tt ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>BinProducts C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E</var><span class="hyp-type"><b>: </b><span>Exponentials (pr1 (P,, pr2))</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_exponentials (pr1 (E,, pr0))
+  (weak_equiv_into_univ_creates_exponentials
+     (η_weak_equiv C) (Preamble.pr2 (pr1 LUR C)) E
+     (BinProducts.weak_equiv_into_univ_creates_binproducts
+        (Preamble.pr2 (pr1 LUR C)) (η_weak_equiv C) P))
+  (Binproducts.weak_equiv_preserves_binproducts
+     (η_weak_equiv C))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> weak_equiv_preserves_exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chke">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C1 : category) (C2 C3 : univalent_category)
+(F : C1 ⟶ C3) (G : C1 ⟶ C2) (H : C2 ⟶ C3)
+(n : nat_z_iso (G ∙ H) F)
+(d1 : ∑ _ : BinProducts C1, unit)
+(e1 : ∑ _ : Exponentials (pr1 d1), unit)
+(d2 : ∑ _ : BinProducts (pr1 C2), unit)
+(e2 : ∑ _ : Exponentials (pr1 d2), unit)
+(d3 : ∑ _ : BinProducts (pr1 C3), unit)
+(e3 : ∑ _ : Exponentials (pr1 d3), unit)
+(G_weq : is_weak_equiv G)
+(f_D : ∑ _ : unit, preserves_binproduct F),
+(∑ _ : unit,
+ preserves_exponentials (pr1 e1) (pr1 e3) (pr2 f_D))
+→ ∑ _ : unit,
+  preserves_exponentials (pr1 e2) (pr1 e3)
+    (pr2
+       (cat_with_struct_has_RC_lift_struct_along_weak_equiv
+          η_weak_equiv
+          BinProducts.disp_bicat_binproducts
+          (disp_bicat_binproducts_has_RC η_weak_equiv)
+          C2 C3 n d1 d2 d3 G_weq f_D))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chkf"><span class="nb">cbn</span> ; <span class="nb">intros</span> C₁ C₂ C₃ F G H n
+              [P₁ ?] [E₁ ?] [P₂ ?] [E₂ ?] [P₃ ?] [E₃ ?]
+              G_weq
+              [? F_pP] [? F_pE].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>P₁</var><span class="hyp-type"><b>: </b><span>BinProducts C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E₁</var><span class="hyp-type"><b>: </b><span>Exponentials (Preamble.pr1 (P₁,, pr2))</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>P₂</var><span class="hyp-type"><b>: </b><span>BinProducts (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E₂</var><span class="hyp-type"><b>: </b><span>Exponentials (Preamble.pr1 (P₂,, pr1))</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>P₃</var><span class="hyp-type"><b>: </b><span>BinProducts (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E₃</var><span class="hyp-type"><b>: </b><span>Exponentials (Preamble.pr1 (P₃,, pr4))</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>F_pP</var><span class="hyp-type"><b>: </b><span>preserves_binproduct F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>F_pE</var><span class="hyp-type"><b>: </b><span>preserves_exponentials
+  (Preamble.pr1 (E₁,, pr0))
+  (Preamble.pr1 (E₃,, pr5))
+  (Preamble.pr2 (pr6,, F_pP))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ _ : unit,
+preserves_exponentials (Preamble.pr1 (E₂,, pr3))
+  (Preamble.pr1 (E₃,, pr5))
+  (BinProducts.weak_equiv_lifts_preserves_binproducts
+     C₂ C₃ n G_weq F_pP)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk10"><span class="nb">refine</span> (tt ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C₁</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C₂, C₃</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₃</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C₁ ⟶ C₂</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C₂ ⟶ C₃</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>P₁</var><span class="hyp-type"><b>: </b><span>BinProducts C₁</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E₁</var><span class="hyp-type"><b>: </b><span>Exponentials (Preamble.pr1 (P₁,, pr2))</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>P₂</var><span class="hyp-type"><b>: </b><span>BinProducts (Preamble.pr1 C₂)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E₂</var><span class="hyp-type"><b>: </b><span>Exponentials (Preamble.pr1 (P₂,, pr1))</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>P₃</var><span class="hyp-type"><b>: </b><span>BinProducts (Preamble.pr1 C₃)</span></span></span><br><span><var>pr4</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>E₃</var><span class="hyp-type"><b>: </b><span>Exponentials (Preamble.pr1 (P₃,, pr4))</span></span></span><br><span><var>pr5</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>G_weq</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>pr6</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>F_pP</var><span class="hyp-type"><b>: </b><span>preserves_binproduct F</span></span></span><br><span><var>pr7</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>F_pE</var><span class="hyp-type"><b>: </b><span>preserves_exponentials
+  (Preamble.pr1 (E₁,, pr0))
+  (Preamble.pr1 (E₃,, pr5))
+  (Preamble.pr2 (pr6,, F_pP))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_exponentials (Preamble.pr1 (E₂,, pr3))
+  (Preamble.pr1 (E₃,, pr5))
+  (BinProducts.weak_equiv_lifts_preserves_binproducts
+     C₂ C₃ n G_weq F_pP)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (weak_equiv_lifts_preserves_exponentials&#39; C₂ C₃ n E₁ E₂ E₃ G_weq F_pE).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk11"><span class="kn">Theorem</span> <span class="nf">disp_bicat_exponential_has_RezkCompletion</span>
+    : cat_with_structure_has_RezkCompletion disp_bicat_exponentials.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_exponentials</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk12"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_exponentials</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk13"><span class="nb">apply</span> (make_RezkCompletion_from_locally_contractible η_weak_equiv).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_exponentials</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="exponentials-v-chk14" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="exponentials-v-chk14"><hr></label><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_exponentials</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk15">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_exponentials</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_bicat_exponentials_has_RC.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="exponentials-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="exponentials-v-chk16">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_exponentials</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesExponentialsAdmitRezkCompletions</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

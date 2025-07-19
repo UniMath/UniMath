@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Connected</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Connected</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.StandardCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#"><span class="id" title="library">UniMath.CategoryTheory.Groupoids</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#"><span class="id" title="library">UniMath.CategoryTheory.ZigZag</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. Definition of connected categories
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="connected_category" class="idref" href="#connected_category"><span class="id" title="definition">connected_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:1"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:2" class="idref" href="#x:2"><span class="id" title="binder">x</span></a> <a id="y:3" class="idref" href="#y:3"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#zig_zag"><span class="id" title="definition">zig_zag</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:2"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:3"><span class="id" title="variable">y</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="ob_of_connected_category" class="idref" href="#ob_of_connected_category"><span class="id" title="definition">ob_of_connected_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:4" class="idref" href="#C:4"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:5" class="idref" href="#H:5"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:4"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:4"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#H:5"><span class="id" title="variable">H</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="zig_zag_of_connected_category" class="idref" href="#zig_zag_of_connected_category"><span class="id" title="definition">zig_zag_of_connected_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:6" class="idref" href="#C:6"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:7" class="idref" href="#H:7"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:6"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:8" class="idref" href="#x:8"><span class="id" title="binder">x</span></a> <a id="y:9" class="idref" href="#y:9"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:6"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#zig_zag"><span class="id" title="definition">zig_zag</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:8"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:9"><span class="id" title="variable">y</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#H:7"><span class="id" title="variable">H</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:8"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:9"><span class="id" title="variable">y</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_connected_category" class="idref" href="#make_connected_category"><span class="id" title="definition">make_connected_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:10" class="idref" href="#C:10"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="c:11" class="idref" href="#c:11"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:10"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="zs:14" class="idref" href="#zs:14"><span class="id" title="binder">zs</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:12" class="idref" href="#x:12"><span class="id" title="binder">x</span></a> <a id="y:13" class="idref" href="#y:13"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:10"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#zig_zag"><span class="id" title="definition">zig_zag</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:12"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:13"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:10"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Connected.html#c:11"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#zs:14"><span class="id" title="variable">zs</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. Categories with a (weak) terminal object are connected
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="weakly_terminal_to_connected" class="idref" href="#weakly_terminal_to_connected"><span class="id" title="definition">weakly_terminal_to_connected</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:15" class="idref" href="#C:15"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="c:16" class="idref" href="#c:16"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:15"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="fs:18" class="idref" href="#fs:18"><span class="id" title="binder">fs</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="w:17" class="idref" href="#w:17"><span class="id" title="binder">w</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:15"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#w:17"><span class="id" title="variable">w</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#c:16"><span class="id" title="variable">c</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:15"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#make_connected_category"><span class="id" title="definition">make_connected_category</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">c</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:19" class="idref" href="#x:19"><span class="id" title="binder"><span id="x:21" class="id">x</span></span></a> <a id="y:20" class="idref" href="#y:20"><span class="id" title="binder"><span id="y:22" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:19"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#530a3256a36992bffcf8c038b78854a7"><span class="id" title="notation">-[</span></a> <span class="id" title="var">fs</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:19"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#530a3256a36992bffcf8c038b78854a7"><span class="id" title="notation">]-&gt;</span></a> <span class="id" title="var">c</span> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#ec3cd3e98a9511de08bf33fd3929ec05"><span class="id" title="notation">&lt;-[</span></a> <span class="id" title="var">fs</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:20"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#ec3cd3e98a9511de08bf33fd3929ec05"><span class="id" title="notation">]-</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:20"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#dabeb597a20394194e830b921ef2c33c"><span class="id" title="notation">■</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="terminal_to_connected" class="idref" href="#terminal_to_connected"><span class="id" title="definition">terminal_to_connected</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:23" class="idref" href="#C:23"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="T:24" class="idref" href="#T:24"><span class="id" title="binder">T</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:23"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:23"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#weakly_terminal_to_connected"><span class="id" title="definition">weakly_terminal_to_connected</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">T</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:25" class="idref" href="#x:25"><span class="id" title="binder"><span id="x:26" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrow"><span class="id" title="definition">TerminalArrow</span></a> <span class="id" title="var">T</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:25"><span class="id" title="variable">x</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="HSET_connected_terminal" class="idref" href="#HSET_connected_terminal"><span class="id" title="definition">HSET_connected_terminal</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#terminal_to_connected"><span class="id" title="definition">terminal_to_connected</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#TerminalHSET"><span class="id" title="lemma">TerminalHSET</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. Categories with a (weak) initial object are connected
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="weakly_initial_to_connected" class="idref" href="#weakly_initial_to_connected"><span class="id" title="definition">weakly_initial_to_connected</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:27" class="idref" href="#C:27"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="c:28" class="idref" href="#c:28"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:27"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="fs:30" class="idref" href="#fs:30"><span class="id" title="binder">fs</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="w:29" class="idref" href="#w:29"><span class="id" title="binder">w</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:27"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#c:28"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#w:29"><span class="id" title="variable">w</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:27"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#make_connected_category"><span class="id" title="definition">make_connected_category</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">c</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:31" class="idref" href="#x:31"><span class="id" title="binder"><span id="x:33" class="id">x</span></span></a> <a id="y:32" class="idref" href="#y:32"><span class="id" title="binder"><span id="y:34" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:31"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#ec3cd3e98a9511de08bf33fd3929ec05"><span class="id" title="notation">&lt;-[</span></a> <span class="id" title="var">fs</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:31"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#ec3cd3e98a9511de08bf33fd3929ec05"><span class="id" title="notation">]-</span></a> <span class="id" title="var">c</span> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#530a3256a36992bffcf8c038b78854a7"><span class="id" title="notation">-[</span></a> <span class="id" title="var">fs</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:32"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#530a3256a36992bffcf8c038b78854a7"><span class="id" title="notation">]-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:32"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#dabeb597a20394194e830b921ef2c33c"><span class="id" title="notation">■</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="initial_to_connected" class="idref" href="#initial_to_connected"><span class="id" title="definition">initial_to_connected</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:35" class="idref" href="#C:35"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="I:36" class="idref" href="#I:36"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:35"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#C:35"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#weakly_initial_to_connected"><span class="id" title="definition">weakly_initial_to_connected</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">I</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:37" class="idref" href="#x:37"><span class="id" title="binder"><span id="x:38" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialArrow"><span class="id" title="definition">InitialArrow</span></a> <span class="id" title="var">I</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:37"><span class="id" title="variable">x</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="HSET_connected_initial" class="idref" href="#HSET_connected_initial"><span class="id" title="definition">HSET_connected_initial</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#initial_to_connected"><span class="id" title="definition">initial_to_connected</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#InitialHSET"><span class="id" title="lemma">InitialHSET</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 4. Connected groupoids and connected categories
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="connected_groupoid" class="idref" href="#connected_groupoid"><span class="id" title="definition">connected_groupoid</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="G:39" class="idref" href="#G:39"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#groupoid"><span class="id" title="definition">groupoid</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:39"><span class="id" title="variable">G</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:40" class="idref" href="#x:40"><span class="id" title="binder">x</span></a> <a id="y:41" class="idref" href="#y:41"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:39"><span class="id" title="variable">G</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:40"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:41"><span class="id" title="variable">y</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="ob_of_connected_groupoid" class="idref" href="#ob_of_connected_groupoid"><span class="id" title="definition">ob_of_connected_groupoid</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="G:42" class="idref" href="#G:42"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#groupoid"><span class="id" title="definition">groupoid</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:43" class="idref" href="#H:43"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_groupoid"><span class="id" title="definition">connected_groupoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:42"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:42"><span class="id" title="variable">G</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#H:43"><span class="id" title="variable">H</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="mor_of_connected_groupoid" class="idref" href="#mor_of_connected_groupoid"><span class="id" title="definition">mor_of_connected_groupoid</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="G:44" class="idref" href="#G:44"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#groupoid"><span class="id" title="definition">groupoid</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:45" class="idref" href="#H:45"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_groupoid"><span class="id" title="definition">connected_groupoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:44"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:46" class="idref" href="#x:46"><span class="id" title="binder">x</span></a> <a id="y:47" class="idref" href="#y:47"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:44"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:46"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:47"><span class="id" title="variable">y</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#H:45"><span class="id" title="variable">H</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:46"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:47"><span class="id" title="variable">y</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_connected_groupoid" class="idref" href="#make_connected_groupoid"><span class="id" title="definition">make_connected_groupoid</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="G:48" class="idref" href="#G:48"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#groupoid"><span class="id" title="definition">groupoid</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="c:49" class="idref" href="#c:49"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:48"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="zs:52" class="idref" href="#zs:52"><span class="id" title="binder">zs</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:50" class="idref" href="#x:50"><span class="id" title="binder">x</span></a> <a id="y:51" class="idref" href="#y:51"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:48"><span class="id" title="variable">G</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:50"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:51"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_groupoid"><span class="id" title="definition">connected_groupoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:48"><span class="id" title="variable">G</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Connected.html#c:49"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#zs:52"><span class="id" title="variable">zs</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="connected_groupoid_to_connected_category" class="idref" href="#connected_groupoid_to_connected_category"><span class="id" title="definition">connected_groupoid_to_connected_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="G:53" class="idref" href="#G:53"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#groupoid"><span class="id" title="definition">groupoid</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:54" class="idref" href="#H:54"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_groupoid"><span class="id" title="definition">connected_groupoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:53"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:53"><span class="id" title="variable">G</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#make_connected_category"><span class="id" title="definition">make_connected_category</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Connected.html#ob_of_connected_groupoid"><span class="id" title="definition">ob_of_connected_groupoid</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:55" class="idref" href="#x:55"><span class="id" title="binder"><span id="x:57" class="id">x</span></span></a> <a id="y:56" class="idref" href="#y:56"><span class="id" title="binder"><span id="y:58" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:55"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#530a3256a36992bffcf8c038b78854a7"><span class="id" title="notation">-[</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#mor_of_connected_groupoid"><span class="id" title="definition">mor_of_connected_groupoid</span></a> <span class="id" title="var">H</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:55"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:56"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#530a3256a36992bffcf8c038b78854a7"><span class="id" title="notation">]-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:56"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#dabeb597a20394194e830b921ef2c33c"><span class="id" title="notation">■</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="connected_category_to_connected_groupoid" class="idref" href="#connected_category_to_connected_groupoid"><span class="id" title="definition">connected_category_to_connected_groupoid</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="G:59" class="idref" href="#G:59"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#groupoid"><span class="id" title="definition">groupoid</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:60" class="idref" href="#H:60"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:59"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_groupoid"><span class="id" title="definition">connected_groupoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#G:59"><span class="id" title="variable">G</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#make_connected_groupoid"><span class="id" title="definition">make_connected_groupoid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Connected.html#ob_of_connected_category"><span class="id" title="definition">ob_of_connected_category</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:61" class="idref" href="#x:61"><span class="id" title="binder"><span id="x:63" class="id">x</span></span></a> <a id="y:62" class="idref" href="#y:62"><span class="id" title="binder"><span id="y:64" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.ZigZag.html#zig_zag_in_grpd_to_mor"><span class="id" title="definition">zig_zag_in_grpd_to_mor</span></a> (<a class="idref" href="UniMath.CategoryTheory.Connected.html#zig_zag_of_connected_category"><span class="id" title="definition">zig_zag_of_connected_category</span></a> <span class="id" title="var">H</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#x:61"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Connected.html#y:62"><span class="id" title="variable">y</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_connected_category" class="idref" href="#unit_connected_category"><span class="id" title="definition">unit_connected_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_category"><span class="id" title="definition">connected_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#connected_groupoid_to_connected_category"><span class="id" title="definition">connected_groupoid_to_connected_category</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Connected.html#make_connected_groupoid"><span class="id" title="definition">make_connected_groupoid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

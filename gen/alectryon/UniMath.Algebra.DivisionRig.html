@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>DivisionRig.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Division Rig *)</span>
+<span class="sd">(** Definition of an algebraic structure (F,0,1,+,*,/) where:</span>
+<span class="sd">- (F,0,+,* ) is a commutative</span>
+<span class="sd">- / is a multiplicative inverse</span>
+<span class="sd">- * distribute over + on both sides *)</span>
+<span class="sd">(** Examples of such structure : non-negative rationnal numbers, non-negative real numbers *)</span>
+
+<span class="sd">(** Catherine Lelay. Sep. 2015 *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Unset</span> Kernel Term Sharing.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.Foundations.Sets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.Algebra.RigsAndRings.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.Algebra.Domains_and_Fields.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** Definition of a DivRig *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isnonzerorig</span> (<span class="nv">X</span> : rig) : UU := (<span class="mi">1</span>%rig : X) != <span class="mi">0</span>%rig.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig</span> (<span class="nv">X</span> : rig) : UU :=
+  isnonzerorig X × (∏ x : X, x != <span class="mi">0</span>%rig → multinvpair X x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="divisionrig-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="divisionrig-v-chk0"><span class="kn">Lemma</span> <span class="nf">isaprop_isDivRig</span> (<span class="nv">X</span> : rig) : isaprop (isDivRig X).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>rig</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (isDivRig X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="divisionrig-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="divisionrig-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>rig</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (isDivRig X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="divisionrig-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="divisionrig-v-chk2"><span class="nb">apply</span> isofhleveldirprod.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>rig</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span> (isnonzerorig X)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="divisionrig-v-chk3" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>rig</span></span></span><br></div><label class="goal-separator" for="divisionrig-v-chk3"><hr></label><div class="goal-conclusion">isofhlevel <span class="mi">1</span> (∏ x : X, x != <span class="mi">0</span>%rig → multinvpair X x)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="divisionrig-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="divisionrig-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>rig</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span> (isnonzerorig X)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> <span class="nb">apply</span> isapropneg.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="divisionrig-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="divisionrig-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>rig</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span> (∏ x : X, x != <span class="mi">0</span>%rig → multinvpair X x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="divisionrig-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="divisionrig-v-chk6"><span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>rig</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (t != <span class="mi">0</span>%rig → multinvpair X t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="divisionrig-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="divisionrig-v-chk7"><span class="nb">apply</span> isapropimpl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>rig</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (multinvpair X t)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> <span class="nb">apply</span> isapropinvpair.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_zero</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : X := <span class="mi">0</span>%rig.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_one</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : X := <span class="mi">1</span>%rig.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_plus</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : binop X := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, (x + y)%rig.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_mult</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : binop X := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, (x * y)%rig.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_inv</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : (∑  x : X, x != isDivRig_zero <span class="kr">is</span>) → X :=
+  <span class="kr">λ</span> <span class="nv">x</span>, pr1 ((pr2 <span class="kr">is</span>) (pr1 x) (pr2 x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_isassoc_plus</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : isassoc (isDivRig_plus <span class="kr">is</span>)
+  := rigassoc1 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_islunit_x0</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : islunit (isDivRig_plus <span class="kr">is</span>) (isDivRig_zero <span class="kr">is</span>)
+  := riglunax1 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_isrunit_x0</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : isrunit (isDivRig_plus <span class="kr">is</span>) (isDivRig_zero <span class="kr">is</span>)
+  := rigrunax1 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_iscomm_plus</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : iscomm (isDivRig_plus <span class="kr">is</span>)
+  := rigcomm1 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_isassoc_mult</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : isassoc (isDivRig_mult <span class="kr">is</span>)
+  := rigassoc2 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_islunit_x1</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : islunit (isDivRig_mult <span class="kr">is</span>) (isDivRig_one <span class="kr">is</span>)
+  := riglunax2 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_isrunit_x1</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : isrunit (isDivRig_mult <span class="kr">is</span>) (isDivRig_one <span class="kr">is</span>)
+  := rigrunax2 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_islinv</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) :
+  ∏ (x : X) (Hx : x != isDivRig_zero <span class="kr">is</span>), isDivRig_mult <span class="kr">is</span> (isDivRig_inv <span class="kr">is</span> (x,, Hx)) x = isDivRig_one <span class="kr">is</span>
+  := <span class="kr">λ</span> (<span class="nv">x</span> : X) (<span class="nv">Hx</span> : x != isDivRig_zero <span class="kr">is</span>), pr1 (pr2 (pr2 <span class="kr">is</span> x Hx)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_isrinv</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) :
+  ∏ (x : X) (Hx : x != isDivRig_zero <span class="kr">is</span>), isDivRig_mult <span class="kr">is</span> x (isDivRig_inv <span class="kr">is</span> (x,, Hx)) = isDivRig_one <span class="kr">is</span>
+  := <span class="kr">λ</span> (<span class="nv">x</span> : X) (<span class="nv">Hx</span> : x != isDivRig_zero <span class="kr">is</span>), pr2 (pr2 (pr2 <span class="kr">is</span> x Hx)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_isldistr</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : isldistr (isDivRig_plus <span class="kr">is</span>) (isDivRig_mult <span class="kr">is</span>) := rigldistr X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_isrdistr</span> {<span class="nv">X</span> : rig} (<span class="nv">is</span> : isDivRig X) : isrdistr (isDivRig_plus <span class="kr">is</span>) (isDivRig_mult <span class="kr">is</span>) := rigrdistr X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** DivRig *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig</span> : UU :=
+  ∑ (X : rig), isDivRig X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pr1DivRig</span> (<span class="nv">F</span> : DivRig) : hSet := pr1 F.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">pr1DivRig</span> : DivRig &gt;-&gt; hSet.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">zeroDivRig</span> {<span class="nv">F</span> : DivRig} : F := isDivRig_zero (pr2 F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">oneDivRig</span> {<span class="nv">F</span> : DivRig} : F := isDivRig_one (pr2 F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">plusDivRig</span> {<span class="nv">F</span> : DivRig} : binop F := isDivRig_plus (pr2 F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">multDivRig</span> {<span class="nv">F</span> : DivRig} : binop F := isDivRig_mult (pr2 F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">invDivRig</span> {<span class="nv">F</span> : DivRig} : (∑ x : F, x != zeroDivRig) → F := isDivRig_inv (pr2 F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">divDivRig</span> {<span class="nv">F</span> : DivRig} : F → (∑ x : F, x != zeroDivRig) → F := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span>, multDivRig x (invDivRig y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_isDivRig</span> (<span class="nv">F</span> : DivRig) :
+  isDivRig (pr1 F) := (pr2 F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isDivRig_DivRig</span> {<span class="nv">X</span> : rig} : isDivRig X → DivRig :=
+<span class="kr">λ</span> <span class="nv">is</span> : isDivRig X, X ,, <span class="kr">is</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Declare Scope</span> dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Delimit Scope</span> dr_scope <span class="kr">with</span> dr.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;0&quot;</span> := zeroDivRig : dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;1&quot;</span> := oneDivRig : dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;x + y&quot;</span> := (plusDivRig x y) : dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;x * y&quot;</span> := (multDivRig x y) : dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;/ x&quot;</span> := (invDivRig x) : dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;x / y&quot;</span> := (divDivRig x y) : dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">DivRig_pty</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">F</span> : DivRig}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_isassoc_plus</span>:
+  ∏ x y z : F, x + y + z = x + (y + z) :=
+  isDivRig_isassoc_plus (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_islunit_zero</span>:
+  ∏ x : F, <span class="mi">0</span> + x = x :=
+  isDivRig_islunit_x0 (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_isrunit_zero</span>:
+  ∏ x : F, x + <span class="mi">0</span> = x :=
+  isDivRig_isrunit_x0 (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_iscomm_plus</span>:
+  ∏ x y : F, x + y = y + x :=
+  isDivRig_iscomm_plus (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_isassoc_mult</span>:
+  ∏ x y z : F, x * y * z = x * (y * z) :=
+  isDivRig_isassoc_mult (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_islunit_one</span>:
+  ∏ x : F, <span class="mi">1</span> * x = x :=
+  isDivRig_islunit_x1 (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_isrunit_one</span>:
+  ∏ x : F, x * <span class="mi">1</span> = x :=
+  isDivRig_isrunit_x1 (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_islinv</span>:
+  ∏ (x : F) (Hx : x != <span class="mi">0</span>), / (x,, Hx) * x = <span class="mi">1</span> :=
+  isDivRig_islinv (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_isrinv</span>:
+  ∏ (x : F) (Hx : x != <span class="mi">0</span>), x * / (x,, Hx) = <span class="mi">1</span> :=
+  isDivRig_isrinv (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_isldistr</span>:
+  ∏ x y z : F, z * (x + y) = z * x + z * y :=
+  isDivRig_isldistr (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">DivRig_isrdistr</span>:
+  ∏ x y z : F, (x + y) * z = x * z + y * z :=
+  isDivRig_isrdistr (DivRig_isDivRig F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">DivRig_pty</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** Definition of a Commutative DivRig *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig</span> : UU :=
+  ∑ (X : commrig), isDivRig X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_DivRig</span> (<span class="nv">F</span> : CommDivRig) : DivRig := commrigtorig (pr1 F) ,, pr2 F.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">CommDivRig_DivRig</span> : CommDivRig &gt;-&gt; DivRig.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CommDivRig_pty</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">F</span> : CommDivRig}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_isassoc_plus</span>:
+  ∏ x y z : F, x + y + z = x + (y + z) :=
+  DivRig_isassoc_plus.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_islunit_zero</span>:
+  ∏ x : F, <span class="mi">0</span> + x = x :=
+  DivRig_islunit_zero.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_isrunit_zero</span>:
+  ∏ x : F, x + <span class="mi">0</span> = x :=
+  DivRig_isrunit_zero.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_iscomm_plus</span>:
+  ∏ x y : F, x + y = y + x :=
+  DivRig_iscomm_plus.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_isassoc_mult</span>:
+  ∏ x y z : F, x * y * z = x * (y * z) :=
+  DivRig_isassoc_mult.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_islunit_one</span>:
+  ∏ x : F, <span class="mi">1</span> * x = x :=
+  DivRig_islunit_one.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_isrunit_one</span>:
+  ∏ x : F, x * <span class="mi">1</span> = x :=
+  DivRig_isrunit_one.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_iscomm_mult</span>:
+  ∏ x y : F, x * y = y * x :=
+  rigcomm2 (pr1 F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_islinv</span>:
+  ∏ (x : F) (Hx : x != <span class="mi">0</span>), / (x,, Hx) * x = <span class="mi">1</span> :=
+  DivRig_islinv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_isrinv</span>:
+  ∏ (x : F) (Hx : x != <span class="mi">0</span>), x * / (x,, Hx) = <span class="mi">1</span> :=
+  DivRig_isrinv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_isldistr</span>:
+  ∏ x y z : F, z * (x + y) = z * x + z * y :=
+  DivRig_isldistr.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">CommDivRig_isrdistr</span>:
+  ∏ x y z : F, (x + y) * z = x * z + y * z :=
+  DivRig_isrdistr.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Close Scope</span> dr_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CommDivRig_pty</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

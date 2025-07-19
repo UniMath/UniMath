@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>VTerms.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** ** Variables and terms with variables *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)</span>
+<span class="sd">(**</span>
+<span class="sd">Given a signature σ, a [varspec] (variable specification) is a map from an [hSet] of _variables_</span>
+<span class="sd">to the corresponding sort. A signature σ and a variable specification [V] give origin to a new</span>
+<span class="sd">signature, [vsignature σ V] where variables in [v] become constant symbols. A term over</span>
+<span class="sd">signature σ and variables in V is, i.e., a [vterm σ v], is a plain (ground) term over this</span>
+<span class="sd">extended signature.</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Universal.SortedTypes.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.Algebra.Universal.Terms.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> sorted.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">VTerms</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">varspec</span> (<span class="nv">σ</span>: signature) := ∑ V: hSet, V → sorts σ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_varspec</span> (<span class="nv">σ</span>: signature) (<span class="nv">varsupp</span>: hSet) (<span class="nv">varsorts</span>: varsupp → sorts σ)
+    : varspec σ := (varsupp,, varsorts).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">varsupp</span> {σ: signature}: varspec σ → hSet := pr1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">varsort</span> {<span class="nv">σ</span>: signature} {<span class="nv">V</span>: varspec σ}: V → sorts σ := pr2 V.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">vsignature</span> (<span class="nv">σ</span> : signature) (<span class="nv">V</span>: varspec σ): signature
+    := make_signature (sorts σ) (setcoprod (names σ) V) (sumofmaps (ar σ) (<span class="kr">λ</span> <span class="nv">v</span>, nil ,, varsort v)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">σ</span> : signature}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">namelift</span> (<span class="nv">V</span>: varspec σ) (<span class="nv">nm</span>: names σ): names (vsignature σ V) := inl nm.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">varname</span> {<span class="nv">V</span>: varspec σ} (<span class="nv">v</span>: V): names (vsignature σ V) := inr v.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">term</span> (<span class="nv">σ</span>: signature) (<span class="nv">V</span>: varspec σ): sUU (sorts σ) := gterm (vsignature σ V).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">termset</span> (<span class="nv">σ</span>: signature) (<span class="nv">V</span>: varspec σ): sUU (sorts σ) := gtermset (vsignature σ V).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">build_term</span> {<span class="nv">V</span>: varspec σ} (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: (term σ V)⋆ (arity nm))
+    : term σ V (sort nm) := build_gterm (namelift V nm) v.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">varterm</span> {<span class="nv">V</span>: varspec σ} (<span class="nv">v</span>: V): term σ V (varsort v) := build_gterm (varname v) [()].</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">assignment</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: sUU (sorts σ)) (<span class="nv">V</span>: varspec σ) : UU := ∏ v: V, A (varsort v).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** Evaluation maps for terms and corresponding unfolding properties *)</span>
+
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk0"><span class="kn">Definition</span> <span class="nf">fromterm</span> {<span class="nv">A</span>: sUU (sorts σ)} {<span class="nv">V</span>: varspec σ}
+                      (<span class="nv">op</span> : (∏ nm : names σ, A⋆ (arity nm) → A (sort nm)))
+                      (<span class="nv">α</span> : assignment A V)
+    : term σ V s→ A.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">term σ V s→ A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">term σ V s→ A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk2"><span class="nb">refine</span> (@fromgterm (vsignature σ V) A _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ nm : names (vsignature σ V),
+A⋆ (arity nm) → A (sort nm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk3"><span class="nb">induction</span> nm <span class="kr">as</span> [nm | v].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>nm</var><span class="hyp-type"><b>: </b><span>names σ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">A⋆ (arity (inl nm)) → A (sort (inl nm))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="vterms-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br></div><label class="goal-separator" for="vterms-v-chk4"><hr></label><div class="goal-conclusion">A⋆ (arity (inr v)) → A (sort (inr v))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>nm</var><span class="hyp-type"><b>: </b><span>names σ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">A⋆ (arity (inl nm)) → A (sort (inl nm))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (op nm).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">A⋆ (arity (inr v)) → A (sort (inr v))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">_</span>, α v).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk7"><span class="kn">Lemma</span> <span class="nf">fromtermstep</span> {<span class="nv">A</span>: sUU (sorts σ)} {<span class="nv">V</span>: varspec σ}
+                     (<span class="nv">op</span> : (∏ nm : names σ, A⋆ (arity nm) → A (sort nm)))
+                     (<span class="nv">α</span> : assignment A V)
+                     (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: (term σ V)⋆ (arity nm))
+    : fromterm op α (sort nm) (build_term nm v) = op nm ((fromterm op α)⋆⋆ (arity nm) v).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>nm</var><span class="hyp-type"><b>: </b><span>names σ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>(term σ V)⋆ (arity nm)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">fromterm op α (sort nm) (build_term nm v) =
+op nm ((fromterm op α)⋆⋆ (arity nm) v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk8"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>nm</var><span class="hyp-type"><b>: </b><span>names σ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>(term σ V)⋆ (arity nm)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">fromterm op α (sort nm) (build_term nm v) =
+op nm ((fromterm op α)⋆⋆ (arity nm) v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk9"><span class="nb">unfold</span> fromterm, fromgterm, build_term.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>nm</var><span class="hyp-type"><b>: </b><span>names σ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>(term σ V)⋆ (arity nm)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">term_ind
+  (<span class="kr">λ</span> (<span class="nv">s</span> : sorts (vsignature σ V))
+   (<span class="nv">_</span> : gterm (vsignature σ V) s), A s)
+  (<span class="kr">λ</span> (<span class="nv">nm</span> : names (vsignature σ V))
+   (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+   (<span class="nv">rec</span> : hvec
+            (h1map_vec
+               (<span class="kr">λ</span> (<span class="nv">s</span> : sorts (vsignature σ V))
+                (<span class="nv">_</span> : gterm (vsignature σ V) s), A s) v)),
+   coprod_rect
+     (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+      A⋆ (arity nm0) → A (sort nm0))
+     (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+     (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))), α v0) nm
+     (h2lower rec)) (build_gterm (namelift V nm) v) =
+op nm
+  ((<span class="kr">λ</span> <span class="nv">s</span> : sorts (vsignature σ V),
+    term_ind
+      (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts (vsignature σ V))
+       (<span class="nv">_</span> : gterm (vsignature σ V) s0), A s0)
+      (<span class="kr">λ</span> (<span class="nv">nm</span> : names (vsignature σ V))
+       (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+       (<span class="nv">rec</span> : hvec
+                (h1map_vec
+                   (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts (vsignature σ V))
+                    (<span class="nv">_</span> : gterm (vsignature σ V) s0),
+                    A s0) v)),
+       coprod_rect
+         (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+          A⋆ (arity nm0) → A (sort nm0))
+         (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+         (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))), α v0)
+         nm (h2lower rec)))⋆⋆ (arity nm) v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chka"><span class="nb">rewrite</span> (term_ind_step _ _  (namelift V nm)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>nm</var><span class="hyp-type"><b>: </b><span>names σ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>(term σ V)⋆ (arity nm)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">coprod_rect
+  (<span class="kr">λ</span> <span class="nv">nm</span> : names σ ⨿ V, A⋆ (arity nm) → A (sort nm))
+  (<span class="kr">λ</span> <span class="nv">nm</span> : names σ, op nm)
+  (<span class="kr">λ</span> (<span class="nv">v</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v))), α v)
+  (namelift V nm)
+  (h2lower
+     (h2map
+        (<span class="kr">λ</span> (<span class="nv">s</span> : sorts (vsignature σ V))
+         (<span class="nv">t</span> <span class="nv">_</span> : gterm (vsignature σ V) s),
+         term_ind
+           (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts (vsignature σ V))
+            (<span class="nv">_</span> : gterm (vsignature σ V) s0), A s0)
+           (<span class="kr">λ</span> (<span class="nv">nm</span> : names (vsignature σ V))
+            (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+            (<span class="nv">rec</span> : hvec
+                     (h1map_vec
+                        (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts
+                                   (vsignature σ V))
+                         (<span class="nv">_</span> : gterm (vsignature σ V)
+                                s0), A s0) v)),
+            coprod_rect
+              (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+               A⋆ (arity nm0) → A (sort nm0))
+              (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+              (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))),
+               α v0) nm (h2lower rec)) t) (h1lift v))) =
+op nm
+  ((<span class="kr">λ</span> <span class="nv">s</span> : sorts (vsignature σ V),
+    term_ind
+      (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts (vsignature σ V))
+       (<span class="nv">_</span> : gterm (vsignature σ V) s0), A s0)
+      (<span class="kr">λ</span> (<span class="nv">nm</span> : names (vsignature σ V))
+       (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+       (<span class="nv">rec</span> : hvec
+                (h1map_vec
+                   (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts (vsignature σ V))
+                    (<span class="nv">_</span> : gterm (vsignature σ V) s0),
+                    A s0) v)),
+       coprod_rect
+         (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+          A⋆ (arity nm0) → A (sort nm0))
+         (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+         (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))), α v0)
+         nm (h2lower rec)))⋆⋆ (arity nm) v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chkb"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>nm</var><span class="hyp-type"><b>: </b><span>names σ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>(term σ V)⋆ (arity nm)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op nm
+  (h2lower
+     (h2map
+        (<span class="kr">λ</span> (<span class="nv">s</span> : sorts σ)
+         (<span class="nv">t</span> <span class="nv">_</span> : gterm (vsignature σ V) s),
+         term_ind
+           (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts σ)
+            (<span class="nv">_</span> : gterm (vsignature σ V) s0), A s0)
+           (<span class="kr">λ</span> (<span class="nv">nm</span> : names σ ⨿ V)
+            (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+            (<span class="nv">rec</span> : hvec
+                     (h1map_vec
+                        (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts σ)
+                         (<span class="nv">_</span> : gterm (vsignature σ V)
+                                s0), A s0) v)),
+            coprod_rect
+              (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+               A⋆ (arity nm0) → A (sort nm0))
+              (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+              (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))),
+               α v0) nm (h2lower rec)) t) (h1lift v))) =
+op nm
+  ((<span class="kr">λ</span> <span class="nv">s</span> : sorts σ,
+    term_ind
+      (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts σ)
+       (<span class="nv">_</span> : gterm (vsignature σ V) s0), A s0)
+      (<span class="kr">λ</span> (<span class="nv">nm</span> : names σ ⨿ V)
+       (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+       (<span class="nv">rec</span> : hvec
+                (h1map_vec
+                   (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts σ)
+                    (<span class="nv">_</span> : gterm (vsignature σ V) s0),
+                    A s0) v)),
+       coprod_rect
+         (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+          A⋆ (arity nm0) → A (sort nm0))
+         (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+         (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))), α v0)
+         nm (h2lower rec)))⋆⋆ (arity nm) v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chkc"><span class="nb">rewrite</span> h2lower_h1map_h1lift.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>nm</var><span class="hyp-type"><b>: </b><span>names σ</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>(term σ V)⋆ (arity nm)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op nm
+  (h1map
+     (@term_ind (vsignature σ V)
+        (<span class="kr">λ</span> (<span class="nv">s</span> : sorts σ)
+         (<span class="nv">_</span> : gterm (vsignature σ V) s), A s)
+        (<span class="kr">λ</span> (<span class="nv">nm</span> : names σ ⨿ V)
+         (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+         (<span class="nv">rec</span> : hvec
+                  (h1map_vec
+                     (<span class="kr">λ</span> (<span class="nv">s</span> : sorts σ)
+                      (<span class="nv">_</span> : gterm (vsignature σ V) s),
+                      A s) v)),
+         coprod_rect
+           (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+            A⋆ (arity nm0) → A (sort nm0))
+           (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+           (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))), α v0)
+           nm (h2lower rec))) v) =
+op nm
+  ((<span class="kr">λ</span> <span class="nv">s</span> : sorts σ,
+    term_ind
+      (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts σ)
+       (<span class="nv">_</span> : gterm (vsignature σ V) s0), A s0)
+      (<span class="kr">λ</span> (<span class="nv">nm</span> : names σ ⨿ V)
+       (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+       (<span class="nv">rec</span> : hvec
+                (h1map_vec
+                   (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts σ)
+                    (<span class="nv">_</span> : gterm (vsignature σ V) s0),
+                    A s0) v)),
+       coprod_rect
+         (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+          A⋆ (arity nm0) → A (sort nm0))
+         (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+         (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))), α v0)
+         nm (h2lower rec)))⋆⋆ (arity nm) v)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** This used to be provable with apply idpath in the single sorted case **)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chkd"><span class="kn">Lemma</span> <span class="nf">fromtermstep&#39;</span> {<span class="nv">A</span>: sUU (sorts σ)} {<span class="nv">V</span>: varspec σ}
+                      (<span class="nv">op</span> : (∏ nm : names σ, A⋆ (arity nm) → A (sort nm)))
+                      (<span class="nv">α</span> : assignment A V)
+                      (<span class="nv">v</span>: V)
+    : fromterm op α (varsort v) (varterm v) = α v.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">fromterm op α (varsort v) (varterm v) = α v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chke"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">fromterm op α (varsort v) (varterm v) = α v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chkf"><span class="nb">unfold</span> fromterm, fromgterm, varterm.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">term_ind
+  (<span class="kr">λ</span> (<span class="nv">s</span> : sorts (vsignature σ V))
+   (<span class="nv">_</span> : gterm (vsignature σ V) s), A s)
+  (<span class="kr">λ</span> (<span class="nv">nm</span> : names (vsignature σ V))
+   (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+   (<span class="nv">rec</span> : hvec
+            (h1map_vec
+               (<span class="kr">λ</span> (<span class="nv">s</span> : sorts (vsignature σ V))
+                (<span class="nv">_</span> : gterm (vsignature σ V) s), A s) v)),
+   coprod_rect
+     (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+      A⋆ (arity nm0) → A (sort nm0))
+     (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+     (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))), α v0) nm
+     (h2lower rec)) (build_gterm (varname v) [()]) =
+α v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vterms-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="vterms-v-chk10"><span class="nb">rewrite</span> (term_ind_step _ _ (varname v)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>σ</var><span class="hyp-type"><b>: </b><span>signature</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>sUU (sorts σ)</span></span></span><br><span><var>V</var><span class="hyp-type"><b>: </b><span>varspec σ</span></span></span><br><span><var>op</var><span class="hyp-type"><b>: </b><span>∏ nm : names σ, A⋆ (arity nm) → A (sort nm)</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>assignment A V</span></span></span><br><span><var>v</var><span class="hyp-type"><b>: </b><span>V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">coprod_rect
+  (<span class="kr">λ</span> <span class="nv">nm</span> : names σ ⨿ V, A⋆ (arity nm) → A (sort nm))
+  (<span class="kr">λ</span> <span class="nv">nm</span> : names σ, op nm)
+  (<span class="kr">λ</span> (<span class="nv">v</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v))), α v)
+  (varname v)
+  (h2lower
+     (h2map
+        (<span class="kr">λ</span> (<span class="nv">s</span> : sorts (vsignature σ V))
+         (<span class="nv">t</span> <span class="nv">_</span> : gterm (vsignature σ V) s),
+         term_ind
+           (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts (vsignature σ V))
+            (<span class="nv">_</span> : gterm (vsignature σ V) s0), A s0)
+           (<span class="kr">λ</span> (<span class="nv">nm</span> : names (vsignature σ V))
+            (<span class="nv">v</span> : (gterm (vsignature σ V))⋆ (arity nm))
+            (<span class="nv">rec</span> : hvec
+                     (h1map_vec
+                        (<span class="kr">λ</span> (<span class="nv">s0</span> : sorts
+                                   (vsignature σ V))
+                         (<span class="nv">_</span> : gterm (vsignature σ V)
+                                s0), A s0) v)),
+            coprod_rect
+              (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ ⨿ V,
+               A⋆ (arity nm0) → A (sort nm0))
+              (<span class="kr">λ</span> <span class="nv">nm0</span> : names σ, op nm0)
+              (<span class="kr">λ</span> (<span class="nv">v0</span> : V) (<span class="nv">_</span> : A⋆ (arity (inr v0))),
+               α v0) nm (h2lower rec)) t)
+        (h1lift [()]))) = α v</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** ** Helpers for working with curried functions *)</span>
+
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">build_term&#39;</span> {<span class="nv">V</span>: varspec σ} (<span class="nv">nm</span>: names σ)
+    : iterfun (vec_map (term σ V) (arity (namelift V nm))) (term σ V (sort (namelift V nm)))
+    := build_gterm&#39; (namelift V nm).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">VTerms</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>DispFunctorPair.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*********************************************************************************</span>
+
+<span class="sd"> Displayed functors over pairs</span>
+
+<span class="sd"> In this file, we look at displayed functor over the pair of identity functors.</span>
+<span class="sd"> More specifically, suppose that we have two displayed category `D₁` and `D₂` over</span>
+<span class="sd"> the category `C × C`, then we could consider</span>
+<span class="sd"> - Displayed functors over the identity on `C × C`</span>
+<span class="sd"> - Displayed functors over the pairing of the identity on `C` with itself.</span>
+<span class="sd"> These two notions are equivalent and we construct an equivalence between them.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The maps back and forth</span>
+<span class="sd"> 2. The equivalence</span>
+
+<span class="sd"> *********************************************************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The maps back and forth *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk1"><span class="kn">Definition</span> <span class="nf">disp_functor_over_pair_data</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat (category_binproduct C C)}
+           (<span class="nv">F</span> : disp_functor
+                  (functor_identity (category_binproduct C C))
+                  D₁ D₂)
+  : disp_functor_data
+      (pair_functor (functor_identity C) (functor_identity C))
+      D₁ D₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_data
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_data
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk3"><span class="nb">simple refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : category_binproduct C C,
+D₁ x
+→ D₂
+    (pair_functor (functor_identity C)
+       (functor_identity C) x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="dispfunctorpair-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><label class="goal-separator" for="dispfunctorpair-v-chk4"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">Fob</span> : ∏ x : category_binproduct C C,
+         D₁ x
+         → D₂
+             (pair_functor (functor_identity C)
+                (functor_identity C) x),
+ ∏ (x y : category_binproduct C C) (xx : D₁ x)
+ (yy : D₁ y)
+ (f : (category_binproduct C C ⟦ x, y ⟧)%cat),
+ xx --&gt;[ f] yy
+ → Fob x xx --&gt;[
+   (# (pair_functor (functor_identity C)
+         (functor_identity C)))%cat f] Fob y yy) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : category_binproduct C C,
+D₁ x
+→ D₂
+    (pair_functor (functor_identity C)
+       (functor_identity C) x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, F x xx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">Fob</span> : ∏ x : category_binproduct C C,
+         D₁ x
+         → D₂
+             (pair_functor (functor_identity C)
+                (functor_identity C) x),
+ ∏ (x y : category_binproduct C C) (xx : D₁ x)
+ (yy : D₁ y)
+ (f : (category_binproduct C C ⟦ x, y ⟧)%cat),
+ xx --&gt;[ f] yy
+ → Fob x xx --&gt;[
+   (# (pair_functor (functor_identity C)
+         (functor_identity C)))%cat f] Fob y yy)
+  (<span class="kr">λ</span> (<span class="nv">x</span> : category_binproduct C C) (<span class="nv">xx</span> : D₁ x), F x xx)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">f</span> <span class="nv">ff</span>, ♯F ff)%mor_disp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk7"><span class="kn">Proposition</span> <span class="nf">disp_functor_over_pair_laws</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat (category_binproduct C C)}
+            (<span class="nv">F</span> : disp_functor
+                   (functor_identity (category_binproduct C C))
+                   D₁ D₂)
+  : disp_functor_axioms (disp_functor_over_pair_data F).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_axioms (disp_functor_over_pair_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk8"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_axioms (disp_functor_over_pair_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk9"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : category_binproduct C C) (xx : D₁ x),
+(♯ (disp_functor_over_pair_data F))%mor_disp
+  (id_disp xx) =
+transportb
+  (mor_disp (disp_functor_over_pair_data F x xx)
+     (disp_functor_over_pair_data F x xx))
+  (functor_id
+     (pair_functor (functor_identity C)
+        (functor_identity C)) x)
+  (id_disp (disp_functor_over_pair_data F x xx))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="dispfunctorpair-v-chka" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><label class="goal-separator" for="dispfunctorpair-v-chka"><hr></label><div class="goal-conclusion">∏ (x y z : category_binproduct C C) (xx : D₁ x)
+(yy : pr1 D₁ y) (zz : pr1 D₁ z)
+(f : (category_binproduct C C ⟦ x, y ⟧)%cat)
+(g : (category_binproduct C C ⟦ y, z ⟧)%cat)
+(ff : xx --&gt;[ f] yy) (gg : yy --&gt;[ g] zz),
+(♯ (disp_functor_over_pair_data F))%mor_disp
+  (ff ;; gg) =
+transportb
+  (mor_disp (disp_functor_over_pair_data F x xx)
+     (disp_functor_over_pair_data F z zz))
+  (functor_comp
+     (pair_functor (functor_identity C)
+        (functor_identity C)) f g)
+  (♯ (disp_functor_over_pair_data F) ff ;; ♯ (disp_functor_over_pair_data
+                                                F) gg)%mor_disp</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : category_binproduct C C) (xx : D₁ x),
+(♯ (disp_functor_over_pair_data F))%mor_disp
+  (id_disp xx) =
+transportb
+  (mor_disp (disp_functor_over_pair_data F x xx)
+     (disp_functor_over_pair_data F x xx))
+  (functor_id
+     (pair_functor (functor_identity C)
+        (functor_identity C)) x)
+  (id_disp (disp_functor_over_pair_data F x xx))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chkc"><span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(♯ F)%mor_disp (id_disp xx) =
+transportb (mor_disp (F x xx) (F x xx))
+  (functor_id
+     (pair_functor (functor_identity C)
+        (functor_identity C)) x) (id_disp (F x xx))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chkd"><span class="nb">refine</span> (disp_functor_id F xx @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (mor_disp (F x xx) (F x xx))
+  (functor_id
+     (functor_identity (category_binproduct C C)) x)
+  (id_disp (F x xx)) =
+transportb (mor_disp (F x xx) (F x xx))
+  (functor_id
+     (pair_functor (functor_identity C)
+        (functor_identity C)) x) (id_disp (F x xx))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chke"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_id
+  (functor_identity (category_binproduct C C)) x =
+functor_id
+  (pair_functor (functor_identity C)
+     (functor_identity C)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chkf">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : category_binproduct C C) (xx : D₁ x)
+(yy : pr1 D₁ y) (zz : pr1 D₁ z)
+(f : (category_binproduct C C ⟦ x, y ⟧)%cat)
+(g : (category_binproduct C C ⟦ y, z ⟧)%cat)
+(ff : xx --&gt;[ f] yy) (gg : yy --&gt;[ g] zz),
+(♯ (disp_functor_over_pair_data F))%mor_disp
+  (ff ;; gg) =
+transportb
+  (mor_disp (disp_functor_over_pair_data F x xx)
+     (disp_functor_over_pair_data F z zz))
+  (functor_comp
+     (pair_functor (functor_identity C)
+        (functor_identity C)) f g)
+  (♯ (disp_functor_over_pair_data F) ff ;; ♯ (disp_functor_over_pair_data
+                                                F) gg)%mor_disp</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk10"><span class="nb">intros</span> x y z xx yy zz f g ff gg ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>pr1 D₁ y</span></span></span><br><span><var>zz</var><span class="hyp-type"><b>: </b><span>pr1 D₁ z</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ x, y ⟧)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ y, z ⟧)%cat</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>xx --&gt;[ f] yy</span></span></span><br><span><var>gg</var><span class="hyp-type"><b>: </b><span>yy --&gt;[ g] zz</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(♯ F)%mor_disp (ff ;; gg) =
+transportb (mor_disp (F x xx) (F z zz))
+  (functor_comp
+     (pair_functor (functor_identity C)
+        (functor_identity C)) f g)
+  (♯ F ff ;; ♯ F gg)%mor_disp</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk11"><span class="nb">refine</span> (disp_functor_comp F ff gg @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>pr1 D₁ y</span></span></span><br><span><var>zz</var><span class="hyp-type"><b>: </b><span>pr1 D₁ z</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ x, y ⟧)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ y, z ⟧)%cat</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>xx --&gt;[ f] yy</span></span></span><br><span><var>gg</var><span class="hyp-type"><b>: </b><span>yy --&gt;[ g] zz</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (mor_disp (F x xx) (F z zz))
+  (functor_comp
+     (functor_identity (category_binproduct C C)) f g)
+  (♯ F ff ;; ♯ F gg)%mor_disp =
+transportb (mor_disp (F x xx) (F z zz))
+  (functor_comp
+     (pair_functor (functor_identity C)
+        (functor_identity C)) f g)
+  (♯ F ff ;; ♯ F gg)%mor_disp</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk12"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>pr1 D₁ y</span></span></span><br><span><var>zz</var><span class="hyp-type"><b>: </b><span>pr1 D₁ z</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ x, y ⟧)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ y, z ⟧)%cat</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>xx --&gt;[ f] yy</span></span></span><br><span><var>gg</var><span class="hyp-type"><b>: </b><span>yy --&gt;[ g] zz</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_comp
+  (functor_identity (category_binproduct C C)) f g =
+functor_comp
+  (pair_functor (functor_identity C)
+     (functor_identity C)) f g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk13"><span class="kn">Definition</span> <span class="nf">disp_functor_over_pair</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat (category_binproduct C C)}
+           (<span class="nv">F</span> : disp_functor
+                  (functor_identity (category_binproduct C C))
+                  D₁ D₂)
+  : disp_functor
+      (pair_functor (functor_identity C) (functor_identity C))
+      D₁ D₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk14"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk15"><span class="nb">simple refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_data
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="dispfunctorpair-v-chk16" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><label class="goal-separator" for="dispfunctorpair-v-chk16"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">FF</span> : disp_functor_data
+          (pair_functor (functor_identity C)
+             (functor_identity C)) D₁ D₂,
+ disp_functor_axioms FF) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk17">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_data
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (disp_functor_over_pair_data F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk18">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (functor_identity (category_binproduct C C)) D₁
+  D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">FF</span> : disp_functor_data
+          (pair_functor (functor_identity C)
+             (functor_identity C)) D₁ D₂,
+ disp_functor_axioms FF)
+  (disp_functor_over_pair_data F)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (disp_functor_over_pair_laws F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk19"><span class="kn">Definition</span> <span class="nf">disp_functor_over_pair_inv_data</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat (category_binproduct C C)}
+           (<span class="nv">F</span> : disp_functor
+                  (pair_functor (functor_identity C) (functor_identity C))
+                  D₁ D₂)
+  : disp_functor_data
+      (functor_identity (category_binproduct C C))
+      D₁ D₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_data
+  (functor_identity (category_binproduct C C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk1a"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_data
+  (functor_identity (category_binproduct C C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk1b"><span class="nb">simple refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : category_binproduct C C,
+D₁ x
+→ D₂ (functor_identity (category_binproduct C C) x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="dispfunctorpair-v-chk1c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><label class="goal-separator" for="dispfunctorpair-v-chk1c"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">Fob</span> : ∏ x : category_binproduct C C,
+         D₁ x
+         → D₂
+             (functor_identity
+                (category_binproduct C C) x),
+ ∏ (x y : category_binproduct C C) (xx : D₁ x)
+ (yy : D₁ y)
+ (f : (category_binproduct C C ⟦ x, y ⟧)%cat),
+ xx --&gt;[ f] yy
+ → Fob x xx --&gt;[
+   (# (functor_identity (category_binproduct C C)))%cat
+     f] Fob y yy) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk1d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : category_binproduct C C,
+D₁ x
+→ D₂ (functor_identity (category_binproduct C C) x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, F x xx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk1e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">Fob</span> : ∏ x : category_binproduct C C,
+         D₁ x
+         → D₂
+             (functor_identity
+                (category_binproduct C C) x),
+ ∏ (x y : category_binproduct C C) (xx : D₁ x)
+ (yy : D₁ y)
+ (f : (category_binproduct C C ⟦ x, y ⟧)%cat),
+ xx --&gt;[ f] yy
+ → Fob x xx --&gt;[
+   (# (functor_identity (category_binproduct C C)))%cat
+     f] Fob y yy)
+  (<span class="kr">λ</span> (<span class="nv">x</span> : category_binproduct C C) (<span class="nv">xx</span> : D₁ x), F x xx)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>, ♯F ff)%mor_disp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk1f"><span class="kn">Proposition</span> <span class="nf">disp_functor_over_pair_inv_laws</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat (category_binproduct C C)}
+            (<span class="nv">F</span> : disp_functor
+                   (pair_functor (functor_identity C) (functor_identity C))
+                   D₁ D₂)
+  : disp_functor_axioms (disp_functor_over_pair_inv_data F).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_axioms
+  (disp_functor_over_pair_inv_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk20"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_axioms
+  (disp_functor_over_pair_inv_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk21"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : category_binproduct C C) (xx : D₁ x),
+(♯ (disp_functor_over_pair_inv_data F))%mor_disp
+  (id_disp xx) =
+transportb
+  (mor_disp (disp_functor_over_pair_inv_data F x xx)
+     (disp_functor_over_pair_inv_data F x xx))
+  (functor_id
+     (functor_identity (category_binproduct C C)) x)
+  (id_disp (disp_functor_over_pair_inv_data F x xx))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="dispfunctorpair-v-chk22" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><label class="goal-separator" for="dispfunctorpair-v-chk22"><hr></label><div class="goal-conclusion">∏ (x y z : category_binproduct C C) (xx : D₁ x)
+(yy : pr1 D₁ y) (zz : pr1 D₁ z)
+(f : (category_binproduct C C ⟦ x, y ⟧)%cat)
+(g : (category_binproduct C C ⟦ y, z ⟧)%cat)
+(ff : xx --&gt;[ f] yy) (gg : yy --&gt;[ g] zz),
+(♯ (disp_functor_over_pair_inv_data F))%mor_disp
+  (ff ;; gg) =
+transportb
+  (mor_disp (disp_functor_over_pair_inv_data F x xx)
+     (disp_functor_over_pair_inv_data F z zz))
+  (functor_comp
+     (functor_identity (category_binproduct C C)) f g)
+  (♯ (disp_functor_over_pair_inv_data F) ff ;; ♯ (disp_functor_over_pair_inv_data
+                                                 F) gg)%mor_disp</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk23">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : category_binproduct C C) (xx : D₁ x),
+(♯ (disp_functor_over_pair_inv_data F))%mor_disp
+  (id_disp xx) =
+transportb
+  (mor_disp (disp_functor_over_pair_inv_data F x xx)
+     (disp_functor_over_pair_inv_data F x xx))
+  (functor_id
+     (functor_identity (category_binproduct C C)) x)
+  (id_disp (disp_functor_over_pair_inv_data F x xx))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk24"><span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(♯ F)%mor_disp (id_disp xx) = id_disp (F x xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk25"><span class="nb">refine</span> (disp_functor_id F xx @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (mor_disp (F x xx) (F x xx))
+  (functor_id
+     (pair_functor (functor_identity C)
+        (functor_identity C)) x) (id_disp (F x xx)) =
+id_disp (F x xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk26"><span class="nb">apply</span> transportf_set.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  (category_binproduct C C
+   ⟦ pair_functor (functor_identity C)
+       (functor_identity C) x,
+   pair_functor (functor_identity C)
+     (functor_identity C) x ⟧)%cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk27">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : category_binproduct C C) (xx : D₁ x)
+(yy : pr1 D₁ y) (zz : pr1 D₁ z)
+(f : (category_binproduct C C ⟦ x, y ⟧)%cat)
+(g : (category_binproduct C C ⟦ y, z ⟧)%cat)
+(ff : xx --&gt;[ f] yy) (gg : yy --&gt;[ g] zz),
+(♯ (disp_functor_over_pair_inv_data F))%mor_disp
+  (ff ;; gg) =
+transportb
+  (mor_disp (disp_functor_over_pair_inv_data F x xx)
+     (disp_functor_over_pair_inv_data F z zz))
+  (functor_comp
+     (functor_identity (category_binproduct C C)) f g)
+  (♯ (disp_functor_over_pair_inv_data F) ff ;; ♯ (disp_functor_over_pair_inv_data
+                                                 F) gg)%mor_disp</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk28"><span class="nb">intros</span> x y z xx yy zz f g ff gg ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>pr1 D₁ y</span></span></span><br><span><var>zz</var><span class="hyp-type"><b>: </b><span>pr1 D₁ z</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ x, y ⟧)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ y, z ⟧)%cat</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>xx --&gt;[ f] yy</span></span></span><br><span><var>gg</var><span class="hyp-type"><b>: </b><span>yy --&gt;[ g] zz</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(♯ F)%mor_disp (ff ;; gg) =
+(♯ F ff ;; ♯ F gg)%mor_disp</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk29"><span class="nb">refine</span> (disp_functor_comp F ff gg @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>pr1 D₁ y</span></span></span><br><span><var>zz</var><span class="hyp-type"><b>: </b><span>pr1 D₁ z</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ x, y ⟧)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ y, z ⟧)%cat</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>xx --&gt;[ f] yy</span></span></span><br><span><var>gg</var><span class="hyp-type"><b>: </b><span>yy --&gt;[ g] zz</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">transportb (mor_disp (F x xx) (F z zz))
+  (functor_comp
+     (pair_functor (functor_identity C)
+        (functor_identity C)) f g)
+  (♯ F ff ;; ♯ F gg)%mor_disp =
+(♯ F ff ;; ♯ F gg)%mor_disp</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk2a"><span class="nb">apply</span> transportf_set.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>category_binproduct C C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>D₁ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>pr1 D₁ y</span></span></span><br><span><var>zz</var><span class="hyp-type"><b>: </b><span>pr1 D₁ z</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ x, y ⟧)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>(category_binproduct C C ⟦ y, z ⟧)%cat</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>xx --&gt;[ f] yy</span></span></span><br><span><var>gg</var><span class="hyp-type"><b>: </b><span>yy --&gt;[ g] zz</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  (category_binproduct C C
+   ⟦ pair_functor (functor_identity C)
+       (functor_identity C) x,
+   pair_functor (functor_identity C)
+     (functor_identity C) z ⟧)%cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk2b"><span class="kn">Definition</span> <span class="nf">disp_functor_over_pair_inv</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat (category_binproduct C C)}
+           (<span class="nv">F</span> : disp_functor
+                  (pair_functor (functor_identity C) (functor_identity C))
+                  D₁ D₂)
+  : disp_functor
+      (functor_identity (category_binproduct C C))
+      D₁ D₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor
+  (functor_identity (category_binproduct C C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk2c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor
+  (functor_identity (category_binproduct C C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk2d"><span class="nb">simple refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_data
+  (functor_identity (category_binproduct C C)) D₁ D₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="dispfunctorpair-v-chk2e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><label class="goal-separator" for="dispfunctorpair-v-chk2e"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">FF</span> : disp_functor_data
+          (functor_identity (category_binproduct C C))
+          D₁ D₂, disp_functor_axioms FF) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk2f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor_data
+  (functor_identity (category_binproduct C C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (disp_functor_over_pair_inv_data F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk30">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">FF</span> : disp_functor_data
+          (functor_identity (category_binproduct C C))
+          D₁ D₂, disp_functor_axioms FF)
+  (disp_functor_over_pair_inv_data F)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (disp_functor_over_pair_inv_laws F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. The equivalence *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk31"><span class="kn">Definition</span> <span class="nf">disp_functor_over_pair_weq</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat (category_binproduct C C))
+  : disp_functor
+      (functor_identity (category_binproduct C C))
+      D₁ D₂
+    ≃
+    disp_functor
+      (pair_functor (functor_identity C) (functor_identity C))
+      D₁ D₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor
+  (functor_identity (category_binproduct C C)) D₁ D₂
+≃ disp_functor
+    (pair_functor (functor_identity C)
+       (functor_identity C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk32"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor
+  (functor_identity (category_binproduct C C)) D₁ D₂
+≃ disp_functor
+    (pair_functor (functor_identity C)
+       (functor_identity C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk33">use weq_iso.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor
+  (functor_identity (category_binproduct C C)) D₁ D₂
+→ disp_functor
+    (pair_functor (functor_identity C)
+       (functor_identity C)) D₁ D₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="dispfunctorpair-v-chk34" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><label class="goal-separator" for="dispfunctorpair-v-chk34"><hr></label><div class="goal-conclusion">disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂
+→ disp_functor
+    (functor_identity (category_binproduct C C)) D₁ D₂</div></blockquote><input class="alectryon-extra-goal-toggle" id="dispfunctorpair-v-chk35" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><label class="goal-separator" for="dispfunctorpair-v-chk35"><hr></label><div class="goal-conclusion">∏
+x : disp_functor
+      (functor_identity (category_binproduct C C)) D₁
+      D₂, <span class="nl">?g</span> (<span class="nl">?f</span> x) = x</div></blockquote><input class="alectryon-extra-goal-toggle" id="dispfunctorpair-v-chk36" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><label class="goal-separator" for="dispfunctorpair-v-chk36"><hr></label><div class="goal-conclusion">∏
+y : disp_functor
+      (pair_functor (functor_identity C)
+         (functor_identity C)) D₁ D₂, <span class="nl">?f</span> (<span class="nl">?g</span> y) = y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk37">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor
+  (functor_identity (category_binproduct C C)) D₁ D₂
+→ disp_functor
+    (pair_functor (functor_identity C)
+       (functor_identity C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_functor_over_pair.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk38">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_functor
+  (pair_functor (functor_identity C)
+     (functor_identity C)) D₁ D₂
+→ disp_functor
+    (functor_identity (category_binproduct C C)) D₁ D₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_functor_over_pair_inv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk39">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+x : disp_functor
+      (functor_identity (category_binproduct C C)) D₁
+      D₂,
+disp_functor_over_pair_inv (disp_functor_over_pair x) =
+x</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">intro</span> F ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_functor_axioms | ] ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="dispfunctorpair-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="dispfunctorpair-v-chk3a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D₁, D₂</var><span class="hyp-type"><b>: </b><span>disp_cat (category_binproduct C C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+y : disp_functor
+      (pair_functor (functor_identity C)
+         (functor_identity C)) D₁ D₂,
+disp_functor_over_pair (disp_functor_over_pair_inv y) =
+y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">intro</span> F ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_functor_axioms | ] ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,798 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Opposite.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> MonoidalNotations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Opposite</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">Mon_V</span> : monoidal_cat}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk1"><span class="kn">Definition</span> <span class="nf">opposite_enriched_precat</span> (<span class="nv">A</span> : enriched_precat Mon_V) : enriched_precat (_ ,, monoidal_swapped Mon_V).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_precat (Mon_V,, monoidal_swapped Mon_V)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_precat (Mon_V,, monoidal_swapped Mon_V)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk3">use make_enriched_precat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_precat_data (Mon_V,, monoidal_swapped Mon_V)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="opposite-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk4"><hr></label><div class="goal-conclusion">enriched_id_ax <span class="nl">?d</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="opposite-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk5"><hr></label><div class="goal-conclusion">enriched_assoc_ax <span class="nl">?d</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_precat_data (Mon_V,, monoidal_swapped Mon_V)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk7">use make_enriched_precat_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="opposite-v-chk8" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk8"><hr></label><div class="goal-conclusion"><span class="nl">?C</span> → <span class="nl">?C</span> → Mon_V,, monoidal_swapped Mon_V</div></blockquote><input class="alectryon-extra-goal-toggle" id="opposite-v-chk9" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk9"><hr></label><div class="goal-conclusion">∏ x : <span class="nl">?C</span>,
+(Mon_V,, monoidal_swapped Mon_V)
+⟦ I_{ Mon_V,, monoidal_swapped Mon_V}, 
+<span class="nl">?mor</span> x x ⟧</div></blockquote><input class="alectryon-extra-goal-toggle" id="opposite-v-chka" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><label class="goal-separator" for="opposite-v-chka"><hr></label><div class="goal-conclusion">∏ x y z : <span class="nl">?C</span>,
+(Mon_V,, monoidal_swapped Mon_V)
+⟦ <span class="nl">?mor</span> y z ⊗ <span class="nl">?mor</span> x y, <span class="nl">?mor</span> x z ⟧</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chkb">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> A.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chkc">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">A → A → Mon_V,, monoidal_swapped Mon_V</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chkd"><span class="nb">intros</span> x y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Mon_V,, monoidal_swapped Mon_V</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (enriched_cat_mor y x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chke">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : A,
+(Mon_V,, monoidal_swapped Mon_V)
+⟦ I_{ Mon_V,, monoidal_swapped Mon_V},
+(<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">y</span> : A, enriched_cat_mor y x0) x x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chkf"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(Mon_V,, monoidal_swapped Mon_V)
+⟦ I_{ Mon_V,, monoidal_swapped Mon_V},
+(<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x) x x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk10"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Mon_V ⟦ I_{ monoidal_swapped_data Mon_V},
+enriched_cat_mor x x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (enriched_cat_identity x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk11">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y z : A,
+(Mon_V,, monoidal_swapped Mon_V)
+⟦ (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">y0</span> : A, enriched_cat_mor y0 x0) y z
+  ⊗ (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">y0</span> : A, enriched_cat_mor y0 x0) x y,
+(<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">y0</span> : A, enriched_cat_mor y0 x0) x z ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk12"><span class="nb">intros</span> x y z.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(Mon_V,, monoidal_swapped Mon_V)
+⟦ (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x) y z
+  ⊗ (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x) x y,
+(<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x) x z ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (enriched_cat_comp z y x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk13">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_id_ax
+  (make_enriched_precat_data A
+     (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+     (<span class="kr">λ</span> <span class="nv">x</span> : A,
+      enriched_cat_identity x
+      :
+      (Mon_V,, monoidal_swapped Mon_V)
+      ⟦ I_{ Mon_V,, monoidal_swapped Mon_V},
+      (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">y</span> : A, enriched_cat_mor y x0) x x ⟧)
+     (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk14"><span class="nb">split</span>; <span class="nb">simpl</span> <span class="kr">in</span> a, b; <span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_identity b
+#⊗ identity (enriched_cat_mor a b)
+· enriched_cat_comp a b b =
+mon_lunitor (enriched_cat_mor a b)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="opposite-v-chk15" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk15"><hr></label><div class="goal-conclusion">identity (enriched_cat_mor a b)
+#⊗ enriched_cat_identity a · 
+enriched_cat_comp a a b =
+mon_runitor (enriched_cat_mor a b)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk16">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_identity b
+#⊗ identity (enriched_cat_mor a b)
+· enriched_cat_comp a b b =
+mon_lunitor (enriched_cat_mor a b)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk17"><span class="nb">refine</span> (_ @ enriched_id_right b a).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_identity b
+#⊗ identity (enriched_cat_mor a b)
+· enriched_cat_comp a b b =
+identity (enriched_cat_mor b a)
+#⊗ enriched_cat_identity b · enriched_cat_comp b b a</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk18"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_identity b
+#⊗ identity (enriched_cat_mor a b) =
+identity (enriched_cat_mor b a)
+#⊗ enriched_cat_identity b</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk19"><span class="nb">unfold</span> monoidal_cat_tensor_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms1
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  (enriched_cat_identity b)
+  (identity (enriched_cat_mor a b)) =
+functoronmorphisms1 (pr2 Mon_V)
+  (identity (enriched_cat_mor b a))
+  (enriched_cat_identity b)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk1a"><span class="nb">unfold</span> functoronmorphisms1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rightwhiskering_on_morphisms
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  (enriched_cat_mor a b)
+  I_{ monoidal_swapped_data Mon_V}
+  (enriched_cat_mor b b) (enriched_cat_identity b)
+· leftwhiskering_on_morphisms
+    (pr2 (Mon_V,, monoidal_swapped Mon_V))
+    (enriched_cat_mor b b) (enriched_cat_mor a b)
+    (enriched_cat_mor a b)
+    (identity (enriched_cat_mor a b)) =
+rightwhiskering_on_morphisms (pr2 Mon_V) I_{ Mon_V}
+  (enriched_cat_mor b a) (enriched_cat_mor b a)
+  (identity (enriched_cat_mor b a))
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor b a) I_{ Mon_V}
+    (enriched_cat_mor b b) (enriched_cat_identity b)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk1b"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">leftwhiskering_on_morphisms Mon_V
+  (enriched_cat_mor b a) I_{ Mon_V}
+  (enriched_cat_mor b b) (enriched_cat_identity b)
+· rightwhiskering_on_morphisms Mon_V
+    (enriched_cat_mor b b) (enriched_cat_mor b a)
+    (enriched_cat_mor b a)
+    (identity (enriched_cat_mor b a)) =
+rightwhiskering_on_morphisms (pr2 Mon_V) I_{ Mon_V}
+  (enriched_cat_mor b a) (enriched_cat_mor b a)
+  (identity (enriched_cat_mor b a))
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor b a) I_{ Mon_V}
+    (enriched_cat_mor b b) (enriched_cat_identity b)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk1c"><span class="nb">rewrite</span> whiskerscommutes ; [ <span class="nb">apply</span> idpath | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms_are_equal (pr2 Mon_V)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr2 Mon_V).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk1d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity (enriched_cat_mor a b)
+#⊗ enriched_cat_identity a · enriched_cat_comp a a b =
+mon_runitor (enriched_cat_mor a b)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk1e"><span class="nb">refine</span> (_ @ enriched_id_left b a).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity (enriched_cat_mor a b)
+#⊗ enriched_cat_identity a · enriched_cat_comp a a b =
+enriched_cat_identity a
+#⊗ identity (enriched_cat_mor b a)
+· enriched_cat_comp b a a</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk1f"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity (enriched_cat_mor a b)
+#⊗ enriched_cat_identity a =
+enriched_cat_identity a
+#⊗ identity (enriched_cat_mor b a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk20"><span class="nb">unfold</span> monoidal_cat_tensor_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms1
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  (identity (enriched_cat_mor a b))
+  (enriched_cat_identity a) =
+functoronmorphisms1 (pr2 Mon_V)
+  (enriched_cat_identity a)
+  (identity (enriched_cat_mor b a))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk21"><span class="nb">unfold</span> functoronmorphisms1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rightwhiskering_on_morphisms
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  I_{ monoidal_swapped_data Mon_V}
+  (enriched_cat_mor a b) (enriched_cat_mor a b)
+  (identity (enriched_cat_mor a b))
+· leftwhiskering_on_morphisms
+    (pr2 (Mon_V,, monoidal_swapped Mon_V))
+    (enriched_cat_mor a b)
+    I_{ monoidal_swapped_data Mon_V}
+    (enriched_cat_mor a a) (enriched_cat_identity a) =
+rightwhiskering_on_morphisms (pr2 Mon_V)
+  (enriched_cat_mor b a) I_{ Mon_V}
+  (enriched_cat_mor a a) (enriched_cat_identity a)
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor a a) (enriched_cat_mor b a)
+    (enriched_cat_mor b a)
+    (identity (enriched_cat_mor b a))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk22"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">leftwhiskering_on_morphisms Mon_V I_{ Mon_V}
+  (enriched_cat_mor b a) (enriched_cat_mor b a)
+  (identity (enriched_cat_mor b a))
+· rightwhiskering_on_morphisms Mon_V
+    (enriched_cat_mor b a) I_{ Mon_V}
+    (enriched_cat_mor a a) (enriched_cat_identity a) =
+rightwhiskering_on_morphisms (pr2 Mon_V)
+  (enriched_cat_mor b a) I_{ Mon_V}
+  (enriched_cat_mor a a) (enriched_cat_identity a)
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor a a) (enriched_cat_mor b a)
+    (enriched_cat_mor b a)
+    (identity (enriched_cat_mor b a))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk23"><span class="nb">rewrite</span> whiskerscommutes ; [ <span class="nb">apply</span> idpath | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms_are_equal (pr2 Mon_V)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr2 Mon_V).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk24">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_assoc_ax
+  (make_enriched_precat_data A
+     (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+     (<span class="kr">λ</span> <span class="nv">x</span> : A,
+      enriched_cat_identity x
+      :
+      (Mon_V,, monoidal_swapped Mon_V)
+      ⟦ I_{ Mon_V,, monoidal_swapped Mon_V},
+      (<span class="kr">λ</span> <span class="nv">x0</span> <span class="nv">y</span> : A, enriched_cat_mor y x0) x x ⟧)
+     (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk25"><span class="nb">intros</span> a b c d ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_comp d c b
+#⊗ identity (enriched_cat_mor b a)
+· enriched_cat_comp d b a =
+αinv^{ Mon_V }_{ enriched_cat_mor b a,
+enriched_cat_mor c b, enriched_cat_mor d c}
+· (identity (enriched_cat_mor d c)
+   #⊗ enriched_cat_comp c b a
+   · enriched_cat_comp d c a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk26"><span class="nb">refine</span> (!(id_left _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity
+  (bifunctor_on_objects Mon_V (enriched_cat_mor b a)
+     (bifunctor_on_objects Mon_V
+        (enriched_cat_mor c b) (enriched_cat_mor d c)))
+· (enriched_cat_comp d c b
+   #⊗ identity (enriched_cat_mor b a)
+   · enriched_cat_comp d b a) =
+αinv^{ Mon_V }_{ enriched_cat_mor b a,
+enriched_cat_mor c b, enriched_cat_mor d c}
+· (identity (enriched_cat_mor d c)
+   #⊗ enriched_cat_comp c b a
+   · enriched_cat_comp d c a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk27">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity
+  (bifunctor_on_objects Mon_V (enriched_cat_mor b a)
+     (bifunctor_on_objects Mon_V
+        (enriched_cat_mor c b) (enriched_cat_mor d c)))
+· (enriched_cat_comp d c b
+   #⊗ identity (enriched_cat_mor b a)
+   · enriched_cat_comp d b a) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="opposite-v-chk28" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk28"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+αinv^{ Mon_V }_{ enriched_cat_mor b a,
+enriched_cat_mor c b, enriched_cat_mor d c}
+· (identity (enriched_cat_mor d c)
+   #⊗ enriched_cat_comp c b a
+   · enriched_cat_comp d c a)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk29">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity
+  (bifunctor_on_objects Mon_V (enriched_cat_mor b a)
+     (bifunctor_on_objects Mon_V
+        (enriched_cat_mor c b) (enriched_cat_mor d c)))
+· (enriched_cat_comp d c b
+   #⊗ identity (enriched_cat_mor b a)
+   · enriched_cat_comp d b a) = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk2a"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity
+  (bifunctor_on_objects Mon_V (enriched_cat_mor b a)
+     (bifunctor_on_objects Mon_V
+        (enriched_cat_mor c b) (enriched_cat_mor d c))) =
+<span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (!(mon_rassociator_lassociator _ _ _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk2b">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_rassociator (enriched_cat_mor b a)
+  (enriched_cat_mor c b) (enriched_cat_mor d c)
+· mon_lassociator (enriched_cat_mor b a)
+    (enriched_cat_mor c b) (enriched_cat_mor d c)
+· (enriched_cat_comp d c b
+   #⊗ identity (enriched_cat_mor b a)
+   · enriched_cat_comp d b a) =
+αinv^{ Mon_V }_{ enriched_cat_mor b a,
+enriched_cat_mor c b, enriched_cat_mor d c}
+· (identity (enriched_cat_mor d c)
+   #⊗ enriched_cat_comp c b a
+   · enriched_cat_comp d c a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk2c"><span class="nb">rewrite</span> !assoc&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_rassociator (enriched_cat_mor b a)
+  (enriched_cat_mor c b) (enriched_cat_mor d c)
+· (mon_lassociator (enriched_cat_mor b a)
+     (enriched_cat_mor c b) (enriched_cat_mor d c)
+   · (enriched_cat_comp d c b
+      #⊗ identity (enriched_cat_mor b a)
+      · enriched_cat_comp d b a)) =
+αinv^{ Mon_V }_{ enriched_cat_mor b a,
+enriched_cat_mor c b, enriched_cat_mor d c}
+· (identity (enriched_cat_mor d c)
+   #⊗ enriched_cat_comp c b a
+   · enriched_cat_comp d c a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk2d"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_lassociator (enriched_cat_mor b a)
+  (enriched_cat_mor c b) (enriched_cat_mor d c)
+· (enriched_cat_comp d c b
+   #⊗ identity (enriched_cat_mor b a)
+   · enriched_cat_comp d b a) =
+identity (enriched_cat_mor d c)
+#⊗ enriched_cat_comp c b a · enriched_cat_comp d c a</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk2e"><span class="nb">refine</span> (_ @ !(enriched_assoc d c b a) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_lassociator (enriched_cat_mor b a)
+  (enriched_cat_mor c b) (enriched_cat_mor d c)
+· (enriched_cat_comp d c b
+   #⊗ identity (enriched_cat_mor b a)
+   · enriched_cat_comp d b a) =
+mon_lassociator (enriched_cat_mor b a)
+  (enriched_cat_mor c b) (enriched_cat_mor d c)
+· (identity (enriched_cat_mor b a)
+   #⊗ enriched_cat_comp d c b
+   · enriched_cat_comp d b a)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="opposite-v-chk2f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk2f"><hr></label><div class="goal-conclusion">enriched_cat_comp c b a
+#⊗ identity (enriched_cat_mor d c)
+· enriched_cat_comp d c a =
+identity (enriched_cat_mor d c)
+#⊗ enriched_cat_comp c b a · 
+enriched_cat_comp d c a</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk30">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_lassociator (enriched_cat_mor b a)
+  (enriched_cat_mor c b) (enriched_cat_mor d c)
+· (enriched_cat_comp d c b
+   #⊗ identity (enriched_cat_mor b a)
+   · enriched_cat_comp d b a) =
+mon_lassociator (enriched_cat_mor b a)
+  (enriched_cat_mor c b) (enriched_cat_mor d c)
+· (identity (enriched_cat_mor b a)
+   #⊗ enriched_cat_comp d c b
+   · enriched_cat_comp d b a)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk31"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_comp d c b
+#⊗ identity (enriched_cat_mor b a)
+· enriched_cat_comp d b a =
+identity (enriched_cat_mor b a)
+#⊗ enriched_cat_comp d c b · enriched_cat_comp d b a</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk32"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_comp d c b
+#⊗ identity (enriched_cat_mor b a) =
+identity (enriched_cat_mor b a)
+#⊗ enriched_cat_comp d c b</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk33"><span class="nb">unfold</span> monoidal_cat_tensor_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms1
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  (enriched_cat_comp d c b)
+  (identity (enriched_cat_mor b a)) =
+functoronmorphisms1 (pr2 Mon_V)
+  (identity (enriched_cat_mor b a))
+  (enriched_cat_comp d c b)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk34"><span class="nb">unfold</span> functoronmorphisms1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rightwhiskering_on_morphisms
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  (enriched_cat_mor b a)
+  (bifunctor_on_objects Mon_V (enriched_cat_mor c b)
+     (enriched_cat_mor d c)) (enriched_cat_mor d b)
+  (enriched_cat_comp d c b)
+· leftwhiskering_on_morphisms
+    (pr2 (Mon_V,, monoidal_swapped Mon_V))
+    (enriched_cat_mor d b) (enriched_cat_mor b a)
+    (enriched_cat_mor b a)
+    (identity (enriched_cat_mor b a)) =
+rightwhiskering_on_morphisms (pr2 Mon_V)
+  (enriched_cat_mor c b ⊗ enriched_cat_mor d c)
+  (enriched_cat_mor b a) (enriched_cat_mor b a)
+  (identity (enriched_cat_mor b a))
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor b a)
+    (enriched_cat_mor c b ⊗ enriched_cat_mor d c)
+    (enriched_cat_mor d b) (enriched_cat_comp d c b)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk35"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">leftwhiskering_on_morphisms Mon_V
+  (enriched_cat_mor b a)
+  (bifunctor_on_objects Mon_V (enriched_cat_mor c b)
+     (enriched_cat_mor d c)) (enriched_cat_mor d b)
+  (enriched_cat_comp d c b)
+· rightwhiskering_on_morphisms Mon_V
+    (enriched_cat_mor d b) (enriched_cat_mor b a)
+    (enriched_cat_mor b a)
+    (identity (enriched_cat_mor b a)) =
+rightwhiskering_on_morphisms (pr2 Mon_V)
+  (enriched_cat_mor c b ⊗ enriched_cat_mor d c)
+  (enriched_cat_mor b a) (enriched_cat_mor b a)
+  (identity (enriched_cat_mor b a))
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor b a)
+    (enriched_cat_mor c b ⊗ enriched_cat_mor d c)
+    (enriched_cat_mor d b) (enriched_cat_comp d c b)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk36"><span class="nb">rewrite</span> whiskerscommutes ; [ <span class="nb">apply</span> idpath | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms_are_equal (pr2 Mon_V)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr2 Mon_V).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk37">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_comp c b a
+#⊗ identity (enriched_cat_mor d c)
+· enriched_cat_comp d c a =
+identity (enriched_cat_mor d c)
+#⊗ enriched_cat_comp c b a · enriched_cat_comp d c a</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk38"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_comp c b a
+#⊗ identity (enriched_cat_mor d c) =
+identity (enriched_cat_mor d c)
+#⊗ enriched_cat_comp c b a</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk39"><span class="nb">unfold</span> monoidal_cat_tensor_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms1 (pr2 Mon_V)
+  (enriched_cat_comp c b a)
+  (identity (enriched_cat_mor d c)) =
+functoronmorphisms1
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  (identity (enriched_cat_mor d c))
+  (enriched_cat_comp c b a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk3a"><span class="nb">unfold</span> functoronmorphisms1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rightwhiskering_on_morphisms (pr2 Mon_V)
+  (enriched_cat_mor d c)
+  (enriched_cat_mor b a ⊗ enriched_cat_mor c b)
+  (enriched_cat_mor c a) (enriched_cat_comp c b a)
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor c a) (enriched_cat_mor d c)
+    (enriched_cat_mor d c)
+    (identity (enriched_cat_mor d c)) =
+rightwhiskering_on_morphisms
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  (bifunctor_on_objects Mon_V (enriched_cat_mor b a)
+     (enriched_cat_mor c b)) (enriched_cat_mor d c)
+  (enriched_cat_mor d c)
+  (identity (enriched_cat_mor d c))
+· leftwhiskering_on_morphisms
+    (pr2 (Mon_V,, monoidal_swapped Mon_V))
+    (enriched_cat_mor d c)
+    (bifunctor_on_objects Mon_V (enriched_cat_mor b a)
+       (enriched_cat_mor c b)) (enriched_cat_mor c a)
+    (enriched_cat_comp c b a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk3b"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rightwhiskering_on_morphisms (pr2 Mon_V)
+  (enriched_cat_mor d c)
+  (enriched_cat_mor b a ⊗ enriched_cat_mor c b)
+  (enriched_cat_mor c a) (enriched_cat_comp c b a)
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor c a) (enriched_cat_mor d c)
+    (enriched_cat_mor d c)
+    (identity (enriched_cat_mor d c)) =
+leftwhiskering_on_morphisms Mon_V
+  (bifunctor_on_objects Mon_V (enriched_cat_mor b a)
+     (enriched_cat_mor c b)) (enriched_cat_mor d c)
+  (enriched_cat_mor d c)
+  (identity (enriched_cat_mor d c))
+· rightwhiskering_on_morphisms Mon_V
+    (enriched_cat_mor d c)
+    (bifunctor_on_objects Mon_V (enriched_cat_mor b a)
+       (enriched_cat_mor c b)) (enriched_cat_mor c a)
+    (enriched_cat_comp c b a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk3c"><span class="nb">rewrite</span> whiskerscommutes ; [ <span class="nb">apply</span> idpath | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>make_enriched_precat_data A
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : A, enriched_cat_mor y x)
+  (<span class="kr">λ</span> <span class="nv">x</span> : A, enriched_cat_identity x)
+  (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A, enriched_cat_comp z y x)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms_are_equal (pr2 Mon_V)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr2 Mon_V).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk3d"><span class="kn">Definition</span> <span class="nf">opposite_enriched_functor</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat Mon_V} (<span class="nv">F</span> : enriched_functor A B) : enriched_functor (opposite_enriched_precat A) (opposite_enriched_precat B).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor (opposite_enriched_precat A)
+  (opposite_enriched_precat B)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk3e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor (opposite_enriched_precat A)
+  (opposite_enriched_precat B)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk3f">use make_enriched_functor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_data (opposite_enriched_precat A)
+  (opposite_enriched_precat B)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="opposite-v-chk40" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk40"><hr></label><div class="goal-conclusion">enriched_functor_unit_ax <span class="nl">?d</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="opposite-v-chk41" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk41"><hr></label><div class="goal-conclusion">enriched_functor_comp_ax <span class="nl">?d</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk42">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_data (opposite_enriched_precat A)
+  (opposite_enriched_precat B)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk43">use make_enriched_functor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">opposite_enriched_precat A
+→ opposite_enriched_precat B</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="opposite-v-chk44" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk44"><hr></label><div class="goal-conclusion">∏ x y : opposite_enriched_precat A,
+(Mon_V,, monoidal_swapped Mon_V)
+⟦ enriched_cat_mor x y, 
+enriched_cat_mor (<span class="nl">?F</span> x) (<span class="nl">?F</span> y) ⟧</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk45">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">opposite_enriched_precat A
+→ opposite_enriched_precat B</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk46"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">opposite_enriched_precat B</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (F x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk47">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : opposite_enriched_precat A,
+(Mon_V,, monoidal_swapped Mon_V)
+⟦ enriched_cat_mor x y,
+enriched_cat_mor
+  ((<span class="kr">λ</span> <span class="nv">x0</span> : opposite_enriched_precat A, F x0) x)
+  ((<span class="kr">λ</span> <span class="nv">x0</span> : opposite_enriched_precat A, F x0) y) ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk48"><span class="nb">intros</span> x y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(Mon_V,, monoidal_swapped Mon_V)
+⟦ enriched_cat_mor x y,
+enriched_cat_mor
+  ((<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x) x)
+  ((<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x) y) ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (enriched_functor_on_morphisms F y x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk49">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_unit_ax
+  (make_enriched_functor_data
+     (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+     (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+      enriched_functor_on_morphisms F y x))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk4a"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_identity x
+· enriched_functor_on_morphisms
+    (make_enriched_functor_data
+       (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+       (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+        enriched_functor_on_morphisms F y x)) x x =
+enriched_cat_identity
+  (make_enriched_functor_data
+     (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+     (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+      enriched_functor_on_morphisms F y x) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk4b"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_identity x
+· enriched_functor_on_morphisms F x x =
+enriched_cat_identity (F x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> enriched_functor_on_identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk4c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_comp_ax
+  (make_enriched_functor_data
+     (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+     (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+      enriched_functor_on_morphisms F y x))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk4d"><span class="nb">intros</span> x y z.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_comp x y z
+· enriched_functor_on_morphisms
+    (make_enriched_functor_data
+       (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+       (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+        enriched_functor_on_morphisms F y x)) x z =
+enriched_functor_on_morphisms
+  (make_enriched_functor_data
+     (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+     (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+      enriched_functor_on_morphisms F y x)) y z
+#⊗ enriched_functor_on_morphisms
+     (make_enriched_functor_data
+        (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+        (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+         enriched_functor_on_morphisms F y x)) x y
+· enriched_cat_comp
+    (make_enriched_functor_data
+       (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+       (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+        enriched_functor_on_morphisms F y x) x)
+    (make_enriched_functor_data
+       (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+       (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+        enriched_functor_on_morphisms F y x) y)
+    (make_enriched_functor_data
+       (<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, F x)
+       (<span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> : opposite_enriched_precat A,
+        enriched_functor_on_morphisms F y x) z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk4e"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_cat_comp z y x
+· enriched_functor_on_morphisms F z x =
+enriched_functor_on_morphisms F z y
+#⊗ enriched_functor_on_morphisms F y x
+· enriched_cat_comp (F z) (F y) (F x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk4f"><span class="nb">refine</span> (enriched_functor_on_comp F z y x @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_on_morphisms F y x
+#⊗ enriched_functor_on_morphisms F z y
+· enriched_cat_comp (F z) (F y) (F x) =
+enriched_functor_on_morphisms F z y
+#⊗ enriched_functor_on_morphisms F y x
+· enriched_cat_comp (F z) (F y) (F x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk50"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_on_morphisms F y x
+#⊗ enriched_functor_on_morphisms F z y =
+enriched_functor_on_morphisms F z y
+#⊗ enriched_functor_on_morphisms F y x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk51"><span class="nb">unfold</span> monoidal_cat_tensor_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms1 (pr2 Mon_V)
+  (enriched_functor_on_morphisms F y x)
+  (enriched_functor_on_morphisms F z y) =
+functoronmorphisms1
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  (enriched_functor_on_morphisms F z y)
+  (enriched_functor_on_morphisms F y x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk52"><span class="nb">unfold</span> functoronmorphisms1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rightwhiskering_on_morphisms (pr2 Mon_V)
+  (enriched_cat_mor z y) (enriched_cat_mor y x)
+  (enriched_cat_mor (F y) (F x))
+  (enriched_functor_on_morphisms F y x)
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor (F y) (F x))
+    (enriched_cat_mor z y)
+    (enriched_cat_mor (F z) (F y))
+    (enriched_functor_on_morphisms F z y) =
+rightwhiskering_on_morphisms
+  (pr2 (Mon_V,, monoidal_swapped Mon_V))
+  (enriched_cat_mor y x) (enriched_cat_mor z y)
+  (enriched_cat_mor (F z) (F y))
+  (enriched_functor_on_morphisms F z y)
+· leftwhiskering_on_morphisms
+    (pr2 (Mon_V,, monoidal_swapped Mon_V))
+    (enriched_cat_mor (F z) (F y))
+    (enriched_cat_mor y x)
+    (enriched_cat_mor (F y) (F x))
+    (enriched_functor_on_morphisms F y x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk53"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rightwhiskering_on_morphisms (pr2 Mon_V)
+  (enriched_cat_mor z y) (enriched_cat_mor y x)
+  (enriched_cat_mor (F y) (F x))
+  (enriched_functor_on_morphisms F y x)
+· leftwhiskering_on_morphisms (pr2 Mon_V)
+    (enriched_cat_mor (F y) (F x))
+    (enriched_cat_mor z y)
+    (enriched_cat_mor (F z) (F y))
+    (enriched_functor_on_morphisms F z y) =
+leftwhiskering_on_morphisms Mon_V
+  (enriched_cat_mor y x) (enriched_cat_mor z y)
+  (enriched_cat_mor (F z) (F y))
+  (enriched_functor_on_morphisms F z y)
+· rightwhiskering_on_morphisms Mon_V
+    (enriched_cat_mor (F z) (F y))
+    (enriched_cat_mor y x)
+    (enriched_cat_mor (F y) (F x))
+    (enriched_functor_on_morphisms F y x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk54"><span class="nb">rewrite</span> whiskerscommutes ; [ <span class="nb">apply</span> idpath | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms_are_equal (pr2 Mon_V)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr2 Mon_V).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(* note the direction *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk55"><span class="kn">Definition</span> <span class="nf">opposite_enriched_nat_trans</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat Mon_V} {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B} (<span class="nv">a</span> : enriched_nat_trans F G) : enriched_nat_trans (opposite_enriched_functor G) (opposite_enriched_functor F).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_nat_trans (opposite_enriched_functor G)
+  (opposite_enriched_functor F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk56"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_nat_trans (opposite_enriched_functor G)
+  (opposite_enriched_functor F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk57">use make_enriched_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_nat_trans_data (opposite_enriched_functor G)
+  (opposite_enriched_functor F)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="opposite-v-chk58" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk58"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">a</span> : enriched_nat_trans_data
+         (opposite_enriched_functor G)
+         (opposite_enriched_functor F),
+ enriched_nat_trans_law a) 
+  <span class="nl">?a</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk59">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_nat_trans_data (opposite_enriched_functor G)
+  (opposite_enriched_functor F)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk5a" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk5a"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">underlying_morphism (opposite_enriched_functor G x)
+  (opposite_enriched_functor F x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (a x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk5b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">a</span> : enriched_nat_trans_data
+         (opposite_enriched_functor G)
+         (opposite_enriched_functor F),
+ enriched_nat_trans_law a)
+  ((<span class="kr">λ</span> <span class="nv">x</span> : opposite_enriched_precat A, a x)
+   :
+   enriched_nat_trans_data
+     (opposite_enriched_functor G)
+     (opposite_enriched_functor F))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk5c"><span class="nb">intros</span> x y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_on_morphisms
+  (opposite_enriched_functor G) x y
+· postcompose_underlying_morphism
+    (opposite_enriched_functor G x) (a y) =
+enriched_functor_on_morphisms
+  (opposite_enriched_functor F) x y
+· precompose_underlying_morphism
+    (opposite_enriched_functor F y) (a x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk5d"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_on_morphisms G y x
+· postcompose_underlying_morphism (G x) (a y) =
+enriched_functor_on_morphisms F y x
+· precompose_underlying_morphism (F y) (a x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk5e"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_on_morphisms F y x
+· precompose_underlying_morphism (F y) (a x) =
+enriched_functor_on_morphisms G y x
+· postcompose_underlying_morphism (G x) (a y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk5f" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk5f"><span class="nb">refine</span> (_ @ enriched_nat_trans_ax a y x @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_on_morphisms F y x
+· precompose_underlying_morphism (F y) (a x) =
+enriched_functor_on_morphisms F y x
+· postcompose_underlying_morphism (F y) (a x)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="opposite-v-chk60" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><label class="goal-separator" for="opposite-v-chk60"><hr></label><div class="goal-conclusion">enriched_functor_on_morphisms G y x
+· precompose_underlying_morphism (G x) (a y) =
+enriched_functor_on_morphisms G y x
+· postcompose_underlying_morphism (G x) (a y)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk61" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk61">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_on_morphisms F y x
+· precompose_underlying_morphism (F y) (a x) =
+enriched_functor_on_morphisms F y x
+· postcompose_underlying_morphism (F y) (a x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk62" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk62"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">precompose_underlying_morphism (F y) (a x) =
+postcompose_underlying_morphism (F y) (a x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk63" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk63"><span class="nb">unfold</span> precompose_underlying_morphism, postcompose_underlying_morphism.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_rinvunitor (enriched_cat_mor (F x) (F y))
+· identity (enriched_cat_mor (F x) (F y)) #⊗ a x
+· enriched_cat_comp (G x) (F x) (F y) =
+mon_linvunitor (enriched_cat_mor (F y) (F x))
+· a x #⊗ identity (enriched_cat_mor (F y) (F x))
+· enriched_cat_comp (F y) (F x) (G x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk64" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk64"><span class="nb">unfold</span> monoidal_cat_tensor_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_rinvunitor (enriched_cat_mor (F x) (F y))
+· functoronmorphisms1
+    (pr2 (Mon_V,, monoidal_swapped Mon_V))
+    (identity (enriched_cat_mor (F x) (F y))) (a x)
+· enriched_cat_comp (G x) (F x) (F y) =
+mon_linvunitor (enriched_cat_mor (F y) (F x))
+· functoronmorphisms1 (pr2 Mon_V) (a x)
+    (identity (enriched_cat_mor (F y) (F x)))
+· enriched_cat_comp (F y) (F x) (G x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk65" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk65"><span class="nb">unfold</span> functoronmorphisms1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_rinvunitor (enriched_cat_mor (F x) (F y))
+· (rightwhiskering_on_morphisms
+     (pr2 (Mon_V,, monoidal_swapped Mon_V))
+     I_{ Mon_V,, monoidal_swapped Mon_V}
+     (enriched_cat_mor (F x) (F y))
+     (enriched_cat_mor (F x) (F y))
+     (identity (enriched_cat_mor (F x) (F y)))
+   · leftwhiskering_on_morphisms
+       (pr2 (Mon_V,, monoidal_swapped Mon_V))
+       (enriched_cat_mor (F x) (F y))
+       I_{ Mon_V,, monoidal_swapped Mon_V}
+       (enriched_cat_mor (G x) (F x)) (a x))
+· enriched_cat_comp (G x) (F x) (F y) =
+mon_linvunitor (enriched_cat_mor (F y) (F x))
+· (rightwhiskering_on_morphisms (pr2 Mon_V)
+     (enriched_cat_mor (F y) (F x)) I_{ Mon_V}
+     (enriched_cat_mor (F x) (G x)) (a x)
+   · leftwhiskering_on_morphisms (pr2 Mon_V)
+       (enriched_cat_mor (F x) (G x))
+       (enriched_cat_mor (F y) (F x))
+       (enriched_cat_mor (F y) (F x))
+       (identity (enriched_cat_mor (F y) (F x))))
+· enriched_cat_comp (F y) (F x) (G x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk66" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk66"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">luinv^{ Mon_V }_{ enriched_cat_mor (F y) (F x)}
+· (leftwhiskering_on_morphisms Mon_V I_{ Mon_V}
+     (enriched_cat_mor (F y) (F x))
+     (enriched_cat_mor (F y) (F x))
+     (identity (enriched_cat_mor (F y) (F x)))
+   · rightwhiskering_on_morphisms Mon_V
+       (enriched_cat_mor (F y) (F x)) I_{ Mon_V}
+       (enriched_cat_mor (F x) (G x)) (a x))
+· enriched_cat_comp (F y) (F x) (G x) =
+mon_linvunitor (enriched_cat_mor (F y) (F x))
+· (rightwhiskering_on_morphisms (pr2 Mon_V)
+     (enriched_cat_mor (F y) (F x)) I_{ Mon_V}
+     (enriched_cat_mor (F x) (G x)) (a x)
+   · leftwhiskering_on_morphisms (pr2 Mon_V)
+       (enriched_cat_mor (F x) (G x))
+       (enriched_cat_mor (F y) (F x))
+       (enriched_cat_mor (F y) (F x))
+       (identity (enriched_cat_mor (F y) (F x))))
+· enriched_cat_comp (F y) (F x) (G x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk67" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk67"><span class="nb">rewrite</span> &lt;- whiskerscommutes ; [ <span class="nb">apply</span> idpath | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms_are_equal Mon_V</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr2 Mon_V).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk68" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk68">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">enriched_functor_on_morphisms G y x
+· precompose_underlying_morphism (G x) (a y) =
+enriched_functor_on_morphisms G y x
+· postcompose_underlying_morphism (G x) (a y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk69" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk69"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">precompose_underlying_morphism (G x) (a y) =
+postcompose_underlying_morphism (G x) (a y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk6a" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk6a"><span class="nb">unfold</span> precompose_underlying_morphism, postcompose_underlying_morphism.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_rinvunitor (enriched_cat_mor (G y) (G x))
+· identity (enriched_cat_mor (G y) (G x)) #⊗ a y
+· enriched_cat_comp (F y) (G y) (G x) =
+mon_linvunitor (enriched_cat_mor (G x) (G y))
+· a y #⊗ identity (enriched_cat_mor (G x) (G y))
+· enriched_cat_comp (G x) (G y) (F y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk6b" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk6b"><span class="nb">unfold</span> monoidal_cat_tensor_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_rinvunitor (enriched_cat_mor (G y) (G x))
+· functoronmorphisms1 (pr2 Mon_V)
+    (identity (enriched_cat_mor (G y) (G x))) (a y)
+· enriched_cat_comp (F y) (G y) (G x) =
+mon_linvunitor (enriched_cat_mor (G x) (G y))
+· functoronmorphisms1
+    (pr2 (Mon_V,, monoidal_swapped Mon_V)) (a y)
+    (identity (enriched_cat_mor (G x) (G y)))
+· enriched_cat_comp (G x) (G y) (F y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk6c" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk6c"><span class="nb">unfold</span> functoronmorphisms1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_rinvunitor (enriched_cat_mor (G y) (G x))
+· (rightwhiskering_on_morphisms (pr2 Mon_V) I_{ Mon_V}
+     (enriched_cat_mor (G y) (G x))
+     (enriched_cat_mor (G y) (G x))
+     (identity (enriched_cat_mor (G y) (G x)))
+   · leftwhiskering_on_morphisms (pr2 Mon_V)
+       (enriched_cat_mor (G y) (G x)) I_{ Mon_V}
+       (enriched_cat_mor (F y) (G y)) (a y))
+· enriched_cat_comp (F y) (G y) (G x) =
+mon_linvunitor (enriched_cat_mor (G x) (G y))
+· (rightwhiskering_on_morphisms
+     (pr2 (Mon_V,, monoidal_swapped Mon_V))
+     (enriched_cat_mor (G x) (G y))
+     I_{ Mon_V,, monoidal_swapped Mon_V}
+     (enriched_cat_mor (G y) (F y)) (a y)
+   · leftwhiskering_on_morphisms
+       (pr2 (Mon_V,, monoidal_swapped Mon_V))
+       (enriched_cat_mor (G y) (F y))
+       (enriched_cat_mor (G x) (G y))
+       (enriched_cat_mor (G x) (G y))
+       (identity (enriched_cat_mor (G x) (G y))))
+· enriched_cat_comp (G x) (G y) (F y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk6d" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk6d"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mon_rinvunitor (enriched_cat_mor (G y) (G x))
+· (rightwhiskering_on_morphisms (pr2 Mon_V) I_{ Mon_V}
+     (enriched_cat_mor (G y) (G x))
+     (enriched_cat_mor (G y) (G x))
+     (identity (enriched_cat_mor (G y) (G x)))
+   · leftwhiskering_on_morphisms (pr2 Mon_V)
+       (enriched_cat_mor (G y) (G x)) I_{ Mon_V}
+       (enriched_cat_mor (F y) (G y)) (a y))
+· enriched_cat_comp (F y) (G y) (G x) =
+ruinv^{ Mon_V }_{ enriched_cat_mor (G y) (G x)}
+· (leftwhiskering_on_morphisms Mon_V
+     (enriched_cat_mor (G y) (G x)) I_{ Mon_V}
+     (enriched_cat_mor (F y) (G y)) (a y)
+   · rightwhiskering_on_morphisms Mon_V
+       (enriched_cat_mor (F y) (G y))
+       (enriched_cat_mor (G y) (G x))
+       (enriched_cat_mor (G y) (G x))
+       (identity (enriched_cat_mor (G y) (G x))))
+· enriched_cat_comp (F y) (G y) (G x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="opposite-v-chk6e" style="display: none" type="checkbox"><label class="alectryon-input" for="opposite-v-chk6e"><span class="nb">rewrite</span> &lt;- whiskerscommutes ; [ <span class="nb">apply</span> idpath | ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Mon_V</var><span class="hyp-type"><b>: </b><span>monoidal_cat</span></span></span><br><span><var>A, B</var><span class="hyp-type"><b>: </b><span>enriched_precat Mon_V</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>enriched_functor A B</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>enriched_nat_trans F G</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>opposite_enriched_precat A</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functoronmorphisms_are_equal Mon_V</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr2 Mon_V).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Opposite</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

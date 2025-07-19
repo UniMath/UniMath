@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Preamble.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Introduction. Vladimir Voevodsky . Feb. 2010 - Sep. 2011</span>
+
+<span class="sd">This is the first in the group of files which contain the (current state of) the mathematical</span>
+<span class="sd">library for the proof assistant Coq based on the Univalent Foundations.  It contains some new</span>
+<span class="sd">notations for constructions defined in Coq.Init library as well as the definition of dependent sum.</span>
+
+
+<span class="sd">*)</span>
+
+<span class="sd">(** Initial setup unrelated to Univalent Foundations *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.Foundations.Init.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Universe structure *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">UU</span> := <span class="kt">Type</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Identity Coercion</span> <span class="nf">fromUUtoType</span> : UU &gt;-&gt; <span class="kt">Sortclass</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The empty type *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Inductive</span> <span class="nf">empty</span> : UU := .</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;∅&quot;</span> := empty.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The one-element type *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Inductive</span> <span class="nf">unit</span> : UU :=
+    tt : unit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The two-element type *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Inductive</span> <span class="nf">bool</span> : UU :=
+  | true : bool
+  | false : bool.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">negb</span> (<span class="nv">b</span>:bool) := <span class="kr">if</span> b <span class="kr">then</span> false <span class="kr">else</span> true.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The coproduct of two types *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Inductive</span> <span class="nf">coprod</span> (<span class="nv">A</span> <span class="nv">B</span>:UU) : UU :=
+| ii1 : A -&gt; coprod A B
+| ii2 : B -&gt; coprod A B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> coprod_rect {_ _} _ _ _ _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> ii1 {_ _} _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> ii2 {_ _} _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="nf">inl</span> := ii1.            <span class="c">(* deprecated; will be removed eventually *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="nf">inr</span> := ii2.            <span class="c">(* deprecated; will be removed eventually *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;X ⨿ Y&quot;</span> := (coprod X Y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)</span>
+
+<span class="sd">(** The natural numbers *)</span>
+
+<span class="c">(* Declare ML Module &quot;nat_syntax_plugin&quot;. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Inductive</span> <span class="nf">nat</span> : UU :=
+  | O : nat
+  | S : nat -&gt; nat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">succ</span> := S.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Declare Scope</span> nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Delimit Scope</span> nat_scope <span class="kr">with</span> nat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Bind Scope</span> nat_scope <span class="kr">with</span> nat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> S _%_nat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Open Scope</span> nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Fixpoint</span> <span class="nf">add</span> <span class="nv">n</span> <span class="nv">m</span> :=
+  <span class="kr">match</span> n <span class="kr">with</span>
+  | O =&gt; m
+  | S p =&gt; S (p + m)
+  <span class="kr">end</span>
+<span class="kn">where</span> <span class="s2">&quot;n + m&quot;</span> := (add n m) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Fixpoint</span> <span class="nf">sub</span> <span class="nv">n</span> <span class="nv">m</span> :=
+  <span class="kr">match</span> n, m <span class="kr">with</span>
+  | S k, S l =&gt; k - l
+  | _, _ =&gt; n
+  <span class="kr">end</span>
+<span class="kn">where</span> <span class="s2">&quot;n - m&quot;</span> := (sub n m) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(* note: our mul differs from that in Coq.Init.Nat  *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preamble-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="preamble-v-chk0"><span class="kn">Definition</span> <span class="nf">mul</span> : nat -&gt; nat -&gt; nat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">nat → nat → nat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preamble-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="preamble-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">nat → nat → nat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preamble-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="preamble-v-chk2"><span class="nb">intros</span> n m.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n, m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preamble-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="preamble-v-chk3"><span class="nb">induction</span> n <span class="kr">as</span> [|p pm].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="preamble-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>p, m, pm</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><label class="goal-separator" for="preamble-v-chk4"><hr></label><div class="goal-conclusion">nat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preamble-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="preamble-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> O.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preamble-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="preamble-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>p, m, pm</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pm + m).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;n * m&quot;</span> := (mul n m) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Fixpoint</span> <span class="nf">max</span> <span class="nv">n</span> <span class="nv">m</span> :=
+  <span class="kr">match</span> n, m <span class="kr">with</span>
+    | O, _ =&gt; m
+    | S n&#39;, O =&gt; n
+    | S n&#39;, S m&#39; =&gt; S (max n&#39; m&#39;)
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Fixpoint</span> <span class="nf">min</span> <span class="nv">n</span> <span class="nv">m</span> :=
+  <span class="kr">match</span> n, m <span class="kr">with</span>
+    | O, _ =&gt; O
+    | S n&#39;, O =&gt; O
+    | S n&#39;, S m&#39; =&gt; S (min n&#39; m&#39;)
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;0&quot;</span> := (O) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;1&quot;</span> := (S <span class="mi">0</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;2&quot;</span> := (S <span class="mi">1</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;3&quot;</span> := (S <span class="mi">2</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;4&quot;</span> := (S <span class="mi">3</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;5&quot;</span> := (S <span class="mi">4</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;6&quot;</span> := (S <span class="mi">5</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;7&quot;</span> := (S <span class="mi">6</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;8&quot;</span> := (S <span class="mi">7</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span>  <span class="s2">&quot;9&quot;</span> := (S <span class="mi">8</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;10&quot;</span> := (S <span class="mi">9</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;11&quot;</span> := (S <span class="mi">10</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;12&quot;</span> := (S <span class="mi">11</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;13&quot;</span> := (S <span class="mi">12</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;14&quot;</span> := (S <span class="mi">13</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;15&quot;</span> := (S <span class="mi">14</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;16&quot;</span> := (S <span class="mi">15</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;17&quot;</span> := (S <span class="mi">16</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;18&quot;</span> := (S <span class="mi">17</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;19&quot;</span> := (S <span class="mi">18</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;20&quot;</span> := (S <span class="mi">19</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;21&quot;</span> := (S <span class="mi">20</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;22&quot;</span> := (S <span class="mi">21</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;23&quot;</span> := (S <span class="mi">22</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;24&quot;</span> := (S <span class="mi">23</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;100&quot;</span> := (<span class="mi">10</span> * <span class="mi">10</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;1000&quot;</span> := (<span class="mi">10</span> * <span class="mi">100</span>) : nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Identity Types *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Inductive</span> <span class="nf">paths</span> {<span class="nv">A</span>:UU} (<span class="nv">a</span>:A) : A -&gt; UU := paths_refl : paths a a.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input">#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> paths_refl : core .</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;a = b&quot;</span> := (paths a b) : type_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="nf">idpath</span> := paths_refl .</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(* Remark: all of the uu0.v now uses only paths_rect and not the direct &quot;match&quot; construction</span>
+<span class="c">on paths. By adding a constantin paths for the computation rule for paths_rect and then making</span>
+<span class="c">both this constant and paths_rect itself opaque it is possible to check which of the</span>
+<span class="c">constructions of the uu0 can be done with the weakened version of the Martin-Lof Type Theory</span>
+<span class="c">that is interpreted by the Bezem-Coquand-Huber cubical set model of 2014. *)</span>
+
+<span class="sd">(** Dependent sums.</span>
+
+<span class="sd">One can not use a new record each time one needs it because the general theorems about this</span>
+<span class="sd">construction would not apply to new instances of &quot;Record&quot; due to the &quot;generativity&quot; of inductive</span>
+<span class="sd">definitions in Coq.</span>
+
+<span class="sd">We use &quot;Record&quot;, which is equivalent to &quot;Structure&quot;, instead of &quot;Inductive&quot; here, so we can take</span>
+<span class="sd">advantage of the &quot;primitive projections&quot; feature of Coq, which introduces η-reduction for pairs, by</span>
+<span class="sd">adding the option &quot;Set Primitive Projections&quot;.  It also speeds up compilation by 56 percent.</span>
+
+<span class="sd">The terms produced by the &quot;induction&quot; tactic, when we define &quot;total2&quot; as a record, contain the</span>
+<span class="sd">&quot;match&quot; construction instead appealing to the eliminator.  However, assuming the eliminator will be</span>
+<span class="sd">justified mathematically, the way to justify the the &quot;match&quot; construction is to point out that it</span>
+<span class="sd">can be regarded as an abbreviation for the eliminator that omits explicit mention of the first two</span>
+<span class="sd">parameters (X:Type) and (Y:X-&gt;Type).</span>
+
+<span class="sd">I.e., whenever you see</span>
+
+<span class="sd">       [match w as t0 return TYPE with | tpair _ _ x y =&gt; BODY end]</span>
+
+<span class="sd">in a proof term, just mentally replace it by</span>
+
+<span class="sd">       [@total2_rect _ _ (λ t0, TYPE) (λ x y, BODY) w]</span>
+
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Set Primitive Projections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Set Nonrecursive Elimination Schemes</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Record</span> <span class="nf">total2</span> { <span class="nv">T</span>: UU } ( <span class="nv">P</span>: T -&gt; UU ) := tpair { pr1 : T; pr2 : P pr1 }.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> tpair {_} _ _ _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> pr1 {_ _} _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> pr2 {_ _} _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;&#39;∑&#39;  x .. y , P&quot;</span> := (total2 (<span class="kr">λ</span> <span class="nv">x</span>, .. (total2 (<span class="kr">λ</span> <span class="nv">y</span>, P)) ..))
+  (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>) : type_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  <span class="c">(* type this in emacs in agda-input method with \sum *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;x ,, y&quot;</span> := (tpair _ x y).</span></span></pre>
+</div>
+</div></body>
+</html>

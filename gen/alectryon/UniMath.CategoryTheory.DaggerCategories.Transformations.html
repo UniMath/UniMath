@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Transformations.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="c">(* No special notion of &#39;dagger natural transformation&#39; is required.</span>
+<span class="c">   However, some concepts are defined in terms of natural transformations.</span>
+<span class="c">   1. The category of dagger functors and natural transformations has the structure of dagger category.</span>
+<span class="c">      The dagger of a natural transformation is given by taking the dagger objectwise.</span>
+<span class="c">      This is called the &#39;dagger adjoint&#39;.</span>
+<span class="c">   2. A unitary morphism in the dagger functor category is given by a natural isomorphism whose inverse is given objectwise by the dagger [unitary_functors].</span>
+<span class="c">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">DaggerAdjoint</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">dagger_adjoint_data</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+             (<span class="nv">dagG</span> : is_dagger_functor dagC dagD G)
+             (<span class="nv">α</span> : nat_trans F G)
+    : nat_trans_data G F
+    := <span class="kr">λ</span> <span class="nv">c</span>, dagD _ _ (α c).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk1"><span class="kn">Definition</span> <span class="nf">dagger_adjoint_is_nat_trans</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+             (<span class="nv">dagG</span> : is_dagger_functor dagC dagD G)
+             (<span class="nv">α</span> : nat_trans F G)
+    : is_nat_trans _ _ (dagger_adjoint_data dagF dagG α).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>dagC</var><span class="hyp-type"><b>: </b><span>dagger C</span></span></span><br><span><var>dagD</var><span class="hyp-type"><b>: </b><span>dagger D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>dagF</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD F</span></span></span><br><span><var>dagG</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD G</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>F ⟹ G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans G F (dagger_adjoint_data dagF dagG α)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>dagC</var><span class="hyp-type"><b>: </b><span>dagger C</span></span></span><br><span><var>dagD</var><span class="hyp-type"><b>: </b><span>dagger D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>dagF</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD F</span></span></span><br><span><var>dagG</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD G</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>F ⟹ G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans G F (dagger_adjoint_data dagF dagG α)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk3"><span class="nb">intro</span> ; <span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>dagC</var><span class="hyp-type"><b>: </b><span>dagger C</span></span></span><br><span><var>dagD</var><span class="hyp-type"><b>: </b><span>dagger D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>dagF</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD F</span></span></span><br><span><var>dagG</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD G</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>F ⟹ G</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># G f · dagger_adjoint_data dagF dagG α x&#39; =
+dagger_adjoint_data dagF dagG α x · # F f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk4"><span class="nb">apply</span> (dagger_injective dagD).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>dagC</var><span class="hyp-type"><b>: </b><span>dagger C</span></span></span><br><span><var>dagD</var><span class="hyp-type"><b>: </b><span>dagger D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>dagF</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD F</span></span></span><br><span><var>dagG</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD G</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>F ⟹ G</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">dagD (G x) (F x&#39;)
+  (# G f · dagger_adjoint_data dagF dagG α x&#39;) =
+dagD (G x) (F x&#39;)
+  (dagger_adjoint_data dagF dagG α x · # F f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk5"><span class="nb">refine</span> (dagger_to_law_comp _ _ _ _ _ _ @ _ @ ! dagger_to_law_comp _ _ _ _ _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>dagC</var><span class="hyp-type"><b>: </b><span>dagger C</span></span></span><br><span><var>dagD</var><span class="hyp-type"><b>: </b><span>dagger D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>dagF</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD F</span></span></span><br><span><var>dagG</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD G</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>F ⟹ G</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">dagD (G x&#39;) (F x&#39;)
+  (dagger_adjoint_data dagF dagG α x&#39;)
+· dagD (G x) (G x&#39;) (# G f) =
+dagD (F x) (F x&#39;) (# F f)
+· dagD (G x) (F x) (dagger_adjoint_data dagF dagG α x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk6"><span class="nb">refine</span> (maponpaths_2 compose (dagger_to_law_idemp _ _ _ _) _ @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>dagC</var><span class="hyp-type"><b>: </b><span>dagger C</span></span></span><br><span><var>dagD</var><span class="hyp-type"><b>: </b><span>dagger D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>dagF</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD F</span></span></span><br><span><var>dagG</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD G</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>F ⟹ G</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">α x&#39; · dagD (G x) (G x&#39;) (# G f) =
+dagD (F x) (F x&#39;) (# F f)
+· dagD (G x) (F x) (dagger_adjoint_data dagF dagG α x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk7"><span class="nb">refine</span> (_ @ ! maponpaths_12 compose  (idpath _) (dagger_to_law_idemp _ _ _ _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>dagC</var><span class="hyp-type"><b>: </b><span>dagger C</span></span></span><br><span><var>dagD</var><span class="hyp-type"><b>: </b><span>dagger D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>dagF</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD F</span></span></span><br><span><var>dagG</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD G</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>F ⟹ G</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">α x&#39; · dagD (G x) (G x&#39;) (# G f) =
+dagD (F x) (F x&#39;) (# F f) · α x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk8"><span class="nb">refine</span> (! maponpaths (compose (α x&#39;)) (dagG _ _ f) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>dagC</var><span class="hyp-type"><b>: </b><span>dagger C</span></span></span><br><span><var>dagD</var><span class="hyp-type"><b>: </b><span>dagger D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>dagF</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD F</span></span></span><br><span><var>dagG</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD G</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>F ⟹ G</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">α x&#39; · # G (dagC x x&#39; f) =
+dagD (F x) (F x&#39;) (# F f) · α x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="transformations-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="transformations-v-chk9"><span class="nb">refine</span> (_ @ maponpaths_12 compose (dagF _ _ f) (idpath _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>dagC</var><span class="hyp-type"><b>: </b><span>dagger C</span></span></span><br><span><var>dagD</var><span class="hyp-type"><b>: </b><span>dagger D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>C ⟶ D</span></span></span><br><span><var>dagF</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD F</span></span></span><br><span><var>dagG</var><span class="hyp-type"><b>: </b><span>is_dagger_functor dagC dagD G</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>F ⟹ G</span></span></span><br><span><var>x, x'</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, x&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">α x&#39; · # G (dagC x x&#39; f) = # F (dagC x x&#39; f) · α x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> pathsinv0, (pr2 α).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">dagger_adjoint</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+             (<span class="nv">dagG</span> : is_dagger_functor dagC dagD G)
+             (<span class="nv">α</span> : nat_trans F G)
+    : nat_trans G F
+    := _ ,, dagger_adjoint_is_nat_trans dagF dagG α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">DaggerAdjoint</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">UnitaryFunctors</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">unitary_functors</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+             (<span class="nv">dagG</span> : is_dagger_functor dagC dagD G)
+    : UU
+    := ∑ α : nat_trans F G,
+        (∏ x : C, Isos.is_inverse_in_precat (α x) (dagD _ _ (α x))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">UnitaryFunctors</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Map2Cells.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** The second layer of the construction of the bicategory of pseudofunctors consists of three parts.</span>
+<span class="sd">    First part: we add an action of 1-cells.</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Map2Cells</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Variable</span> (<span class="nv">C</span> <span class="nv">D</span> : bicat).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk1"><span class="kn">Definition</span> <span class="nf">map2cells_disp_cat_data</span>
+    : disp_cat_ob_mor (map1cells C D).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_ob_mor (map1cells C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_ob_mor (map1cells C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk3">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">map1cells C D → UU</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="map2cells-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><label class="goal-separator" for="map2cells-v-chk4"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">obd</span> : map1cells C D → UU,
+ ∏ x y : map1cells C D,
+ obd x → obd y → map1cells C D ⟦ x, y ⟧ → UU) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">map1cells C D → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">F</span>, ∏ (X Y : C) (f g : X --&gt; Y), f ==&gt; g → Fmor F f ==&gt; Fmor F g).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">obd</span> : map1cells C D → UU,
+ ∏ x y : map1cells C D,
+ obd x → obd y → map1cells C D ⟦ x, y ⟧ → UU)
+  (<span class="kr">λ</span> <span class="nv">F</span> : map1cells C D,
+   ∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+   f ==&gt; g → Fmor F f ==&gt; Fmor F g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">F₂</span> <span class="nv">G₂</span> <span class="nv">η</span>, ∏ (X Y : C) (f g : X --&gt; Y) (α : f ==&gt; g),
+             (ηobj η X ◃ G₂ X Y f g α) • ηmor η g
+             =
+             ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)) ; <span class="nb">cbn</span> <span class="kr">in</span> *.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk7"><span class="kn">Definition</span> <span class="nf">map2cells_disp_cat_id_comp</span>
+    : disp_cat_id_comp (map1cells C D) map2cells_disp_cat_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_id_comp (map1cells C D)
+  map2cells_disp_cat_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk8"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_id_comp (map1cells C D)
+  map2cells_disp_cat_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk9"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : map1cells C D)
+(xx : map2cells_disp_cat_data x), xx --&gt;[ id₁ x] xx</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="map2cells-v-chka" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><label class="goal-separator" for="map2cells-v-chka"><hr></label><div class="goal-conclusion">∏ (x y z : map1cells C D) (f : map1cells C D ⟦ x, y ⟧)
+(g : map1cells C D ⟦ y, z ⟧)
+(xx : map2cells_disp_cat_data x)
+(yy : map2cells_disp_cat_data y)
+(zz : map2cells_disp_cat_data z),
+xx --&gt;[ f] yy → yy --&gt;[ g] zz → xx --&gt;[ f · g] zz</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : map1cells C D)
+(xx : map2cells_disp_cat_data x), xx --&gt;[ id₁ x] xx</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chkc"><span class="nb">intros</span> F F₂ X Y f g α ; <span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g) • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chkd"><span class="nb">rewrite</span> !vassocr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((id₁ (pr1 F X) ◃ F₂ X Y f g α)
+ • lunitor (pr2 F X Y g)) • rinvunitor (pr2 F X Y g) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chke"><span class="nb">rewrite</span> vcomp_lunitor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(lunitor (Fmor F f) • F₂ X Y f g α)
+• rinvunitor (pr2 F X Y g) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chkf"><span class="nb">rewrite</span> !vassocl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lunitor (Fmor F f)
+• (F₂ X Y f g α • rinvunitor (pr2 F X Y g)) =
+lunitor (pr2 F X Y f)
+• (rinvunitor (pr2 F X Y f)
+   • (F₂ X Y f g α ▹ id₁ (pr1 F Y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk10"><span class="nb">rewrite</span> rinvunitor_natural.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lunitor (Fmor F f)
+• (rinvunitor (Fmor F f)
+   • id₂ (id₁ (Fobj F Y)) ⋆⋆ F₂ X Y f g α) =
+lunitor (pr2 F X Y f)
+• (rinvunitor (pr2 F X Y f)
+   • (F₂ X Y f g α ▹ id₁ (pr1 F Y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk11"><span class="nb">rewrite</span> &lt;- rwhisker_hcomp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lunitor (Fmor F f)
+• (rinvunitor (Fmor F f)
+   • (F₂ X Y f g α ▹ id₁ (Fobj F Y))) =
+lunitor (pr2 F X Y f)
+• (rinvunitor (pr2 F X Y f)
+   • (F₂ X Y f g α ▹ id₁ (pr1 F Y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk12">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : map1cells C D) (f : map1cells C D ⟦ x, y ⟧)
+(g : map1cells C D ⟦ y, z ⟧)
+(xx : map2cells_disp_cat_data x)
+(yy : map2cells_disp_cat_data y)
+(zz : map2cells_disp_cat_data z),
+xx --&gt;[ f] yy → yy --&gt;[ g] zz → xx --&gt;[ f · g] zz</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk13"><span class="nb">intros</span> F G H η ε F₂ G₂ H₂ η₂ ε₂ X Y f g α ; <span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr1 η X · pr1 ε X ◃ H₂ X Y f g α)
+• ((((rassociator (pr1 η X) (pr1 ε X) (pr2 H X Y g)
+      • (pr1 η X ◃ pr2 ε X Y g))
+     • lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y))
+    • (pr2 η X Y g ▹ pr1 ε Y))
+   • rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y)) =
+((((rassociator (pr1 η X) (pr1 ε X) (pr2 H X Y f)
+    • (pr1 η X ◃ pr2 ε X Y f))
+   • lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y))
+  • (pr2 η X Y f ▹ pr1 ε Y))
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk14"><span class="nb">rewrite</span> !vassocr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(((((pr1 η X · pr1 ε X ◃ H₂ X Y f g α)
+    • rassociator (pr1 η X) (pr1 ε X) (pr2 H X Y g))
+   • (pr1 η X ◃ pr2 ε X Y g))
+  • lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y))
+ • (pr2 η X Y g ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((((rassociator (pr1 η X) (pr1 ε X) (pr2 H X Y f)
+    • (pr1 η X ◃ pr2 ε X Y f))
+   • lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y))
+  • (pr2 η X Y f ▹ pr1 ε Y))
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk15"><span class="nb">rewrite</span> &lt;- lwhisker_lwhisker_rassociator.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((((rassociator (pr1 η X) (pr1 ε X) (Fmor H f)
+    • (pr1 η X ◃ (pr1 ε X ◃ H₂ X Y f g α)))
+   • (pr1 η X ◃ pr2 ε X Y g))
+  • lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y))
+ • (pr2 η X Y g ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((((rassociator (pr1 η X) (pr1 ε X) (pr2 H X Y f)
+    • (pr1 η X ◃ pr2 ε X Y f))
+   • lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y))
+  • (pr2 η X Y f ▹ pr1 ε Y))
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk16"><span class="nb">rewrite</span> !vassocl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rassociator (pr1 η X) (pr1 ε X) (Fmor H f)
+• ((pr1 η X ◃ (pr1 ε X ◃ H₂ X Y f g α))
+   • ((pr1 η X ◃ pr2 ε X Y g)
+      • (lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y)
+         • ((pr2 η X Y g ▹ pr1 ε Y)
+            • rassociator (pr2 F X Y g) (pr1 η Y)
+                (pr1 ε Y))))) =
+rassociator (pr1 η X) (pr1 ε X) (pr2 H X Y f)
+• ((pr1 η X ◃ pr2 ε X Y f)
+   • (lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y)
+      • ((pr2 η X Y f ▹ pr1 ε Y)
+         • (rassociator (pr2 F X Y f) (pr1 η Y)
+              (pr1 ε Y)
+            • (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk17"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr1 η X ◃ (pr1 ε X ◃ H₂ X Y f g α))
+• ((pr1 η X ◃ pr2 ε X Y g)
+   • (lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y)
+      • ((pr2 η X Y g ▹ pr1 ε Y)
+         • rassociator (pr2 F X Y g) (pr1 η Y)
+             (pr1 ε Y)))) =
+(pr1 η X ◃ pr2 ε X Y f)
+• (lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y)
+   • ((pr2 η X Y f ▹ pr1 ε Y)
+      • (rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y)
+         • (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk18"><span class="nb">rewrite</span> !vassocr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((((pr1 η X ◃ (pr1 ε X ◃ H₂ X Y f g α))
+   • (pr1 η X ◃ pr2 ε X Y g))
+  • lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y))
+ • (pr2 η X Y g ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((((pr1 η X ◃ pr2 ε X Y f)
+   • lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y))
+  • (pr2 η X Y f ▹ pr1 ε Y))
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk19"><span class="nb">rewrite</span> lwhisker_vcomp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(((pr1 η X ◃ ((pr1 ε X ◃ H₂ X Y f g α) • pr2 ε X Y g))
+  • lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y))
+ • (pr2 η X Y g ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((((pr1 η X ◃ pr2 ε X Y f)
+   • lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y))
+  • (pr2 η X Y f ▹ pr1 ε Y))
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk1a"><span class="nb">rewrite</span> ε₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(((pr1 η X ◃ (ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)))
+  • lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y))
+ • (pr2 η X Y g ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((((pr1 η X ◃ pr2 ε X Y f)
+   • lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y))
+  • (pr2 η X Y f ▹ pr1 ε Y))
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk1b"><span class="nb">rewrite</span> &lt;- lwhisker_vcomp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((((pr1 η X ◃ ηmor ε f)
+   • (pr1 η X ◃ (G₂ X Y f g α ▹ ηobj ε Y)))
+  • lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y))
+ • (pr2 η X Y g ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((((pr1 η X ◃ pr2 ε X Y f)
+   • lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y))
+  • (pr2 η X Y f ▹ pr1 ε Y))
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk1c"><span class="nb">rewrite</span> !vassocl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr1 η X ◃ ηmor ε f)
+• ((pr1 η X ◃ (G₂ X Y f g α ▹ ηobj ε Y))
+   • (lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y)
+      • ((pr2 η X Y g ▹ pr1 ε Y)
+         • rassociator (pr2 F X Y g) (pr1 η Y)
+             (pr1 ε Y)))) =
+(pr1 η X ◃ pr2 ε X Y f)
+• (lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y)
+   • ((pr2 η X Y f ▹ pr1 ε Y)
+      • (rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y)
+         • (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk1d"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr1 η X ◃ (G₂ X Y f g α ▹ ηobj ε Y))
+• (lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y)
+   • ((pr2 η X Y g ▹ pr1 ε Y)
+      • rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y))) =
+lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y)
+• ((pr2 η X Y f ▹ pr1 ε Y)
+   • (rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y)
+      • (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk1e"><span class="nb">rewrite</span> !vassocr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(((pr1 η X ◃ (G₂ X Y f g α ▹ ηobj ε Y))
+  • lassociator (pr1 η X) (pr2 G X Y g) (pr1 ε Y))
+ • (pr2 η X Y g ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y)
+  • (pr2 η X Y f ▹ pr1 ε Y))
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk1f"><span class="nb">rewrite</span> rwhisker_lwhisker.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((lassociator (pr1 η X) (Fmor G f) (pr1 ε Y)
+  • ((pr1 η X ◃ G₂ X Y f g α) ▹ pr1 ε Y))
+ • (pr2 η X Y g ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y)
+  • (pr2 η X Y f ▹ pr1 ε Y))
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk20"><span class="nb">rewrite</span> !vassocl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lassociator (pr1 η X) (Fmor G f) (pr1 ε Y)
+• (((pr1 η X ◃ G₂ X Y f g α) ▹ pr1 ε Y)
+   • ((pr2 η X Y g ▹ pr1 ε Y)
+      • rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y))) =
+lassociator (pr1 η X) (pr2 G X Y f) (pr1 ε Y)
+• ((pr2 η X Y f ▹ pr1 ε Y)
+   • (rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y)
+      • (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk21"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((pr1 η X ◃ G₂ X Y f g α) ▹ pr1 ε Y)
+• ((pr2 η X Y g ▹ pr1 ε Y)
+   • rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y)) =
+(pr2 η X Y f ▹ pr1 ε Y)
+• (rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y)
+   • (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk22"><span class="nb">rewrite</span> !vassocr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(((pr1 η X ◃ G₂ X Y f g α) ▹ pr1 ε Y)
+ • (pr2 η X Y g ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((pr2 η X Y f ▹ pr1 ε Y)
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk23"><span class="nb">rewrite</span> rwhisker_vcomp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(((pr1 η X ◃ G₂ X Y f g α) • pr2 η X Y g) ▹ pr1 ε Y)
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((pr2 η X Y f ▹ pr1 ε Y)
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk24"><span class="nb">rewrite</span> η₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)) ▹ pr1 ε Y)
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((pr2 η X Y f ▹ pr1 ε Y)
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk25"><span class="nb">rewrite</span> &lt;- rwhisker_vcomp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((ηmor η f ▹ pr1 ε Y)
+ • ((F₂ X Y f g α ▹ ηobj η Y) ▹ pr1 ε Y))
+• rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y) =
+((pr2 η X Y f ▹ pr1 ε Y)
+ • rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y))
+• (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk26"><span class="nb">rewrite</span> !vassocl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(ηmor η f ▹ pr1 ε Y)
+• (((F₂ X Y f g α ▹ ηobj η Y) ▹ pr1 ε Y)
+   • rassociator (pr2 F X Y g) (pr1 η Y) (pr1 ε Y)) =
+(pr2 η X Y f ▹ pr1 ε Y)
+• (rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y)
+   • (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk27"><span class="nb">rewrite</span> rwhisker_rwhisker_alt.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G, H</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>ε</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 G x, pr1 H x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 H X Y f0)
+  (pr2 G X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>H₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor H f ==&gt; Fmor H g</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)</span></span></span><br><span><var>ε₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+(ηobj ε X ◃ H₂ X Y f g α) • ηmor ε g =
+ηmor ε f • (G₂ X Y f g α ▹ ηobj ε Y)</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(ηmor η f ▹ pr1 ε Y)
+• (rassociator (Fmor F f) (pr1 η Y) (pr1 ε Y)
+   • (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y)) =
+(pr2 η X Y f ▹ pr1 ε Y)
+• (rassociator (pr2 F X Y f) (pr1 η Y) (pr1 ε Y)
+   • (F₂ X Y f g α ▹ pr1 η Y · pr1 ε Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk28"><span class="kn">Definition</span> <span class="nf">map2cells_disp_cat</span>
+    : disp_bicat (map1cells C D).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (map1cells C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk29"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (map1cells C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk2a">use disp_cell_unit_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_data (map1cells C D)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk2b">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_ob_mor (map1cells C D)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="map2cells-v-chk2c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><label class="goal-separator" for="map2cells-v-chk2c"><hr></label><div class="goal-conclusion">disp_cat_id_comp (map1cells C D) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk2d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_ob_mor (map1cells C D)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> map2cells_disp_cat_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk2e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_cat_id_comp (map1cells C D)
+  map2cells_disp_cat_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> map2cells_disp_cat_id_comp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk2f"><span class="kn">Definition</span> <span class="nf">map2cells_is_disp_univalent_2_1</span>
+    : disp_univalent_2_1 map2cells_disp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 map2cells_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk30"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 map2cells_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk31"><span class="nb">apply</span> disp_cell_unit_bicat_univalent_2_1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (a b : map1cells C D) (f : map1cells C D ⟦ a, b ⟧)
+(aa : (map2cells_disp_cat_data,,
+       map2cells_disp_cat_id_comp) a)
+(bb : (map2cells_disp_cat_data,,
+       map2cells_disp_cat_id_comp) b),
+isaprop (aa --&gt;[ f] bb)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk32"><span class="nb">intros</span> F G η F₂ G₂ ; <span class="nb">simpl</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (∏ (X Y : C) (f g : C ⟦ X, Y ⟧) (α : f ==&gt; g),
+   (ηobj η X ◃ G₂ X Y f g α) • ηmor η g =
+   ηmor η f • (F₂ X Y f g α ▹ ηobj η Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk33"><span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>∑ f : ∏ x : C, D ⟦ pr1 F x, pr1 G x ⟧,
+∏ (X Y : C) (f0 : C ⟦ X, Y ⟧),
+invertible_2cell (f X · pr2 G X Y f0)
+  (pr2 F X Y f0 · f Y)</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor G f ==&gt; Fmor G g</span></span></span><br><span><var>t, t0</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t1, t2</var><span class="hyp-type"><b>: </b><span>C ⟦ t, t0 ⟧</span></span></span><br><span><var>t3</var><span class="hyp-type"><b>: </b><span>t1 ==&gt; t2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((ηobj η t ◃ G₂ t t0 t1 t2 t3) • ηmor η t2 =
+   ηmor η t1 • (F₂ t t0 t1 t2 t3 ▹ ηobj η t0))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> D.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk34"><span class="kn">Definition</span> <span class="nf">map2cells_is_disp_univalent_2_0</span>
+             (<span class="nv">HD_2_1</span> : is_univalent_2_1 D)
+    : disp_univalent_2_0 map2cells_disp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 map2cells_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk35"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 map2cells_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk36">use disp_cell_unit_bicat_univalent_2_0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 (map1cells C D)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="map2cells-v-chk37" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><label class="goal-separator" for="map2cells-v-chk37"><hr></label><div class="goal-conclusion">∏ (a b : map1cells C D) 
+(f : map1cells C D ⟦ a, b ⟧)
+(aa : (map2cells_disp_cat_data,,
+       map2cells_disp_cat_id_comp) a)
+(bb : (map2cells_disp_cat_data,,
+       map2cells_disp_cat_id_comp) b),
+isaprop (aa --&gt;[ f] bb)</div></blockquote><input class="alectryon-extra-goal-toggle" id="map2cells-v-chk38" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><label class="goal-separator" for="map2cells-v-chk38"><hr></label><div class="goal-conclusion">∏ a : map1cells C D,
+isaset
+  ((map2cells_disp_cat_data,,
+    map2cells_disp_cat_id_comp) a)</div></blockquote><input class="alectryon-extra-goal-toggle" id="map2cells-v-chk39" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><label class="goal-separator" for="map2cells-v-chk39"><hr></label><div class="goal-conclusion">∏ (a : map1cells C D)
+(aa
+ bb : disp_cell_unit_bicat
+        (map2cells_disp_cat_data,,
+         map2cells_disp_cat_id_comp) a),
+aa --&gt;[ id₁ a] bb × bb --&gt;[ id₁ a] aa → aa = bb</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk3a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 (map1cells C D)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk3b"><span class="nb">apply</span> map1cells_is_univalent_2_1.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_1 D</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> HD_2_1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk3c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (a b : map1cells C D) (f : map1cells C D ⟦ a, b ⟧)
+(aa : (map2cells_disp_cat_data,,
+       map2cells_disp_cat_id_comp) a)
+(bb : (map2cells_disp_cat_data,,
+       map2cells_disp_cat_id_comp) b),
+isaprop (aa --&gt;[ f] bb)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk3d"><span class="nb">intros</span> ; <span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>map1cells C D ⟦ a, b ⟧</span></span></span><br><span><var>aa</var><span class="hyp-type"><b>: </b><span>(map2cells_disp_cat_data,,
+ map2cells_disp_cat_id_comp) a</span></span></span><br><span><var>bb</var><span class="hyp-type"><b>: </b><span>(map2cells_disp_cat_data,,
+ map2cells_disp_cat_id_comp) b</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop
+  (∏ (X Y : C) (f0 g : C ⟦ X, Y ⟧) (α : f0 ==&gt; g),
+   (ηobj f X ◃ bb X Y f0 g α) • ηmor f g =
+   ηmor f f0 • (aa X Y f0 g α ▹ ηobj f Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk3e"><span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>a, b</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>map1cells C D ⟦ a, b ⟧</span></span></span><br><span><var>aa</var><span class="hyp-type"><b>: </b><span>(map2cells_disp_cat_data,,
+ map2cells_disp_cat_id_comp) a</span></span></span><br><span><var>bb</var><span class="hyp-type"><b>: </b><span>(map2cells_disp_cat_data,,
+ map2cells_disp_cat_id_comp) b</span></span></span><br><span><var>t, t0</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t1, t2</var><span class="hyp-type"><b>: </b><span>C ⟦ t, t0 ⟧</span></span></span><br><span><var>t3</var><span class="hyp-type"><b>: </b><span>t1 ==&gt; t2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((ηobj f t ◃ bb t t0 t1 t2 t3) • ηmor f t2 =
+   ηmor f t1 • (aa t t0 t1 t2 t3 ▹ ηobj f t0))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> D.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk3f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : map1cells C D,
+isaset
+  ((map2cells_disp_cat_data,,
+    map2cells_disp_cat_id_comp) a)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk40"><span class="nb">intro</span> ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  (∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+   f ==&gt; g → Fmor a f ==&gt; Fmor a g)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk41"><span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaset ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>t, t0</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t1, t2</var><span class="hyp-type"><b>: </b><span>C ⟦ t, t0 ⟧</span></span></span><br><span><var>t3</var><span class="hyp-type"><b>: </b><span>t1 ==&gt; t2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (Fmor a t1 ==&gt; Fmor a t2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> D.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk42">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (a : map1cells C D)
+(aa
+ bb : disp_cell_unit_bicat
+        (map2cells_disp_cat_data,,
+         map2cells_disp_cat_id_comp) a),
+aa --&gt;[ id₁ a] bb × bb --&gt;[ id₁ a] aa → aa = bb</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk43"><span class="nb">intros</span> F F₂ F₂&#39; η ; <span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>(∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+ (α : f ==&gt; g),
+ (id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+ • (lunitor (pr2 F X Y g)
+    • rinvunitor (pr2 F X Y g)) =
+ (lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+ • (F₂ X Y f g α ▹ id₁ (pr1 F Y)))
+× (∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+   (α : f ==&gt; g),
+   (id₁ (pr1 F X) ◃ F₂ X Y f g α)
+   • (lunitor (pr2 F X Y g)
+      • rinvunitor (pr2 F X Y g)) =
+   (lunitor (pr2 F X Y f)
+    • rinvunitor (pr2 F X Y f))
+   • (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ = F₂&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk44"><span class="nb">induction</span> η <span class="kr">as</span> [η₁ η₂].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ = F₂&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk45"><span class="nb">apply</span> funextsec ; <span class="nb">intro</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X = F₂&#39; X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk46"><span class="nb">apply</span> funextsec ; <span class="nb">intro</span> Y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y = F₂&#39; X Y</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk47"><span class="nb">apply</span> funextsec ; <span class="nb">intro</span> f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f = F₂&#39; X Y f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk48"><span class="nb">apply</span> funextsec ; <span class="nb">intro</span> g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g = F₂&#39; X Y f g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk49"><span class="nb">apply</span> funextsec ; <span class="nb">intro</span> α.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α = F₂&#39; X Y f g α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk4a"><span class="nb">specialize</span> (η₁ X Y f g α).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧) 
+(α : f ==&gt; g),
+(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α = F₂&#39; X Y f g α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk4b"><span class="nb">specialize</span> (η₂ X Y f g α).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α = F₂&#39; X Y f g α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk4c"><span class="nb">rewrite</span> !vassocr <span class="kr">in</span> η₁.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>((id₁ (pr1 F X) ◃ F₂&#39; X Y f g α)
+ • lunitor (pr2 F X Y g))
+• rinvunitor (pr2 F X Y g) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α = F₂&#39; X Y f g α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk4d"><span class="nb">rewrite</span> vcomp_lunitor <span class="kr">in</span> η₁.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>(lunitor (Fmor F f) • F₂&#39; X Y f g α)
+• rinvunitor (pr2 F X Y g) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α = F₂&#39; X Y f g α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk4e"><span class="nb">rewrite</span> !vassocl <span class="kr">in</span> η₁.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>lunitor (Fmor F f)
+• (F₂&#39; X Y f g α • rinvunitor (pr2 F X Y g)) =
+lunitor (pr2 F X Y f)
+• (rinvunitor (pr2 F X Y f)
+   • (F₂ X Y f g α ▹ id₁ (pr1 F Y)))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α = F₂&#39; X Y f g α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk4f"><span class="nb">rewrite</span> rinvunitor_natural <span class="kr">in</span> η₁.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>lunitor (Fmor F f)
+• (rinvunitor (Fmor F f)
+   • id₂ (id₁ (Fobj F Y)) ⋆⋆ F₂&#39; X Y f g α) =
+lunitor (pr2 F X Y f)
+• (rinvunitor (pr2 F X Y f)
+   • (F₂ X Y f g α ▹ id₁ (pr1 F Y)))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α = F₂&#39; X Y f g α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk50"><span class="nb">rewrite</span> &lt;- rwhisker_hcomp <span class="kr">in</span> η₁.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>lunitor (Fmor F f)
+• (rinvunitor (Fmor F f)
+   • (F₂&#39; X Y f g α ▹ id₁ (Fobj F Y))) =
+lunitor (pr2 F X Y f)
+• (rinvunitor (pr2 F X Y f)
+   • (F₂ X Y f g α ▹ id₁ (pr1 F Y)))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α = F₂&#39; X Y f g α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk51"><span class="nb">rewrite</span> !vassocr <span class="kr">in</span> η₁.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂&#39; X Y f g α ▹ id₁ (Fobj F Y)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α = F₂&#39; X Y f g α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk52"><span class="nb">apply</span> rwhisker_id_inj.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂&#39; X Y f g α ▹ id₁ (Fobj F Y)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">F₂ X Y f g α ▹ id₁ (Fobj F Y) =
+F₂&#39; X Y f g α ▹ id₁ (Fobj F Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk53">use (vcomp_lcancel (lunitor _ • rinvunitor _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂&#39; X Y f g α ▹ id₁ (Fobj F Y)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_invertible_2cell
+  (lunitor (Fmor F f) • rinvunitor (Fmor F f))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="map2cells-v-chk54" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂&#39; X Y f g α ▹ id₁ (Fobj F Y)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><label class="goal-separator" for="map2cells-v-chk54"><hr></label><div class="goal-conclusion">(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂ X Y f g α ▹ id₁ (Fobj F Y)) =
+(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂&#39; X Y f g α ▹ id₁ (Fobj F Y))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk55">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂&#39; X Y f g α ▹ id₁ (Fobj F Y)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_invertible_2cell
+  (lunitor (Fmor F f) • rinvunitor (Fmor F f))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input">is_iso.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk56">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑ x : C → D,
+∏ X Y : C, C ⟦ X, Y ⟧ → D ⟦ x X, x Y ⟧</span></span></span><br><span><var>F₂, F₂'</var><span class="hyp-type"><b>: </b><span>∏ (X Y : C) (f g : C ⟦ X, Y ⟧),
+f ==&gt; g → Fmor F f ==&gt; Fmor F g</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ X, Y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>η₁</var><span class="hyp-type"><b>: </b><span>(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂&#39; X Y f g α ▹ id₁ (Fobj F Y)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂ X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F X) ◃ F₂ X Y f g α)
+• (lunitor (pr2 F X Y g)
+   • rinvunitor (pr2 F X Y g)) =
+(lunitor (pr2 F X Y f) • rinvunitor (pr2 F X Y f))
+• (F₂&#39; X Y f g α ▹ id₁ (pr1 F Y))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂ X Y f g α ▹ id₁ (Fobj F Y)) =
+(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂&#39; X Y f g α ▹ id₁ (Fobj F Y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (!η₁).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk57"><span class="kn">Definition</span> <span class="nf">map2cells_is_disp_univalent_2</span>
+             (<span class="nv">HD_2_1</span> : is_univalent_2_1 D)
+    : disp_univalent_2 map2cells_disp_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2 map2cells_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk58"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2 map2cells_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk59"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 map2cells_disp_cat</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="map2cells-v-chk5a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><label class="goal-separator" for="map2cells-v-chk5a"><hr></label><div class="goal-conclusion">disp_univalent_2_1 map2cells_disp_cat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk5b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_0 map2cells_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> map2cells_is_disp_univalent_2_0; <span class="bp">assumption</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk5c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD_2_1</var><span class="hyp-type"><b>: </b><span>is_univalent_2_1 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_univalent_2_1 map2cells_disp_cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> map2cells_is_disp_univalent_2_1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk5d"><span class="kn">Definition</span> <span class="nf">map2cells_disp_left_adjequiv_over_id</span>
+             {<span class="nv">F</span> : map1cells C D}
+             {<span class="nv">F₂</span> <span class="nv">G₂</span> : map2cells_disp_cat F}
+             (<span class="nv">η₂</span> : F₂ --&gt;[ internal_adjoint_equivalence_identity _ ] G₂)
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity _) η₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence
+  (internal_adjoint_equivalence_identity F) η₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk5e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence
+  (internal_adjoint_equivalence_identity F) η₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk5f" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk5f"><span class="nb">apply</span> disp_cell_unit_bicat_left_adjoint_equivalence_weq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">G₂ --&gt;[
+left_adjoint_right_adjoint
+  (internal_adjoint_equivalence_identity F)] F₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk60" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk60"><span class="nb">intros</span> x y f g α.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(ηobj
+   (left_adjoint_right_adjoint
+      (internal_adjoint_equivalence_identity F)) x
+ ◃ F₂ x y f g α)
+• ηmor
+    (left_adjoint_right_adjoint
+       (internal_adjoint_equivalence_identity F)) g =
+ηmor
+  (left_adjoint_right_adjoint
+     (internal_adjoint_equivalence_identity F)) f
+• (G₂ x y f g α
+   ▹ ηobj
+       (left_adjoint_right_adjoint
+          (internal_adjoint_equivalence_identity F)) y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk61" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk61"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(id₁ (pr1 F x) ◃ F₂ x y f g α)
+• (lunitor (pr2 F x y g) • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (G₂ x y f g α ▹ id₁ (pr1 F y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk62" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk62"><span class="nb">pose</span> (η₂ x y f g α) <span class="kr">as</span> p.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(ηobj (internal_adjoint_equivalence_identity F) x
+ ◃ G₂ x y f g α)
+• ηmor (internal_adjoint_equivalence_identity F) g =
+ηmor (internal_adjoint_equivalence_identity F) f
+• (F₂ x y f g α
+   ▹ ηobj
+       (internal_adjoint_equivalence_identity F) y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(id₁ (pr1 F x) ◃ F₂ x y f g α)
+• (lunitor (pr2 F x y g) • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (G₂ x y f g α ▹ id₁ (pr1 F y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk63" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk63"><span class="nb">cbn</span> <span class="kr">in</span> p.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(id₁ (pr1 F x) ◃ F₂ x y f g α)
+• (lunitor (pr2 F x y g) • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (G₂ x y f g α ▹ id₁ (pr1 F y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk64" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk64"><span class="nb">rewrite</span> !vassocr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((id₁ (pr1 F x) ◃ F₂ x y f g α)
+ • lunitor (pr2 F x y g)) • rinvunitor (pr2 F x y g) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (G₂ x y f g α ▹ id₁ (pr1 F y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk65" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk65"><span class="nb">rewrite</span> vcomp_lunitor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(lunitor (Fmor F f) • F₂ x y f g α)
+• rinvunitor (pr2 F x y g) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (G₂ x y f g α ▹ id₁ (pr1 F y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk66" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk66"><span class="nb">rewrite</span> !vassocl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lunitor (Fmor F f)
+• (F₂ x y f g α • rinvunitor (pr2 F x y g)) =
+lunitor (pr2 F x y f)
+• (rinvunitor (pr2 F x y f)
+   • (G₂ x y f g α ▹ id₁ (pr1 F y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk67" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk67"><span class="nb">rewrite</span> rinvunitor_natural.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lunitor (Fmor F f)
+• (rinvunitor (Fmor F f)
+   • id₂ (id₁ (Fobj F y)) ⋆⋆ F₂ x y f g α) =
+lunitor (pr2 F x y f)
+• (rinvunitor (pr2 F x y f)
+   • (G₂ x y f g α ▹ id₁ (pr1 F y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk68" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk68"><span class="nb">rewrite</span> &lt;- rwhisker_hcomp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lunitor (Fmor F f)
+• (rinvunitor (Fmor F f)
+   • (F₂ x y f g α ▹ id₁ (Fobj F y))) =
+lunitor (pr2 F x y f)
+• (rinvunitor (pr2 F x y f)
+   • (G₂ x y f g α ▹ id₁ (pr1 F y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk69" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk69"><span class="nb">rewrite</span> !vassocr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(lunitor (Fmor F f) • rinvunitor (Fmor F f))
+• (F₂ x y f g α ▹ id₁ (Fobj F y)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (G₂ x y f g α ▹ id₁ (pr1 F y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk6a" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk6a"><span class="nb">refine</span> (!p @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g) • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (G₂ x y f g α ▹ id₁ (pr1 F y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk6b" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk6b"><span class="nb">rewrite</span> !vassocr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((id₁ (pr1 F x) ◃ G₂ x y f g α)
+ • lunitor (pr2 F x y g)) • rinvunitor (pr2 F x y g) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (G₂ x y f g α ▹ id₁ (pr1 F y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk6c" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk6c"><span class="nb">rewrite</span> vcomp_lunitor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(lunitor (Fmor F f) • G₂ x y f g α)
+• rinvunitor (pr2 F x y g) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (G₂ x y f g α ▹ id₁ (pr1 F y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk6d" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk6d"><span class="nb">rewrite</span> !vassocl.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lunitor (Fmor F f)
+• (G₂ x y f g α • rinvunitor (pr2 F x y g)) =
+lunitor (pr2 F x y f)
+• (rinvunitor (pr2 F x y f)
+   • (G₂ x y f g α ▹ id₁ (pr1 F y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk6e" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk6e"><span class="nb">rewrite</span> rinvunitor_natural.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lunitor (Fmor F f)
+• (rinvunitor (Fmor F f)
+   • id₂ (id₁ (Fobj F y)) ⋆⋆ G₂ x y f g α) =
+lunitor (pr2 F x y f)
+• (rinvunitor (pr2 F x y f)
+   • (G₂ x y f g α ▹ id₁ (pr1 F y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk6f" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk6f"><span class="nb">rewrite</span> &lt;- rwhisker_hcomp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span><span class="hyp-body"><b>:= </b><span>η₂ x y f g α</span></span><span class="hyp-type"><b>: </b><span>(id₁ (pr1 F x) ◃ G₂ x y f g α)
+• (lunitor (pr2 F x y g)
+   • rinvunitor (pr2 F x y g)) =
+(lunitor (pr2 F x y f) • rinvunitor (pr2 F x y f))
+• (F₂ x y f g α ▹ id₁ (pr1 F y))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lunitor (Fmor F f)
+• (rinvunitor (Fmor F f)
+   • (G₂ x y f g α ▹ id₁ (Fobj F y))) =
+lunitor (pr2 F x y f)
+• (rinvunitor (pr2 F x y f)
+   • (G₂ x y f g α ▹ id₁ (pr1 F y)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk70" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk70"><span class="kn">Definition</span> <span class="nf">map2cells_disp_left_adjequiv</span>
+             {<span class="nv">HD</span> : is_univalent_2 D}
+             {<span class="nv">F</span> <span class="nv">G</span> : map1cells C D}
+             (<span class="nv">η</span> : adjoint_equivalence F G)
+             {<span class="nv">F₂</span> : map2cells_disp_cat F}
+             {<span class="nv">G₂</span> : map2cells_disp_cat G}
+             (<span class="nv">η₂</span> : F₂ --&gt;[ η ] G₂)
+    : disp_left_adjoint_equivalence η η₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>is_univalent_2 D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>adjoint_equivalence F G</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat G</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[ η] G₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence η η₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk71" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk71"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>is_univalent_2 D</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>η</var><span class="hyp-type"><b>: </b><span>adjoint_equivalence F G</span></span></span><br><span><var>F₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat G</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[ η] G₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence η η₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk72" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk72"><span class="nb">revert</span> F G η F₂ G₂ η₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>is_univalent_2 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (F G : map1cells C D) (η : adjoint_equivalence F G)
+(F₂ : map2cells_disp_cat F)
+(G₂ : map2cells_disp_cat G) (η₂ : F₂ --&gt;[ η] G₂),
+disp_left_adjoint_equivalence η η₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk73" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk73">use J_2_0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>is_univalent_2 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_0 (map1cells C D)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="map2cells-v-chk74" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>is_univalent_2 D</span></span></span><br></div><label class="goal-separator" for="map2cells-v-chk74"><hr></label><div class="goal-conclusion">∏ a : map1cells C D,
+(<span class="kr">λ</span> (<span class="nv">a0</span> <span class="nv">b</span> : map1cells C D)
+ (<span class="nv">f</span> : adjoint_equivalence a0 b),
+ ∏ (F₂ : map2cells_disp_cat a0)
+ (G₂ : map2cells_disp_cat b) (η₂ : F₂ --&gt;[ f] G₂),
+ disp_left_adjoint_equivalence f η₂) a a
+  (internal_adjoint_equivalence_identity a)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk75" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk75">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>is_univalent_2 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2_0 (map1cells C D)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk76" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk76"><span class="nb">apply</span> map1cells_is_univalent_2_0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>is_univalent_2 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_univalent_2 D</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> HD.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk77" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk77">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>is_univalent_2 D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a : map1cells C D,
+(<span class="kr">λ</span> (<span class="nv">a0</span> <span class="nv">b</span> : map1cells C D)
+ (<span class="nv">f</span> : adjoint_equivalence a0 b),
+ ∏ (F₂ : map2cells_disp_cat a0)
+ (G₂ : map2cells_disp_cat b) (η₂ : F₂ --&gt;[ f] G₂),
+ disp_left_adjoint_equivalence f η₂) a a
+  (internal_adjoint_equivalence_identity a)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="map2cells-v-chk78" style="display: none" type="checkbox"><label class="alectryon-input" for="map2cells-v-chk78"><span class="nb">intros</span> F F₂ G₂ η₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C, D</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HD</var><span class="hyp-type"><b>: </b><span>is_univalent_2 D</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>map1cells C D</span></span></span><br><span><var>F₂, G₂</var><span class="hyp-type"><b>: </b><span>map2cells_disp_cat F</span></span></span><br><span><var>η₂</var><span class="hyp-type"><b>: </b><span>F₂ --&gt;[
+internal_adjoint_equivalence_identity F] G₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_left_adjoint_equivalence
+  (internal_adjoint_equivalence_identity F) η₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> map2cells_disp_left_adjequiv_over_id.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Map2Cells</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

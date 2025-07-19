@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>ProjectionsTheory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The projections theory</span>
+
+<span class="sd">  This algebraic theory is the free theory on the empty set. Therefore, it is also the initial</span>
+<span class="sd">  algebraic theory. The set T(n) just consists of the n variables.</span>
+<span class="sd">  This theory is called the &quot;projections theory&quot; because Hyland calls variables &quot;projections&quot;. When</span>
+<span class="sd">  interpreting an algebraic theory as the endomorphism theory (the theory consisting of the</span>
+<span class="sd">  morphisms X^n -&gt; X for some object X in some category), the variables are exactly the projections.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The definition of the projections theory [projections_theory]</span>
+<span class="sd">  2. The definition of a T-algebra structure on every set [projections_theory_algebra]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="projectionstheory-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="projectionstheory-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.Algebras.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The definition of the projections theory *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">projections_theory_data</span>
+  : algebraic_theory_data
+  := make_algebraic_theory_data
+      stnset
+      (<span class="kr">λ</span> <span class="nv">_</span> <span class="nv">i</span>, i)
+      (<span class="kr">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, g f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="projectionstheory-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="projectionstheory-v-chk1"><span class="kn">Lemma</span> <span class="nf">projections_is_theory</span> : is_algebraic_theory projections_theory_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_algebraic_theory projections_theory_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="projectionstheory-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="projectionstheory-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_algebraic_theory projections_theory_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> use make_is_algebraic_theory;
+    <span class="kp">repeat</span> <span class="nb">intro</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">projections_theory</span>
+  : algebraic_theory
+  := make_algebraic_theory _ projections_is_theory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. The definition of a T-algebra structure on every set *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">projections_theory_algebra_data</span> (<span class="nv">A</span> : hSet)
+  : algebra_data projections_theory
+  := make_algebra_data A (<span class="kr">λ</span> <span class="nv">n</span> (<span class="nv">i</span> : (projections_theory n : hSet)) <span class="nv">f</span>, f i).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="projectionstheory-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="projectionstheory-v-chk3"><span class="kn">Lemma</span> <span class="nf">projections_theory_algebra_is_algebra</span> (<span class="nv">A</span> : hSet)
+  : is_algebra (projections_theory_algebra_data A).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_algebra (projections_theory_algebra_data A)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="projectionstheory-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="projectionstheory-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_algebra (projections_theory_algebra_data A)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> use make_is_algebra;
+    <span class="kp">repeat</span> <span class="nb">intro</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">projections_theory_algebra</span> (<span class="nv">A</span> : hSet)
+  : algebra projections_theory
+  := make_algebra _ (projections_theory_algebra_is_algebra A).</span></span></pre>
+</div>
+</div></body>
+</html>
