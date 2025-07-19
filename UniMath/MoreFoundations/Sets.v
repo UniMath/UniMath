@@ -12,6 +12,7 @@ Require Export UniMath.Foundations.Sets.
   - The equivalence relation of being in the same fiber
   - Subsets
   - Binary relations
+  - Set truncation
  *)
 
 Local Open Scope logic.
@@ -496,4 +497,99 @@ Proof.
   rewrite hSet_univalence_map_inv.
   rewrite hSet_univalence_map_univalence_hSet.
   apply idpath.
+Qed.
+
+(** ** Set truncation
+    Based on a post by Niels van der Weide on June 13, 2023
+ *)
+
+Local Close Scope logic.
+
+Definition path_eqrel
+           (X : UU)
+  : eqrel X.
+Proof.
+  use make_eqrel.
+  - exact (λ x₁ x₂, ∥ x₁ = x₂ ∥ : hProp).
+  - repeat split.
+    + intros x₁ x₂ x₃.
+      use factor_through_squash.
+      {
+        apply impred ; intro.
+        apply propproperty.
+      }
+      intro p.
+      use factor_through_squash.
+      {
+        apply propproperty.
+      }
+      intro q.
+      apply hinhpr.
+      exact (p @ q).
+    + intros x.
+      exact (hinhpr (idpath _)).
+    + intros x₁ x₂.
+      use factor_through_squash.
+      {
+        apply propproperty.
+      }
+      intro p.
+      apply hinhpr.
+      exact (!p).
+Defined.
+
+Definition settrunc
+           (X : UU)
+  : hSet
+  := setquotinset (path_eqrel X).
+
+Definition settruncin
+           (X : UU)
+  : X → settrunc X
+  := setquotpr (path_eqrel X).
+
+
+Definition settrunc_rec
+           (X : UU)
+           {Y : hSet}
+           (i : X → Y)
+  : settrunc X → Y.
+Proof.
+  use setquotuniv.
+  - exact i.
+  - intros x₁ x₂.
+    use factor_through_squash.
+    {
+      apply setproperty.
+    }
+    intro p.
+    exact (maponpaths i p).
+Defined.
+
+Definition settrunc_rec_eq
+           (X : UU)
+           {Y : hSet}
+           (i : X → Y)
+           (x : X)
+  : settrunc_rec X i (settruncin X x) = i x.
+Proof.
+  apply idpath.
+Qed.
+
+Definition settrunc_rec_unique
+           (X : UU)
+           {Y : hSet}
+           (f g : settrunc X → Y)
+           (p : ∏ (x : X), f (settruncin X x) = g (settruncin X x))
+  : f = g.
+Proof.
+  use funextsec.
+  use setquotunivprop'.
+  {
+    intro.
+    apply setproperty.
+  }
+  intro x.
+  cbn.
+  exact (p x).
 Qed.
