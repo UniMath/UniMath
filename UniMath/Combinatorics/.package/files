@@ -2,6 +2,9 @@ StandardFiniteSets.v
 Vectors.v
 VectorsTests.v
 Lists.v
+FVectors.v
+FMatrices.v
+FLists.v
 FiniteSets.v
 KFiniteTypes.v
 KFiniteSubtypes.v
@@ -11,7 +14,6 @@ GraphPaths.v
 Equivalence_Relations.v
 WellFoundedRelations.v
 ZFstructures.v
-FiniteSequences.v
 BoundedSearch.v
 MetricTree.v
 Tests.v
