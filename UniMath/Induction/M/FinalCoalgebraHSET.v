@@ -34,27 +34,9 @@ Section MTypesAreSets.
 
   Local Definition F := MWithSets.F B.
 
-  Lemma SET_terminal : Terminal SET.
-  Proof.
-    unfold Terminal.
-    assert (p : isTerminal SET unitHSET).
-    {
-      unfold isTerminal.
-      cbn.
-      intro a.
-      use tpair.
-      - exact (λ _, tt).
-      - intro t.
-        apply funextfun.
-        intro x.
-        apply isapropunit.
-    }
-    exact (unitHSET,, p).
-  Defined.
-
   Lemma GetMType_HSET : Terminal (CoAlg_category (OmegaContPolynomialFunctors.F' B)).
   Proof.
-    exact (limCoAlgTerminal SET_terminal (PolyFunctor_omega_cont B) (LimConeHSET _ (termCochain SET_terminal (OmegaContPolynomialFunctors.F' B)))).
+    exact (limCoAlgTerminal TerminalHSET (PolyFunctor_omega_cont B) (LimConeHSET _ (termCochain TerminalHSET (OmegaContPolynomialFunctors.F' B)))).
   Defined.
 
   Lemma FinalCoalgAreSets (C : coalgebra F) (C_isfinal : is_final C) : isaset (pr1 C).
@@ -67,6 +49,6 @@ Section MTypesAreSets.
     set (p := M_carriers_eq (pr1hSet A) (λ a, pr1hSet (B a)) (C1,, C1_isfinal) (C,, C_isfinal) : pr1 C1 = pr1 C).
     set (C1_isaset := pr21 C1' : isaset (pr1 C1)).
     apply (transportf (λ c, isaset c) p C1_isaset).
-  Defined.
+  Qed.
 
 End MTypesAreSets.

@@ -505,37 +505,44 @@ Qed.
 
 Local Close Scope logic.
 
+Lemma path_eqrel_iseqrel
+  (X : UU)
+  : iseqrel (λ x₁ x₂ : X, ∥ x₁ = x₂ ∥ : hProp).
+Proof.
+  repeat split.
+  + intros x₁ x₂ x₃.
+    use factor_through_squash.
+    {
+      apply impred ; intro.
+      apply propproperty.
+    }
+    intro p.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intro q.
+    apply hinhpr.
+    exact (p @ q).
+  + intros x.
+    exact (hinhpr (idpath _)).
+  + intros x₁ x₂.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intro p.
+    apply hinhpr.
+    exact (!p).
+Qed.
+
 Definition path_eqrel
-           (X : UU)
+  (X : UU)
   : eqrel X.
 Proof.
   use make_eqrel.
   - exact (λ x₁ x₂, ∥ x₁ = x₂ ∥ : hProp).
-  - repeat split.
-    + intros x₁ x₂ x₃.
-      use factor_through_squash.
-      {
-        apply impred ; intro.
-        apply propproperty.
-      }
-      intro p.
-      use factor_through_squash.
-      {
-        apply propproperty.
-      }
-      intro q.
-      apply hinhpr.
-      exact (p @ q).
-    + intros x.
-      exact (hinhpr (idpath _)).
-    + intros x₁ x₂.
-      use factor_through_squash.
-      {
-        apply propproperty.
-      }
-      intro p.
-      apply hinhpr.
-      exact (!p).
+  - apply path_eqrel_iseqrel.
 Defined.
 
 Definition settrunc

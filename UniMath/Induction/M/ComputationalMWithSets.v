@@ -27,7 +27,7 @@ Require UniMath.CategoryTheory.FunctorCoalgebras.
 
 Local Open Scope cat.
 
-Section Upstream.
+Section Refinement.
 
   Context {A : ob HSET} (B : pr1hSet A → ob HSET).
 
@@ -65,4 +65,4 @@ Section Upstream.
     apply idpath.
   Defined.
 
-End Upstream.
+End Refinement.

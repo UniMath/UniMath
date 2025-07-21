@@ -52,48 +52,48 @@ Local Definition corec_C1 := ComputationalMWithSets.corecC B C' C'_isfinal.
 Local Definition c1 : UU := pr11 C'1.
 Local Definition destr_c1 : c1 -> F c1 := pr2 C'1.
 
-Definition Get_subtrees_list_rec_step (t0 : c1) (acc : list c1) : list c1
+Definition get_subtrees_list_rec_step (t0 : c1) (acc : list c1) : list c1
   := match destr_c1 t0 with
      | (ii1 _,, _) => acc
      | (ii2 _,, f) => cons (f (ii1 tt)) (cons (f (ii2 tt)) acc)
      end.
 
-Definition Get_subtrees_list_at_depth (t : c1) (depth : nat) : list c1.
+Definition get_subtrees_list_at_depth (t : c1) (depth : nat) : list c1.
 Proof.
   induction depth.
   - exact (cons t nil).
   - exact (list_ind
              (λ _, list c1)
              nil
-             (λ t0 _ acc, Get_subtrees_list_rec_step t0 acc)
+             (λ t0 _ acc, get_subtrees_list_rec_step t0 acc)
              IHdepth).
 Defined.
 
-Definition Get_labels_list_rec_step (t0 : c1) (acc : list bool) : list bool
+Definition get_labels_list_rec_step (t0 : c1) (acc : list bool) : list bool
   := match destr_c1 t0 with
      | (ii1 _,, _) => acc
      | (ii2 b,, _) => cons b acc
      end.
 
-Definition Get_labels_list_at_depth (t : c1) (depth : nat) : list bool.
+Definition get_labels_list_at_depth (t : c1) (depth : nat) : list bool.
 Proof.
-  set (l := Get_subtrees_list_at_depth t depth).
+  set (l := get_subtrees_list_at_depth t depth).
   exact (list_ind
            (λ _, list bool)
            nil
-           (λ t0 _ acc, Get_labels_list_rec_step t0 acc)
+           (λ t0 _ acc, get_labels_list_rec_step t0 acc)
            l).
 Defined.
 
 (* Full tree only labeled true *)
-Definition t0 : c1.
+Definition t_full_true : c1.
 Proof.
   set (c := unit).
   set (s_c := λ _ : c, (ii2 true,, λ _, tt) : F c).
   exact (corec_C1 (c,, s_c) tt).
 Defined.
 
-Lemma only_true : Get_labels_list_at_depth t0 4 = functionToList 16 (λ _, true).
+Lemma only_true : get_labels_list_at_depth t_full_true 4 = functionToList 16 (λ _, true).
 Proof.
   apply idpath.
 Defined.
@@ -104,7 +104,7 @@ Defined.
     /       /    \
   true   true   false
 *)
-Definition t1 : c1.
+Definition t_ex_finite : c1.
 Proof.
   set (c := nat).
   set (a0 := ii2 true : A).
@@ -130,7 +130,7 @@ Proof.
   exact (corec_C1 (c,, s_c) 0).
 Defined.
 
-Lemma row2 : Get_labels_list_at_depth t1 2 = cons true (cons true (cons false nil)).
+Lemma row2 : get_labels_list_at_depth t_ex_finite 2 = cons true (cons true (cons false nil)).
 Proof.
   apply idpath.
 Defined.
@@ -143,54 +143,54 @@ Local Definition corec_C := ComputationalM.corecM0 _ _ C C_isfinal.
 Local Definition c : UU := pr1 C.
 Local Definition destr_c : c -> F c := pr2 C.
 
-Definition Get_subtrees_list_rec_step_alt (t0 : c) (acc : list c) : list c
+Definition get_subtrees_list_rec_step_no_refinement (t0 : c) (acc : list c) : list c
   := match destr_c t0 with
      | (ii1 _,, _) => acc
      | (ii2 _,, f) => cons (f (ii1 tt)) (cons (f (ii2 tt)) acc)
      end.
 
-Definition Get_subtrees_list_at_depth_alt (t : c) (depth : nat) : list c.
+Definition get_subtrees_list_at_depth_no_refinement (t : c) (depth : nat) : list c.
 Proof.
   induction depth.
   - exact (cons t nil).
   - exact (list_ind
              (λ _, list c)
              nil
-             (λ t0 _ acc, Get_subtrees_list_rec_step_alt t0 acc)
+             (λ t0 _ acc, get_subtrees_list_rec_step_no_refinement t0 acc)
              IHdepth).
 Defined.
 
-Definition Get_labels_list_rec_step_alt (t0 : c) (acc : list bool) : list bool
+Definition get_labels_list_rec_step_no_refinement (t0 : c) (acc : list bool) : list bool
   := match destr_c t0 with
      | (ii1 _,, _) => acc
      | (ii2 b,, _) => cons b acc
      end.
 
-Definition Get_labels_list_at_depth_alt (t : c) (depth : nat) : list bool.
+Definition get_labels_list_at_depth_no_refinement (t : c) (depth : nat) : list bool.
 Proof.
-  set (l := Get_subtrees_list_at_depth_alt t depth).
+  set (l := get_subtrees_list_at_depth_no_refinement t depth).
   exact (list_ind
            (λ _, list bool)
            nil
-           (λ t0 _ acc, Get_labels_list_rec_step_alt t0 acc)
+           (λ t0 _ acc, get_labels_list_rec_step_no_refinement t0 acc)
            l).
 Defined.
 
 (* In some simple cases we do have a proof by idpath *)
-Definition t0_alt : c.
+Definition t_full_true_no_refinement : c.
 Proof.
   set (c := unit).
   set (s_c := λ _ : c, (ii2 true,, λ _, tt) : F c).
   exact (corec_C (c,, s_c) tt).
 Defined.
 
-Lemma only_true_alt : Get_labels_list_at_depth_alt t0_alt 4 = functionToList 16 (λ _, true).
+Lemma only_true_no_refinement : get_labels_list_at_depth_no_refinement t_full_true_no_refinement 4 = functionToList 16 (λ _, true).
 Proof.
   apply idpath.
 Defined.
 
 (* In more complex cases a more complex proof is needed *)
-Definition coalg_t1_alt : coalgebra F.
+Definition coalg_t_ex_finite_no_refinement : coalgebra F.
 Proof.
   set (c := nat).
   set (a0 := ii2 true : A).
@@ -216,12 +216,12 @@ Proof.
   exact (c,, s_c).
 Defined.
 
-Definition t1_alt : c.
+Definition t_ex_finite_no_refinement : c.
 Proof.
-  exact (corec_C coalg_t1_alt 0).
+  exact (corec_C coalg_t_ex_finite_no_refinement 0).
 Defined.
 
-Lemma row2_alt : Get_labels_list_at_depth_alt t1_alt 2 = cons true (cons true (cons false nil)).
+Lemma row2_no_refinement : get_labels_list_at_depth_no_refinement t_ex_finite_no_refinement 2 = cons true (cons true (cons false nil)).
 Proof.
   Fail apply idpath.
 Abort.

@@ -1,6 +1,7 @@
 (**
-    An alternative definition of coalgebra to have a precategory
-    usable to show an adjunction in MWithSets
+    An alternative definition of coalgebra in type_precat that
+    gives a precategory, so that an adjunction can be shown
+    in MWithSets
 *)
 
 Require Import UniMath.Foundations.Propositions.
@@ -66,7 +67,7 @@ Proof.
   exact (hinhpr (idpath (coalgebra_mor X x))).
 Defined.
 
-Definition coalgebra_homo_comp (X Y Z : coalgebra) (f : coalgebra_homo X Y)
+Lemma coalgebra_homo_comp (X Y Z : coalgebra) (f : coalgebra_homo X Y)
            (g : coalgebra_homo Y Z) : coalgebra_homo X Z.
 Proof.
   exists (f · g).
@@ -90,7 +91,7 @@ Proof.
   assert (p4 : (g · coalgebra_mor Z) (pr1 f x) = (f · (g · coalgebra_mor Z)) x) by apply idpath.
   rewrite p4.
   rewrite assoc.
-  exact (hinhpr (idpath ((f · g · coalgebra_mor Z) x))).
+  exact (hinhpr (idpath _)).
 Defined.
 
 Definition CoAlg_precategory_ob_mor : precategory_ob_mor :=
@@ -133,7 +134,7 @@ Proof.
       * apply funextsec.
         intro.
         apply isapropishinh.
-Defined.
+Qed.
 
 Definition CoAlg_precategory (F : functor type_precat type_precat) : precategory
   := make_precategory (CoAlg_precategory_data F) (CoAlg_is_precategory F).

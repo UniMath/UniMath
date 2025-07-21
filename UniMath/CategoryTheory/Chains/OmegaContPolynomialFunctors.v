@@ -20,6 +20,8 @@ Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.Chains.CoAdamek.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Diagrams.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.FunctorCoalgebras.
 
@@ -39,10 +41,8 @@ Section OmegaContinuity.
     (p : f = g)
     : h ∘ f = h ∘ g.
   Proof.
-    use funextfun.
-    apply homotfun.
     induction p.
-    apply homotrefl.
+    apply idpath.
   Defined.
 
   Lemma pullback_cone_edge
@@ -64,12 +64,12 @@ Section OmegaContinuity.
     }
     induction r.
     apply idpath.
-  Defined.
+  Qed.
 
   Lemma pathtozero_cone
     {c0 : SET}
     {c : cochain SET}
-    (cc0 : Graphs.Limits.cone (Diagrams.mapdiagram F' c) c0)
+    (cc0 : cone (mapdiagram F' c) c0)
     (v : nat)
     : pr1 ∘ (pr1 cc0 0) = pr1 ∘ (pr1 cc0 v).
   Proof.
@@ -77,24 +77,24 @@ Section OmegaContinuity.
     - apply idpath.
     - symmetry.
       etrans.
-      + apply (comp_right_eq_hset (λ x : pr1hSet (F' (Diagrams.dob c v)), pr1 x) (pr2 cc0 (S v) v (idpath (S v)))).
+      + apply (comp_right_eq_hset (λ x : pr1hSet (F' (dob c v)), pr1 x) (pr2 cc0 (S v) v (idpath (S v)))).
       + symmetry. apply IHv.
-  Defined.
+  Qed.
 
   Lemma pullback_cone
     {c0 : SET}
     (x : pr1hSet c0)
     {c : cochain SET}
-    (cc0 : Graphs.Limits.cone (Diagrams.mapdiagram F' c) c0)
-    : Graphs.Limits.cone c (B (pr1 (pr1 cc0 0 x))).
+    (cc0 : cone (mapdiagram F' c) c0)
+    : cone c (B (pr1 (pr1 cc0 0 x))).
   Proof.
-    unfold Graphs.Limits.cone.
-    unfold Graphs.Limits.cone in cc0.
-    unfold Limits.forms_cone in cc0.
-    set (f := λ v : Diagrams.vertex conat_graph, (λ b, pr2 (pr1 cc0 v x) (transportf (λ φ, pr1hSet (B (φ x))) (pathtozero_cone cc0 v) b)) : SET ⟦ B (pr1 (pr1 cc0 0 x)), Diagrams.dob c v ⟧).
-    assert (p : Limits.forms_cone c f).
+    unfold cone.
+    unfold cone in cc0.
+    unfold forms_cone in cc0.
+    set (f := λ v : vertex conat_graph, (λ b, pr2 (pr1 cc0 v x) (transportf (λ φ, pr1hSet (B (φ x))) (pathtozero_cone cc0 v) b)) : SET ⟦ B (pr1 (pr1 cc0 0 x)), dob c v ⟧).
+    assert (p : forms_cone c f).
     {
-      unfold Limits.forms_cone.
+      unfold forms_cone.
       simpl.
       intros u v e.
       induction e.
@@ -104,13 +104,13 @@ Section OmegaContinuity.
     exact (f,, p).
   Defined.
 
-  Lemma Exists_fun_mapdiagram
+  Lemma exists_fun_mapdiagram
     {c : cochain SET}
     {L : SET}
-    {cc : Graphs.Limits.cone c L}
-    (c_limcone : Graphs.Limits.isLimCone c L cc)
+    {cc : cone c L}
+    (c_limcone : isLimCone c L cc)
     (c0 : SET)
-    (cc0 : Graphs.Limits.cone (Diagrams.mapdiagram F' c) c0)
+    (cc0 : cone (mapdiagram F' c) c0)
     : SET ⟦ c0, F' L ⟧.
   Proof.
     intro x.
@@ -138,37 +138,47 @@ Section OmegaContinuity.
     apply p.
   Defined.
 
-  Lemma Exists_mor_mapdiagram
+  Lemma fun_mapdiagram_is_mor
     {c : cochain SET}
     {L : SET}
-    {cc : Graphs.Limits.cone c L}
-    (c_limcone : Graphs.Limits.isLimCone c L cc)
+    {cc : cone c L}
+    (c_limcone : isLimCone c L cc)
     (c0 : SET)
-    (cc0 : Graphs.Limits.cone (Diagrams.mapdiagram F' c) c0)
-    : ∑ f : SET ⟦ c0, F' L ⟧, Limits.is_cone_mor cc0 (Limits.mapcone F' c cc) f.
+    (cc0 : cone (mapdiagram F' c) c0)
+    (f := exists_fun_mapdiagram c_limcone c0 cc0)
+    : is_cone_mor cc0 (mapcone F' c cc) f.
   Proof.
-    set (f := Exists_fun_mapdiagram c_limcone c0 cc0).
-    assert (p : Limits.is_cone_mor cc0 (Limits.mapcone F' c cc) f).
-    {
-      unfold Limits.is_cone_mor.
-      intro v.
-      apply funextfun.
-      intro x.
-      use total2_paths_f.
-      - unfold Graphs.Limits.coneOut.
-        unfold Limits.mapcone.
-        cbn.
-        apply (toforallpaths _ _ _ (pathtozero_cone cc0 v) x).
-      - cbn.
-        unfold Graphs.Limits.coneOut.
-        set (a := pr1 (pr1 cc0 0 x) : pr1hSet A).
-        set (cx := B a).
-        set (ccx := pullback_cone x cc0).
-        set (p := pr2 (pr1 (c_limcone cx ccx)) v).
-        cbn in p.
-        unfold Graphs.Limits.coneOut in p.
-        apply (is_mor_mapdiagram2_point x (pathtozero_cone cc0 v) p).
-    }
+    unfold is_cone_mor.
+    intro v.
+    apply funextfun.
+    intro x.
+    use total2_paths_f.
+    - unfold coneOut.
+      unfold mapcone.
+      cbn.
+      apply (toforallpaths _ _ _ (pathtozero_cone cc0 v) x).
+    - cbn.
+      unfold coneOut.
+      set (a := pr1 (pr1 cc0 0 x) : pr1hSet A).
+      set (cx := B a).
+      set (ccx := pullback_cone x cc0).
+      set (p := pr2 (pr1 (c_limcone cx ccx)) v).
+      cbn in p.
+      unfold coneOut in p.
+      apply (is_mor_mapdiagram2_point x (pathtozero_cone cc0 v) p).
+  Qed.
+
+  Lemma exists_mor_mapdiagram
+    {c : cochain SET}
+    {L : SET}
+    {cc : cone c L}
+    (c_limcone : isLimCone c L cc)
+    (c0 : SET)
+    (cc0 : cone (mapdiagram F' c) c0)
+    : ∑ f : SET ⟦ c0, F' L ⟧, is_cone_mor cc0 (mapcone F' c cc) f.
+  Proof.
+    set (f := exists_fun_mapdiagram c_limcone c0 cc0).
+    set (p := fun_mapdiagram_is_mor c_limcone c0 cc0).
     exact (f,, p).
   Defined.
 
@@ -184,7 +194,7 @@ Section OmegaContinuity.
     induction q.
     cbn.
     apply idpath.
-  Defined.
+  Qed.
 
   Lemma proj_is_cone_mor_point
     {X Y Z0 Z : SET}
@@ -206,48 +216,48 @@ Section OmegaContinuity.
     assert (r : q'x' = q) by apply (setproperty A).
     induction r.
     apply (move_proof (pr1 ∘ h0) (pr1 ∘ # F' g ∘ f) (pr2 (f x)) g q').
-  Defined.
+  Qed.
 
   Lemma proj_is_cone_mor
     {c : cochain SET}
     {c0 L : SET}
     {x : pr1hSet c0}
-    {cc :  Graphs.Limits.cone c L}
-    {cc0 : Graphs.Limits.cone (Diagrams.mapdiagram F' c) c0}
+    {cc :  cone c L}
+    {cc0 : cone (mapdiagram F' c) c0}
     (f : SET ⟦ c0, F' L ⟧)
     {p : pr1 (f x) = pr1 (pr1 cc0 0 x)}
-    (pf : Limits.is_cone_mor cc0 (Limits.mapcone F' c cc) f)
-    : Limits.is_cone_mor (pullback_cone x cc0) cc (transportf _ p (pr2 (f x))).
+    (pf : is_cone_mor cc0 (mapcone F' c cc) f)
+    : is_cone_mor (pullback_cone x cc0) cc (transportf _ p (pr2 (f x))).
   Proof.
     set (ccx := pullback_cone x cc0).
     cbn.
-    unfold Limits.is_cone_mor.
+    unfold is_cone_mor.
     intro v.
-    unfold Limits.is_cone_mor in pf.
-    unfold Graphs.Limits.coneOut in pf.
+    unfold is_cone_mor in pf.
+    unfold coneOut in pf.
     apply (proj_is_cone_mor_point x (pr1 cc0 0) (pr1 cc0 v) (pf v) p (pathtozero_cone cc0 v)).
-  Defined.
+  Qed.
 
   Lemma morph_unicity_pushout
     {c : cochain SET}
     {c0 L : SET}
-    {cc : Graphs.Limits.cone c L}
-    (c_limcone : Graphs.Limits.isLimCone c L cc)
-    (cc0 : Graphs.Limits.cone (Diagrams.mapdiagram F' c) c0)
+    {cc : cone c L}
+    (c_limcone : isLimCone c L cc)
+    (cc0 : cone (mapdiagram F' c) c0)
     {f' : SET⟦ c0, F' L ⟧}
-    (pf' : Limits.is_cone_mor cc0 (Limits.mapcone F' c cc) f')
-    : f' = pr1 (Exists_mor_mapdiagram c_limcone c0 cc0).
+    (pf' : is_cone_mor cc0 (mapcone F' c cc) f')
+    : f' = pr1 (exists_mor_mapdiagram c_limcone c0 cc0).
   Proof.
-    set (f_pf := Exists_mor_mapdiagram c_limcone c0 cc0).
+    set (f_pf := exists_mor_mapdiagram c_limcone c0 cc0).
     set (f := pr1 f_pf).
     set (pf := pr2 f_pf).
     apply funextfun.
     intro x.
     set (p := maponpaths (λ z, pr1 z) (toforallpaths _ _ _ (pf' 0) x)).
     use total2_paths_f.
-    - unfold Limits.is_cone_mor in pf'.
-      unfold Limits.mapcone in pf'.
-      unfold Graphs.Limits.coneOut in pf'.
+    - unfold is_cone_mor in pf'.
+      unfold mapcone in pf'.
+      unfold coneOut in pf'.
       cbn in pf'.
       apply p.
     - cbn.
@@ -255,19 +265,19 @@ Section OmegaContinuity.
       set (cx := B a).
       set (ccx := pullback_cone x cc0).
       set (f'2 := transportf _ p (pr2 (f' x)) : SET ⟦ cx, L ⟧).
-      set (f'2_cone_mor := proj_is_cone_mor f' pf' : Limits.is_cone_mor ccx cc f'2).
+      set (f'2_cone_mor := proj_is_cone_mor f' pf' : is_cone_mor ccx cc f'2).
       apply (maponpaths (λ z, pr1 z) (pr2 (c_limcone cx ccx) (f'2,, f'2_cone_mor))).
-  Defined.
+  Qed.
 
   Lemma PolyFunctor_omega_cont : is_omega_cont F'.
   Proof.
     unfold is_omega_cont.
-    unfold Limits.preserves_limit.
-    unfold Graphs.Limits.isLimCone.
+    unfold preserves_limit.
+    unfold isLimCone.
     intros c L cc c_limcone c0 cc0.
     use tpair.
-    - exact (Exists_mor_mapdiagram c_limcone c0 cc0).
-    - set (f_pf := Exists_mor_mapdiagram c_limcone c0 cc0).
+    - exact (exists_mor_mapdiagram c_limcone c0 cc0).
+    - set (f_pf := exists_mor_mapdiagram c_limcone c0 cc0).
       set (f := pr1 f_pf).
       set (pf := pr2 f_pf).
       intro t.
@@ -275,11 +285,11 @@ Section OmegaContinuity.
       use total2_paths_f.
       + apply (morph_unicity_pushout c_limcone cc0 pf').
       + set (p1 := morph_unicity_pushout c_limcone cc0 pf').
-        set (tpf' := transportf (Limits.is_cone_mor cc0 (Limits.mapcone F' c cc)) p1 pf').
-        unfold Limits.is_cone_mor in pf.
+        set (tpf' := transportf (is_cone_mor cc0 (mapcone F' c cc)) p1 pf').
+        unfold is_cone_mor in pf.
         use funextsec.
         intro v.
-        apply (isaset_forall_hSet (pr1hSet c0) (λ _, F' (Diagrams.dob c v))).
+        apply (isaset_forall_hSet (pr1hSet c0) (λ _, F' (dob c v))).
   Defined.
 
 End OmegaContinuity.
