@@ -1,7 +1,6 @@
 FunctorAlgebras_legacy.v
 FunctorCoalgebras_legacy.v
 FunctorCoalgebras_legacy_alt_UU.v
-FunctorCoalgebras_legacy_alt_HSET.v
 
 PolynomialFunctors.v
 PolynomialAlgebras2Cells.v
