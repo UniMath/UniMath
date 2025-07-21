@@ -53,8 +53,10 @@ Section Upstream.
     apply (isaset_total2_hSet c0' (λ m0, hProp_to_hSet (∃ (C : coalgebra F) (c : coalgebra_ob F C), (pr11 (finalC0 C)) c = m0))).
   Defined.
 
-  Local Definition C' := MWithSets.C0' B C c_isaset.
-  Local Definition finalC' := MWithSets.C0'_is_final B C c_isaset finalC.
+  Local Definition C' : UniMath.CategoryTheory.FunctorCoalgebras.coalgebra_ob F'
+    := MWithSets.C0' B C c_isaset.
+  Local Definition finalC' : isTerminal (UniMath.CategoryTheory.FunctorCoalgebras.CoAlg_category F') C'
+    := MWithSets.C0'_is_final B C c_isaset finalC.
 
   Local Definition corecC := ComputationalM.corecM (pr1 A) (λ a, pr1 (B a)) C0 finalC0.
 

@@ -137,3 +137,44 @@ Defined.
 
 Definition CoAlg_precategory (F : functor HSET HSET) : precategory
   := make_precategory (CoAlg_precategory_data F) (CoAlg_is_precategory F).
+
+(* Note that this definition is only made to prove the adjunction
+   in MWithSets which only intends to be an illustration, but is
+   also equivalent to the original definition as show here : *)
+
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+Require UniMath.CategoryTheory.FunctorCoalgebras.
+
+Definition cat2_not_really_a_variant_of_coalgHSET (F : functor HSET HSET ) (C1 C2 : CoAlg_precategory F): CoAlg_precategory F ⟦C1, C2⟧ ≃ FunctorCoalgebras.CoAlg_category F ⟦C1, C2⟧.
+Proof.
+  use weq_iso.
+  - intros [f Hyp].
+    exists f.
+    apply funextfun.
+    intro x.
+    simple refine (factor_through_squash _  _ (Hyp x)).
+    + apply setproperty.
+    + trivial.
+  - intros [f Hyp].
+    exists f.
+    intro x.
+    apply hinhpr.
+    apply (toforallpaths _ _ _ Hyp).
+  - intros [f Hyp].
+    use total2_paths_f.
+    + apply idpath.
+    + show_id_type.
+      assert (aux : isaprop TYPE).
+      { apply impred.
+        intro x.
+        apply isapropishinh.
+      }
+      apply aux.
+  - intros [f Hyp].
+    use total2_paths_f.
+    + apply idpath.
+    + show_id_type.
+      set (is_set := isaset_forall_hSet (pr11 C1) (λ _, F (pr1 C2))).
+      apply is_set.
+Defined.
