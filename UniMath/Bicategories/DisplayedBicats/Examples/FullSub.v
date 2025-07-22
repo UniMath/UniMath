@@ -322,4 +322,10 @@ Section FullSubBicat.
     - exact disp_2cells_isaprop_fullsubbicat.
   Qed.
 
+  Definition disp_2cells_iscontr_fullsubbicat
+    : disp_2cells_iscontr disp_fullsubbicat.
+  Proof.
+    intro ; intros ; exact iscontrunit.
+  Qed.
+
 End FullSubBicat.

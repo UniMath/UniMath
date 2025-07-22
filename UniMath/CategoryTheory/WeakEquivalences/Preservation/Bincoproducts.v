@@ -143,3 +143,23 @@ Proof.
   use (weak_equiv_preserves_bincoproducts Fw).
   apply isBinCoproduct_BinCoproduct.
 Qed.
+
+Proposition weak_equiv_creates_bincoproducts
+  {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F) (BP : BinCoproducts C)
+  (D_univ : is_univalent D)
+  : BinCoproducts D.
+Proof.
+  intros d₁ d₂.
+
+  use (factor_through_squash _ _ (eso_from_weak_equiv _ Fw d₁)).
+  { apply isaprop_BinCoproduct, D_univ. }
+  intros [c₁ i₁].
+  use (factor_through_squash _ _ (eso_from_weak_equiv _ Fw d₂)).
+  { apply isaprop_BinCoproduct, D_univ. }
+  intros [c₂ i₂].
+
+  use (bincoproduct_of_isos _ i₁ i₂).
+  apply preserves_bincoproduct_to_bincoproduct.
+  - apply weak_equiv_preserves_bincoproducts, Fw.
+  - apply BP.
+Defined.

@@ -3,7 +3,9 @@
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Subtypes.
-Require Export UniMath.Combinatorics.FiniteSequences.
+Require Export UniMath.Combinatorics.StandardFiniteSets.
+Require Export UniMath.Combinatorics.FVectors.
+Require Export UniMath.Combinatorics.FLists.
 Require Export UniMath.Foundations.NaturalNumbers.
 
 Require Export UniMath.Tactics.EnsureStructuredProofs.
