@@ -25,7 +25,7 @@ Local Coercion coalgebra_ob : coalgebra >-> ob.
 Definition coalgebra_mor (X : coalgebra) : type_precat ⟦X, F X ⟧ := pr2 X.
 
 (** A homomorphism of F-coalgebras (F A, α : C ⟦A, F A⟧) and (F B, β : C ⟦B, F B⟧)
-    is a morphism f : C ⟦A, B⟧ s.t. the below diagram commutes.
+    is a morphism f : C ⟦A, B⟧ s.t. the below diagram commutes in a sense of pointwise propositionally truncated equality.
 
   <<
          f
