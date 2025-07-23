@@ -1,0 +1,1461 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>PseudoFunctorLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(***************************************************************************</span>
+<span class="sd"> Properties of the bicat of pseudofunctors</span>
+
+<span class="sd"> In this file, we study some properties of the bicategory of pseudofunctors.</span>
+<span class="sd"> We look at the following properties:</span>
+<span class="sd"> 1. Being locally groupoidal</span>
+<span class="sd"> 2. Terminal objects</span>
+<span class="sd"> 3. Initial objects</span>
+<span class="sd"> ***************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Constant.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Initial.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Products.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** 1. Locally groupoidal *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">FixALocallyGrpd</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">B₁</span> : bicat)
+          {<span class="nv">B₂</span> : bicat}
+          (<span class="nv">HB₂</span> : locally_groupoid B₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk1"><span class="kn">Definition</span> <span class="nf">locally_groupoid_psfunctor_bicat</span>
+    : locally_groupoid (psfunctor_bicat B₁ B₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HB₂</var><span class="hyp-type"><b>: </b><span>locally_groupoid B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_groupoid (psfunctor_bicat B₁ B₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HB₂</var><span class="hyp-type"><b>: </b><span>locally_groupoid B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">locally_groupoid (psfunctor_bicat B₁ B₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk3"><span class="nb">intros</span> F G α β m.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HB₂</var><span class="hyp-type"><b>: </b><span>locally_groupoid B₂</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat B₁ B₂ ⟦ F, G ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>α ==&gt; β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_invertible_2cell m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk4">use make_is_invertible_modification.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HB₂</var><span class="hyp-type"><b>: </b><span>locally_groupoid B₂</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat B₁ B₂ ⟦ F, G ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>α ==&gt; β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : B₁, is_invertible_2cell (m X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk5"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>HB₂</var><span class="hyp-type"><b>: </b><span>locally_groupoid B₂</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>psfunctor_bicat B₁ B₂ ⟦ F, G ⟧</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>α ==&gt; β</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_invertible_2cell (m x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> HB₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">FixALocallyGrpd</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** 2. Final objects *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">FixAFinal</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">B₁</span> : bicat)
+          (<span class="nv">B₂</span> : bicat)
+          (<span class="nv">f</span> : bifinal_obj B₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">final_psfunctor</span>
+    : psfunctor_bicat B₁ B₂
+    := constant _ (pr1 f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk6"><span class="kn">Definition</span> <span class="nf">final_psfunctor_1cell_data</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : pstrans_data F final_psfunctor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data F final_psfunctor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk7"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data F final_psfunctor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk8">use make_pstrans_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : B₁, B₂ ⟦ F X, final_psfunctor X ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk9" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk9"><hr></label><div class="goal-conclusion">∏ (X Y : B₁) (f0 : B₁ ⟦ X, Y ⟧),
+invertible_2cell (<span class="nl">?η₁</span> X · # final_psfunctor f0)
+  (# F f0 · <span class="nl">?η₁</span> Y)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chka">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : B₁, B₂ ⟦ F X, final_psfunctor X ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span>, is_bifinal_1cell_property (pr2 f) (F x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : B₁) (f0 : B₁ ⟦ X, Y ⟧),
+invertible_2cell
+  ((<span class="kr">λ</span> <span class="nv">x</span> : B₁, is_bifinal_1cell_property (pr2 f) (F x))
+     X · # final_psfunctor f0)
+  (# F f0
+   · (<span class="kr">λ</span> <span class="nv">x</span> : B₁,
+      is_bifinal_1cell_property (pr2 f) (F x)) Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chkc"><span class="nb">intros</span> x y g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">invertible_2cell
+  ((<span class="kr">λ</span> <span class="nv">x</span> : B₁, is_bifinal_1cell_property (pr2 f) (F x))
+     x · # final_psfunctor g)
+  (# F g
+   · (<span class="kr">λ</span> <span class="nv">x</span> : B₁,
+      is_bifinal_1cell_property (pr2 f) (F x)) y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (is_bifinal_invertible_2cell_property (pr2 f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chkd"><span class="kn">Definition</span> <span class="nf">final_psfunctor_1cell_is_pstrans</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : is_pstrans (final_psfunctor_1cell_data F).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans (final_psfunctor_1cell_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chke"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans (final_psfunctor_1cell_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (is_bifinal_eq_property (pr2 f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chkf"><span class="kn">Definition</span> <span class="nf">final_psfunctor_1cell</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : pstrans F final_psfunctor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans F final_psfunctor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk10"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans F final_psfunctor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk11">use make_pstrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data F final_psfunctor</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk12" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk12"><hr></label><div class="goal-conclusion">is_pstrans <span class="nl">?η</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk13">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data F final_psfunctor</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (final_psfunctor_1cell_data F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk14">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans (final_psfunctor_1cell_data F)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (final_psfunctor_1cell_is_pstrans F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">final_psfunctor_2cell_data</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             (<span class="nv">α</span> <span class="nv">β</span> : pstrans F final_psfunctor)
+    : modification_data α β
+    := <span class="kr">λ</span> <span class="nv">x</span>, is_bifinal_2cell_property (pr2 f) _ (α x) (β x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk15"><span class="kn">Definition</span> <span class="nf">final_psfunctor_2cell_is_modification</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             (<span class="nv">α</span> <span class="nv">β</span> : pstrans F final_psfunctor)
+    : is_modification (final_psfunctor_2cell_data α β).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_modification (final_psfunctor_2cell_data α β)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk16"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_modification (final_psfunctor_2cell_data α β)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk17"><span class="nb">intros</span> x y g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">psnaturality_of α g
+• (# F g ◃ final_psfunctor_2cell_data α β y) =
+(final_psfunctor_2cell_data α β x
+ ▹ # final_psfunctor g) • psnaturality_of β g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (is_bifinal_eq_property (pr2 f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk18"><span class="kn">Definition</span> <span class="nf">final_psfunctor_2cell</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             (<span class="nv">α</span> <span class="nv">β</span> : pstrans F final_psfunctor)
+    : modification α β.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">modification α β</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk19"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">modification α β</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk1a">use make_modification.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">modification_data α β</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk1b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk1b"><hr></label><div class="goal-conclusion">is_modification <span class="nl">?m</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk1c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">modification_data α β</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (final_psfunctor_2cell_data α β).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk1d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_modification (final_psfunctor_2cell_data α β)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (final_psfunctor_2cell_is_modification α β).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk1e"><span class="kn">Definition</span> <span class="nf">final_psfunctor_eq</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             {<span class="nv">α</span> <span class="nv">β</span> : pstrans F final_psfunctor}
+             (<span class="nv">m₁</span> <span class="nv">m₂</span> : modification α β)
+    : m₁ = m₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>modification α β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m₁ = m₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk1f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>modification α β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m₁ = m₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk20">use modification_eq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>modification α β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : B₁, m₁ X = m₂ X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk21"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans F final_psfunctor</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>modification α β</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m₁ X = m₂ X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (is_bifinal_eq_property (pr2 f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk22"><span class="kn">Definition</span> <span class="nf">psfunctor_bifinal</span>
+    : bifinal_obj (psfunctor_bicat B₁ B₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bifinal_obj (psfunctor_bicat B₁ B₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk23"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bifinal_obj (psfunctor_bicat B₁ B₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk24"><span class="nb">simple refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">psfunctor_bicat B₁ B₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk25" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk25"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">X</span> : psfunctor_bicat B₁ B₂, is_bifinal X) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk26">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">psfunctor_bicat B₁ B₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> final_psfunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk27">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">X</span> : psfunctor_bicat B₁ B₂, is_bifinal X)
+  final_psfunctor</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk28">use make_is_bifinal.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bifinal_1cell_property final_psfunctor</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk29" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk29"><hr></label><div class="goal-conclusion">∏ Y : psfunctor_bicat B₁ B₂,
+bifinal_2cell_property final_psfunctor Y</div></blockquote><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk2a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk2a"><hr></label><div class="goal-conclusion">∏ Y : psfunctor_bicat B₁ B₂,
+bifinal_eq_property final_psfunctor Y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk2b">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bifinal_1cell_property final_psfunctor</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> final_psfunctor_1cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk2c">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ Y : psfunctor_bicat B₁ B₂,
+bifinal_2cell_property final_psfunctor Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> @final_psfunctor_2cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk2d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>bifinal_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ Y : psfunctor_bicat B₁ B₂,
+bifinal_eq_property final_psfunctor Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> @final_psfunctor_eq.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">FixAFinal</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** 3. Initial objects *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">FixAnInitial</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">B₁</span> : bicat)
+          (<span class="nv">B₂</span> : bicat)
+          (<span class="nv">i</span> : biinitial_obj B₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">initial_psfunctor</span>
+    : psfunctor_bicat B₁ B₂
+    := constant _ (pr1 i).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk2e"><span class="kn">Definition</span> <span class="nf">initial_psfunctor_1cell_data</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : pstrans_data initial_psfunctor F.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data initial_psfunctor F</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk2f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data initial_psfunctor F</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk30">use make_pstrans_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : B₁, B₂ ⟦ initial_psfunctor X, F X ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk31" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk31"><hr></label><div class="goal-conclusion">∏ (X Y : B₁) (f : B₁ ⟦ X, Y ⟧),
+invertible_2cell (<span class="nl">?η₁</span> X · # F f)
+  (# initial_psfunctor f · <span class="nl">?η₁</span> Y)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk32">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : B₁, B₂ ⟦ initial_psfunctor X, F X ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">x</span>, is_biinitial_1cell_property (pr2 i) (F x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk33">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : B₁) (f : B₁ ⟦ X, Y ⟧),
+invertible_2cell
+  ((<span class="kr">λ</span> <span class="nv">x</span> : B₁,
+    is_biinitial_1cell_property (pr2 i) (F x)) X
+   · # F f)
+  (# initial_psfunctor f
+   · (<span class="kr">λ</span> <span class="nv">x</span> : B₁,
+      is_biinitial_1cell_property (pr2 i) (F x)) Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk34"><span class="nb">intros</span> x y g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">invertible_2cell
+  ((<span class="kr">λ</span> <span class="nv">x</span> : B₁,
+    is_biinitial_1cell_property (pr2 i) (F x)) x
+   · # F g)
+  (# initial_psfunctor g
+   · (<span class="kr">λ</span> <span class="nv">x</span> : B₁,
+      is_biinitial_1cell_property (pr2 i) (F x)) y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (is_biinitial_invertible_2cell_property (pr2 i)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk35"><span class="kn">Definition</span> <span class="nf">initial_psfunctor_1cell_is_pstrans</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : is_pstrans (initial_psfunctor_1cell_data F).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans (initial_psfunctor_1cell_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk36"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans (initial_psfunctor_1cell_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (is_biinitial_eq_property (pr2 i)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk37"><span class="kn">Definition</span> <span class="nf">initial_psfunctor_1cell</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : pstrans initial_psfunctor F.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans initial_psfunctor F</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk38"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans initial_psfunctor F</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk39">use make_pstrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data initial_psfunctor F</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk3a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk3a"><hr></label><div class="goal-conclusion">is_pstrans <span class="nl">?η</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk3b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data initial_psfunctor F</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (initial_psfunctor_1cell_data F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk3c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans (initial_psfunctor_1cell_data F)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (initial_psfunctor_1cell_is_pstrans F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">initial_psfunctor_2cell_data</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             (<span class="nv">α</span> <span class="nv">β</span> : pstrans initial_psfunctor F)
+    : modification_data α β
+    := <span class="kr">λ</span> <span class="nv">x</span>, is_biinitial_2cell_property (pr2 i) _ (α x) (β x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk3d"><span class="kn">Definition</span> <span class="nf">initial_psfunctor_2cell_is_modification</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             (<span class="nv">α</span> <span class="nv">β</span> : pstrans initial_psfunctor F)
+    : is_modification (initial_psfunctor_2cell_data α β).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_modification (initial_psfunctor_2cell_data α β)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk3e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_modification (initial_psfunctor_2cell_data α β)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk3f"><span class="nb">intros</span> x y g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">psnaturality_of α g
+• (# initial_psfunctor g
+   ◃ initial_psfunctor_2cell_data α β y) =
+(initial_psfunctor_2cell_data α β x ▹ # F g)
+• psnaturality_of β g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (is_biinitial_eq_property (pr2 i)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk40"><span class="kn">Definition</span> <span class="nf">initial_psfunctor_2cell</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             (<span class="nv">α</span> <span class="nv">β</span> : pstrans initial_psfunctor F)
+    : modification α β.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">modification α β</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk41"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">modification α β</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk42">use make_modification.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">modification_data α β</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk43" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk43"><hr></label><div class="goal-conclusion">is_modification <span class="nl">?m</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk44">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">modification_data α β</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (initial_psfunctor_2cell_data α β).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk45">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_modification (initial_psfunctor_2cell_data α β)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (initial_psfunctor_2cell_is_modification α β).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk46"><span class="kn">Definition</span> <span class="nf">initial_psfunctor_eq</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             {<span class="nv">α</span> <span class="nv">β</span> : pstrans initial_psfunctor F}
+             (<span class="nv">m₁</span> <span class="nv">m₂</span> : modification α β)
+    : m₁ = m₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>modification α β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m₁ = m₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk47"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>modification α β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m₁ = m₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk48">use modification_eq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>modification α β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : B₁, m₁ X = m₂ X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk49"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>pstrans initial_psfunctor F</span></span></span><br><span><var>m₁, m₂</var><span class="hyp-type"><b>: </b><span>modification α β</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m₁ X = m₂ X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (is_biinitial_eq_property (pr2 i)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk4a"><span class="kn">Definition</span> <span class="nf">psfunctor_biinitial</span>
+    : biinitial_obj (psfunctor_bicat B₁ B₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">biinitial_obj (psfunctor_bicat B₁ B₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk4b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">biinitial_obj (psfunctor_bicat B₁ B₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk4c"><span class="nb">simple refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">psfunctor_bicat B₁ B₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk4d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk4d"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">X</span> : psfunctor_bicat B₁ B₂, is_biinitial X) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk4e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">psfunctor_bicat B₁ B₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> initial_psfunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk4f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">X</span> : psfunctor_bicat B₁ B₂, is_biinitial X)
+  initial_psfunctor</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk50">use make_is_biinitial.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">biinitial_1cell_property initial_psfunctor</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk51" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk51"><hr></label><div class="goal-conclusion">∏ Y : psfunctor_bicat B₁ B₂,
+biinitial_2cell_property initial_psfunctor Y</div></blockquote><input class="alectryon-extra-goal-toggle" id="pseudofunctorlimits-v-chk52" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><label class="goal-separator" for="pseudofunctorlimits-v-chk52"><hr></label><div class="goal-conclusion">∏ Y : psfunctor_bicat B₁ B₂,
+biinitial_eq_property initial_psfunctor Y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk53">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">biinitial_1cell_property initial_psfunctor</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> initial_psfunctor_1cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk54">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ Y : psfunctor_bicat B₁ B₂,
+biinitial_2cell_property initial_psfunctor Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> @initial_psfunctor_2cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pseudofunctorlimits-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="pseudofunctorlimits-v-chk55">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>biinitial_obj B₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ Y : psfunctor_bicat B₁ B₂,
+biinitial_eq_property initial_psfunctor Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> @initial_psfunctor_eq.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">FixAnInitial</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(*</span>
+<span class="c">This is WIP. It is commented out, because it needs refactoring</span>
+
+<span class="c">Section FixProducts.</span>
+<span class="c">  Context (B₁ : bicat)</span>
+<span class="c">          (B₂ : bicat_with_binprod).</span>
+
+<span class="c">  Section BinprodPSFunctor.</span>
+<span class="c">    Context (F G : psfunctor B₁ B₂).</span>
+
+<span class="c">    Definition binprod_psfunctor_data</span>
+<span class="c">      : psfunctor_data B₁ B₂.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_psfunctor_data.</span>
+<span class="c">      - exact (λ z, F z ⊗ G z).</span>
+<span class="c">      - exact (λ x y f, #F f ⊗₁ #G f).</span>
+<span class="c">      - exact (λ x y f g α, ##F α ⊗₂ ##G α).</span>
+<span class="c">      - exact (λ b,</span>
+<span class="c">               (pair_1cell_id_id_invertible B₂ (F b) (G b))^-1</span>
+<span class="c">               • psfunctor_id F b ⊗₂ psfunctor_id G b).</span>
+<span class="c">      - exact (λ b₁ b₂ b₃ f g,</span>
+<span class="c">               pair_1cell_comp _ (#F f) (#F g) (#G f) (#G g)</span>
+<span class="c">               • psfunctor_comp F f g ⊗₂ psfunctor_comp G f g).</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition binprod_psfunctor_laws</span>
+<span class="c">      : psfunctor_laws binprod_psfunctor_data.</span>
+<span class="c">    Proof.</span>
+<span class="c">      repeat split.</span>
+<span class="c">      - intros b₁ b₂ f ; cbn.</span>
+<span class="c">        rewrite !psfunctor_id2.</span>
+<span class="c">        rewrite pair_2cell_id_id.</span>
+<span class="c">        apply idpath.</span>
+<span class="c">      - intros b₁ b₂ f g h α β ; cbn.</span>
+<span class="c">        rewrite !psfunctor_vcomp.</span>
+<span class="c">        rewrite !pair_2cell_comp.</span>
+<span class="c">        apply idpath.</span>
+<span class="c">      - intros b₁ b₂ f ; cbn.</span>
+<span class="c">        use binprod_ump_2cell_unique_alt.</span>
+<span class="c">        + apply (pr2 B₂).</span>
+<span class="c">        + pose (psfunctor_lunitor F f) as Fid.</span>
+<span class="c">          pose (psfunctor_lunitor G f) as Gid.</span>
+<span class="c">          apply TODO.</span>
+<span class="c">        + apply TODO.</span>
+<span class="c">      - intros b₁ b₂ f ; cbn.</span>
+<span class="c">        use binprod_ump_2cell_unique_alt.</span>
+<span class="c">        + apply (pr2 B₂).</span>
+<span class="c">        + rewrite &lt;- !lwhisker_vcomp.</span>
+<span class="c">          rewrite &lt;- !rwhisker_vcomp.</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          refine (!_).</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            do 2 apply maponpaths.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              etrans.</span>
+<span class="c">              {</span>
+<span class="c">                apply maponpaths.</span>
+<span class="c">                apply binprod_ump_2cell_pr1.</span>
+<span class="c">              }</span>
+<span class="c">              etrans.</span>
+<span class="c">              {</span>
+<span class="c">                apply maponpaths_2.</span>
+<span class="c">                apply binprod_ump_2cell_pr1.</span>
+<span class="c">              }</span>
+<span class="c">              rewrite !vassocl.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              etrans.</span>
+<span class="c">              {</span>
+<span class="c">                apply maponpaths.</span>
+<span class="c">                rewrite !vassocr.</span>
+<span class="c">                rewrite vcomp_linv.</span>
+<span class="c">                rewrite id2_left.</span>
+<span class="c">                apply idpath.</span>
+<span class="c">              }</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite lwhisker_vcomp.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              apply binprod_ump_2cell_pr1.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              do 5 apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite vcomp_linv.</span>
+<span class="c">              rewrite id2_left.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            apply idpath.</span>
+<span class="c">          }</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            do 6 apply maponpaths_2.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite &lt;- rwhisker_lwhisker_rassociator.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite &lt;- rwhisker_lwhisker_rassociator.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              do 2 apply maponpaths.</span>
+<span class="c">              apply binprod_ump_2cell_pr1.</span>
+<span class="c">            }</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              apply binprod_ump_2cell_pr1.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite lwhisker_vcomp.</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            do 2 apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite vcomp_linv.</span>
+<span class="c">            rewrite id2_left.</span>
+<span class="c">            apply idpath.</span>
+<span class="c">          }</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite lwhisker_vcomp.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite vcomp_linv.</span>
+<span class="c">            rewrite id2_right.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              rewrite &lt;- !lwhisker_vcomp.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            do 2 apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite lwhisker_lwhisker.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite &lt;- vcomp_whisker.</span>
+<span class="c">              rewrite !vassocl.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite &lt;- lwhisker_lwhisker_rassociator.</span>
+<span class="c">              rewrite !vassocl.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite lwhisker_vcomp.</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              exact (!(psfunctor_runitor F f)).</span>
+<span class="c">            }</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              do 2 apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite runitor_triangle.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite vcomp_runitor.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite &lt;- runitor_triangle.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite lassociator_rassociator.</span>
+<span class="c">            rewrite id2_left.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite vcomp_rinv.</span>
+<span class="c">            apply id2_right.</span>
+<span class="c">          }</span>
+<span class="c">          rewrite !lwhisker_vcomp.</span>
+<span class="c">          rewrite rinvunitor_runitor.</span>
+<span class="c">          rewrite id2_right.</span>
+<span class="c">          apply lunitor_lwhisker.</span>
+<span class="c">        + rewrite &lt;- !lwhisker_vcomp.</span>
+<span class="c">          rewrite &lt;- !rwhisker_vcomp.</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          refine (!_).</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            do 2 apply maponpaths.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              etrans.</span>
+<span class="c">              {</span>
+<span class="c">                apply maponpaths.</span>
+<span class="c">                apply binprod_ump_2cell_pr2.</span>
+<span class="c">              }</span>
+<span class="c">              etrans.</span>
+<span class="c">              {</span>
+<span class="c">                apply maponpaths_2.</span>
+<span class="c">                apply binprod_ump_2cell_pr2.</span>
+<span class="c">              }</span>
+<span class="c">              rewrite !vassocl.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              etrans.</span>
+<span class="c">              {</span>
+<span class="c">                apply maponpaths.</span>
+<span class="c">                rewrite !vassocr.</span>
+<span class="c">                rewrite vcomp_linv.</span>
+<span class="c">                rewrite id2_left.</span>
+<span class="c">                apply idpath.</span>
+<span class="c">              }</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite lwhisker_vcomp.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              apply binprod_ump_2cell_pr2.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              do 5 apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite vcomp_linv.</span>
+<span class="c">              rewrite id2_left.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            apply idpath.</span>
+<span class="c">          }</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            do 6 apply maponpaths_2.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite &lt;- rwhisker_lwhisker_rassociator.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite &lt;- rwhisker_lwhisker_rassociator.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              do 2 apply maponpaths.</span>
+<span class="c">              apply binprod_ump_2cell_pr2.</span>
+<span class="c">            }</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              apply binprod_ump_2cell_pr2.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite lwhisker_vcomp.</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            do 2 apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite vcomp_linv.</span>
+<span class="c">            rewrite id2_left.</span>
+<span class="c">            apply idpath.</span>
+<span class="c">          }</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite lwhisker_vcomp.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite vcomp_linv.</span>
+<span class="c">            rewrite id2_right.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              rewrite &lt;- !lwhisker_vcomp.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            do 2 apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite lwhisker_lwhisker.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite &lt;- vcomp_whisker.</span>
+<span class="c">              rewrite !vassocl.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite &lt;- lwhisker_lwhisker_rassociator.</span>
+<span class="c">              rewrite !vassocl.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite lwhisker_vcomp.</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              exact (!(psfunctor_runitor G f)).</span>
+<span class="c">            }</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              do 2 apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite runitor_triangle.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite vcomp_runitor.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite &lt;- runitor_triangle.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite lassociator_rassociator.</span>
+<span class="c">            rewrite id2_left.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite vcomp_rinv.</span>
+<span class="c">            apply id2_right.</span>
+<span class="c">          }</span>
+<span class="c">          rewrite !lwhisker_vcomp.</span>
+<span class="c">          rewrite rinvunitor_runitor.</span>
+<span class="c">          rewrite id2_right.</span>
+<span class="c">          apply lunitor_lwhisker.</span>
+<span class="c">      - intros b₁ b₂ b₃ b₄ f g h ; cbn.</span>
+<span class="c">        apply TODO.</span>
+<span class="c">      - intros b₁ b₂ b₃ f g₁ g₂ α ; cbn.</span>
+<span class="c">        apply TODO.</span>
+<span class="c">      - intros b₁ b₂ b₃ f g₁ g₂ α ; cbn.</span>
+<span class="c">        apply TODO.</span>
+<span class="c">    Qed.</span>
+
+<span class="c">    Definition binprod_psfunctor_invertible_2cells</span>
+<span class="c">      : invertible_cells binprod_psfunctor_data.</span>
+<span class="c">    Proof.</span>
+<span class="c">      split ; cbn.</span>
+<span class="c">      - intros b.</span>
+<span class="c">        is_iso.</span>
+<span class="c">        + use binprod_ump_2cell_invertible.</span>
+<span class="c">          * is_iso.</span>
+<span class="c">          * is_iso.</span>
+<span class="c">        + use binprod_ump_2cell_invertible.</span>
+<span class="c">          * is_iso.</span>
+<span class="c">            ** apply property_from_invertible_2cell.</span>
+<span class="c">            ** apply psfunctor_id.</span>
+<span class="c">          * is_iso.</span>
+<span class="c">            ** apply property_from_invertible_2cell.</span>
+<span class="c">            ** apply psfunctor_id.</span>
+<span class="c">      - intros b₁ b₂ b₃ f g.</span>
+<span class="c">        is_iso.</span>
+<span class="c">        + apply pair_1cell_comp_invertible.</span>
+<span class="c">        + use binprod_ump_2cell_invertible.</span>
+<span class="c">          * is_iso.</span>
+<span class="c">            ** apply property_from_invertible_2cell.</span>
+<span class="c">            ** apply psfunctor_comp.</span>
+<span class="c">          * is_iso.</span>
+<span class="c">            ** apply property_from_invertible_2cell.</span>
+<span class="c">            ** apply psfunctor_comp.</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition binprod_psfunctor</span>
+<span class="c">      : psfunctor B₁ B₂.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_psfunctor.</span>
+<span class="c">      - exact binprod_psfunctor_data.</span>
+<span class="c">      - exact binprod_psfunctor_laws.</span>
+<span class="c">      - exact binprod_psfunctor_invertible_2cells.</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition binprod_psfunctor_pr1_data</span>
+<span class="c">      : pstrans_data binprod_psfunctor F.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_pstrans_data.</span>
+<span class="c">      - exact (λ x, π₁).</span>
+<span class="c">      - cbn.</span>
+<span class="c">        simple refine (λ x y f, _).</span>
+<span class="c">        use inv_of_invertible_2cell.</span>
+<span class="c">        apply pair_1cell_pr1.</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition binprod_psfunctor_pr1_is_pstrans</span>
+<span class="c">      : is_pstrans binprod_psfunctor_pr1_data.</span>
+<span class="c">    Proof.</span>
+<span class="c">      repeat split.</span>
+<span class="c">      - intros b₁ b₂ f g α ; cbn.</span>
+<span class="c">        use vcomp_move_L_pM ; [ is_iso | ] ; cbn.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        use vcomp_move_R_Mp ; [ is_iso | ] ; cbn.</span>
+<span class="c">        rewrite pair_2cell_pr1.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        rewrite id2_right.</span>
+<span class="c">        apply idpath.</span>
+<span class="c">      - intros b ; cbn.</span>
+<span class="c">        rewrite &lt;- rwhisker_vcomp.</span>
+<span class="c">        refine (!_).</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          apply maponpaths.</span>
+<span class="c">          apply maponpaths_2.</span>
+<span class="c">          apply binprod_ump_2cell_pr1.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          do 2 apply maponpaths_2.</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            apply maponpaths_2.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite linvunitor_lunitor.</span>
+<span class="c">            apply id2_right.</span>
+<span class="c">          }</span>
+<span class="c">          apply runitor_rinvunitor.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite id2_left.</span>
+<span class="c">        use vcomp_move_R_pM ; [ is_iso | ] ; cbn.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        use vcomp_move_L_Mp ; [ is_iso | ] ; cbn.</span>
+<span class="c">        rewrite pair_2cell_pr1.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        rewrite id2_right.</span>
+<span class="c">        apply idpath.</span>
+<span class="c">      - intros b₁ b₂ b₃ f g ; cbn.</span>
+<span class="c">        rewrite &lt;- !rwhisker_vcomp.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        refine (!_).</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          do 6 apply maponpaths.</span>
+<span class="c">          apply pair_2cell_pr1.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        do 4 (use vcomp_move_R_pM ; [ is_iso | ] ; cbn).</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          apply maponpaths.</span>
+<span class="c">          apply maponpaths_2.</span>
+<span class="c">          apply binprod_ump_2cell_pr1.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite lassociator_rassociator, id2_left.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        do 4 apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        apply id2_left.</span>
+<span class="c">    Qed.</span>
+
+<span class="c">    Definition binprod_psfunctor_pr1</span>
+<span class="c">      : pstrans binprod_psfunctor F.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_pstrans.</span>
+<span class="c">      - exact binprod_psfunctor_pr1_data.</span>
+<span class="c">      - exact binprod_psfunctor_pr1_is_pstrans.</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition binprod_psfunctor_pr2_data</span>
+<span class="c">      : pstrans_data binprod_psfunctor G.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_pstrans_data.</span>
+<span class="c">      - exact (λ x, π₂).</span>
+<span class="c">      - cbn.</span>
+<span class="c">        simple refine (λ x y f, _).</span>
+<span class="c">        use inv_of_invertible_2cell.</span>
+<span class="c">        apply pair_1cell_pr2.</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition binprod_psfunctor_pr2_is_pstrans</span>
+<span class="c">      : is_pstrans binprod_psfunctor_pr2_data.</span>
+<span class="c">    Proof.</span>
+<span class="c">      repeat split.</span>
+<span class="c">      - intros b₁ b₂ f g α ; cbn.</span>
+<span class="c">        use vcomp_move_L_pM ; [ is_iso | ] ; cbn.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        use vcomp_move_R_Mp ; [ is_iso | ] ; cbn.</span>
+<span class="c">        rewrite pair_2cell_pr2.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        rewrite id2_right.</span>
+<span class="c">        apply idpath.</span>
+<span class="c">      - intros b ; cbn.</span>
+<span class="c">        rewrite &lt;- rwhisker_vcomp.</span>
+<span class="c">        refine (!_).</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          apply maponpaths.</span>
+<span class="c">          apply maponpaths_2.</span>
+<span class="c">          apply binprod_ump_2cell_pr2.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          do 2 apply maponpaths_2.</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            apply maponpaths_2.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite linvunitor_lunitor.</span>
+<span class="c">            apply id2_right.</span>
+<span class="c">          }</span>
+<span class="c">          apply runitor_rinvunitor.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite id2_left.</span>
+<span class="c">        use vcomp_move_R_pM ; [ is_iso | ] ; cbn.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        use vcomp_move_L_Mp ; [ is_iso | ] ; cbn.</span>
+<span class="c">        rewrite pair_2cell_pr2.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        rewrite id2_right.</span>
+<span class="c">        apply idpath.</span>
+<span class="c">      - intros b₁ b₂ b₃ f g ; cbn.</span>
+<span class="c">        rewrite &lt;- !rwhisker_vcomp.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        refine (!_).</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          do 6 apply maponpaths.</span>
+<span class="c">          apply pair_2cell_pr2.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        do 4 (use vcomp_move_R_pM ; [ is_iso | ] ; cbn).</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          apply maponpaths.</span>
+<span class="c">          apply maponpaths_2.</span>
+<span class="c">          apply binprod_ump_2cell_pr2.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite lassociator_rassociator, id2_left.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        do 4 apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        apply id2_left.</span>
+<span class="c">    Qed.</span>
+
+<span class="c">    Definition binprod_psfunctor_pr2</span>
+<span class="c">      : pstrans binprod_psfunctor G.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_pstrans.</span>
+<span class="c">      - exact binprod_psfunctor_pr2_data.</span>
+<span class="c">      - exact binprod_psfunctor_pr2_is_pstrans.</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition psfunctor_binprod_cone</span>
+<span class="c">      : binprod_cone F G.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_binprod_cone.</span>
+<span class="c">      - exact binprod_psfunctor.</span>
+<span class="c">      - exact binprod_psfunctor_pr1.</span>
+<span class="c">      - exact binprod_psfunctor_pr2.</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition pstrans_pair_data</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               (α : pstrans H F)</span>
+<span class="c">               (β : pstrans H G)</span>
+<span class="c">      : pstrans_data H binprod_psfunctor.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_pstrans_data.</span>
+<span class="c">      - exact (λ x, ⟨ α x , β x ⟩).</span>
+<span class="c">      - intros x y f ; simpl.</span>
+<span class="c">        use make_invertible_2cell.</span>
+<span class="c">        + exact (precomp_prod_1cell _ _ _ _</span>
+<span class="c">                 • ⟪ lassociator _ _ _</span>
+<span class="c">                     • (prod_1cell_pr1 _ _ _ ▹ _)</span>
+<span class="c">                     • psnaturality_of α f</span>
+<span class="c">                   ,</span>
+<span class="c">                     lassociator _ _ _</span>
+<span class="c">                     • (prod_1cell_pr2 _ _ _ ▹ _)</span>
+<span class="c">                     • psnaturality_of β f</span>
+<span class="c">                   ⟫</span>
+<span class="c">                 • (precomp_prod_1cell_invertible _ _ _ _)^-1).</span>
+<span class="c">        + is_iso.</span>
+<span class="c">          * apply precomp_prod_1cell_invertible.</span>
+<span class="c">          * use binprod_ump_2cell_invertible.</span>
+<span class="c">            ** is_iso ; apply property_from_invertible_2cell.</span>
+<span class="c">            ** is_iso ; apply property_from_invertible_2cell.</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition pstrans_pair_is_pstrans</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               (α : pstrans H F)</span>
+<span class="c">               (β : pstrans H G)</span>
+<span class="c">      : is_pstrans (pstrans_pair_data α β).</span>
+<span class="c">    Proof.</span>
+<span class="c">      repeat split.</span>
+<span class="c">      - intros b₁ b₂ f g τ ; cbn.</span>
+<span class="c">        use binprod_ump_2cell_unique_alt.</span>
+<span class="c">        + apply (pr2 B₂).</span>
+<span class="c">        + apply TODO.</span>
+<span class="c">        + apply TODO.</span>
+<span class="c">      - intros b ; cbn.</span>
+<span class="c">        use binprod_ump_2cell_unique_alt.</span>
+<span class="c">        + apply (pr2 B₂).</span>
+<span class="c">        + rewrite &lt;- !lwhisker_vcomp.</span>
+<span class="c">          rewrite &lt;- !rwhisker_vcomp.</span>
+<span class="c">          use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].</span>
+<span class="c">          rewrite !vassocr.</span>
+<span class="c">          rewrite &lt;- rwhisker_lwhisker.</span>
+<span class="c">          rewrite runitor_rwhisker.</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            apply maponpaths_2.</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            apply binprod_ump_2cell_pr1.</span>
+<span class="c">          }</span>
+<span class="c">          rewrite &lt;- !lwhisker_vcomp.</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          apply maponpaths.</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            do 2 apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite &lt;- rwhisker_lwhisker.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              apply binprod_ump_2cell_pr1.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              apply maponpaths.</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              apply binprod_ump_2cell_pr1.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite lassociator_rassociator.</span>
+<span class="c">            rewrite id2_left.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite binprod_ump_2cell_pr1.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              do 2 apply maponpaths.</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              apply binprod_ump_2cell_pr1.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite vcomp_linv.</span>
+<span class="c">            rewrite id2_left.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              do 3 apply maponpaths.</span>
+<span class="c">              rewrite !vassocr.</span>
+<span class="c">              rewrite vcomp_linv.</span>
+<span class="c">              rewrite id2_left.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite pstrans_id_alt.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            apply idpath.</span>
+<span class="c">          }</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            do 2 apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite lwhisker_vcomp.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite vcomp_linv.</span>
+<span class="c">            rewrite id2_right.</span>
+<span class="c">            rewrite &lt;- lwhisker_vcomp.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              refine (vassocr _ _ _ @ _).</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              rewrite !vassocl.</span>
+<span class="c">              rewrite lwhisker_lwhisker.</span>
+<span class="c">              apply idpath.</span>
+<span class="c">            }</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            etrans.</span>
+<span class="c">            {</span>
+<span class="c">              do 2 apply maponpaths.</span>
+<span class="c">              do 2 refine (vassocr _ _ _ @ _).</span>
+<span class="c">              apply maponpaths_2.</span>
+<span class="c">              rewrite &lt;- vcomp_whisker.</span>
+<span class="c">              rewrite !vassocl.</span>
+<span class="c">              rewrite lwhisker_vcomp.</span>
+<span class="c">              rewrite vcomp_rinv.</span>
+<span class="c">              rewrite lwhisker_id2.</span>
+<span class="c">              apply id2_right.</span>
+<span class="c">            }</span>
+<span class="c">            apply idpath.</span>
+<span class="c">          }</span>
+<span class="c">          do 3 refine (vassocr _ _ _ @ _).</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            do 2 apply maponpaths_2.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite lwhisker_vcomp.</span>
+<span class="c">            rewrite vcomp_linv.</span>
+<span class="c">            rewrite lwhisker_id2.</span>
+<span class="c">            apply id2_right.</span>
+<span class="c">          }</span>
+<span class="c">          rewrite rinvunitor_triangle.</span>
+<span class="c">          use (vcomp_rcancel (rassociator _ _ _)) ; [ is_iso | ].</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          rewrite lassociator_rassociator.</span>
+<span class="c">          rewrite id2_right.</span>
+<span class="c">          rewrite rwhisker_rwhisker_alt.</span>
+<span class="c">          rewrite vcomp_whisker.</span>
+<span class="c">          rewrite !vassocr.</span>
+<span class="c">          apply maponpaths_2.</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          etrans.</span>
+<span class="c">          {</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite vcomp_runitor.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            apply maponpaths.</span>
+<span class="c">            rewrite !vassocr.</span>
+<span class="c">            rewrite linvunitor_natural.</span>
+<span class="c">            rewrite &lt;- lwhisker_hcomp.</span>
+<span class="c">            rewrite !vassocl.</span>
+<span class="c">            rewrite lwhisker_vcomp.</span>
+<span class="c">            rewrite vcomp_rinv.</span>
+<span class="c">            rewrite lwhisker_id2.</span>
+<span class="c">            apply id2_right.</span>
+<span class="c">          }</span>
+<span class="c">          rewrite !vassocr.</span>
+<span class="c">          rewrite rinvunitor_runitor.</span>
+<span class="c">          rewrite id2_left.</span>
+<span class="c">          rewrite linvunitor_assoc.</span>
+<span class="c">          apply idpath.</span>
+<span class="c">        + apply TODO.</span>
+<span class="c">      - intros b₁ b₂ f g τ ; cbn.</span>
+<span class="c">        use binprod_ump_2cell_unique_alt.</span>
+<span class="c">        + apply (pr2 B₂).</span>
+<span class="c">        + apply TODO.</span>
+<span class="c">        + apply TODO.</span>
+<span class="c">    Time Qed.</span>
+
+<span class="c">    Definition pstrans_pair</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               (α : pstrans H F)</span>
+<span class="c">               (β : pstrans H G)</span>
+<span class="c">      : pstrans H binprod_psfunctor.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_pstrans.</span>
+<span class="c">      - exact (pstrans_pair_data α β).</span>
+<span class="c">      - exact (pstrans_pair_is_pstrans α β).</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition pstrans_pair_pr1_data</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               (α : pstrans H F)</span>
+<span class="c">               (β : pstrans H G)</span>
+<span class="c">      : invertible_modification_data</span>
+<span class="c">          (comp_pstrans</span>
+<span class="c">             (pstrans_pair α β)</span>
+<span class="c">             binprod_psfunctor_pr1)</span>
+<span class="c">          α</span>
+<span class="c">      := λ x, prod_1cell_pr1 _ (α x) (β x).</span>
+
+<span class="c">    Definition pstrans_pair_pr1_is_modification</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               (α : pstrans H F)</span>
+<span class="c">               (β : pstrans H G)</span>
+<span class="c">      : is_modification (pstrans_pair_pr1_data α β).</span>
+<span class="c">    Proof.</span>
+<span class="c">      intros x y f.</span>
+<span class="c">      simpl.</span>
+<span class="c">      rewrite &lt;- !rwhisker_vcomp.</span>
+<span class="c">      rewrite !vassocl.</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 4 apply maponpaths.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          apply maponpaths_2.</span>
+<span class="c">          apply prod_2cell_pr1.</span>
+<span class="c">        }</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        apply binprod_ump_2cell_pr1.</span>
+<span class="c">      }</span>
+<span class="c">      rewrite !vassocl.</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 11 apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          apply maponpaths_2.</span>
+<span class="c">          apply lassociator_rassociator.</span>
+<span class="c">        }</span>
+<span class="c">        apply id2_left.</span>
+<span class="c">      }</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 9 apply maponpaths.</span>
+<span class="c">        rewrite lwhisker_vcomp.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        rewrite lwhisker_id2.</span>
+<span class="c">        apply id2_right.</span>
+<span class="c">      }</span>
+<span class="c">      rewrite vcomp_linv.</span>
+<span class="c">      rewrite id2_right.</span>
+<span class="c">      rewrite !vassocr.</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      refine (_ @ id2_left _).</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      rewrite !vassocl.</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 3 apply maponpaths.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        apply binprod_ump_2cell_pr1.</span>
+<span class="c">      }</span>
+<span class="c">      rewrite !vassocl.</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 5 apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        apply id2_left.</span>
+<span class="c">      }</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 2 apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite lassociator_rassociator.</span>
+<span class="c">        rewrite id2_left.</span>
+<span class="c">        apply idpath.</span>
+<span class="c">      }</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite lwhisker_vcomp.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        rewrite lwhisker_id2.</span>
+<span class="c">        apply id2_left.</span>
+<span class="c">      }</span>
+<span class="c">      apply rassociator_lassociator.</span>
+<span class="c">    Qed.</span>
+
+<span class="c">    Definition pstrans_pair_pr1</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               (α : pstrans H F)</span>
+<span class="c">               (β : pstrans H G)</span>
+<span class="c">      : invertible_modification</span>
+<span class="c">          (comp_pstrans</span>
+<span class="c">             (pstrans_pair α β)</span>
+<span class="c">             binprod_psfunctor_pr1)</span>
+<span class="c">          α.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_invertible_modification.</span>
+<span class="c">      - exact (pstrans_pair_pr1_data α β).</span>
+<span class="c">      - exact (pstrans_pair_pr1_is_modification α β).</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition pstrans_pair_pr2_data</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               (α : pstrans H F)</span>
+<span class="c">               (β : pstrans H G)</span>
+<span class="c">      : invertible_modification_data</span>
+<span class="c">          (comp_pstrans</span>
+<span class="c">             (pstrans_pair α β)</span>
+<span class="c">             binprod_psfunctor_pr2)</span>
+<span class="c">          β</span>
+<span class="c">      := λ x, prod_1cell_pr2 _ (α x) (β x).</span>
+
+<span class="c">    Definition pstrans_pair_pr2_is_modification</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               (α : pstrans H F)</span>
+<span class="c">               (β : pstrans H G)</span>
+<span class="c">      : is_modification (pstrans_pair_pr2_data α β).</span>
+<span class="c">    Proof.</span>
+<span class="c">      intros x y f.</span>
+<span class="c">      simpl.</span>
+<span class="c">      rewrite &lt;- !rwhisker_vcomp.</span>
+<span class="c">      rewrite !vassocl.</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 4 apply maponpaths.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          apply maponpaths_2.</span>
+<span class="c">          apply prod_2cell_pr2.</span>
+<span class="c">        }</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        apply binprod_ump_2cell_pr2.</span>
+<span class="c">      }</span>
+<span class="c">      rewrite !vassocl.</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 11 apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          apply maponpaths_2.</span>
+<span class="c">          apply lassociator_rassociator.</span>
+<span class="c">        }</span>
+<span class="c">        apply id2_left.</span>
+<span class="c">      }</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 9 apply maponpaths.</span>
+<span class="c">        rewrite lwhisker_vcomp.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        rewrite lwhisker_id2.</span>
+<span class="c">        apply id2_right.</span>
+<span class="c">      }</span>
+<span class="c">      rewrite vcomp_linv.</span>
+<span class="c">      rewrite id2_right.</span>
+<span class="c">      rewrite !vassocr.</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      refine (_ @ id2_left _).</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      rewrite !vassocl.</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 3 apply maponpaths.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        apply binprod_ump_2cell_pr2.</span>
+<span class="c">      }</span>
+<span class="c">      rewrite !vassocl.</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 5 apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        apply id2_left.</span>
+<span class="c">      }</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        do 2 apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite lassociator_rassociator.</span>
+<span class="c">        rewrite id2_left.</span>
+<span class="c">        apply idpath.</span>
+<span class="c">      }</span>
+<span class="c">      etrans.</span>
+<span class="c">      {</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        rewrite lwhisker_vcomp.</span>
+<span class="c">        rewrite vcomp_linv.</span>
+<span class="c">        rewrite lwhisker_id2.</span>
+<span class="c">        apply id2_left.</span>
+<span class="c">      }</span>
+<span class="c">      apply rassociator_lassociator.</span>
+<span class="c">    Qed.</span>
+
+<span class="c">    Definition pstrans_pair_pr2</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               (α : pstrans H F)</span>
+<span class="c">               (β : pstrans H G)</span>
+<span class="c">      : invertible_modification</span>
+<span class="c">          (comp_pstrans</span>
+<span class="c">             (pstrans_pair α β)</span>
+<span class="c">             binprod_psfunctor_pr2)</span>
+<span class="c">          β.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_invertible_modification.</span>
+<span class="c">      - exact (pstrans_pair_pr2_data α β).</span>
+<span class="c">      - exact (pstrans_pair_pr2_is_modification α β).</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition prod_modification_data</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               {α β : pstrans H binprod_psfunctor}</span>
+<span class="c">               (m : modification</span>
+<span class="c">                      (α · binprod_cone_pr1 psfunctor_binprod_cone)</span>
+<span class="c">                      (β · binprod_cone_pr1 psfunctor_binprod_cone))</span>
+<span class="c">               (n : modification</span>
+<span class="c">                      (α · binprod_cone_pr2 psfunctor_binprod_cone)</span>
+<span class="c">                      (β · binprod_cone_pr2 psfunctor_binprod_cone))</span>
+<span class="c">      : modification_data α β.</span>
+<span class="c">    Proof.</span>
+<span class="c">      intro x.</span>
+<span class="c">      use binprod_ump_2cell.</span>
+<span class="c">      - apply (pr2 B₂).</span>
+<span class="c">      - exact (m x).</span>
+<span class="c">      - exact (n x).</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition prod_modification_is_modification</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               {α β : pstrans H binprod_psfunctor}</span>
+<span class="c">               (m : modification</span>
+<span class="c">                      (α · binprod_cone_pr1 psfunctor_binprod_cone)</span>
+<span class="c">                      (β · binprod_cone_pr1 psfunctor_binprod_cone))</span>
+<span class="c">               (n : modification</span>
+<span class="c">                      (α · binprod_cone_pr2 psfunctor_binprod_cone)</span>
+<span class="c">                      (β · binprod_cone_pr2 psfunctor_binprod_cone))</span>
+<span class="c">      : is_modification (prod_modification_data m n).</span>
+<span class="c">    Proof.</span>
+<span class="c">      intros x y f.</span>
+<span class="c">      use binprod_ump_2cell_unique_alt.</span>
+<span class="c">      - apply (pr2 B₂).</span>
+<span class="c">      - unfold prod_modification_data.</span>
+<span class="c">        rewrite &lt;- !rwhisker_vcomp.</span>
+<span class="c">        use (vcomp_rcancel (rassociator _ _ _)) ; [ is_iso | ].</span>
+<span class="c">        simpl.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        rewrite &lt;- rwhisker_lwhisker_rassociator.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          do 3 apply maponpaths.</span>
+<span class="c">          apply binprod_ump_2cell_pr1.</span>
+<span class="c">        }</span>
+<span class="c">        pose (q := modnaturality_of m _ _ f).</span>
+<span class="c">        simpl in q.</span>
+<span class="c">        use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].</span>
+<span class="c">        use (vcomp_lcancel (_ ◃  (pair_1cell_pr1 B₂ (# F f) (# G f)) ^-1)) ; [ is_iso | ].</span>
+<span class="c">        use (vcomp_lcancel (rassociator _ _ _)) ; [ is_iso | ].</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        refine (q @ _) ; clear q.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        do 2 apply maponpaths_2.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        refine (!_).</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          do 2 apply maponpaths.</span>
+<span class="c">          rewrite rwhisker_rwhisker.</span>
+<span class="c">          apply idpath.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          rewrite &lt;- vcomp_whisker.</span>
+<span class="c">          apply idpath.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        rewrite &lt;- rwhisker_rwhisker_alt.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        apply binprod_ump_2cell_pr1.</span>
+<span class="c">      - unfold prod_modification_data.</span>
+<span class="c">        rewrite &lt;- !rwhisker_vcomp.</span>
+<span class="c">        use (vcomp_rcancel (rassociator _ _ _)) ; [ is_iso | ].</span>
+<span class="c">        simpl.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        rewrite &lt;- rwhisker_lwhisker_rassociator.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          do 3 apply maponpaths.</span>
+<span class="c">          apply binprod_ump_2cell_pr2.</span>
+<span class="c">        }</span>
+<span class="c">        pose (q := modnaturality_of n _ _ f).</span>
+<span class="c">        simpl in q.</span>
+<span class="c">        use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].</span>
+<span class="c">        use (vcomp_lcancel (_ ◃  (pair_1cell_pr2 B₂ (# F f) (# G f)) ^-1)) ; [ is_iso | ].</span>
+<span class="c">        use (vcomp_lcancel (rassociator _ _ _)) ; [ is_iso | ].</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        refine (q @ _) ; clear q.</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        do 2 apply maponpaths_2.</span>
+<span class="c">        rewrite !vassocl.</span>
+<span class="c">        refine (!_).</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          do 2 apply maponpaths.</span>
+<span class="c">          rewrite rwhisker_rwhisker.</span>
+<span class="c">          apply idpath.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        etrans.</span>
+<span class="c">        {</span>
+<span class="c">          rewrite !vassocl.</span>
+<span class="c">          rewrite &lt;- vcomp_whisker.</span>
+<span class="c">          apply idpath.</span>
+<span class="c">        }</span>
+<span class="c">        rewrite !vassocr.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        rewrite &lt;- rwhisker_rwhisker_alt.</span>
+<span class="c">        apply maponpaths_2.</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        apply binprod_ump_2cell_pr2.</span>
+<span class="c">    Qed.</span>
+
+<span class="c">    Definition prod_modification</span>
+<span class="c">               {H : psfunctor B₁ B₂}</span>
+<span class="c">               {α β : pstrans H binprod_psfunctor}</span>
+<span class="c">               (m : modification</span>
+<span class="c">                      (α · binprod_cone_pr1 psfunctor_binprod_cone)</span>
+<span class="c">                      (β · binprod_cone_pr1 psfunctor_binprod_cone))</span>
+<span class="c">               (n : modification</span>
+<span class="c">                      (α · binprod_cone_pr2 psfunctor_binprod_cone)</span>
+<span class="c">                      (β · binprod_cone_pr2 psfunctor_binprod_cone))</span>
+<span class="c">      : modification α β.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_modification.</span>
+<span class="c">      - exact (prod_modification_data m n).</span>
+<span class="c">      - exact (prod_modification_is_modification m n).</span>
+<span class="c">    Defined.</span>
+
+<span class="c">    Definition psfunctor_binprod_ump</span>
+<span class="c">      : has_binprod_ump psfunctor_binprod_cone.</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_binprod_ump.</span>
+<span class="c">      - intro q.</span>
+<span class="c">        use make_binprod_1cell.</span>
+<span class="c">        + exact (pstrans_pair (binprod_cone_pr1 q) (binprod_cone_pr2 q)).</span>
+<span class="c">        + exact (pstrans_pair_pr1 (binprod_cone_pr1 q) (binprod_cone_pr2 q)).</span>
+<span class="c">        + exact (pstrans_pair_pr2 (binprod_cone_pr1 q) (binprod_cone_pr2 q)).</span>
+<span class="c">      - intros q α β m n.</span>
+<span class="c">        exact (prod_modification m n).</span>
+<span class="c">      - abstract</span>
+<span class="c">          (intros H α β m n ;</span>
+<span class="c">           use modification_eq ;</span>
+<span class="c">           intros x ;</span>
+<span class="c">           apply binprod_ump_2cell_pr1).</span>
+<span class="c">      - abstract</span>
+<span class="c">          (intros H α β m n ;</span>
+<span class="c">           use modification_eq ;</span>
+<span class="c">           intros x ;</span>
+<span class="c">           apply binprod_ump_2cell_pr2).</span>
+<span class="c">      - abstract</span>
+<span class="c">          (intro ; intros ;</span>
+<span class="c">           use modification_eq ;</span>
+<span class="c">           intros x ;</span>
+<span class="c">           pose (modcomponent_eq γpr1 x) as p₁ ;</span>
+<span class="c">           pose (modcomponent_eq γpr2 x) as p₂ ;</span>
+<span class="c">           pose (modcomponent_eq δpr1 x) as p₃ ;</span>
+<span class="c">           pose (modcomponent_eq δpr2 x) as p₄ ;</span>
+<span class="c">           use (binprod_ump_2cell_unique</span>
+<span class="c">                  _</span>
+<span class="c">                  (pr111 α x)</span>
+<span class="c">                  (pr111 β x)</span>
+<span class="c">                  _ _</span>
+<span class="c">                  p₁ p₂ p₃ p₄) ;</span>
+<span class="c">           apply (pr2 B₂)).</span>
+<span class="c">    Defined.</span>
+<span class="c">  End BinprodPSFunctor.</span>
+
+<span class="c">  Definition psfunctor_has_binprod</span>
+<span class="c">    : has_binprod (psfunctor_bicat B₁ B₂).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros F G.</span>
+<span class="c">    simple refine (_ ,, _).</span>
+<span class="c">    - exact (psfunctor_binprod_cone F G).</span>
+<span class="c">    - exact (psfunctor_binprod_ump F G).</span>
+<span class="c">  Defined.</span>
+<span class="c">End FixProducts.</span>
+<span class="c"> *)</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Fields.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Additional theorems about fields *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.Algebra.Domains_and_Fields.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Monoids.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Groups.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fields-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="fields-v-chk0"><span class="kn">Lemma</span> <span class="nf">isapropmultinvpair</span> :
+  ∏ (X : rig) (x : X), isaprop (multinvpair X x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : rig) (x : X), isaprop (multinvpair X x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fields-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="fields-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : rig) (x : X), isaprop (multinvpair X x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fields-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="fields-v-chk2"><span class="nb">intros</span> X x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>rig</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (multinvpair X x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isapropinvpair.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** Projections for [fld] *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">fld_proj</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">X</span> : fld}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">zero_fld</span> : X := <span class="mi">0</span>%<span class="bp">ring</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">one_fld</span> : X := <span class="mi">1</span>%<span class="bp">ring</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">plus_fld</span> (<span class="nv">x</span> <span class="nv">y</span> : X) : X := (x + y)%<span class="bp">ring</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">opp_fld</span> (<span class="nv">x</span> : X) : X := (- x)%<span class="bp">ring</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">minus_fld</span> (<span class="nv">x</span> <span class="nv">y</span> : X) : X := (x - y)%<span class="bp">ring</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">mult_fld</span> (<span class="nv">x</span> <span class="nv">y</span> : X) : X := (x * y)%<span class="bp">ring</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fields-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="fields-v-chk3"><span class="kn">Definition</span> <span class="nf">inv_fld</span> (<span class="nv">x</span> : X) : X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>fld</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fields-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="fields-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>fld</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fields-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="fields-v-chk5"><span class="nb">apply</span> sumofmaps <span class="kr">with</span> (<span class="mi">3</span> := fldchoice x) ; <span class="nb">intro</span> x&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>fld</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>x'</var><span class="hyp-type"><b>: </b><span>multinvpair X x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="fields-v-chk6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>fld</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>x'</var><span class="hyp-type"><b>: </b><span>x = <span class="mi">0</span>%<span class="bp">ring</span></span></span></span><br></div><label class="goal-separator" for="fields-v-chk6"><hr></label><div class="goal-conclusion">X</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fields-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="fields-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>fld</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>x'</var><span class="hyp-type"><b>: </b><span>multinvpair X x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr1 x&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="fields-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="fields-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>fld</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>x'</var><span class="hyp-type"><b>: </b><span>x = <span class="mi">0</span>%<span class="bp">ring</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> x.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">div_fld</span> (<span class="nv">x</span> <span class="nv">y</span> : X) : X := mult_fld x (inv_fld y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">fld_proj</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** [fld] and the other structures *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">fld_struct</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">X</span> : fld).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">fld_to_gr1</span> : gr :=
+  abgrtogr (pr1fld X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">fld_to_monoid1</span> : monoid :=
+  grtomonoid fld_to_gr1.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">fld_to_monoid2</span> : monoid :=
+  ringmultmonoid (pr1fld X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">fld_struct</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>SetCoends.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> Coends of profunctors</span>
+
+<span class="sd"> We show that the category of sets admits coends for profunctors. We also provide nice</span>
+<span class="sd"> accessors for them</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Coends of profunctors</span>
+<span class="sd"> 2. Accessors for coends of profunctors</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Profunctors.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coends.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CoendsHSET</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">F</span> : profunctor C C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** * 1. Coends of profunctors *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">HSET_coend_colimit</span>
+    : coend_colimit F
+    := construction_of_coends
+         F
+         Coequalizers_HSET
+         (CoproductsHSET_type _) (CoproductsHSET_type _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** * 2. Accessors for coends of profunctors *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">HSET_coend</span>
+    : hSet
+    := HSET_coend_colimit : HSET.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">HSET_coend_in</span>
+             (<span class="nv">x</span> : C)
+             (<span class="nv">h</span> : F x x)
+    : HSET_coend
+    := mor_of_cowedge _ HSET_coend_colimit x h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk1"><span class="kn">Proposition</span> <span class="nf">HSET_coend_comm</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">h</span> : F y x)
+    : HSET_coend_in y (rmap F f h)
+      =
+      HSET_coend_in x (lmap F f h).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>F y x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">HSET_coend_in y (rmap F f h) =
+HSET_coend_in x (lmap F f h)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>F y x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">HSET_coend_in y (rmap F f h) =
+HSET_coend_in x (lmap F f h)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (eqtohomot (eq_of_cowedge _ HSET_coend_colimit f) h).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">MorToCoend</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">X</span> : hSet)
+            (<span class="nv">fs</span> : ∏ (x : C), F x x → X)
+            (<span class="nv">ps</span> : ∏ (x y : C)
+                    (f : x --&gt; y)
+                    (h : F y x),
+                  fs _ (rmap F f h)
+                  =
+                  fs _ (lmap F f h)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk3"><span class="kn">Definition</span> <span class="nf">mor_from_HSET_coend</span>
+               (<span class="nv">x</span> : HSET_coend)
+      : X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>fs</var><span class="hyp-type"><b>: </b><span>∏ x : C, F x x → X</span></span></span><br><span><var>ps</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧) (h : F y x),
+fs y (rmap F f h) = fs x (lmap F f h)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>HSET_coend</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>fs</var><span class="hyp-type"><b>: </b><span>∏ x : C, F x x → X</span></span></span><br><span><var>ps</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧) (h : F y x),
+fs y (rmap F f h) = fs x (lmap F f h)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>HSET_coend</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk5"><span class="nb">refine</span> (mor_to_coend&#39; _ (pr2 HSET_coend_colimit) X fs _ x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>fs</var><span class="hyp-type"><b>: </b><span>∏ x : C, F x x → X</span></span></span><br><span><var>ps</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧) (h : F y x),
+fs y (rmap F f h) = fs x (lmap F f h)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>HSET_coend</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_cowedge F (make_cowedge_data F X fs)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ g ;
+         use funextsec ; <span class="nb">intro</span> h ;
+         <span class="nb">apply</span> ps).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk6"><span class="kn">Definition</span> <span class="nf">mor_from_HSET_coend_comm</span>
+               {<span class="nv">x</span> : C}
+               (<span class="nv">h</span> : F x x)
+      : mor_from_HSET_coend (HSET_coend_in x h)
+        =
+        fs x h.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>fs</var><span class="hyp-type"><b>: </b><span>∏ x : C, F x x → X</span></span></span><br><span><var>ps</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧) (h : F y x),
+fs y (rmap F f h) = fs x (lmap F f h)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>F x x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mor_from_HSET_coend (HSET_coend_in x h) = fs x h</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk7"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>fs</var><span class="hyp-type"><b>: </b><span>∏ x : C, F x x → X</span></span></span><br><span><var>ps</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧) (h : F y x),
+fs y (rmap F f h) = fs x (lmap F f h)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>F x x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mor_from_HSET_coend (HSET_coend_in x h) = fs x h</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk8"><span class="nb">refine</span> (eqtohomot (mor_to_coend&#39;_comm _ (pr2 HSET_coend_colimit) X fs _ x) h).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>fs</var><span class="hyp-type"><b>: </b><span>∏ x : C, F x x → X</span></span></span><br><span><var>ps</var><span class="hyp-type"><b>: </b><span>∏ (x y : C) (f : C ⟦ x, y ⟧) (h : F y x),
+fs y (rmap F f h) = fs x (lmap F f h)</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>F x x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_cowedge F (make_cowedge_data F X fs)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ g ;
+         use funextsec ; <span class="nb">intro</span> ;
+         <span class="nb">apply</span> ps).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">MorToCoend</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chk9"><span class="kn">Proposition</span> <span class="nf">mor_from_HSET_coend_eq</span>
+              (<span class="nv">X</span> : hSet)
+              (<span class="nv">f</span> <span class="nv">g</span> : HSET_coend → X)
+              (<span class="nv">x</span> : HSET_coend)
+              (<span class="nv">p</span> : ∏ (y : C)
+                     (h : F y y),
+                   f (HSET_coend_in y h) = g (HSET_coend_in y h))
+    : f x = g x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>HSET_coend → X</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>HSET_coend</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>∏ (y : C) (h : F y y),
+f (HSET_coend_in y h) = g (HSET_coend_in y h)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f x = g x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chka"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>HSET_coend → X</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>HSET_coend</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>∏ (y : C) (h : F y y),
+f (HSET_coend_in y h) = g (HSET_coend_in y h)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f x = g x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chkb">use (eqtohomot (mor_to_coend_eq F (pr2 HSET_coend_colimit) X _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>HSET_coend → X</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>HSET_coend</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>∏ (y : C) (h : F y y),
+f (HSET_coend_in y h) = g (HSET_coend_in y h)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+mor_of_cowedge F (pr1 HSET_coend_colimit) x · f =
+mor_of_cowedge F (pr1 HSET_coend_colimit) x · g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chkc"><span class="nb">intro</span> y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>HSET_coend → X</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>HSET_coend</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>∏ (y : C) (h : F y y),
+f (HSET_coend_in y h) = g (HSET_coend_in y h)</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mor_of_cowedge F (pr1 HSET_coend_colimit) y · f =
+mor_of_cowedge F (pr1 HSET_coend_colimit) y · g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chkd">use funextsec.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>HSET_coend → X</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>HSET_coend</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>∏ (y : C) (h : F y y),
+f (HSET_coend_in y h) = g (HSET_coend_in y h)</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">mor_of_cowedge F (pr1 HSET_coend_colimit) y · f ~
+mor_of_cowedge F (pr1 HSET_coend_colimit) y · g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="setcoends-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="setcoends-v-chke"><span class="nb">intro</span> h.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>profunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>HSET_coend → X</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>HSET_coend</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>∏ (y : C) (h : F y y),
+f (HSET_coend_in y h) = g (HSET_coend_in y h)</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>F (y,, y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(mor_of_cowedge F (pr1 HSET_coend_colimit) y · f) h =
+(mor_of_cowedge F (pr1 HSET_coend_colimit) y · g) h</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> p.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CoendsHSET</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input">#[<span class="kn">global</span>] <span class="kn">Opaque</span> HSET_coend HSET_coend_in mor_from_HSET_coend.</span></span></pre>
+</div>
+</div></body>
+</html>

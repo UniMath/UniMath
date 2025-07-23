@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>EmptyPresheaf.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The Empty Presheaf</span>
+
+<span class="sd">  The initial object in the category of presheaves the presheaf where every set is empty.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The empty presheaf [empty_presheaf]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.Presheaves.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+<span class="sd">(** * 1. The empty presheaf *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">EmptyPresheaf</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">L</span> : algebraic_theory).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="emptypresheaf-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="emptypresheaf-v-chk0"><span class="kn">Definition</span> <span class="nf">empty_presheaf_data</span>
+    : presheaf_data L.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">presheaf_data L</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="emptypresheaf-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="emptypresheaf-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">presheaf_data L</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="emptypresheaf-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="emptypresheaf-v-chk2">use make_presheaf_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Categories.ob
+  (Categories.precategory_ob_mor_from_precategory_data
+     (Categories.precategory_data_from_precategory
+        (Categories.category_to_precategory
+           (IndexedSetCategory.indexed_set_cat nat))))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="emptypresheaf-v-chk3" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><label class="goal-separator" for="emptypresheaf-v-chk3"><hr></label><div class="goal-conclusion">∏ (m n : nat) (f : <span class="nl">?P</span> m)
+(g : StandardFiniteSets.stn m → L n),
+PresheafCategoryCore.op_ax L <span class="nl">?P</span> m n f g</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="emptypresheaf-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="emptypresheaf-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Categories.ob
+  (Categories.precategory_ob_mor_from_precategory_data
+     (Categories.precategory_data_from_precategory
+        (Categories.category_to_precategory
+           (IndexedSetCategory.indexed_set_cat nat))))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="emptypresheaf-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="emptypresheaf-v-chk5"><span class="nb">intro</span> n.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hSet</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (make_hSet ∅ isasetempty).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="emptypresheaf-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="emptypresheaf-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (m n : nat)
+(f : ((<span class="kr">λ</span> <span class="nv">_</span> : nat, make_hSet ∅ isasetempty)
+      :
+      Categories.ob
+        (Categories.precategory_ob_mor_from_precategory_data
+           (Categories.precategory_data_from_precategory
+              (Categories.category_to_precategory
+                 (IndexedSetCategory.indexed_set_cat
+                    nat))))) m)
+(g : StandardFiniteSets.stn m → L n),
+PresheafCategoryCore.op_ax L
+  ((<span class="kr">λ</span> <span class="nv">_</span> : nat, make_hSet ∅ isasetempty)
+   :
+   Categories.ob
+     (Categories.precategory_ob_mor_from_precategory_data
+        (Categories.precategory_data_from_precategory
+           (Categories.category_to_precategory
+              (IndexedSetCategory.indexed_set_cat nat)))))
+  m n f g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="emptypresheaf-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="emptypresheaf-v-chk7"><span class="nb">intros</span> m n f g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>m, n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>((<span class="kr">λ</span> <span class="nv">_</span> : nat, make_hSet ∅ isasetempty)
+ :
+ Categories.ob
+   (Categories.precategory_ob_mor_from_precategory_data
+      (Categories.precategory_data_from_precategory
+         (Categories.category_to_precategory
+            (IndexedSetCategory.indexed_set_cat
+               nat))))) m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → L n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">PresheafCategoryCore.op_ax L
+  ((<span class="kr">λ</span> <span class="nv">_</span> : nat, make_hSet ∅ isasetempty)
+   :
+   Categories.ob
+     (Categories.precategory_ob_mor_from_precategory_data
+        (Categories.precategory_data_from_precategory
+           (Categories.category_to_precategory
+              (IndexedSetCategory.indexed_set_cat nat)))))
+  m n f g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">induction</span> f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="emptypresheaf-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="emptypresheaf-v-chk8"><span class="kn">Lemma</span> <span class="nf">empty_is_presheaf</span>
+    : is_presheaf empty_presheaf_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_presheaf empty_presheaf_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="emptypresheaf-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="emptypresheaf-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>L</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_presheaf empty_presheaf_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input">use make_is_presheaf;
+      <span class="nb">intros</span>;
+      <span class="nb">apply</span> fromempty;
+      <span class="bp">assumption</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">empty_presheaf</span>
+    : presheaf L
+    := make_presheaf
+      empty_presheaf_data
+      empty_is_presheaf.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">EmptyPresheaf</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

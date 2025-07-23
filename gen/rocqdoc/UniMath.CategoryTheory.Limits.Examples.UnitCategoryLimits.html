@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.StandardCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. Terminal objects
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="isTerminal_unit_category" class="idref" href="#isTerminal_unit_category"><span class="id" title="definition">isTerminal_unit_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:1" class="idref" href="#x:1"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#isTerminal"><span class="id" title="definition">isTerminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#x:1"><span class="id" title="variable">x</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#make_isTerminal"><span class="id" title="definition">make_isTerminal</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a> ; [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a> | ].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="terminal_unit_category" class="idref" href="#terminal_unit_category"><span class="id" title="definition">terminal_unit_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isTerminal_unit_category"><span class="id" title="definition">isTerminal_unit_category</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="functor_to_unit_preserves_terminal" class="idref" href="#functor_to_unit_preserves_terminal"><span class="id" title="definition">functor_to_unit_preserves_terminal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:2" class="idref" href="#C:2"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_terminal"><span class="id" title="definition">preserves_terminal</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#C:2"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">Hx</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isTerminal_unit_category"><span class="id" title="definition">isTerminal_unit_category</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. Products
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="isBinProduct_unit_category" class="idref" href="#isBinProduct_unit_category"><span class="id" title="definition">isBinProduct_unit_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:3" class="idref" href="#x:3"><span class="id" title="binder">x</span></a> <a id="y:4" class="idref" href="#y:4"><span class="id" title="binder">y</span></a> <a id="z:5" class="idref" href="#z:5"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:6" class="idref" href="#f:6"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#z:5"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#x:3"><span class="id" title="variable">x</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="g:7" class="idref" href="#g:7"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#z:5"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#y:4"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#isBinProduct"><span class="id" title="definition">isBinProduct</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#x:3"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#y:4"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#z:5"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#f:6"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#g:7"><span class="id" title="variable">g</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">h₁</span> <span class="id" title="var">h₂</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#invproofirrelevance"><span class="id" title="lemma">invproofirrelevance</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">fg₁</span> <span class="id" title="var">fg₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="binproduct_unit_category" class="idref" href="#binproduct_unit_category"><span class="id" title="definition">binproduct_unit_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#make_BinProduct"><span class="id" title="definition">make_BinProduct</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isBinProduct_unit_category"><span class="id" title="definition">isBinProduct_unit_category</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="functor_to_unit_preserves_binproduct" class="idref" href="#functor_to_unit_preserves_binproduct"><span class="id" title="definition">functor_to_unit_preserves_binproduct</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:8" class="idref" href="#C:8"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_binproduct"><span class="id" title="definition">preserves_binproduct</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#C:8"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isBinProduct_unit_category"><span class="id" title="definition">isBinProduct_unit_category</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. Pullbacks
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="isPullback_unit_category" class="idref" href="#isPullback_unit_category"><span class="id" title="definition">isPullback_unit_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="w:9" class="idref" href="#w:9"><span class="id" title="binder">w</span></a> <a id="x:10" class="idref" href="#x:10"><span class="id" title="binder">x</span></a> <a id="y:11" class="idref" href="#y:11"><span class="id" title="binder">y</span></a> <a id="z:12" class="idref" href="#z:12"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:13" class="idref" href="#f:13"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#x:10"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#z:12"><span class="id" title="variable">z</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="g:14" class="idref" href="#g:14"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#y:11"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#z:12"><span class="id" title="variable">z</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="b0ba45d35c1b69ed40921ba887279527" class="idref" href="#b0ba45d35c1b69ed40921ba887279527"><span class="id" title="binder">p₁</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#w:9"><span class="id" title="variable">w</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#x:10"><span class="id" title="variable">x</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="115ad716afab744018d8c0b5ba8ca2ff" class="idref" href="#115ad716afab744018d8c0b5ba8ca2ff"><span class="id" title="binder">p₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#w:9"><span class="id" title="variable">w</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#y:11"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="eq:17" class="idref" href="#eq:17"><span class="id" title="binder">eq</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#b0ba45d35c1b69ed40921ba887279527"><span class="id" title="variable">p₁</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#f:13"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#115ad716afab744018d8c0b5ba8ca2ff"><span class="id" title="variable">p₂</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#g:14"><span class="id" title="variable">g</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#isPullback"><span class="id" title="definition">isPullback</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#eq:17"><span class="id" title="variable">eq</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">r</span> <span class="id" title="var">h₁</span> <span class="id" title="var">h₂</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#invproofirrelevance"><span class="id" title="lemma">invproofirrelevance</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">fg₁</span> <span class="id" title="var">fg₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pullbacks_unit_category" class="idref" href="#pullbacks_unit_category"><span class="id" title="definition">pullbacks_unit_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#Pullbacks"><span class="id" title="definition">Pullbacks</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#make_Pullback"><span class="id" title="definition">make_Pullback</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isPullback_unit_category"><span class="id" title="definition">isPullback_unit_category</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="functor_to_unit_preserves_pullback" class="idref" href="#functor_to_unit_preserves_pullback"><span class="id" title="definition">functor_to_unit_preserves_pullback</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:18" class="idref" href="#C:18"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_pullback"><span class="id" title="definition">preserves_pullback</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#C:18"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isPullback_unit_category"><span class="id" title="definition">isPullback_unit_category</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 4. Initial objects
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="isInitial_unit_category" class="idref" href="#isInitial_unit_category"><span class="id" title="definition">isInitial_unit_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:19" class="idref" href="#x:19"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#isInitial"><span class="id" title="definition">isInitial</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#x:19"><span class="id" title="variable">x</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a> ; [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a> | ].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="initial_unit_category" class="idref" href="#initial_unit_category"><span class="id" title="definition">initial_unit_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isInitial_unit_category"><span class="id" title="definition">isInitial_unit_category</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="functor_to_unit_preserves_initial" class="idref" href="#functor_to_unit_preserves_initial"><span class="id" title="definition">functor_to_unit_preserves_initial</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:20" class="idref" href="#C:20"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_initial"><span class="id" title="definition">preserves_initial</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#C:20"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">Hx</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isInitial_unit_category"><span class="id" title="definition">isInitial_unit_category</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 5. Coproducts
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="isBinCoproduct_unit_category" class="idref" href="#isBinCoproduct_unit_category"><span class="id" title="definition">isBinCoproduct_unit_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:21" class="idref" href="#x:21"><span class="id" title="binder">x</span></a> <a id="y:22" class="idref" href="#y:22"><span class="id" title="binder">y</span></a> <a id="z:23" class="idref" href="#z:23"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:24" class="idref" href="#f:24"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#x:21"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#z:23"><span class="id" title="variable">z</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="g:25" class="idref" href="#g:25"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#y:22"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#z:23"><span class="id" title="variable">z</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#isBinCoproduct"><span class="id" title="definition">isBinCoproduct</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#x:21"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#y:22"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#z:23"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#f:24"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#g:25"><span class="id" title="variable">g</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">h₁</span> <span class="id" title="var">h₂</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#invproofirrelevance"><span class="id" title="lemma">invproofirrelevance</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">fg₁</span> <span class="id" title="var">fg₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="bincoproduct_unit_category" class="idref" href="#bincoproduct_unit_category"><span class="id" title="definition">bincoproduct_unit_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#make_BinCoproduct"><span class="id" title="definition">make_BinCoproduct</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isBinCoproduct_unit_category"><span class="id" title="definition">isBinCoproduct_unit_category</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="functor_to_unit_preserves_bincoproduct" class="idref" href="#functor_to_unit_preserves_bincoproduct"><span class="id" title="definition">functor_to_unit_preserves_bincoproduct</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:26" class="idref" href="#C:26"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_bincoproduct"><span class="id" title="definition">preserves_bincoproduct</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#C:26"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.html#isBinCoproduct_unit_category"><span class="id" title="definition">isBinCoproduct_unit_category</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

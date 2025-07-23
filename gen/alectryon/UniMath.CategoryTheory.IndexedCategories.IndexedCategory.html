@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>IndexedCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*************************************************************************</span>
+
+<span class="sd"> Indexed categories</span>
+
+<span class="sd"> A category indexed on `C` is the same as a pseudofunctor from `C^op` to</span>
+<span class="sd"> the bicategory of categories. However, one can also formulate this</span>
+<span class="sd"> definition without referring to bicategories and pseudofunctors, and that</span>
+<span class="sd"> is what we define in this file.</span>
+
+<span class="sd"> Compared to the definition of a pseudofunctor into `Cat`, the definition</span>
+<span class="sd"> in this file has the following simplifications:</span>
+<span class="sd"> - Some of the laws hold by default. This is because `C^op` is a discrete</span>
+<span class="sd">   bicategory and the laws that quantify over all 2-cells (preservation</span>
+<span class="sd">   of vertical and horizontal composition) then can be proven using path</span>
+<span class="sd">   induction.</span>
+<span class="sd"> - The laws are formulated as pointwise equalities of natural</span>
+<span class="sd">   transformations rather than equality of natural transformations.</span>
+
+<span class="sd"> It is worthwhile to note that `indexed_cat C` represents a pseudofunctor</span>
+<span class="sd"> from `C` to the bicategory of univalent categories and not a</span>
+<span class="sd"> pseudofunctor from `C^op`.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The data of an indexed category</span>
+<span class="sd"> 2. The laws of indexed categories</span>
+<span class="sd"> 3. Indexed categories</span>
+<span class="sd"> 3.1. Derived laws</span>
+<span class="sd"> 3.2. Isomorphisms for the identity and composition</span>
+
+<span class="sd"> *************************************************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 1. The data of an indexed category</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">indexed_cat_data</span>
+           (<span class="nv">C</span> : category)
+  : UU
+  := ∑ (F₀ : C → univalent_category)
+       (F₁ : ∏ (x y : C), x --&gt; y → F₀ x ⟶ F₀ y),
+     (∏ (x : C), functor_identity _ ⟹ F₁ x x (identity x))
+     ×
+     (∏ (x y z : C)
+        (f : x --&gt; y)
+        (g : y --&gt; z),
+       F₁ x y f ∙ F₁ y z g ⟹ F₁ x z (f · g)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_indexed_cat_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F₀</span> : C → univalent_category)
+           (<span class="nv">F₁</span> : ∏ (x y : C), x --&gt; y → F₀ x ⟶ F₀ y)
+           (<span class="nv">Fid</span> : ∏ (x : C), functor_identity _ ⟹ F₁ x x (identity x))
+           (<span class="nv">Fcomp</span> : ∏ (x y z : C)
+                      (f : x --&gt; y)
+                      (g : y --&gt; z),
+                    F₁ x y f ∙ F₁ y z g ⟹ F₁ x z (f · g))
+  : indexed_cat_data C
+  := F₀ ,, F₁ ,, Fid ,, Fcomp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">indexed_cat_on_ob</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> : indexed_cat_data C)
+           (<span class="nv">x</span> : C)
+  : univalent_category
+  := pr1 F x.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">indexed_cat_on_ob</span> : indexed_cat_data &gt;-&gt; <span class="kt">Funclass</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">indexed_cat_on_mor</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> : indexed_cat_data C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : F x ⟶ F y
+  := pr12 F x y f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Notation</span> <span class="s2">&quot;F $ f&quot;</span> := (indexed_cat_on_mor F f) (<span class="kn">at level</span> <span class="mi">60</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">indexed_cat_id</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> : indexed_cat_data C)
+           (<span class="nv">x</span> : C)
+  : functor_identity _ ⟹ (F $ identity x)
+  := pr122 F x.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">indexed_cat_comp</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> : indexed_cat_data C)
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">g</span> : y --&gt; z)
+  : (F $ f) ∙ (F $ g) ⟹ (F $ (f · g))
+  := pr222 F x y z f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">indexed_cat_isos</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> : indexed_cat_data C)
+  : UU
+  := (∏ (x : C) (xx : F x),
+      is_z_isomorphism (indexed_cat_id F x xx))
+     ×
+     (∏ (x y z : C)
+        (f : x --&gt; y)
+        (g : y --&gt; z)
+        (xx : F x),
+      is_z_isomorphism (indexed_cat_comp F f g xx)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 2. The laws of indexed categories</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">indexed_cat_laws</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> : indexed_cat_data C)
+  : UU
+  := (∏ (x y : C)
+        (f : x --&gt; y)
+        (xx : F x),
+      identity ((F $ f) xx)
+      =
+      # (F $ f) (indexed_cat_id F x xx)
+      · indexed_cat_comp F (identity x) f xx
+      · idtoiso (maponpaths (<span class="kr">λ</span> <span class="nv">g</span>, (F $ g) xx) (id_left f)))
+     ×
+     (∏ (x y : C)
+        (f : x --&gt; y)
+        (xx : F x),
+      identity ((F $ f) xx)
+      =
+      indexed_cat_id F y ((F $ f) xx)
+      · indexed_cat_comp F f (identity y) xx
+      · idtoiso (maponpaths (<span class="kr">λ</span> <span class="nv">g</span>, (F $ g) xx) (id_right f)))
+     ×
+     (∏ (w x y z : C)
+        (f : w --&gt; x)
+        (g : x --&gt; y)
+        (h : y --&gt; z)
+        (ww : F w),
+      indexed_cat_comp F g h ((F $ f) ww)
+      · indexed_cat_comp F f (g · h) ww
+      · idtoiso (maponpaths (<span class="kr">λ</span> <span class="nv">k</span>, (F $ k) ww) (assoc f g h))
+      =
+      # (F $ h) (indexed_cat_comp F f g ww)
+      · indexed_cat_comp F (f · g) h ww).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 3. Indexed categories</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">indexed_cat</span>
+           (<span class="nv">C</span> : category)
+  : UU
+  := ∑ (F : indexed_cat_data C),
+     indexed_cat_isos F
+     ×
+     indexed_cat_laws F.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_indexed_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> : indexed_cat_data C)
+           (<span class="nv">HF₁</span> : indexed_cat_isos F)
+           (<span class="nv">HF₂</span> : indexed_cat_laws F)
+  : indexed_cat C
+  := F ,, HF₁ ,, HF₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">indexed_cat_to_data</span>
+         {C : category}
+         (F : indexed_cat C)
+  : indexed_cat_data C
+  := pr1 F.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">IndexedCatLaws</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">Φ</span> : indexed_cat C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk1"><span class="kn">Definition</span> <span class="nf">is_z_isomorphism_indexed_cat_id</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : Φ x)
+    : is_z_isomorphism (indexed_cat_id Φ x xx).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (indexed_cat_id Φ x xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (indexed_cat_id Φ x xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr112 Φ x xx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk3"><span class="kn">Definition</span> <span class="nf">is_z_isomorphism_indexed_cat_comp</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">g</span> : y --&gt; z)
+             (<span class="nv">xx</span> : Φ x)
+    : is_z_isomorphism (indexed_cat_comp Φ f g xx).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (indexed_cat_comp Φ f g xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (indexed_cat_comp Φ f g xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr212 Φ x y z f g xx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk5"><span class="kn">Proposition</span> <span class="nf">indexed_cat_lunitor</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">xx</span> : Φ x)
+    : identity ((Φ $ f) xx)
+      =
+      # (Φ $ f) (indexed_cat_id Φ x xx)
+      · indexed_cat_comp Φ (identity x) f xx
+      · idtoiso (maponpaths (<span class="kr">λ</span> <span class="nv">g</span>, (Φ $ g) xx) (id_left f)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity ((Φ $ f) xx) =
+# (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk6"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity ((Φ $ f) xx) =
+# (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr122 Φ x y f xx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk7"><span class="kn">Proposition</span> <span class="nf">indexed_cat_runitor</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">xx</span> : Φ x)
+    : identity ((Φ $ f) xx)
+      =
+      indexed_cat_id Φ y ((Φ $ f) xx)
+      · indexed_cat_comp Φ f (identity y) xx
+      · idtoiso (maponpaths (<span class="kr">λ</span> <span class="nv">g</span>, (Φ $ g) xx) (id_right f)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity ((Φ $ f) xx) =
+indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (id_right f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk8"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity ((Φ $ f) xx) =
+indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (id_right f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr1 (pr222 Φ) x y f xx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk9"><span class="kn">Proposition</span> <span class="nf">indexed_cat_lassociator</span>
+              {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : w --&gt; x)
+              (<span class="nv">g</span> : x --&gt; y)
+              (<span class="nv">h</span> : y --&gt; z)
+              (<span class="nv">ww</span> : Φ w)
+    : indexed_cat_comp Φ g h ((Φ $ f) ww)
+      · indexed_cat_comp Φ f (g · h) ww
+      · idtoiso (maponpaths (<span class="kr">λ</span> <span class="nv">k</span>, (Φ $ k) ww) (assoc f g h))
+      =
+      # (Φ $ h) (indexed_cat_comp Φ f g ww)
+      · indexed_cat_comp Φ (f · g) h ww.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>w, x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ w, x ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>ww</var><span class="hyp-type"><b>: </b><span>Φ w</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_comp Φ g h ((Φ $ f) ww)
+· indexed_cat_comp Φ f (g · h) ww
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">k</span> : C ⟦ w, z ⟧, (Φ $ k) ww)
+       (assoc f g h)) =
+# (Φ $ h) (indexed_cat_comp Φ f g ww)
+· indexed_cat_comp Φ (f · g) h ww</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chka"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>w, x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ w, x ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>ww</var><span class="hyp-type"><b>: </b><span>Φ w</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_comp Φ g h ((Φ $ f) ww)
+· indexed_cat_comp Φ f (g · h) ww
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">k</span> : C ⟦ w, z ⟧, (Φ $ k) ww)
+       (assoc f g h)) =
+# (Φ $ h) (indexed_cat_comp Φ f g ww)
+· indexed_cat_comp Φ (f · g) h ww</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr2 (pr222 Φ) w x y z f g h ww).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(**</span>
+<span class="sd">   3.1. Derived laws</span>
+<span class="sd">   *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chkb"><span class="kn">Proposition</span> <span class="nf">indexed_cat_lunitor_alt</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">xx</span> : Φ x)
+    : # (Φ $ f) (indexed_cat_id Φ x xx)
+      · indexed_cat_comp Φ (identity x) f xx
+      =
+      idtoiso (maponpaths (<span class="kr">λ</span> <span class="nv">g</span>, (Φ $ g) xx) (!(id_left f))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx =
+idtoiso
+  (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+     (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chkc"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx =
+idtoiso
+  (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+     (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chkd"><span class="nb">refine</span> (_ @ id_left _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx =
+identity ((Φ $ f) (functor_identity (Φ x) xx))
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chke"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx =
+identity ((Φ $ f) xx)
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chkf"><span class="nb">rewrite</span> (indexed_cat_lunitor f xx).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx =
+# (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (id_left f))
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk10"><span class="nb">refine</span> (!(id_right _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx
+· identity ((Φ $ identity x · f) xx) =
+# (Φ $ f) (indexed_cat_id Φ x xx)
+· indexed_cat_comp Φ (identity x) f xx
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (id_left f))
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk11"><span class="nb">rewrite</span> !assoc&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (Φ $ f) (indexed_cat_id Φ x xx)
+· (indexed_cat_comp Φ (identity x) f xx
+   · identity ((Φ $ identity x · f) xx)) =
+# (Φ $ f) (indexed_cat_id Φ x xx)
+· (indexed_cat_comp Φ (identity x) f xx
+   · (idtoiso
+        (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+           (id_left f))
+      · idtoiso
+          (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+             (! id_left f))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk12"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity ((Φ $ identity x · f) xx) =
+idtoiso
+  (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+     (id_left f))
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk13"><span class="nb">refine</span> (_ @ pr1_idtoiso_concat _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity ((Φ $ identity x · f) xx) =
+pr1
+  (idtoiso
+     (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+        (id_left f) @
+      maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+        (! id_left f)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk14"><span class="nb">change</span> (identity ((Φ $ identity x · f) xx))
+      <span class="kr">with</span> (pr1 (idtoiso (idpath ((Φ $ identity x · f) xx)))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (idtoiso (idpath ((Φ $ identity x · f) xx))) =
+pr1
+  (idtoiso
+     (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+        (id_left f) @
+      maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+        (! id_left f)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk15"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">idpath ((Φ $ identity x · f) xx) =
+maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx) (id_left f) @
+maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+  (! id_left f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk16"><span class="nb">refine</span> (_ @ maponpathscomp0 (<span class="kr">λ</span> <span class="nv">g</span>, (Φ $ g) xx)  _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">idpath ((Φ $ identity x · f) xx) =
+maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+  (id_left f @ ! id_left f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk17"><span class="nb">rewrite</span> pathsinv0r.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">idpath ((Φ $ identity x · f) xx) =
+maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+  (idpath (identity x · f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk18"><span class="kn">Proposition</span> <span class="nf">indexed_cat_runitor_alt</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">xx</span> : Φ x)
+    : indexed_cat_id Φ y ((Φ $ f) xx)
+      · indexed_cat_comp Φ f (identity y) xx
+      =
+      idtoiso (maponpaths (<span class="kr">λ</span> <span class="nv">g</span>, (Φ $ g) xx) (!(id_right f))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx =
+idtoiso
+  (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+     (! id_right f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk19"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx =
+idtoiso
+  (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+     (! id_right f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk1a"><span class="nb">refine</span> (_ @ id_left _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx =
+identity (functor_identity (Φ y) ((Φ $ f) xx))
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_right f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk1b"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx =
+identity ((Φ $ f) xx)
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_right f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk1c"><span class="nb">rewrite</span> (indexed_cat_runitor f xx).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx =
+indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (id_right f))
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_right f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk1d"><span class="nb">refine</span> (!(id_right _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx
+· identity ((Φ $ f · identity y) xx) =
+indexed_cat_id Φ y ((Φ $ f) xx)
+· indexed_cat_comp Φ f (identity y) xx
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (id_right f))
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_right f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk1e"><span class="nb">rewrite</span> !assoc&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Φ y ((Φ $ f) xx)
+· (indexed_cat_comp Φ f (identity y) xx
+   · identity ((Φ $ f · identity y) xx)) =
+indexed_cat_id Φ y ((Φ $ f) xx)
+· (indexed_cat_comp Φ f (identity y) xx
+   · (idtoiso
+        (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+           (id_right f))
+      · idtoiso
+          (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+             (! id_right f))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk1f"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity ((Φ $ f · identity y) xx) =
+idtoiso
+  (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+     (id_right f))
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+       (! id_right f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk20"><span class="nb">refine</span> (_ @ pr1_idtoiso_concat _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity ((Φ $ f · identity y) xx) =
+pr1
+  (idtoiso
+     (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+        (id_right f) @
+      maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+        (! id_right f)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk21"><span class="nb">change</span> (identity ((Φ $ f · identity y) xx))
+      <span class="kr">with</span> (pr1 (idtoiso (idpath ((Φ $ f · identity y) xx)))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (idtoiso (idpath ((Φ $ f · identity y) xx))) =
+pr1
+  (idtoiso
+     (maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+        (id_right f) @
+      maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+        (! id_right f)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk22"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">idpath ((Φ $ f · identity y) xx) =
+maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx) (id_right f) @
+maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+  (! id_right f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk23"><span class="nb">refine</span> (_ @ maponpathscomp0 (<span class="kr">λ</span> <span class="nv">g</span>, (Φ $ g) xx)  _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">idpath ((Φ $ f · identity y) xx) =
+maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+  (id_right f @ ! id_right f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk24"><span class="nb">rewrite</span> pathsinv0r.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">idpath ((Φ $ f · identity y) xx) =
+maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ⟦ x, y ⟧, (Φ $ g) xx)
+  (idpath (f · identity y))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">IndexedCatLaws</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 3.2. Isomorphisms for the identity and composition</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk25"><span class="kn">Definition</span> <span class="nf">indexed_cat_id_z_iso</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">Φ</span> : indexed_cat C)
+           {<span class="nv">x</span> : C}
+           (<span class="nv">xx</span> : Φ x)
+  : z_iso xx ((Φ $ identity x) xx).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">z_iso xx ((Φ $ identity x) xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk26"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">z_iso xx ((Φ $ identity x) xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk27"><span class="nb">refine</span> (indexed_cat_id Φ x xx ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (indexed_cat_id Φ x xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> is_z_isomorphism_indexed_cat_id.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk28"><span class="kn">Definition</span> <span class="nf">indexed_cat_id_nat_z_iso</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">Φ</span> : indexed_cat C)
+           (<span class="nv">x</span> : C)
+  : nat_z_iso
+      (functor_identity (Φ x))
+      (Φ $ identity x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_z_iso (functor_identity (Φ x)) (Φ $ identity x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk29"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_z_iso (functor_identity (Φ x)) (Φ $ identity x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk2a"><span class="nb">refine</span> (indexed_cat_id Φ x ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso (indexed_cat_id Φ x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk2b"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (indexed_cat_id Φ x c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> is_z_isomorphism_indexed_cat_id.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk2c"><span class="kn">Definition</span> <span class="nf">indexed_cat_comp_z_iso</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">Φ</span> : indexed_cat C)
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">g</span> : y --&gt; z)
+           (<span class="nv">xx</span> : Φ x)
+  : z_iso ((Φ $ g) ((Φ $ f) xx)) ((Φ $ (f · g)) xx).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">z_iso ((Φ $ g) ((Φ $ f) xx)) ((Φ $ f · g) xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk2d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">z_iso ((Φ $ g) ((Φ $ f) xx)) ((Φ $ f · g) xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk2e"><span class="nb">refine</span> (indexed_cat_comp Φ f g xx ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (indexed_cat_comp Φ f g xx)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> is_z_isomorphism_indexed_cat_comp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk2f"><span class="kn">Definition</span> <span class="nf">indexed_cat_comp_nat_z_iso</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> : indexed_cat C)
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">g</span> : y --&gt; z)
+  : nat_z_iso
+      ((F $ f) ∙ (F $ g))
+      (F $ (f · g)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_z_iso ((F $ f) ∙ (F $ g)) (F $ f · g)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk30"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_z_iso ((F $ f) ∙ (F $ g)) (F $ f · g)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk31">use make_nat_z_iso.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(F $ f) ∙ (F $ g) ⟹ (F $ f · g)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="indexedcategory-v-chk32" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br></div><label class="goal-separator" for="indexedcategory-v-chk32"><hr></label><div class="goal-conclusion">is_nat_z_iso <span class="nl">?μ</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk33">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(F $ f) ∙ (F $ g) ⟹ (F $ f · g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (indexed_cat_comp F f g).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk34">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso (indexed_cat_comp F f g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedcategory-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedcategory-v-chk35"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>indexed_cat C</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>F x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (indexed_cat_comp F f g c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> is_z_isomorphism_indexed_cat_comp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

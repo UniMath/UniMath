@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Presheaves.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Presheaves</span>
+
+<span class="sd">  Defines what a presheaf for an algebraic theory is and gives constructors, accessors and related</span>
+<span class="sd">  definitions and lemmas.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The definition of a presheaf [presheaf]</span>
+<span class="sd">  2. The presheaf given by the algebraic theory itself [theory_presheaf]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.IndexedSetCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.PresheafCategoryCore.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The definition of a presheaf *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">presheaf_data</span> (<span class="nv">T</span> : algebraic_theory) : UU
+  := ∑ (P : indexed_set_cat nat), ∏ m n f g, op_ax T P m n f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">presheaf_data_to_function</span> {<span class="nv">T</span> : algebraic_theory} (<span class="nv">P</span> : presheaf_data T)
+  : nat → hSet
+  := pr1 P.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">presheaf_data_to_function</span> : presheaf_data &gt;-&gt; <span class="kt">Funclass</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">op</span>
+  {<span class="nv">T</span> : algebraic_theory}
+  {<span class="nv">P</span> : presheaf_data T}
+  {<span class="nv">m</span> <span class="nv">n</span> : nat}
+  (<span class="nv">f</span> : P m)
+  (<span class="nv">g</span> : stn m → T n)
+  : op_ax T P m n f g
+  := pr2 P m n f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_presheaf_data</span>
+  {<span class="nv">T</span> : algebraic_theory}
+  (<span class="nv">P</span> : indexed_set_cat nat)
+  (<span class="nv">op</span> : ∏ m n f g, op_ax T P m n f g)
+  : presheaf_data T
+  := P ,, op.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_presheaf</span> {<span class="nv">T</span> : algebraic_theory} (<span class="nv">P</span> : presheaf_data T) : UU :=
+  (∏ l m n a f g, op_op_ax T P (@op T P) l m n a f g) ×
+  (∏ n f, op_var_ax T P (@op T P) n f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_is_presheaf</span>
+  {<span class="nv">T</span> : algebraic_theory}
+  (<span class="nv">P</span> : presheaf_data T)
+  (<span class="nv">op_op</span> : ∏ l m n a f g, op_op_ax T P (@op T P) l m n a f g)
+  (<span class="nv">op_var</span> : ∏ n f, op_var_ax T P (@op T P) n f)
+  : is_presheaf P
+  := op_op ,, op_var.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">presheaf</span> (<span class="nv">T</span> : algebraic_theory) : UU := presheaf_cat T.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">presheaf_to_presheaf_data</span> {T : algebraic_theory} (P : presheaf T)
+  : presheaf_data T
+  := make_presheaf_data (pr1 P) (pr12 P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_presheaf</span>
+  {<span class="nv">T</span> : algebraic_theory}
+  (<span class="nv">P</span> : presheaf_data T)
+  (<span class="nv">H</span> : is_presheaf P)
+  : presheaf T
+  := (pr1 P) ,, (pr2 P) ,, H.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">op_op</span>
+  {<span class="nv">T</span> : algebraic_theory}
+  (<span class="nv">P</span> : presheaf T)
+  {<span class="nv">l</span> <span class="nv">m</span> <span class="nv">n</span> : nat}
+  (<span class="nv">a</span> : P l)
+  (<span class="nv">f</span> : stn l → T m)
+  (<span class="nv">g</span> : stn m → T n)
+  : op_op_ax T P (@op T P) l m n a f g
+  := pr122 P l m n a f g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">op_var</span>
+  {<span class="nv">T</span> : algebraic_theory}
+  (<span class="nv">P</span> : presheaf T)
+  {<span class="nv">n</span> : nat}
+  (<span class="nv">f</span> : P n)
+  : op_var_ax T P (@op T P) n f
+  := pr222 P n f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. The presheaf given by the algebraic theory itself *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chk1"><span class="kn">Definition</span> <span class="nf">theory_presheaf_data</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  : presheaf_data T.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">presheaf_data T</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">presheaf_data T</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chk3">use make_presheaf_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_set_cat ℕ</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="presheaves-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><label class="goal-separator" for="presheaves-v-chk4"><hr></label><div class="goal-conclusion">∏ (m n : ℕ) (f : <span class="nl">?P</span> m) (g : (⟦ m ⟧)%stn → T n),
+op_ax T <span class="nl">?P</span> m n f g</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_set_cat ℕ</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> T.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (m n : ℕ) (f : T m) (g : (⟦ m ⟧)%stn → T n),
+op_ax T T m n f g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chk7"><span class="nb">intros</span> ? ? f g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>(⟦ m ⟧)%stn → T n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op_ax T T m n f g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (f • g).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chk8"><span class="kn">Lemma</span> <span class="nf">theory_is_presheaf</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  : is_presheaf (theory_presheaf_data T).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_presheaf (theory_presheaf_data T)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_presheaf (theory_presheaf_data T)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chka">use make_is_presheaf.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (l m n : ℕ) (a : theory_presheaf_data T l)
+(f : (⟦ l ⟧)%stn → T m) (g : (⟦ m ⟧)%stn → T n),
+op_op_ax T (theory_presheaf_data T)
+  (@op T (theory_presheaf_data T)) l m n a f g</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="presheaves-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><label class="goal-separator" for="presheaves-v-chkb"><hr></label><div class="goal-conclusion">∏ (n : ℕ) (f : theory_presheaf_data T n),
+op_var_ax T (theory_presheaf_data T)
+  (@op T (theory_presheaf_data T)) n f</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chkc">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (l m n : ℕ) (a : theory_presheaf_data T l)
+(f : (⟦ l ⟧)%stn → T m) (g : (⟦ m ⟧)%stn → T n),
+op_op_ax T (theory_presheaf_data T)
+  (@op T (theory_presheaf_data T)) l m n a f g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> subst_subst.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="presheaves-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="presheaves-v-chkd">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (n : ℕ) (f : theory_presheaf_data T n),
+op_var_ax T (theory_presheaf_data T)
+  (@op T (theory_presheaf_data T)) n f</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> subst_var.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">theory_presheaf</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  : presheaf T
+  := make_presheaf _ (theory_is_presheaf T).</span></span></pre>
+</div>
+</div></body>
+</html>

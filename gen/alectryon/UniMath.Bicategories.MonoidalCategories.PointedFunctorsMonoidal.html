@@ -1,0 +1,937 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>PointedFunctorsMonoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Ralph Matthes</span>
+
+<span class="sd">2021</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- build monoidal category for the pointed endofunctors</span>
+
+<span class="sd">************************************************************)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.PartD.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctorsComposition.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">PointedFunctors_as_monoidal_category</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> : category).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">&quot;&#39;Ptd&#39;&quot;</span> := (category_Ptd C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk1"><span class="kn">Definition</span> <span class="nf">tensor_pointedfunctor_data</span>: functor_data (Ptd ⊠ Ptd) Ptd.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data (Ptd ⊠ Ptd) Ptd</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data (Ptd ⊠ Ptd) Ptd</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk3">use make_functor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd ⊠ Ptd → Ptd</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk4"><hr></label><div class="goal-conclusion">∏ a b : Ptd ⊠ Ptd,
+Ptd ⊠ Ptd ⟦ a, b ⟧ → Ptd ⟦ <span class="nl">?F</span> a, <span class="nl">?F</span> b ⟧</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd ⊠ Ptd → Ptd</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk6"><span class="nb">intros</span> PF1PF2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ a b : Ptd ⊠ Ptd,
+Ptd ⊠ Ptd ⟦ a, b ⟧
+→ Ptd
+  ⟦ (<span class="kr">λ</span> <span class="nv">PF1PF2</span> : Ptd ⊠ Ptd,
+     ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2)) a,
+  (<span class="kr">λ</span> <span class="nv">PF1PF2</span> : Ptd ⊠ Ptd,
+   ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2)) b ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk8"><span class="nb">intros</span> PF1PF2 PF1PF2&#39; α1α2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1PF2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1PF2&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd
+⟦ (<span class="kr">λ</span> <span class="nv">PF1PF2</span> : Ptd ⊠ Ptd,
+   ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2)) PF1PF2,
+(<span class="kr">λ</span> <span class="nv">PF1PF2</span> : Ptd ⊠ Ptd,
+ ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2)) PF1PF2&#39; ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk9"><span class="nb">induction</span> α1α2 <span class="kr">as</span> [α1 α2].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1PF2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1</var><span class="hyp-type"><b>: </b><span>Ptd ⟦ pr1 PF1PF2, pr1 PF1PF2&#39; ⟧</span></span></span><br><span><var>α2</var><span class="hyp-type"><b>: </b><span>Ptd ⟦ pr2 PF1PF2, pr2 PF1PF2&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd ⟦ ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2),
+ptd_compose C (pr1 PF1PF2&#39;) (pr2 PF1PF2&#39;) ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chka"><span class="nb">induction</span> PF1PF2 <span class="kr">as</span> [PF1 PF2].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>PF1PF2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1</var><span class="hyp-type"><b>: </b><span>Ptd ⟦ pr1 (PF1,, PF2), pr1 PF1PF2&#39; ⟧</span></span></span><br><span><var>α2</var><span class="hyp-type"><b>: </b><span>Ptd ⟦ pr2 (PF1,, PF2), pr2 PF1PF2&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd
+⟦ ptd_compose C (pr1 (PF1,, PF2)) (pr2 (PF1,, PF2)),
+ptd_compose C (pr1 PF1PF2&#39;) (pr2 PF1PF2&#39;) ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chkb"><span class="nb">induction</span> PF1PF2&#39; <span class="kr">as</span> [PF1&#39; PF2&#39;].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF1', PF2'</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α1</var><span class="hyp-type"><b>: </b><span>Ptd ⟦ pr1 (PF1,, PF2), pr1 (PF1&#39;,, PF2&#39;) ⟧</span></span></span><br><span><var>α2</var><span class="hyp-type"><b>: </b><span>Ptd ⟦ pr2 (PF1,, PF2), pr2 (PF1&#39;,, PF2&#39;) ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd
+⟦ ptd_compose C (pr1 (PF1,, PF2)) (pr2 (PF1,, PF2)),
+ptd_compose C (pr1 (PF1&#39;,, PF2&#39;)) (pr2 (PF1&#39;,, PF2&#39;))
+⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chkc"><span class="nb">cbn</span> <span class="kr">in</span> α1, α2 |- *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF1', PF2'</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α1</var><span class="hyp-type"><b>: </b><span>ptd_mor C PF1 PF1&#39;</span></span></span><br><span><var>α2</var><span class="hyp-type"><b>: </b><span>ptd_mor C PF2 PF2&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ptd_mor C (ptd_compose C PF1 PF2)
+  (ptd_compose C PF1&#39; PF2&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chkd"><span class="nb">set</span> (α1&#39; := pr1 α1).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF1', PF2'</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α1</var><span class="hyp-type"><b>: </b><span>ptd_mor C PF1 PF1&#39;</span></span></span><br><span><var>α2</var><span class="hyp-type"><b>: </b><span>ptd_mor C PF2 PF2&#39;</span></span></span><br><span><var>α1'</var><span><span class="hyp-body"><b>:= </b><span>pr1 α1</span></span><span class="hyp-type"><b>: </b><span>PF1 ⟹ PF1&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ptd_mor C (ptd_compose C PF1 PF2)
+  (ptd_compose C PF1&#39; PF2&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chke"><span class="nb">set</span> (α2&#39; := pr1 α2).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF1', PF2'</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α1</var><span class="hyp-type"><b>: </b><span>ptd_mor C PF1 PF1&#39;</span></span></span><br><span><var>α2</var><span class="hyp-type"><b>: </b><span>ptd_mor C PF2 PF2&#39;</span></span></span><br><span><var>α1'</var><span><span class="hyp-body"><b>:= </b><span>pr1 α1</span></span><span class="hyp-type"><b>: </b><span>PF1 ⟹ PF1&#39;</span></span></span></span><br><span><var>α2'</var><span><span class="hyp-body"><b>:= </b><span>pr1 α2</span></span><span class="hyp-type"><b>: </b><span>PF2 ⟹ PF2&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ptd_mor C (ptd_compose C PF1 PF2)
+  (ptd_compose C PF1&#39; PF2&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chkf"><span class="kr">exists</span> (# (functorial_composition _ _ _) (α1&#39;,,α2&#39;:
+                 [C, C] ⊠ [C, C]⟦(pr1 PF1,,pr1 PF2),(pr1 PF1&#39;,,pr1 PF2&#39;)⟧)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF1', PF2'</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α1</var><span class="hyp-type"><b>: </b><span>ptd_mor C PF1 PF1&#39;</span></span></span><br><span><var>α2</var><span class="hyp-type"><b>: </b><span>ptd_mor C PF2 PF2&#39;</span></span></span><br><span><var>α1'</var><span><span class="hyp-body"><b>:= </b><span>pr1 α1</span></span><span class="hyp-type"><b>: </b><span>PF1 ⟹ PF1&#39;</span></span></span></span><br><span><var>α2'</var><span><span class="hyp-body"><b>:= </b><span>pr1 α2</span></span><span class="hyp-type"><b>: </b><span>PF2 ⟹ PF2&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_ptd_mor C
+  (# (functorial_composition C C C) (α1&#39;,, α2&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> ( <span class="nb">intro</span> c;
+                 <span class="nb">assert</span> (α1commutes := ptd_mor_commutes _ α1);
+                 <span class="nb">assert</span> (α2commutes := ptd_mor_commutes _ α2);
+                 <span class="nb">cbn</span>;
+                 etrans;
+                 [ <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> nat_trans_ax |
+                   <span class="nb">rewrite</span> &lt;- α1commutes;
+                   <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc;
+                   <span class="nb">apply</span> maponpaths;
+                   <span class="nb">rewrite</span> assoc;
+                   <span class="nb">unfold</span> α2&#39;;
+                   etrans;
+                   [<span class="nb">apply</span> cancel_postcomposition;
+                    <span class="nb">apply</span> α2commutes |
+                     etrans;
+                     [<span class="nb">assert</span> (η2&#39;nat := nat_trans_ax (pr2 PF2&#39;));
+                      <span class="nb">apply</span> pathsinv0, η2&#39;nat |
+                       <span class="nb">apply</span> idpath]]] ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk10"><span class="kn">Definition</span> <span class="nf">tensor_pointedfunctor_is_functor</span>: is_functor tensor_pointedfunctor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor tensor_pointedfunctor_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk11"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor tensor_pointedfunctor_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk12"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_idax tensor_pointedfunctor_data</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk13" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk13"><hr></label><div class="goal-conclusion">functor_compax tensor_pointedfunctor_data</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk14">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_idax tensor_pointedfunctor_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk15"><span class="nb">intro</span> PF1PF2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># tensor_pointedfunctor_data (id PF1PF2) =
+id tensor_pointedfunctor_data PF1PF2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+</span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk16"><span class="nb">apply</span> eq_ptd_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># tensor_pointedfunctor_data (id PF1PF2) =
+id tensor_pointedfunctor_data PF1PF2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk17"><span class="nb">unfold</span> tensor_pointedfunctor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (make_functor_data
+     (<span class="kr">λ</span> <span class="nv">PF1PF2</span> : Ptd ⊠ Ptd,
+      ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2))
+     (<span class="kr">λ</span> (<span class="nv">PF1PF2</span> <span class="nv">PF1PF2&#39;</span> : Ptd ⊠ Ptd)
+      (<span class="nv">α1α2</span> : Ptd ⊠ Ptd ⟦ PF1PF2, PF1PF2&#39; ⟧),
+      # (functorial_composition C C C)
+        (pr11 α1α2,, pr12 α1α2),,
+      tensor_pointedfunctor_data_subproof (pr1 PF1PF2)
+        (pr2 PF1PF2) (pr1 PF1PF2&#39;) (pr2 PF1PF2&#39;)
+        (pr1 α1α2) (pr2 α1α2))) (id PF1PF2) =
+id make_functor_data
+     (<span class="kr">λ</span> <span class="nv">PF1PF2</span> : Ptd ⊠ Ptd,
+      ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2))
+     (<span class="kr">λ</span> (<span class="nv">PF1PF2</span> <span class="nv">PF1PF2&#39;</span> : Ptd ⊠ Ptd)
+      (<span class="nv">α1α2</span> : Ptd ⊠ Ptd ⟦ PF1PF2, PF1PF2&#39; ⟧),
+      # (functorial_composition C C C)
+        (pr11 α1α2,, pr12 α1α2),,
+      tensor_pointedfunctor_data_subproof (pr1 PF1PF2)
+        (pr2 PF1PF2) (pr1 PF1PF2&#39;) (pr2 PF1PF2&#39;)
+        (pr1 α1α2) (pr2 α1α2)) PF1PF2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk18"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">post_whisker_in_funcat C C C
+  (nat_trans_id (pr1 PF1PF2)) (pr12 PF1PF2)
+· pre_whisker_in_funcat C C C (pr11 PF1PF2)
+    (nat_trans_id (pr2 PF1PF2)) =
+nat_trans_id
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk19"><span class="nb">unfold</span> post_whisker_in_funcat, pre_whisker_in_funcat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">post_whisker (nat_trans_id (pr1 PF1PF2)) (pr12 PF1PF2)
+· pre_whisker (pr11 PF1PF2)
+    (nat_trans_id (pr2 PF1PF2)) =
+nat_trans_id
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk1a"><span class="nb">rewrite</span> pre_whisker_identity.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">post_whisker (nat_trans_id (pr1 PF1PF2)) (pr12 PF1PF2)
+· nat_trans_id
+    (functor_composite_data (pr11 PF1PF2) (pr2 PF1PF2)) =
+nat_trans_id
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk1b"><span class="nb">rewrite</span> post_whisker_identity.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_id
+  (functor_composite_data (pr1 PF1PF2) (pr12 PF1PF2))
+· nat_trans_id
+    (functor_composite_data (pr11 PF1PF2) (pr2 PF1PF2)) =
+nat_trans_id
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk1c"><span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property | <span class="nb">intro</span> c].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(nat_trans_id
+   (functor_composite_data (pr1 PF1PF2) (pr12 PF1PF2))
+ · nat_trans_id
+     (functor_composite_data (pr11 PF1PF2)
+        (pr2 PF1PF2))) c =
+nat_trans_id
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))
+  c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk1d"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id (pr12 PF1PF2) (pr1 PF1PF2 c)
+· id pr2 PF1PF2 ((pr11 PF1PF2) c) =
+id (pr12 PF1PF2) ((pr11 PF1PF2) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> id_right.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk1e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_compax tensor_pointedfunctor_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk1f"><span class="nb">intros</span> PF1PF2 PF1&#39;PF2&#39; PF1&#39;&#39;PF2&#39;&#39; α1α2 α1&#39;α2&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># tensor_pointedfunctor_data (α1α2 · α1&#39;α2&#39;) =
+# tensor_pointedfunctor_data α1α2
+· # tensor_pointedfunctor_data α1&#39;α2&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk20"><span class="nb">apply</span> eq_ptd_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># tensor_pointedfunctor_data (α1α2 · α1&#39;α2&#39;) =
+# tensor_pointedfunctor_data α1α2
+· # tensor_pointedfunctor_data α1&#39;α2&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk21"><span class="nb">unfold</span> tensor_pointedfunctor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (make_functor_data
+     (<span class="kr">λ</span> <span class="nv">PF1PF2</span> : Ptd ⊠ Ptd,
+      ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2))
+     (<span class="kr">λ</span> (<span class="nv">PF1PF2</span> <span class="nv">PF1PF2&#39;</span> : Ptd ⊠ Ptd)
+      (<span class="nv">α1α2</span> : Ptd ⊠ Ptd ⟦ PF1PF2, PF1PF2&#39; ⟧),
+      # (functorial_composition C C C)
+        (pr11 α1α2,, pr12 α1α2),,
+      tensor_pointedfunctor_data_subproof (pr1 PF1PF2)
+        (pr2 PF1PF2) (pr1 PF1PF2&#39;) (pr2 PF1PF2&#39;)
+        (pr1 α1α2) (pr2 α1α2))) (α1α2 · α1&#39;α2&#39;) =
+# (make_functor_data
+     (<span class="kr">λ</span> <span class="nv">PF1PF2</span> : Ptd ⊠ Ptd,
+      ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2))
+     (<span class="kr">λ</span> (<span class="nv">PF1PF2</span> <span class="nv">PF1PF2&#39;</span> : Ptd ⊠ Ptd)
+      (<span class="nv">α1α2</span> : Ptd ⊠ Ptd ⟦ PF1PF2, PF1PF2&#39; ⟧),
+      # (functorial_composition C C C)
+        (pr11 α1α2,, pr12 α1α2),,
+      tensor_pointedfunctor_data_subproof (pr1 PF1PF2)
+        (pr2 PF1PF2) (pr1 PF1PF2&#39;) (pr2 PF1PF2&#39;)
+        (pr1 α1α2) (pr2 α1α2))) α1α2
+· # (make_functor_data
+       (<span class="kr">λ</span> <span class="nv">PF1PF2</span> : Ptd ⊠ Ptd,
+        ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2))
+       (<span class="kr">λ</span> (<span class="nv">PF1PF2</span> <span class="nv">PF1PF2&#39;</span> : Ptd ⊠ Ptd)
+        (<span class="nv">α1α2</span> : Ptd ⊠ Ptd ⟦ PF1PF2, PF1PF2&#39; ⟧),
+        # (functorial_composition C C C)
+          (pr11 α1α2,, pr12 α1α2),,
+        tensor_pointedfunctor_data_subproof
+          (pr1 PF1PF2) (pr2 PF1PF2) (pr1 PF1PF2&#39;)
+          (pr2 PF1PF2&#39;) (pr1 α1α2) (pr2 α1α2))) α1&#39;α2&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk22"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">post_whisker_in_funcat C C C
+  (nat_trans_comp (pr1 PF1PF2) (pr1 PF1&#39;PF2&#39;)
+     (pr1 PF1&#39;&#39;PF2&#39;&#39;) (pr1 α1α2) (pr1 α1&#39;α2&#39;))
+  (pr12 PF1PF2)
+· pre_whisker_in_funcat C C C (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+    (nat_trans_comp (pr2 PF1PF2) (pr2 PF1&#39;PF2&#39;)
+       (pr2 PF1&#39;&#39;PF2&#39;&#39;) (pr2 α1α2) (pr2 α1&#39;α2&#39;)) =
+nat_trans_comp
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+     (pr12 PF1&#39;PF2&#39;))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+  (post_whisker_in_funcat C C C (pr11 α1α2)
+     (pr12 PF1PF2)
+   · pre_whisker_in_funcat C C C (pr11 PF1&#39;PF2&#39;)
+       (pr12 α1α2))
+  (post_whisker_in_funcat C C C (pr11 α1&#39;α2&#39;)
+     (pr12 PF1&#39;PF2&#39;)
+   · pre_whisker_in_funcat C C C (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+       (pr12 α1&#39;α2&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk23"><span class="nb">unfold</span> post_whisker_in_funcat, pre_whisker_in_funcat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">post_whisker
+  (nat_trans_comp (pr1 PF1PF2) (pr1 PF1&#39;PF2&#39;)
+     (pr1 PF1&#39;&#39;PF2&#39;&#39;) (pr1 α1α2) (pr1 α1&#39;α2&#39;))
+  (pr12 PF1PF2)
+· pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+    (nat_trans_comp (pr2 PF1PF2) (pr2 PF1&#39;PF2&#39;)
+       (pr2 PF1&#39;&#39;PF2&#39;&#39;) (pr2 α1α2) (pr2 α1&#39;α2&#39;)) =
+nat_trans_comp
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+     (pr12 PF1&#39;PF2&#39;))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+  (post_whisker (pr11 α1α2) (pr12 PF1PF2)
+   · pre_whisker (pr11 PF1&#39;PF2&#39;) (pr12 α1α2))
+  (post_whisker (pr11 α1&#39;α2&#39;) (pr12 PF1&#39;PF2&#39;)
+   · pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr12 α1&#39;α2&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk24"><span class="nb">rewrite</span> (post_whisker_composition _ _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (functor_composite_data (pr1 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr1 PF1&#39;PF2&#39;) (pr12 PF1PF2))
+  (functor_composite_data (pr1 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1PF2))
+  (post_whisker (pr1 α1α2) (pr12 PF1PF2))
+  (post_whisker (pr1 α1&#39;α2&#39;) (pr12 PF1PF2))
+· pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+    (nat_trans_comp (pr2 PF1PF2) (pr2 PF1&#39;PF2&#39;)
+       (pr2 PF1&#39;&#39;PF2&#39;&#39;) (pr2 α1α2) (pr2 α1&#39;α2&#39;)) =
+nat_trans_comp
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+     (pr12 PF1&#39;PF2&#39;))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+  (post_whisker (pr11 α1α2) (pr12 PF1PF2)
+   · pre_whisker (pr11 PF1&#39;PF2&#39;) (pr12 α1α2))
+  (post_whisker (pr11 α1&#39;α2&#39;) (pr12 PF1&#39;PF2&#39;)
+   · pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr12 α1&#39;α2&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk25"><span class="nb">rewrite</span> (pre_whisker_composition _ _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (functor_composite_data (pr1 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr1 PF1&#39;PF2&#39;) (pr12 PF1PF2))
+  (functor_composite_data (pr1 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1PF2))
+  (post_whisker (pr1 α1α2) (pr12 PF1PF2))
+  (post_whisker (pr1 α1&#39;α2&#39;) (pr12 PF1PF2))
+· nat_trans_comp
+    (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+       (pr2 PF1PF2))
+    (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+       (pr2 PF1&#39;PF2&#39;))
+    (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+       (pr2 PF1&#39;&#39;PF2&#39;&#39;))
+    (pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr2 α1α2))
+    (pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr2 α1&#39;α2&#39;)) =
+nat_trans_comp
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+     (pr12 PF1&#39;PF2&#39;))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+  (post_whisker (pr11 α1α2) (pr12 PF1PF2)
+   · pre_whisker (pr11 PF1&#39;PF2&#39;) (pr12 α1α2))
+  (post_whisker (pr11 α1&#39;α2&#39;) (pr12 PF1&#39;PF2&#39;)
+   · pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr12 α1&#39;α2&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk26"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+  (nat_trans_comp
+     (functor_composite_data (pr1 PF1PF2)
+        (pr12 PF1PF2))
+     (functor_composite_data (pr1 PF1&#39;PF2&#39;)
+        (pr12 PF1PF2))
+     (functor_composite_data (pr1 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr12 PF1PF2))
+     (post_whisker (pr1 α1α2) (pr12 PF1PF2))
+     (post_whisker (pr1 α1&#39;α2&#39;) (pr12 PF1PF2)))
+  (nat_trans_comp
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr2 PF1PF2))
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr2 PF1&#39;PF2&#39;))
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr2 PF1&#39;&#39;PF2&#39;&#39;))
+     (pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr2 α1α2))
+     (pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr2 α1&#39;α2&#39;))) =
+nat_trans_comp
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+     (pr12 PF1&#39;PF2&#39;))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+  (nat_trans_comp
+     (functor_composite_data (pr11 PF1PF2)
+        (pr12 PF1PF2))
+     (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+        (pr12 PF1PF2))
+     (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+        (pr12 PF1&#39;PF2&#39;))
+     (post_whisker (pr11 α1α2) (pr12 PF1PF2))
+     (pre_whisker (pr11 PF1&#39;PF2&#39;) (pr12 α1α2)))
+  (nat_trans_comp
+     (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+        (pr12 PF1&#39;PF2&#39;))
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr12 PF1&#39;PF2&#39;))
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+     (post_whisker (pr11 α1&#39;α2&#39;) (pr12 PF1&#39;PF2&#39;))
+     (pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr12 α1&#39;α2&#39;)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk27"><span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property | <span class="nb">intro</span> c].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+  (nat_trans_comp
+     (functor_composite_data (pr1 PF1PF2)
+        (pr12 PF1PF2))
+     (functor_composite_data (pr1 PF1&#39;PF2&#39;)
+        (pr12 PF1PF2))
+     (functor_composite_data (pr1 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr12 PF1PF2))
+     (post_whisker (pr1 α1α2) (pr12 PF1PF2))
+     (post_whisker (pr1 α1&#39;α2&#39;) (pr12 PF1PF2)))
+  (nat_trans_comp
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr2 PF1PF2))
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr2 PF1&#39;PF2&#39;))
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr2 PF1&#39;&#39;PF2&#39;&#39;))
+     (pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr2 α1α2))
+     (pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr2 α1&#39;α2&#39;))) c =
+nat_trans_comp
+  (functor_composite_data (pr11 PF1PF2) (pr12 PF1PF2))
+  (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+     (pr12 PF1&#39;PF2&#39;))
+  (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+     (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+  (nat_trans_comp
+     (functor_composite_data (pr11 PF1PF2)
+        (pr12 PF1PF2))
+     (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+        (pr12 PF1PF2))
+     (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+        (pr12 PF1&#39;PF2&#39;))
+     (post_whisker (pr11 α1α2) (pr12 PF1PF2))
+     (pre_whisker (pr11 PF1&#39;PF2&#39;) (pr12 α1α2)))
+  (nat_trans_comp
+     (functor_composite_data (pr11 PF1&#39;PF2&#39;)
+        (pr12 PF1&#39;PF2&#39;))
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr12 PF1&#39;PF2&#39;))
+     (functor_composite_data (pr11 PF1&#39;&#39;PF2&#39;&#39;)
+        (pr12 PF1&#39;&#39;PF2&#39;&#39;))
+     (post_whisker (pr11 α1&#39;α2&#39;) (pr12 PF1&#39;PF2&#39;))
+     (pre_whisker (pr11 PF1&#39;&#39;PF2&#39;&#39;) (pr12 α1&#39;α2&#39;))) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk28"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr112 PF1PF2) (pr1 (pr1 α1α2) c)
+· # (pr112 PF1PF2) (pr1 (pr1 α1&#39;α2&#39;) c)
+· (pr1 (pr2 α1α2) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c)
+   · pr1 (pr2 α1&#39;α2&#39;) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c)) =
+# (pr112 PF1PF2) ((pr111 α1α2) c)
+· (pr112 α1α2) (pr1 (pr11 PF1&#39;PF2&#39;) c)
+· (# (pr112 PF1&#39;PF2&#39;) ((pr111 α1&#39;α2&#39;) c)
+   · (pr112 α1&#39;α2&#39;) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk29"><span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr112 PF1PF2) (pr1 (pr1 α1α2) c)
+· (# (pr112 PF1PF2) (pr1 (pr1 α1&#39;α2&#39;) c)
+   · (pr1 (pr2 α1α2) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c)
+      · pr1 (pr2 α1&#39;α2&#39;) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c))) =
+# (pr112 PF1PF2) ((pr111 α1α2) c)
+· ((pr112 α1α2) (pr1 (pr11 PF1&#39;PF2&#39;) c)
+   · (# (pr112 PF1&#39;PF2&#39;) ((pr111 α1&#39;α2&#39;) c)
+      · (pr112 α1&#39;α2&#39;) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk2a"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr112 PF1PF2) (pr1 (pr1 α1&#39;α2&#39;) c)
+· (pr1 (pr2 α1α2) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c)
+   · pr1 (pr2 α1&#39;α2&#39;) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c)) =
+(pr112 α1α2) (pr1 (pr11 PF1&#39;PF2&#39;) c)
+· (# (pr112 PF1&#39;PF2&#39;) ((pr111 α1&#39;α2&#39;) c)
+   · (pr112 α1&#39;α2&#39;) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk2b"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr112 PF1PF2) (pr1 (pr1 α1&#39;α2&#39;) c)
+· pr1 (pr2 α1α2) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c)
+· pr1 (pr2 α1&#39;α2&#39;) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c) =
+(pr112 α1α2) (pr1 (pr11 PF1&#39;PF2&#39;) c)
+· # (pr112 PF1&#39;PF2&#39;) ((pr111 α1&#39;α2&#39;) c)
+· (pr112 α1&#39;α2&#39;) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk2c"><span class="nb">apply</span> cancel_postcomposition.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1PF2, PF1'PF2', PF1''PF2''</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd</span></span></span><br><span><var>α1α2</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1PF2, PF1&#39;PF2&#39; ⟧</span></span></span><br><span><var>α1'α2'</var><span class="hyp-type"><b>: </b><span>Ptd ⊠ Ptd ⟦ PF1&#39;PF2&#39;, PF1&#39;&#39;PF2&#39;&#39; ⟧</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr112 PF1PF2) (pr1 (pr1 α1&#39;α2&#39;) c)
+· pr1 (pr2 α1α2) (pr1 (pr11 PF1&#39;&#39;PF2&#39;&#39;) c) =
+(pr112 α1α2) (pr1 (pr11 PF1&#39;PF2&#39;) c)
+· # (pr112 PF1&#39;PF2&#39;) ((pr111 α1&#39;α2&#39;) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> nat_trans_ax.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk2d"><span class="kn">Definition</span> <span class="nf">tensor_pointedfunctors</span>:
+    category_Ptd C ⊠ category_Ptd C ⟶ category_Ptd C.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd ⊠ Ptd ⟶ Ptd</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk2e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd ⊠ Ptd ⟶ Ptd</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk2f">use make_functor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data (Ptd ⊠ Ptd) Ptd</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk30" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk30"><hr></label><div class="goal-conclusion">is_functor <span class="nl">?F</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk31">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_data (Ptd ⊠ Ptd) Ptd</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> tensor_pointedfunctor_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk32">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor tensor_pointedfunctor_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> tensor_pointedfunctor_is_functor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** a preparation for the lemma afterwards *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk33"><span class="kn">Lemma</span> <span class="nf">ptd_mor_z_iso_from_underlying_mor</span> {<span class="nv">F</span> <span class="nv">G</span> : Ptd} (<span class="nv">α</span> : ptd_mor C F G):
+    is_nat_z_iso (pr1 α) -&gt; is_z_isomorphism(C:=Ptd) α.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso (pr1 α) → is_z_isomorphism α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk34"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso (pr1 α) → is_z_isomorphism α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk35"><span class="nb">intro</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk36">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd ⟦ G, F ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk37" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk37"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">g</span> : Ptd ⟦ G, F ⟧, is_inverse_in_precat α g) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk38">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd ⟦ G, F ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk39">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">G ⟹ F</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk3a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk3a"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">α</span> : G ⟹ F, is_ptd_mor C α) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk3b"><span class="nb">apply</span> nat_z_iso_to_trans_inv.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_z_iso F G</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk3c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk3c"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">α</span> : G ⟹ F, is_ptd_mor C α)
+  (nat_z_iso_to_trans_inv <span class="nl">?Goal</span>)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk3d" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk3d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_z_iso F G</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr1 α ,, Hyp).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk3e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">α</span> : G ⟹ F, is_ptd_mor C α)
+  (nat_z_iso_to_trans_inv (pr1 α,, Hyp))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+          (<span class="nb">cbn</span>; <span class="nb">red</span>; <span class="nb">intro</span> c;
+           <span class="nb">cbn</span>;
+           <span class="nb">apply</span> pathsinv0;
+           <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (make_z_iso _ _ (Hyp c)));
+           <span class="nb">cbn</span>;
+           <span class="nb">apply</span> pathsinv0;
+           <span class="nb">apply</span> ptd_mor_commutes).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk3f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>ptd_mor C F G</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>is_nat_z_iso (pr1 α)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">g</span> : Ptd ⟦ G, F ⟧, is_inverse_in_precat α g)
+  (nat_z_iso_to_trans_inv (pr1 α,, Hyp),,
+   ptd_mor_z_iso_from_underlying_mor_subproof F G α
+     Hyp)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+        (<span class="nb">red</span>; <span class="nb">split</span>; <span class="nb">apply</span> eq_ptd_mor; <span class="nb">apply</span> (nat_trans_eq (homset_property C)); <span class="nb">intro</span> c; <span class="nb">cbn</span> ;
+         [ <span class="nb">apply</span> (z_iso_inv_after_z_iso (make_z_iso _ _ (Hyp c)))
+          | <span class="nb">apply</span> (z_iso_after_z_iso_inv (make_z_iso _ _ (Hyp c))) ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk40"><span class="kn">Definition</span> <span class="nf">left_unitor_of_pointedfunctors</span>:
+    left_unitor tensor_pointedfunctors (id_Ptd C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_unitor tensor_pointedfunctors (id_Ptd C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk41"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_unitor tensor_pointedfunctors (id_Ptd C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk42">use make_nat_z_iso.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">I_pretensor tensor_pointedfunctors (id_Ptd C)
+⟹ functor_identity Ptd</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk43" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk43"><hr></label><div class="goal-conclusion">is_nat_z_iso <span class="nl">?μ</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk44">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">I_pretensor tensor_pointedfunctors (id_Ptd C)
+⟹ functor_identity Ptd</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk45">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (I_pretensor tensor_pointedfunctors (id_Ptd C))
+  (functor_identity Ptd)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk46" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk46"><hr></label><div class="goal-conclusion">is_nat_trans
+  (I_pretensor tensor_pointedfunctors (id_Ptd C))
+  (functor_identity Ptd) <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk47">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (I_pretensor tensor_pointedfunctors (id_Ptd C))
+  (functor_identity Ptd)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk48"><span class="nb">intro</span> PF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd
+⟦ I_pretensor tensor_pointedfunctors (id_Ptd C) PF,
+functor_identity Ptd PF ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk49"><span class="kr">exists</span> (<span class="nv">λ_functors</span> (pr1 PF)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_ptd_mor C (<span class="kr">λ</span><span class="nv">_functors</span> (<span class="nv">pr1</span> <span class="nv">PF</span>))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> ( <span class="nb">intro</span> c; <span class="nb">cbn</span>; <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> id_left ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk4a">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (I_pretensor tensor_pointedfunctors (id_Ptd C))
+  (functor_identity Ptd)
+  ((<span class="kr">λ</span> <span class="nv">PF</span> : Ptd,
+    <span class="kr">λ</span><span class="nv">_functors</span> (<span class="nv">pr1</span> <span class="nv">PF</span>),,
+    left_unitor_of_pointedfunctors_subproof PF)
+   :
+   nat_trans_data
+     (I_pretensor tensor_pointedfunctors (id_Ptd C))
+     (functor_identity Ptd))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> ( <span class="nb">intros</span> PF PF&#39; α;
+                   <span class="nb">apply</span> eq_ptd_mor;
+                   <span class="nb">apply</span> (nat_trans_eq (homset_property C)); <span class="nb">intro</span> c; <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_left;
+                   <span class="nb">rewrite</span> id_right;
+                   etrans; [<span class="nb">apply</span> cancel_postcomposition, functor_id | <span class="nb">apply</span> id_left] ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk4b">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  (make_nat_trans
+     (I_pretensor tensor_pointedfunctors (id_Ptd C))
+     (functor_identity Ptd)
+     ((<span class="kr">λ</span> <span class="nv">PF</span> : Ptd,
+       <span class="kr">λ</span><span class="nv">_functors</span> (<span class="nv">pr1</span> <span class="nv">PF</span>),,
+       left_unitor_of_pointedfunctors_subproof PF)
+      :
+      nat_trans_data
+        (I_pretensor tensor_pointedfunctors (id_Ptd C))
+        (functor_identity Ptd))
+     left_unitor_of_pointedfunctors_subproof0)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk4c"><span class="nb">intro</span> PF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (make_nat_trans
+     (I_pretensor tensor_pointedfunctors (id_Ptd C))
+     (functor_identity Ptd)
+     (<span class="kr">λ</span> <span class="nv">PF</span> : Ptd,
+      <span class="kr">λ</span><span class="nv">_functors</span> (<span class="nv">pr1</span> <span class="nv">PF</span>),,
+      left_unitor_of_pointedfunctors_subproof PF)
+     left_unitor_of_pointedfunctors_subproof0 PF)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk4d"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (<span class="kr">λ</span><span class="nv">_functors</span> (<span class="nv">pr1</span> <span class="nv">PF</span>),,
+   left_unitor_of_pointedfunctors_subproof PF)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk4e"><span class="nb">apply</span> ptd_mor_z_iso_from_underlying_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  (pr1
+     (<span class="kr">λ</span><span class="nv">_functors</span> (<span class="nv">pr1</span> <span class="nv">PF</span>),,
+      left_unitor_of_pointedfunctors_subproof PF))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk4f"><span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (pr1
+     (<span class="kr">λ</span><span class="nv">_functors</span> (<span class="nv">pr1</span> <span class="nv">PF</span>),,
+      left_unitor_of_pointedfunctors_subproof PF) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk50"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (id pr1 PF c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> identity_is_z_iso.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk51"><span class="kn">Definition</span> <span class="nf">right_unitor_of_pointedfunctors</span>:
+    right_unitor tensor_pointedfunctors (id_Ptd C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">right_unitor tensor_pointedfunctors (id_Ptd C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk52"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">right_unitor tensor_pointedfunctors (id_Ptd C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk53">use make_nat_z_iso.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">I_posttensor tensor_pointedfunctors (id_Ptd C)
+⟹ functor_identity Ptd</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk54" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk54"><hr></label><div class="goal-conclusion">is_nat_z_iso <span class="nl">?μ</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk55">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">I_posttensor tensor_pointedfunctors (id_Ptd C)
+⟹ functor_identity Ptd</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk56">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (I_posttensor tensor_pointedfunctors (id_Ptd C))
+  (functor_identity Ptd)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk57" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk57"><hr></label><div class="goal-conclusion">is_nat_trans
+  (I_posttensor tensor_pointedfunctors (id_Ptd C))
+  (functor_identity Ptd) <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk58">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data
+  (I_posttensor tensor_pointedfunctors (id_Ptd C))
+  (functor_identity Ptd)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk59"><span class="nb">intro</span> PF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd
+⟦ I_posttensor tensor_pointedfunctors (id_Ptd C) PF,
+functor_identity Ptd PF ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk5a" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk5a"><span class="kr">exists</span> (<span class="nv">ρ_functors</span> (pr1 PF)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_ptd_mor C (ρ_functors (pr1 PF))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> ( <span class="nb">intro</span> c;
+                   <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_right;
+                   <span class="nb">apply</span> id_right ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk5b">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans
+  (I_posttensor tensor_pointedfunctors (id_Ptd C))
+  (functor_identity Ptd)
+  ((<span class="kr">λ</span> <span class="nv">PF</span> : Ptd,
+    ρ_functors (pr1 PF),,
+    right_unitor_of_pointedfunctors_subproof PF)
+   :
+   nat_trans_data
+     (I_posttensor tensor_pointedfunctors (id_Ptd C))
+     (functor_identity Ptd))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> ( <span class="nb">intros</span> PF PF&#39; α;
+                   <span class="nb">apply</span> eq_ptd_mor;
+                   <span class="nb">apply</span> (nat_trans_eq (homset_property C));
+                   <span class="nb">intro</span> c; <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_left;
+                   <span class="nb">rewrite</span> id_right;
+                   <span class="nb">apply</span> id_right ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk5c">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  (make_nat_trans
+     (I_posttensor tensor_pointedfunctors (id_Ptd C))
+     (functor_identity Ptd)
+     ((<span class="kr">λ</span> <span class="nv">PF</span> : Ptd,
+       ρ_functors (pr1 PF),,
+       right_unitor_of_pointedfunctors_subproof PF)
+      :
+      nat_trans_data
+        (I_posttensor tensor_pointedfunctors
+           (id_Ptd C)) (functor_identity Ptd))
+     right_unitor_of_pointedfunctors_subproof0)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk5d"><span class="nb">intro</span> PF.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (make_nat_trans
+     (I_posttensor tensor_pointedfunctors (id_Ptd C))
+     (functor_identity Ptd)
+     (<span class="kr">λ</span> <span class="nv">PF</span> : Ptd,
+      ρ_functors (pr1 PF),,
+      right_unitor_of_pointedfunctors_subproof PF)
+     right_unitor_of_pointedfunctors_subproof0 PF)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk5e"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (ρ_functors (pr1 PF),,
+   right_unitor_of_pointedfunctors_subproof PF)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk5f" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk5f"><span class="nb">apply</span> ptd_mor_z_iso_from_underlying_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  (pr1
+     (ρ_functors (pr1 PF),,
+      right_unitor_of_pointedfunctors_subproof PF))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk60" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk60"><span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (pr1
+     (ρ_functors (pr1 PF),,
+      right_unitor_of_pointedfunctors_subproof PF) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk61" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk61"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism (id pr1 PF c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> identity_is_z_iso.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk62" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk62"><span class="kn">Definition</span> <span class="nf">associator_of_pointedfunctors</span> : associator tensor_pointedfunctors.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">associator tensor_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk63" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk63"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">associator tensor_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk64" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk64">use make_nat_z_iso.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">assoc_left tensor_pointedfunctors
+⟹ assoc_right tensor_pointedfunctors</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk65" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk65"><hr></label><div class="goal-conclusion">is_nat_z_iso <span class="nl">?μ</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk66" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk66">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">assoc_left tensor_pointedfunctors
+⟹ assoc_right tensor_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk67" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk67">use make_nat_trans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data (assoc_left tensor_pointedfunctors)
+  (assoc_right tensor_pointedfunctors)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk68" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk68"><hr></label><div class="goal-conclusion">is_nat_trans (assoc_left tensor_pointedfunctors)
+  (assoc_right tensor_pointedfunctors) <span class="nl">?t</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk69" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk69">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_data (assoc_left tensor_pointedfunctors)
+  (assoc_right tensor_pointedfunctors)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk6a" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk6a"><span class="nb">intro</span> PFtriple.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PFtriple</var><span class="hyp-type"><b>: </b><span>(Ptd ⊠ Ptd) ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd ⟦ assoc_left tensor_pointedfunctors PFtriple,
+assoc_right tensor_pointedfunctors PFtriple ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk6b" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk6b"><span class="nb">induction</span> PFtriple <span class="kr">as</span> [[PF1 PF2] PF3].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF3</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd
+⟦ assoc_left tensor_pointedfunctors
+    ((PF1,, PF2),, PF3),
+assoc_right tensor_pointedfunctors ((PF1,, PF2),, PF3)
+⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk6c" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk6c"><span class="kr">exists</span> (<span class="nv">α_functors</span> (pr1 PF1) (pr1 PF2) (pr1 PF3)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF3</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_ptd_mor C
+  (α_functors (pr1 PF1) (pr1 PF2) (pr1 PF3))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> ( <span class="nb">intro</span> c;
+                   <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_right;
+                   <span class="nb">apply</span> pathsinv0, assoc ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk6d" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk6d">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_trans (assoc_left tensor_pointedfunctors)
+  (assoc_right tensor_pointedfunctors)
+  ((<span class="kr">λ</span> <span class="nv">PFtriple</span> : (Ptd ⊠ Ptd) ⊠ Ptd,
+    (<span class="kr">λ</span> <span class="nv">pr1</span> : Ptd ⊠ Ptd,
+     (<span class="kr">λ</span> <span class="nv">PF1</span> <span class="nv">PF2</span> <span class="nv">PF3</span> : Ptd,
+      α_functors (Preamble.pr1 PF1) (Preamble.pr1 PF2)
+        (Preamble.pr1 PF3),,
+      associator_of_pointedfunctors_subproof PF1 PF2
+        PF3) (Preamble.pr1 pr1) (pr2 pr1))
+      (pr1 PFtriple) (pr2 PFtriple))
+   :
+   nat_trans_data (assoc_left tensor_pointedfunctors)
+     (assoc_right tensor_pointedfunctors))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> ( <span class="nb">intros</span> PFtriple PFtriple&#39; αtriple;
+                   <span class="nb">apply</span> eq_ptd_mor;
+                   <span class="nb">apply</span> (nat_trans_eq (homset_property C));
+                   <span class="nb">intro</span> c; <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_right;
+                   <span class="nb">rewrite</span> id_left;
+                   <span class="nb">rewrite</span> assoc;
+                   <span class="nb">apply</span> cancel_postcomposition;
+                   <span class="nb">apply</span> functor_comp ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk6e" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk6e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  (make_nat_trans (assoc_left tensor_pointedfunctors)
+     (assoc_right tensor_pointedfunctors)
+     ((<span class="kr">λ</span> <span class="nv">PFtriple</span> : (Ptd ⊠ Ptd) ⊠ Ptd,
+       (<span class="kr">λ</span> <span class="nv">pr1</span> : Ptd ⊠ Ptd,
+        (<span class="kr">λ</span> <span class="nv">PF1</span> <span class="nv">PF2</span> <span class="nv">PF3</span> : Ptd,
+         α_functors (Preamble.pr1 PF1)
+           (Preamble.pr1 PF2) (Preamble.pr1 PF3),,
+         associator_of_pointedfunctors_subproof PF1
+           PF2 PF3) (Preamble.pr1 pr1) (pr2 pr1))
+         (pr1 PFtriple) (pr2 PFtriple))
+      :
+      nat_trans_data
+        (assoc_left tensor_pointedfunctors)
+        (assoc_right tensor_pointedfunctors))
+     associator_of_pointedfunctors_subproof0)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk6f" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk6f"><span class="nb">intro</span> PFtriple.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PFtriple</var><span class="hyp-type"><b>: </b><span>(Ptd ⊠ Ptd) ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (make_nat_trans (assoc_left tensor_pointedfunctors)
+     (assoc_right tensor_pointedfunctors)
+     (<span class="kr">λ</span> <span class="nv">PFtriple</span> : (Ptd ⊠ Ptd) ⊠ Ptd,
+      α_functors (pr111 PFtriple) (pr121 PFtriple)
+        (pr12 PFtriple),,
+      associator_of_pointedfunctors_subproof
+        (pr11 PFtriple) (pr21 PFtriple) (pr2 PFtriple))
+     associator_of_pointedfunctors_subproof0 PFtriple)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk70" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk70"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PFtriple</var><span class="hyp-type"><b>: </b><span>(Ptd ⊠ Ptd) ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (α_functors (pr111 PFtriple) (pr121 PFtriple)
+     (pr12 PFtriple),,
+   associator_of_pointedfunctors_subproof
+     (pr11 PFtriple) (pr21 PFtriple) (pr2 PFtriple))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk71" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk71"><span class="nb">apply</span> ptd_mor_z_iso_from_underlying_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PFtriple</var><span class="hyp-type"><b>: </b><span>(Ptd ⊠ Ptd) ⊠ Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_nat_z_iso
+  (pr1
+     (α_functors (pr111 PFtriple) (pr121 PFtriple)
+        (pr12 PFtriple),,
+      associator_of_pointedfunctors_subproof
+        (pr11 PFtriple) (pr21 PFtriple) (pr2 PFtriple)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk72" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk72"><span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PFtriple</var><span class="hyp-type"><b>: </b><span>(Ptd ⊠ Ptd) ⊠ Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (pr1
+     (α_functors (pr111 PFtriple) (pr121 PFtriple)
+        (pr12 PFtriple),,
+      associator_of_pointedfunctors_subproof
+        (pr11 PFtriple) (pr21 PFtriple) (pr2 PFtriple))
+     c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk73" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk73"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PFtriple</var><span class="hyp-type"><b>: </b><span>(Ptd ⊠ Ptd) ⊠ Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_z_isomorphism
+  (id (pr12 PFtriple)
+        ((pr121 PFtriple) ((pr111 PFtriple) c)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> identity_is_z_iso.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk74" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk74"><span class="kn">Lemma</span> <span class="nf">triangle_eq_of_pointedfunctors</span> :
+    triangle_eq tensor_pointedfunctors (id_Ptd C)
+                left_unitor_of_pointedfunctors
+                right_unitor_of_pointedfunctors
+                associator_of_pointedfunctors.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">triangle_eq tensor_pointedfunctors (id_Ptd C)
+  left_unitor_of_pointedfunctors
+  right_unitor_of_pointedfunctors
+  associator_of_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk75" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk75"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">triangle_eq tensor_pointedfunctors (id_Ptd C)
+  left_unitor_of_pointedfunctors
+  right_unitor_of_pointedfunctors
+  associator_of_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk76" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk76"><span class="nb">intros</span> PF1 PF2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># tensor_pointedfunctors
+  (pr1 right_unitor_of_pointedfunctors PF1 #, id PF2) =
+pr1 associator_of_pointedfunctors
+  ((PF1, id_Ptd C), PF2)
+· # tensor_pointedfunctors
+    (id PF1 #, pr1 left_unitor_of_pointedfunctors PF2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk77" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk77"><span class="nb">apply</span> eq_ptd_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># tensor_pointedfunctors
+  (pr1 right_unitor_of_pointedfunctors PF1 #, id PF2) =
+pr1 associator_of_pointedfunctors
+  ((PF1, id_Ptd C), PF2)
+· # tensor_pointedfunctors
+    (id PF1 #, pr1 left_unitor_of_pointedfunctors PF2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk78" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk78"><span class="nb">apply</span> (nat_trans_eq (homset_property C)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+# tensor_pointedfunctors
+  (pr1 right_unitor_of_pointedfunctors PF1 #, id PF2)
+  x =
+(pr1 associator_of_pointedfunctors
+   ((PF1, id_Ptd C), PF2)
+ · # tensor_pointedfunctors
+     (id PF1
+     #, pr1 left_unitor_of_pointedfunctors PF2)) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk79" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk79"><span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># tensor_pointedfunctors
+  (pr1 right_unitor_of_pointedfunctors PF1 #, id PF2)
+  c =
+(pr1 associator_of_pointedfunctors
+   ((PF1, id_Ptd C), PF2)
+ · # tensor_pointedfunctors
+     (id PF1
+     #, pr1 left_unitor_of_pointedfunctors PF2)) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk7a" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk7a"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr11 PF2) (id pr1 PF1 c) · id PF2 (pr1 (pr1 PF1) c) =
+id pr1 PF2 (pr1 PF1 c)
+· (# (pr1 PF2) (id PF1 c)
+   · id pr1 PF2 (pr1 (pr1 PF1) c))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk7b" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk7b"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr11 PF2) (id pr1 PF1 c) =
+id pr1 PF2 (pr1 PF1 c) · # (pr1 PF2) (id PF1 c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> pathsinv0, id_left.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk7c" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk7c"><span class="kn">Lemma</span> <span class="nf">pentagon_eq_of_pointedfunctors</span> :
+    pentagon_eq tensor_pointedfunctors associator_of_pointedfunctors.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pentagon_eq tensor_pointedfunctors
+  associator_of_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk7d" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk7d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pentagon_eq tensor_pointedfunctors
+  associator_of_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk7e" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk7e"><span class="nb">intros</span> PF1 PF2 PF3 PF4.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF3, PF4</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 associator_of_pointedfunctors
+  ((tensor_pointedfunctors (PF1, PF2), PF3), PF4)
+· pr1 associator_of_pointedfunctors
+    ((PF1, PF2), tensor_pointedfunctors (PF3, PF4)) =
+# tensor_pointedfunctors
+  (pr1 associator_of_pointedfunctors ((PF1, PF2), PF3)
+  #, id PF4)
+· pr1 associator_of_pointedfunctors
+    ((PF1, tensor_pointedfunctors (PF2, PF3)), PF4)
+· # tensor_pointedfunctors
+    (id PF1
+    #, pr1 associator_of_pointedfunctors
+         ((PF2, PF3), PF4))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk7f" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk7f"><span class="nb">apply</span> eq_ptd_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF3, PF4</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 associator_of_pointedfunctors
+  ((tensor_pointedfunctors (PF1, PF2), PF3), PF4)
+· pr1 associator_of_pointedfunctors
+    ((PF1, PF2), tensor_pointedfunctors (PF3, PF4)) =
+# tensor_pointedfunctors
+  (pr1 associator_of_pointedfunctors ((PF1, PF2), PF3)
+  #, id PF4)
+· pr1 associator_of_pointedfunctors
+    ((PF1, tensor_pointedfunctors (PF2, PF3)), PF4)
+· # tensor_pointedfunctors
+    (id PF1
+    #, pr1 associator_of_pointedfunctors
+         ((PF2, PF3), PF4))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk80" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk80"><span class="nb">apply</span> nat_trans_eq_alt.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF3, PF4</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C,
+(pr1 associator_of_pointedfunctors
+   ((tensor_pointedfunctors (PF1, PF2), PF3), PF4)
+ · pr1 associator_of_pointedfunctors
+     ((PF1, PF2), tensor_pointedfunctors (PF3, PF4)))
+  x =
+(# tensor_pointedfunctors
+   (pr1 associator_of_pointedfunctors
+      ((PF1, PF2), PF3) #, id PF4)
+ · pr1 associator_of_pointedfunctors
+     ((PF1, tensor_pointedfunctors (PF2, PF3)), PF4)
+ · # tensor_pointedfunctors
+     (id PF1
+     #, pr1 associator_of_pointedfunctors
+          ((PF2, PF3), PF4))) x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk81" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk81"><span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF3, PF4</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr1 associator_of_pointedfunctors
+   ((tensor_pointedfunctors (PF1, PF2), PF3), PF4)
+ · pr1 associator_of_pointedfunctors
+     ((PF1, PF2), tensor_pointedfunctors (PF3, PF4)))
+  c =
+(# tensor_pointedfunctors
+   (pr1 associator_of_pointedfunctors
+      ((PF1, PF2), PF3) #, id PF4)
+ · pr1 associator_of_pointedfunctors
+     ((PF1, tensor_pointedfunctors (PF2, PF3)), PF4)
+ · # tensor_pointedfunctors
+     (id PF1
+     #, pr1 associator_of_pointedfunctors
+          ((PF2, PF3), PF4))) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk82" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk82"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF3, PF4</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id pr1 PF4 (pr1 PF3 (pr1 PF2 (pr1 PF1 c)))
+· id pr1 PF4 (pr1 PF3 (pr1 PF2 (pr1 PF1 c))) =
+# (pr11 PF4) (id pr1 PF3 (pr1 PF2 (pr1 PF1 c)))
+· id PF4 (pr1 PF3 (pr1 PF2 (pr1 PF1 c)))
+· id pr1 PF4 (pr1 PF3 (pr1 PF2 (pr1 PF1 c)))
+· (# (pr1 PF4) (# (pr1 PF3) (# (pr1 PF2) (id PF1 c)))
+   · id pr1 PF4 (pr1 PF3 (pr1 PF2 (pr1 (pr1 PF1) c))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk83" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk83"><span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> functor_id.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF3, PF4</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id pr1 PF4 (pr1 PF3 (pr1 PF2 (pr1 PF1 c)))
+· id pr1 PF4 (pr1 PF3 (pr1 PF2 (pr1 PF1 c))) =
+# (pr11 PF4) (id pr1 PF3 (pr1 PF2 (pr1 PF1 c)))
+· id PF4 (pr1 PF3 (pr1 PF2 (pr1 PF1 c)))
+· id pr1 PF4 (pr1 PF3 (pr1 PF2 (pr1 PF1 c)))
+· (id pr1 PF4 (pr1 PF3 (pr1 PF2 (PF1 c)))
+   · id pr1 PF4 (pr1 PF3 (pr1 PF2 (pr1 (pr1 PF1) c))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk84" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk84"><span class="kp">do</span> <span class="mi">5</span> <span class="nb">rewrite</span> id_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>PF1, PF2, PF3, PF4</var><span class="hyp-type"><b>: </b><span>Ptd</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id pr1 PF4 (pr1 PF3 (pr1 PF2 (pr1 PF1 c))) =
+# (pr11 PF4) (id pr1 PF3 (pr1 PF2 (pr1 PF1 c)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> pathsinv0, functor_id.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk85" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk85"><span class="kn">Definition</span> <span class="nf">monoidal_cat_of_pointedfunctors</span> : monoidal_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">monoidal_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk86" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk86"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">monoidal_cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk87" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk87">use make_monoidal_cat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk88" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk88"><hr></label><div class="goal-conclusion"><span class="nl">?C</span> ⊠ <span class="nl">?C</span> ⟶ <span class="nl">?C</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk89" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk89"><hr></label><div class="goal-conclusion"><span class="nl">?C</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk8a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk8a"><hr></label><div class="goal-conclusion">left_unitor <span class="nl">?tensor</span> <span class="nl">?I</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk8b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk8b"><hr></label><div class="goal-conclusion">right_unitor <span class="nl">?tensor</span> <span class="nl">?I</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk8c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk8c"><hr></label><div class="goal-conclusion">associator <span class="nl">?tensor</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk8d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk8d"><hr></label><div class="goal-conclusion">triangle_eq <span class="nl">?tensor</span> <span class="nl">?I</span> <span class="nl">?λ&#39;</span> <span class="nl">?ρ&#39;</span> <span class="nl">?α&#39;</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk8e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk8e"><hr></label><div class="goal-conclusion">pentagon_eq <span class="nl">?tensor</span> <span class="nl">?α&#39;</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk8f" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk8f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> Ptd.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk90" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk90">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd ⊠ Ptd ⟶ Ptd</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> tensor_pointedfunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk91" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk91">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Ptd</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> id_Ptd.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk92" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk92">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_unitor tensor_pointedfunctors (id_Ptd C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> left_unitor_of_pointedfunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk93" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk93">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">right_unitor tensor_pointedfunctors (id_Ptd C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> right_unitor_of_pointedfunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk94" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk94">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">associator tensor_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> associator_of_pointedfunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk95" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk95">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">triangle_eq tensor_pointedfunctors (id_Ptd C)
+  left_unitor_of_pointedfunctors
+  right_unitor_of_pointedfunctors
+  associator_of_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> triangle_eq_of_pointedfunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk96" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk96">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pentagon_eq tensor_pointedfunctors
+  associator_of_pointedfunctors</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> pentagon_eq_of_pointedfunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk97" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk97"><span class="kn">Definition</span> <span class="nf">forgetful_functor_from_ptd_as_strong_monoidal_functor</span>
+    : strong_monoidal_functor
+        monoidal_cat_of_pointedfunctors
+        (monoidal_cat_of_endofunctors C).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">strong_monoidal_functor
+  monoidal_cat_of_pointedfunctors
+  (monoidal_cat_of_endofunctors C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk98" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk98"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">strong_monoidal_functor
+  monoidal_cat_of_pointedfunctors
+  (monoidal_cat_of_endofunctors C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk99" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk99">use tpair.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lax_monoidal_functor monoidal_cat_of_pointedfunctors
+  (monoidal_cat_of_endofunctors C)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk9a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk9a"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">lmF</span> : lax_monoidal_functor
+           monoidal_cat_of_pointedfunctors
+           (monoidal_cat_of_endofunctors C),
+ is_z_isomorphism (lax_monoidal_functor_ϵ lmF)
+ × is_nat_z_iso (lax_monoidal_functor_μ lmF)) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk9b" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk9b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">lax_monoidal_functor monoidal_cat_of_pointedfunctors
+  (monoidal_cat_of_endofunctors C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk9c" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk9c"><span class="nb">apply</span> (make_lax_monoidal_functor
+               monoidal_cat_of_pointedfunctors
+               (monoidal_cat_of_endofunctors C)
+               (functor_ptd_forget C)
+               (nat_trans_id _)
+               (nat_trans_id _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">monoidal_functor_associativity
+  monoidal_cat_of_pointedfunctors
+  (monoidal_cat_of_endofunctors C)
+  (functor_ptd_forget C)
+  (nat_trans_id
+     (monoidal_functor_map_dom
+        monoidal_cat_of_pointedfunctors
+        (monoidal_cat_of_endofunctors C)
+        (functor_ptd_forget C)))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="pointedfunctorsmonoidal-v-chk9d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><label class="goal-separator" for="pointedfunctorsmonoidal-v-chk9d"><hr></label><div class="goal-conclusion">monoidal_functor_unitality
+  monoidal_cat_of_pointedfunctors
+  (monoidal_cat_of_endofunctors C)
+  (functor_ptd_forget C)
+  (nat_trans_id
+     (MonoidalFunctorsTensored.I_D
+        (monoidal_cat_of_endofunctors C)))
+  (nat_trans_id
+     (monoidal_functor_map_dom
+        monoidal_cat_of_pointedfunctors
+        (monoidal_cat_of_endofunctors C)
+        (functor_ptd_forget C)))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk9e" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk9e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">monoidal_functor_associativity
+  monoidal_cat_of_pointedfunctors
+  (monoidal_cat_of_endofunctors C)
+  (functor_ptd_forget C)
+  (nat_trans_id
+     (monoidal_functor_map_dom
+        monoidal_cat_of_pointedfunctors
+        (monoidal_cat_of_endofunctors C)
+        (functor_ptd_forget C)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> ( <span class="nb">intros</span> PF1 PF2 PF3;
+                   <span class="nb">apply</span> nat_trans_eq_alt;
+                   <span class="nb">intro</span> c;
+                   <span class="nb">cbn</span>;
+                   <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id;
+                   <span class="kp">repeat</span> <span class="nb">rewrite</span> id_right;
+                   <span class="nb">apply</span> functor_id ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chk9f" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chk9f">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">monoidal_functor_unitality
+  monoidal_cat_of_pointedfunctors
+  (monoidal_cat_of_endofunctors C)
+  (functor_ptd_forget C)
+  (nat_trans_id
+     (MonoidalFunctorsTensored.I_D
+        (monoidal_cat_of_endofunctors C)))
+  (nat_trans_id
+     (monoidal_functor_map_dom
+        monoidal_cat_of_pointedfunctors
+        (monoidal_cat_of_endofunctors C)
+        (functor_ptd_forget C)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> ( <span class="nb">intro</span> PF;
+                   <span class="nb">split</span>; <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_right;
+                   [ <span class="nb">apply</span> pathsinv0, functor_id | <span class="nb">apply</span> idpath ] ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="pointedfunctorsmonoidal-v-chka0" style="display: none" type="checkbox"><label class="alectryon-input" for="pointedfunctorsmonoidal-v-chka0">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">lmF</span> : lax_monoidal_functor
+           monoidal_cat_of_pointedfunctors
+           (monoidal_cat_of_endofunctors C),
+ is_z_isomorphism (lax_monoidal_functor_ϵ lmF)
+ × is_nat_z_iso (lax_monoidal_functor_μ lmF))
+  (make_lax_monoidal_functor
+     monoidal_cat_of_pointedfunctors
+     (monoidal_cat_of_endofunctors C)
+     (functor_ptd_forget C)
+     (nat_trans_id
+        (MonoidalFunctorsTensored.I_D
+           (monoidal_cat_of_endofunctors C)))
+     (nat_trans_id
+        (monoidal_functor_map_dom
+           monoidal_cat_of_pointedfunctors
+           (monoidal_cat_of_endofunctors C)
+           (functor_ptd_forget C)))
+     forgetful_functor_from_ptd_as_strong_monoidal_functor_subproof
+     forgetful_functor_from_ptd_as_strong_monoidal_functor_subproof0)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">split</span>;
+        [ <span class="nb">apply</span> (nat_trafo_z_iso_if_pointwise_z_iso C);
+          <span class="nb">apply</span> is_nat_z_iso_nat_trans_id
+        | <span class="nb">apply</span> (is_nat_z_iso_nat_trans_id
+                   ((functor_composite
+                       (PrecategoryBinProduct.pair_functor
+                          (functor_ptd_forget C)
+                          (functor_ptd_forget C))
+                       (functorial_composition _ _ _))))].</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">PointedFunctors_as_monoidal_category</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

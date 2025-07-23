@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#"><span class="id" title="library">UniMath.CategoryTheory.Monics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_monic_cod_fib" class="idref" href="#is_monic_cod_fib"><span class="id" title="definition">is_monic_cod_fib</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="y:2" class="idref" href="#y:2"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#C:1"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="xf:3" class="idref" href="#xf:3"><span class="id" title="binder">xf</span></a> <a id="xg:4" class="idref" href="#xg:4"><span class="id" title="binder">xg</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#3ba4da14416d01104aa99a372e1c96df"><span class="id" title="notation">/</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#y:2"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="h:5" class="idref" href="#h:5"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#xf:3"><span class="id" title="variable">xf</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#xg:4"><span class="id" title="variable">xg</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hh:6" class="idref" href="#Hh:6"><span class="id" title="binder">Hh</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monics.html#isMonic"><span class="id" title="definition">isMonic</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#dom_mor"><span class="id" title="definition">dom_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#h:5"><span class="id" title="variable">h</span></a>))<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monics.html#isMonic"><span class="id" title="definition">isMonic</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#h:5"><span class="id" title="variable">h</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">k</span> φ ψ <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#eq_mor_cod_fib"><span class="id" title="lemma">eq_mor_cod_fib</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <span class="id" title="var">Hh</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#dom_mor"><span class="id" title="definition">dom_mor</span></a> <span class="id" title="var">p</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#comp_in_cod_fib"><span class="id" title="lemma">comp_in_cod_fib</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#comp_in_cod_fib"><span class="id" title="lemma">comp_in_cod_fib</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="from_is_monic_cod_fib" class="idref" href="#from_is_monic_cod_fib"><span class="id" title="definition">from_is_monic_cod_fib</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:7" class="idref" href="#C:7"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="y:8" class="idref" href="#y:8"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#C:7"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="xf:9" class="idref" href="#xf:9"><span class="id" title="binder">xf</span></a> <a id="xg:10" class="idref" href="#xg:10"><span class="id" title="binder">xg</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#C:7"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#3ba4da14416d01104aa99a372e1c96df"><span class="id" title="notation">/</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#y:8"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="h:11" class="idref" href="#h:11"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#xf:9"><span class="id" title="variable">xf</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#xg:10"><span class="id" title="variable">xg</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hh:12" class="idref" href="#Hh:12"><span class="id" title="binder">Hh</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monics.html#isMonic"><span class="id" title="definition">isMonic</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#h:11"><span class="id" title="variable">h</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monics.html#isMonic"><span class="id" title="definition">isMonic</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#dom_mor"><span class="id" title="definition">dom_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#h:11"><span class="id" title="variable">h</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> φ ψ <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#dom_mor"><span class="id" title="definition">dom_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Hh</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#make_cod_fib_ob"><span class="id" title="definition">make_cod_fib_ob</span></a> (φ <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#cod_mor"><span class="id" title="definition">cod_mor</span></a> <span class="id" title="var">xf</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#make_cod_fib_mor"><span class="id" title="definition">make_cod_fib_mor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#make_cod_fib_mor"><span class="id" title="definition">make_cod_fib_mor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#mor_eq"><span class="id" title="lemma">mor_eq</span></a> <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#eq_mor_cod_fib"><span class="id" title="lemma">eq_mor_cod_fib</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#comp_in_cod_fib"><span class="id" title="lemma">comp_in_cod_fib</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_monic_cod_fib_weq" class="idref" href="#is_monic_cod_fib_weq"><span class="id" title="definition">is_monic_cod_fib_weq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:13" class="idref" href="#C:13"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="y:14" class="idref" href="#y:14"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#C:13"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="xf:15" class="idref" href="#xf:15"><span class="id" title="binder">xf</span></a> <a id="xg:16" class="idref" href="#xg:16"><span class="id" title="binder">xg</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#C:13"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#3ba4da14416d01104aa99a372e1c96df"><span class="id" title="notation">/</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#y:14"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="h:17" class="idref" href="#h:17"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#xf:15"><span class="id" title="variable">xf</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#xg:16"><span class="id" title="variable">xg</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monics.html#isMonic"><span class="id" title="definition">isMonic</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#h:17"><span class="id" title="variable">h</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.CategoryTheory.Monics.html#isMonic"><span class="id" title="definition">isMonic</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#dom_mor"><span class="id" title="definition">dom_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#h:17"><span class="id" title="variable">h</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#weqimplimpl"><span class="id" title="definition">weqimplimpl</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#from_is_monic_cod_fib"><span class="id" title="definition">from_is_monic_cod_fib</span></a> <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.html#is_monic_cod_fib"><span class="id" title="definition">is_monic_cod_fib</span></a> <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#isapropisMonic"><span class="id" title="lemma">isapropisMonic</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#isapropisMonic"><span class="id" title="lemma">isapropisMonic</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

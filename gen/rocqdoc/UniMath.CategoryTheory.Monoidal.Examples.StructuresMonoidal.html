@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Monoidal.Examples.StructuresMonoidal</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Monoidal.Examples.StructuresMonoidal</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Cartesian</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Closed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="monoidal_cat_of_hset_struct" class="idref" href="#monoidal_cat_of_hset_struct"><span class="id" title="definition">monoidal_cat_of_hset_struct</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="P:1" class="idref" href="#P:1"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct"><span class="id" title="definition">hset_cartesian_struct</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#category_of_hset_struct"><span class="id" title="definition">category_of_hset_struct</span></a> <span class="id" title="var">P</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.html#cartesian_monoidal"><span class="id" title="definition">cartesian_monoidal</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#BinProducts_category_of_hset_struct"><span class="id" title="definition">BinProducts_category_of_hset_struct</span></a> <span class="id" title="var">P</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#Terminal_category_of_hset_struct"><span class="id" title="definition">Terminal_category_of_hset_struct</span></a> <span class="id" title="var">P</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="is_cartesian_cat_of_hset_struct" class="idref" href="#is_cartesian_cat_of_hset_struct"><span class="id" title="lemma">is_cartesian_cat_of_hset_struct</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="P:2" class="idref" href="#P:2"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct"><span class="id" title="definition">hset_cartesian_struct</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#is_cartesian"><span class="id" title="definition">is_cartesian</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.StructuresMonoidal.html#monoidal_cat_of_hset_struct"><span class="id" title="definition">monoidal_cat_of_hset_struct</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.StructuresMonoidal.html#P:2"><span class="id" title="variable">P</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.html#is_cartesian_cartesian_monoidalcat"><span class="id" title="lemma">is_cartesian_cartesian_monoidalcat</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="sym_monoidal_cat_of_hset_struct" class="idref" href="#sym_monoidal_cat_of_hset_struct"><span class="id" title="definition">sym_monoidal_cat_of_hset_struct</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="P:3" class="idref" href="#P:3"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct"><span class="id" title="definition">hset_cartesian_struct</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#sym_monoidal_cat"><span class="id" title="definition">sym_monoidal_cat</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.StructuresMonoidal.html#monoidal_cat_of_hset_struct"><span class="id" title="definition">monoidal_cat_of_hset_struct</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.StructuresMonoidal.html#P:3"><span class="id" title="variable">P</span></a>  <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.html#symmetric_cartesian_monoidalcat"><span class="id" title="definition">symmetric_cartesian_monoidalcat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="sym_mon_closed_cat_of_hset_struct" class="idref" href="#sym_mon_closed_cat_of_hset_struct"><span class="id" title="definition">sym_mon_closed_cat_of_hset_struct</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="P:4" class="idref" href="#P:4"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_cartesian_closed_struct"><span class="id" title="definition">hset_cartesian_closed_struct</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.html#sym_mon_closed_cartesian_cat"><span class="id" title="definition">sym_mon_closed_cartesian_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#category_of_hset_struct"><span class="id" title="definition">category_of_hset_struct</span></a> <span class="id" title="var">P</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#BinProducts_category_of_hset_struct"><span class="id" title="definition">BinProducts_category_of_hset_struct</span></a> <span class="id" title="var">P</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#Terminal_category_of_hset_struct"><span class="id" title="definition">Terminal_category_of_hset_struct</span></a> <span class="id" title="var">P</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#Exponentials_struct"><span class="id" title="definition">Exponentials_struct</span></a> <span class="id" title="var">P</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Preorders.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Subtypes of Preorders</span>
+
+<span class="sd">  Given a preorder ≤ on X, if we have a subtype of X, we can give its carrier a preorder structure</span>
+<span class="sd">  again.</span>
+<span class="sd">  Also, given an element x, the down type of x is the subtype of all elements y such that y ≤ x.</span>
+<span class="sd">  We say that a subtype Y of X is downward closed if x ∈ Y and y ≤ x implies that y ∈ Y.</span>
+<span class="sd">  Lastly, for any subtype Y of X, we can take its downward closure as the type of all y that are</span>
+<span class="sd">  smaller than some x ∈ Y (Equivalently, it would be the intersection of all downward closed</span>
+<span class="sd">  subtypes that contain Y).</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The preorder structure on a subtype [subpreorder]</span>
+<span class="sd">  2. Down- and up-types [down_type] [up_type]</span>
+<span class="sd">  3. Downward closed subsets [is_downward_closed] [downward_closed_subtype]</span>
+<span class="sd">  4. The downward closure [downward_closure]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The preorder structure on a subtype *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">SubPreorder</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">X</span> : UU}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">P</span> : po X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">A</span> : hsubtype X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chk1"><span class="kn">Definition</span> <span class="nf">subpreorder</span>
+    : po A.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">po A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">po A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chk3">use make_po.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel A</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="preorders-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><label class="goal-separator" for="preorders-v-chk4"><hr></label><div class="goal-conclusion">ispreorder <span class="nl">?R</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hrel A</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (resrel P A).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>A</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ispreorder (resrel P A)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (
+        <span class="nb">split</span>;
+        [ <span class="nb">apply</span> istransresrel;
+          <span class="nb">apply</span> istrans_po
+        | <span class="nb">apply</span> isreflresrel;
+          <span class="nb">apply</span> isrefl_po ]
+      ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">SubPreorder</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Down- and up-types *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">DownType</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">down_type</span>
+    {<span class="nv">X</span> : UU}
+    (<span class="nv">P</span> : hrel X)
+    (<span class="nv">y</span> : X)
+    : hsubtype X
+    := <span class="kr">λ</span> <span class="nv">x</span>, P x y.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">up_type</span>
+    {<span class="nv">X</span> : UU}
+    (<span class="nv">P</span> : hrel X)
+    (<span class="nv">x</span> : X)
+    : hsubtype X
+    := <span class="kr">λ</span> <span class="nv">y</span>, P x y.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">DownType</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 3. Downward closed subsets *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">DownwardClosed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">X</span> : UU}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">P</span> : hrel X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_downward_closed</span>
+    (<span class="nv">f</span> : hsubtype X)
+    : UU
+    := ∏ (x : f)
+      (y : down_type P (pr1carrier _ x)),
+      f (pr1carrier _ y).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">downward_closed_subtype</span>
+    : UU
+    := ∑ f, is_downward_closed f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">downward_closed_subtype_to_subtype</span>
+    (f : downward_closed_subtype)
+    : hsubtype X
+    := pr1 f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">downward_closed_is_downward_closed</span>
+    (<span class="nv">f</span> : downward_closed_subtype)
+    : is_downward_closed f
+    := pr2 f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_downward_closed_subtype</span>
+    (<span class="nv">f</span> : hsubtype X)
+    (<span class="nv">H</span> : is_downward_closed f)
+    : downward_closed_subtype
+    := f ,, H.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">DownwardClosed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 4. The downward closure *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">DownwardClosure</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">X</span> : UU}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">P</span> : po X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">f</span> : hsubtype X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chk7"><span class="kn">Definition</span> <span class="nf">downward_closure_hsubtype</span>
+    : hsubtype X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hsubtype X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chk8"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hsubtype X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chk9"><span class="nb">intro</span> y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">hProp</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">refine</span> (<span class="kr">∃</span> (<span class="nv">z</span> : f), P y (pr1carrier _ z)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chka"><span class="kn">Lemma</span> <span class="nf">downward_closure_is_downward_closed</span>
+    : is_downward_closed P downward_closure_hsubtype.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_downward_closed P downward_closure_hsubtype</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chkb"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_downward_closed P downward_closure_hsubtype</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chkc"><span class="nb">intros</span> y z.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>downward_closure_hsubtype</span></span></span><br><span><var>z</var><span class="hyp-type"><b>: </b><span>down_type P
+  (pr1carrier downward_closure_hsubtype y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">downward_closure_hsubtype
+  (pr1carrier
+     (down_type P
+        (pr1carrier downward_closure_hsubtype y)) z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chkd">use (hinhfun _ (pr2 y)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>downward_closure_hsubtype</span></span></span><br><span><var>z</var><span class="hyp-type"><b>: </b><span>down_type P
+  (pr1carrier downward_closure_hsubtype y)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(∑ z : f, P (pr1 y) (pr1carrier f z))
+→ ∑ z0 : f,
+  P
+    (pr1carrier
+       (down_type P
+          (pr1carrier downward_closure_hsubtype y)) z)
+    (pr1carrier f z0)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chke"><span class="nb">intro</span> Hy.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>downward_closure_hsubtype</span></span></span><br><span><var>z</var><span class="hyp-type"><b>: </b><span>down_type P
+  (pr1carrier downward_closure_hsubtype y)</span></span></span><br><span><var>Hy</var><span class="hyp-type"><b>: </b><span>∑ z : f, P (pr1 y) (pr1carrier f z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ z0 : f,
+P
+  (pr1carrier
+     (down_type P
+        (pr1carrier downward_closure_hsubtype y)) z)
+  (pr1carrier f z0)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preorders-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="preorders-v-chkf"><span class="kr">exists</span> (<span class="nv">pr1</span> <span class="nv">Hy</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>X</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>po X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>hsubtype X</span></span></span><br><span><var>y</var><span class="hyp-type"><b>: </b><span>downward_closure_hsubtype</span></span></span><br><span><var>z</var><span class="hyp-type"><b>: </b><span>down_type P
+  (pr1carrier downward_closure_hsubtype y)</span></span></span><br><span><var>Hy</var><span class="hyp-type"><b>: </b><span>∑ z : f, P (pr1 y) (pr1carrier f z)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P
+  (pr1carrier
+     (down_type P
+        (pr1carrier downward_closure_hsubtype y)) z)
+  (pr1carrier f (pr1 Hy))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">refine</span> (istrans_po P _ _ _ (pr2 z) (pr2 Hy)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">downward_closure</span>
+    : downward_closed_subtype P
+    := make_downward_closed_subtype P _ downward_closure_is_downward_closed.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">DownwardClosure</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Plus1Presheaf.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The &quot;plus 1&quot; presheaf</span>
+
+<span class="sd">  Given a presheaf P, we can construct another presheaf P&#39; with P&#39;(n) = P(S n), in which the op</span>
+<span class="sd">  of the algebraic theory leaves the last variable unchanged.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The definition of the plus 1 presheaf [plus_1_presheaf]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.Presheaves.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.AlgebraicTheories.PresheafCategoryCore.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. The definition of the plus 1 presheaf *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk1"><span class="kn">Definition</span> <span class="nf">plus_1_presheaf_data</span>
+  {<span class="nv">T</span> : algebraic_theory}
+  (<span class="nv">P</span> : presheaf T)
+  : presheaf_data T.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">presheaf_data T</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">presheaf_data T</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk3">use make_presheaf_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Categories.ob
+  (Categories.precategory_ob_mor_from_precategory_data
+     (Categories.precategory_data_from_precategory
+        (Categories.category_to_precategory
+           (IndexedSetCategory.indexed_set_cat ℕ))))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="plus1presheaf-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><label class="goal-separator" for="plus1presheaf-v-chk4"><hr></label><div class="goal-conclusion">∏ (m n : ℕ) (f : <span class="nl">?P</span> m)
+(g : StandardFiniteSets.stn m → T n),
+op_ax T <span class="nl">?P</span> m n f g</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Categories.ob
+  (Categories.precategory_ob_mor_from_precategory_data
+     (Categories.precategory_data_from_precategory
+        (Categories.category_to_precategory
+           (IndexedSetCategory.indexed_set_cat ℕ))))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">n</span>, P (<span class="mi">1</span> + n)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (m n : ℕ) (f : (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ, P (<span class="mi">1</span> + n0)) m)
+(g : StandardFiniteSets.stn m → T n),
+op_ax T (<span class="kr">λ</span> <span class="nv">n0</span> : ℕ, P (<span class="mi">1</span> + n0)) m n f g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk7"><span class="nb">intros</span> m n s t.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">n</span> : ℕ, P (<span class="mi">1</span> + n)) m</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op_ax T (<span class="kr">λ</span> <span class="nv">n</span> : ℕ, P (<span class="mi">1</span> + n)) m n s t</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk8"><span class="nb">refine</span> (op (T := T) (P := P) s _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">n</span> : ℕ, P (<span class="mi">1</span> + n)) m</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">StandardFiniteSets.stn (<span class="mi">1</span> + m) → T (<span class="mi">1</span> + n)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk9"><span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">n</span> : ℕ, P (<span class="mi">1</span> + n)) m</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + m)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">T (<span class="mi">1</span> + n)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chka"><span class="nb">induction</span> (invmap stnweq i) <span class="kr">as</span> [i&#39; | i&#39;].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">n</span> : ℕ, P (<span class="mi">1</span> + n)) m</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + m)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">T (<span class="mi">1</span> + n)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="plus1presheaf-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">n</span> : ℕ, P (<span class="mi">1</span> + n)) m</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + m)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><label class="goal-separator" for="plus1presheaf-v-chkb"><hr></label><div class="goal-conclusion">T (<span class="mi">1</span> + n)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chkc">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">n</span> : ℕ, P (<span class="mi">1</span> + n)) m</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + m)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">T (<span class="mi">1</span> + n)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">refine</span> (t i&#39; • (<span class="kr">λ</span> <span class="nv">j</span>, var (stnweq (inl j)))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chkd">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">n</span> : ℕ, P (<span class="mi">1</span> + n)) m</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + m)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">T (<span class="mi">1</span> + n)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (var (stnweq (inr i&#39;))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chke"><span class="kn">Lemma</span> <span class="nf">plus_1_is_presheaf</span>
+  {<span class="nv">T</span> : algebraic_theory}
+  (<span class="nv">P</span> : presheaf T)
+  : is_presheaf (plus_1_presheaf_data P).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_presheaf (plus_1_presheaf_data P)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chkf"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_presheaf (plus_1_presheaf_data P)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk10">use make_is_presheaf.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (l m n : ℕ) (a : plus_1_presheaf_data P l)
+(f : StandardFiniteSets.stn l → T m)
+(g : StandardFiniteSets.stn m → T n),
+op_op_ax T (plus_1_presheaf_data P)
+  (@op T (plus_1_presheaf_data P)) l m n a f g</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="plus1presheaf-v-chk11" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><label class="goal-separator" for="plus1presheaf-v-chk11"><hr></label><div class="goal-conclusion">∏ (n : ℕ) (f : plus_1_presheaf_data P n),
+op_var_ax T (plus_1_presheaf_data P)
+  (@op T (plus_1_presheaf_data P)) n f</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk12">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (l m n : ℕ) (a : plus_1_presheaf_data P l)
+(f : StandardFiniteSets.stn l → T m)
+(g : StandardFiniteSets.stn m → T n),
+op_op_ax T (plus_1_presheaf_data P)
+  (@op T (plus_1_presheaf_data P)) l m n a f g</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk13"><span class="nb">intros</span> l m n x f g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op_op_ax T (plus_1_presheaf_data P)
+  (@op T (plus_1_presheaf_data P)) l m n x f g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk14"><span class="nb">refine</span> (op_op P x _ _ @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op x
+  (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + l),
+   (<span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+    coprod_rect
+      (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit,
+       T (<span class="mi">1</span> + m))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+       f i&#39;
+       • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn m,
+          var (stnweq (inl j))))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)
+   • (<span class="kr">λ</span> <span class="nv">i0</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+      <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i0 <span class="kr">in</span>
+      coprod_rect
+        (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit,
+         T (<span class="mi">1</span> + n))
+        (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+         g i&#39;
+         • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+            var (stnweq (inl j))))
+        (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)) =
+op x (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn l, f i • g)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk15"><span class="nb">apply</span> (maponpaths (op (x : P _))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + l),
+ (<span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+  coprod_rect
+    (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + m))
+    (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+     f i&#39;
+     • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn m,
+        var (stnweq (inl j))))
+    (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)
+ • (<span class="kr">λ</span> <span class="nv">i0</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+    <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i0 <span class="kr">in</span>
+    coprod_rect
+      (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit,
+       T (<span class="mi">1</span> + n))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+       g i&#39;
+       • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+          var (stnweq (inl j))))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)) =
+(<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + l),
+ <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    (f i&#39; • g)
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk16"><span class="nb">apply</span> funextfun.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + l),
+ (<span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+  coprod_rect
+    (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + m))
+    (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+     f i&#39;
+     • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn m,
+        var (stnweq (inl j))))
+    (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)
+ • (<span class="kr">λ</span> <span class="nv">i0</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+    <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i0 <span class="kr">in</span>
+    coprod_rect
+      (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit,
+       T (<span class="mi">1</span> + n))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+       g i&#39;
+       • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+          var (stnweq (inl j))))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)) ~
+(<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + l),
+ <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    (f i&#39; • g)
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk17"><span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + m))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    f i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn m,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)
+• (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+   <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+   coprod_rect
+     (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit, T (<span class="mi">1</span> + n))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+      g i&#39;
+      • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+         var (stnweq (inl j))))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+(<span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    (f i&#39; • g)
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk18"><span class="nb">induction</span> (invmap stnweq i) <span class="kr">as</span> [i&#39; | i&#39;].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := inl i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + m))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    f i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn m,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)
+• (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+   <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+   coprod_rect
+     (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit, T (<span class="mi">1</span> + n))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+      g i&#39;
+      • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+         var (stnweq (inl j))))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+(<span class="kr">let</span> <span class="nv">c</span> := inl i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    (f i&#39; • g)
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="plus1presheaf-v-chk19" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><label class="goal-separator" for="plus1presheaf-v-chk19"><hr></label><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := inr i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + m))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    f i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn m,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)
+• (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+   <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+   coprod_rect
+     (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit, T (<span class="mi">1</span> + n))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+      g i&#39;
+      • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+         var (stnweq (inl j))))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+(<span class="kr">let</span> <span class="nv">c</span> := inr i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    (f i&#39; • g)
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk1a">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := inl i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + m))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    f i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn m,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)
+• (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+   <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+   coprod_rect
+     (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit, T (<span class="mi">1</span> + n))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+      g i&#39;
+      • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+         var (stnweq (inl j))))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+(<span class="kr">let</span> <span class="nv">c</span> := inl i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    (f i&#39; • g)
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk1b"><span class="nb">refine</span> (subst_subst T (f i&#39;) _ _ @ !_).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := inl i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    (f i&#39; • g)
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+f i&#39;
+• (<span class="kr">λ</span> <span class="nv">t_l</span> : StandardFiniteSets.stn m,
+   var (stnweq (inl t_l))
+   • (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+      <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+      coprod_rect
+        (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit,
+         T (<span class="mi">1</span> + n))
+        (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+         g i&#39;
+         • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+            var (stnweq (inl j))))
+        (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk1c"><span class="nb">refine</span> (subst_subst T (f i&#39;) g _ @ !_).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f i&#39;
+• (<span class="kr">λ</span> <span class="nv">t_l</span> : StandardFiniteSets.stn m,
+   var (stnweq (inl t_l))
+   • (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+      <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+      coprod_rect
+        (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit,
+         T (<span class="mi">1</span> + n))
+        (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+         g i&#39;
+         • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+            var (stnweq (inl j))))
+        (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)) =
+f i&#39;
+• (<span class="kr">λ</span> <span class="nv">t_l</span> : StandardFiniteSets.stn m,
+   g t_l
+   • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+      var (stnweq (inl j))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk1d"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">t_l</span> : StandardFiniteSets.stn m,
+ var (stnweq (inl t_l))
+ • (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+    <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+    coprod_rect
+      (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit,
+       T (<span class="mi">1</span> + n))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+       g i&#39;
+       • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+          var (stnweq (inl j))))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)) =
+(<span class="kr">λ</span> <span class="nv">t_l</span> : StandardFiniteSets.stn m,
+ g t_l
+ • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+    var (stnweq (inl j))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk1e"><span class="nb">apply</span> funextfun.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">t_l</span> : StandardFiniteSets.stn m,
+ var (stnweq (inl t_l))
+ • (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+    <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+    coprod_rect
+      (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit,
+       T (<span class="mi">1</span> + n))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+       g i&#39;
+       • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+          var (stnweq (inl j))))
+      (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)) ~
+(<span class="kr">λ</span> <span class="nv">t_l</span> : StandardFiniteSets.stn m,
+ g t_l
+ • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+    var (stnweq (inl j))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk1f"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">var (stnweq (inl x0))
+• (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+   <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+   coprod_rect
+     (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit, T (<span class="mi">1</span> + n))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+      g i&#39;
+      • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+         var (stnweq (inl j))))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+g x0
+• (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+   var (stnweq (inl j)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk20"><span class="nb">refine</span> (var_subst _ _ _ @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l</span></span></span><br><span><var>x0</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := invmap stnweq (stnweq (inl x0)) <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+    g i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+g x0
+• (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+   var (stnweq (inl j)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (maponpaths _ (homotinvweqweq stnweq _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk21">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := inr i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + m))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    f i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn m,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)
+• (<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + m),
+   <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+   coprod_rect
+     (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit, T (<span class="mi">1</span> + n))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+      g i&#39;
+      • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+         var (stnweq (inl j))))
+     (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+(<span class="kr">let</span> <span class="nv">c</span> := inr i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    (f i&#39; • g)
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk22"><span class="nb">refine</span> (var_subst _ _ _ @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>l, m, n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P l</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn l → T m</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn m → T n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + l)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := invmap stnweq (stnweq (inr i&#39;)) <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn m ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn m,
+    g i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+(<span class="kr">let</span> <span class="nv">c</span> := inr i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn l ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn l,
+    (f i&#39; • g)
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (maponpaths _ (homotinvweqweq stnweq _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk23">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (n : ℕ) (f : plus_1_presheaf_data P n),
+op_var_ax T (plus_1_presheaf_data P)
+  (@op T (plus_1_presheaf_data P)) n f</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk24"><span class="nb">intros</span> n x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op_var_ax T (plus_1_presheaf_data P)
+  (@op T (plus_1_presheaf_data P)) n x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk25"><span class="nb">refine</span> (_ @ op_var _ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">op x var = op x var</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk26"><span class="nb">apply</span> (maponpaths (op (x : P _))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + n),
+ <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn n ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn n,
+    var i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) = var</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk27"><span class="nb">apply</span> funextfun.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">i</span> : StandardFiniteSets.stn (<span class="mi">1</span> + n),
+ <span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn n ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn n,
+    var i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) ~ var</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk28"><span class="nb">intro</span> i.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + n)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn n ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn n,
+    var i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) = var i</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk29"><span class="nb">refine</span> (_ @ maponpaths _ (homotweqinvweq stnweq i)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + n)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := invmap stnweq i <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn n ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn n,
+    var i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+var (stnweq (invmap stnweq i))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk2a"><span class="nb">induction</span> (invmap stnweq i) <span class="kr">as</span> [i&#39; | i&#39;].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + n)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := inl i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn n ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn n,
+    var i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+var (stnweq (inl i&#39;))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="plus1presheaf-v-chk2b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + n)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><label class="goal-separator" for="plus1presheaf-v-chk2b"><hr></label><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := inr i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn n ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn n,
+    var i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+var (stnweq (inr i&#39;))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk2c">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + n)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn n</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := inl i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn n ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn n,
+    var i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+var (stnweq (inl i&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> var_subst.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="plus1presheaf-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="plus1presheaf-v-chk2d">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>T</var><span class="hyp-type"><b>: </b><span>algebraic_theory</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>presheaf T</span></span></span><br><span><var>n</var><span class="hyp-type"><b>: </b><span>ℕ</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>plus_1_presheaf_data P n</span></span></span><br><span><var>i</var><span class="hyp-type"><b>: </b><span>StandardFiniteSets.stn (<span class="mi">1</span> + n)</span></span></span><br><span><var>i'</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">let</span> <span class="nv">c</span> := inr i&#39; <span class="kr">in</span>
+ coprod_rect
+   (<span class="kr">λ</span> <span class="nv">_</span> : StandardFiniteSets.stn n ⨿ unit, T (<span class="mi">1</span> + n))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : StandardFiniteSets.stn n,
+    var i&#39;
+    • (<span class="kr">λ</span> <span class="nv">j</span> : StandardFiniteSets.stn n,
+       var (stnweq (inl j))))
+   (<span class="kr">λ</span> <span class="nv">i&#39;</span> : unit, var (stnweq (inr i&#39;))) c) =
+var (stnweq (inr i&#39;))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">plus_1_presheaf</span>
+  {<span class="nv">T</span> : algebraic_theory}
+  (<span class="nv">P</span> : presheaf T)
+: presheaf T
+:= make_presheaf _ (plus_1_is_presheaf P).</span></span></pre>
+</div>
+</div></body>
+</html>

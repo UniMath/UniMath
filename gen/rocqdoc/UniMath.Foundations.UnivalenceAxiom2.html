@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Foundations.UnivalenceAxiom2</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Foundations.UnivalenceAxiom2</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+proofs that the statements of the axioms are propositions 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isaprop_univalenceStatement" class="idref" href="#isaprop_univalenceStatement"><span class="id" title="lemma">isaprop_univalenceStatement</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalenceStatement"><span class="id" title="definition">univalenceStatement</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalenceStatement"><span class="id" title="definition">univalenceStatement</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">Y</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropisweq"><span class="id" title="lemma">isapropisweq</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isaprop_funextemptyStatement" class="idref" href="#isaprop_funextemptyStatement"><span class="id" title="lemma">isaprop_funextemptyStatement</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextemptyStatement"><span class="id" title="definition">funextemptyStatement</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextemptyStatement"><span class="id" title="definition">funextemptyStatement</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="var">g</span>; <span class="id" title="tactic">clear</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">clear</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> (<a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> (<span class="id" title="var">X</span> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#1dc2cb66c5ede645202bae131cc6745c"><span class="id" title="notation">∅</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaset"><span class="id" title="lemma">impred_isaset</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetempty"><span class="id" title="lemma">isasetempty</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isaprop_isweqtoforallpathsStatement" class="idref" href="#isaprop_isweqtoforallpathsStatement"><span class="id" title="lemma">isaprop_isweqtoforallpathsStatement</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#isweqtoforallpathsStatement"><span class="id" title="definition">isweqtoforallpathsStatement</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#isweqtoforallpathsStatement"><span class="id" title="definition">isweqtoforallpathsStatement</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">T</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">P</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropisweq"><span class="id" title="lemma">isapropisweq</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isaprop_propositionalUnivalenceStatement" class="idref" href="#isaprop_propositionalUnivalenceStatement"><span class="id" title="lemma">isaprop_propositionalUnivalenceStatement</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#propositionalUnivalenceStatement"><span class="id" title="definition">propositionalUnivalenceStatement</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#propositionalUnivalenceStatement"><span class="id" title="definition">propositionalUnivalenceStatement</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">P</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">Q</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">j</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">_</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">_</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartB.html#isofhlevelweqb"><span class="id" title="lemma">isofhlevelweqb</span></a> 1 (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalence"><span class="id" title="definition">univalence</span></a> <span class="id" title="var">P</span> <span class="id" title="var">Q</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">fold</span> <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropweqtoprop"><span class="id" title="lemma">isapropweqtoprop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">j</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isaprop_funcontrStatement" class="idref" href="#isaprop_funcontrStatement"><span class="id" title="lemma">isaprop_funcontrStatement</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funcontrStatement"><span class="id" title="definition">funcontrStatement</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funcontrStatement"><span class="id" title="definition">funcontrStatement</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">P</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">_</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropiscontr"><span class="id" title="lemma">isapropiscontr</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isaprop_funextcontrStatement" class="idref" href="#isaprop_funextcontrStatement"><span class="id" title="lemma">isaprop_funextcontrStatement</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextcontrStatement"><span class="id" title="definition">funextcontrStatement</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextcontrStatement"><span class="id" title="definition">funextcontrStatement</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">T</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">P</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropiscontr"><span class="id" title="lemma">isapropiscontr</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

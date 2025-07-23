@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>BicatOfCatsLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** copies the final object and the inserters from the treatment of the bicategory of univalent categories *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Dialgebras.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IsoCommaCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.CommaCategories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.CommaObjects.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Inserters.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Equifiers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 1. Final object</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk1"><span class="kn">Definition</span> <span class="nf">bifinal_cats</span>
+  : @is_bifinal bicat_of_cats (pr1 unit_category).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_bifinal (pr1 unit_category)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_bifinal (pr1 unit_category)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk3">use make_is_bifinal.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bifinal_1cell_property (pr1 unit_category)</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ Y : bicat_of_cats,
+bifinal_2cell_property (pr1 unit_category) Y</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ Y : bicat_of_cats,
+bifinal_eq_property (pr1 unit_category) Y</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bifinal_1cell_property (pr1 unit_category)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C</span>, functor_to_unit (pr1 C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ Y : bicat_of_cats,
+bifinal_2cell_property (pr1 unit_category) Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C</span> <span class="nv">F</span> <span class="nv">G</span>, unit_category_nat_trans F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ Y : bicat_of_cats,
+bifinal_eq_property (pr1 unit_category) Y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk7"><span class="nb">intros</span> Y f g α β.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>Y</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ Y, pr1 unit_category ⟧</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">α = β</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> nat_trans_to_unit_eq.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Inserters</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk8"><span class="kn">Definition</span> <span class="nf">dialgebra_inserter_cone</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ --&gt; C₂)
+  : inserter_cone F G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">inserter_cone F G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">inserter_cone F G</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chka">use make_inserter_cone.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chkb"><hr></label><div class="goal-conclusion">bicat_of_cats ⟦ <span class="nl">?i</span>, C₁ ⟧</div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chkc" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chkc"><hr></label><div class="goal-conclusion"><span class="nl">?m</span> · F ==&gt; <span class="nl">?m</span> · G</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chkd">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (dialgebra F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chke">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats ⟦ dialgebra F G, C₁ ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (dialgebra_pr1 F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chkf">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">dialgebra_pr1 F G · F ==&gt; dialgebra_pr1 F G · G</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (dialgebra_nat_trans F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk10"><span class="kn">Definition</span> <span class="nf">dialgebra_inserter_ump_1</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ --&gt; C₂)
+  : has_inserter_ump_1 (dialgebra_inserter_cone F G).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_1 (dialgebra_inserter_cone F G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk11"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_1 (dialgebra_inserter_cone F G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk12"><span class="nb">intros</span> q.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>inserter_cone F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">inserter_1cell q (dialgebra_inserter_cone F G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk13">use make_inserter_1cell.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>inserter_cone F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats ⟦ q, dialgebra_inserter_cone F G ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chk14" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>inserter_cone F G</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chk14"><hr></label><div class="goal-conclusion">invertible_2cell
+  (<span class="nl">?k</span>
+   · inserter_cone_pr1 (dialgebra_inserter_cone F G))
+  (inserter_cone_pr1 q)</div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chk15" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>inserter_cone F G</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chk15"><hr></label><div class="goal-conclusion">((<span class="nl">?k</span>
+  ◃ inserter_cone_cell (dialgebra_inserter_cone F G))
+ • lassociator <span class="nl">?k</span>
+     (inserter_cone_pr1 (dialgebra_inserter_cone F G))
+     G) • (<span class="nl">?α</span> ▹ G) =
+(lassociator <span class="nl">?k</span>
+   (inserter_cone_pr1 (dialgebra_inserter_cone F G)) F
+ • (<span class="nl">?α</span> ▹ F)) • inserter_cone_cell q</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk16">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>inserter_cone F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats ⟦ q, dialgebra_inserter_cone F G ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (nat_trans_to_dialgebra
+             (inserter_cone_pr1 q)
+             (inserter_cone_cell q)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk17">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>inserter_cone F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">invertible_2cell
+  (nat_trans_to_dialgebra (inserter_cone_pr1 q)
+     (inserter_cone_cell q)
+   · inserter_cone_pr1 (dialgebra_inserter_cone F G))
+  (inserter_cone_pr1 q)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk18">use nat_z_iso_to_invertible_2cell.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>inserter_cone F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_z_iso
+  (nat_trans_to_dialgebra (inserter_cone_pr1 q)
+     (inserter_cone_cell q)
+   · inserter_cone_pr1 (dialgebra_inserter_cone F G))
+  (inserter_cone_pr1 q)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (nat_trans_to_dialgebra_pr1_nat_z_iso
+             (inserter_cone_pr1 q)
+             (inserter_cone_cell q)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk19">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>inserter_cone F G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((nat_trans_to_dialgebra (inserter_cone_pr1 q)
+    (inserter_cone_cell q)
+  ◃ inserter_cone_cell (dialgebra_inserter_cone F G))
+ • lassociator
+     (nat_trans_to_dialgebra (inserter_cone_pr1 q)
+        (inserter_cone_cell q))
+     (inserter_cone_pr1 (dialgebra_inserter_cone F G))
+     G)
+• (nat_z_iso_to_invertible_2cell
+     (nat_trans_to_dialgebra (inserter_cone_pr1 q)
+        (inserter_cone_cell q)
+      · inserter_cone_pr1
+          (dialgebra_inserter_cone F G))
+     (inserter_cone_pr1 q)
+     (nat_trans_to_dialgebra_pr1_nat_z_iso
+        (inserter_cone_pr1 q) (inserter_cone_cell q))
+   ▹ G) =
+(lassociator
+   (nat_trans_to_dialgebra (inserter_cone_pr1 q)
+      (inserter_cone_cell q))
+   (inserter_cone_pr1 (dialgebra_inserter_cone F G)) F
+ • (nat_z_iso_to_invertible_2cell
+      (nat_trans_to_dialgebra (inserter_cone_pr1 q)
+         (inserter_cone_cell q)
+       · inserter_cone_pr1
+           (dialgebra_inserter_cone F G))
+      (inserter_cone_pr1 q)
+      (nat_trans_to_dialgebra_pr1_nat_z_iso
+         (inserter_cone_pr1 q) (inserter_cone_cell q))
+    ▹ F)) • inserter_cone_cell q</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+       <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !(functor_id F), !(functor_id G) ;
+       <span class="nb">rewrite</span> !id_left, !id_right ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk1a"><span class="kn">Definition</span> <span class="nf">dialgebra_inserter_ump_2</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ --&gt; C₂)
+  : has_inserter_ump_2 (dialgebra_inserter_cone F G).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_2 (dialgebra_inserter_cone F G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk1b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_2 (dialgebra_inserter_cone F G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk1c"><span class="nb">intros</span> C₀ K₁ K₂ α p.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ ζ : K₁ ==&gt; K₂,
+ζ ▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk1d"><span class="nb">simple refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">K₁ ==&gt; K₂</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chk1e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chk1e"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">ζ</span> : K₁ ==&gt; K₂,
+ ζ ▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+ α) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk1f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">K₁ ==&gt; K₂</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk20"><span class="nb">apply</span> (build_nat_trans_to_dialgebra K₁ K₂ α).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C₀,
+pr2 (K₁ x) · # G (α x) = # F (α x) · pr2 (K₂ x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">intro</span> x ;
+       <span class="nb">pose</span> (nat_trans_eq_pointwise p x) <span class="kr">as</span> p&#39; ;
+       <span class="nb">cbn</span> <span class="kr">in</span> p&#39; ;
+       <span class="nb">rewrite</span> !id_left, !id_right <span class="kr">in</span> p&#39; ;
+       <span class="bp">exact</span> p&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk21">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">ζ</span> : K₁ ==&gt; K₂,
+ ζ ▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+ α)
+  (build_nat_trans_to_dialgebra K₁ K₂ α
+     (dialgebra_inserter_ump_2_subproof C₁ C₂ F G C₀
+        K₁ K₂ α p))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+       <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk22"><span class="kn">Definition</span> <span class="nf">dialgebra_inserter_ump_eq</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ --&gt; C₂)
+  : has_inserter_ump_eq (dialgebra_inserter_cone F G).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_eq (dialgebra_inserter_cone F G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk23"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_eq (dialgebra_inserter_cone F G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk24"><span class="nb">intros</span> C₀ K₁ K₂ α p n₁ n₂ q₁ q₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br><span><var>n₁, n₂</var><span class="hyp-type"><b>: </b><span>K₁ ==&gt; K₂</span></span></span><br><span><var>q₁</var><span class="hyp-type"><b>: </b><span>n₁
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br><span><var>q₂</var><span class="hyp-type"><b>: </b><span>n₂
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">n₁ = n₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk25">use nat_trans_eq.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br><span><var>n₁, n₂</var><span class="hyp-type"><b>: </b><span>K₁ ==&gt; K₂</span></span></span><br><span><var>q₁</var><span class="hyp-type"><b>: </b><span>n₁
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br><span><var>q₂</var><span class="hyp-type"><b>: </b><span>n₂
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_homsets (dialgebra_inserter_cone F G)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chk26" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br><span><var>n₁, n₂</var><span class="hyp-type"><b>: </b><span>K₁ ==&gt; K₂</span></span></span><br><span><var>q₁</var><span class="hyp-type"><b>: </b><span>n₁
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br><span><var>q₂</var><span class="hyp-type"><b>: </b><span>n₂
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chk26"><hr></label><div class="goal-conclusion">∏ x : C₀, n₁ x = n₂ x</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk27">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br><span><var>n₁, n₂</var><span class="hyp-type"><b>: </b><span>K₁ ==&gt; K₂</span></span></span><br><span><var>q₁</var><span class="hyp-type"><b>: </b><span>n₁
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br><span><var>q₂</var><span class="hyp-type"><b>: </b><span>n₂
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_homsets (dialgebra_inserter_cone F G)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk28">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br><span><var>n₁, n₂</var><span class="hyp-type"><b>: </b><span>K₁ ==&gt; K₂</span></span></span><br><span><var>q₁</var><span class="hyp-type"><b>: </b><span>n₁
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br><span><var>q₂</var><span class="hyp-type"><b>: </b><span>n₂
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : C₀, n₁ x = n₂ x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk29"><span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br><span><var>n₁, n₂</var><span class="hyp-type"><b>: </b><span>K₁ ==&gt; K₂</span></span></span><br><span><var>q₁</var><span class="hyp-type"><b>: </b><span>n₁
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br><span><var>q₂</var><span class="hyp-type"><b>: </b><span>n₂
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₀</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">n₁ x = n₂ x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk2a">use eq_dialgebra.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br><span><var>C₀</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>K₁, K₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₀, dialgebra_inserter_cone F G ⟧</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>K₁
+· inserter_cone_pr1 (dialgebra_inserter_cone F G) ==&gt;
+K₂
+· inserter_cone_pr1 (dialgebra_inserter_cone F G)</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>((rassociator K₁
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) F
+  • (K₁
+     ◃ inserter_cone_cell
+         (dialgebra_inserter_cone F G)))
+ • lassociator K₁
+     (inserter_cone_pr1
+        (dialgebra_inserter_cone F G)) G)
+• (α ▹ G) =
+(((α ▹ F)
+  • rassociator K₂
+      (inserter_cone_pr1
+         (dialgebra_inserter_cone F G)) F)
+ • (K₂
+    ◃ inserter_cone_cell
+        (dialgebra_inserter_cone F G)))
+• lassociator K₂
+    (inserter_cone_pr1
+       (dialgebra_inserter_cone F G)) G</span></span></span><br><span><var>n₁, n₂</var><span class="hyp-type"><b>: </b><span>K₁ ==&gt; K₂</span></span></span><br><span><var>q₁</var><span class="hyp-type"><b>: </b><span>n₁
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br><span><var>q₂</var><span class="hyp-type"><b>: </b><span>n₂
+▹ inserter_cone_pr1 (dialgebra_inserter_cone F G) =
+α</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C₀</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (n₁ x) = pr1 (n₂ x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (nat_trans_eq_pointwise q₁ x @ !(nat_trans_eq_pointwise q₂ x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk2b"><span class="kn">Definition</span> <span class="nf">has_inserters_bicat_of_cats</span>
+  : has_inserters bicat_of_cats.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserters bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk2c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserters bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk2d"><span class="nb">intros</span> C₁ C₂ F G.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∑ (i : bicat_of_cats) (m : bicat_of_cats ⟦ i, C₁ ⟧)
+(α : m · F ==&gt; m · G),
+has_inserter_ump (make_inserter_cone i m α)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk2e"><span class="nb">simple refine</span> (dialgebra F G ,, _ ,, _ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats ⟦ dialgebra F G, C₁ ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chk2f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chk2f"><hr></label><div class="goal-conclusion"><span class="nl">?pr1</span> · F ==&gt; <span class="nl">?pr1</span> · G</div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chk30" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chk30"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">α</span> : <span class="nl">?pr1</span> · F ==&gt; <span class="nl">?pr1</span> · G,
+ has_inserter_ump
+   (make_inserter_cone (dialgebra F G) <span class="nl">?pr1</span> α)) <span class="nl">?pr10</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk31">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats ⟦ dialgebra F G, C₁ ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (dialgebra_pr1 F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk32">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">dialgebra_pr1 F G · F ==&gt; dialgebra_pr1 F G · G</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (dialgebra_nat_trans F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk33">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">α</span> : dialgebra_pr1 F G · F ==&gt; dialgebra_pr1 F G · G,
+ has_inserter_ump
+   (make_inserter_cone (dialgebra F G)
+      (dialgebra_pr1 F G) α))
+  (dialgebra_nat_trans F G)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk34"><span class="nb">refine</span> (_ ,, _ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_1
+  (make_inserter_cone (dialgebra F G)
+     (dialgebra_pr1 F G) (dialgebra_nat_trans F G))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chk35" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chk35"><hr></label><div class="goal-conclusion">has_inserter_ump_2
+  (make_inserter_cone (dialgebra F G)
+     (dialgebra_pr1 F G) (dialgebra_nat_trans F G))</div></blockquote><input class="alectryon-extra-goal-toggle" id="bicatofcatslimits-v-chk36" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><label class="goal-separator" for="bicatofcatslimits-v-chk36"><hr></label><div class="goal-conclusion">has_inserter_ump_eq
+  (make_inserter_cone (dialgebra F G)
+     (dialgebra_pr1 F G) (dialgebra_nat_trans F G))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk37">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_1
+  (make_inserter_cone (dialgebra F G)
+     (dialgebra_pr1 F G) (dialgebra_nat_trans F G))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (dialgebra_inserter_ump_1 F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk38">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_2
+  (make_inserter_cone (dialgebra F G)
+     (dialgebra_pr1 F G) (dialgebra_nat_trans F G))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (dialgebra_inserter_ump_2 F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="bicatofcatslimits-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="bicatofcatslimits-v-chk39">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>F, G</var><span class="hyp-type"><b>: </b><span>bicat_of_cats ⟦ C₁, C₂ ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">has_inserter_ump_eq
+  (make_inserter_cone (dialgebra F G)
+     (dialgebra_pr1 F G) (dialgebra_nat_trans F G))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (dialgebra_inserter_ump_eq F G).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

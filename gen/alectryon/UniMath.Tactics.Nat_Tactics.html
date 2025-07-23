@@ -1,0 +1,1115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Nat_Tactics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** Author: Michael A. Warren (maw@mawarren.net) in consultation with Vladimir Voevodsky.*)</span>
+<span class="sd">(** Date: Spring - Summer 2015.*)</span>
+<span class="sd">(** Description: Some tactics for natural numbers. *)</span>
+
+<span class="sd">(** Tactics for natural numbers.*)</span>
+<span class="sd">(** by Michael A. Warren, April - June 2015.*)</span>
+
+<span class="sd">(** ADD: Disclaimer regarding connection with other tactics files.*)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk0"><span class="kn">Require Import</span>
+        UniMath.Foundations.NaturalNumbers
+        UniMath.Tactics.Utilities
+        UniMath.Tactics.Abmonoids_Tactics.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">[Loading ML file number_string_notation_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file tauto_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file cc_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file firstorder_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">Serlib plugin: coq-core.plugins.ltac2_ltac1 <span class="kr">is</span> not available: serlib support <span class="kr">is</span> missing.
+Incremental checking <span class="kr">for</span> commands <span class="kr">in</span> this plugin will be impacted.</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_ltac1_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * Basic definitions and hints. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">natneqtwist</span> <span class="nv">n</span> (<span class="nv">p</span> : ¬ (<span class="mi">0</span> = n)) : ¬ (n = <span class="mi">0</span>) :=
+  <span class="kr">λ</span> <span class="nv">f</span>, p (pathsinv0 f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_plus_perm021</span> :
+  ∏ n0 n1 n2,
+    n0 + n1 + n2 = n0 + n2 + n1 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0
+      (pathscomp0
+         (natplusassoc n0 n1 n2)
+         (maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, n0 + z) (natpluscomm n1 n2)))
+      (pathsinv0 (natplusassoc n0 n2 n1)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_plus_perm102</span> :
+  ∏ n0 n1 n2,
+    n0 + n1 + n2 = n1 + n0 + n2 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>, maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, z + n2) (natpluscomm n0 n1).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_plus_perm120</span> :
+  ∏ n0 n1 n2,
+    n0 + n1 + n2 = n2 + n0 + n1 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0 (natpluscomm (n0 + n1) n2) (pathsinv0 (natplusassoc n2 n0 n1)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_plus_perm201</span> :
+  ∏ n0 n1 n2,
+    n0 + n1 + n2 = n1 + n2 + n0 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0 (natplusassoc n0 n1 n2) (natpluscomm n0 (n1 + n2)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_plus_perm210</span> :
+  ∏ n0 n1 n2,
+    n0 + n1 + n2 = n2 + n1 + n0 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0 (nat_plus_perm102 n0 n1 n2) (nat_plus_perm120 n1 n0 n2).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_mult_perm021</span> :
+  ∏ n0 n1 n2,
+    n0 * n1 * n2 = n0 * n2 * n1 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0
+      (pathscomp0
+         (natmultassoc n0 n1 n2)
+         (maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, n0 * z) (natmultcomm n1 n2)))
+      (pathsinv0 (natmultassoc n0 n2 n1)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_mult_perm102</span> :
+  ∏ n0 n1 n2,
+    n0 * n1 * n2 = n1 * n0 * n2 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>, maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, z * n2) (natmultcomm n0 n1).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_mult_perm120</span> :
+  ∏ n0 n1 n2,
+    n0 * n1 * n2 = n2 * n0 * n1 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0 (natmultcomm (n0 * n1) n2) (pathsinv0 (natmultassoc n2 n0 n1)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_mult_perm201</span> :
+  ∏ n0 n1 n2,
+    n0 * n1 * n2 = n1 * n2 * n0 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0 (natmultassoc n0 n1 n2) (natmultcomm n0 (n1 * n2)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nat_mult_perm210</span> :
+  ∏ n0 n1 n2,
+    n0 * n1 * n2 = n2 * n1 * n0 :=
+  <span class="kr">λ</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0 (nat_mult_perm102 n0 n1 n2) (nat_mult_perm120 n1 n0 n2).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">minus0r</span> : ∏ n, n - <span class="mi">0</span> = n :=
+  <span class="kr">λ</span> <span class="nv">n</span>, <span class="kr">match</span> n <span class="kr">with</span>
+             | <span class="mi">0</span> =&gt; (idpath _)
+             | S _ =&gt; (idpath _)
+           <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk1"><span class="kn">Definition</span> <span class="nf">minusnn0</span> <span class="nv">n</span> : n - n = <span class="mi">0</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">n - n = <span class="mi">0</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">n - n = <span class="mi">0</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">induction</span> n <span class="kr">as</span> [|n IHn]; [<span class="bp">exact</span> (idpath <span class="mi">0</span>) | <span class="bp">exact</span> IHn].</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** minus0l and Lemma minussn1 n : (S n) - 1 change to n - 0 should be changed in tactics.*)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk3"><span class="kn">Definition</span> <span class="nf">minusgeh</span> <span class="nv">n</span> <span class="nv">m</span> : n &gt;= (n - m).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n, m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">n ≥ n - m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n, m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">n ≥ n - m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk5"><span class="nb">revert</span> m.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ m : nat, n ≥ n - m</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk6"><span class="nb">induction</span> n <span class="kr">as</span> [|n IHn]; <span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="mi">0</span> ≥ <span class="mi">0</span> - m</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="nat-tactics-v-chk7" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><label class="goal-separator" for="nat-tactics-v-chk7"><hr></label><div class="goal-conclusion">S n ≥ S n - m</div></blockquote></div></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk8"><span class="nb">apply</span> isreflnatgeh.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">S n ≥ S n - m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk9"><span class="nb">destruct</span> m.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">S n ≥ S n - <span class="mi">0</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="nat-tactics-v-chka" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><label class="goal-separator" for="nat-tactics-v-chka"><hr></label><div class="goal-conclusion">S n ≥ S n - S m</div></blockquote></div></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chkb"><span class="nb">rewrite</span> minus0r.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">S n ≥ S n</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="nat-tactics-v-chkc" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><label class="goal-separator" for="nat-tactics-v-chkc"><hr></label><div class="goal-conclusion">S n ≥ S n - S m</div></blockquote></div></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chkd"><span class="nb">apply</span> isreflnatgeh.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">S n ≥ S n - S m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chke"><span class="nb">apply</span> (istransnatgeh _ n _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">S n ≥ n</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="nat-tactics-v-chkf" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><label class="goal-separator" for="nat-tactics-v-chkf"><hr></label><div class="goal-conclusion">n ≥ S n - S m</div></blockquote></div></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk10"><span class="nb">apply</span> natgthtogeh.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">S n &gt; n</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="nat-tactics-v-chk11" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><label class="goal-separator" for="nat-tactics-v-chk11"><hr></label><div class="goal-conclusion">n ≥ S n - S m</div></blockquote></div></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="nat-tactics-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="nat-tactics-v-chk12"><span class="nb">apply</span> natgthsnn.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>n</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br><span><var>IHn</var><span class="hyp-type"><b>: </b><span>∏ m : nat, n ≥ n - m</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">n ≥ S n - S m</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> IHn.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * Tactics for rearranging subterms of goals and hypotheses.*)</span>
+
+<span class="sd">(** ** Tactics for performing ternary permutations of words written in [+] and [*].*)</span>
+
+<span class="sd">(** TACTIC: [nat_plus_ternary_perm]</span>
+
+<span class="sd">    SUMMARY: [nat_plus_ternary_perm] permutes words of length 3 in [+].</span>
+
+<span class="sd">    USAGE: Provided that the current [goal] is of the form [lhs = rhs], [nat_plus_ternary_perm x y z] will permute a subterm of [lhs] so that it now appears in the form [x + y + z].</span>
+
+<span class="sd">    EXAMPLE: If the current goal is [x + y + z = y + z + x], then [nat_plus_ternary_perm y z x] will change the goal to [y + z + x = y + z + x].*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_ternary_perm</span> s t u :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span>[t + s + u] =&gt;
+          <span class="nb">rewrite</span> (nat_plus_perm102 t s u); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[t + u + s] =&gt;
+          <span class="nb">rewrite</span> (nat_plus_perm120 t u s); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[u + s + t] =&gt;
+          <span class="nb">rewrite</span> (nat_plus_perm201 u s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[u + t + s] =&gt;
+          <span class="nb">rewrite</span> (nat_plus_perm210 u t s); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[s + u + t] =&gt;
+          <span class="nb">rewrite</span> (nat_plus_perm021 s u t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + t + s + u] =&gt;
+          <span class="nb">rewrite</span> (natplusassoc x t s); <span class="nb">rewrite</span> (natplusassoc x (t + s) u);
+          <span class="nb">rewrite</span> (nat_plus_perm102 t s u);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x (s + t) u);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + t + u + s] =&gt;
+          <span class="nb">rewrite</span> (natplusassoc x t u); <span class="nb">rewrite</span> (natplusassoc x (t + u) s);
+          <span class="nb">rewrite</span> (nat_plus_perm120 t u s);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x (s + t) u);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + u + s + t] =&gt;
+          <span class="nb">rewrite</span> (natplusassoc x u s); <span class="nb">rewrite</span> (natplusassoc x (u + s) t);
+          <span class="nb">rewrite</span> (nat_plus_perm201 u s t);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x (s + t) u);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + u + t + s] =&gt;
+          <span class="nb">rewrite</span> (natplusassoc x u t); <span class="nb">rewrite</span> (natplusassoc x (u + t) s);
+          <span class="nb">rewrite</span> (nat_plus_perm210 u t s);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x (s + t) u);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s + u + t] =&gt;
+          <span class="nb">rewrite</span> (natplusassoc x s u); <span class="nb">rewrite</span> (natplusassoc x (s + u) t);
+          <span class="nb">rewrite</span> (nat_plus_perm021 s u t);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x (s + t) u);
+          <span class="nb">rewrite</span> &lt;- (natplusassoc x s t); <span class="kp">idtac</span>
+      <span class="kr">end</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** TACTIC: [nat_mult_ternary_perm]</span>
+
+<span class="sd">    SUMMARY: [nat_mult_ternary_perm] permutes words of length 3 in [*].</span>
+
+<span class="sd">    USAGE: See [nat_plus_ternary_perm] above.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_ternary_perm</span> s t u :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span>[t * s * u] =&gt;
+          <span class="nb">rewrite</span> (nat_mult_perm102 t s u); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[t * u * s] =&gt;
+          <span class="nb">rewrite</span> (nat_mult_perm120 t u s); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[u * s * t] =&gt;
+          <span class="nb">rewrite</span> (nat_mult_perm201 u s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[u * t * s] =&gt;
+          <span class="nb">rewrite</span> (nat_mult_perm210 u t s); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[s * u * t] =&gt;
+          <span class="nb">rewrite</span> (nat_mult_perm021 s u t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> * t * s * u] =&gt;
+          <span class="nb">rewrite</span> (natmultassoc x t s); <span class="nb">rewrite</span> (natmultassoc x (t * s) u);
+          <span class="nb">rewrite</span> (nat_mult_perm102 t s u);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x (s * t) u);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> * t * u * s] =&gt;
+          <span class="nb">rewrite</span> (natmultassoc x t u); <span class="nb">rewrite</span> (natmultassoc x (t * u) s);
+          <span class="nb">rewrite</span> (nat_mult_perm120 t u s);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x (s * t) u);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> * u * s * t] =&gt;
+          <span class="nb">rewrite</span> (natmultassoc x u s); <span class="nb">rewrite</span> (natmultassoc x (u * s) t);
+          <span class="nb">rewrite</span> (nat_mult_perm201 u s t);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x (s * t) u);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> * u * t * s] =&gt;
+          <span class="nb">rewrite</span> (natmultassoc x u t); <span class="nb">rewrite</span> (natmultassoc x (u * t) s);
+          <span class="nb">rewrite</span> (nat_mult_perm210 u t s);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x (s * t) u);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x s t); <span class="kp">idtac</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> * s * u * t] =&gt;
+          <span class="nb">rewrite</span> (natmultassoc x s u); <span class="nb">rewrite</span> (natmultassoc x (s * u) t);
+          <span class="nb">rewrite</span> (nat_mult_perm021 s u t);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x (s * t) u);
+          <span class="nb">rewrite</span> &lt;- (natmultassoc x s t); <span class="kp">idtac</span>
+      <span class="kr">end</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+<span class="sd">(** ** Tactics for grouping pairs of terms appearing in words written in [+] and [*].*)</span>
+
+<span class="sd">(** *** Helper tactics (which should not be considered as part of the public interface for these tactics).*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_not_word</span> s :=
+  <span class="kr">match</span> s <span class="kr">with</span>
+    | <span class="nl">?x</span> + <span class="nl">?y</span> =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_not_at_front</span> t s :=
+  <span class="kr">match</span> t <span class="kr">with</span>
+    | s =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | <span class="kp">context</span>[s + <span class="nl">?x</span>] =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_not_at_back</span> t s :=
+  <span class="kr">match</span> t <span class="kr">with</span>
+    | s =&gt; <span class="kp">fail</span> <span class="mi">1</span> <span class="s2">&quot;A&quot;</span>
+    | <span class="nl">?x</span> + s =&gt; <span class="kp">fail</span> <span class="mi">1</span> <span class="s2">&quot;B&quot;</span>
+    | _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_move_to_back</span> s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs <span class="kr">in</span>
+    nat_plus_not_at_back lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | s + <span class="nl">?x</span> =&gt; <span class="nb">rewrite</span> (natpluscomm s x)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s + <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (nat_plus_perm021 x s y)
+        | <span class="kp">context</span>[s + <span class="nl">?x</span> + <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (nat_plus_perm201 s x y)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_move_to_back_in</span> H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs_in H <span class="kr">in</span>
+    nat_plus_not_at_back lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | s + <span class="nl">?x</span> =&gt; <span class="nb">rewrite</span> (natpluscomm s x) <span class="kr">in</span> H
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s + <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (nat_plus_perm021 x s y) <span class="kr">in</span> H
+        | <span class="kp">context</span>[s + <span class="nl">?x</span> + <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (nat_plus_perm201 s x y) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_move_to_front</span> s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs <span class="kr">in</span>
+    nat_plus_not_at_front lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s] =&gt;
+          nat_plus_not_word x; <span class="nb">rewrite</span> (natpluscomm x s)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + <span class="nl">?y</span> + s] =&gt; nat_plus_not_word y;
+            <span class="nb">rewrite</span> (nat_plus_perm021 x y s)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_move_to_front_in</span> H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs_in H <span class="kr">in</span>
+    nat_plus_not_at_front lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s] =&gt;
+          nat_plus_not_word x; <span class="nb">rewrite</span> (natpluscomm x s) <span class="kr">in</span> H
+        | <span class="kp">context</span>[<span class="nl">?x</span> + <span class="nl">?y</span> + s] =&gt; nat_plus_not_word y;
+            <span class="nb">rewrite</span> (nat_plus_perm021 x y s) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_move_to_front_goal</span> s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs <span class="kr">in</span>
+    nat_plus_not_at_front rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s] =&gt;
+          nat_plus_not_word x; <span class="nb">rewrite</span> (natpluscomm x s)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + <span class="nl">?y</span> + s] =&gt; nat_plus_not_word y;
+            <span class="nb">rewrite</span> (nat_plus_perm021 x y s)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_move_to_front_both_in</span> H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs_in H <span class="kr">in</span>
+    nat_plus_not_at_front rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s] =&gt;
+          nat_plus_not_word x; <span class="nb">rewrite</span> (natpluscomm x s) <span class="kr">in</span> H
+        | <span class="kp">context</span>[<span class="nl">?x</span> + <span class="nl">?y</span> + s] =&gt; nat_plus_not_word y;
+            <span class="nb">rewrite</span> (nat_plus_perm021 x y s) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_move_to_back_goal</span> s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs <span class="kr">in</span>
+    nat_plus_not_at_back rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span> [s + <span class="nl">?x</span>] =&gt; <span class="nb">rewrite</span> (natpluscomm s x)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s + <span class="nl">?y</span>] =&gt; nat_plus_not_word y;
+            <span class="nb">rewrite</span> (nat_plus_perm021 x s y)
+        | <span class="kp">context</span>[s + <span class="nl">?x</span> + <span class="nl">?y</span>] =&gt;
+          nat_plus_not_word x; nat_plus_not_word y;
+          <span class="nb">rewrite</span> (nat_plus_perm201 s x y)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_move_to_back_both_in</span> H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs_in H <span class="kr">in</span>
+    nat_plus_not_at_back rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span> [s + <span class="nl">?x</span>] =&gt; <span class="nb">rewrite</span> (natpluscomm s x)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s + <span class="nl">?y</span>] =&gt; nat_plus_not_word y;
+            <span class="nb">rewrite</span> (nat_plus_perm021 x s y) <span class="kr">in</span> H
+        | <span class="kp">context</span>[s + <span class="nl">?x</span> + <span class="nl">?y</span>] =&gt;
+          nat_plus_not_word x; nat_plus_not_word y;
+          <span class="nb">rewrite</span> (nat_plus_perm201 s x y) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_not_word</span> s :=
+  <span class="kr">match</span> s <span class="kr">with</span>
+    | <span class="nl">?x</span> * <span class="nl">?y</span> =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_not_at_front</span> t s :=
+  <span class="kr">match</span> t <span class="kr">with</span>
+    | s =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | <span class="kp">context</span>[s * <span class="nl">?x</span>] =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_not_at_back</span> t s :=
+  <span class="kr">match</span> t <span class="kr">with</span>
+    | s =&gt; <span class="kp">fail</span> <span class="mi">1</span> <span class="s2">&quot;A&quot;</span>
+    | <span class="nl">?x</span> * s =&gt; <span class="kp">fail</span> <span class="mi">1</span> <span class="s2">&quot;B&quot;</span>
+    | _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_move_to_back</span> s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs <span class="kr">in</span>
+    nat_mult_not_at_back lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | s * <span class="nl">?x</span> =&gt; <span class="nb">rewrite</span> (natmultcomm s x)
+        | <span class="kp">context</span>[<span class="nl">?x</span> * s * <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (nat_mult_perm021 x s y)
+        | <span class="kp">context</span>[s * <span class="nl">?x</span> * <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (nat_mult_perm201 s x y)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_move_to_back_in</span> H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs_in H <span class="kr">in</span>
+    nat_mult_not_at_back lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | s * <span class="nl">?x</span> =&gt; <span class="nb">rewrite</span> (natmultcomm s x) <span class="kr">in</span> H
+        | <span class="kp">context</span>[<span class="nl">?x</span> * s * <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (nat_mult_perm021 x s y) <span class="kr">in</span> H
+        | <span class="kp">context</span>[s * <span class="nl">?x</span> * <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (nat_mult_perm201 s x y) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_move_to_front</span> s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs <span class="kr">in</span>
+    nat_mult_not_at_front lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> * s] =&gt;
+          nat_mult_not_word x; <span class="nb">rewrite</span> (natmultcomm x s)
+        | <span class="kp">context</span>[<span class="nl">?x</span> * <span class="nl">?y</span> * s] =&gt; nat_mult_not_word y;
+            <span class="nb">rewrite</span> (nat_mult_perm021 x y s)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_move_to_front_in</span> H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs_in H <span class="kr">in</span>
+    nat_mult_not_at_front lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> * s] =&gt;
+          nat_mult_not_word x; <span class="nb">rewrite</span> (natmultcomm x s) <span class="kr">in</span> H
+        | <span class="kp">context</span>[<span class="nl">?x</span> * <span class="nl">?y</span> * s] =&gt; nat_mult_not_word y;
+            <span class="nb">rewrite</span> (nat_mult_perm021 x y s) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_move_to_front_goal</span> s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs <span class="kr">in</span>
+    nat_mult_not_at_front rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> * s] =&gt;
+          nat_mult_not_word x; <span class="nb">rewrite</span> (natmultcomm x s)
+        | <span class="kp">context</span>[<span class="nl">?x</span> * <span class="nl">?y</span> * s] =&gt; nat_mult_not_word y;
+            <span class="nb">rewrite</span> (nat_mult_perm021 x y s)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_move_to_front_both_in</span> H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs_in H <span class="kr">in</span>
+    nat_mult_not_at_front rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> * s] =&gt;
+          nat_mult_not_word x; <span class="nb">rewrite</span> (natmultcomm x s) <span class="kr">in</span> H
+        | <span class="kp">context</span>[<span class="nl">?x</span> * <span class="nl">?y</span> * s] =&gt; nat_mult_not_word y;
+            <span class="nb">rewrite</span> (nat_mult_perm021 x y s) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_move_to_back_goal</span> s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs <span class="kr">in</span>
+    nat_mult_not_at_back rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span> [s * <span class="nl">?x</span>] =&gt; <span class="nb">rewrite</span> (natmultcomm s x)
+        | <span class="kp">context</span>[<span class="nl">?x</span> * s * <span class="nl">?y</span>] =&gt; nat_mult_not_word y;
+            <span class="nb">rewrite</span> (nat_mult_perm021 x s y)
+        | <span class="kp">context</span>[s * <span class="nl">?x</span> * <span class="nl">?y</span>] =&gt;
+          nat_mult_not_word x; nat_mult_not_word y;
+          <span class="nb">rewrite</span> (nat_mult_perm201 s x y)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_move_to_back_both_in</span> H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs_in H <span class="kr">in</span>
+    nat_mult_not_at_back rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span> [s * <span class="nl">?x</span>] =&gt; <span class="nb">rewrite</span> (natmultcomm s x)
+        | <span class="kp">context</span>[<span class="nl">?x</span> * s * <span class="nl">?y</span>] =&gt; nat_mult_not_word y;
+            <span class="nb">rewrite</span> (nat_mult_perm021 x s y) <span class="kr">in</span> H
+        | <span class="kp">context</span>[s * <span class="nl">?x</span> * <span class="nl">?y</span>] =&gt;
+          nat_mult_not_word x; nat_mult_not_word y;
+          <span class="nb">rewrite</span> (nat_mult_perm201 s x y) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** *** The tactics.*)</span>
+
+<span class="sd">(** We employ the following naming conventions.  By default a tactics given pertain only to equations and operate by default on the left-hand side of equations.  Those that operate on both left- and right-hand sides of the goal are suffixed with [_goal].  Tactics that operate on the left-hand side of equations occurring as hypotheses are suffixed with [_in].  Those that operate on both left- and right-hand sides of equations occurring as hypotheses are suffixed with [_both_in].  Those that opexrate on all sides of goals and hypotheses are suffixeD with [_all].*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_group</span> s t :=
+  nat_plus_move_to_front t; nat_plus_move_to_front s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_group_goal</span> s t :=
+  nat_plus_move_to_front_goal t; nat_plus_move_to_front_goal s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_group_in</span> H s t :=
+  nat_plus_move_to_front_in H t; nat_plus_move_to_front_in H s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_group_both_in</span> H s t :=
+  nat_plus_move_to_front_both_in H t; nat_plus_move_to_front_both_in H s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_group_all</span> s t :=
+  nat_plus_group_goal s t;
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : _ |- _ =&gt; nat_plus_group_both_in H s t
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** [t] is a term of type [nat] and [nat_plus_group_as] attempts to reorganize the [lhs] of the [goal] to include as a subterm [t].*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_group_as</span> t :=
+  <span class="kr">match</span> t <span class="kr">with</span>
+    | <span class="nl">?x</span> + <span class="nl">?y</span> =&gt;
+      nat_plus_not_word y; nat_plus_move_to_front y;
+      nat_plus_group_as x
+    | <span class="nl">?x</span> =&gt; nat_plus_not_word x; nat_plus_move_to_front x
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** t is a term of type x = y for x, y : nat and nat_plus_group_from attempts to reogranize the lhs of the goal to include as a subterm x.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_group_from</span> t :=
+  <span class="kr">let</span> <span class="nv">T</span> := <span class="kp">type of</span> t <span class="kr">in</span>
+  <span class="kr">match</span> T <span class="kr">with</span>
+    | <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; nat_plus_group_as lhs
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_group</span> s t :=
+  nat_mult_move_to_front t; nat_mult_move_to_front s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_group_goal</span> s t :=
+  nat_mult_move_to_front_goal t; nat_mult_move_to_front_goal s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_group_in</span> H s t :=
+  nat_mult_move_to_front_in H t; nat_mult_move_to_front_in H s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_group_both_in</span> H s t :=
+  nat_mult_move_to_front_both_in H t; nat_mult_move_to_front_both_in H s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_group_all</span> s t :=
+  nat_mult_group_goal s t;
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : _ |- _ =&gt; nat_mult_group_both_in H s t
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** [t] is a term of type [nat] and [nat_mult_group_as] attempts to reorganize the [lhs] of the [goal] to include as a subterm [t].*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_group_as</span> t :=
+  <span class="kr">match</span> t <span class="kr">with</span>
+    | <span class="nl">?x</span> + <span class="nl">?y</span> =&gt;
+      nat_mult_not_word y; nat_mult_move_to_front y;
+      nat_mult_group_as x
+    | <span class="nl">?x</span> =&gt; nat_mult_not_word x; nat_mult_move_to_front x
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** [t] is a term of type [x = y] for [x y : nat] and [nat_mult_group_from] attempts to reogranize the [lhs] of the [goal] to include as a subterm [x].*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_group_from</span> t :=
+  <span class="kr">let</span> <span class="nv">T</span> := <span class="kp">type of</span> t <span class="kr">in</span>
+  <span class="kr">match</span> T <span class="kr">with</span>
+    | <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; nat_mult_group_as lhs
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+<span class="sd">(** * Tactics pertaining to inequalities.*)</span>
+
+<span class="sd">(** ** Preprocessing of the ambient goal and hypotheses.*)</span>
+
+<span class="sd">(** *** Helper tactics (which should not be considered as part of the public interface for these tactics).*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">does_not_have_gth</span> x y :=
+  <span class="kr">match goal with</span>
+    | _ : hProptoType (x &gt; y) |- _ =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | |- _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">does_not_have_geh</span> x y :=
+  <span class="kr">match goal with</span>
+    | _ : hProptoType (x &gt;= y) |- _ =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | |- _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** It is convenient to have to only work with either [hzgth]/[hzgeh] or [hzlth]/[hzleh].  We choose the former and the following tactics replace instances of [hzlth]/[hzleh] with the corresponding inequalities involving [hzgth]/[hzgeh].*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">reverse_lth</span> :=
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : hProptoType (<span class="nl">?y</span> &lt; <span class="nl">?u</span>) |- _ =&gt;
+        does_not_have_gth u y; <span class="nb">assert</span> (natgth u y); [<span class="nb">apply</span> H | ]
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">reverse_leh</span> :=
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : hProptoType (<span class="nl">?y</span> &lt;= <span class="nl">?u</span>) |- _ =&gt;
+        does_not_have_geh u y; <span class="nb">assert</span> (natgeh u y); [<span class="nb">apply</span> H | ]
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">gth_to_geh</span> :=
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) |- _ =&gt;
+        does_not_have_geh x y; <span class="nb">assert</span> (natgeh x y);
+        [<span class="nb">apply</span> natgthtogeh; <span class="bp">assumption</span> |]
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Clean the hypotheses in preparation for searching.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_dfs_clean</span> := reverse_lth; reverse_leh; gth_to_geh.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** Tactics for solving inequalities involving natural numbers.*)</span>
+
+<span class="sd">(** *** Tactics for solving very simple inequalities using known lemmas.*)</span>
+
+<span class="sd">(** The following tactic allows immediate solution of common goals involving [natgth] provided that the appropriate hypotheses are available.  We probably want to eventually add additional &quot;hints&quot; here.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">natgth_simple</span> :=
+  <span class="kr">match goal with</span>
+    | _ : hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) =&gt; <span class="bp">assumption</span>
+    | P : hProptoType ((S <span class="nl">?x</span>) &gt; (S <span class="nl">?y</span>)) |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) =&gt; <span class="nb">apply</span> P
+    | |- hProptoType ((S <span class="nl">?x</span>) &gt; <span class="nl">?x</span>) =&gt; <span class="nb">apply</span> (natgthsnn x)
+    | |- hProptoType ((S <span class="nl">?x</span>) &gt; <span class="mi">0</span>) =&gt; <span class="nb">apply</span> (natgthsn0 x)
+    | P : hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) |- hProptoType ((S <span class="nl">?x</span>) &gt; (S <span class="nl">?y</span>)) =&gt; <span class="nb">apply</span> P
+    | P : hProptoType (<span class="nl">?x</span> ≠ <span class="mi">0</span>)%nat |- hProptoType (<span class="nl">?x</span> &gt; <span class="mi">0</span>) =&gt;
+      <span class="nb">apply</span> (natneq0togth0 x P)
+    | P : hProptoType (<span class="mi">0</span> ≠ <span class="nl">?x</span>)%nat |- hProptoType (<span class="nl">?x</span> &gt; <span class="mi">0</span>) =&gt;
+      <span class="nb">apply</span> (natneq0togth0 x (natneqtwist x P))
+    | P : (<span class="nl">?x</span> = <span class="mi">0</span>) -&gt; empty |- hProptoType (<span class="nl">?x</span> &gt; <span class="mi">0</span>) =&gt;
+      <span class="nb">apply</span> (natneq0togth0 x P)
+    | P : (<span class="mi">0</span> = <span class="nl">?x</span>) -&gt; empty |- hProptoType (<span class="nl">?x</span> &gt; <span class="mi">0</span>) =&gt;
+      <span class="nb">apply</span> (natneq0togth0 x (natneqtwist x P))
+    | |- hProptoType ((S <span class="nl">?x</span>) &gt; <span class="nl">?x</span>) =&gt; <span class="nb">apply</span> (natgthsnn x)
+    | P : hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) |- hProptoType ((S <span class="nl">?x</span>) &gt; <span class="nl">?y</span>) =&gt;
+      <span class="nb">apply</span> (natgthtogths x y P)
+    | P : hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) |- hProptoType ((S <span class="nl">?x</span>) &gt; <span class="nl">?y</span>) =&gt;
+      <span class="nb">apply</span> (natgehtogthsn x y P)
+    | P : hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>),
+          Q : hProptoType (<span class="nl">?y</span> &gt; <span class="nl">?z</span>) |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?z</span>) =&gt;
+      <span class="nb">apply</span> (istransnatgth x y z P Q)
+    | P : hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>),
+          Q : hProptoType (<span class="nl">?y</span> &gt;= <span class="nl">?z</span>) |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?z</span>) =&gt;
+      <span class="nb">apply</span> (natgthgehtrans x y z P Q)
+    | P : hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>),
+          Q : hProptoType (<span class="nl">?y</span> &gt; <span class="nl">?z</span>) |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?z</span>) =&gt;
+      <span class="nb">apply</span> (natgehgthtrans x y z P Q)
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">natgeh_simple</span> :=
+  <span class="kr">match goal with</span>
+    | _ : hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) =&gt; <span class="bp">assumption</span>
+    | P : hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) |- hProptoType ((S <span class="nl">?x</span>) &gt;= (S <span class="nl">?y</span>)) =&gt; <span class="nb">apply</span> P
+    | P : hProptoType ((S <span class="nl">?x</span>) &gt;= (S <span class="nl">?y</span>)) |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) =&gt;
+      <span class="nb">apply</span> P
+    | |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?x</span>) =&gt; <span class="nb">apply</span> isreflnatgeh
+    | |- hProptoType (<span class="nl">?x</span> &gt;= <span class="mi">0</span>) =&gt; <span class="nb">apply</span> natgehn0
+    | |- hProptoType ((S <span class="nl">?x</span>) &gt;= <span class="nl">?x</span>) =&gt; <span class="nb">apply</span> (natgehsnn x)
+    | |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?x</span> - <span class="nl">?y</span>) =&gt; <span class="nb">apply</span> (minusgeh x y)
+    | H : hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) =&gt;
+      <span class="nb">apply</span> (natgthtogeh x y H)
+    | P : hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>),
+          Q : hProptoType (<span class="nl">?y</span> &gt;= <span class="nl">?z</span>) |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?z</span>) =&gt;
+      <span class="nb">apply</span> (istransnatgeh x y z P Q)
+    | P : hProptoType ((S <span class="nl">?x</span>) &gt; <span class="nl">?y</span>) |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) =&gt;
+      <span class="nb">apply</span> (natgthsntogeh x y P)
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** *** General tactics for solving inequalities by depth-first search.*)</span>
+
+<span class="sd">(** The approach taken here for solving inequalities is to construct from the given collection of hypotheses HH a corresponding directed graph and then to perform a depth-first search of the graph.*)</span>
+
+<span class="sd">(** Although we will often employ our search method in order to traverse an acyclic graph, when we are proving that the hypotheses imply [empty] we are forced to consider the cyclic case.  In these cases it may be possible to become trapped in a cycle.  To prevent this from happening we must build helper functions that will allow us to check that the next goal we move to is not one we have previously considered.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">make_gth_check</span> x y :=
+  <span class="kr">let</span> <span class="nv">f</span> <span class="nv">T</span> :=
+      <span class="kr">match</span> T <span class="kr">with</span>
+        | hProptoType (x &gt; y) =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+        | _ =&gt; <span class="kp">idtac</span>
+      <span class="kr">end</span>
+  <span class="kr">in</span> f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">make_geh_check</span> x y :=
+  <span class="kr">let</span> <span class="nv">f</span> <span class="nv">T</span> :=
+      <span class="kr">match</span> T <span class="kr">with</span>
+        | hProptoType (x &gt;= y) =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+        | _ =&gt; <span class="kp">idtac</span>
+      <span class="kr">end</span>
+  <span class="kr">in</span> f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Perform depth first search of the graph corresponding to the hypotheses.  In standard continuation passing style we allow a helper ltac function [f] which is admitted to perform certain checks (or which can be ignored as in nat_dfs below).*)</span>
+
+<span class="sd">(** TODO: Try instead change.  Think about strengthening clauses.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_dfs_body</span> f :=
+  natgth_simple
+    || natgeh_simple
+    || <span class="kr">match goal with</span>
+         | |- hProptoType (<span class="nl">?x</span> &lt; <span class="nl">?y</span>) =&gt;
+           <span class="kr">let</span> <span class="nv">X</span> := <span class="kp">fresh</span> <span class="s2">&quot;X&quot;</span> <span class="kr">in</span>
+           <span class="nb">assert</span> (natgth y x) <span class="kr">as</span> X; [nat_dfs_body f | <span class="nb">apply</span> X]
+         | |- hProptoType (<span class="nl">?x</span> &lt;= <span class="nl">?y</span>) =&gt;
+           <span class="kr">let</span> <span class="nv">X</span> := <span class="kp">fresh</span> <span class="s2">&quot;X&quot;</span> <span class="kr">in</span>
+           <span class="nb">assert</span> (natgeh y x) <span class="kr">as</span> X; [nat_dfs_body f | <span class="nb">apply</span> X]
+         | _ : hProptoType (<span class="nl">?u</span> &gt; <span class="nl">?y</span>) |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) =&gt;
+           f (hProptoType (x &gt;= u));
+             <span class="kr">let</span> <span class="nv">g</span> := make_geh_check x u <span class="kr">in</span>
+             <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+             <span class="nb">apply</span> (natgehgthtrans x u y); [nat_dfs_body h | <span class="bp">assumption</span>]
+         | |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) =&gt; f (hProptoType(x &gt;= y));
+             <span class="kr">let</span> <span class="nv">g</span> := make_geh_check x y <span class="kr">in</span>
+             <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+             <span class="nb">apply</span> (natgthtogeh x y); nat_dfs_body h
+         | _ : hProptoType (<span class="nl">?u</span> &gt;= <span class="nl">?y</span>) |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) =&gt;
+           f (hProptoType (x &gt;= u));
+             <span class="kr">let</span> <span class="nv">g</span> := make_geh_check x u <span class="kr">in</span>
+             <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+             <span class="nb">apply</span> (istransnatgeh x u y); [nat_dfs_body h | <span class="bp">assumption</span>]
+         | _ : hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?u</span>) |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) =&gt;
+           f (hProptoType (u &gt; y));
+             <span class="kr">let</span> <span class="nv">g</span> := make_gth_check u y <span class="kr">in</span>
+             <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+             <span class="nb">apply</span> (natgehgthtrans x u y); [<span class="bp">assumption</span> | nat_dfs_body h]
+         | _ : hProptoType (<span class="nl">?u</span> &gt;= <span class="nl">?y</span>) |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) =&gt;
+           f (hProptoType (x &gt; u));
+             <span class="kr">let</span> <span class="nv">g</span> := make_gth_check x u <span class="kr">in</span>
+             <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+             <span class="nb">apply</span> (natgthgehtrans x u y); [nat_dfs_body h | <span class="bp">assumption</span>]
+         | |- hProptoType (<span class="nl">?x</span> &gt;= S <span class="nl">?y</span>) =&gt;
+           <span class="nb">apply</span> natgthtogehsn; nat_dfs_body f
+         | |- hProptoType ((S <span class="nl">?x</span>) &gt; <span class="nl">?y</span>) =&gt;
+           <span class="kr">let</span> <span class="nv">g</span> := make_geh_check x y <span class="kr">in</span>
+           <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+           (<span class="nb">apply</span> (natgthgehtrans _ x _); [<span class="nb">apply</span> natlthnsn | nat_dfs_body h])
+
+         | |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span> - <span class="nl">?z</span>) =&gt;
+           <span class="kr">let</span> <span class="nv">g</span> := make_gth_check x (y - z) <span class="kr">in</span>
+           <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+           <span class="nb">apply</span> (natgthgehtrans x y (y - z));
+             [nat_dfs_body h | <span class="nb">apply</span> minusgeh]
+       <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_dfs</span> := nat_dfs_clean; nat_dfs_body id_check.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * Tactics for deriving contradictions.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_eq_contr</span> :=
+  <span class="kr">let</span> <span class="nv">f</span> <span class="nv">X</span> := <span class="nb">assert</span> empty; [<span class="nb">apply</span> X; <span class="bp">assumption</span> | <span class="bp">contradiction</span>] <span class="kr">in</span>
+  <span class="kr">let</span> <span class="nv">i</span> <span class="nv">X</span> := <span class="nb">assert</span> empty; [<span class="nb">apply</span> X; <span class="nb">apply</span> idpath | <span class="bp">contradiction</span>] <span class="kr">in</span>
+  <span class="kr">match goal with</span>
+    | H : <span class="nl">?x</span> = <span class="nl">?y</span> -&gt; empty, _ : <span class="nl">?x</span> = <span class="nl">?y</span> |- _ =&gt; f H
+    | H : neg (<span class="nl">?x</span> = <span class="nl">?y</span>), _ : <span class="nl">?x</span> = <span class="nl">?y</span> |- _ =&gt; f H
+    | H : <span class="nl">?x</span> = <span class="nl">?x</span> -&gt; empty |- _ =&gt; i H
+    | H : neg (<span class="nl">?x</span> = <span class="nl">?x</span>) |- _ =&gt; i H
+    | H : hProptoType (<span class="nl">?x</span> ≠ <span class="nl">?y</span>)%nat, _ : <span class="nl">?x</span> = <span class="nl">?y</span> |- _ =&gt; f H
+    | H : hProptoType (<span class="nl">?x</span> ≠ <span class="nl">?x</span>)%nat |- _ =&gt; i H
+    | H : hProptoType (<span class="nl">?x</span> ≠ <span class="nl">?y</span>)%nat, _ : <span class="nl">?x</span> = <span class="nl">?y</span> |- _ =&gt; f H
+    | H : hProptoType (<span class="nl">?x</span> ≠ <span class="nl">?x</span>)%nat |- _ =&gt; i H
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_simple_contr</span> :=
+  <span class="nb">assert</span> empty; [
+    <span class="kr">match goal with</span>
+      | H : hProptoType (<span class="nl">?x</span> &lt; <span class="mi">0</span>) |- _ =&gt; <span class="bp">exact</span> (negnatlthn0 x H)
+      | H : hProptoType (<span class="mi">0</span> &gt; <span class="nl">?x</span>) |- _ =&gt; <span class="bp">exact</span> (negnatgth0n x H)
+      | H : hProptoType ((S <span class="nl">?x</span>) &lt;= <span class="mi">0</span>) |- _ =&gt; <span class="bp">exact</span> (negnatlehsn0 x H)
+      | H : hProptoType (<span class="mi">0</span> &gt;= (S <span class="nl">?x</span>)) |- _ =&gt; <span class="bp">exact</span> (negnatgeh0sn x H)
+      | H : S <span class="nl">?x</span> = <span class="mi">0</span> |- _ =&gt; <span class="bp">exact</span> (negpathssx0 x H)
+    <span class="kr">end</span> | <span class="bp">contradiction</span>].</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Note that the following tactic may not halt. SHOULD halt now.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_ineq_contr_isirrefl</span> :=
+  nat_dfs_clean;
+  <span class="nb">assert</span> empty; [
+    <span class="kr">match goal with</span>
+      | _ : hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?x</span>) |- _ =&gt; <span class="nb">apply</span> (isirreflnatgth x); <span class="bp">assumption</span>
+      | N : nat |- _ =&gt;
+        <span class="kr">let</span> <span class="nv">f</span> := make_gth_check N N <span class="kr">in</span>
+        <span class="nb">apply</span> (isirreflnatgth N); nat_dfs_body <span class="kp">ltac</span>:(f)
+    <span class="kr">end</span>
+  | <span class="bp">contradiction</span>].</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_absurd</span> :=
+  (nat_simple_contr || nat_eq_contr || nat_ineq_contr_isirrefl).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_preclean_1</span> :=
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | |- <span class="kp">context</span> [<span class="mi">0</span> - <span class="nl">?n</span>] =&gt; <span class="nb">change</span> (<span class="mi">0</span> - n) <span class="kr">with</span> <span class="mi">0</span>
+      | |- <span class="kp">context</span> [(S <span class="nl">?n</span>) - <span class="mi">1</span>] =&gt; <span class="nb">change</span> ((S n) - <span class="mi">1</span>) <span class="kr">with</span> (n - <span class="mi">0</span>)
+      | |- <span class="kp">context</span>[S <span class="nl">?x</span> - S <span class="nl">?y</span>] =&gt; <span class="nb">change</span> (S x - S y) <span class="kr">with</span> (x - y)
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_preclean_2</span> :=
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> multsnm; <span class="kp">repeat</span> <span class="nb">rewrite</span> multnsm;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natldistr; <span class="kp">repeat</span> <span class="nb">rewrite</span> natrdistr;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natmultn0; <span class="kp">repeat</span> <span class="nb">rewrite</span> natmult0n;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natplusl0; <span class="kp">repeat</span> <span class="nb">rewrite</span> natplusr0;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natminuseqn; <span class="kp">repeat</span> <span class="nb">rewrite</span> natmultl1;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natmultr1; <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- natplusassoc;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- natmultassoc; <span class="kp">repeat</span> <span class="nb">rewrite</span> minus0r;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> minusnn0.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_clean</span> := nat_preclean_1; nat_preclean_2.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_preclean_1_in</span> H :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">T</span> := <span class="kp">type of</span> H <span class="kr">in</span>
+    <span class="kr">match</span> T <span class="kr">with</span>
+      | <span class="kp">context</span> [<span class="mi">0</span> - <span class="nl">?n</span>] =&gt; <span class="nb">change</span> (<span class="mi">0</span> - n) <span class="kr">with</span> <span class="mi">0</span> <span class="kr">in</span> H
+      | <span class="kp">context</span> [(S <span class="nl">?n</span>) - <span class="mi">1</span>] =&gt; <span class="nb">change</span> ((S n) - <span class="mi">1</span>) <span class="kr">with</span> (n - <span class="mi">0</span>) <span class="kr">in</span> H
+      | <span class="kp">context</span>[S <span class="nl">?x</span> - S <span class="nl">?y</span>] =&gt; <span class="nb">change</span> (S x - S y) <span class="kr">with</span> (x - y) <span class="kr">in</span> H
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_preclean_2_in</span> H :=
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> multsnm <span class="kr">in</span> H; <span class="kp">repeat</span> <span class="nb">rewrite</span> multnsm <span class="kr">in</span> H;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natldistr <span class="kr">in</span> H; <span class="kp">repeat</span> <span class="nb">rewrite</span> natrdistr <span class="kr">in</span> H;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natmultn0 <span class="kr">in</span> H; <span class="kp">repeat</span> <span class="nb">rewrite</span> natmult0n <span class="kr">in</span> H;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natplusl0 <span class="kr">in</span> H; <span class="kp">repeat</span> <span class="nb">rewrite</span> natplusr0 <span class="kr">in</span> H;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natminuseqn <span class="kr">in</span> H; <span class="kp">repeat</span> <span class="nb">rewrite</span> natmultl1 <span class="kr">in</span> H;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> natmultr1 <span class="kr">in</span> H; <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- natplusassoc <span class="kr">in</span> H;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- natmultassoc <span class="kr">in</span> H; <span class="kp">repeat</span> <span class="nb">rewrite</span> minus0r <span class="kr">in</span> H;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> minusnn0 <span class="kr">in</span> H.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_clean_in</span> H := nat_preclean_1_in H; nat_preclean_2_in H.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_clean_all</span> :=
+  nat_clean;
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : _ |- _ =&gt; nat_clean_in H
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * Several somewhat devious experimental tactics.*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_devious_ineq</span> :=
+  <span class="kr">match goal with</span>
+    | |- hProptoType (<span class="nl">?x</span> &gt; <span class="nl">?y</span>) =&gt;
+      <span class="nb">destruct</span> (natgthorleh x y); [<span class="bp">assumption</span> | nat_absurd]
+    | |- hProptoType (<span class="nl">?x</span> &gt;= <span class="nl">?y</span>) =&gt;
+      <span class="nb">destruct</span> (natlthorgeh x y); [nat_absurd | <span class="bp">assumption</span>]
+    | |- hProptoType (<span class="nl">?x</span> &lt; <span class="nl">?y</span>) =&gt;
+      <span class="nb">destruct</span> (natlthorgeh x y); [<span class="bp">assumption</span> | nat_absurd]
+    | |- hProptoType (<span class="nl">?x</span> &lt;= <span class="nl">?y</span>) =&gt;
+      <span class="nb">destruct</span> (natgthorleh x y); [nat_absurd | <span class="bp">assumption</span>]
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * Tactics for solving equations.*)</span>
+
+<span class="sd">(** ** Helper tactics.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">make_check</span> T :=
+  <span class="kr">let</span> <span class="nv">f</span> <span class="nv">S</span> :=
+      <span class="kr">match</span> S <span class="kr">with</span>
+        | T =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+      <span class="kr">end</span>
+  <span class="kr">in</span> f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_strip</span> :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span> [<span class="nl">?x</span>] =&gt;
+          <span class="kr">match</span> rhs <span class="kr">with</span>
+            | <span class="kp">context</span> [x] =&gt; nat_plus_move_to_back_goal x;
+                <span class="nb">apply</span> (ap (<span class="kr">λ</span> <span class="nv">v</span>, v + x))
+          <span class="kr">end</span>
+      <span class="kr">end</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_strip</span> :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span> [<span class="nl">?x</span>] =&gt;
+          <span class="kr">match</span> rhs <span class="kr">with</span>
+            | <span class="kp">context</span> [x] =&gt; nat_mult_move_to_back_goal x;
+                <span class="nb">apply</span> (ap (<span class="kr">λ</span> <span class="nv">v</span>, v * x))
+          <span class="kr">end</span>
+      <span class="kr">end</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** Some simple solver tactics which are concerned exclusively with equations involving _only_ [+] or _only_ [*].*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_prezap_body</span> f :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | rhs =&gt; <span class="nb">apply</span> idpath
+        | <span class="mi">0</span> =&gt; <span class="nb">apply</span> pathsinv0; nat_plus_prezap_body f
+        | <span class="nl">?x</span> + <span class="nl">?y</span> =&gt;
+          <span class="kr">match</span> rhs <span class="kr">with</span>
+            | y + x =&gt; <span class="nb">apply</span> (natpluscomm x y)
+          <span class="kr">end</span>
+        | _ =&gt; (nat_plus_strip; nat_plus_prezap_body f)
+      <span class="kr">end</span>
+    | E : <span class="nl">?l</span> = <span class="nl">?r</span> |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; f E;
+        <span class="kr">let</span> <span class="nv">g</span> := make_hyp_check E <span class="kr">in</span>
+        <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+        nat_plus_group_from E; matched_rewrite E; nat_plus_prezap_body h
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_prezap</span> := nat_clean_all; nat_plus_prezap_body id_check.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_prezap_body</span> f :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | rhs =&gt; <span class="nb">apply</span> idpath
+        | <span class="mi">0</span> =&gt; <span class="nb">apply</span> pathsinv0; nat_mult_prezap_body f
+        | <span class="nl">?x</span> * <span class="nl">?y</span> =&gt;
+          <span class="kr">match</span> rhs <span class="kr">with</span>
+            | y * x =&gt; <span class="nb">apply</span> (natmultcomm x y)
+          <span class="kr">end</span>
+        | _ =&gt; (nat_mult_strip; nat_mult_prezap_body f)
+      <span class="kr">end</span>
+    | E : <span class="nl">?l</span> = <span class="nl">?r</span> |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; f E;
+        <span class="kr">let</span> <span class="nv">g</span> := make_hyp_check E <span class="kr">in</span>
+        <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+        nat_mult_group_from E; matched_rewrite E; nat_mult_prezap_body h
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_mult_prezap</span> := nat_clean_all; nat_mult_prezap_body id_check.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** A simple solver tactic for mixed [+] [*] equations.*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_zap_body</span> f :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="nl">?x</span> + <span class="nl">?y</span> =&gt; nat_plus_not_word y;
+            <span class="kr">match</span> lhs <span class="kr">with</span>
+              | <span class="nl">?u</span> + <span class="nl">?v</span> =&gt;
+                (nat_plus_not_word v;
+                 <span class="kr">let</span> <span class="nv">F</span> := <span class="kp">fresh</span> <span class="kr">in</span>
+                 <span class="nb">assert</span> (v = y) <span class="kr">as</span> F;
+                 [ nat_mult_prezap
+                 | <span class="nb">rewrite</span> F; <span class="nb">apply</span> (ap (<span class="kr">λ</span> <span class="nv">v</span>, v + y));
+                   nat_plus_zap_body f
+                 ])
+                  || (<span class="kr">let</span> <span class="nv">l</span> := get_current_lhs <span class="kr">in</span>
+                      <span class="kr">let</span> <span class="nv">g</span> := make_check l <span class="kr">in</span>
+                      <span class="kr">let</span> <span class="nv">h</span> := check_cons f g <span class="kr">in</span>
+                      nat_plus_move_to_front v; nat_plus_zap_body h)
+            <span class="kr">end</span>
+        | <span class="nl">?x</span> =&gt; nat_plus_not_word x;
+            <span class="kr">match</span> lhs <span class="kr">with</span>
+              | <span class="nl">?v</span> =&gt; nat_plus_not_word v; nat_mult_prezap
+            <span class="kr">end</span>
+      <span class="kr">end</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_plus_zap</span> := nat_plus_zap_body id_check.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * Combined tactics for solving equations and inequalities of natural numbers.*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_simple</span> :=
+  <span class="kr">match goal with</span>
+    | H : hProptoType (<span class="nl">?n</span> &lt;= <span class="mi">0</span>) |- <span class="nl">?n</span> = <span class="mi">0</span> =&gt; <span class="nb">apply</span> (natleh0tois0 n H)
+    | H : hProptoType (<span class="mi">0</span> &gt;= <span class="nl">?n</span>) |- <span class="nl">?n</span> = <span class="mi">0</span> =&gt; <span class="nb">apply</span> (nat0gehtois0 n H)
+    | H : hProptoType (<span class="nl">?n</span> &lt;= <span class="mi">0</span>) |- <span class="mi">0</span> = <span class="nl">?n</span> =&gt;
+      <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> (natleh0tois0 n H)
+    | H : hProptoType (<span class="mi">0</span> &gt;= <span class="nl">?n</span>) |- <span class="mi">0</span> = <span class="nl">?n</span> =&gt;
+      <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> (nat0gehtois0 n H)
+    | |- <span class="nl">?x</span> + <span class="nl">?y</span> = <span class="nl">?y</span> + <span class="nl">?x</span> =&gt; <span class="nb">apply</span> natpluscomm
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_intros</span> :=
+  <span class="kp">repeat</span> <span class="kr">match goal with</span>
+           | |- <span class="nl">?x</span> -&gt; <span class="nl">?y</span> =&gt; <span class="nb">intro</span>
+           | |- ∏ _, _ =&gt; <span class="nb">intro</span>
+         <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_try</span> :=
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : _ |- _ =&gt;
+        <span class="kr">let</span> <span class="nv">T</span> := <span class="kp">type of</span> H <span class="kr">in</span>
+        <span class="kr">match</span> T <span class="kr">with</span>
+          | nat =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+          | _ =&gt; <span class="kp">idtac</span> <span class="s2">&quot;About to try &quot;</span> H; <span class="nb">apply</span> H
+        <span class="kr">end</span>
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_basic_destruct</span> N := <span class="nb">destruct</span> N; nat_intros; nat_clean;
+                             (<span class="nb">auto</span> || <span class="bp">assumption</span> || nat_simple || nat_absurd
+                                   || nat_dfs ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_basic_induction</span> N := <span class="nb">induction</span> N; nat_intros; nat_clean;
+                              (<span class="nb">auto</span> || <span class="bp">assumption</span> || nat_simple || nat_absurd
+                                    || nat_dfs || nat_try ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">nat_zap</span> :=
+  nat_clean_all;
+  <span class="kp">try</span> (<span class="nb">auto</span> || <span class="bp">assumption</span> || nat_simple || nat_absurd || nat_dfs
+            || nat_plus_zap || nat_try);
+  <span class="kr">match goal with</span>
+    | N : nat |- _ =&gt;
+      nat_basic_destruct N || nat_basic_induction N
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Close Scope</span> nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="sd">(** * TESTS *)</span>
+<span class="c">(*</span>
+<span class="c">Unset Ltac Debug.</span>
+
+<span class="c">Section Tests.</span>
+<span class="c">  Open Scope nat_scope.</span>
+
+<span class="c">  Hypothesis x y z u v w x&#39; y&#39; z&#39; u&#39; v&#39; w&#39; : nat.</span>
+
+<span class="c">  (** Note that [nat_devious_ineq] also correctly solves all of the tests designed for [nat_dfs].*)</span>
+
+<span class="c">  Lemma test_nat_dfs_0 (i1 : natgth x y) (i2 : natgeh y z)</span>
+<span class="c">        (i3 : natgth z u) (i4 : natgeh u v) (i5 : natgeh v w) : natgth x w.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_1 (i1 : natgth x y) (i2 : natgth y z)</span>
+<span class="c">        (i3 : natlth u z) (i4 : natgth w u) (i5 : natgth z x&#39;) : natgth x x&#39;.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_2 (i1 : natgth x y) (i2 : natlth z y)</span>
+<span class="c">        (i3 : natgth u z) : natgth x z.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_3 (i1 : natgth x y) (i2 : natlth z y)</span>
+<span class="c">        (i3 : natlth z u) : natgth x z.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_4 (i1 : natgth x y) (i2 : natgth y z)</span>
+<span class="c">        (i3 : natlth z u) (i4 : natlth v z) (i5 : natgth v x&#39;)</span>
+<span class="c">        (i6 : natlth v w) (i7 : natlth z&#39; x&#39;) (i8 : natlth u&#39; z&#39;)</span>
+<span class="c">        (i9 : natgth u y&#39;) : natgth x u&#39;.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_5 (i1 : natlth x y) (i2 : natlth y z)</span>
+<span class="c">        (i3 : natgth z u) (i4 : natgth v z) (i5 : natlth v x&#39;)</span>
+<span class="c">        (i6 : natgth v w) (i7 : natgth z&#39; x&#39;) (i8 : natgth u&#39; z&#39;)</span>
+<span class="c">        (i9 : natlth u y&#39;) : natlth x u&#39;.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_6 (i1 : natgeh x y) (i2 : natgth y z)</span>
+<span class="c">        (i3 : natleh z u) (i4 : natlth v z) (i5 : natgth v x&#39;)</span>
+<span class="c">        (i6 : natleh v w) (i7 : natlth z&#39; x&#39;) (i8 : natlth u&#39; z&#39;)</span>
+<span class="c">        (i9 : natgeh u y&#39;) : natgeh x u&#39;.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_7 (i1 : natleh x y) (i2 : natlth y z)</span>
+<span class="c">        (i3 : natgeh z u) (i4 : natgth v z) (i5 : natlth v x&#39;)</span>
+<span class="c">        (i6 : natgeh v w) (i7 : natgth z&#39; x&#39;) (i8 : natgth u&#39; z&#39;)</span>
+<span class="c">        (i9 : natleh u y&#39;) : natleh x u&#39;.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_8 (i1 : natleh x y) (i2 : natlth y z)</span>
+<span class="c">        (i3 : natgeh z u) (i4 : natgth v z) (i5 : natlth v x&#39;)</span>
+<span class="c">        (i6 : natgeh v w) (i7 : natgth z&#39; x&#39;) (i8 : natgth u&#39; z&#39;)</span>
+<span class="c">        (i9 : natleh u y&#39;) : natleh x u&#39;.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_10 (i1 : x ≠ 0)%nat (i2 : natgeh x 0) :</span>
+<span class="c">    natgth x 0.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_11 (i2 : 0 ≠ x)%nat (i2 : natgeh x 0) :</span>
+<span class="c">    natgth x 0.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_12 (i1 : 0 = x -&gt; empty) (i2 : natgeh x 0) :</span>
+<span class="c">    natgth x 0.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_dfs_13 (i : natleh y x) (l : natgth y x) : natlth x x.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_dfs.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_absurd_1 (i : natleh x y) (j : natgth x (S z))</span>
+<span class="c">        (k : natleh y z) : natgth u v.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_absurd.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_absurd_2 (i : natlth x y) (j : natgeh x (S z))</span>
+<span class="c">        (k : natlth y z) : natgth u v.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_absurd.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_absurd_3 x y z u v w (i1 : natgth x y) (i2 : natgeh y z)</span>
+<span class="c">        (i3 : natgth z u) (i4 : natgeh u v) (i5 : natgeh v w)</span>
+<span class="c">        (i6 : natgeh w x) : natgth x w.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_absurd.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_absurd_4 (i1 : natgth x y) (i2 : natlth z y)</span>
+<span class="c">        (i3 : natgth u z) (i4 : natleh x z ) : natgth x z.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_absurd.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_plus_ternary_perm  n m k l : n + m + k + l = l + m + n + k.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_plus_ternary_perm l m k. nat_plus_ternary_perm l m n.</span>
+<span class="c">    apply idpath.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_mult_ternary_perm  n m k l : n * m * k * l = k * l * n * m.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_mult_ternary_perm k n m. nat_mult_ternary_perm l n m.</span>
+<span class="c">    apply idpath.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_plus_group n m k l : n + m + k + l = k + n + m + l.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_plus_group k n. apply idpath.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_nat_mult_group n m k l : n * m * k * l = k * n * m * l.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. nat_mult_group k n. apply idpath.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Close Scope nat_scope.</span>
+
+<span class="c">End Tests.</span>
+<span class="c"> *)</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Signatures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Signatures for universal algebra. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)</span>
+<span class="c">(*</span>
+<span class="c">This file contains a formalization of multi-sorted signatures.</span>
+<span class="c">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.Combinatorics.DecSet.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.MoreLists.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> stn.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** A _signature_ is given by a decidable set of sorts, a set of of operation symbols and a map</span>
+<span class="sd">from operation symbols to pair [(l,, s)] where [l] is the _arity_ (or _domain_) and [s] is</span>
+<span class="sd">the _sort_ (or _range_).</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">signature</span> : UU := ∑ (S: decSet) (O: hSet), O → list S × S.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">sorts</span> (<span class="nv">σ</span>: signature) := pr1 σ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">names</span> (<span class="nv">σ</span>: signature) := pr12 σ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">ar</span> (<span class="nv">σ</span>: signature) := pr22 σ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">arity</span> {<span class="nv">σ</span>: signature} (<span class="nv">nm</span>: names σ) : list (sorts σ) := pr1 (ar σ nm).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">sort</span> {<span class="nv">σ</span>: signature} (<span class="nv">nm</span>: names σ) : sorts σ := pr2 (ar σ nm).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Helper functions for creating signatures. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_signature</span> (<span class="nv">S</span>: decSet) (<span class="nv">O</span>: hSet) (<span class="nv">ar</span>: O → list S × S) : signature
+  := S ,, (O ,, ar).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_signature_single_sorted</span> (<span class="nv">O</span>: hSet) (<span class="nv">ar</span>: O → nat) : signature
+  := make_signature (unit,, isdecequnit) O (<span class="kr">λ</span> <span class="nv">op</span>, fill tt (ar op) ,, tt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** A signature may be alternatively specified trough a [signature_simple]. In a simple</span>
+<span class="sd">signature, the types for sorts and operation symbols are standard finite sets, and</span>
+<span class="sd">the map from operations symbols to domain and range is replaced by a list. In this way,</span>
+<span class="sd">the definition of a new signature is made simpler.</span>
+
+<span class="sd">We have decided to define new types for simple signatures instead of only defining helper</span>
+<span class="sd">functions, since this make it simpler to define simplified means of defining a new algebra,</span>
+<span class="sd">too.</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">signature_simple</span> : UU := ∑ (ns: nat), list (list (⟦ ns ⟧) × ⟦ ns ⟧).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_signature_simple</span> {<span class="nv">ns</span>: nat} (<span class="nv">ar</span>: list (list (⟦ ns ⟧) × ⟦ ns ⟧))
+  : signature_simple := ns ,, ar.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">signature_simple_compile</span> (σ: signature_simple) : signature
+  := make_signature (⟦ pr1 σ ⟧ ,, isdeceqstn _) (stnset (length (pr2 σ))) (nth (pr2 σ)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">signature_simple_single_sorted</span> : UU := list nat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_signature_simple_single_sorted</span> (<span class="nv">ar</span>: list nat) : signature_simple_single_sorted := ar.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">signature_simple_single_sorted_compile</span> (σ: signature_simple_single_sorted): signature
+  := make_signature_single_sorted (stnset (length σ)) (nth σ).</span></span></pre>
+</div>
+</div></body>
+</html>

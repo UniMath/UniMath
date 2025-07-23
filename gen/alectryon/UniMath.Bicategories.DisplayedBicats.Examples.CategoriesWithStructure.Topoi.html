@@ -1,0 +1,1182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Topoi.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**</span>
+<span class="sd">  Displayed Bicategories Of Topoi</span>
+
+<span class="sd">  In this file, we define bicategories of topoi.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Elementary topoi [disp_bicat_elementarytopoi]</span>
+<span class="sd">  2. Arithmetic topoi [disp_bicat_elementarytopoi_NNO]</span>
+<span class="sd"> *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.RegularAndExact.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.ParameterizedNNO.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. Elementary Topoi = Finite Limits &amp; Cartesian Closed &amp; Subobject Classifier *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">ElementaryTopoi</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk1"><span class="kn">Definition</span> <span class="nf">disp_bicat_elementarytopoi&#39;</span>
+    : disp_bicat (total_bicat disp_bicat_limits).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (total_bicat disp_bicat_limits)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (total_bicat disp_bicat_limits)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk3"><span class="nb">apply</span> disp_dirprod_bicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (total_bicat disp_bicat_limits)</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (total_bicat disp_bicat_limits)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (total_bicat disp_bicat_limits)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_bicat_exponentials_over_lim.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (total_bicat disp_bicat_limits)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_bicat_subobject_classifier&#39;.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk6"><span class="kn">Lemma</span> <span class="nf">disp_bicat_elementarytopoi&#39;_is_locally_contractible</span>
+    : disp_2cells_iscontr disp_bicat_elementarytopoi&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_elementarytopoi&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk7"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_elementarytopoi&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk8"><span class="nb">apply</span> disp_2cells_of_dirprod_iscontr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_exponentials_over_lim</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_subobject_classifier&#39;</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk9">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_exponentials_over_lim</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_exponentials_over_lim.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chka">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_subobject_classifier&#39;</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_subobject_classifier&#39;.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chkb"><span class="kn">Definition</span> <span class="nf">disp_bicat_elementarytopoi</span>
+    : disp_bicat bicat_of_cats.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chkc"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (sigma_bicat _ _ disp_bicat_elementarytopoi&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chkd"><span class="kn">Lemma</span> <span class="nf">disp_bicat_elementarytopoi_is_locally_contractible</span>
+    : disp_2cells_iscontr disp_bicat_elementarytopoi.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_elementarytopoi</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chke"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_elementarytopoi</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chkf"><span class="nb">apply</span> disp_2cells_of_sigma_iscontr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_limits</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_elementarytopoi&#39;</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk10">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_limits</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_limits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk11">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_elementarytopoi&#39;</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_bicat_elementarytopoi&#39;_is_locally_contractible.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">ElementaryTopoi</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Arithmetic Topoi *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">ArithmeticTopoi</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk12"><span class="kn">Definition</span> <span class="nf">disp_bicat_arithmetic_elementarytopoi&#39;</span>
+    : disp_bicat (total_bicat disp_bicat_elementarytopoi).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (total_bicat disp_bicat_elementarytopoi)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk13"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat (total_bicat disp_bicat_elementarytopoi)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk14">use disp_subbicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">total_bicat disp_bicat_elementarytopoi → UU</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : total_bicat disp_bicat_elementarytopoi,
+<span class="nl">?P₀</span> x
+→ <span class="nl">?P₀</span> y
+  → total_bicat disp_bicat_elementarytopoi ⟦ x, y ⟧
+    → UU</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : total_bicat disp_bicat_elementarytopoi)
+(Px : <span class="nl">?P₀</span> x), <span class="nl">?P₁</span> x x Px Px (id₁ x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : total_bicat disp_bicat_elementarytopoi)
+(Px : <span class="nl">?P₀</span> x) (Py : <span class="nl">?P₀</span> y) (Pz : <span class="nl">?P₀</span> z)
+(f : total_bicat disp_bicat_elementarytopoi ⟦ x, y ⟧)
+(g : total_bicat disp_bicat_elementarytopoi ⟦ y, z ⟧),
+<span class="nl">?P₁</span> x y Px Py f
+→ <span class="nl">?P₁</span> y z Py Pz g → <span class="nl">?P₁</span> x z Px Pz (f · g)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk15">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">total_bicat disp_bicat_elementarytopoi → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk16"><span class="nb">intros</span> [C [[[T ?] [[P ?] ?]] ?]].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat_of_cats</span></span></span><br><span><var>T</var><span class="hyp-type"><b>: </b><span>disp_fullsubbicat bicat_of_cats
+  (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Terminal C) C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>disp_sub1cell_bicat
+(total_bicat
+(disp_fullsubbicat bicat_of_cats (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Terminal C)))
+(<span class="kr">λ</span> (<span class="nv">x</span>
+<span class="nv">y</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Terminal C)))
+(<span class="nv">f</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Terminal C))
+⟦ x, y ⟧), preserves_terminal (Preamble.pr1 f))
+(<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Terminal C)),
+identity_preserves_terminal (Preamble.pr1 x))
+(<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+<span class="nv">z</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Terminal C)))
+(<span class="nv">f</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Terminal C))
+⟦ x, y ⟧)
+(<span class="nv">g</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Terminal C))
+⟦ y, z ⟧) (<span class="nv">Pf</span> : preserves_terminal (Preamble.pr1 f))
+(<span class="nv">Pg</span> : preserves_terminal (Preamble.pr1 g)),
+composition_preserves_terminal Pf Pg) (C,, T)</span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>disp_fullsubbicat bicat_of_cats
+  (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinProducts C) C</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>disp_sub1cell_bicat
+(total_bicat
+(disp_fullsubbicat bicat_of_cats (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinProducts C)))
+(<span class="kr">λ</span> (<span class="nv">x</span>
+<span class="nv">y</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinProducts C)))
+(<span class="nv">f</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinProducts C)) ⟦ x, y ⟧),
+preserves_binproduct (Preamble.pr1 f))
+(<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinProducts C)),
+identity_preserves_binproduct (Preamble.pr1 x))
+(<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+<span class="nv">z</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinProducts C)))
+(<span class="nv">f</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinProducts C)) ⟦ x, y ⟧)
+(<span class="nv">g</span> : total_bicat
+(disp_fullsubbicat bicat_of_cats
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinProducts C)) ⟦ y, z ⟧)
+(<span class="nv">Pf</span> : preserves_binproduct (Preamble.pr1 f))
+(<span class="nv">Pg</span> : preserves_binproduct (Preamble.pr1 g)),
+composition_preserves_binproduct Pf Pg) (C,, P)</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>disp_dirprod_bicat Pullbacks.disp_bicat_pullbacks
+Equalizers.disp_bicat_equalizers C</span></span></span><br><span><var>pr3</var><span class="hyp-type"><b>: </b><span>disp_bicat_elementarytopoi&#39; (C,, (T,, pr2),, (P,, pr0),, pr1)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (parameterized_NNO T P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk17">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : total_bicat disp_bicat_elementarytopoi,
+(<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+ (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+  (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+  (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+   (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+    (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+              (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0) C)
+     (<span class="nv">pr4</span> : disp_sub1cell_bicat
+              (total_bicat
+                 (disp_fullsubbicat bicat_of_cats
+                    (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0)))
+              (<span class="kr">λ</span> (<span class="nv">x0</span>
+                  <span class="nv">y0</span> : total_bicat
+                         (disp_fullsubbicat
+                            bicat_of_cats (<span class="kr">λ</span> ..., ...)))
+               (<span class="nv">f</span> : total_bicat
+                      (disp_fullsubbicat bicat_of_cats
+                         (...)) ⟦ x0, y0 ⟧),
+               preserves_terminal (Preamble.pr1 f))
+              (<span class="kr">λ</span> <span class="nv">x0</span> : total_bicat
+                        (disp_fullsubbicat
+                           bicat_of_cats (<span class="kr">λ</span> ..., ...)),
+               identity_preserves_terminal
+                 (Preamble.pr1 x0))
+              (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span>
+                  <span class="nv">z</span> : total_bicat
+                        (disp_fullsubbicat
+                           bicat_of_cats (<span class="kr">λ</span> ..., ...)))
+               (<span class="nv">f</span> : total_bicat
+                      (disp_fullsubbicat bicat_of_cats
+                         (...)) ⟦ x0, y0 ⟧)
+               (<span class="nv">g</span> : total_bicat
+                      (disp_fullsubbicat bicat_of_cats
+                         (...)) ⟦ y0, z ⟧)
+               (<span class="nv">Pf</span> : preserves_terminal
+                       (Preamble.pr1 f))
+               (<span class="nv">Pg</span> : preserves_terminal
+                       (Preamble.pr1 g)),
+               composition_preserves_terminal Pf Pg)
+              (C,, T))
+     (<span class="nv">pr0</span> : disp_dirprod_bicat
+              BinProducts.disp_bicat_binproducts
+              (disp_dirprod_bicat
+                 Pullbacks.disp_bicat_pullbacks
+                 Equalizers.disp_bicat_equalizers) C),
+     (<span class="kr">λ</span> <span class="nv">pr5</span> : BinProducts.disp_bicat_binproducts C,
+      (<span class="kr">λ</span> (<span class="nv">P</span> : disp_fullsubbicat bicat_of_cats
+                (<span class="kr">λ</span> ..., ...) C)
+       (<span class="nv">pr6</span> : disp_sub1cell_bicat (total_bicat ...)
+                (<span class="kr">λ</span> ... ..., ...) (<span class="kr">λ</span> ..., ...)
+                (<span class="kr">λ</span> ... ... ... ... ..., ...) (C,, P))
+       (<span class="nv">pr7</span> : disp_dirprod_bicat
+                Pullbacks.disp_bicat_pullbacks
+                Equalizers.disp_bicat_equalizers C)
+       (<span class="nv">_</span> : disp_bicat_elementarytopoi&#39; (C,, ...)),
+       parameterized_NNO T P) (Preamble.pr1 pr5)
+        (Preamble.pr2 pr5)) (Preamble.pr1 pr0)
+       (Preamble.pr2 pr0)) (Preamble.pr1 pr3)
+      (Preamble.pr2 pr3)) (Preamble.pr1 pr1)
+     (Preamble.pr2 pr1)) (pr1 pr2) (Preamble.pr2 pr2))
+   (pr1 X) (pr2 X)) x
+→ (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+   (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+    (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+    (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+     (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+      (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0) C)
+       (<span class="nv">pr4</span> : disp_sub1cell_bicat
+                (total_bicat
+                   (disp_fullsubbicat bicat_of_cats
+                      (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                       Terminal C0)))
+                (<span class="kr">λ</span> (<span class="nv">x0</span>
+                    <span class="nv">y0</span> : total_bicat
+                           (disp_fullsubbicat
+                              bicat_of_cats (...)))
+                 (<span class="nv">f</span> : total_bicat
+                        (disp_fullsubbicat
+                           bicat_of_cats ...) ⟦ x0, y0
+                      ⟧),
+                 preserves_terminal (Preamble.pr1 f))
+                (<span class="kr">λ</span> <span class="nv">x0</span> : total_bicat
+                          (disp_fullsubbicat
+                             bicat_of_cats (...)),
+                 identity_preserves_terminal
+                   (Preamble.pr1 x0))
+                (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span>
+                    <span class="nv">z</span> : total_bicat
+                          (disp_fullsubbicat
+                             bicat_of_cats (...)))
+                 (<span class="nv">f</span> : total_bicat
+                        (disp_fullsubbicat
+                           bicat_of_cats ...) ⟦ x0, y0
+                      ⟧)
+                 (<span class="nv">g</span> : total_bicat
+                        (disp_fullsubbicat
+                           bicat_of_cats ...) ⟦ y0, z
+                      ⟧)
+                 (<span class="nv">Pf</span> : preserves_terminal
+                         (Preamble.pr1 f))
+                 (<span class="nv">Pg</span> : preserves_terminal
+                         (Preamble.pr1 g)),
+                 composition_preserves_terminal Pf Pg)
+                (C,, T))
+       (<span class="nv">pr0</span> : disp_dirprod_bicat
+                BinProducts.disp_bicat_binproducts
+                (disp_dirprod_bicat
+                   Pullbacks.disp_bicat_pullbacks
+                   Equalizers.disp_bicat_equalizers) C),
+       (<span class="kr">λ</span> <span class="nv">pr5</span> : BinProducts.disp_bicat_binproducts C,
+        (<span class="kr">λ</span> (<span class="nv">P</span> : disp_fullsubbicat bicat_of_cats (...)
+                  C)
+         (<span class="nv">pr6</span> : disp_sub1cell_bicat (...) (...) (...)
+                  (...) (...))
+         (<span class="nv">pr7</span> : disp_dirprod_bicat
+                  Pullbacks.disp_bicat_pullbacks
+                  Equalizers.disp_bicat_equalizers C)
+         (<span class="nv">_</span> : disp_bicat_elementarytopoi&#39; (...)),
+         parameterized_NNO T P) (Preamble.pr1 pr5)
+          (Preamble.pr2 pr5)) (Preamble.pr1 pr0)
+         (Preamble.pr2 pr0)) (Preamble.pr1 pr3)
+        (Preamble.pr2 pr3)) (Preamble.pr1 pr1)
+       (Preamble.pr2 pr1)) (pr1 pr2)
+      (Preamble.pr2 pr2)) (pr1 X) (pr2 X)) y
+  → total_bicat disp_bicat_elementarytopoi ⟦ x, y ⟧
+    → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk18"><span class="nb">simpl</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏
+(x : ∑ (x : category)
+     (d : (∑ _ : Terminal x, unit)
+          × (∑ _ : BinProducts x, unit)
+            × (∑ _ : Limits.Pullbacks.Pullbacks x,
+               unit)
+              × (∑ _ : Limits.Equalizers.Equalizers x,
+                 unit)),
+     (∑ _ : Exponentials.Exponentials (pr112 d), unit)
+     × (∑
+        _ : SubobjectClassifier.subobject_classifier
+              (pr11 d), unit))
+(y : ∑ (x0 : category)
+     (d : (∑ _ : Terminal x0, unit)
+          × (∑ _ : BinProducts x0, unit)
+            × (∑ _ : Limits.Pullbacks.Pullbacks x0,
+               unit)
+              × (∑
+                 _ : Limits.Equalizers.Equalizers x0,
+                 unit)),
+     (∑ _ : Exponentials.Exponentials (pr112 d), unit)
+     × (∑
+        _ : SubobjectClassifier.subobject_classifier
+              (pr11 d), unit)),
+parameterized_NNO (pr111 (pr2 x)) (pr112 (pr12 x))
+→ parameterized_NNO (pr111 (pr2 y)) (pr112 (pr12 y))
+  → (∑ (f : pr1 x ⟶ pr1 y)
+     (fD : (∑ _ : unit, preserves_terminal f)
+           × (∑ _ : unit, preserves_binproduct f)
+             × (∑ _ : unit, preserves_pullback f)
+               × (∑ _ : unit, preserves_equalizer f)),
+     (∑ _ : unit,
+      Exponentials.preserves_exponentials
+        (pr112 (pr2 x)) (pr112 (pr2 y)) (pr212 fD))
+     × (∑ _ : unit,
+        PreservesSubobjectClassifier.preserves_subobject_classifier
+          f (pr111 (pr2 x)) (pr111 (pr2 y)) (pr21 fD)))
+    → UU</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk19"><span class="nb">intros</span> C₁ C₂ N₁ N₂ [F [[[? pt] ?] ?]].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C₁, C₂</var><span class="hyp-type"><b>: </b><span>∑ (x : category)
+(d : (∑ _ : Terminal x, unit)
+     × (∑ _ : BinProducts x, unit)
+       × (∑ _ : Limits.Pullbacks.Pullbacks x,
+          unit)
+         × (∑ _ : Limits.Equalizers.Equalizers x,
+            unit)),
+(∑ _ : Exponentials.Exponentials (pr112 d), unit)
+× (∑
+   _ : SubobjectClassifier.subobject_classifier
+         (pr11 d), unit)</span></span></span><br><span><var>N₁</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr111 (Preamble.pr2 C₁))
+  (pr112 (pr12 C₁))</span></span></span><br><span><var>N₂</var><span class="hyp-type"><b>: </b><span>parameterized_NNO (pr111 (Preamble.pr2 C₂))
+  (pr112 (pr12 C₂))</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>Preamble.pr1 C₁ ⟶ Preamble.pr1 C₂</span></span></span><br><span><var>pr1</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br><span><var>pt</var><span class="hyp-type"><b>: </b><span>preserves_terminal F</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit, preserves_binproduct F)
+× (∑ _ : unit, preserves_pullback F) × (∑ _ : unit, preserves_equalizer F)</span></span></span><br><span><var>pr0</var><span class="hyp-type"><b>: </b><span>(∑ _ : unit,
+Exponentials.preserves_exponentials (pr112 (Preamble.pr2 C₁))
+(pr112 (Preamble.pr2 C₂)) (pr212 ((pr1,, pt),, pr2)))
+× (∑ _ : unit,
+PreservesSubobjectClassifier.preserves_subobject_classifier F
+(pr111 (Preamble.pr2 C₁)) (pr111 (Preamble.pr2 C₂))
+(pr21 ((pr1,, pt),, pr2)))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">UU</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (preserves_parameterized_NNO N₁ N₂ _ pt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk1a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : total_bicat disp_bicat_elementarytopoi)
+(Px : (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+       (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+        (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+        (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+         (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+          (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                    (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0)
+                    C)
+           (<span class="nv">pr4</span> : disp_sub1cell_bicat
+                    (total_bicat
+                       (disp_fullsubbicat
+                          bicat_of_cats
+                          (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                           Terminal C0)))
+                    (<span class="kr">λ</span> (<span class="nv">x0</span>
+                        <span class="nv">y</span> : total_bicat
+                              (disp_fullsubbicat
+                                 bicat_of_cats
+                                 (<span class="kr">λ</span> ..., ...)))
+                     (<span class="nv">f</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ x0, y ⟧),
+                     preserves_terminal
+                       (Preamble.pr1 f))
+                    (<span class="kr">λ</span> <span class="nv">x0</span> : total_bicat
+                              (disp_fullsubbicat
+                                 bicat_of_cats
+                                 (<span class="kr">λ</span> ..., ...)),
+                     identity_preserves_terminal
+                       (Preamble.pr1 x0))
+                    (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y</span>
+                        <span class="nv">z</span> : total_bicat
+                              (disp_fullsubbicat
+                                 bicat_of_cats
+                                 (<span class="kr">λ</span> ..., ...)))
+                     (<span class="nv">f</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ x0, y ⟧)
+                     (<span class="nv">g</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ y, z ⟧)
+                     (<span class="nv">Pf</span> : preserves_terminal
+                             (Preamble.pr1 f))
+                     (<span class="nv">Pg</span> : preserves_terminal
+                             (Preamble.pr1 g)),
+                     composition_preserves_terminal Pf
+                       Pg) (C,, T))
+           (<span class="nv">pr0</span> : disp_dirprod_bicat
+                    BinProducts.disp_bicat_binproducts
+                    (disp_dirprod_bicat
+                       Pullbacks.disp_bicat_pullbacks
+                       Equalizers.disp_bicat_equalizers)
+                    C),
+           (<span class="kr">λ</span> <span class="nv">pr5</span> : BinProducts.disp_bicat_binproducts
+                      C,
+            (<span class="kr">λ</span> (<span class="nv">P</span> : disp_fullsubbicat bicat_of_cats
+                      (<span class="kr">λ</span> ..., ...) C)
+             (<span class="nv">pr6</span> : disp_sub1cell_bicat
+                      (total_bicat ...)
+                      (<span class="kr">λ</span> ... ..., ...) (<span class="kr">λ</span> ..., ...)
+                      (<span class="kr">λ</span> ... ... ... ... ..., ...)
+                      (C,, P))
+             (<span class="nv">pr7</span> : disp_dirprod_bicat
+                      Pullbacks.disp_bicat_pullbacks
+                      Equalizers.disp_bicat_equalizers
+                      C)
+             (<span class="nv">_</span> : disp_bicat_elementarytopoi&#39;
+                    (C,, ...)), parameterized_NNO T P)
+              (Preamble.pr1 pr5) (Preamble.pr2 pr5))
+             (Preamble.pr1 pr0) (Preamble.pr2 pr0))
+            (Preamble.pr1 pr3) (Preamble.pr2 pr3))
+           (Preamble.pr1 pr1) (Preamble.pr2 pr1))
+          (pr1 pr2) (Preamble.pr2 pr2)) (pr1 X)
+         (pr2 X)) x),
+((<span class="kr">λ</span> (<span class="nv">C₁</span>
+     <span class="nv">C₂</span> : ∑ (x0 : category)
+          (d : (∑ _ : Terminal x0, unit)
+               × (∑ _ : BinProducts x0, unit)
+                 × (∑
+                    _ : Limits.Pullbacks.Pullbacks x0,
+                    unit)
+                   × (∑
+                      _ : Limits.Equalizers.Equalizers
+                            x0, unit)),
+          (∑ _ : Exponentials.Exponentials (pr112 d),
+           unit)
+          × (∑
+             _ : SubobjectClassifier.subobject_classifier
+                   (pr11 d), unit))
+  (<span class="nv">N₁</span> : parameterized_NNO (pr111 (pr2 C₁))
+          (pr112 (pr12 C₁)))
+  (<span class="nv">N₂</span> : parameterized_NNO (pr111 (pr2 C₂))
+          (pr112 (pr12 C₂)))
+  (<span class="nv">X</span> : ∑ (f : pr1 C₁ ⟶ pr1 C₂)
+       (fD : (∑ _ : unit, preserves_terminal f)
+             × (∑ _ : unit, preserves_binproduct f)
+               × (∑ _ : unit, preserves_pullback f)
+                 × (∑ _ : unit, preserves_equalizer f)),
+       (∑ _ : unit,
+        Exponentials.preserves_exponentials
+          (pr112 (pr2 C₁)) (pr112 (pr2 C₂)) (pr212 fD))
+       × (∑ _ : unit,
+          PreservesSubobjectClassifier.preserves_subobject_classifier
+            f (pr111 (pr2 C₁)) (pr111 (pr2 C₂))
+            (pr21 fD))),
+  (<span class="kr">λ</span> (<span class="nv">F</span> : pr1 C₁ ⟶ pr1 C₂)
+   (<span class="nv">pr2</span> : ∑
+          fD : (∑ _ : unit, preserves_terminal F)
+               × (∑ _ : unit, preserves_binproduct F)
+                 × (∑ _ : unit, preserves_pullback F)
+                   × (∑ _ : unit,
+                      preserves_equalizer F),
+          (∑ _ : unit,
+           Exponentials.preserves_exponentials
+             (pr112 (Preamble.pr2 C₁))
+             (pr112 (Preamble.pr2 C₂)) (pr212 fD))
+          × (∑ _ : unit,
+             PreservesSubobjectClassifier.preserves_subobject_classifier
+               F (pr111 (Preamble.pr2 C₁))
+               (pr111 (Preamble.pr2 C₂)) (pr21 fD))),
+   (<span class="kr">λ</span> <span class="nv">pr1</span> : (∑ _ : unit, preserves_terminal F)
+            × (∑ _ : unit, preserves_binproduct F)
+              × (∑ _ : unit, preserves_pullback F)
+                × (∑ _ : unit, preserves_equalizer F),
+    (<span class="kr">λ</span> <span class="nv">pr3</span> : ∑ _ : unit, preserves_terminal F,
+     (<span class="kr">λ</span> (<span class="nv">pr4</span> : unit) (<span class="nv">pt</span> : preserves_terminal F)
+      (<span class="nv">pr5</span> : (∑ _ : unit, preserves_binproduct F)
+             × (∑ _ : unit, preserves_pullback F)
+               × (∑ _ : unit, preserves_equalizer F))
+      (<span class="nv">_</span> : (∑ _ : unit,
+            Exponentials.preserves_exponentials
+              (pr112 (Preamble.pr2 C₁))
+              (pr112 (Preamble.pr2 C₂))
+              (pr212 ((...),, pr5)))
+           × (∑ _ : unit,
+              PreservesSubobjectClassifier.preserves_subobject_classifier
+                F (pr111 (Preamble.pr2 C₁))
+                (pr111 (Preamble.pr2 C₂))
+                (pr21 ((...),, pr5)))),
+      preserves_parameterized_NNO N₁ N₂ F pt)
+       (Preamble.pr1 pr3) (Preamble.pr2 pr3))
+      (Preamble.pr1 pr1) (Preamble.pr2 pr1)) (pr1 pr2)
+     (Preamble.pr2 pr2)) (pr1 X) (pr2 X))
+ :
+ ∏ x0 y : total_bicat disp_bicat_elementarytopoi,
+ (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+  (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+   (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+   (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+    (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+     (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+               (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0) C)
+      (<span class="nv">pr4</span> : disp_sub1cell_bicat
+               (total_bicat
+                  (disp_fullsubbicat bicat_of_cats ...))
+               (<span class="kr">λ</span> (<span class="nv">x1</span> <span class="nv">y0</span> : total_bicat ...)
+                (<span class="nv">f</span> : ... ⟦ x1, y0 ⟧),
+                preserves_terminal (...))
+               (<span class="kr">λ</span> <span class="nv">x1</span> : total_bicat ...,
+                identity_preserves_terminal (...))
+               (<span class="kr">λ</span> (<span class="nv">x1</span> <span class="nv">y0</span> <span class="nv">z</span> : total_bicat ...)
+                (<span class="nv">f</span> : ... ⟦ x1, y0 ⟧)
+                (<span class="nv">g</span> : ... ⟦ y0, z ⟧)
+                (<span class="nv">Pf</span> : preserves_terminal ...)
+                (<span class="nv">Pg</span> : preserves_terminal ...),
+                composition_preserves_terminal Pf Pg)
+               (C,, T))
+      (<span class="nv">pr0</span> : disp_dirprod_bicat
+               BinProducts.disp_bicat_binproducts
+               (disp_dirprod_bicat
+                  Pullbacks.disp_bicat_pullbacks
+                  Equalizers.disp_bicat_equalizers) C),
+      (<span class="kr">λ</span> <span class="nv">pr5</span> : BinProducts.disp_bicat_binproducts C,
+       (<span class="kr">λ</span> ... ... ... ..., ...) (Preamble.pr1 pr5)
+         (Preamble.pr2 pr5)) (Preamble.pr1 pr0)
+        (Preamble.pr2 pr0)) (Preamble.pr1 pr3)
+       (Preamble.pr2 pr3)) (Preamble.pr1 pr1)
+      (Preamble.pr2 pr1)) (pr1 pr2) (Preamble.pr2 pr2))
+    (pr1 X) (pr2 X)) x0
+ → (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+    (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+     (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+     (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+      (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+       (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                 (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0) C)
+        (<span class="nv">pr4</span> : disp_sub1cell_bicat (total_bicat (...))
+                 (<span class="kr">λ</span> (<span class="nv">x1</span> <span class="nv">y0</span> : ...) (<span class="nv">f</span> : ...),
+                  preserves_terminal ...)
+                 (<span class="kr">λ</span> <span class="nv">x1</span> : ...,
+                  identity_preserves_terminal ...)
+                 (<span class="kr">λ</span> (<span class="nv">x1</span> <span class="nv">y0</span> <span class="nv">z</span> : ...) (<span class="nv">f</span> : ...)
+                  (<span class="nv">g</span> : ...) (<span class="nv">Pf</span> : ...) (<span class="nv">Pg</span> : ...),
+                  composition_preserves_terminal Pf Pg)
+                 (C,, T))
+        (<span class="nv">pr0</span> : disp_dirprod_bicat
+                 BinProducts.disp_bicat_binproducts
+                 (disp_dirprod_bicat
+                    Pullbacks.disp_bicat_pullbacks
+                    Equalizers.disp_bicat_equalizers)
+                 C),
+        (<span class="kr">λ</span> <span class="nv">pr5</span> : BinProducts.disp_bicat_binproducts C,
+         (...) (...) (...)) (Preamble.pr1 pr0)
+          (Preamble.pr2 pr0)) (Preamble.pr1 pr3)
+         (Preamble.pr2 pr3)) (Preamble.pr1 pr1)
+        (Preamble.pr2 pr1)) (pr1 pr2)
+       (Preamble.pr2 pr2)) (pr1 X) (pr2 X)) y
+   → total_bicat disp_bicat_elementarytopoi ⟦ x0, y ⟧
+     → UU) x x Px Px (id₁ x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> ; <span class="nb">intro</span> ; <span class="nb">apply</span> id_preserves_parameterized_NNO.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk1b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : total_bicat disp_bicat_elementarytopoi)
+(Px : (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+       (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+        (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+        (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+         (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+          (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                    (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0)
+                    C)
+           (<span class="nv">pr4</span> : disp_sub1cell_bicat
+                    (total_bicat
+                       (disp_fullsubbicat
+                          bicat_of_cats
+                          (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                           Terminal C0)))
+                    (<span class="kr">λ</span> (<span class="nv">x0</span>
+                        <span class="nv">y0</span> : total_bicat
+                               (disp_fullsubbicat
+                                  bicat_of_cats
+                                  (<span class="kr">λ</span> ..., ...)))
+                     (<span class="nv">f</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ x0, y0 ⟧),
+                     preserves_terminal
+                       (Preamble.pr1 f))
+                    (<span class="kr">λ</span> <span class="nv">x0</span> : total_bicat
+                              (disp_fullsubbicat
+                                 bicat_of_cats
+                                 (<span class="kr">λ</span> ..., ...)),
+                     identity_preserves_terminal
+                       (Preamble.pr1 x0))
+                    (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span>
+                        <span class="nv">z0</span> : total_bicat
+                               (disp_fullsubbicat
+                                  bicat_of_cats
+                                  (<span class="kr">λ</span> ..., ...)))
+                     (<span class="nv">f</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ x0, y0 ⟧)
+                     (<span class="nv">g</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ y0, z0 ⟧)
+                     (<span class="nv">Pf</span> : preserves_terminal
+                             (Preamble.pr1 f))
+                     (<span class="nv">Pg</span> : preserves_terminal
+                             (Preamble.pr1 g)),
+                     composition_preserves_terminal Pf
+                       Pg) (C,, T))
+           (<span class="nv">pr0</span> : disp_dirprod_bicat
+                    BinProducts.disp_bicat_binproducts
+                    (disp_dirprod_bicat
+                       Pullbacks.disp_bicat_pullbacks
+                       Equalizers.disp_bicat_equalizers)
+                    C),
+           (<span class="kr">λ</span> <span class="nv">pr5</span> : BinProducts.disp_bicat_binproducts
+                      C,
+            (<span class="kr">λ</span> (<span class="nv">P</span> : disp_fullsubbicat bicat_of_cats
+                      (<span class="kr">λ</span> ..., ...) C)
+             (<span class="nv">pr6</span> : disp_sub1cell_bicat
+                      (total_bicat ...)
+                      (<span class="kr">λ</span> ... ..., ...) (<span class="kr">λ</span> ..., ...)
+                      (<span class="kr">λ</span> ... ... ... ... ..., ...)
+                      (C,, P))
+             (<span class="nv">pr7</span> : disp_dirprod_bicat
+                      Pullbacks.disp_bicat_pullbacks
+                      Equalizers.disp_bicat_equalizers
+                      C)
+             (<span class="nv">_</span> : disp_bicat_elementarytopoi&#39;
+                    (C,, ...)), parameterized_NNO T P)
+              (Preamble.pr1 pr5) (Preamble.pr2 pr5))
+             (Preamble.pr1 pr0) (Preamble.pr2 pr0))
+            (Preamble.pr1 pr3) (Preamble.pr2 pr3))
+           (Preamble.pr1 pr1) (Preamble.pr2 pr1))
+          (pr1 pr2) (Preamble.pr2 pr2)) (pr1 X)
+         (pr2 X)) x)
+(Py : (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+       (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+        (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+        (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+         (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+          (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                    (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0)
+                    C)
+           (<span class="nv">pr4</span> : disp_sub1cell_bicat
+                    (total_bicat
+                       (disp_fullsubbicat
+                          bicat_of_cats
+                          (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                           Terminal C0)))
+                    (<span class="kr">λ</span> (<span class="nv">x0</span>
+                        <span class="nv">y0</span> : total_bicat
+                               (disp_fullsubbicat
+                                  bicat_of_cats
+                                  (<span class="kr">λ</span> ..., ...)))
+                     (<span class="nv">f</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ x0, y0 ⟧),
+                     preserves_terminal
+                       (Preamble.pr1 f))
+                    (<span class="kr">λ</span> <span class="nv">x0</span> : total_bicat
+                              (disp_fullsubbicat
+                                 bicat_of_cats
+                                 (<span class="kr">λ</span> ..., ...)),
+                     identity_preserves_terminal
+                       (Preamble.pr1 x0))
+                    (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span>
+                        <span class="nv">z0</span> : total_bicat
+                               (disp_fullsubbicat
+                                  bicat_of_cats
+                                  (<span class="kr">λ</span> ..., ...)))
+                     (<span class="nv">f</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ x0, y0 ⟧)
+                     (<span class="nv">g</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ y0, z0 ⟧)
+                     (<span class="nv">Pf</span> : preserves_terminal
+                             (Preamble.pr1 f))
+                     (<span class="nv">Pg</span> : preserves_terminal
+                             (Preamble.pr1 g)),
+                     composition_preserves_terminal Pf
+                       Pg) (C,, T))
+           (<span class="nv">pr0</span> : disp_dirprod_bicat
+                    BinProducts.disp_bicat_binproducts
+                    (disp_dirprod_bicat
+                       Pullbacks.disp_bicat_pullbacks
+                       Equalizers.disp_bicat_equalizers)
+                    C),
+           (<span class="kr">λ</span> <span class="nv">pr5</span> : BinProducts.disp_bicat_binproducts
+                      C,
+            (<span class="kr">λ</span> (<span class="nv">P</span> : disp_fullsubbicat bicat_of_cats
+                      (<span class="kr">λ</span> ..., ...) C)
+             (<span class="nv">pr6</span> : disp_sub1cell_bicat
+                      (total_bicat ...)
+                      (<span class="kr">λ</span> ... ..., ...) (<span class="kr">λ</span> ..., ...)
+                      (<span class="kr">λ</span> ... ... ... ... ..., ...)
+                      (C,, P))
+             (<span class="nv">pr7</span> : disp_dirprod_bicat
+                      Pullbacks.disp_bicat_pullbacks
+                      Equalizers.disp_bicat_equalizers
+                      C)
+             (<span class="nv">_</span> : disp_bicat_elementarytopoi&#39;
+                    (C,, ...)), parameterized_NNO T P)
+              (Preamble.pr1 pr5) (Preamble.pr2 pr5))
+             (Preamble.pr1 pr0) (Preamble.pr2 pr0))
+            (Preamble.pr1 pr3) (Preamble.pr2 pr3))
+           (Preamble.pr1 pr1) (Preamble.pr2 pr1))
+          (pr1 pr2) (Preamble.pr2 pr2)) (pr1 X)
+         (pr2 X)) y)
+(Pz : (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+       (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+        (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+        (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+         (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+          (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                    (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0)
+                    C)
+           (<span class="nv">pr4</span> : disp_sub1cell_bicat
+                    (total_bicat
+                       (disp_fullsubbicat
+                          bicat_of_cats
+                          (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                           Terminal C0)))
+                    (<span class="kr">λ</span> (<span class="nv">x0</span>
+                        <span class="nv">y0</span> : total_bicat
+                               (disp_fullsubbicat
+                                  bicat_of_cats
+                                  (<span class="kr">λ</span> ..., ...)))
+                     (<span class="nv">f</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ x0, y0 ⟧),
+                     preserves_terminal
+                       (Preamble.pr1 f))
+                    (<span class="kr">λ</span> <span class="nv">x0</span> : total_bicat
+                              (disp_fullsubbicat
+                                 bicat_of_cats
+                                 (<span class="kr">λ</span> ..., ...)),
+                     identity_preserves_terminal
+                       (Preamble.pr1 x0))
+                    (<span class="kr">λ</span> (<span class="nv">x0</span> <span class="nv">y0</span>
+                        <span class="nv">z0</span> : total_bicat
+                               (disp_fullsubbicat
+                                  bicat_of_cats
+                                  (<span class="kr">λ</span> ..., ...)))
+                     (<span class="nv">f</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ x0, y0 ⟧)
+                     (<span class="nv">g</span> : total_bicat
+                            (disp_fullsubbicat
+                               bicat_of_cats (...))
+                          ⟦ y0, z0 ⟧)
+                     (<span class="nv">Pf</span> : preserves_terminal
+                             (Preamble.pr1 f))
+                     (<span class="nv">Pg</span> : preserves_terminal
+                             (Preamble.pr1 g)),
+                     composition_preserves_terminal Pf
+                       Pg) (C,, T))
+           (<span class="nv">pr0</span> : disp_dirprod_bicat
+                    BinProducts.disp_bicat_binproducts
+                    (disp_dirprod_bicat
+                       Pullbacks.disp_bicat_pullbacks
+                       Equalizers.disp_bicat_equalizers)
+                    C),
+           (<span class="kr">λ</span> <span class="nv">pr5</span> : BinProducts.disp_bicat_binproducts
+                      C,
+            (<span class="kr">λ</span> (<span class="nv">P</span> : disp_fullsubbicat bicat_of_cats
+                      (<span class="kr">λ</span> ..., ...) C)
+             (<span class="nv">pr6</span> : disp_sub1cell_bicat
+                      (total_bicat ...)
+                      (<span class="kr">λ</span> ... ..., ...) (<span class="kr">λ</span> ..., ...)
+                      (<span class="kr">λ</span> ... ... ... ... ..., ...)
+                      (C,, P))
+             (<span class="nv">pr7</span> : disp_dirprod_bicat
+                      Pullbacks.disp_bicat_pullbacks
+                      Equalizers.disp_bicat_equalizers
+                      C)
+             (<span class="nv">_</span> : disp_bicat_elementarytopoi&#39;
+                    (C,, ...)), parameterized_NNO T P)
+              (Preamble.pr1 pr5) (Preamble.pr2 pr5))
+             (Preamble.pr1 pr0) (Preamble.pr2 pr0))
+            (Preamble.pr1 pr3) (Preamble.pr2 pr3))
+           (Preamble.pr1 pr1) (Preamble.pr2 pr1))
+          (pr1 pr2) (Preamble.pr2 pr2)) (pr1 X)
+         (pr2 X)) z)
+(f : total_bicat disp_bicat_elementarytopoi ⟦ x, y ⟧)
+(g : total_bicat disp_bicat_elementarytopoi ⟦ y, z ⟧),
+((<span class="kr">λ</span> (<span class="nv">C₁</span>
+     <span class="nv">C₂</span> : ∑ (x0 : category)
+          (d : (∑ _ : Terminal x0, unit)
+               × (∑ _ : BinProducts x0, unit)
+                 × (∑
+                    _ : Limits.Pullbacks.Pullbacks x0,
+                    unit)
+                   × (∑
+                      _ : Limits.Equalizers.Equalizers
+                            x0, unit)),
+          (∑ _ : Exponentials.Exponentials (pr112 d),
+           unit)
+          × (∑
+             _ : SubobjectClassifier.subobject_classifier
+                   (pr11 d), unit))
+  (<span class="nv">N₁</span> : parameterized_NNO (pr111 (pr2 C₁))
+          (pr112 (pr12 C₁)))
+  (<span class="nv">N₂</span> : parameterized_NNO (pr111 (pr2 C₂))
+          (pr112 (pr12 C₂)))
+  (<span class="nv">X</span> : ∑ (f0 : pr1 C₁ ⟶ pr1 C₂)
+       (fD : (∑ _ : unit, preserves_terminal f0)
+             × (∑ _ : unit, preserves_binproduct f0)
+               × (∑ _ : unit, preserves_pullback f0)
+                 × (∑ _ : unit, preserves_equalizer f0)),
+       (∑ _ : unit,
+        Exponentials.preserves_exponentials
+          (pr112 (pr2 C₁)) (pr112 (pr2 C₂)) (pr212 fD))
+       × (∑ _ : unit,
+          PreservesSubobjectClassifier.preserves_subobject_classifier
+            f0 (pr111 (pr2 C₁)) (pr111 (pr2 C₂))
+            (pr21 fD))),
+  (<span class="kr">λ</span> (<span class="nv">F</span> : pr1 C₁ ⟶ pr1 C₂)
+   (<span class="nv">pr2</span> : ∑
+          fD : (∑ _ : unit, preserves_terminal F)
+               × (∑ _ : unit, preserves_binproduct F)
+                 × (∑ _ : unit, preserves_pullback F)
+                   × (∑ _ : unit,
+                      preserves_equalizer F),
+          (∑ _ : unit,
+           Exponentials.preserves_exponentials
+             (pr112 (Preamble.pr2 C₁))
+             (pr112 (Preamble.pr2 C₂)) (pr212 fD))
+          × (∑ _ : unit,
+             PreservesSubobjectClassifier.preserves_subobject_classifier
+               F (pr111 (Preamble.pr2 C₁))
+               (pr111 (Preamble.pr2 C₂)) (pr21 fD))),
+   (<span class="kr">λ</span> <span class="nv">pr1</span> : (∑ _ : unit, preserves_terminal F)
+            × (∑ _ : unit, preserves_binproduct F)
+              × (∑ _ : unit, preserves_pullback F)
+                × (∑ _ : unit, preserves_equalizer F),
+    (<span class="kr">λ</span> <span class="nv">pr3</span> : ∑ _ : unit, preserves_terminal F,
+     (<span class="kr">λ</span> (<span class="nv">pr4</span> : unit) (<span class="nv">pt</span> : preserves_terminal F)
+      (<span class="nv">pr5</span> : (∑ _ : unit, preserves_binproduct F)
+             × (∑ _ : unit, preserves_pullback F)
+               × (∑ _ : unit, preserves_equalizer F))
+      (<span class="nv">_</span> : (∑ _ : unit,
+            Exponentials.preserves_exponentials
+              (pr112 (Preamble.pr2 C₁))
+              (pr112 (Preamble.pr2 C₂))
+              (pr212 (...,, pr5)))
+           × (∑ _ : unit,
+              PreservesSubobjectClassifier.preserves_subobject_classifier
+                F (pr111 (Preamble.pr2 C₁))
+                (pr111 (Preamble.pr2 C₂))
+                (pr21 (...,, pr5)))),
+      preserves_parameterized_NNO N₁ N₂ F pt)
+       (Preamble.pr1 pr3) (Preamble.pr2 pr3))
+      (Preamble.pr1 pr1) (Preamble.pr2 pr1)) (pr1 pr2)
+     (Preamble.pr2 pr2)) (pr1 X) (pr2 X))
+ :
+ ∏ x0 y0 : total_bicat disp_bicat_elementarytopoi,
+ (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+  (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+   (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+   (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+    (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+     (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+               (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, Terminal C0) C)
+      (<span class="nv">pr4</span> : disp_sub1cell_bicat (total_bicat (...))
+               (<span class="kr">λ</span> (<span class="nv">x1</span> <span class="nv">y1</span> : ...) (<span class="nv">f0</span> : ...),
+                preserves_terminal ...)
+               (<span class="kr">λ</span> <span class="nv">x1</span> : ...,
+                identity_preserves_terminal ...)
+               (<span class="kr">λ</span> (<span class="nv">x1</span> <span class="nv">y1</span> <span class="nv">z0</span> : ...) (<span class="nv">f0</span> : ...)
+                (<span class="nv">g0</span> : ...) (<span class="nv">Pf</span> : ...) (<span class="nv">Pg</span> : ...),
+                composition_preserves_terminal Pf Pg)
+               (C,, T))
+      (<span class="nv">pr0</span> : disp_dirprod_bicat
+               BinProducts.disp_bicat_binproducts
+               (disp_dirprod_bicat
+                  Pullbacks.disp_bicat_pullbacks
+                  Equalizers.disp_bicat_equalizers) C),
+      (<span class="kr">λ</span> <span class="nv">pr5</span> : BinProducts.disp_bicat_binproducts C,
+       (...) (...) (...)) (Preamble.pr1 pr0)
+        (Preamble.pr2 pr0)) (Preamble.pr1 pr3)
+       (Preamble.pr2 pr3)) (Preamble.pr1 pr1)
+      (Preamble.pr2 pr1)) (pr1 pr2) (Preamble.pr2 pr2))
+    (pr1 X) (pr2 X)) x0
+ → (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+    (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+     (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+     (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+      (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+       (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                 (<span class="kr">λ</span> ..., ...) C)
+        (<span class="nv">pr4</span> : disp_sub1cell_bicat (total_bicat ...)
+                 (<span class="kr">λ</span> ... ..., ...) (<span class="kr">λ</span> ..., ...)
+                 (<span class="kr">λ</span> ... ... ... ... ..., ...) (C,, T))
+        (<span class="nv">pr0</span> : disp_dirprod_bicat
+                 BinProducts.disp_bicat_binproducts
+                 (disp_dirprod_bicat
+                    Pullbacks.disp_bicat_pullbacks
+                    Equalizers.disp_bicat_equalizers)
+                 C),
+        (<span class="kr">λ</span> <span class="nv">pr5</span> : ..., ... ... ...) (Preamble.pr1 pr0)
+          (Preamble.pr2 pr0)) (Preamble.pr1 pr3)
+         (Preamble.pr2 pr3)) (Preamble.pr1 pr1)
+        (Preamble.pr2 pr1)) (pr1 pr2)
+       (Preamble.pr2 pr2)) (pr1 X) (pr2 X)) y0
+   → total_bicat disp_bicat_elementarytopoi ⟦ x0, y0 ⟧
+     → UU) x y Px Py f
+→ ((<span class="kr">λ</span> (<span class="nv">C₁</span>
+       <span class="nv">C₂</span> : ∑ (x0 : category)
+            (d : (∑ _ : Terminal x0, unit)
+                 × (∑ _ : BinProducts x0, unit)
+                   × (∑
+                      _ : Limits.Pullbacks.Pullbacks
+                            x0, unit)
+                     × (∑
+                        _ : Limits.Equalizers.Equalizers
+                              x0, unit)),
+            (∑
+             _ : Exponentials.Exponentials (pr112 d),
+             unit)
+            × (∑
+               _ : SubobjectClassifier.subobject_classifier
+                     (pr11 d), unit))
+    (<span class="nv">N₁</span> : parameterized_NNO (pr111 (pr2 C₁))
+            (pr112 (pr12 C₁)))
+    (<span class="nv">N₂</span> : parameterized_NNO (pr111 (pr2 C₂))
+            (pr112 (pr12 C₂)))
+    (<span class="nv">X</span> : ∑ (f0 : pr1 C₁ ⟶ pr1 C₂)
+         (fD : (∑ _ : unit, preserves_terminal f0)
+               × (∑ _ : unit, preserves_binproduct f0)
+                 × (∑ _ : unit, preserves_pullback f0)
+                   × (∑ _ : unit,
+                      preserves_equalizer f0)),
+         (∑ _ : unit,
+          Exponentials.preserves_exponentials
+            (pr112 (pr2 C₁)) (pr112 (pr2 C₂))
+            (pr212 fD))
+         × (∑ _ : unit,
+            PreservesSubobjectClassifier.preserves_subobject_classifier
+              f0 (pr111 (pr2 C₁)) (pr111 (pr2 C₂))
+              (pr21 fD))),
+    (<span class="kr">λ</span> (<span class="nv">F</span> : pr1 C₁ ⟶ pr1 C₂)
+     (<span class="nv">pr2</span> : ∑
+            fD : (∑ _ : unit, preserves_terminal F)
+                 × (∑ _ : unit, preserves_binproduct F)
+                   × (∑ _ : unit, preserves_pullback F)
+                     × (∑ _ : unit,
+                        preserves_equalizer F),
+            (∑ _ : unit,
+             Exponentials.preserves_exponentials
+               (pr112 (Preamble.pr2 C₁))
+               (pr112 (Preamble.pr2 C₂)) (pr212 fD))
+            × (∑ _ : unit,
+               PreservesSubobjectClassifier.preserves_subobject_classifier
+                 F (pr111 (Preamble.pr2 C₁))
+                 (pr111 (Preamble.pr2 C₂)) (pr21 fD))),
+     (<span class="kr">λ</span> <span class="nv">pr1</span> : (∑ _ : unit, preserves_terminal F)
+              × (∑ _ : unit, preserves_binproduct F)
+                × (∑ _ : unit, preserves_pullback F)
+                  × (∑ _ : unit, preserves_equalizer F),
+      (<span class="kr">λ</span> <span class="nv">pr3</span> : ∑ _ : unit, preserves_terminal F,
+       (<span class="kr">λ</span> (<span class="nv">pr4</span> : unit) (<span class="nv">pt</span> : preserves_terminal F)
+        (<span class="nv">pr5</span> : (∑ _ : unit, preserves_binproduct F)
+               × (∑ _ : unit, preserves_pullback F)
+                 × (∑ _ : unit, preserves_equalizer F))
+        (<span class="nv">_</span> : (∑ _ : unit,
+              Exponentials.preserves_exponentials
+                (pr112 (...)) (pr112 (...))
+                (pr212 (...)))
+             × (∑ _ : unit,
+                PreservesSubobjectClassifier.preserves_subobject_classifier
+                  F (pr111 (...)) (pr111 (...))
+                  (pr21 (...)))),
+        preserves_parameterized_NNO N₁ N₂ F pt)
+         (Preamble.pr1 pr3) (Preamble.pr2 pr3))
+        (Preamble.pr1 pr1) (Preamble.pr2 pr1))
+       (pr1 pr2) (Preamble.pr2 pr2)) (pr1 X) (pr2 X))
+   :
+   ∏ x0 y0 : total_bicat disp_bicat_elementarytopoi,
+   (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+    (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+     (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+     (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+      (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+       (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                 (<span class="kr">λ</span> ..., ...) C)
+        (<span class="nv">pr4</span> : disp_sub1cell_bicat (total_bicat ...)
+                 (<span class="kr">λ</span> ... ..., ...) (<span class="kr">λ</span> ..., ...)
+                 (<span class="kr">λ</span> ... ... ... ... ..., ...) (C,, T))
+        (<span class="nv">pr0</span> : disp_dirprod_bicat
+                 BinProducts.disp_bicat_binproducts
+                 (disp_dirprod_bicat
+                    Pullbacks.disp_bicat_pullbacks
+                    Equalizers.disp_bicat_equalizers)
+                 C),
+        (<span class="kr">λ</span> <span class="nv">pr5</span> : ..., ... ... ...) (Preamble.pr1 pr0)
+          (Preamble.pr2 pr0)) (Preamble.pr1 pr3)
+         (Preamble.pr2 pr3)) (Preamble.pr1 pr1)
+        (Preamble.pr2 pr1)) (pr1 pr2)
+       (Preamble.pr2 pr2)) (pr1 X) (pr2 X)) x0
+   → (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+      (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+       (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+       (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+        (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+         (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats (...)
+                   C)
+          (<span class="nv">pr4</span> : disp_sub1cell_bicat (...) (...) (...)
+                   (...) (...))
+          (<span class="nv">pr0</span> : disp_dirprod_bicat
+                   BinProducts.disp_bicat_binproducts
+                   (...) C),
+          (<span class="kr">λ</span> ..., ...) (Preamble.pr1 pr0)
+            (Preamble.pr2 pr0)) (Preamble.pr1 pr3)
+           (Preamble.pr2 pr3)) (Preamble.pr1 pr1)
+          (Preamble.pr2 pr1)) (pr1 pr2)
+         (Preamble.pr2 pr2)) (pr1 X) (pr2 X)) y0
+     → total_bicat disp_bicat_elementarytopoi ⟦ x0, y0
+       ⟧ → UU) y z Py Pz g
+  → ((<span class="kr">λ</span> (<span class="nv">C₁</span>
+         <span class="nv">C₂</span> : ∑ (x0 : category)
+              (d : (∑ _ : Terminal x0, unit)
+                   × (∑ _ : BinProducts x0, unit)
+                     × (∑
+                        _ : Limits.Pullbacks.Pullbacks
+                              x0, unit)
+                       × (∑
+                          _ : Limits.Equalizers.Equalizers
+                                x0, unit)),
+              (∑
+               _ : Exponentials.Exponentials (pr112 d),
+               unit)
+              × (∑
+                 _ : SubobjectClassifier.subobject_classifier
+                       (pr11 d), unit))
+      (<span class="nv">N₁</span> : parameterized_NNO (pr111 (pr2 C₁))
+              (pr112 (pr12 C₁)))
+      (<span class="nv">N₂</span> : parameterized_NNO (pr111 (pr2 C₂))
+              (pr112 (pr12 C₂)))
+      (<span class="nv">X</span> : ∑ (f0 : pr1 C₁ ⟶ pr1 C₂)
+           (fD : (∑ _ : unit, preserves_terminal f0)
+                 × (∑ _ : unit,
+                    preserves_binproduct f0)
+                   × (∑ _ : unit,
+                      preserves_pullback f0)
+                     × (∑ _ : unit,
+                        preserves_equalizer f0)),
+           (∑ _ : unit,
+            Exponentials.preserves_exponentials
+              (pr112 (pr2 C₁)) (pr112 (pr2 C₂))
+              (pr212 fD))
+           × (∑ _ : unit,
+              PreservesSubobjectClassifier.preserves_subobject_classifier
+                f0 (pr111 (pr2 C₁)) (pr111 (pr2 C₂))
+                (pr21 fD))),
+      (<span class="kr">λ</span> (<span class="nv">F</span> : pr1 C₁ ⟶ pr1 C₂)
+       (<span class="nv">pr2</span> : ∑
+              fD : (∑ _ : unit, preserves_terminal F)
+                   × (∑ _ : unit,
+                      preserves_binproduct F)
+                     × (∑ _ : unit,
+                        preserves_pullback F)
+                       × (∑ _ : unit,
+                          preserves_equalizer F),
+              (∑ _ : unit,
+               Exponentials.preserves_exponentials
+                 (pr112 (Preamble.pr2 C₁))
+                 (pr112 (Preamble.pr2 C₂)) (pr212 fD))
+              × (∑ _ : unit,
+                 PreservesSubobjectClassifier.preserves_subobject_classifier
+                   F (pr111 (Preamble.pr2 C₁))
+                   (pr111 (Preamble.pr2 C₂)) (pr21 fD))),
+       (<span class="kr">λ</span> <span class="nv">pr1</span> : (∑ _ : unit, preserves_terminal F)
+                × (∑ _ : unit, preserves_binproduct F)
+                  × (∑ _ : unit, preserves_pullback F)
+                    × (∑ _ : unit,
+                       preserves_equalizer F),
+        (<span class="kr">λ</span> <span class="nv">pr3</span> : ∑ _ : unit, preserves_terminal F,
+         (<span class="kr">λ</span> (<span class="nv">pr4</span> : unit) (<span class="nv">pt</span> : preserves_terminal F)
+          (<span class="nv">pr5</span> : (∑ _ : unit, preserves_binproduct F)
+                 × (∑ _ : unit, preserves_pullback F)
+                   × (∑ _ : unit,
+                      preserves_equalizer F))
+          (<span class="nv">_</span> : (∑ _ : unit,
+                Exponentials.preserves_exponentials
+                  (pr112 (...)) (pr112 (...))
+                  (pr212 (...)))
+               × (∑ _ : unit,
+                  PreservesSubobjectClassifier.preserves_subobject_classifier
+                    F (pr111 (...)) (pr111 (...))
+                    (pr21 (...)))),
+          preserves_parameterized_NNO N₁ N₂ F pt)
+           (Preamble.pr1 pr3) (Preamble.pr2 pr3))
+          (Preamble.pr1 pr1) (Preamble.pr2 pr1))
+         (pr1 pr2) (Preamble.pr2 pr2)) (pr1 X) (pr2 X))
+     :
+     ∏ x0 y0 : total_bicat disp_bicat_elementarytopoi,
+     (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+      (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+       (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+       (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+        (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+         (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                   (<span class="kr">λ</span> ..., ...) C)
+          (<span class="nv">pr4</span> : disp_sub1cell_bicat (total_bicat ...)
+                   (<span class="kr">λ</span> ... ..., ...) (<span class="kr">λ</span> ..., ...)
+                   (<span class="kr">λ</span> ... ... ... ... ..., ...)
+                   (C,, T))
+          (<span class="nv">pr0</span> : disp_dirprod_bicat
+                   BinProducts.disp_bicat_binproducts
+                   (disp_dirprod_bicat
+                      Pullbacks.disp_bicat_pullbacks
+                      Equalizers.disp_bicat_equalizers)
+                   C),
+          (<span class="kr">λ</span> <span class="nv">pr5</span> : ..., ... ... ...)
+            (Preamble.pr1 pr0) (Preamble.pr2 pr0))
+           (Preamble.pr1 pr3) (Preamble.pr2 pr3))
+          (Preamble.pr1 pr1) (Preamble.pr2 pr1))
+         (pr1 pr2) (Preamble.pr2 pr2)) (pr1 X) (pr2 X))
+       x0
+     → (<span class="kr">λ</span> <span class="nv">X</span> : total_bicat disp_bicat_elementarytopoi,
+        (<span class="kr">λ</span> (<span class="nv">C</span> : bicat_of_cats)
+         (<span class="nv">pr2</span> : disp_bicat_elementarytopoi C),
+         (<span class="kr">λ</span> <span class="nv">pr1</span> : disp_bicat_limits C,
+          (<span class="kr">λ</span> <span class="nv">pr3</span> : Terminal.disp_bicat_terminal C,
+           (<span class="kr">λ</span> (<span class="nv">T</span> : disp_fullsubbicat bicat_of_cats
+                     (...) C)
+            (<span class="nv">pr4</span> : disp_sub1cell_bicat (...) (...)
+                     (...) (...) (...))
+            (<span class="nv">pr0</span> : disp_dirprod_bicat
+                     BinProducts.disp_bicat_binproducts
+                     (...) C),
+            (<span class="kr">λ</span> ..., ...) (Preamble.pr1 pr0)
+              (Preamble.pr2 pr0)) (Preamble.pr1 pr3)
+             (Preamble.pr2 pr3)) (Preamble.pr1 pr1)
+            (Preamble.pr2 pr1)) (pr1 pr2)
+           (Preamble.pr2 pr2)) (pr1 X) (pr2 X)) y0
+       → total_bicat disp_bicat_elementarytopoi ⟦ x0,
+         y0 ⟧ → UU) x z Px Pz (f · g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">p₁</span> <span class="nv">p₂</span>, comp_preserves_parameterized_NNO p₁ p₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk1c"><span class="kn">Definition</span> <span class="nf">disp_bicat_arithmetic_elementarytopoi</span>
+    : disp_bicat bicat_of_cats.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk1d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (sigma_bicat _ _ disp_bicat_arithmetic_elementarytopoi&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk1e"><span class="kn">Lemma</span> <span class="nf">disp_bicat_arithmetic_elementarytopoi&#39;_is_locally_contractible</span>
+    : disp_2cells_iscontr disp_bicat_arithmetic_elementarytopoi&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr
+  disp_bicat_arithmetic_elementarytopoi&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk1f"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr
+  disp_bicat_arithmetic_elementarytopoi&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_subbicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk20"><span class="kn">Lemma</span> <span class="nf">disp_bicat_arithmetic_elementarytopoi_is_locally_contractible</span>
+    : disp_2cells_iscontr disp_bicat_arithmetic_elementarytopoi.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr
+  disp_bicat_arithmetic_elementarytopoi</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk21"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr
+  disp_bicat_arithmetic_elementarytopoi</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk22"><span class="nb">apply</span> disp_2cells_of_sigma_iscontr.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_elementarytopoi</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr
+  disp_bicat_arithmetic_elementarytopoi&#39;</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk23">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_elementarytopoi</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_bicat_elementarytopoi_is_locally_contractible.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="topoi-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="topoi-v-chk24">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr
+  disp_bicat_arithmetic_elementarytopoi&#39;</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_bicat_arithmetic_elementarytopoi&#39;_is_locally_contractible.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">ArithmeticTopoi</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

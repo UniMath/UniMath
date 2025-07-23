@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>FiniteColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**</span>
+<span class="sd">  Bicategories for finite colimits</span>
+
+<span class="sd">  We define the bicategory of finitely cocomplete categories and finite colimit preserving functors.</span>
+<span class="sd">  In particular, we define the bicategories whose objects are categories equipped with colimits for a fixed diagram.</span>
+
+<span class="sd">  Contents.</span>
+<span class="sd">  1. Definition bicategories of categories equipped with</span>
+<span class="sd">     - an initial object [disp_bicat_initial];</span>
+<span class="sd">     - binary coproducts [disp_bicat_bincoproducts];</span>
+<span class="sd">     - and coequalizers respectively [disp_bicat_coequalizers].</span>
+<span class="sd">  2. Definition bicategory of finite cocomplete categories [disp_bicat_colimits]</span>
+
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. Bicategories of categories equipped with a colimit of a fixed diagram *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesWithChosenInitialAndPreservationUpToIso</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk1"><span class="kn">Definition</span> <span class="nf">disp_bicat_initial</span>
+    : disp_bicat bicat_of_cats.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk3">use disp_subbicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats → UU</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : bicat_of_cats,
+<span class="nl">?P₀</span> x → <span class="nl">?P₀</span> y → bicat_of_cats ⟦ x, y ⟧ → UU</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : bicat_of_cats) (Px : <span class="nl">?P₀</span> x),
+<span class="nl">?P₁</span> x x Px Px (id₁ x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : bicat_of_cats) (Px : <span class="nl">?P₀</span> x) (Py : <span class="nl">?P₀</span> y)
+(Pz : <span class="nl">?P₀</span> z) (f : bicat_of_cats ⟦ x, y ⟧)
+(g : bicat_of_cats ⟦ y, z ⟧),
+<span class="nl">?P₁</span> x y Px Py f
+→ <span class="nl">?P₁</span> y z Py Pz g → <span class="nl">?P₁</span> x z Px Pz (f · g)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C</span>, Initial (C : category)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : bicat_of_cats,
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) x
+→ (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) y
+  → bicat_of_cats ⟦ x, y ⟧ → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, preserves_initial F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : bicat_of_cats)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) x),
+(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) C₁)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) C₂)
+ (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧), preserves_initial F)
+  x x Px Px (id₁ x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C</span> <span class="nv">_</span>, identity_preserves_initial _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : bicat_of_cats)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) x)
+(Py : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) y)
+(Pz : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) z)
+(f : bicat_of_cats ⟦ x, y ⟧)
+(g : bicat_of_cats ⟦ y, z ⟧),
+(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) C₁)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category)) C₂)
+ (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧), preserves_initial F)
+  x y Px Py f
+→ (<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+   (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category))
+          C₁)
+   (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category))
+          C₂) (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+   preserves_initial F) y z Py Pz g
+  → (<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+     (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category))
+            C₁)
+     (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Initial (C : category))
+            C₂) (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+     preserves_initial F) x z Px Pz (f · g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span> <span class="nv">HG</span>, composition_preserves_initial HF HG).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk8"><span class="kn">Lemma</span> <span class="nf">disp_2cells_iscontr_initial</span>
+    : disp_2cells_iscontr disp_bicat_initial.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_initial</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_initial</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_subbicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesWithChosenInitialAndPreservationUpToIso</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesWithChosenBinCoproductsAndPreservationUpToIso</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chka"><span class="kn">Definition</span> <span class="nf">disp_bicat_bincoproducts</span>
+    : disp_bicat bicat_of_cats.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chkb"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chkc">use disp_subbicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats → UU</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : bicat_of_cats,
+<span class="nl">?P₀</span> x → <span class="nl">?P₀</span> y → bicat_of_cats ⟦ x, y ⟧ → UU</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : bicat_of_cats) (Px : <span class="nl">?P₀</span> x),
+<span class="nl">?P₁</span> x x Px Px (id₁ x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : bicat_of_cats) (Px : <span class="nl">?P₀</span> x) (Py : <span class="nl">?P₀</span> y)
+(Pz : <span class="nl">?P₀</span> z) (f : bicat_of_cats ⟦ x, y ⟧)
+(g : bicat_of_cats ⟦ y, z ⟧),
+<span class="nl">?P₁</span> x y Px Py f
+→ <span class="nl">?P₁</span> y z Py Pz g → <span class="nl">?P₁</span> x z Px Pz (f · g)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chkd">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C</span>, BinCoproducts C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chke">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : bicat_of_cats,
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) x
+→ (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) y
+  → bicat_of_cats ⟦ x, y ⟧ → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, preserves_bincoproduct F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chkf">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : bicat_of_cats)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) x),
+(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) C₁)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) C₂)
+ (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+ preserves_bincoproduct F) x x Px Px (id₁ x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C</span> <span class="nv">_</span>, identity_preserves_bincoproduct _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk10">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : bicat_of_cats)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) x)
+(Py : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) y)
+(Pz : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) z)
+(f : bicat_of_cats ⟦ x, y ⟧)
+(g : bicat_of_cats ⟦ y, z ⟧),
+(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) C₁)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) C₂)
+ (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+ preserves_bincoproduct F) x y Px Py f
+→ (<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+   (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) C₁)
+   (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) C₂)
+   (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+   preserves_bincoproduct F) y z Py Pz g
+  → (<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+     (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) C₁)
+     (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, BinCoproducts C) C₂)
+     (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+     preserves_bincoproduct F) x z Px Pz (f · g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span> <span class="nv">HG</span>, composition_preserves_bincoproduct HF HG).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk11"><span class="kn">Lemma</span> <span class="nf">disp_2cells_iscontr_bincoproducts</span>
+    : disp_2cells_iscontr disp_bicat_bincoproducts.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_bincoproducts</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk12"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_bincoproducts</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_subbicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesWithChosenBinCoproductsAndPreservationUpToIso</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesWithChosenCoequalizersAndPreservationUpToIso</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk13"><span class="kn">Definition</span> <span class="nf">disp_bicat_coequalizers</span>
+    : disp_bicat bicat_of_cats.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk14"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_bicat bicat_of_cats</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk15">use disp_subbicat.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats → UU</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : bicat_of_cats,
+<span class="nl">?P₀</span> x → <span class="nl">?P₀</span> y → bicat_of_cats ⟦ x, y ⟧ → UU</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : bicat_of_cats) (Px : <span class="nl">?P₀</span> x),
+<span class="nl">?P₁</span> x x Px Px (id₁ x)</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : bicat_of_cats) (Px : <span class="nl">?P₀</span> x) (Py : <span class="nl">?P₀</span> y)
+(Pz : <span class="nl">?P₀</span> z) (f : bicat_of_cats ⟦ x, y ⟧)
+(g : bicat_of_cats ⟦ y, z ⟧),
+<span class="nl">?P₁</span> x y Px Py f
+→ <span class="nl">?P₁</span> y z Py Pz g → <span class="nl">?P₁</span> x z Px Pz (f · g)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk16">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">bicat_of_cats → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C</span>, Coequalizers (C : category)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk17">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x y : bicat_of_cats,
+(<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Coequalizers (C : category)) x
+→ (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Coequalizers (C : category)) y
+  → bicat_of_cats ⟦ x, y ⟧ → UU</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, preserves_coequalizer F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk18">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x : bicat_of_cats)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+       Coequalizers (C : category)) x),
+(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+       Coequalizers (C : category)) C₁)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+       Coequalizers (C : category)) C₂)
+ (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+ preserves_coequalizer F) x x Px Px (id₁ x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">C</span> <span class="nv">_</span>, identity_preserves_coequalizer _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk19">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (x y z : bicat_of_cats)
+(Px : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+       Coequalizers (C : category)) x)
+(Py : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+       Coequalizers (C : category)) y)
+(Pz : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+       Coequalizers (C : category)) z)
+(f : bicat_of_cats ⟦ x, y ⟧)
+(g : bicat_of_cats ⟦ y, z ⟧),
+(<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+       Coequalizers (C : category)) C₁)
+ (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+       Coequalizers (C : category)) C₂)
+ (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+ preserves_coequalizer F) x y Px Py f
+→ (<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+   (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+         Coequalizers (C : category)) C₁)
+   (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+         Coequalizers (C : category)) C₂)
+   (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+   preserves_coequalizer F) y z Py Pz g
+  → (<span class="kr">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_cats)
+     (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+           Coequalizers (C : category)) C₁)
+     (<span class="nv">_</span> : (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+           Coequalizers (C : category)) C₂)
+     (<span class="nv">F</span> : bicat_of_cats ⟦ C₁, C₂ ⟧),
+     preserves_coequalizer F) x z Px Pz (f · g)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (<span class="kr">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span> <span class="nv">HG</span>, composition_preserves_coequalizer HF HG).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk1a"><span class="kn">Lemma</span> <span class="nf">disp_2cells_iscontr_coequalizers</span>
+    : disp_2cells_iscontr disp_bicat_coequalizers.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_coequalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk1b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_coequalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> disp_2cells_iscontr_subbicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesWithChosenCoequalizersAndPreservationUpToIso</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Bicategory of finitely cocomplete categories *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesWithChosenFiniteColimitsAndPreservationUpToIso</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">disp_bicat_colimits</span> : disp_bicat bicat_of_cats
+    := disp_dirprod_bicat
+         disp_bicat_initial
+         (disp_dirprod_bicat
+            disp_bicat_bincoproducts
+            disp_bicat_coequalizers).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk1c"><span class="kn">Lemma</span> <span class="nf">disp_2cells_iscontr_colimits</span>
+    : disp_2cells_iscontr disp_bicat_colimits.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_colimits</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="finitecolimits-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="finitecolimits-v-chk1d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_colimits</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">repeat</span> <span class="nb">apply</span> disp_2cells_of_dirprod_iscontr ; <span class="nb">apply</span> disp_2cells_iscontr_subbicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesWithChosenFiniteColimitsAndPreservationUpToIso</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Biequiv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> The biequivalence between categories with finite limits and comprehension categories</span>
+
+<span class="sd"> In this file, we conclude the construction of the biequivalence between the bicategory of</span>
+<span class="sd"> univalent categories with finite limits and the bicategory of DFL comprehension categories.</span>
+<span class="sd"> This corresponds to the first part of Theorem 6.1 in the paper &quot;The biequivalence of locally</span>
+<span class="sd"> cartesian closed categories and Martin-Löf type theories&quot; by Clairambault and Dybjer.</span>
+
+<span class="sd"> In the file on DFL comprehension categories, we already mentioned some differences between</span>
+<span class="sd"> our construction and theirs. However, these only concered the fact that Clairambault and Dybjer</span>
+<span class="sd"> considered categories with families, whereas we consider comprehension categories, and the fact</span>
+<span class="sd"> that we consider univalent categories. There is one more difference to notice. Clairambault</span>
+<span class="sd"> and Dybjer construct the inverse pseudonatural transformations and the modifications explicitly,</span>
+<span class="sd"> whereas we use the fact that a pseudotransformation is an adjoint equivalence if it is a</span>
+<span class="sd"> pointwise adjoint equivalence. This simplifies the construction, because we only have to</span>
+<span class="sd"> construct two pseudotransformations and we don&#39;t have to construct any invertible modification.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - &quot;The biequivalence of locally cartesian closed categories and Martin-Löf type theories&quot; by</span>
+<span class="sd">   Clairambault and Dybjer</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequiv-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="biequiv-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> DispBicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Unit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_biequivalence_unit_counit</span>
+  : is_biequivalence_unit_counit
+      finlim_to_dfl_comp_cat_psfunctor
+      dfl_comp_cat_to_finlim_psfunctor
+  := finlim_dfl_comp_cat_unit
+     ,,
+     finlim_dfl_comp_cat_counit_inv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequiv-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="biequiv-v-chk1"><span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_biequivalence_adjoints</span>
+  : is_biequivalence_adjoints finlim_dfl_comp_cat_biequivalence_unit_counit.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biequivalence_adjoints
+  finlim_dfl_comp_cat_biequivalence_unit_counit</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequiv-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="biequiv-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biequivalence_adjoints
+  finlim_dfl_comp_cat_biequivalence_unit_counit</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequiv-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="biequiv-v-chk3"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (unit_of_is_biequivalence
+     finlim_dfl_comp_cat_biequivalence_unit_counit)</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     finlim_dfl_comp_cat_biequivalence_unit_counit)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequiv-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="biequiv-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (unit_of_is_biequivalence
+     finlim_dfl_comp_cat_biequivalence_unit_counit)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> finlim_dfl_comp_cat_unit_left_adjoint_equivalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="biequiv-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="biequiv-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence
+  (counit_of_is_biequivalence
+     finlim_dfl_comp_cat_biequivalence_unit_counit)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> inv_left_adjoint_equivalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_biequivalence_finlim_to_dfl_comp_cat_psfunctor</span>
+  : is_biequivalence finlim_to_dfl_comp_cat_psfunctor
+  := dfl_comp_cat_to_finlim_psfunctor
+     ,,
+     finlim_dfl_comp_cat_biequivalence_unit_counit
+     ,,
+     finlim_dfl_comp_cat_biequivalence_adjoints.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">finlim_biequiv_dfl_comp_cat_psfunctor</span>
+  : biequivalence
+      bicat_of_univ_cat_with_finlim
+      bicat_of_dfl_full_comp_cat
+  := finlim_to_dfl_comp_cat_psfunctor
+     ,,
+     is_biequivalence_finlim_to_dfl_comp_cat_psfunctor.</span></span></pre>
+</div>
+</div></body>
+</html>
