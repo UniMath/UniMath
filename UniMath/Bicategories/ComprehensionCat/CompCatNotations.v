@@ -385,6 +385,19 @@ Proof.
          apply homset_property).
 Defined.
 
+Definition subst_ty_coe
+           {C : comp_cat}
+           {Γ Δ Δ' : C}
+           (s : Γ --> Δ)
+           {A : ty Δ}
+           {B : ty Δ'}
+           (f : z_iso Δ Δ')
+           (ff : z_iso_disp f A B)
+  : A [[ s ]] <: B [[ s · f ]].
+Proof.
+  exact (subst_ty_iso s f ff : _ -->[ _ ] _).
+Defined.
+
 (** * 2. Terms in comprehension categories *)
 Definition comp_cat_tm
            {C : comp_cat}

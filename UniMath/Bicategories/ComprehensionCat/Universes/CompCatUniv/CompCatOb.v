@@ -716,6 +716,29 @@ Definition ob_of_functor_comp_cat_ob
       (ob_of_comp_cat_ob C₂)
   := pr2 F.
 
+Lemma functor_comp_cat_on_univ_z_iso_eq
+      {C₁ C₂ : comp_cat_with_ob}
+      (F : comp_cat_functor_ob C₁ C₂)
+      (Γ : C₁)
+  : identity (F Γ) · (identity (F Γ) · identity (F Γ))
+    =
+    identity (F Γ).
+Proof.
+  rewrite !id_left.
+  apply idpath.
+Qed.
+
+Lemma functor_comp_cat_on_univ_z_iso_terminal_eq
+      {C₁ C₂ : comp_cat_with_ob}
+      (F : comp_cat_functor_ob C₁ C₂)
+      (Γ : C₁)
+  : # F (TerminalArrow [] Γ) · comp_cat_functor_empty_context_z_iso F
+    =
+    TerminalArrow [] (F Γ).
+Proof.
+  apply TerminalArrowEq.
+Qed.
+
 Definition functor_comp_cat_on_univ_z_iso
            {C₁ C₂ : comp_cat_with_ob}
            (F : comp_cat_functor_ob C₁ C₂)
@@ -738,13 +761,8 @@ Proof.
                   (subst_ty_eq_disp_iso
                      _
                      _)))).
-  - abstract
-      (cbn ;
-       rewrite !id_left ;
-       apply idpath).
-  - abstract
-      (cbn ;
-       apply TerminalArrowEq).
+  - apply functor_comp_cat_on_univ_z_iso_eq.
+  - apply functor_comp_cat_on_univ_z_iso_terminal_eq.
 Defined.
 
 Definition functor_comp_cat_on_univ

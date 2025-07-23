@@ -139,6 +139,20 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition cat_el_map_el_eq_inv
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_el_map C)
+            {Γ : C}
+            {t t' : Γ --> univ_cat_universe C}
+            (p : t = t')
+  : inv_from_z_iso (cat_el_map_el_eq el p)
+    =
+    cat_el_map_el_eq el (!p).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
 Proposition cat_el_map_el_eq_comp
             {C : univ_cat_with_finlim_ob}
             (el : cat_el_map C)
