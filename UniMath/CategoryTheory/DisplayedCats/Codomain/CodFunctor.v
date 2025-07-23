@@ -89,6 +89,16 @@ Proof.
   - exact (disp_codomain_functor_axioms F).
 Defined.
 
+Definition codomain_functor
+  {C₁ C₂ : category}
+  (F : C₁ ⟶ C₂)
+  (x : C₁)
+  : (C₁ / x) ⟶ (C₂ / F x).
+Proof.
+  use fiber_functor.
+  use disp_codomain_functor.
+Defined.
+
 Proposition disp_codomain_fiber_functor_mor
             {C₁ C₂ : category}
             (F : C₁ ⟶ C₂)
