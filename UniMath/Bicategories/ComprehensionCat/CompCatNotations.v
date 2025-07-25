@@ -144,6 +144,14 @@ Definition comp_cat_comp_z_iso
   := from_z_iso_disp_codomain
        (disp_functor_on_z_iso_disp (comp_cat_comprehension C) s).
 
+Definition comp_cat_comp_fiber_z_iso
+           {C : comp_cat}
+           {Γ : C}
+           {A B : ty Γ}
+           (s : z_iso (C := fiber_category _ _) A B)
+  : z_iso (Γ & A) (Γ & B)
+  := comp_cat_comp_z_iso (z_iso_disp_from_z_iso_fiber _ _ _ _ s).
+
 Definition subst_ty
            {C : comp_cat}
            {Γ Δ : C}

@@ -153,7 +153,7 @@ Proposition comp_cat_functor_preserves_univ_type_el_mor_two_comp
          (comp_comp_cat_functor_preserves_univ_type Fu Gu)
          Hu)
       t
-    · comp_cat_univ_el_on_eq
+    · comp_cat_el_map_on_eq
         u₄
         (comp_cat_functor_preserves_univ_type_el_mor_two_comp_eq F G H t).
 Proof.
@@ -921,9 +921,9 @@ Proof.
     {
       apply maponpaths.
       refine (!_).
-      apply comp_cat_univ_el_on_concat.
+      apply comp_cat_el_map_on_concat.
     }
-    refine (!(comp_cat_univ_el_on_concat _ _ _) @ _).
+    refine (!(comp_cat_el_map_on_concat _ _ _) @ _).
     apply eq_comp_cat_el_map_on_eq.
   - exact is_univalent_2_1_bicat_comp_cat_with_ob.
 Qed.
@@ -944,13 +944,13 @@ Proof.
     use comp_cat_functor_preserves_univ_type_eq.
     intros Γ t.
     pose (p := maponpaths
-                 (λ z, z · comp_cat_univ_el_on_eq
+                 (λ z, z · comp_cat_el_map_on_eq
                              u₂
                              (!(comp_cat_nat_trans_preserves_univ_type_path (id₂ F) t)))
                  (pr1 τu Γ t)).
     rewrite !assoc' in p.
-    rewrite <- comp_cat_univ_el_on_concat in p.
-    rewrite comp_cat_univ_el_on_idpath in p.
+    rewrite <- comp_cat_el_map_on_concat in p.
+    rewrite comp_cat_el_map_on_idpath in p.
     rewrite id_right in p.
     refine (p @ _) ; clear p.
     etrans.
@@ -976,9 +976,9 @@ Proof.
     {
       apply maponpaths.
       refine (!_).
-      apply comp_cat_univ_el_on_concat.
+      apply comp_cat_el_map_on_concat.
     }
-    rewrite comp_cat_univ_el_on_idpath.
+    rewrite comp_cat_el_map_on_idpath.
     apply id_right.
   - apply isaset_comp_cat_functor_preserves_univ_type.
   - use isaproptotal2.

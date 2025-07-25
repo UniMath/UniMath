@@ -420,88 +420,6 @@ Proof.
   apply idpath.
 Qed.
 
-Definition comp_cat_univ_el_on_eq_z_iso
-           {C : comp_cat_with_ob}
-           (el : comp_cat_univ_type C)
-           {Γ : C}
-           {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
-           (p : t₁ = t₂)
-  : z_iso
-      (C := fiber_category _ _)
-      (comp_cat_univ_el el t₁)
-      (comp_cat_univ_el el t₂).
-Proof.
-  induction p.
-  apply identity_z_iso.
-Defined.
-
-Definition comp_cat_univ_el_on_eq
-           {C : comp_cat_with_ob}
-           (el : comp_cat_univ_type C)
-           {Γ : C}
-           {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
-           (p : t₁ = t₂)
-  : comp_cat_univ_el el t₁ <: comp_cat_univ_el el t₂
-  := (comp_cat_univ_el_on_eq_z_iso el p : _ --> _).
-
-Definition comp_cat_univ_el_on_eq_inv
-           {C : comp_cat_with_ob}
-           (el : comp_cat_univ_type C)
-           {Γ : C}
-           {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
-           (p : t₁ = t₂)
-  : comp_cat_univ_el el t₂ <: comp_cat_univ_el el t₁
-  := inv_from_z_iso (comp_cat_univ_el_on_eq_z_iso el p).
-
-Proposition comp_cat_univ_el_on_idpath
-            {C : comp_cat_with_ob}
-            (el : comp_cat_univ_type C)
-            {Γ : C}
-            {t : tm Γ (comp_cat_univ Γ)}
-            (p : t = t)
-  : comp_cat_univ_el_on_eq el p = identity _.
-Proof.
-  assert (p = idpath _) as ->.
-  {
-    apply isaset_comp_cat_tm.
-  }
-  apply idpath.
-Qed.
-
-Proposition comp_cat_univ_el_on_inv
-            {C : comp_cat_with_ob}
-            (el : comp_cat_univ_type C)
-            {Γ : C}
-            {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
-            (p : t₁ = t₂)
-  : comp_cat_univ_el_on_eq el (!p)
-    =
-    comp_cat_univ_el_on_eq_inv el p.
-Proof.
-  induction p ; cbn.
-  apply idpath.
-Qed.
-
-Proposition comp_cat_univ_el_on_concat
-            {C : comp_cat_with_ob}
-            (el : comp_cat_univ_type C)
-            {Γ : C}
-            {t₁ t₂ t₃ : tm Γ (comp_cat_univ Γ)}
-            (p : t₁ = t₂)
-            (q : t₂ = t₃)
-  : comp_cat_univ_el_on_eq el (p @ q)
-    =
-    comp_cat_univ_el_on_eq el p · comp_cat_univ_el_on_eq el q.
-Proof.
-  induction p, q ; cbn.
-  rewrite id_left_disp.
-  unfold transportb.
-  rewrite transport_f_f.
-  refine (!_).
-  apply transportf_set.
-  apply homset_property.
-Qed.
-
 Proposition comp_cat_univ_el_stable_id_coh
             {C : comp_cat_with_ob}
             (el : comp_cat_univ_type C)
@@ -535,6 +453,30 @@ Proof.
   apply id_left.
 Qed.
 
+Proposition comp_cat_univ_el_stable_id_coh_inv
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ : C}
+            (t : comp_cat_tm Γ (comp_cat_univ Γ))
+  : inv_from_z_iso (comp_cat_univ_el_stable el (identity Γ) t)
+    =
+    comp_cat_el_map_on_eq el (!(comp_cat_univ_id_coherence t))
+    · id_subst_ty _.
+Proof.
+  refine (!(id_left _) @ _).
+  refine (!_).
+  use z_iso_inv_on_left.
+  rewrite assoc'.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    exact (comp_cat_univ_el_stable_id_coh el t).
+  }
+  rewrite <- comp_cat_el_map_on_concat.
+  apply comp_cat_el_map_on_idpath.
+Qed.
+
 Proposition comp_cat_univ_el_stable_comp_coh
             {C : comp_cat_with_ob}
             (el : comp_cat_univ_type C)
@@ -549,6 +491,47 @@ Proposition comp_cat_univ_el_stable_comp_coh
     · comp_cat_el_map_on_eq el (comp_cat_univ_comp_coherence s₁ s₂ t).
 Proof.
   exact (pr22 el Γ₁ Γ₂ Γ₃ s₁ s₂ t).
+Qed.
+
+Proposition comp_cat_univ_el_stable_comp_coh_inv
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ₁ Γ₂ Γ₃ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (t : comp_cat_tm Γ₃ (comp_cat_univ Γ₃))
+  : inv_from_z_iso (comp_cat_univ_el_stable el (s₁ · s₂) t)
+    =
+    comp_cat_el_map_on_eq el (!(comp_cat_univ_comp_coherence s₁ s₂ t))
+    · inv_from_z_iso (comp_cat_univ_el_stable el s₁ _)
+    · coerce_subst_ty s₁ (inv_from_z_iso (comp_cat_univ_el_stable el s₂ t))
+    · comp_subst_ty _ _ _.
+Proof.
+  refine (!(id_left _) @ _).
+  refine (!_).
+  use z_iso_inv_on_left.
+  rewrite !assoc'.
+  refine (!_).
+  rewrite comp_cat_univ_el_stable_comp_coh.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- comp_coerce_subst_ty.
+    rewrite z_iso_after_z_iso_inv.
+    rewrite id_coerce_subst_ty.
+    apply id_left.
+  }
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite z_iso_after_z_iso_inv.
+    apply id_left.
+  }
+  rewrite <- comp_cat_el_map_on_concat.
+  apply comp_cat_el_map_on_idpath.
 Qed.
 
 (** * 6. Proving that two universe types are equal *)
@@ -1527,7 +1510,7 @@ Definition comp_cat_nat_trans_preserves_univ_type
   := ∏ (Γ : C₁)
        (t : tm Γ (comp_cat_univ Γ)),
      comp_cat_functor_preserves_univ_type_el_mor Fi t
-     · comp_cat_univ_el_on_eq el₂ (comp_cat_nat_trans_preserves_univ_type_path τ t)
+     · comp_cat_el_map_on_eq el₂ (comp_cat_nat_trans_preserves_univ_type_path τ t)
      =
      comp_cat_type_fib_nat_trans τ _
      · coerce_subst_ty _ (comp_cat_functor_preserves_univ_type_el_mor Gi t)
@@ -1549,7 +1532,7 @@ Proposition comp_cat_nat_trans_preserves_univ_type_alt
     comp_cat_type_fib_nat_trans τ _
     · coerce_subst_ty _ (comp_cat_functor_preserves_univ_type_el_mor Gi t)
     · comp_cat_univ_el_stable el₂ (τ Γ) _
-    · comp_cat_univ_el_on_eq el₂ (!(comp_cat_nat_trans_preserves_univ_type_path τ t)).
+    · comp_cat_el_map_on_eq el₂ (!(comp_cat_nat_trans_preserves_univ_type_path τ t)).
 Proof.
   refine (!_).
   etrans.
@@ -1559,8 +1542,8 @@ Proof.
     apply τi.
   }
   rewrite !assoc'.
-  rewrite <- comp_cat_univ_el_on_concat.
-  rewrite comp_cat_univ_el_on_idpath.
+  rewrite <- comp_cat_el_map_on_concat.
+  rewrite comp_cat_el_map_on_idpath.
   apply id_right.
 Qed.
 
