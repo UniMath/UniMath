@@ -356,37 +356,37 @@ jobs:
   #        path: alectryon-cache
   #        key: UniMath-alectryon-${{ github.run_id }}-${{ github.run_number }}
 
-  #assemble-site:
-  #  name: Assemble the site
-  #  if: github.ref == 'refs/heads/master'
-  #  needs: [rocqdoc, alectryon]
-  #  permissions:
-  #    contents: write
-  #  runs-on: ubuntu-22.04
-  #  steps:
-  #    - uses: actions/checkout@v4
+  assemble-site:
+    name: Assemble the site
+    if: github.ref == 'refs/heads/master'
+    needs: [rocqdoc, alectryon]
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
 
-  #    - name: Create the site directory
-  #      run: mkdir site && mkdir site/gen
+      - name: Create the site directory
+        run: mkdir site && mkdir site/gen
 
-  #    - name: Copy markdown files
-  #      run: cp _config.yml site; find . -name "*.md" -exec cp --parents {} site \;
+      - name: Copy markdown files
+        run: cp _config.yml site; find . -name "*.md" -exec cp --parents {} site \;
 
-  #    - name: Download the rocqdoc documentation
-  #      uses: actions/download-artifact@v4
-  #      with:
-  #        name: rocqdoc
-  #        path: site/gen/rocqdoc
+      - name: Download the rocqdoc documentation
+        uses: actions/download-artifact@v4
+        with:
+          name: rocqdoc
+          path: site/gen/rocqdoc
 
-  #    - name: Download the alectryon documentation
-  #      uses: actions/download-artifact@v4
-  #      with:
-  #        name: alectryon
-  #        path: site/gen/alectryon
+      - name: Download the alectryon documentation
+        uses: actions/download-artifact@v4
+        with:
+          name: alectryon
+          path: site/gen/alectryon
 
-  #    - name: Push to the pages branch
-  #      uses: JamesIves/github-pages-deploy-action@v4
-  #      with:
-  #        branch: gh-pages
-  #        folder: site
-  #        single-commit: true
+      - name: Push to the pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: site
+          single-commit: true
