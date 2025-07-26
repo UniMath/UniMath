@@ -359,7 +359,8 @@ jobs:
   assemble-site:
     name: Assemble the site
     if: github.ref == 'refs/heads/master'
-    needs: [rocqdoc, alectryon]
+    #needs: [rocqdoc, alectryon]
+    needs: [rocqdoc]
     permissions:
       contents: write
     runs-on: ubuntu-22.04
@@ -378,11 +379,11 @@ jobs:
           name: rocqdoc
           path: site/gen/rocqdoc
 
-      - name: Download the alectryon documentation
-        uses: actions/download-artifact@v4
-        with:
-          name: alectryon
-          path: site/gen/alectryon
+      #- name: Download the alectryon documentation
+      #  uses: actions/download-artifact@v4
+      #  with:
+      #    name: alectryon
+      #    path: site/gen/alectryon
 
       - name: Push to the pages branch
         uses: JamesIves/github-pages-deploy-action@v4
