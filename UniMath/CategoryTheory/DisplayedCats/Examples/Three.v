@@ -1,3 +1,8 @@
+(*
+Definition of the "three category" of a category C, i.e.
+the category of diagrams of shape A --> B --> C
+*)
+
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -291,7 +296,6 @@ Defined.
 Definition three_isColimCocone : isColimCocone d three_colimit three_cocone.
 Proof.
   intros c cc.
-
   transparent assert (ccbase : (cocone dbase (three_mor02 c))).
   {
     exists (λ v, pr1 (coconeIn cc v)).
