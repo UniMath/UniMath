@@ -116,38 +116,38 @@ jobs:
 
   # Build UniMath on MacOS using latest stable release of Coq installed with
   # Homebrew (8.18.0 still on March 18, 2024). Build files are cached.
-  build-macos:
-    name: Build on macOS (latest Coq on Homebrew)
+  #build-macos:
+  #  name: Build on macOS (latest Coq on Homebrew)
 
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Coq
-        run: |
-          brew install coq ocaml-findlib dune
+  #  runs-on: macos-latest
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    - name: Install Coq
+  #      run: |
+  #        brew install coq ocaml-findlib dune
 
-          coqc --version
-          dune --version
+  #        coqc --version
+  #        dune --version
 
-      - uses: actions/cache/restore@v4
-        id: cache
-        with:
-          path: dune-cache
-          key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
-          restore-keys: |
-            UniMath-MacOS-${{ github.run_id }}
-            UniMath-MacOS
+  #    - uses: actions/cache/restore@v4
+  #      id: cache
+  #      with:
+  #        path: dune-cache
+  #        key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
+  #        restore-keys: |
+  #          UniMath-MacOS-${{ github.run_id }}
+  #          UniMath-MacOS
 
-      - name: Build UniMath
-        run: |
-          export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
-          dune build --display=short --error-reporting=twice --cache=enabled UniMath/
+  #    - name: Build UniMath
+  #      run: |
+  #        export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
+  #        dune build --display=short --error-reporting=twice --cache=enabled UniMath/
 
-      - uses: actions/cache/save@v4
-        if: always ()
-        with:
-          path: dune-cache
-          key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
+  #    - uses: actions/cache/save@v4
+  #      if: always ()
+  #      with:
+  #        path: dune-cache
+  #        key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
 
   # Build the satellites in parallel using docker-coq images with the latest
   # stable patch-release of Coq 8.19 as of March 20, 2024

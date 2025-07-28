@@ -35,6 +35,7 @@
  6. Proving that two universe types are equal
  7. Preservation of universes by functors
  8. Preservation of universes by identity and composition
+ 9. Preservation by natural transformations
 
                                                                                             *)
 Require Import UniMath.MoreFoundations.All.
@@ -1473,7 +1474,7 @@ Proof.
   apply eq_comp_comp_cat_functor_preserves_el.
 Qed.
 
-(** * 10. Preservation by natural transformations *)
+(** * 9. Preservation by natural transformations *)
 Proposition comp_cat_nat_trans_preserves_univ_type_path
             {C₁ C₂ : comp_cat_with_ob}
             {F G : comp_cat_functor_ob C₁ C₂}

@@ -51,6 +51,7 @@
  7. The bicategory of comprehension categories with a universe
  8. The bicategory of full comprehension categories with a universe
  9. The bicategory of DFL full comprehension categories with a universe
+ 10. Adjoint equivalence between categories with finite limits and a universe
 
                                                                                             *)
 Require Import UniMath.MoreFoundations.All.
@@ -1930,7 +1931,7 @@ Proof.
   exact disp_locally_groupoid_disp_bicat_full_comp_cat_with_univ.
 Qed.
 
-(** * 6. Adjoint equivalence between categories with finite limits and a universe *)
+(** * 10. Adjoint equivalence between categories with finite limits and a universe *)
 Definition disp_left_adjoint_equivalence_finlim_universe
            {C₁ C₂ : bicat_of_dfl_full_comp_cat}
            {u₁ : disp_bicat_dfl_full_comp_cat_with_univ C₁}
