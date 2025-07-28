@@ -655,6 +655,37 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition functor_el_map_iso_eq_alt
+            {C₁ C₂ : univ_cat_with_finlim_ob}
+            {el₁ : cat_el_map C₁}
+            {el₂ : cat_el_map C₂}
+            {F : functor_finlim_ob C₁ C₂}
+            (Fel : functor_el_map el₁ el₂ F)
+            {Γ : C₁}
+            {t₁ t₂ : Γ --> univ_cat_universe C₁}
+            (p : t₁ = t₂)
+  : #F (cat_el_map_el_eq el₁ p)
+    · pr1 (functor_el_map_iso Fel t₂)
+    =
+    functor_el_map_iso Fel t₁
+    · (cat_el_map_el_eq el₂ (functor_el_map_iso_eq_path F p)).
+Proof.
+  etrans.
+  {
+    apply maponpaths.
+    exact (functor_el_map_iso_eq Fel p).
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (_ @ id_left _).
+  apply maponpaths_2.
+  rewrite <- functor_id.
+  rewrite <- functor_comp.
+  apply maponpaths.
+  rewrite cat_el_map_el_eq_comp.
+  apply cat_el_map_el_eq_id.
+Qed.
+
 Proposition functor_on_cat_el_map_el_eq
             {C₁ C₂ : univ_cat_with_finlim_ob}
             {el₁ : cat_el_map C₁}
