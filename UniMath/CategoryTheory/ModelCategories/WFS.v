@@ -518,7 +518,9 @@ Defined.
 
 (* https://ncatlab.org/nlab/show/weak+factorization+system#ClosuredPropertiesOfWeakFactorizationSystem *)
 (* map between coproducts is in L if all arrows between objects in coproduct are *)
-Lemma wfs_closed_coproducts {I : hSet} {M : category} (w : wfs M)
+Lemma wfs_closed_coproducts
+    (aoc : AxiomOfChoice)
+    {I : hSet} {M : category} (w : wfs M)
     {a b : I -> M} {f : ∏ (i : I), a i --> b i} (hf : ∀ (i : I), (wfs_L w _ _) (f i))
     (CCa : Coproduct _ _ a) (CCb : Coproduct _ _ b) :
   (wfs_L w _ _) (CoproductOfArrows _ _ CCa CCb f).
@@ -550,7 +552,6 @@ Proof.
 
   (* we need the axiom of choice here
      it is basically exactly the definition of the axiom of choice *)
-  assert (aoc : AxiomOfChoice). admit.
   assert (∥∏ i, ∑ li, (li ∘ (f i) = hi i) × (g ∘ li = ki i)∥) as ilift_aoc.
   {
     set (aocI := aoc I).
@@ -622,16 +623,18 @@ Proof.
     change (CoproductIn _ _ _ _ · k) with (ki i).
     rewrite (hl i).
     exact klicomm.
-Admitted.
+Qed.
 
 (* Dual statement *)
-Lemma wfs_closed_products {I : hSet} {M : category} (w : wfs M)
+Lemma wfs_closed_products
+    (aoc : AxiomOfChoice)
+    {I : hSet} {M : category} (w : wfs M)
     {a b : I -> M} {f : ∏ (i : I), b i --> a i} (hf : ∀ (i : I), (wfs_R w _ _) (f i))
     (CCa : Product _ _ a) (CCb : Product _ _ b) :
   (wfs_R w _ _) (ProductOfArrows _ _ CCa CCb f).
 Proof.
   (* again superpowers by Coq *)
-  apply (wfs_closed_coproducts (opp_wfs w)).
+  apply (wfs_closed_coproducts aoc (opp_wfs w)).
   exact hf.
 Defined.
 
