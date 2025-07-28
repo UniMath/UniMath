@@ -1932,7 +1932,7 @@ Proof.
 Qed.
 
 (** * 10. Adjoint equivalence between categories with finite limits and a universe *)
-Definition disp_left_adjoint_equivalence_finlim_universe
+Definition disp_left_adjoint_equivalence_comp_cat_universe_help
            {C₁ C₂ : bicat_of_dfl_full_comp_cat}
            {u₁ : disp_bicat_dfl_full_comp_cat_with_univ C₁}
            {u₂ : disp_bicat_dfl_full_comp_cat_with_univ C₂}
@@ -1956,4 +1956,16 @@ Proof.
   - exact disp_locally_groupoid_disp_bicat_comp_cat_ob_univ.
   - apply to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id.
   - apply disp_bicat_comp_cat_ob_univ_adj_equiv_over_adjequiv.
+Defined.
+
+Definition disp_left_adjoint_equivalence_comp_cat_universe
+           {C₁ C₂ : bicat_of_dfl_full_comp_cat}
+           {u₁ : disp_bicat_dfl_full_comp_cat_with_univ C₁}
+           {u₂ : disp_bicat_dfl_full_comp_cat_with_univ C₂}
+           {F : C₁ --> C₂}
+           (HF : left_adjoint_equivalence F)
+           (Fu : u₁ -->[ F ] u₂)
+  : disp_left_adjoint_equivalence HF Fu.
+Proof.
+  exact (disp_left_adjoint_equivalence_comp_cat_universe_help (F := F ,, HF) Fu).
 Defined.
