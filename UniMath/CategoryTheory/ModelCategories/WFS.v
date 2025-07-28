@@ -1,5 +1,4 @@
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
