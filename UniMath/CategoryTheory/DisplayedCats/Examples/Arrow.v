@@ -1,3 +1,7 @@
+(*
+Definition of the arrow category given a category C
+*)
+
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -9,7 +13,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
-
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
@@ -57,6 +60,17 @@ Definition arrow_mor00 {C : category} {f g : arrow C} (F : f --> g) := pr11 F.
 Definition arrow_mor11 {C : category} {f g : arrow C} (F : f --> g) := pr21 F.
 Definition arrow_mor_comm {C : category} {f g : arrow C} (F : f --> g) := pr2 F.
 
+#[reversible] Coercion mor_to_arrow_ob {C : category} {x y : C} (f : x --> y) : arrow C :=
+    (make_dirprod x y,, f).
+
+Definition mors_to_arrow_mor {C : category} {a b x y : C} (f : a --> b) (g : x --> y)
+    (h : a --> x) (k : b --> y) (H : g ∘ h = k ∘ f) : (mor_to_arrow_ob f) --> (mor_to_arrow_ob g).
+Proof.
+  use tpair.
+  - exact (make_dirprod h k).
+  - exact H.
+Defined.
+
 Lemma arrow_mor_eq {C : category} {f g : arrow C}
     (γ γ' : f --> g)
     (H00 : arrow_mor00 γ = arrow_mor00 γ')
@@ -66,17 +80,6 @@ Proof.
   apply subtypePath; [intro; apply homset_property|].
   apply pathsdirprod; assumption.
 Qed.
-
-#[reversible] Coercion mor_to_arrow_ob {C : category} {x y : C} (f : x --> y) : arrow C :=
-    (make_dirprod x y,, f).
-
-Definition mors_to_arrow_mor {C : category} {a b x y : C} (f : a --> b) (g : x --> y)
-    (h : a --> x) (k : b --> y) (H : h · g = f · k) : (mor_to_arrow_ob f) --> (mor_to_arrow_ob g).
-Proof.
-  use tpair.
-  - exact (make_dirprod h k).
-  - abstract (exact H).
-Defined.
 
 Definition opp_arrow {C : category} (g : arrow C) : arrow (op_cat C) :=
     (make_dirprod (arrow_cod g) (arrow_dom g),, arrow_mor g).

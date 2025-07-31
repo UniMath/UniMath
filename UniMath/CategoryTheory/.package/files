@@ -772,6 +772,14 @@ DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
 
+ModelCategories/Retract.v
+ModelCategories/MorphismClass.v
+ModelCategories/WFS.v
+ModelCategories/WeakEquivalences.v
+ModelCategories/ModelCategories.v
+ModelCategories/NWFS.v
+ModelCategories/NWFSisWFS.v
+
 MarkovCategories/MarkovCategory.v
 MarkovCategories/Determinism.v
 MarkovCategories/Univalence.v
