@@ -66,8 +66,8 @@ Section DFLCompCat.
             {A : ty Γ}.
 
     Definition dfl_full_comp_cat_mor_to_tm
-               (f : dfl_full_comp_cat_unit Γ -->[ identity _ ] A)
-      : comp_cat_tm Γ A.
+               (f : dfl_full_comp_cat_unit Γ <: A)
+      : tm Γ A.
     Proof.
       use make_comp_cat_tm.
       - exact (inv_from_z_iso (dfl_full_comp_cat_extend_unit_z_iso Γ)
@@ -83,8 +83,8 @@ Section DFLCompCat.
     Defined.
 
     Definition dfl_full_comp_cat_tm_to_mor
-               (t : comp_cat_tm Γ A)
-      : dfl_full_comp_cat_unit Γ -->[ identity _ ] A.
+               (t : tm Γ A)
+      : dfl_full_comp_cat_unit Γ <: A.
     Proof.
       use (disp_functor_ff_inv
              _
@@ -103,7 +103,7 @@ Section DFLCompCat.
     Defined.
 
     Proposition dfl_full_comp_cat_mor_to_tm_to_mor
-                (f : dfl_full_comp_cat_unit Γ -->[ id₁ Γ] A)
+                (f : dfl_full_comp_cat_unit Γ <: A)
       : dfl_full_comp_cat_tm_to_mor (dfl_full_comp_cat_mor_to_tm f) = f.
     Proof.
       refine (_ @ homotinvweqweq
@@ -130,7 +130,7 @@ Section DFLCompCat.
     Qed.
 
     Proposition dfl_full_comp_cat_tm_to_mor_to_tm
-                (t : comp_cat_tm Γ A)
+                (t : tm Γ A)
       : dfl_full_comp_cat_mor_to_tm (dfl_full_comp_cat_tm_to_mor t) = t.
     Proof.
       use eq_comp_cat_tm ; cbn.
@@ -157,9 +157,9 @@ Section DFLCompCat.
   Definition dfl_full_comp_cat_tm_weq_mor
              {Γ : C}
              (A : ty Γ)
-    : dfl_full_comp_cat_unit Γ -->[ identity _ ] A
+    : dfl_full_comp_cat_unit Γ <: A
       ≃
-      comp_cat_tm Γ A.
+      tm Γ A.
   Proof.
     use weq_iso.
     - exact dfl_full_comp_cat_mor_to_tm.
@@ -182,7 +182,7 @@ Section DFLCompCat.
   Definition dfl_sub_to_mor
              {Γ Δ : C}
              (s : Γ --> Δ)
-    : dfl_con_to_ty Γ -->[ identity _ ] dfl_con_to_ty Δ.
+    : dfl_con_to_ty Γ <: dfl_con_to_ty Δ.
   Proof.
     use (disp_functor_ff_inv
            _
@@ -197,7 +197,7 @@ Section DFLCompCat.
   Definition dfl_ext_identity
              {Γ : C}
              {A : ty Γ}
-             (t₁ t₂ : comp_cat_tm Γ A)
+             (t₁ t₂ : tm Γ A)
     : Equalizer
         (C := fiber_category (disp_cat_of_types C) Γ)
         (dfl_full_comp_cat_tm_to_mor t₁)
@@ -207,14 +207,14 @@ Section DFLCompCat.
   Definition dfl_ext_identity_type
              {Γ : C}
              {A : ty Γ}
-             (t₁ t₂ : comp_cat_tm Γ A)
+             (t₁ t₂ : tm Γ A)
     : ty Γ
     := EqualizerObject (dfl_ext_identity t₁ t₂).
 
   Proposition dfl_ext_identity_eq
               {Γ : C}
               {A : ty Γ}
-              (t₁ t₂ : comp_cat_tm Γ A)
+              (t₁ t₂ : tm Γ A)
     : π (dfl_ext_identity_type t₁ t₂) · t₁
       =
       π (dfl_ext_identity_type t₁ t₂) · t₂.
@@ -270,7 +270,7 @@ Section DFLCompCat.
   Definition dfl_ext_identity_type_tm
              {Γ : C}
              {A : ty Γ}
-             (t₁ t₂ : comp_cat_tm Γ A)
+             (t₁ t₂ : tm Γ A)
              (p : π (dfl_full_comp_cat_unit Γ) · t₁
                   =
                   π (dfl_full_comp_cat_unit Γ) · t₂)
@@ -327,9 +327,9 @@ Section DFLCompCat.
              {Γ Δ : C}
              (s : Δ --> Γ)
              {A : ty Γ}
-             (t₁ t₂ : comp_cat_tm Γ A)
+             (t₁ t₂ : tm Γ A)
     : (disp_cat_of_types C)[{Δ}]
-        ⟦ dfl_ext_identity_type (sub_comp_cat_tm t₁ s) (sub_comp_cat_tm t₂ s)
+        ⟦ dfl_ext_identity_type (t₁ [[ s ]]tm) (t₂ [[ s ]]tm)
         , fiber_functor_from_cleaving
             (disp_cat_of_types C)
             (cleaving_of_types C)
@@ -338,7 +338,7 @@ Section DFLCompCat.
         ⟧.
   Proof.
     refine (EqualizerArrow
-              (dfl_ext_identity (sub_comp_cat_tm t₁ s) (sub_comp_cat_tm t₂ s))
+              (dfl_ext_identity (t₁ [[ s ]]tm) (t₂ [[ s ]]tm))
             · _).
     use (TerminalArrow
            (preserves_terminal_to_terminal
@@ -351,7 +351,7 @@ Section DFLCompCat.
               {Γ Δ : C}
               (s : Δ --> Γ)
               {A : ty Γ}
-              (t₁ t₂ : comp_cat_tm Γ A)
+              (t₁ t₂ : tm Γ A)
     : dfl_ext_identity_sub_mor_mor s t₁ t₂
       · # (fiber_functor_from_cleaving
              (disp_cat_of_types C)
@@ -370,8 +370,8 @@ Section DFLCompCat.
     rewrite !assoc'.
     pose (EqualizerEqAr
             (dfl_ext_identity
-               (sub_comp_cat_tm t₁ s)
-               (sub_comp_cat_tm t₂ s)))
+               (t₁ [[ s ]]tm)
+               (t₂ [[ s ]]tm)))
       as p.
     refine (_ @ p @ _) ; apply maponpaths ; clear p.
     - use (invmaponpathsweq (dfl_full_comp_cat_tm_weq_mor _)).
@@ -470,9 +470,9 @@ Section DFLCompCat.
              {Γ Δ : C}
              (s : Δ --> Γ)
              {A : ty Γ}
-             (t₁ t₂ : comp_cat_tm Γ A)
-    : dfl_ext_identity_type (sub_comp_cat_tm t₁ s) (sub_comp_cat_tm t₂ s)
-      -->[ identity _ ]
+             (t₁ t₂ : tm Γ A)
+    : dfl_ext_identity_type (t₁ [[ s ]]tm) (t₂ [[ s ]]tm)
+      <:
       dfl_ext_identity_type t₁ t₂ [[s]].
   Proof.
     use (EqualizerIn
@@ -487,13 +487,13 @@ Section DFLCompCat.
              {Γ Δ : C}
              (s : Δ --> Γ)
              {A : ty Γ}
-             {t₁ t₂ : comp_cat_tm Γ A}
-             (p : comp_cat_tm
+             {t₁ t₂ : tm Γ A}
+             (p : tm
                     Δ
                     (dfl_ext_identity_type
-                       (sub_comp_cat_tm t₁ s)
-                       (sub_comp_cat_tm t₂ s)))
-    : comp_cat_tm Δ ((dfl_ext_identity_type t₁ t₂) [[ s ]]).
+                       (t₁ [[ s ]]tm)
+                       (t₂ [[ s ]]tm)))
+    : tm Δ ((dfl_ext_identity_type t₁ t₂) [[ s ]]).
   Proof.
     use make_comp_cat_tm.
     - exact (p · comp_cat_comp_mor (dfl_ext_identity_sub_mor s t₁ t₂)).
@@ -509,8 +509,8 @@ Section DFLCompCat.
               {Γ Δ : C}
               (s : Δ --> Γ)
               {A : ty Γ}
-              (t₁ t₂ : comp_cat_tm Γ A)
-              (p₁ p₂ : comp_cat_tm Δ (dfl_ext_identity_type t₁ t₂ [[ s ]]))
+              (t₁ t₂ : tm Γ A)
+              (p₁ p₂ : tm Δ (dfl_ext_identity_type t₁ t₂ [[ s ]]))
     : p₁ = p₂.
   Proof.
     use (invmaponpathsweq (invweq (dfl_full_comp_cat_tm_weq_mor _))) ; cbn.
