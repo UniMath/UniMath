@@ -765,21 +765,6 @@ Proof.
        apply idpath).
 Defined.
 
-Proposition comp_functor_el_map_path
-           {C₁ C₂ C₃ : univ_cat_with_finlim_ob}
-           (F : functor_finlim_ob C₁ C₂)
-           (G : functor_finlim_ob C₂ C₃)
-           {Γ : C₁}
-           (t : Γ --> univ_cat_universe C₁)
-  : #G(#F t · functor_on_universe F) · functor_on_universe G
-    =
-    #G(#F  t) · (#G (functor_on_universe F) · functor_on_universe G).
-Proof.
-  rewrite functor_comp.
-  rewrite !assoc'.
-  apply idpath.
-Qed.
-
 Definition comp_functor_el_map
            {C₁ C₂ C₃ : univ_cat_with_finlim_ob}
            {F : functor_finlim_ob C₁ C₂}
@@ -800,7 +785,10 @@ Proof.
     refine (z_iso_comp
               (functor_el_map_iso Gel _)
               (cat_el_map_el_eq el₃ _)).
-    apply (comp_functor_el_map_path F G t).
+    abstract
+      (rewrite functor_comp ;
+       rewrite !assoc' ;
+       apply idpath).
   - abstract
       (intros Γ t ; cbn ;
        refine (maponpaths (λ z, #G z) (functor_el_map_comm Fel t) @ _) ;
@@ -812,26 +800,6 @@ Proof.
        refine (!_) ;
        apply cat_el_map_mor_eq).
 Defined.
-
-Proposition comp_functor_el_map_on_tm
-            {C₁ C₂ C₃ : univ_cat_with_finlim_ob}
-            {F : functor_finlim_ob C₁ C₂}
-            {G : functor_finlim_ob C₂ C₃}
-            {el₁ : cat_el_map C₁}
-            {el₂ : cat_el_map C₂}
-            {el₃ : cat_el_map C₃}
-            (Fel : functor_el_map el₁ el₂ F)
-            (Gel : functor_el_map el₂ el₃ G)
-            {Γ : C₁}
-            (t : Γ --> univ_cat_universe C₁)
-  : (functor_el_map_iso (comp_functor_el_map Fel Gel) t : _ --> _)
-    =
-    #G(functor_el_map_iso Fel t)
-    · functor_el_map_iso Gel _
-    · cat_el_map_el_eq el₃ (comp_functor_el_map_path F G t).
-Proof.
-  apply assoc.
-Qed.
 
 (** * 6. Functors that preserve stable universes *)
 Proposition functor_stable_el_map_path
@@ -1054,27 +1022,6 @@ Proof.
   - exact (comp_functor_el_map Fel Gel).
   - exact (comp_functor_stable_el_map Fel Gel).
 Defined.
-
-Definition comp_functor_el_map_iso
-           {C₁ C₂ C₃ : univ_cat_with_finlim_ob}
-           {F : functor_finlim_ob C₁ C₂}
-           {G : functor_finlim_ob C₂ C₃}
-           {el₁ : cat_stable_el_map C₁}
-           {el₂ : cat_stable_el_map C₂}
-           {el₃ : cat_stable_el_map C₃}
-           (Fel : functor_preserves_el el₁ el₂ F)
-           (Gel : functor_preserves_el el₂ el₃ G)
-           {Γ : C₁}
-           (t : Γ --> univ_cat_universe C₁)
-  : pr1 (functor_el_map_iso (comp_functor_preserves_el Fel Gel) t)
-    =
-    #G(functor_el_map_iso Fel t)
-    · functor_el_map_iso Gel _
-    · cat_el_map_el_eq el₃ (comp_functor_el_map_path F G t).
-Proof.
-  cbn.
-  apply assoc.
-Qed.
 
 (** * 8. Preservation by natural transformations *)
 Proposition nat_trans_preserves_el_path

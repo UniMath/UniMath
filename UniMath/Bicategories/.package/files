@@ -184,7 +184,6 @@ DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 DisplayedBicats/ProductDispBiequiv.v
-DisplayedBicats/DispPseudoNaturalAdjequiv.v
 
 DoubleCategories/Basics/DoubleCategoryBasics.v
 DoubleCategories/Basics/StrictDoubleCatBasics.v
@@ -457,7 +456,6 @@ ComprehensionCat/DFLCompCatNotations.v
 ComprehensionCat/ComprehensionEso.v
 ComprehensionCat/Biequivalence/DFLCompCatToFinLim.v
 ComprehensionCat/Biequivalence/FinLimToDFLCompCat.v
-ComprehensionCat/FinLimToCompCatLemmas.v
 ComprehensionCat/Biequivalence/Unit.v
 ComprehensionCat/Biequivalence/Counit.v
 ComprehensionCat/Biequivalence/Biequiv.v
@@ -478,20 +476,6 @@ ComprehensionCat/Universes/CatWithUniv/UniverseDispBicat.v
 ComprehensionCat/Universes/CompCatUniv/CompCatOb.v
 ComprehensionCat/Universes/CompCatUniv/UniverseType.v
 ComprehensionCat/Universes/CompCatUniv/CompCatWithUniv.v
-
-ComprehensionCat/Universes/CompCatUnivProps.v
-
-ComprehensionCat/Universes/Biequiv/ToCompCatUniv.v
-ComprehensionCat/Universes/Biequiv/ToCatFinLimUnivActions.v
-ComprehensionCat/Universes/Biequiv/ToCatFinLimUnivCell.v
-ComprehensionCat/Universes/Biequiv/ToCatFinLimUnivIdent.v
-ComprehensionCat/Universes/Biequiv/ToCatFinLimUnivComp.v
-ComprehensionCat/Universes/Biequiv/ToCatFinLimUniv.v
-ComprehensionCat/Universes/Biequiv/UnitForUniv.v
-ComprehensionCat/Universes/Biequiv/CounitForUnivMor.v
-ComprehensionCat/Universes/Biequiv/CounitForUnivNat.v
-ComprehensionCat/Universes/Biequiv/CounitForUniv.v
-ComprehensionCat/Universes/UniverseBiequiv.v
 
 ComprehensionCat/Biequivalence/InternalLanguageTopos.v
 

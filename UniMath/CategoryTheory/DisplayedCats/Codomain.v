@@ -140,22 +140,6 @@ Definition disp_codomain : disp_cat C
 
 End Codomain_Disp.
 
-(** The following proposition allows for controlled unfolding *)
-Proposition disp_codomain_comp
-            {C : category}
-            {x y z : C}
-            {f₁ : x --> y}
-            {f₂ : y --> z}
-            {g₁ : disp_codomain C x}
-            {g₂ : disp_codomain C y}
-            {g₃ : disp_codomain C z}
-            (h₁ : g₁ -->[ f₁ ] g₂)
-            (h₂ : g₂ -->[ f₂ ] g₃)
-  : pr1 (h₁ ;; h₂)%mor_disp = pr1 h₁ · pr1 h₂.
-Proof.
-  apply idpath.
-Defined.
-
 Section PullbackToCartesian.
   Context {C : category}
           {x₁ x₂ : C}
