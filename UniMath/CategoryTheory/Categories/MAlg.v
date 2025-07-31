@@ -49,9 +49,13 @@ Proof.
   use disp_struct.
   - simpl. intro F.
     exact (∑ (o : C⟦F Ω, Ω⟧), is_monotone_Falg F o).
-  - intros F G [o is_monotone_o] [o' is_monotone_o'] [α is_nat_trans]. exact (leq _ o (o' ∘ α Ω)).
-  - simpl. intros. apply leq.
-  - simpl. intros F [o is_monotone_o]. rewrite id_left. apply is_po_leq.
+  - intros F G [o is_monotone_o] [o' is_monotone_o'] [α is_nat_trans].
+    exact (leq _ o (o' ∘ α Ω)).
+  - simpl. intros.
+    apply leq.
+  - simpl. intros F [o is_monotone_o].
+    rewrite id_left.
+    apply is_po_leq.
   - simpl. intros F G H [f is_monotone_f] [g is_monotone_o] [h is_monotone_h] α β A B.
     eapply (is_po_leq (F Ω)).
     + apply A.

@@ -48,10 +48,17 @@ Defined.
 Definition lax_slice_id_comp : disp_cat_id_comp C lax_slice_ob_mor.
 Proof.
   split.
-  - intros. simpl. rewrite id_left. apply is_po_leq.
-  - simpl. intros. destruct (is_po_leq x) as [[trans _] _]. apply trans with (x2 := f · yy).
+  - intros. 
+    simpl.
+    rewrite id_left. 
+    apply is_po_leq.
+  - simpl. 
+    intros.
+    destruct (is_po_leq x) as [[trans _] _].
+    apply trans with (x2 := f · yy).
     + apply X.
-    + rewrite assoc'. apply is_precomp_monotone_leq. apply X0.
+    + rewrite assoc'. 
+      apply is_precomp_monotone_leq. apply X0.
 Defined. 
 
 Definition lax_slice_data : disp_cat_data C := 
@@ -76,10 +83,10 @@ Proof.
     + intros x f' h is_leq_h.
       use iscontraprop1. 
       * apply iscontraprop1.
-        ** apply isapropisaprop. 
-        ** apply isofhleveltotal2.
-          *** exact (pr2 (leq _ h (f' · (f · g)))).
-          *** intros is_leq_h' path path'.
+        -- apply isapropisaprop. 
+        -- apply isofhleveltotal2.
+          ++ exact (pr2 (leq _ h (f' · (f · g)))).
+          ++ intros is_leq_h' path path'.
               apply (isofhlevelcontr 2).
               exists is_leq_h.
               intros is_leq_h''.
@@ -111,14 +118,14 @@ Proof.
       apply iscontraprop1.
       * apply pr2.
       * apply  α'.
-    + intros x x' x''.
+    + intros nat_data nat_data_axiom nat_data_axiom'.
       apply isapropifcontr.
       apply iscontraprop1.
-      set (D' := disp_functor_data_from_disp_functor F').
-      set (D'' := disp_functor_data_from_disp_functor G').
-      change (disp_nat_trans_data α D' D'') in x.
-      apply (isaprop_disp_nat_trans_axioms α x).
-      exact x'.
+      set (disp_data_F := disp_functor_data_from_disp_functor F').
+      set (disp_data_G := disp_functor_data_from_disp_functor G').
+      change (disp_nat_trans_data α disp_data_F disp_data_G) in nat_data.
+      apply (isaprop_disp_nat_trans_axioms α nat_data).
+      exact nat_data_axiom.
     + exact α'.
   - intros F [F' is_fibered_F'].
     apply (disp_nat_trans_id  F').
