@@ -302,17 +302,19 @@ Section Fiber_Functors.
   Proof.
     exists (pr1 Hff).
     use tpair; cbn.
-    + set (H := pr2 (pr2 Hff)).
-      etrans. apply maponpaths, H.
-      etrans. apply transport_f_b.
-      use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
-      apply homset_property.
-    + set (H := pr1 (pr2 Hff)).
-      etrans. apply maponpaths, H.
-      etrans. apply transport_f_b.
-      use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
-      apply homset_property.
-  Qed.
+    + abstract
+        (set (H := pr2 (pr2 Hff)) ;
+         etrans ; [ apply maponpaths, H | ] ;
+         etrans ; [ apply transport_f_b | ] ;
+         use (@maponpaths_2 _ _ _ _ _ (paths_refl _)) ;
+         apply homset_property).
+    + abstract
+        (set (H := pr1 (pr2 Hff)) ;
+         etrans ; [ apply maponpaths, H | ] ;
+         etrans ; [ apply transport_f_b | ] ;
+         use (@maponpaths_2 _ _ _ _ _ (paths_refl _)) ;
+         apply homset_property).
+  Defined.
 
   Definition fiber_nat_trans {C C' : category}
              {F : functor C C'}
