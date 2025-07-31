@@ -157,9 +157,6 @@ Section Compositor.
     apply idpath.
   Qed.
 
-  Definition TODO {A : UU} : A.
-  Admitted.
-
   Definition dfl_functor_comp_cat_to_finlim_univ_compositor_preserves_el
     : nat_trans_preserves_el
         dfl_functor_comp_cat_to_finlim_univ_compositor_nat_trans_ob
