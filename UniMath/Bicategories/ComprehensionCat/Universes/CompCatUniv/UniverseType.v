@@ -1124,6 +1124,20 @@ Proof.
 Qed.
 
 (** * 8. Preservation of universes by identity and composition *)
+Proposition id_comp_cat_functor_preserves_el_lem
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ : C}
+            (t : tm Γ (comp_cat_univ Γ))
+  : t = comp_cat_functor_tm (id₁ _) t ↑ functor_comp_cat_on_univ (id₁ C) Γ.
+Proof.
+  refine (!_).
+  rewrite id_comp_cat_functor_tm.
+  rewrite id_functor_comp_cat_on_univ.
+  rewrite id_coerce_comp_cat_tm.
+  apply idpath.
+Qed.
+
 Definition id_comp_cat_functor_preserves_el
            {C : comp_cat_with_ob}
            (el : comp_cat_univ_type C)
@@ -1131,12 +1145,7 @@ Definition id_comp_cat_functor_preserves_el
 Proof.
   intros Γ t ; simpl.
   use comp_cat_el_map_on_eq_iso.
-  abstract
-    (refine (!_) ;
-     rewrite id_comp_cat_functor_tm ;
-     rewrite id_functor_comp_cat_on_univ ;
-     rewrite id_coerce_comp_cat_tm ;
-     apply idpath).
+  exact (id_comp_cat_functor_preserves_el_lem el t).
 Defined.
 
 Definition id_comp_cat_functor_ob

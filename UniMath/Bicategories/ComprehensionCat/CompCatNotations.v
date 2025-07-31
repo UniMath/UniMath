@@ -40,6 +40,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
@@ -151,6 +152,33 @@ Definition comp_cat_comp_fiber_z_iso
            (s : z_iso (C := fiber_category _ _) A B)
   : z_iso (Γ & A) (Γ & B)
   := comp_cat_comp_z_iso (z_iso_disp_from_z_iso_fiber _ _ _ _ s).
+
+Definition comp_cat_comp_fiber_z_iso_fib
+           {C : comp_cat}
+           {Γ : C}
+           {A B : ty Γ}
+           (s : z_iso (C := fiber_category _ _) A B)
+  : z_iso
+      (C := fiber_category _ _)
+      (comp_cat_comprehension C Γ A)
+      (comp_cat_comprehension C Γ B).
+Proof.
+  exact (functor_on_z_iso
+           (fiber_functor (comp_cat_comprehension C) Γ)
+           s).
+Defined.
+
+Proposition dom_mor_comp_cat_comp_fiber_z_iso_fib
+            {C : comp_cat}
+            {Γ : C}
+            {A B : ty Γ}
+            (s : z_iso (C := fiber_category _ _) A B)
+  : dom_mor (comp_cat_comp_fiber_z_iso_fib s)
+    =
+    comp_cat_comp_mor (pr1 s).
+Proof.
+  apply idpath.
+Qed.
 
 Definition subst_ty
            {C : comp_cat}
