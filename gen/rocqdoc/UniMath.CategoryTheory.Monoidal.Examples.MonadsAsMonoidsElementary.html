@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+In this file, we show how any monoid in the monoidal category of endofunctors is a monad  - here w.r.t. the
+    elementary definition of that monoidal category
+
+<div class="paragraph"> </div>
+
+    the bicategorical variant is found in <span class="inlinecode"><span class="id" title="library">MonadsAsMonoidsWhiskered</span></span>
+
+<div class="paragraph"> </div>
+
+    we also show the direction from monads to monoids
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#"><span class="id" title="library">UniMath.CategoryTheory.Monads.Monads</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FixACategory" class="idref" href="#FixACategory"><span class="id" title="section">FixACategory</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FixACategory.C" class="idref" href="#FixACategory.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FixACategory.MonoidToMonad" class="idref" href="#FixACategory.MonoidToMonad"><span class="id" title="section">MonoidToMonad</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="FixACategory.MonoidToMonad.M" class="idref" href="#FixACategory.MonoidToMonad.M"><span class="id" title="variable">M</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#category_of_monoids_in_monoidal_cat"><span class="id" title="definition">category_of_monoids_in_monoidal_cat</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.html#monendocat_monoidal"><span class="id" title="definition">monendocat_monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="FixACategory.MonoidToMonad.x" class="idref" href="#FixACategory.MonoidToMonad.x"><span class="id" title="variable">x</span></a> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_carrier"><span class="id" title="definition">monoid_carrier</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonoidToMonad.M"><span class="id" title="variable">M</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="0e6f48d38ebe037d3eac72f87bb06dc7" class="idref" href="#0e6f48d38ebe037d3eac72f87bb06dc7"><span class="id" title="variable">η</span></a> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_unit"><span class="id" title="definition">monoid_unit</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonoidToMonad.M"><span class="id" title="variable">M</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="c03fc42211558fa28f12238f8819eee8" class="idref" href="#c03fc42211558fa28f12238f8819eee8"><span class="id" title="variable">μ</span></a> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_multiplication"><span class="id" title="definition">monoid_multiplication</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonoidToMonad.M"><span class="id" title="variable">M</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="monoid_to_disp_Monad_data_CAT" class="idref" href="#monoid_to_disp_Monad_data_CAT"><span class="id" title="definition">monoid_to_disp_Monad_data_CAT</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#disp_Monad_data"><span class="id" title="definition">disp_Monad_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonoidToMonad.x"><span class="id" title="variable">x</span></a> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#c03fc42211558fa28f12238f8819eee8"><span class="id" title="variable">μ</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#0e6f48d38ebe037d3eac72f87bb06dc7"><span class="id" title="variable">η</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="monoid_to_disp_Monad_laws_CAT" class="idref" href="#monoid_to_disp_Monad_laws_CAT"><span class="id" title="lemma">monoid_to_disp_Monad_laws_CAT</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#disp_Monad_laws"><span class="id" title="definition">disp_Monad_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#monoid_to_disp_Monad_data_CAT"><span class="id" title="definition">monoid_to_disp_Monad_data_CAT</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">t</span> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_right_unit_law"><span class="id" title="definition">monoid_right_unit_law</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonoidToMonad.M"><span class="id" title="variable">M</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.PartA.html#base_paths"><span class="id" title="lemma">base_paths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">t</span>) <span class="id" title="var">c</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">t</span> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_left_unit_law"><span class="id" title="definition">monoid_left_unit_law</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonoidToMonad.M"><span class="id" title="variable">M</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.PartA.html#base_paths"><span class="id" title="lemma">base_paths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">t</span>) <span class="id" title="var">c</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">t</span> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_assoc_law"><span class="id" title="definition">monoid_assoc_law</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonoidToMonad.M"><span class="id" title="variable">M</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.PartA.html#base_paths"><span class="id" title="lemma">base_paths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">t</span>) <span class="id" title="var">c</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1: <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="monoid_to_monad_CAT" class="idref" href="#monoid_to_monad_CAT"><span class="id" title="definition">monoid_to_monad_CAT</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#Monad"><span class="id" title="definition">Monad</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#monoid_to_disp_Monad_laws_CAT"><span class="id" title="lemma">monoid_to_disp_Monad_laws_CAT</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonoidToMonad"><span class="id" title="section">MonoidToMonad</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FixACategory.MonadToMonoid" class="idref" href="#FixACategory.MonadToMonoid"><span class="id" title="section">MonadToMonoid</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="FixACategory.MonadToMonoid.M" class="idref" href="#FixACategory.MonadToMonoid.M"><span class="id" title="variable">M</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#Monad"><span class="id" title="definition">Monad</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="monad_to_monoid_CAT_data" class="idref" href="#monad_to_monoid_CAT_data"><span class="id" title="definition">monad_to_monoid_CAT_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_data"><span class="id" title="definition">monoid_data</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.html#monendocat_monoidal"><span class="id" title="definition">monendocat_monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonadToMonoid.M"><span class="id" title="variable">M</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#a1155692e3f69913320174f980c7eaf1"><span class="id" title="definition">μ</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonadToMonoid.M"><span class="id" title="variable">M</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#6f2f7304141c15bf565f34aa10b8e335"><span class="id" title="definition">η</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonadToMonoid.M"><span class="id" title="variable">M</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="monad_to_monoid_CAT_laws" class="idref" href="#monad_to_monoid_CAT_laws"><span class="id" title="lemma">monad_to_monoid_CAT_laws</span></a> :  <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_laws"><span class="id" title="definition">monoid_laws</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.html#monendocat_monoidal"><span class="id" title="definition">monendocat_monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a>) <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#monad_to_monoid_CAT_data"><span class="id" title="definition">monad_to_monoid_CAT_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">split3</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq"><span class="id" title="lemma">nat_trans_eq</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a>); <span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#Monad_law2"><span class="id" title="lemma">Monad_law2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#Monad_law1"><span class="id" title="lemma">Monad_law1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#Monad_law3"><span class="id" title="lemma">Monad_law3</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="monad_to_monoid_CAT_disp" class="idref" href="#monad_to_monoid_CAT_disp"><span class="id" title="definition">monad_to_monoid_CAT_disp</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid"><span class="id" title="definition">monoid</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.html#monendocat_monoidal"><span class="id" title="definition">monendocat_monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonadToMonoid.M"><span class="id" title="variable">M</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#monad_to_monoid_CAT_data"><span class="id" title="definition">monad_to_monoid_CAT_data</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#monad_to_monoid_CAT_laws"><span class="id" title="lemma">monad_to_monoid_CAT_laws</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="monad_to_monoid_CAT" class="idref" href="#monad_to_monoid_CAT"><span class="id" title="definition">monad_to_monoid_CAT</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#category_of_monoids_in_monoidal_cat"><span class="id" title="definition">category_of_monoids_in_monoidal_cat</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.html#monendocat_monoidal"><span class="id" title="definition">monendocat_monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#monad_to_monoid_CAT_disp"><span class="id" title="definition">monad_to_monoid_CAT_disp</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory.MonadToMonoid"><span class="id" title="section">MonadToMonoid</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.html#FixACategory"><span class="id" title="section">FixACategory</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

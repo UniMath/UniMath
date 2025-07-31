@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.YonedaBinproducts</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.YonedaBinproducts</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+****************************************************************************
+
+<div class="paragraph"> </div>
+
+Yoneda commutes with binary products up to iso (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts"><span class="id" title="definition">iso_yoneda_binproducts</span></a></span>).
+
+<div class="paragraph"> </div>
+
+Written by: Elisabeth Bonnevier, 2019
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.yoneda.html#"><span class="id" title="library">UniMath.CategoryTheory.yoneda</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="iso_yoneda_binproducts" class="idref" href="#iso_yoneda_binproducts"><span class="id" title="section">iso_yoneda_binproducts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> {<a id="iso_yoneda_binproducts.C" class="idref" href="#iso_yoneda_binproducts.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="iso_yoneda_binproducts.PC" class="idref" href="#iso_yoneda_binproducts.PC"><span class="id" title="variable">PC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#C:1"><span class="id" title="variable">C</span></a>) (<a id="iso_yoneda_binproducts.X" class="idref" href="#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a> <a id="iso_yoneda_binproducts.Y" class="idref" href="#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a> : <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#C:1"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="iso_yoneda_binproducts.yon" class="idref" href="#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> : <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a> := <a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.C"><span class="id" title="variable">C</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+First we create a natural transformation from Yon(X × Y) to Yon(X) × Yon(Y). 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="yon_binprod_nat_trans" class="idref" href="#yon_binprod_nat_trans"><span class="id" title="definition">yon_binprod_nat_trans</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.PC"><span class="id" title="variable">PC</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>)) : <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#BinProducts_PreShv"><span class="id" title="lemma">BinProducts_PreShv</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a>) (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>)) : <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrow"><span class="id" title="definition">BinProductArrow</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">BinProductPr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">_</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">_</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">BinProductPr2</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">_</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">_</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Second, we create a natural transformation from Yon(X) × Yon(Y) to Yon(X × Y). 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="yon_binprod_inv_nat_trans_data" class="idref" href="#yon_binprod_inv_nat_trans_data"><span class="id" title="definition">yon_binprod_inv_nat_trans_data</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_data"><span class="id" title="definition">nat_trans_data</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#BinProducts_PreShv"><span class="id" title="lemma">BinProducts_PreShv</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a>) (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>))))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.PC"><span class="id" title="variable">PC</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>)))).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Z</span> [<span class="id" title="var">f1</span> <span class="id" title="var">f2</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrow"><span class="id" title="definition">BinProductArrow</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.PC"><span class="id" title="variable">PC</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>) <span class="id" title="var">f1</span> <span class="id" title="var">f2</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_nat_trans_yon_binprod_inv" class="idref" href="#is_nat_trans_yon_binprod_inv"><span class="id" title="lemma">is_nat_trans_yon_binprod_inv</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#is_nat_trans"><span class="id" title="definition">is_nat_trans</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#yon_binprod_inv_nat_trans_data"><span class="id" title="definition">yon_binprod_inv_nat_trans_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#yon_binprod_inv_nat_trans_data"><span class="id" title="definition">yon_binprod_inv_nat_trans_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Z</span> <span class="id" title="var">W</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intros</span> [<span class="id" title="var">g1</span> <span class="id" title="var">g2</span>]; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrowsEq"><span class="id" title="lemma">BinProductArrowsEq</span></a>; <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1Commutes"><span class="id" title="lemma">BinProductPr1Commutes</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2Commutes"><span class="id" title="lemma">BinProductPr2Commutes</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="yon_binprod_inv_nat_trans" class="idref" href="#yon_binprod_inv_nat_trans"><span class="id" title="definition">yon_binprod_inv_nat_trans</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans"><span class="id" title="definition">nat_trans</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#BinProducts_PreShv"><span class="id" title="lemma">BinProducts_PreShv</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a>) (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>))))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>)))) :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#make_nat_trans"><span class="id" title="definition">make_nat_trans</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#is_nat_trans_yon_binprod_inv"><span class="id" title="lemma">is_nat_trans_yon_binprod_inv</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We now show that the first transformation is an isomorphism by showing that the second
+transformation is its inverse. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="yon_binprod_is_inverse" class="idref" href="#yon_binprod_is_inverse"><span class="id" title="lemma">yon_binprod_is_inverse</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_inverse_in_precat"><span class="id" title="definition">is_inverse_in_precat</span></a> (<span class="id" title="var">C</span> := <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#67adf5e9a58293c8431e5eec85ee7201"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#67adf5e9a58293c8431e5eec85ee7201"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#67adf5e9a58293c8431e5eec85ee7201"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#has_homsets_HSET"><span class="id" title="lemma">has_homsets_HSET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#67adf5e9a58293c8431e5eec85ee7201"><span class="id" title="notation">]</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#yon_binprod_nat_trans"><span class="id" title="definition">yon_binprod_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#yon_binprod_inv_nat_trans"><span class="id" title="definition">yon_binprod_inv_nat_trans</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq_alt"><span class="id" title="lemma">nat_trans_eq_alt</span></a>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">Z</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">symmetry</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrowEta"><span class="id" title="lemma">BinProductArrowEta</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#dirprodeq"><span class="id" title="lemma">dirprodeq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1Commutes"><span class="id" title="lemma">BinProductPr1Commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2Commutes"><span class="id" title="lemma">BinProductPr2Commutes</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The functors Yon(X × Y) and Yon(X) × Yon(Y) are isomorphic. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="yon_binprod_z_iso" class="idref" href="#yon_binprod_z_iso"><span class="id" title="definition">yon_binprod_z_iso</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.PC"><span class="id" title="variable">PC</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(@<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#BinProducts_PreShv"><span class="id" title="lemma">BinProducts_PreShv</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.C"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a>) (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>))<br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#make_z_iso"><span class="id" title="definition">make_z_iso</span></a> (<span class="id" title="var">C</span> := <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#67adf5e9a58293c8431e5eec85ee7201"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#67adf5e9a58293c8431e5eec85ee7201"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#67adf5e9a58293c8431e5eec85ee7201"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#has_homsets_HSET"><span class="id" title="lemma">has_homsets_HSET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#67adf5e9a58293c8431e5eec85ee7201"><span class="id" title="notation">]</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#yon_binprod_nat_trans"><span class="id" title="definition">yon_binprod_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#yon_binprod_inv_nat_trans"><span class="id" title="definition">yon_binprod_inv_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#yon_binprod_is_inverse"><span class="id" title="lemma">yon_binprod_is_inverse</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="iso_yoneda_binproducts" class="idref" href="#iso_yoneda_binproducts"><span class="id" title="definition">iso_yoneda_binproducts</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#iso"><span class="id" title="definition">iso</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.PC"><span class="id" title="variable">PC</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>)))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#::cat:'PreShv'_x"><span class="id" title="notation">PreShv</span></a> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#BinProducts_PreShv"><span class="id" title="lemma">BinProducts_PreShv</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.X"><span class="id" title="variable">X</span></a>) (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.yon"><span class="id" title="variable">yon</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts.Y"><span class="id" title="variable">Y</span></a>)))<br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_to_iso"><span class="id" title="definition">z_iso_to_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#yon_binprod_z_iso"><span class="id" title="definition">yon_binprod_z_iso</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#iso_yoneda_binproducts"><span class="id" title="section">iso_yoneda_binproducts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="yoneda_preserves_binproduct" class="idref" href="#yoneda_preserves_binproduct"><span class="id" title="definition">yoneda_preserves_binproduct</span></a><br/>
+&nbsp;&nbsp;(<a id="C:5" class="idref" href="#C:5"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;(<a id="BP:6" class="idref" href="#BP:6"><span class="id" title="binder">BP</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#C:5"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_binproduct"><span class="id" title="definition">preserves_binproduct</span></a> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#C:5"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_binproduct_chosen_to_chosen"><span class="id" title="definition">preserves_binproduct_chosen_to_chosen</span></a> <span class="id" title="var">BP</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#BinProducts_PreShv"><span class="id" title="lemma">BinProducts_PreShv</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_is_z_isomorphism"><span class="id" title="definition">z_iso_is_z_isomorphism</span></a> (<a class="idref" href="UniMath.CategoryTheory.YonedaBinproducts.html#yon_binprod_z_iso"><span class="id" title="definition">yon_binprod_z_iso</span></a> <span class="id" title="var">BP</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
