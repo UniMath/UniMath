@@ -7,20 +7,21 @@
  1. We can assert that we have a term of type `x = y` in context `Γ , x : A , y : A`.
     This is how the notion of proposition is usually defined in homotopy type theory.
  2. We can assert that the projection `π A` is a monomorphism.
- 3. We can assert that the unique morphism from `A` to the unit type in the category
+ 3. We can assert that for all contexts `Δ` and substitutions `s : Δ --> Γ` all terms
+    of type `A [[ s ]]` in context `Δ` are equal.
+ 4. We can assert that the unique morphism from `A` to the unit type in the category
     of types is a monomorphism.
  In this file, we compare these notions and show that they coincide. We first show
  that a type `A` is a proposition if and only if the projection `π A` is a monomorphism
  [is_hprop_ty_weq_mono_ty]. While this proof is given for DFL full comprehension
  categories, it can be translated to any comprehension category with extensional identity
- types.
+ types. We also show that the second and third formulations are equivalent
+ [mono_ty_weq_all_terms_eq].
 
- Next we show that a type is a proposition if and only if the unique morphism to the
+ Finally we show that a type is a proposition if and only if the unique morphism to the
  unit type is a monomorphism [subsingleton_weq_mono_ty]. Here we use the fact that the
  comprehension functor in a DFL full comprehension category is an equivalence, because
  this allows one to conclude that it preserves monomorphisms.
-
- We conclude that all terms of a proposition are equal.
 
  References
  - "Modular correspondence between dependent type theories and categories including
@@ -29,8 +30,8 @@
  Content
  1. Propositions in a comprehension category
  2. A type `A` is a proposition iff `π A` is a monomorphism
- 3. A type `A` is a proposition iff morphisms to the unit is a monomorphism
- 4. Terms of a proposition are unique
+ 3. A type `A` is a proposition iff all terms of type `A` in every context are equal
+ 4. A type `A` is a proposition iff morphisms to the unit is a monomorphism
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -246,7 +247,127 @@ Section MonoVSHProp.
     - apply isapropisMonic.
   Qed.
 
-  (** * 3. A type `A` is a proposition iff morphisms to the unit is a monomorphism *)
+  (** * 3. A type `A` is a proposition iff all terms of type `A` in every context are equal *)
+
+  (**
+     If all terms of type `A` in every context are equal, then we can show that the projection
+     morphism of `A` is a monomorphism. The main task is constructing suitable terms for which
+     we use the universal mapping property of the pullback.
+   *)
+  Section UniqueTermsToMono.
+    Context {Γ : C}
+            {A : ty Γ}
+            (HA : ∏ (Δ : C) (s : Δ --> Γ), isaprop (tm Δ (A [[ s ]])))
+            {Δ : C}
+            {t₁ t₂ : Δ --> Γ & A}
+            (p : t₁ · π A = t₂ · π A).
+
+    Definition all_terms_eq_to_mono_type_lhs
+      : tm Δ (A [[ t₁ · π A ]]).
+    Proof.
+      use make_comp_cat_tm.
+      - use (PullbackArrow (comp_cat_pullback _ _)).
+        + exact t₁.
+        + apply identity.
+        + abstract
+            (rewrite id_left ;
+             apply idpath).
+      - abstract
+          (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _))).
+    Defined.
+
+    Definition all_terms_eq_to_mono_type_rhs
+      : tm Δ (A [[ t₁ · π A ]]).
+    Proof.
+      use make_comp_cat_tm.
+      - use (PullbackArrow (comp_cat_pullback _ _)).
+        + exact t₂.
+        + apply identity.
+        + abstract
+            (rewrite id_left ;
+             rewrite p ;
+             apply idpath).
+      - abstract
+          (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _))).
+    Defined.
+
+    Proposition all_terms_eq_to_mono_type_lhs_rhs_eq
+      : all_terms_eq_to_mono_type_lhs
+        =
+        all_terms_eq_to_mono_type_rhs.
+    Proof.
+      exact (proofirrelevance
+               _
+               (HA Δ (t₁ · π A))
+               all_terms_eq_to_mono_type_lhs
+               all_terms_eq_to_mono_type_rhs).
+    Qed.
+
+    Proposition all_terms_eq_to_mono_type_eq
+      : t₁ = t₂.
+    Proof.
+      pose (maponpaths
+              (λ z, pr1 z · PullbackPr1 (comp_cat_pullback _ _))
+              all_terms_eq_to_mono_type_lhs_rhs_eq)
+        as q.
+      simpl in q.
+      refine (_ @ q @ _).
+      - rewrite PullbackArrow_PullbackPr1.
+        apply idpath.
+      - rewrite PullbackArrow_PullbackPr1.
+        apply idpath.
+    Qed.
+  End UniqueTermsToMono.
+
+  (**
+     To prove the reverse, we first show that all terms in a propositon are equal. Then
+     it suffices to prove that the type `A [[ s ]]` is a proposition, so it is enough
+     to show that the projection of `A [[ s ]]` is a monomorphism. Here we use that
+     monomorphisms are closed under pullback
+   *)
+  Proposition isaprop_tm_hprop_ty
+              {Γ : C}
+              {A : ty Γ}
+              (HA : is_hprop_ty A)
+    : isaprop (tm Γ A).
+  Proof.
+    use invproofirrelevance.
+    intros t₁ t₂.
+    use eq_comp_cat_tm.
+    use (hprop_ty_to_mono_ty HA).
+    rewrite !comp_cat_tm_eq.
+    apply idpath.
+  Qed.
+
+  Proposition mono_ty_subst_all_terms_eq
+              {Γ : C}
+              {A : ty Γ}
+              (HA : isMonic (π A))
+              {Δ : C}
+              (s : Δ --> Γ)
+    : isaprop (tm Δ (A [[ s ]])).
+  Proof.
+    use isaprop_tm_hprop_ty.
+    use mono_ty_to_hprop_ty.
+    pose (m := (π A ,, HA) : Monic _ _ _).
+    exact (MonicPullbackisMonic _ m s (comp_cat_pullback A s)).
+  Qed.
+
+  Definition mono_ty_weq_all_terms_eq
+             {Γ : C}
+             {A : ty Γ}
+    : isMonic (π A) ≃ ∏ (Δ : C) (s : Δ --> Γ), isaprop (tm Δ (A [[ s ]])).
+  Proof.
+    use weqimplimpl.
+    - exact mono_ty_subst_all_terms_eq.
+    - intros HA Δ t₁ t₂ p.
+      exact (all_terms_eq_to_mono_type_eq HA p).
+    - apply isapropisMonic.
+    - do 2 (use impred ; intro).
+      apply isapropisaprop.
+  Defined.
+
+  (** * 4. A type `A` is a proposition iff morphisms to the unit is a monomorphism *)
   Proposition subsingleton_to_mono_ty
               {Γ : C}
               {A : ty Γ}
@@ -298,20 +419,5 @@ Section MonoVSHProp.
     - exact mono_ty_to_subsingleton.
     - apply isapropisMonic.
     - apply isapropisMonic.
-  Qed.
-
-  (** * 4. Terms of a proposition are unique *)
-  Proposition isaprop_tm_hprop_ty
-              {Γ : C}
-              {A : ty Γ}
-              (HA : is_hprop_ty A)
-    : isaprop (tm Γ A).
-  Proof.
-    use invproofirrelevance.
-    intros t₁ t₂.
-    use eq_comp_cat_tm.
-    use (hprop_ty_to_mono_ty HA).
-    rewrite !comp_cat_tm_eq.
-    apply idpath.
   Qed.
 End MonoVSHProp.
