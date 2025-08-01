@@ -455,6 +455,7 @@ ComprehensionCat/TypeFormers/PiTypes.v
 ComprehensionCat/DFLCompCat.v
 ComprehensionCat/DFLCompCatNotations.v
 ComprehensionCat/ComprehensionEso.v
+ComprehensionCat/HPropMono.v
 ComprehensionCat/Biequivalence/DFLCompCatToFinLim.v
 ComprehensionCat/Biequivalence/FinLimToDFLCompCat.v
 ComprehensionCat/FinLimToCompCatLemmas.v

@@ -267,6 +267,21 @@ Section DFLCompCat.
       apply id_right.
   Qed.
 
+  Proposition tm_ext_identity_to_eq
+              {Γ : C}
+              {A : ty Γ}
+              {t₁ t₂ : tm Γ A}
+              (p : tm Γ (dfl_ext_identity_type t₁ t₂))
+    : t₁ = t₂.
+  Proof.
+    use eq_comp_cat_tm.
+    refine (!(id_left _) @ _ @ id_left _).
+    rewrite <- !(comp_cat_tm_eq p).
+    rewrite !assoc'.
+    apply maponpaths.
+    apply dfl_ext_identity_eq.
+  Qed.
+
   Definition dfl_ext_identity_type_tm
              {Γ : C}
              {A : ty Γ}
