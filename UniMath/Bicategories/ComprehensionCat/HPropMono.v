@@ -23,9 +23,10 @@
  comprehension functor in a DFL full comprehension category is an equivalence, because
  this allows one to conclude that it preserves monomorphisms.
 
- References
- - "Modular correspondence between dependent type theories and categories including
-   pretopoi and topoi" by Maietti
+ We also develop the displayed category of propositions in this file. Specifically, we
+ construct this displayed category [disp_cat_hprop_ty], we show that it is univalent
+ [is_univalent_disp_disp_cat_hprop_ty], and we prove that all displayed morphisms in this
+ displayed category are equal [locally_propositional_disp_cat_hprop_ty].
 
  Content
  1. Propositions in a comprehension category
@@ -294,6 +295,41 @@ Section MonoVSHProp.
     - exact mono_ty_to_hprop_ty.
     - apply isaprop_is_hprop_ty.
     - apply isapropisMonic.
+  Qed.
+
+  (**
+     Now we conclude that all displayed morphisms in the displayed category of
+     propositions are equal.
+   *)
+  Proposition locally_propositional_disp_cat_hprop_ty
+    : locally_propositional disp_cat_hprop_ty.
+  Proof.
+    intros Γ Δ s A B.
+    use invproofirrelevance.
+    intros ff gg.
+    use subtypePath.
+    {
+      intro.
+      apply isapropunit.
+    }
+    use (invmaponpathsweq
+           (disp_functor_ff_weq
+              _
+              (full_comp_cat_comprehension_fully_faithful C)
+              _ _ _)).
+    use subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    use (hprop_ty_to_mono_ty (pr2 B)).
+    simpl.
+    etrans.
+    {
+      apply comprehension_functor_mor_comm.
+    }
+    refine (!_).
+    apply comprehension_functor_mor_comm.
   Qed.
 
   (** * 3. A type `A` is a proposition iff all terms of type `A` in every context are equal *)
