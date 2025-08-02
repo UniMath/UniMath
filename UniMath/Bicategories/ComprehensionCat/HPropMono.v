@@ -37,9 +37,12 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
@@ -96,6 +99,52 @@ Section MonoVSHProp.
       apply maponpaths_2.
       apply (z_iso_inv_after_z_iso (id_subst_ty_iso _)).
   Qed.
+
+  (**
+     The following is the displayed category of propositions. We also construct the
+     inclusion from this displayed category to the displayed category of all types.
+     This functor is fully faithful.
+   *)
+  Definition disp_cat_hprop_ty
+    : disp_cat C
+    := sigma_disp_cat
+         (disp_full_sub
+            (total_category (disp_cat_of_types C))
+            (λ ΓA, is_hprop_ty (pr2 ΓA))).
+
+  Proposition is_univalent_disp_disp_cat_hprop_ty
+    : is_univalent_disp disp_cat_hprop_ty.
+  Proof.
+    use is_univalent_sigma_disp.
+    - apply disp_univalent_category_is_univalent_disp.
+    - use disp_full_sub_univalent.
+      intro ; simpl.
+      apply isaprop_is_hprop_ty.
+  Qed.
+
+  Definition disp_functor_hprop_ty_to_ty
+    : disp_functor
+        (functor_identity _)
+        disp_cat_hprop_ty
+        (disp_cat_of_types C)
+    := sigmapr1_disp_functor _.
+
+  Proposition disp_functor_hprop_ty_to_ty_ff
+    : disp_functor_ff disp_functor_hprop_ty_to_ty.
+  Proof.
+    intros Γ Δ A B s.
+    use isweq_iso.
+    - exact (λ ff, ff ,, tt).
+    - abstract
+        (simpl ;
+         intro sff ;
+         induction sff as [ sf x ] ;
+         induction x ;
+         apply idpath).
+    - abstract
+        (intro sff ; simpl ;
+         apply idpath).
+  Defined.
 
   (** * 2. A type `A` is a proposition iff `π A` is a monomorphism *)
 
