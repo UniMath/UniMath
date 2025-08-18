@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
-Section Monad_Lifting.
+Section MonadLifting.
 Context (C: category)
         (D: disp_cat C)
         (T: Monad C)
@@ -76,4 +76,16 @@ Definition monad_lifting (dot_F: disp_functor (pr1 T) D D) : UU :=
         monad_lifting_laws dot_T.
 
 
-End Monad_Lifting.
+Definition is_fibered_lifting {dot_F: disp_functor (pr1 T) D D} (dot_T: monad_lifting dot_F) : UU :=
+        ∏ (c : cleaving D), preserves_cleaving c c dot_F.
+
+Definition is_cartesian_lifting {dot_F: disp_functor (pr1 T) D D} (dot_T: monad_lifting dot_F) : UU :=
+    is_fibered_lifting dot_T
+    ×
+    (∏ (x : C) (dx : D x),
+       is_cartesian (dη (pr1 dot_T) x dx))
+    ×
+    (∏ (x : C) (dx : D x),
+       is_cartesian (dμ (pr1 dot_T) x dx)).
+
+End MonadLifting.

@@ -454,6 +454,7 @@ DisplayedCats/StreetOpFibration.v
 DisplayedCats/ReindexingForward.v
 DisplayedCats/TotalCategoryFacts.v
 DisplayedCats/TotalAdjunction.v
+DisplayedCats/MonadLifting.v
 
 Monads/KleisliCategory.v
 Monads/KTriples.v
