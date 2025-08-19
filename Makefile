@@ -82,6 +82,7 @@ PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
 ifneq "$(INCLUDE)" "no"
 include .coq_makefile_output.conf
 VFILES := $(COQMF_VFILES)
+VFILES_BASE := $(VFILES:.v=)
 VOFILES := $(VFILES:.v=.vo)
 endif
 
@@ -175,7 +176,7 @@ $(foreach P,$(PACKAGES),												\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
 			UniMath/$P/All.vo))
 
-$(foreach v,$(VFILES), $(eval $v.vo: $v.v; ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $v.vo))
+$(foreach v,$(VFILES_BASE), $(eval $v.vo: $v.v; ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $v.vo))
 
 install:all
 coqwc:; coqwc $(VFILES)
