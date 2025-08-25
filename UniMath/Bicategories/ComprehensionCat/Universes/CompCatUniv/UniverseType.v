@@ -389,6 +389,40 @@ Definition comp_cat_univ_el_stable
       (comp_cat_univ_el el (t [[ s ]]tm ↑ (sub_comp_cat_univ s)))
   := pr21 el Γ Δ s t.
 
+Definition comp_cat_univ_el_stable_mor
+           {C : comp_cat_with_ob}
+           (el : comp_cat_univ_type C)
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+           (t : tm Δ (comp_cat_univ Δ))
+  : ((comp_cat_univ_el el t) [[ s ]]
+     <:
+     comp_cat_univ_el el (t [[ s ]]tm ↑ (sub_comp_cat_univ s)))
+  := comp_cat_univ_el_stable el s t : _ --> _.
+
+Definition comp_cat_univ_el_stable_inv
+           {C : comp_cat_with_ob}
+           (el : comp_cat_univ_type C)
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+           (t : tm Δ (comp_cat_univ Δ))
+  : (comp_cat_univ_el el (t [[ s ]]tm ↑ (sub_comp_cat_univ s))
+     <:
+     (comp_cat_univ_el el t) [[ s ]])
+  := inv_from_z_iso (comp_cat_univ_el_stable el s t).
+
+Definition extend_sub_univ
+           {C : comp_cat_with_ob}
+           (el : comp_cat_univ_type C)
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+           (a : tm Δ (comp_cat_univ Δ))
+  : Γ & comp_cat_univ_el el (a [[ s ]]tm ↑ sub_comp_cat_univ s)
+    -->
+    Δ & comp_cat_univ_el el a
+  := comp_cat_comp_mor (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+     · comp_cat_extend_over (comp_cat_univ_el el a) s.
+
 Proposition comp_cat_univ_el_stable_natural
             {C : comp_cat_with_ob}
             (el : comp_cat_univ_type C)
@@ -533,6 +567,46 @@ Proof.
   }
   rewrite <- comp_cat_el_map_on_concat.
   apply comp_cat_el_map_on_idpath.
+Qed.
+
+Proposition transportf_comp_cat_univ_el
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ Δ : C}
+            {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
+            (p : t₁ = t₂)
+            (f : Γ & comp_cat_univ_el el t₁ --> Δ)
+  : transportf
+      (λ z, Γ & comp_cat_univ_el el z --> Δ)
+      p
+      f
+    =
+    comp_cat_comp_mor (comp_cat_el_map_on_eq el (!p)) · f.
+Proof.
+  induction p ; cbn.
+  rewrite comp_cat_comp_mor_id.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
+Proposition transportf_comp_cat_univ_el'
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ Δ : C}
+            {t₁ t₂ : tm Δ (comp_cat_univ Δ)}
+            (p : t₁ = t₂)
+            (f : Γ --> Δ & comp_cat_univ_el el t₁)
+  : transportf
+      (λ z, Γ --> Δ& comp_cat_univ_el el z)
+      p
+      f
+    =
+    f · comp_cat_comp_mor (comp_cat_el_map_on_eq el p).
+Proof.
+  induction p ; cbn.
+  rewrite comp_cat_comp_mor_id.
+  rewrite id_right.
+  apply idpath.
 Qed.
 
 (** * 6. Proving that two universe types are equal *)

@@ -46,6 +46,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.FullyFaithfulDispFunctor.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.Bicategories.Core.Bicat.
@@ -167,6 +168,80 @@ Section DFLCompCat.
     - exact dfl_full_comp_cat_mor_to_tm_to_mor.
     - exact dfl_full_comp_cat_tm_to_mor_to_tm.
   Defined.
+
+  Section TypeIso.
+    Context {Γ : C}
+            {A B : ty Γ}
+            (f : z_iso (Γ & A) (Γ & B))
+            (p : f · π B = π A).
+
+    Let HF : disp_functor_ff (comp_cat_comprehension C)
+      := full_comp_cat_comprehension_fully_faithful C.
+
+    Definition cod_iso_to_type_iso_mor
+      : comp_cat_comprehension C Γ A
+        -->[ identity _ ]
+        comp_cat_comprehension C Γ B.
+    Proof.
+      simple refine (_ ,, _).
+      - exact f.
+      - abstract
+          (cbn ;
+           rewrite id_right ;
+           exact p).
+    Defined.
+
+    Definition cod_iso_to_type_iso_inv
+      : comp_cat_comprehension C Γ B
+        -->[ identity _ ]
+        comp_cat_comprehension C Γ A.
+    Proof.
+      simple refine (_ ,, _).
+      - exact (inv_from_z_iso f).
+      - abstract
+          (cbn ;
+           rewrite id_right ;
+           use z_iso_inv_on_right ;
+           exact (!p)).
+    Defined.
+
+    Definition cod_iso_to_type_iso
+      : z_iso (C := fiber_category _ _) A B.
+    Proof.
+      use make_z_iso.
+      - use (disp_functor_ff_inv _ HF).
+        exact cod_iso_to_type_iso_mor.
+      - use (disp_functor_ff_inv _ HF).
+        exact cod_iso_to_type_iso_inv.
+      - split.
+        + abstract
+            (cbn ;
+             rewrite <- disp_functor_ff_inv_compose ;
+             unfold transportb ;
+             rewrite <- disp_functor_ff_inv_transportf ;
+             refine (_ @ disp_functor_ff_inv_identity _ HF _) ;
+             apply maponpaths ;
+             unfold transportb ;
+             rewrite transport_f_f ;
+             use eq_mor_cod_fib ;
+             unfold dom_mor ;
+             rewrite !transportf_cod_disp ; cbn ;
+             exact (z_iso_inv_after_z_iso f)).
+        + abstract
+            (cbn ;
+             rewrite <- disp_functor_ff_inv_compose ;
+             unfold transportb ;
+             rewrite <- disp_functor_ff_inv_transportf ;
+             refine (_ @ disp_functor_ff_inv_identity _ HF _) ;
+             apply maponpaths ;
+             unfold transportb ;
+             rewrite transport_f_f ;
+             use eq_mor_cod_fib ;
+             unfold dom_mor ;
+             rewrite !transportf_cod_disp ; cbn ;
+             exact (z_iso_after_z_iso_inv f)).
+    Defined.
+  End TypeIso.
 
   (** * 2. Operations on democracy *)
   Definition dfl_con_to_ty

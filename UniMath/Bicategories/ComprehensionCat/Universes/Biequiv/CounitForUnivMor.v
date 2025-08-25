@@ -307,9 +307,9 @@ Section CounitMor.
         {Γ : finlim_to_comp_cat_with_ob CCu}
         {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
         (p : t₁ = t₂)
-    : dfl_full_comp_cat_mor_to_tm u (finlim_univ_tm_to_mor t₁)
+    : dfl_full_comp_cat_mor_to_tm_univ u (finlim_univ_tm_to_mor t₁)
       =
-      dfl_full_comp_cat_mor_to_tm u (finlim_univ_tm_to_mor t₂).
+      dfl_full_comp_cat_mor_to_tm_univ u (finlim_univ_tm_to_mor t₂).
   Proof.
     do 2 apply maponpaths.
     exact p.
@@ -349,7 +349,7 @@ Section CounitMor.
         (comp_cat_comprehension C)
         (comp_cat_el_map_on_eq
            el
-           (maponpaths (dfl_full_comp_cat_mor_to_tm u) p)).
+           (maponpaths (dfl_full_comp_cat_mor_to_tm_univ u) p)).
   Proof.
     induction p.
     simpl.
@@ -382,7 +382,7 @@ Section CounitMor.
               (t : tm Γ (comp_cat_univ Γ))
     : t
       =
-      dfl_full_comp_cat_mor_to_tm
+      dfl_full_comp_cat_mor_to_tm_univ
         u
         (finlim_univ_tm_to_mor
            (comp_cat_functor_tm (finlim_dfl_comp_cat_counit_mor_comp_cat C) t

@@ -257,6 +257,19 @@ Section FinLimCompCatCalculation.
   Proof.
     apply idpath.
   Qed.
+
+  Proposition finlim_comp_cat_comp_mor_over
+              {Γ Δ : finlim_to_comp_cat C}
+              (s : Γ --> Δ)
+              {A : ty Γ}
+              {B : ty Δ}
+              (f : A <: B [[ s ]])
+    : comp_cat_comp_mor_over s f
+      =
+      dom_mor f · PullbackPr1 _.
+  Proof.
+    apply idpath.
+  Qed.
 End FinLimCompCatCalculation.
 
 (** * 2. Operations on functors between categories with finite limits *)

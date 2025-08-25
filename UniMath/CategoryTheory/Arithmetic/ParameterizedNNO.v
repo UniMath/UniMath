@@ -462,7 +462,19 @@ Section PreservationNNO.
   Proof.
     apply isaprop_is_z_isomorphism.
   Qed.
+
+  Definition preserves_parameterized_NNO_inv_z_iso
+             (HFN : preserves_parameterized_NNO)
+    : z_iso N₂ (F N₁)
+    := _ ,, HFN.
+
+  Definition preserves_parameterized_NNO_z_iso
+             (HFN : preserves_parameterized_NNO)
+    : z_iso (F N₁) N₂
+    := z_iso_inv (preserves_parameterized_NNO_inv_z_iso HFN).
 End PreservationNNO.
+
+Arguments preserves_parameterized_NNO_z_iso {C₁ C₂ T₁ BC₁ T₂ BC₂ N₁ N₂ F HF} HFN.
 
 (** * 7. Examples of functors that preserve parameterized NNOs *)
 Proposition id_preserves_parameterized_NNO_eq
@@ -718,4 +730,35 @@ Proof.
     apply z_iso_Terminals.
   - exact (parameterized_NNO_S N).
   - apply parameterized_NNO_independent_of_terminal_is_parameterized_NNO.
+Defined.
+
+Definition parameterized_NNO_independence_NNO
+           {C : univalent_category}
+           {T T' : Terminal C}
+           {P P' : BinProducts C}
+           (N : parameterized_NNO T' P')
+  : parameterized_NNO T P.
+Proof.
+  use parameterized_NNO_independent_of_terminal.
+  {
+    exact T'.
+  }
+  use parameterized_NNO_prod_independent.
+  {
+    exact P'.
+  }
+  exact N.
+Defined.
+
+Definition parameterized_NNO_independence_z_iso
+           {C : univalent_category}
+           {T T' : Terminal C}
+           {P P' : BinProducts C}
+           (N : parameterized_NNO T P)
+           (N' : parameterized_NNO T' P')
+  : z_iso N N'.
+Proof.
+  exact (parameterized_NNO_unique_up_to_iso
+           N
+           (parameterized_NNO_independence_NNO N')).
 Defined.

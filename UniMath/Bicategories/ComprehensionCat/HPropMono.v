@@ -33,6 +33,8 @@
  2. A type `A` is a proposition iff `π A` is a monomorphism
  3. A type `A` is a proposition iff all terms of type `A` in every context are equal
  4. A type `A` is a proposition iff morphisms to the unit is a monomorphism
+ 5. Propositions are closed under substitution
+ 6. The identity type is a proposition
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -285,6 +287,17 @@ Section MonoVSHProp.
     exact (hprop_ty_to_mono_ty_eq HA p).
   Qed.
 
+  Definition hprop_ty_to_monic
+             {Γ : C}
+             {A : ty Γ}
+             (HA : is_hprop_ty A)
+    : Monic _ (Γ & A) Γ.
+  Proof.
+    use make_Monic.
+    - exact (π A).
+    - exact (hprop_ty_to_mono_ty HA).
+  Defined.
+
   Definition is_hprop_ty_weq_mono_ty
              {Γ : C}
              (A : ty Γ)
@@ -504,5 +517,32 @@ Section MonoVSHProp.
     - exact mono_ty_to_subsingleton.
     - apply isapropisMonic.
     - apply isapropisMonic.
+  Qed.
+
+  (** * 5. Propositions are closed under substitution *)
+  Proposition is_hprop_ty_subst
+              {Γ Δ : C}
+              (s : Γ --> Δ)
+              {A : ty Δ}
+              (HA : is_hprop_ty A)
+    : is_hprop_ty (A [[ s ]]).
+  Proof.
+    use mono_ty_to_hprop_ty.
+    exact (MonicPullbackisMonic _ (hprop_ty_to_monic HA) _ (comp_cat_pullback A s)).
+  Qed.
+
+  (** * 6. The identity type is a proposition *)
+  Proposition is_hprop_ty_dfl_ext_identity_type
+              {Γ : C}
+              {A : ty Γ}
+              (t₁ t₂ : tm Γ A)
+    : is_hprop_ty (dfl_ext_identity_type t₁ t₂).
+  Proof.
+    use mono_ty_to_hprop_ty.
+    use all_terms_eq_to_mono_type_eq.
+    intros Δ s.
+    use invproofirrelevance.
+    intros p₁ p₂.
+    apply dfl_eq_subst_equalizer_tm.
   Qed.
 End MonoVSHProp.

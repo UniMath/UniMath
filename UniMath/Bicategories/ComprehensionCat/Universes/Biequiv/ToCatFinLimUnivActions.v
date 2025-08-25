@@ -109,7 +109,7 @@ Section ToFinLimUniv.
     := dfl_full_comp_cat_to_finlim C ,, dfl_full_comp_cat_to_finlim_ob.
 
   (** ** 1.2. Terms of the universe type versus morphisms *)
-  Definition dfl_full_comp_cat_mor_to_tm
+  Definition dfl_full_comp_cat_mor_to_tm_univ
              {Γ : Cu}
              (t : Γ --> [] & u)
     : tm Γ (comp_cat_univ Γ).
@@ -124,26 +124,26 @@ Section ToFinLimUniv.
         (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _))).
   Defined.
 
-  Definition dfl_full_comp_cat_tm_to_mor
+  Definition dfl_full_comp_cat_tm_to_mor_univ
              {Γ : Cu}
              (t : tm Γ (comp_cat_univ Γ))
     : Γ --> [] & u
     := t · PullbackPr1 (comp_cat_pullback _ _).
 
-  Proposition dfl_full_comp_cat_mor_to_tm_to_mor
+  Proposition dfl_full_comp_cat_mor_to_tm_to_mor_univ
               {Γ : Cu}
               (t : Γ --> [] & u)
-    : dfl_full_comp_cat_tm_to_mor (dfl_full_comp_cat_mor_to_tm t) = t.
+    : dfl_full_comp_cat_tm_to_mor_univ (dfl_full_comp_cat_mor_to_tm_univ t) = t.
   Proof.
-    unfold dfl_full_comp_cat_mor_to_tm, dfl_full_comp_cat_tm_to_mor.
+    unfold dfl_full_comp_cat_mor_to_tm_univ, dfl_full_comp_cat_tm_to_mor_univ.
     cbn.
     apply (PullbackArrow_PullbackPr1 (comp_cat_pullback _ _)).
   Qed.
 
-  Proposition dfl_full_comp_cat_tm_to_mor_to_tm
+  Proposition dfl_full_comp_cat_tm_to_mor_to_tm_univ
               {Γ : Cu}
               (t : tm Γ (comp_cat_univ Γ))
-    : dfl_full_comp_cat_mor_to_tm (dfl_full_comp_cat_tm_to_mor t) = t.
+    : dfl_full_comp_cat_mor_to_tm_univ (dfl_full_comp_cat_tm_to_mor_univ t) = t.
   Proof.
     use eq_comp_cat_tm ; cbn.
     use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback _ _))).
@@ -153,15 +153,15 @@ Section ToFinLimUniv.
       exact (!(comp_cat_tm_eq t)).
   Qed.
 
-  Definition dfl_full_comp_cat_mor_weq_tm
+  Definition dfl_full_comp_cat_mor_weq_tm_univ
              (Γ : Cu)
     : (Γ --> [] & u) ≃ tm Γ (comp_cat_univ Γ).
   Proof.
     use weq_iso.
-    - exact dfl_full_comp_cat_mor_to_tm.
-    - exact dfl_full_comp_cat_tm_to_mor.
-    - exact dfl_full_comp_cat_mor_to_tm_to_mor.
-    - exact dfl_full_comp_cat_tm_to_mor_to_tm.
+    - exact dfl_full_comp_cat_mor_to_tm_univ.
+    - exact dfl_full_comp_cat_tm_to_mor_univ.
+    - exact dfl_full_comp_cat_mor_to_tm_to_mor_univ.
+    - exact dfl_full_comp_cat_tm_to_mor_to_tm_univ.
   Defined.
 
   (** ** 1.3. The type associated to a term of the universe *)
@@ -170,7 +170,7 @@ Section ToFinLimUniv.
   Proof.
     intros Γ t.
     simple refine (_ ,, _).
-    - exact (Γ & comp_cat_univ_el el (dfl_full_comp_cat_mor_to_tm t)).
+    - exact (Γ & comp_cat_univ_el el (dfl_full_comp_cat_mor_to_tm_univ t)).
     - exact (π _).
   Defined.
 
@@ -230,9 +230,9 @@ Section ToFinLimUniv.
               {Γ Δ : Cu}
               (s : Γ --> Δ)
               (t : Δ --> [] & u)
-    : dfl_full_comp_cat_mor_to_tm t [[ s ]]tm ↑ sub_comp_cat_univ s
+    : dfl_full_comp_cat_mor_to_tm_univ t [[ s ]]tm ↑ sub_comp_cat_univ s
       =
-      dfl_full_comp_cat_mor_to_tm (s · t).
+      dfl_full_comp_cat_mor_to_tm_univ (s · t).
   Proof.
     use eq_comp_cat_tm.
     use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback _ _))).
@@ -293,7 +293,7 @@ Section ToFinLimUniv.
                   _
                   (comp_cat_el_map_on_eq el (!dfl_full_comp_cat_mor_to_sub_tm s t)
                    ;;
-                   inv_from_z_iso (comp_cat_univ_el_stable el s (dfl_full_comp_cat_mor_to_tm t))
+                   comp_cat_univ_el_stable_inv el s (dfl_full_comp_cat_mor_to_tm_univ t)
                    ;;
                    comp_cat_subst _ _)%mor_disp).
         abstract
@@ -303,11 +303,13 @@ Section ToFinLimUniv.
 
     Definition dfl_full_comp_cat_to_finlim_el_map_stable_z_iso
       : z_iso
-          (comp_cat_pullback (comp_cat_univ_el el (dfl_full_comp_cat_mor_to_tm t)) s)
+          (comp_cat_pullback
+             (comp_cat_univ_el el (dfl_full_comp_cat_mor_to_tm_univ t))
+             s)
           (cat_el_map_el dfl_full_comp_cat_to_finlim_el_map (s · t))
       := comp_cat_comp_fiber_z_iso
            (z_iso_comp
-              (comp_cat_univ_el_stable el s (dfl_full_comp_cat_mor_to_tm t))
+              (comp_cat_univ_el_stable el s (dfl_full_comp_cat_mor_to_tm_univ t))
               (comp_cat_el_map_on_eq_iso el (dfl_full_comp_cat_mor_to_sub_tm s t))).
 
     Proposition dfl_full_comp_cat_to_finlim_el_map_stable_comm
@@ -367,7 +369,7 @@ Section ToFinLimUniv.
           exact (inv_mor_after_z_iso_disp
                    (z_iso_disp_from_z_iso_fiber
                       _ _ _ _
-                      (comp_cat_univ_el_stable el s (dfl_full_comp_cat_mor_to_tm t)))).
+                      (comp_cat_univ_el_stable el s (dfl_full_comp_cat_mor_to_tm_univ t)))).
         }
         unfold transportb.
         rewrite mor_disp_transportf_postwhisker.
@@ -394,7 +396,8 @@ Section ToFinLimUniv.
            _
            _
            (isPullback_Pullback
-              (comp_cat_pullback (comp_cat_univ_el el (dfl_full_comp_cat_mor_to_tm t)) s))).
+              (comp_cat_pullback
+                 (comp_cat_univ_el el (dfl_full_comp_cat_mor_to_tm_univ t)) s))).
       + exact (dfl_full_comp_cat_to_finlim_el_map_stable_z_iso s t).
       + exact (dfl_full_comp_cat_to_finlim_el_map_stable_comm s t).
       + abstract
@@ -424,7 +427,7 @@ Section ToFinLimUniv.
         do 2 apply maponpaths.
         apply maponpaths_2.
         apply maponpaths.
-        exact (comp_cat_univ_el_stable_id_coh_inv el (dfl_full_comp_cat_mor_to_tm t)).
+        exact (comp_cat_univ_el_stable_id_coh_inv el (dfl_full_comp_cat_mor_to_tm_univ t)).
       }
       cbn -[id_subst_ty].
       rewrite mor_disp_transportf_prewhisker.
@@ -685,10 +688,16 @@ Section ToFunctorFinLimUniv.
          (comp_cat_functor_extension F _ _)
          Fi.
 
-  Let Fob : functor_finlim_ob CCu₁ CCu₂
+  Definition dfl_full_comp_cat_functor_finlim_ob
+    : functor_finlim_ob CCu₁ CCu₂
     := dfl_functor_comp_cat_to_finlim_functor F
        ,,
        dfl_full_comp_cat_functor_preserves_ob.
+
+  Arguments dfl_full_comp_cat_functor_finlim_ob /.
+
+  Let Fob : functor_finlim_ob CCu₁ CCu₂
+    := dfl_full_comp_cat_functor_finlim_ob.
 
   (** * 2.2. Preservation of the associated type *)
   Section PreservesElMap.
@@ -696,14 +705,14 @@ Section ToFunctorFinLimUniv.
             (t : Γ --> dfl_full_comp_cat_to_finlim_ob u₁).
 
     Let tu : tm Γ (comp_cat_univ Γ)
-      := dfl_full_comp_cat_mor_to_tm _ t.
+      := dfl_full_comp_cat_mor_to_tm_univ _ t.
 
     Proposition dfl_full_comp_cat_functor_preserves_el_map_eq
       : comp_cat_functor_tm Fu
-          (dfl_full_comp_cat_mor_to_tm u₁ t)
+          (dfl_full_comp_cat_mor_to_tm_univ u₁ t)
         ↑ functor_comp_cat_on_univ Fu Γ
         =
-        dfl_full_comp_cat_mor_to_tm
+        dfl_full_comp_cat_mor_to_tm_univ
           u₂
           (# F t
            · (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) u₁
@@ -785,7 +794,7 @@ Section ToFunctorFinLimUniv.
           (F (Γ & comp_cat_univ_el el₁ tu))
           (F Γ & comp_cat_univ_el
                    el₂
-                   (dfl_full_comp_cat_mor_to_tm u₂
+                   (dfl_full_comp_cat_mor_to_tm_univ u₂
                       (# F t
                        · (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) u₁
                        · comprehension_functor_mor (comp_cat_comprehension C₂) F_u)))).
@@ -798,7 +807,7 @@ Section ToFunctorFinLimUniv.
       refine (z_iso_comp
                 (comp_cat_functor_preserves_univ_type_el_iso
                    Fel
-                   (dfl_full_comp_cat_mor_to_tm _ t))
+                   (dfl_full_comp_cat_mor_to_tm_univ _ t))
                 _).
       use comp_cat_el_map_on_eq_iso.
       exact dfl_full_comp_cat_functor_preserves_el_map_eq.
@@ -814,7 +823,7 @@ Section ToFunctorFinLimUniv.
             _
             (comp_cat_functor_preserves_univ_type_el_iso
                Fel
-               (dfl_full_comp_cat_mor_to_tm u₁ t)
+               (dfl_full_comp_cat_mor_to_tm_univ u₁ t)
              · comp_cat_el_map_on_eq_iso
                  _
                  dfl_full_comp_cat_functor_preserves_el_map_eq)
@@ -858,7 +867,7 @@ Section ToFunctorFinLimUniv.
           (comp_cat_comprehension C₂)
           (pr1 (comp_cat_functor_preserves_univ_type_el_iso
                   Fel
-                  (dfl_full_comp_cat_mor_to_tm u₁ t))
+                  (dfl_full_comp_cat_mor_to_tm_univ u₁ t))
            ;; pr1 (comp_cat_el_map_on_eq_iso el₂
                      (dfl_full_comp_cat_functor_preserves_el_map_eq t)))%mor_disp.
   Proof.
@@ -876,22 +885,24 @@ Section ToFunctorFinLimUniv.
     : #F (cat_el_map_pb_mor (dfl_full_comp_cat_to_finlim_stable_el_map u₁ el₁) s t)
       · comprehension_nat_trans_mor
           (comp_cat_functor_comprehension F)
-          (comp_cat_univ_el el₁ (dfl_full_comp_cat_mor_to_tm u₁ t))
+          (comp_cat_univ_el el₁ (dfl_full_comp_cat_mor_to_tm_univ u₁ t))
       · comprehension_functor_mor
           (comp_cat_comprehension C₂)
-          (comp_cat_functor_preserves_univ_type_el_mor Fel (dfl_full_comp_cat_mor_to_tm u₁ t)
+          (comp_cat_functor_preserves_univ_type_el_mor
+             Fel
+             (dfl_full_comp_cat_mor_to_tm_univ u₁ t)
            ;; comp_cat_el_map_on_eq
                 _
                 (dfl_full_comp_cat_functor_preserves_el_map_eq t))%mor_disp
       =
       comprehension_nat_trans_mor
         (comp_cat_functor_comprehension F)
-        (comp_cat_univ_el el₁ (dfl_full_comp_cat_mor_to_tm u₁ (s · t)))
+        (comp_cat_univ_el el₁ (dfl_full_comp_cat_mor_to_tm_univ u₁ (s · t)))
       · comprehension_functor_mor
           (comp_cat_comprehension C₂)
           (comp_cat_functor_preserves_univ_type_el_mor
              Fel
-             (dfl_full_comp_cat_mor_to_tm u₁ (s · t))
+             (dfl_full_comp_cat_mor_to_tm_univ u₁ (s · t))
            ;; comp_cat_el_map_on_eq
                 _
                 (dfl_full_comp_cat_functor_preserves_el_map_eq (s · t)))%mor_disp
@@ -947,7 +958,7 @@ Section ToFunctorFinLimUniv.
           apply (comp_cat_functor_preserves_univ_type_el_stable_alt_inv_disp_alt
                    Fel
                    s
-                   (dfl_full_comp_cat_mor_to_tm _ t)).
+                   (dfl_full_comp_cat_mor_to_tm_univ _ t)).
         }
         refine (!_).
         apply comprehension_functor_mor_comp.
@@ -1010,7 +1021,10 @@ Section ToFunctorFinLimUniv.
         exact (z_iso_disp_after_inv_mor
                  (z_iso_disp_from_z_iso_fiber
                     _ _ _ _
-                    (comp_cat_univ_el_stable el₁ s (dfl_full_comp_cat_mor_to_tm u₁ t)))).
+                    (comp_cat_univ_el_stable
+                       el₁
+                       s
+                       (dfl_full_comp_cat_mor_to_tm_univ u₁ t)))).
       }
       unfold transportb.
       rewrite mor_disp_transportf_prewhisker.

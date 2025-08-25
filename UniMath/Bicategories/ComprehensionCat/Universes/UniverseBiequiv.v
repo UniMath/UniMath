@@ -31,6 +31,9 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
@@ -41,6 +44,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBiequivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.DispTransformation.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudoNaturalAdjequiv.
+Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
@@ -49,13 +53,19 @@ Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
-Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
-Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.
+Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.Unit.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.Biequiv.
+Require Import UniMath.Bicategories.ComprehensionCat.FinLimToCompCatLemmas.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
 Require Export UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCompCatUniv.
 Require Export UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivActions.
 Require Export UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivCell.

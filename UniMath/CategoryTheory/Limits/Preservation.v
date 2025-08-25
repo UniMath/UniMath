@@ -20,10 +20,8 @@
  *********************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
@@ -673,6 +671,78 @@ Proof.
     + exact Hx.
 Defined.
 
+Section Iso.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          (HF : preserves_equalizer F)
+          {x y : C₁}
+          {f g : x --> y}
+          (e₁ : Equalizer f g)
+          (e₂ : Equalizer (#F f) (#F g)).
+
+  Lemma preserves_equalizer_z_iso_help_eq
+    : #F (EqualizerArrow e₁) · #F f = #F (EqualizerArrow e₁) · #F g.
+  Proof.
+    rewrite <- !functor_comp.
+    rewrite EqualizerEqAr.
+    apply idpath.
+  Qed.
+
+  Let Fe : Equalizer (#F f) (#F g)
+    := make_Equalizer
+         _ _ _ _
+         (HF _ _ _ _ _ _ _
+             preserves_equalizer_z_iso_help_eq
+             (isEqualizer_Equalizer e₁)).
+
+  Definition preserves_equalizer_z_iso_mor
+    : F e₁ --> e₂.
+  Proof.
+    use EqualizerIn.
+    - exact (#F (EqualizerArrow e₁)).
+    - exact preserves_equalizer_z_iso_help_eq.
+  Defined.
+
+  Definition preserves_equalizer_z_iso_inv
+    : e₂ --> F e₁.
+  Proof.
+    use (EqualizerIn Fe).
+    - exact (EqualizerArrow e₂).
+    - abstract
+        (apply EqualizerEqAr).
+  Defined.
+
+  Proposition preserves_equalizer_z_iso_eqs
+    : is_inverse_in_precat
+        preserves_equalizer_z_iso_mor
+        preserves_equalizer_z_iso_inv.
+  Proof.
+    unfold preserves_equalizer_z_iso_mor, preserves_equalizer_z_iso_inv.
+    split.
+    - use (EqualizerInsEq Fe).
+      rewrite !assoc'.
+      rewrite (EqualizerCommutes Fe).
+      rewrite EqualizerCommutes.
+      rewrite id_left.
+      apply idpath.
+    - use EqualizerInsEq.
+      rewrite !assoc'.
+      rewrite EqualizerCommutes.
+      rewrite (EqualizerCommutes Fe).
+      rewrite id_left.
+      apply idpath.
+  Qed.
+
+  Definition preserves_equalizer_z_iso
+    : z_iso (F e₁) e₂.
+  Proof.
+    use make_z_iso.
+    - exact preserves_equalizer_z_iso_mor.
+    - exact preserves_equalizer_z_iso_inv.
+    - exact preserves_equalizer_z_iso_eqs.
+  Defined.
+End Iso.
+
 Definition isaprop_preserves_equalizer
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
@@ -938,6 +1008,42 @@ Proof.
   rewrite HFxy.
   now rewrite HGxy.
 Qed.
+
+(**
+   Functors that preserve pullbacks, also preserve monomorphisms
+ *)
+Proposition is_monic_functor_preserves_pb
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            (HF : preserves_pullback F)
+            {x y : C₁}
+            (m : x --> y)
+            (Hm : isMonic m)
+  : isMonic (#F m).
+Proof.
+  use isPullback_to_isMonic.
+  apply isMonic_to_isPullback in Hm.
+  use (isPullback_mor_paths _ _ _ _ _ _ (HF _ _ _ _ _ _ _ _ _ (idpath _) Hm)).
+  - apply idpath.
+  - apply idpath.
+  - apply functor_id.
+  - apply functor_id.
+Qed.
+
+Definition functor_preserves_pb_on_monic
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           (HF : preserves_pullback F)
+           {x y : C₁}
+           (m : Monic C₁ x y)
+  : Monic C₂ (F x) (F y).
+Proof.
+  use make_Monic.
+  - exact (#F m).
+  - apply is_monic_functor_preserves_pb.
+    + exact HF.
+    + apply MonicisMonic.
+Defined.
 
 (**
  6. Preservation of initial objects

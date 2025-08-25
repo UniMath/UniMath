@@ -108,7 +108,7 @@ Section Identitor.
               p
     : comprehension_functor_mor
         (comp_cat_comprehension C)
-        (id_comp_cat_functor_preserves_el el Γ (dfl_full_comp_cat_mor_to_tm u t)
+        (id_comp_cat_functor_preserves_el el Γ (dfl_full_comp_cat_mor_to_tm_univ u t)
          · comp_cat_el_map_on_eq_iso
              el
              (dfl_full_comp_cat_functor_preserves_el_map_eq
@@ -206,7 +206,7 @@ Section Identitor.
                     el
                     (id_comp_cat_functor_preserves_el_lem
                        el
-                       (dfl_full_comp_cat_mor_to_tm u t))
+                       (dfl_full_comp_cat_mor_to_tm_univ u t))
                     (dfl_full_comp_cat_functor_preserves_el_map_eq
                        (id₁ C)
                        (id_disp (D := disp_bicat_comp_cat_with_ob) u)

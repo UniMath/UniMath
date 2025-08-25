@@ -1151,6 +1151,13 @@ Definition univ_cat_with_finlim_universe
   : UU
   := bicat_of_univ_cat_with_finlim_universe.
 
+Definition make_univ_cat_with_finlim_universe
+           (C : univ_cat_with_finlim)
+           (u : C)
+           (el : cat_stable_el_map_coherent (C ,, u))
+  : univ_cat_with_finlim_universe
+  := C ,, u ,, el.
+
 Coercion univ_cat_with_finlim_universe_to_univ_cat_finlim_ob
          (C : univ_cat_with_finlim_universe)
   : univ_cat_with_finlim_ob
@@ -1158,13 +1165,24 @@ Coercion univ_cat_with_finlim_universe_to_univ_cat_finlim_ob
 
 Definition univ_cat_cat_stable_el_map
            (C : univ_cat_with_finlim_universe)
-  : cat_stable_el_map C
-  := pr122 C.
+  : cat_stable_el_map_coherent C
+  := pr22 C.
 
 Definition functor_finlim_universe
            (C₁ C₂ : univ_cat_with_finlim_universe)
   : UU
   := C₁ --> C₂.
+
+Definition make_functor_finlim_universe
+           {C₁ C₂ : univ_cat_with_finlim_universe}
+           (F : functor_finlim C₁ C₂)
+           (Fu : z_iso (F (univ_cat_universe C₁)) (univ_cat_universe C₂))
+           (Fel : functor_preserves_el
+                    (univ_cat_cat_stable_el_map C₁)
+                    (univ_cat_cat_stable_el_map C₂)
+                    (F ,, Fu))
+  : functor_finlim_universe C₁ C₂
+  := F ,, Fu ,, Fel.
 
 Coercion functor_finlim_universe_to_functor_finlim_ob
          {C₁ C₂ : univ_cat_with_finlim_universe}
@@ -1186,6 +1204,20 @@ Definition nat_trans_finlim_universe
            (F G : functor_finlim_universe C₁ C₂)
   : UU
   := F ==> G.
+
+Definition make_nat_trans_finlim_universe
+           {C₁ C₂ : univ_cat_with_finlim_universe}
+           {F G : functor_finlim_universe C₁ C₂}
+           (τ : F ⟹ G)
+           (p : τ (univ_cat_universe C₁) · functor_on_universe G
+                =
+                functor_on_universe F)
+           (Hτ : nat_trans_preserves_el
+                   (make_nat_trans_finlim τ ,, p)
+                   (functor_finlim_universe_preserves_el F)
+                   (functor_finlim_universe_preserves_el G))
+  : nat_trans_finlim_universe F G
+  := make_nat_trans_finlim τ ,, p ,, Hτ.
 
 Coercion nat_trans_finlim_ob_to_functor_nat_trans_ob
          {C₁ C₂ : univ_cat_with_finlim_universe}

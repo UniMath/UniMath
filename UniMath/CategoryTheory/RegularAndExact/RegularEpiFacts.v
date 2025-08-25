@@ -22,6 +22,9 @@
  3. Regular epimorphisms versus strong epimorphisms
  4. Strong epimorphisms versus extremal epimorphisms
  5. Regular epimorphisms versus extremal epimorphisms
+ 6. Functoriality of the image
+ 7. Preservation of the image by functors
+ 8. Regular epis are the coequalizer of their kernel pair
 
  ********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -29,6 +32,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.EpiFacts.
 Require Import UniMath.CategoryTheory.Monics.
@@ -501,3 +505,430 @@ Definition regular_epi_weq_extremal_epi
            (e : x --> y)
   : is_extremal_epi e ≃ is_regular_epi e
   := (regular_epi_weq_strong_epi PB EC HC e ∘ extremal_epi_weq_strong_epi PB e)%weq.
+
+(** * 6. Functoriality of the image *)
+Proposition regular_category_im_map_eq
+            {C : category}
+            (HC : is_regular_category C)
+            {x₁ x₂ y₁ y₂ : C}
+            (f₁ : x₁ --> y₁)
+            (f₂ : x₂ --> y₂)
+            (gx : x₁ --> x₂)
+            (gy : y₁ --> y₂)
+            (p : f₁ · gy = gx · f₂)
+  : regular_category_to_im HC f₁ · (regular_category_im_Monic HC f₁ · gy)
+    =
+    gx · regular_category_to_im HC f₂ · regular_category_im_Monic HC f₂.
+Proof.
+  rewrite !assoc.
+  rewrite <- regular_category_im_commutes.
+  rewrite !assoc'.
+  rewrite <- regular_category_im_commutes.
+  exact p.
+Qed.
+
+Definition regular_category_im_map
+           {C : category}
+           (HC : is_regular_category C)
+           {x₁ x₂ y₁ y₂ : C}
+           (f₁ : x₁ --> y₁)
+           (f₂ : x₂ --> y₂)
+           (gx : x₁ --> x₂)
+           (gy : y₁ --> y₂)
+           (p : f₁ · gy = gx · f₂)
+  : regular_category_im HC f₁ --> regular_category_im HC f₂
+  := pr11 (is_strong_epi_regular_epi
+             (is_regular_epi_regular_category_to_im HC f₁)
+             _ _
+             (regular_category_im_Monic HC f₂)
+             (gx · regular_category_to_im _ _)
+             (regular_category_im_Monic _ _ · gy)
+             (regular_category_im_map_eq HC _ _ _ _ p)
+             (MonicisMonic _ _)).
+
+Proposition regular_category_im_map_left
+            {C : category}
+            (HC : is_regular_category C)
+            {x₁ x₂ y₁ y₂ : C}
+            (f₁ : x₁ --> y₁)
+            (f₂ : x₂ --> y₂)
+            (gx : x₁ --> x₂)
+            (gy : y₁ --> y₂)
+            (p : f₁ · gy = gx · f₂)
+  : regular_category_im_map HC f₁ f₂ gx gy p · regular_category_im_Monic HC f₂
+    =
+    regular_category_im_Monic HC f₁ · gy.
+Proof.
+  exact (pr121 (is_strong_epi_regular_epi
+                  (is_regular_epi_regular_category_to_im HC f₁)
+                  _ _
+                  (regular_category_im_Monic HC f₂)
+                  (gx · regular_category_to_im _ _)
+                  (regular_category_im_Monic _ _ · gy)
+                  (regular_category_im_map_eq HC _ _ _ _ p)
+                  (MonicisMonic _ _))).
+Qed.
+
+Proposition regular_category_im_map_right
+            {C : category}
+            (HC : is_regular_category C)
+            {x₁ x₂ y₁ y₂ : C}
+            (f₁ : x₁ --> y₁)
+            (f₂ : x₂ --> y₂)
+            (gx : x₁ --> x₂)
+            (gy : y₁ --> y₂)
+            (p : f₁ · gy = gx · f₂)
+  : regular_category_to_im HC f₁ · regular_category_im_map HC f₁ f₂ gx gy p
+    =
+    gx · regular_category_to_im HC f₂.
+Proof.
+  exact (pr221 (is_strong_epi_regular_epi
+                  (is_regular_epi_regular_category_to_im HC f₁)
+                  _ _
+                  (regular_category_im_Monic HC f₂)
+                  (gx · regular_category_to_im _ _)
+                  (regular_category_im_Monic _ _ · gy)
+                  (regular_category_im_map_eq HC _ _ _ _ p)
+                  (MonicisMonic _ _))).
+Qed.
+
+Proposition regular_category_mor_to_im_eq
+            {C : category}
+            (HC : is_regular_category C)
+            {x₁ x₂ y₁ y₂ : C}
+            (f₁ : x₁ --> y₁)
+            (f₂ : x₂ --> y₂)
+            (gx : x₁ --> x₂)
+            (gy : y₁ --> y₂)
+            (p : f₁ · gy = gx · f₂)
+            {l₁ l₂ : regular_category_im HC f₁
+                     -->
+                     regular_category_im HC f₂}
+            (q₁ : l₁ · regular_category_im_Monic HC f₂
+                  =
+                  regular_category_im_Monic HC f₁ · gy)
+            (q₂ : l₂ · regular_category_im_Monic HC f₂
+                  =
+                  regular_category_im_Monic HC f₁ · gy)
+            (r₁ : regular_category_to_im HC f₁ · l₁
+                  =
+                  gx · regular_category_to_im HC f₂)
+            (r₂ : regular_category_to_im HC f₁ · l₂
+                  =
+                  gx · regular_category_to_im HC f₂)
+  : l₁ = l₂.
+Proof.
+  refine (maponpaths
+            pr1
+            (proofirrelevance
+               _
+               (isapropifcontr
+                  (is_strong_epi_regular_epi
+                     (is_regular_epi_regular_category_to_im HC f₁)
+                     _ _
+                     (regular_category_im_Monic HC f₂)
+                     (gx · regular_category_to_im _ _)
+                     (regular_category_im_Monic _ _ · gy)
+                     _
+                     (MonicisMonic _ _)))
+               (l₁ ,, (q₁ ,, r₁))
+               (l₂ ,, (q₂ ,, r₂)))).
+  rewrite !assoc.
+  rewrite <- regular_category_im_commutes.
+  rewrite !assoc'.
+  rewrite <- regular_category_im_commutes.
+  exact p.
+Qed.
+
+Proposition regular_category_im_map_on_id
+            {C : category}
+            (HC : is_regular_category C)
+            {x y : C}
+            (f : x --> y)
+            (p : f · identity y = identity x · f)
+  : regular_category_im_map HC f f (identity _) (identity _) p
+    =
+    identity _.
+Proof.
+  use (regular_category_mor_to_im_eq HC).
+  - apply identity.
+  - apply identity.
+  - rewrite id_left, id_right.
+    apply idpath.
+  - rewrite regular_category_im_map_left.
+    apply idpath.
+  - rewrite id_left, id_right.
+    apply idpath.
+  - rewrite regular_category_im_map_right.
+    apply idpath.
+  - rewrite id_left, id_right.
+    apply idpath.
+Qed.
+
+Definition regular_category_im_map_on_comp
+           {C : category}
+           (HC : is_regular_category C)
+           {x₁ x₂ x₃ y₁ y₂ y₃ : C}
+           (f₁ : x₁ --> y₁)
+           (f₂ : x₂ --> y₂)
+           (f₃ : x₃ --> y₃)
+           (gx : x₁ --> x₂)
+           (gy : y₁ --> y₂)
+           (p : f₁ · gy = gx · f₂)
+           (hx : x₂ --> x₃)
+           (hy : y₂ --> y₃)
+           (q : f₂ · hy = hx · f₃)
+           (r : f₁ · (gy · hy) = gx · hx · f₃)
+  : regular_category_im_map HC f₁ f₂ gx gy p
+    · regular_category_im_map HC f₂ f₃ hx hy q
+    =
+    regular_category_im_map HC f₁ f₃ (gx · hx) (gy · hy) r.
+Proof.
+  use (regular_category_mor_to_im_eq HC).
+  - exact (gx · hx).
+  - exact (gy · hy).
+  - exact r.
+  - rewrite !assoc'.
+    rewrite regular_category_im_map_left.
+    rewrite assoc.
+    rewrite regular_category_im_map_left.
+    rewrite assoc'.
+    apply idpath.
+  - rewrite regular_category_im_map_left.
+    apply idpath.
+  - rewrite assoc.
+    rewrite regular_category_im_map_right.
+    rewrite !assoc'.
+    rewrite regular_category_im_map_right.
+    apply idpath.
+  - rewrite regular_category_im_map_right.
+    apply idpath.
+Qed.
+
+(** * 7. Preservation of the image by functors *)
+Section PreservesImage.
+  Context {C₁ C₂ : category}
+          (HC₁ : is_regular_category C₁)
+          (HC₂ : is_regular_category C₂)
+          {F : C₁ ⟶ C₂}
+          (HF : preserves_regular_epi F)
+          (HF' : preserves_pullback F)
+          {x y : C₁}
+          (f : x --> y).
+
+  Proposition regular_functor_preserves_im_z_iso_eq
+    : #F (regular_category_to_im HC₁ f)
+      · #F (regular_category_im_Monic HC₁ f)
+      =
+      regular_category_to_im HC₂ (#F f)
+      · regular_category_im_Monic HC₂ (#F f).
+  Proof.
+    rewrite <- functor_comp.
+    rewrite <- !regular_category_im_commutes.
+    apply idpath.
+  Qed.
+
+  Definition regular_functor_preserves_im_mor
+    : F (regular_category_im HC₁ f)
+      -->
+      regular_category_im HC₂ (#F f)
+    := pr11 (is_strong_epi_regular_epi
+               (HF _ _ _ (is_regular_epi_regular_category_to_im HC₁ f))
+               _ _
+               (regular_category_im_Monic HC₂ (#F f))
+               (regular_category_to_im HC₂ (#F f))
+               (#F (regular_category_im_Monic HC₁ f))
+               regular_functor_preserves_im_z_iso_eq
+               (MonicisMonic _ _)).
+
+  Proposition regular_functor_preserves_im_mor_left
+    : regular_functor_preserves_im_mor
+      · regular_category_im_Monic HC₂ (#F f)
+      =
+      #F (regular_category_im_Monic HC₁ f).
+  Proof.
+    exact (pr121 (is_strong_epi_regular_epi
+                    (HF _ _ _ (is_regular_epi_regular_category_to_im HC₁ f))
+                    _ _
+                    (regular_category_im_Monic HC₂ (#F f))
+                    (regular_category_to_im HC₂ (#F f))
+                    (#F (regular_category_im_Monic HC₁ f))
+                    regular_functor_preserves_im_z_iso_eq
+                    (MonicisMonic _ _))).
+  Qed.
+
+  Proposition regular_functor_preserves_im_mor_right
+    : #F (regular_category_to_im HC₁ f)
+      · regular_functor_preserves_im_mor
+      =
+      regular_category_to_im HC₂ (#F f).
+  Proof.
+    exact (pr221 (is_strong_epi_regular_epi
+                    (HF _ _ _ (is_regular_epi_regular_category_to_im HC₁ f))
+                    _ _
+                    (regular_category_im_Monic HC₂ (#F f))
+                    (regular_category_to_im HC₂ (#F f))
+                    (#F (regular_category_im_Monic HC₁ f))
+                    regular_functor_preserves_im_z_iso_eq
+                    (MonicisMonic _ _))).
+  Qed.
+
+  Proposition regular_functor_preserves_im_inv_eq
+    : regular_category_to_im HC₂ (#F f)
+      · regular_category_im_Monic HC₂ (#F f)
+      =
+      #F (regular_category_to_im HC₁ f)
+      · functor_preserves_pb_on_monic HF' (regular_category_im_Monic HC₁ f).
+  Proof.
+    refine (_ @ functor_comp F _ _).
+    rewrite <- !regular_category_im_commutes.
+    apply idpath.
+  Qed.
+
+  Definition regular_functor_preserves_im_inv
+    : regular_category_im HC₂ (#F f)
+      -->
+      F (regular_category_im HC₁ f)
+    := pr11 (is_strong_epi_regular_epi
+               (is_regular_epi_regular_category_to_im HC₂ (#F f))
+               _ _
+               (functor_preserves_pb_on_monic
+                  HF'
+                  (regular_category_im_Monic HC₁ f))
+               (#F(regular_category_to_im HC₁ f))
+               (regular_category_im_Monic HC₂ (#F f))
+               regular_functor_preserves_im_inv_eq
+               (MonicisMonic _ _)).
+
+  Proposition regular_functor_preserves_im_inv_left
+    : regular_functor_preserves_im_inv
+      · #F (regular_category_im_Monic HC₁ f)
+      =
+      regular_category_im_Monic HC₂ (# F f).
+  Proof.
+    exact (pr121 (is_strong_epi_regular_epi
+                    (is_regular_epi_regular_category_to_im HC₂ (#F f))
+                    _ _
+                    (functor_preserves_pb_on_monic
+                       HF'
+                       (regular_category_im_Monic HC₁ f))
+                    (#F(regular_category_to_im HC₁ f))
+                    (regular_category_im_Monic HC₂ (#F f))
+                    regular_functor_preserves_im_inv_eq
+                    (MonicisMonic _ _))).
+  Qed.
+
+  Proposition regular_functor_preserves_im_inv_right
+    : regular_category_to_im HC₂ (#F f)
+      · regular_functor_preserves_im_inv
+      =
+      #F (regular_category_to_im HC₁ f).
+  Proof.
+    exact (pr221 (is_strong_epi_regular_epi
+                    (is_regular_epi_regular_category_to_im HC₂ (#F f))
+                    _ _
+                    (functor_preserves_pb_on_monic
+                       HF'
+                       (regular_category_im_Monic HC₁ f))
+                    (#F(regular_category_to_im HC₁ f))
+                    (regular_category_im_Monic HC₂ (#F f))
+                    regular_functor_preserves_im_inv_eq
+                    (MonicisMonic _ _))).
+  Qed.
+
+  Proposition regular_functor_preserves_im_z_iso_inv_eqs
+    : is_inverse_in_precat
+        regular_functor_preserves_im_mor
+        regular_functor_preserves_im_inv.
+  Proof.
+    split.
+    - use (pr2 (functor_preserves_pb_on_monic HF' (regular_category_im_Monic HC₁ f)) _).
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        apply regular_functor_preserves_im_inv_left.
+      }
+      rewrite regular_functor_preserves_im_mor_left.
+      rewrite id_left.
+      apply idpath.
+    - use (regular_category_mor_to_im_eq HC₂).
+      + apply identity.
+      + apply identity.
+      + rewrite id_left, id_right.
+        apply idpath.
+      + rewrite assoc'.
+        rewrite regular_functor_preserves_im_mor_left.
+        rewrite regular_functor_preserves_im_inv_left.
+        rewrite id_right.
+        apply idpath.
+      + rewrite id_left, id_right.
+        apply idpath.
+      + rewrite assoc.
+        rewrite regular_functor_preserves_im_inv_right.
+        rewrite regular_functor_preserves_im_mor_right.
+        rewrite id_left.
+        apply idpath.
+      + rewrite id_left, id_right.
+        apply idpath.
+  Qed.
+
+  Definition regular_functor_preserves_im_z_iso
+    : z_iso (F(regular_category_im HC₁ f)) (regular_category_im HC₂ (#F f)).
+  Proof.
+    use make_z_iso.
+    - exact regular_functor_preserves_im_mor.
+    - exact regular_functor_preserves_im_inv.
+    - exact regular_functor_preserves_im_z_iso_inv_eqs.
+  Defined.
+End PreservesImage.
+
+(** * 8. Regular epis are the coequalizer of their kernel pair *)
+Definition regular_epi_coeq_kernel_pair
+           {C : category}
+           (PB : Pullbacks C)
+           {x y : C}
+           {f : x --> y}
+           (Hf : is_regular_epi f)
+  : isCoequalizer
+      (PullbackPr1 (PB _ _ _ f f))
+      (PullbackPr2 (PB _ _ _ f f))
+      f
+      (PullbackSqrCommutes _).
+Proof.
+  revert Hf.
+  use factor_through_squash.
+  {
+    apply isaprop_isCoequalizer.
+  }
+  intros H.
+  induction H as [ z [ g₁ [ g₂ [ p isCoeq ]]]].
+  pose (Coeq := make_Coequalizer _ _ _ _ isCoeq).
+  intros w h q.
+  use iscontraprop1.
+  {
+    use invproofirrelevance.
+    intros φ₁ φ₂.
+    use subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    use (CoequalizerOutsEq Coeq).
+    cbn.
+    exact (pr2 φ₁ @ !(pr2 φ₂)).
+  }
+  pose (ζ := PullbackArrow (PB _ _ _ f f) z g₁ g₂ p).
+  simple refine (_ ,, _).
+  - use (CoequalizerOut Coeq w h).
+    refine (_ @ maponpaths (λ z, ζ · z) q @ _).
+    + unfold ζ.
+      rewrite !assoc.
+      rewrite PullbackArrow_PullbackPr1.
+      apply idpath.
+    + unfold ζ.
+      rewrite !assoc.
+      rewrite PullbackArrow_PullbackPr2.
+      apply idpath.
+  - apply (CoequalizerCommutes Coeq).
+Qed.

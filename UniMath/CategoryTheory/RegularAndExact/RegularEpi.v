@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Epis.
+
 Local Open Scope cat.
 
 (** * 1. Regular epimorphisms *)

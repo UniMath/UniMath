@@ -192,12 +192,12 @@ Section CounitCell.
         (comp_cat_functor_comprehension F)
         (comp_cat_univ_el
            el₁
-           (dfl_full_comp_cat_mor_to_tm u₁ (finlim_univ_tm_to_mor t)))
+           (dfl_full_comp_cat_mor_to_tm_univ u₁ (finlim_univ_tm_to_mor t)))
       · comprehension_functor_mor
           (comp_cat_comprehension C₂)
           (comp_cat_functor_preserves_univ_type_el_iso
              Fel
-             (dfl_full_comp_cat_mor_to_tm u₁ (finlim_univ_tm_to_mor t))
+             (dfl_full_comp_cat_mor_to_tm_univ u₁ (finlim_univ_tm_to_mor t))
            · comp_cat_el_map_on_eq
                el₂
                (dfl_full_comp_cat_functor_preserves_el_map_eq
@@ -219,12 +219,12 @@ Section CounitCell.
         (comp_cat_functor_comprehension F)
         (comp_cat_univ_el
            el₁
-           (dfl_full_comp_cat_mor_to_tm u₁ (finlim_univ_tm_to_mor t)))
+           (dfl_full_comp_cat_mor_to_tm_univ u₁ (finlim_univ_tm_to_mor t)))
       · comprehension_functor_mor
           (comp_cat_comprehension C₂)
           (comp_cat_functor_preserves_univ_type_el_iso
              Fel
-             (dfl_full_comp_cat_mor_to_tm u₁ (finlim_univ_tm_to_mor t))
+             (dfl_full_comp_cat_mor_to_tm_univ u₁ (finlim_univ_tm_to_mor t))
            · comp_cat_el_map_on_eq
                el₂
                p).

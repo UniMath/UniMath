@@ -298,6 +298,29 @@ Section ComprehensionEso.
       : Δ --> Γ & fib
       := comprehension_eso_inv_mor_help · comprehension_eso_ty_iso.
 
+    Proposition comprehension_eso_inv_mor_pr
+      : comprehension_eso_inv_mor · π _ = δ.
+    Proof.
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        exact (dependent_sum_map_eq
+                 (strong_dependent_sum_dfl_full_comp_cat C)
+                 DΔ'
+                 comprehension_eso_ty_help).
+      }
+      rewrite !assoc.
+      unfold comprehension_eso_inv_mor_help.
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (!_).
+        apply sub_to_extension_pr.
+      }
+      apply comprehension_eso_inv_mor_help_sub_pr2.
+    Qed.
+
     (**
        The two constructed morphisms are inverses
      *)
@@ -422,6 +445,10 @@ Section ComprehensionEso.
         + exact comprehension_eso_mor_inv_mor.
         + exact comprehension_eso_inv_mor_mor.
     Defined.
+
+    Definition comprehension_eso_z_iso
+      : z_iso (Γ & fib) Δ
+      := _ ,, is_z_iso_comprehension_eso_mor.
 
     Definition comprehension_eso_cod_mor
       : comp_cat_comprehension C Γ comprehension_eso_ty -->[ identity_z_iso Γ ] Δδ.

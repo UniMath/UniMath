@@ -129,6 +129,14 @@ Section UniverseInCod.
         (exact (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _) _ _ _ _)).
   Defined.
 
+  Proposition finlim_mor_to_univ_tm_pr1
+              {Γ : C}
+              (t : Γ --> univ_cat_universe _)
+    : finlim_mor_to_univ_tm t · PullbackPr1 _ = t.
+  Proof.
+    apply (PullbackArrow_PullbackPr1 (comp_cat_pullback finlim_to_comp_cat_universe_ob _)).
+  Qed.
+
   Proposition finlim_mor_to_univ_tm_to_mor
               {Γ : C}
               (t : Γ --> univ_cat_universe _)
@@ -195,6 +203,26 @@ Section UniverseInCod.
     - abstract
         (apply TerminalArrowEq).
   Defined.
+
+  Proposition finlim_to_comp_cat_sub_comp_cat_univ_mor_pr1
+              {Γ Δ : finlim_to_comp_cat_with_ob}
+              (s : Γ --> Δ)
+    : finlim_to_comp_cat_sub_comp_cat_univ_mor s · PullbackPr1 _
+      =
+      PullbackPr1 _ · PullbackPr1 _.
+  Proof.
+    apply (PullbackArrow_PullbackPr1 (comp_cat_pullback finlim_to_comp_cat_universe_ob _)).
+  Qed.
+
+  Proposition finlim_to_comp_cat_sub_comp_cat_univ_mor_pr2
+              {Γ Δ : finlim_to_comp_cat_with_ob}
+              (s : Γ --> Δ)
+    : finlim_to_comp_cat_sub_comp_cat_univ_mor s · PullbackPr2 _
+      =
+      PullbackPr2 _.
+  Proof.
+    apply (PullbackArrow_PullbackPr2 (comp_cat_pullback finlim_to_comp_cat_universe_ob _)).
+  Qed.
 
   Proposition finlim_to_comp_cat_sub_comp_cat_univ_eq_lemma
               {Γ Δ : finlim_to_comp_cat_with_ob}
@@ -643,6 +671,35 @@ Section UniverseInCod.
     - exact finlim_to_comp_cat_stable_el_map.
     - exact finlim_to_comp_cat_coherent_el_map.
   Defined.
+
+  Proposition finlim_comp_cat_univ_el_stable
+              {Γ Δ : finlim_to_comp_cat_with_ob}
+              (s : Γ --> Δ)
+              (t : tm Δ (comp_cat_univ Δ))
+    : dom_mor (comp_cat_univ_el_stable finlim_to_comp_cat_univ_type s t)
+      =
+      finlim_to_comp_cat_stable_el_map_mor_mor s t
+      · cat_el_map_el_eq el (!(finlim_to_comp_cat_stable_el_map_equality s t)).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Proposition finlim_comp_cat_univ_el_stable_inv
+              {Γ Δ : finlim_to_comp_cat_with_ob}
+              (s : Γ --> Δ)
+              (t : tm Δ (comp_cat_univ Δ))
+    : dom_mor (inv_from_z_iso (comp_cat_univ_el_stable finlim_to_comp_cat_univ_type s t))
+      =
+      cat_el_map_el_eq el (finlim_to_comp_cat_stable_el_map_equality s t)
+      · finlim_to_comp_cat_stable_el_map_inv s t.
+  Proof.
+    refine (maponpaths (λ z, z · _) _).
+    etrans.
+    {
+      apply cat_el_map_el_eq_inv.
+    }
+    apply cat_el_map_el_eq_eq.
+  Qed.
 End UniverseInCod.
 
 Arguments finlim_to_comp_cat_universe_ob _ : clear implicits.

@@ -72,6 +72,57 @@ Proof.
   apply comprehension_functor_mor_transportf.
 Qed.
 
+Proposition comp_cat_univ_el_stable_inv_left
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ Δ : C}
+            (s : Γ --> Δ)
+            (t : tm Δ (comp_cat_univ Δ))
+  : (comp_cat_univ_el_stable_inv el s t ;; comp_cat_univ_el_stable_mor el s t
+     =
+     transportf
+       (λ z, _ -->[ z ] _)
+       (!(id_left _))
+       (id_disp _))%mor_disp.
+Proof.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    refine (!_).
+    exact (z_iso_after_z_iso_inv (comp_cat_univ_el_stable el s t)).
+  }
+  refine (transport_f_f _ _ _ _ @ _).
+  apply transportf_set.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_univ_el_stable_inv_right
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ Δ : C}
+            (s : Γ --> Δ)
+            (t : tm Δ (comp_cat_univ Δ))
+  : (comp_cat_univ_el_stable_mor el s t ;; comp_cat_univ_el_stable_inv el s t
+     =
+     transportf
+       (λ z, _ -->[ z ] _)
+       (!(id_left _))
+       (id_disp _))%mor_disp.
+Proof.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    refine (!_).
+    exact (z_iso_inv_after_z_iso (comp_cat_univ_el_stable el s t)).
+  }
+  cbn.
+  rewrite transport_f_f.
+  apply transportf_set.
+  apply homset_property.
+Qed.
+
 (** * 2. Naturality *)
 Proposition comp_cat_subst_natural
             {C : comp_cat_with_ob}

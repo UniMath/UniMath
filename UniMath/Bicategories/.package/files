@@ -68,6 +68,7 @@ DisplayedBicats/Examples/LiftDispBicat.v
 DisplayedBicats/Examples/Trivial.v
 DisplayedBicats/Examples/BicatOfInvertibles.v
 DisplayedBicats/Examples/EndoMap.v
+DisplayedBicats/Examples/Reindex.v
 
 Core/Examples/StructuredCategories.v
 DisplayedBicats/Examples/CategoriesWithStructure/Terminal.v
@@ -151,6 +152,7 @@ Modifications/Examples/ModificationIntoCat.v
 PseudoFunctors/Representable.v
 PseudoFunctors/Yoneda.v
 PseudoFunctors/Biequivalence.v
+PseudoFunctors/BiequivalenceCoherent.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
 
@@ -185,6 +187,7 @@ DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 DisplayedBicats/ProductDispBiequiv.v
 DisplayedBicats/DispPseudoNaturalAdjequiv.v
+DisplayedBicats/ReindexBiequivalence.v
 
 DoubleCategories/Basics/DoubleCategoryBasics.v
 DoubleCategories/Basics/StrictDoubleCatBasics.v
@@ -467,9 +470,12 @@ ComprehensionCat/LocalProperty/LocalProperties.v
 ComprehensionCat/LocalProperty/Examples.v
 ComprehensionCat/LocalProperty/CatWithProp.v
 ComprehensionCat/LocalProperty/DFLCompCatWithProp.v
+ComprehensionCat/LocalProperty/DFLCompCatExamples.v
 ComprehensionCat/Biequivalence/LocalProperty.v
 
 ComprehensionCat/Biequivalence/PiTypesBiequiv.v
+
+ComprehensionCat/ComprehensionPreservation.v
 
 ComprehensionCat/Universes/CatWithUniv/CatWithOb.v
 ComprehensionCat/Universes/CatWithUniv/UniverseInCat.v
@@ -494,7 +500,22 @@ ComprehensionCat/Universes/Biequiv/CounitForUnivNat.v
 ComprehensionCat/Universes/Biequiv/CounitForUniv.v
 ComprehensionCat/Universes/UniverseBiequiv.v
 
-ComprehensionCat/Biequivalence/InternalLanguageTopos.v
+ComprehensionCat/Universes/CompCatUniv/DFLCompCatUniv.v
+
+ComprehensionCat/Universes/Types/Constant.v
+ComprehensionCat/Universes/Types/Identity.v
+ComprehensionCat/Universes/Types/Resizing.v
+ComprehensionCat/Universes/Types/Sigma.v
+ComprehensionCat/Universes/Types/Sum.v
+ComprehensionCat/Universes/Types/Truncation.v
+ComprehensionCat/Universes/Types/CompCatTypes.v
+
+ComprehensionCat/InternalLanguageTopos/Pretopos.v
+ComprehensionCat/InternalLanguageTopos/PiPretopos.v
+ComprehensionCat/InternalLanguageTopos/PretoposNat.v
+ComprehensionCat/InternalLanguageTopos/Topos.v
+ComprehensionCat/InternalLanguageTopos/ToposNat.v
+ComprehensionCat/InternalLanguageTopos/ToposNatUniv.v
 
 ComprehensionCat/SetGroupoidModel.v
 

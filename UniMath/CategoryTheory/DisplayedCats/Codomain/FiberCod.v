@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
@@ -576,4 +577,10 @@ Section IsoInSlice.
       apply i.
   Defined.
 
+  Definition z_iso_to_cod_dom
+             (f : z_iso a b)
+    : z_iso (cod_dom a) (cod_dom b).
+  Proof.
+    exact (pr1 (disp_iso_to_iso _ _ (z_iso_disp_from_z_iso_fiber _ _ _ _ f))).
+  Defined.
 End IsoInSlice.

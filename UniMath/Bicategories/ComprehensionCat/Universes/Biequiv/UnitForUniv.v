@@ -105,11 +105,11 @@ Section UnitMor.
               {Γ : C}
               (t : Γ --> univ_cat_universe C)
     : finlim_univ_tm_to_mor
-        (dfl_full_comp_cat_mor_to_tm (C := CC) (finlim_to_comp_cat_universe_ob C) t)
+        (dfl_full_comp_cat_mor_to_tm_univ (C := CC) (finlim_to_comp_cat_universe_ob C) t)
       =
       t · identity _.
   Proof.
-    unfold finlim_univ_tm_to_mor, dfl_full_comp_cat_mor_to_tm.
+    unfold finlim_univ_tm_to_mor, dfl_full_comp_cat_mor_to_tm_univ.
     cbn.
     refine (_ @ !(id_right _)).
     apply (PullbackArrow_PullbackPr1
@@ -123,7 +123,7 @@ Section UnitMor.
         (cat_el_map_el
            el
            (finlim_univ_tm_to_mor
-              (dfl_full_comp_cat_mor_to_tm
+              (dfl_full_comp_cat_mor_to_tm_univ
                  (C := CC)
                  (finlim_to_comp_cat_universe_ob C)
                  t)))
@@ -248,6 +248,18 @@ Section UnitMor.
     - exact finlim_dfl_comp_cat_unit_el_map.
     - exact finlim_dfl_comp_cat_unit_stable_el_map.
   Defined.
+
+  Proposition functor_el_map_iso_for_unit
+              {Γ : ηC}
+              (t : Γ --> univ_cat_universe ηC)
+    : pr1 (functor_el_map_iso
+             finlim_dfl_comp_cat_unit_preserves_el
+             t)
+      =
+      cat_el_map_el_eq el (finlim_dfl_comp_cat_unit_el_map_ob_eq t).
+  Proof.
+    apply idpath.
+  Qed.
 End UnitMor.
 
 (** * 2. Action on 1-cells *)
@@ -373,7 +385,7 @@ Section UnitNat.
       functor_el_map_iso
         Fu
         (finlim_univ_tm_to_mor
-           (dfl_full_comp_cat_mor_to_tm
+           (dfl_full_comp_cat_mor_to_tm_univ
               (C := CC₁)
               (finlim_to_comp_cat_universe_ob C₁)
               t))
@@ -393,7 +405,7 @@ Section UnitNat.
                F
                (comp_cat_univ_el
                   (finlim_to_comp_cat_univ_type el₁)
-                  (dfl_full_comp_cat_mor_to_tm
+                  (dfl_full_comp_cat_mor_to_tm_univ
                      (C := CC₁)
                      (finlim_to_comp_cat_universe_ob C₁)
                      t))).
@@ -404,7 +416,7 @@ Section UnitNat.
       apply (comp_in_cod_fib
                (finlim_to_comp_cat_functor_preserves_el_mor
                   Fu
-                  (dfl_full_comp_cat_mor_to_tm
+                  (dfl_full_comp_cat_mor_to_tm_univ
                      (C := CC₁)
                      (finlim_to_comp_cat_universe_ob C₁)
                      t))).
@@ -444,7 +456,7 @@ Section UnitNat.
       =
       functor_el_map_iso Fu
         (finlim_univ_tm_to_mor
-           (dfl_full_comp_cat_mor_to_tm
+           (dfl_full_comp_cat_mor_to_tm_univ
               (C := CC₁)
               (finlim_to_comp_cat_universe_ob C₁)
               t))
@@ -494,7 +506,7 @@ Section UnitNat.
       =
       functor_el_map_iso Fu
         (finlim_univ_tm_to_mor
-           (dfl_full_comp_cat_mor_to_tm
+           (dfl_full_comp_cat_mor_to_tm_univ
               (C := CC₁)
               (finlim_to_comp_cat_universe_ob C₁)
               t))
@@ -569,7 +581,7 @@ Section UnitNat.
       =
       functor_el_map_iso Fu
         (finlim_univ_tm_to_mor
-           (dfl_full_comp_cat_mor_to_tm
+           (dfl_full_comp_cat_mor_to_tm_univ
               (C := CC₁)
               (finlim_to_comp_cat_universe_ob C₁)
               t))

@@ -43,8 +43,8 @@ Require Import UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinL
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivCell.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivIdent.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUniv.
-Require Import UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivMor.
-Require Import UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivNat.
+Require Export UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivMor.
+Require Export UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivNat.
 
 Local Open Scope cat.
 Local Open Scope comp_cat.
