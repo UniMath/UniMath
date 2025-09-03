@@ -18,6 +18,7 @@
  3. Accessors for morphisms
  4. Accessors for cells
  5. Accessors for the biequivalence
+ 6. Useful calculational lemmas
 
                                                                                             *)
 Require Import UniMath.MoreFoundations.All.
@@ -28,6 +29,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -36,6 +38,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
@@ -52,6 +55,7 @@ Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.Unive
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivActions.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivIdent.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivComp.
@@ -135,6 +139,13 @@ Definition sub_dfl_comp_cat_univ
            (s : Γ --> Δ)
   : dfl_full_comp_cat_univ Δ [[ s ]] <: dfl_full_comp_cat_univ Γ
   := sub_comp_cat_univ (C := dfl_full_comp_cat_ob C) s.
+
+Definition sub_dfl_comp_cat_univ_inv
+           {C : dfl_full_comp_cat_with_univ}
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+  : dfl_full_comp_cat_univ Γ <: dfl_full_comp_cat_univ Δ [[ s ]]
+  := sub_comp_cat_univ_inv (C := dfl_full_comp_cat_ob C) s.
 
 Definition dfl_full_comp_cat_with_univ_types
            (C : dfl_full_comp_cat_with_univ)
@@ -400,6 +411,35 @@ Proof.
              (dfl_full_comp_cat_el C)).
 Defined.
 
+Definition univ_cat_with_finlim_universe_to_dfl_full_comp_cat_counit_adjequiv
+           (C : dfl_full_comp_cat_with_univ)
+  : adjoint_equivalence
+      C
+      (univ_cat_with_finlim_universe_to_dfl_full_comp_cat
+         (dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)).
+Proof.
+  refine (invmap (adjoint_equivalence_total_disp_weq _ _) _).
+  simple refine ((_ ,, _) ,, _).
+  - exact (finlim_dfl_comp_cat_counit_mor
+             (dfl_full_comp_cat_with_univ_types C)).
+  - apply finlim_dfl_comp_cat_counit_pointwise_equiv.
+  - simple refine (_ ,, _).
+    + exact (pr2 (univ_cat_with_finlim_universe_to_dfl_full_comp_cat_counit C)).
+    + use disp_left_adjoint_equivalence_comp_cat_universe.
+Defined.
+
+Definition univ_cat_with_finlim_universe_to_dfl_full_comp_cat_counit_eq
+           (C : dfl_full_comp_cat_with_univ)
+  : C
+    =
+    univ_cat_with_finlim_universe_to_dfl_full_comp_cat
+      (dfl_full_comp_cat_with_univ_to_univ_cat_finlim C).
+Proof.
+  use isotoid_2_0.
+  - exact is_univalent_2_0_bicat_dfl_full_comp_cat_with_univ.
+  - exact (univ_cat_with_finlim_universe_to_dfl_full_comp_cat_counit_adjequiv C).
+Defined.
+
 Definition dfl_full_comp_cat_with_univ_to_univ_cat_finlim_functor_ident
            (C : dfl_full_comp_cat_with_univ)
   : invertible_2cell
@@ -446,6 +486,7 @@ Proof.
   exact (dfl_full_comp_cat_with_univ_to_univ_cat_finlim_functor_comp F G).
 Defined.
 
+(** * 6. Useful calculational lemmas *)
 Proposition dfl_full_comp_cat_tm_to_mor_finlim_mor
             {C : univ_cat_with_finlim_universe}
             {Γ : C}
@@ -529,4 +570,412 @@ Proposition univ_cat_with_finlim_universe_to_dfl_full_comp_cat_mor_to_tm_pr2
     identity _.
 Proof.
   exact (comp_cat_tm_eq (t [[ s ]]tm ↑ sub_dfl_comp_cat_univ (C := Cu) s)).
+Qed.
+
+Proposition dfl_full_comp_cat_tm_to_mor_univ_subst
+            {C : dfl_full_comp_cat_with_univ}
+            {Γ Δ : C}
+            (s : Γ --> Δ)
+            (a : tm Δ (dfl_full_comp_cat_univ Δ))
+  : dfl_full_comp_cat_tm_to_mor_univ
+      (dfl_full_comp_cat_univ_ob C)
+      (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+    =
+    s · dfl_full_comp_cat_tm_to_mor_univ (dfl_full_comp_cat_univ_ob C) a.
+Proof.
+  unfold dfl_full_comp_cat_tm_to_mor_univ.
+  refine (assoc' _ _ _ @ _).
+  etrans.
+  {
+    apply maponpaths.
+    refine (!(comprehension_functor_mor_comp _ _ _) @ _).
+    etrans.
+    {
+      apply maponpaths.
+      apply mor_disp_transportf_postwhisker.
+    }
+    rewrite comprehension_functor_mor_transportf.
+    rewrite assoc_disp_var.
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply subst_ty_eq_disp_iso_comm.
+    }
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    unfold transportb.
+    rewrite comprehension_functor_mor_transportf.
+    apply comprehension_functor_mor_comp.
+  }
+  rewrite assoc.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply subst_comp_cat_tm_pr1.
+  }
+  rewrite !assoc'.
+  apply idpath.
+Qed.
+
+Proposition dfl_full_comp_cat_tm_to_mor_univ_subst'
+            {C : dfl_full_comp_cat_with_univ}
+            {Γ Δ : C}
+            (s : Γ --> Δ)
+            (a : tm Δ (dfl_full_comp_cat_univ Δ))
+  : a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
+    =
+    dfl_full_comp_cat_mor_to_tm_univ
+      (dfl_full_comp_cat_univ_ob C)
+      (s · dfl_full_comp_cat_tm_to_mor_univ (dfl_full_comp_cat_univ_ob C) a).
+Proof.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    exact (!(dfl_full_comp_cat_tm_to_mor_univ_subst s a)).
+  }
+  exact (dfl_full_comp_cat_tm_to_mor_to_tm_univ _ (a [[ s ]]tm ↑ _)).
+Qed.
+
+Proposition dfl_full_comp_cat_mor_to_tm_univ_subst
+            {C : dfl_full_comp_cat_with_univ}
+            {Γ Δ : C}
+            (s : Γ --> Δ)
+            (a : Δ --> [] & dfl_full_comp_cat_univ_ob C)
+  : (dfl_full_comp_cat_mor_to_tm_univ _ a [[ s ]]tm) ↑ (sub_dfl_comp_cat_univ (C := C) s)
+    =
+    dfl_full_comp_cat_mor_to_tm_univ (dfl_full_comp_cat_univ_ob C) (s · a).
+Proof.
+  use eq_comp_cat_tm ; simpl.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback _ _))).
+  - rewrite PullbackArrow_PullbackPr1.
+    refine (assoc' _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths.
+      exact (comp_cat_comp_mor_sub_dfl_comp_cat_univ C s).
+    }
+    rewrite !assoc.
+    rewrite PullbackArrow_PullbackPr1.
+    rewrite assoc'.
+    apply maponpaths.
+    exact (PullbackArrow_PullbackPr1
+             (comp_cat_pullback _ _)
+             _ _ _ _).
+  - rewrite PullbackArrow_PullbackPr2.
+    refine (assoc' _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_comp_mor_comm.
+    }
+    exact (PullbackArrow_PullbackPr2
+             (comp_cat_pullback _ _)
+             _ _ _ _).
+Qed.
+
+Lemma subst_cat_univ_tm_dfl_full_comp_cat_to_finlim
+      {C : dfl_full_comp_cat_with_univ}
+      {Γ Δ : dfl_full_comp_cat_with_univ_to_univ_cat_finlim C}
+      (s : Γ --> Δ)
+      (a : Δ
+           -->
+           univ_cat_universe (dfl_full_comp_cat_with_univ_to_univ_cat_finlim C))
+      (t : section_of_mor
+             (cat_el_map_mor
+                (univ_cat_cat_stable_el_map
+                   (dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)) a))
+  : t [[ s ]]tm
+    ↑ comp_cat_univ_el_stable_mor
+        (dfl_full_comp_cat_el C)
+        s
+        (dfl_full_comp_cat_mor_to_tm_univ (dfl_full_comp_cat_univ_ob C) a)
+    ↑ comp_cat_el_map_on_eq
+        (dfl_full_comp_cat_el C)
+        (dfl_full_comp_cat_mor_to_sub_tm (dfl_full_comp_cat_univ_ob C) s a)
+    =
+    subst_cat_univ_tm
+      (univ_cat_cat_stable_el_map
+         (dfl_full_comp_cat_with_univ_to_univ_cat_finlim C))
+      s a t.
+Proof.
+  rewrite comp_coerce_comp_cat_tm.
+  use eq_comp_cat_tm.
+  use (MorphismsIntoPullbackEqual
+         (isPullback_Pullback
+            (cat_stable_el_map_pb
+               (dfl_full_comp_cat_to_finlim_stable_el_map (dfl_full_comp_cat_univ_ob C)
+                  (dfl_full_comp_cat_el C))
+               s a))).
+  - refine (!_).
+    etrans.
+    {
+      apply PullbackArrow_PullbackPr1.
+    }
+    refine (!_).
+    etrans.
+    {
+      refine (assoc' _ _ _ @ _).
+      apply maponpaths.
+      etrans.
+      {
+        refine (!_).
+        apply comprehension_functor_mor_comp.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        apply mor_disp_transportf_prewhisker.
+      }
+      rewrite comprehension_functor_mor_transportf.
+      etrans.
+      {
+        apply maponpaths.
+        apply mor_disp_transportf_postwhisker.
+      }
+      rewrite comprehension_functor_mor_transportf.
+      rewrite !assoc_disp_var.
+      rewrite comprehension_functor_mor_transportf.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite comprehension_functor_mor_transportf.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !assoc_disp.
+        unfold transportb.
+        rewrite transport_f_f.
+        apply idpath.
+      }
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite comprehension_functor_mor_transportf.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        do 2 apply maponpaths_2.
+        apply (comp_cat_el_map_on_disp_concat (dfl_full_comp_cat_el C)).
+      }
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite comprehension_functor_mor_transportf.
+      rewrite !assoc_disp.
+      unfold transportb.
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite comprehension_functor_mor_transportf.
+      rewrite comprehension_functor_mor_transportf.
+      etrans.
+      {
+        apply maponpaths.
+        do 2 apply maponpaths_2.
+        use (comp_cat_univ_el_stable_natural_disp_alt (dfl_full_comp_cat_el C)).
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        rewrite assoc_disp_var.
+        do 2 apply maponpaths.
+        apply (comp_cat_univ_el_stable_inv_right (dfl_full_comp_cat_el C)).
+      }
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite !comprehension_functor_mor_transportf.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite comprehension_functor_mor_transportf.
+      rewrite id_right_disp.
+      unfold transportb.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite comprehension_functor_mor_transportf.
+      unfold coerce_subst_ty.
+      simpl.
+      rewrite cartesian_factorisation_commutes.
+      rewrite comprehension_functor_mor_transportf.
+      cbn.
+      rewrite id_right_disp.
+      unfold transportb.
+      rewrite comprehension_functor_mor_transportf.
+      apply idpath.
+    }
+    apply (PullbackArrow_PullbackPr1 (comp_cat_pullback _ _)).
+  - refine (assoc' _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_comp_mor_comm.
+    }
+    etrans.
+    {
+      apply (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _)).
+    }
+    refine (!_).
+    apply PullbackArrow_PullbackPr2.
+Qed.
+
+Proposition sub_dfl_comp_cat_univ_inv_on_id
+            {C : dfl_full_comp_cat_with_univ}
+            {Γ : C}
+            {A : ty Γ}
+            (f : A <: A)
+            (p : identity _ = f)
+  : comp_cat_comp_mor_over_sub
+      _
+      (sub_dfl_comp_cat_univ_inv (comp_cat_comp_mor f))
+    =
+    identity _.
+Proof.
+  induction p.
+  refine (!(comprehension_functor_mor_comp _ _ _) @ _).
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback _ _))).
+  - rewrite id_left.
+    refine (!(comprehension_functor_mor_comp _ _ _) @ _).
+    etrans.
+    {
+      apply maponpaths.
+      apply maponpaths_2.
+      apply mor_disp_transportf_postwhisker.
+    }
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite comprehension_functor_mor_transportf.
+    rewrite !assoc_disp_var.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      refine (assoc_disp _ _ _ @ _).
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply cartesian_factorisation_commutes.
+      }
+      apply cartesian_factorisation_commutes.
+    }
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      apply maponpaths.
+      apply subst_ty_eq_disp_iso_inv_comm.
+    }
+    rewrite comprehension_functor_mor_transportf.
+    apply idpath.
+  - etrans.
+    {
+      apply comprehension_functor_mor_comm.
+    }
+    rewrite !id_left.
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_comp_mor_id.
+    }
+    apply id_right.
+Qed.
+
+Proposition dfl_full_comp_cat_with_univ_dep_ty_eq
+            {C : dfl_full_comp_cat_with_univ}
+            (el := dfl_full_comp_cat_el C)
+            {Γ : C}
+            {a a' : tm Γ (dfl_full_comp_cat_univ Γ)}
+            (p : a = a')
+            {b : tm (Γ & comp_cat_univ_el el a) (dfl_full_comp_cat_univ _)}
+            {b' : tm (Γ & comp_cat_univ_el el a') (dfl_full_comp_cat_univ _)}
+            (q : comp_cat_comp_mor (comp_cat_el_map_on_eq el p)
+                 · b'
+                 =
+                 b
+                 · comp_cat_comp_mor_over_sub
+                     (comp_cat_el_map_on_eq el p)
+                     (sub_dfl_comp_cat_univ_inv (C := C) _))
+  : b
+    =
+    b' [[ comp_cat_comp_mor (comp_cat_el_map_on_eq el p) ]]tm
+    ↑ sub_dfl_comp_cat_univ (C := C) (comp_cat_comp_mor (comp_cat_el_map_on_eq el p)).
+Proof.
+  induction p.
+  cbn -[sub_dfl_comp_cat_univ].
+  rewrite comp_cat_comp_mor_id.
+  rewrite id_sub_comp_cat_tm.
+  use eq_comp_cat_tm.
+  simpl.
+  refine (!_).
+  etrans.
+  {
+    do 2 apply maponpaths_2.
+    refine (_ @ q).
+    refine (!(id_left _) @ _).
+    apply maponpaths_2.
+    refine (!_).
+    apply comp_cat_comp_mor_id.
+  }
+  rewrite !assoc'.
+  refine (_ @ id_right _).
+  apply maponpaths.
+  etrans.
+  {
+    apply maponpaths_2.
+    refine (sub_dfl_comp_cat_univ_inv_on_id _ _).
+    apply idpath.
+  }
+  rewrite id_left.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback _ _))).
+  - rewrite id_left.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!(comprehension_functor_mor_comp _ _ _) @ _).
+      apply maponpaths.
+      apply mor_disp_transportf_postwhisker.
+    }
+    rewrite comprehension_functor_mor_transportf.
+    rewrite !assoc_disp_var.
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      apply subst_ty_eq_disp_iso_comm.
+    }
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    unfold transportb.
+    rewrite comprehension_functor_mor_transportf.
+    refine (!(comprehension_functor_mor_comp _ _ _) @ _).
+    rewrite assoc_disp.
+    unfold transportb.
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      apply maponpaths.
+      apply maponpaths_2.
+      apply cartesian_factorisation_commutes.
+    }
+    unfold transportb.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite comprehension_functor_mor_transportf.
+    rewrite id_left_disp.
+    unfold transportb.
+    rewrite comprehension_functor_mor_transportf.
+    apply idpath.
+  - rewrite id_left.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_comp_mor_comm.
+    }
+    apply comp_cat_comp_mor_comm.
 Qed.

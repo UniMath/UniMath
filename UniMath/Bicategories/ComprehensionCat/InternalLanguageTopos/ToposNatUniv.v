@@ -1,16 +1,25 @@
 (**
 
- The internal language of elementary toposes with a NNO
+ The internal language of elementary toposes with a NNO and a universe
 
- In other files, we gave several extensions of the biequivalence between categories with
- finite limits and full DFL comprehension categories. Now we put these extensions together
- in order to obtain internal language theorems for several classes of toposes. The results
- are split over several files.
+ We have established biequivalences between bicategories of univalent categories with finite
+ limits and various kinds of structure, and univalent DFL full comprehension categories with
+ the corresponding structure. We used these biequivalence to give an internal language
+ theorem for univalent elementary toposes with a natural numbers object. In this file, we
+ give an internal language theorem for elementary toposes with a NNO and a universe. The
+ universe is required to satisfy the following closure conditions.
+ - The natural numbers object must be contained in the universe.
+ - The subobject classifier must be contained in the universe.
+ - The universe must contain every proposition. This corresponds to propositional resizing.
+ - The universe must be closed under ∑-types and ∏-types.
+ This notion of universe is based on "Universes in toposes" by Streicher, and these closure
+ conditions have various implications. For instance, since the universe contains every
+ proposition, we can directly conclude that the unit type and tne empty type are in the
+ universe. In addition, since the universe contains the subobject classifier, one can show
+ that the universe also is closed under sums and quotients.
 
- In this file, we consider elementary toposes with an NNO. We approach these in the same
- way as ordinary toposes. The only difference being that we use another local property,
- which includes a parameterized natural numbers object. Since toposes are Cartesian closed,
- parameterized natural numbers objects are the same as ordinary ones.
+ References
+ - "Universes in toposes" by Streicher
 
  Contents
  1. The bicategory of elementary toposes with a NNO and universe
@@ -19,15 +28,12 @@
  4. Accessors for elementary toposes comprehension categories with a NNO and universe
  5. The biequivalence
  6. Type formers in a topos with a universe
- 6.1. Terminal type
- 6.2. Initial type
- 6.3. Parameterized NNO
- 6.4. Subobject classifier
- 6.5. Propositional resizing
- 6.6. Sum-types
- 6.7. ∑-types
- 6.8. ∏-types
- 6.9. Universes for toposes
+ 6.1. Parameterized NNO
+ 6.2. Subobject classifier
+ 6.3. Propositional resizing
+ 6.4. ∑-types
+ 6.5. ∏-types
+ 6.6. Universes for toposes
  7. Accessors for topos universes
  8. Comprehension categories with a topos universe
 
@@ -37,9 +43,6 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
-Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
-Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
@@ -57,7 +60,6 @@ Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClas
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
-Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
@@ -70,7 +72,6 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBiequivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.ProductDispBiequiv.
 Require Import UniMath.Bicategories.DisplayedBicats.ReindexBiequivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
@@ -105,35 +106,13 @@ Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.Unive
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.
 Require Export UniMath.Bicategories.ComprehensionCat.Universes.UniverseBiequiv.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
-Require Import UniMath.Bicategories.ComprehensionCat.Universes.Types.Constant.
-Require Import UniMath.Bicategories.ComprehensionCat.Universes.Types.Identity.
-Require Import UniMath.Bicategories.ComprehensionCat.Universes.Types.Resizing.
-Require Import UniMath.Bicategories.ComprehensionCat.Universes.Types.Sigma.
-Require Import UniMath.Bicategories.ComprehensionCat.Universes.Types.Sum.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Constant.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Resizing.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Sigma.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.PiTypes.
 
 Local Open Scope cat.
 Local Open Scope comp_cat.
-
-(*******************************************************************************)
-
-(*
-
-What needs to be done?
-- in the file on the biequivalence for the universe
-  ~> establish the displayed invertible 2-cell necessary for the triangle
-  ~> this is mainly a matter of controlling the computation
-- this file
-  ~> some engineering
-     why doesn't unification work in the final thing
-
-Afterwards:
-- establish equivalences of types for each of the type formers in universes
-
-*)
-
-(*******************************************************************************)
-
-
 
 (** * 1. The bicategory of elementary toposes with a NNO and universe *)
 Definition disp_bicat_of_univ_topos_with_NNO_univ
@@ -590,7 +569,7 @@ Definition fiberwise_nno_topos_NNO_comp_cat
 Definition comp_cat_dependent_prod_topos_NNO_comp_cat
            (C : topos_NNO_univ_comp_cat)
   : comp_cat_dependent_prod C
-  :=pr1 (pr212 C).
+  := pr1 (pr212 C).
 
 Definition topos_NNO_comp_cat_universe
            (C : topos_NNO_univ_comp_cat)
@@ -816,179 +795,7 @@ Definition internal_language_univ_topos_with_NNO_univ_counit_pt
 
 (** * 6. Type formers in a topos with a universe *)
 
-(** ** 6.1. Terminal type *)
-Definition disp_cat_ob_mor_topos_with_NNO_univ_terminal_type
-  : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ (E : univ_topos_with_NNO_univ), terminal_in_cat_univ E).
-  - exact (λ (E₁ E₂ : univ_topos_with_NNO_univ)
-             (c₁ : terminal_in_cat_univ E₁)
-             (c₂ : terminal_in_cat_univ E₂)
-             (F : functor_topos_with_NNO_univ E₁ E₂),
-           functor_preserves_terminal_in_cat_univ
-             c₁ c₂
-             (functor_topos_with_NNO_universe F)).
-Defined.
-
-Proposition disp_cat_id_comp_topos_with_NNO_univ_terminal_type
-  : disp_cat_id_comp
-      bicat_of_univ_topos_with_NNO_univ
-      disp_cat_ob_mor_topos_with_NNO_univ_terminal_type.
-Proof.
-  split.
-  - exact (λ (E : univ_topos_with_NNO_univ)
-             (c : terminal_in_cat_univ E),
-           id_functor_preserves_terminal_in_cat_univ c).
-  - exact (λ (E₁ E₂ E₃ : univ_topos_with_NNO_univ)
-             (F : functor_topos_with_NNO_univ E₁ E₂)
-             (G : functor_topos_with_NNO_univ E₂ E₃)
-             (c₁ : terminal_in_cat_univ E₁)
-             (c₂ : terminal_in_cat_univ E₂)
-             (c₃ : terminal_in_cat_univ E₃)
-             (Fc : functor_preserves_terminal_in_cat_univ
-                     c₁ c₂
-                     (functor_topos_with_NNO_universe F))
-             (Gc : functor_preserves_terminal_in_cat_univ
-                     c₂ c₃
-                     (functor_topos_with_NNO_universe G)),
-           comp_functor_preserves_terminal_in_cat_univ Fc Gc).
-Defined.
-
-Definition disp_cat_data_topos_with_NNO_univ_terminal_type
-  : disp_cat_data bicat_of_univ_topos_with_NNO_univ.
-Proof.
-  simple refine (_ ,, _).
-  - exact disp_cat_ob_mor_topos_with_NNO_univ_terminal_type.
-  - exact disp_cat_id_comp_topos_with_NNO_univ_terminal_type.
-Defined.
-
-Definition disp_bicat_topos_with_NNO_univ_terminal_type
-  : disp_bicat bicat_of_univ_topos_with_NNO_univ.
-Proof.
-  use disp_cell_unit_bicat.
-  exact disp_cat_data_topos_with_NNO_univ_terminal_type.
-Defined.
-
-Proposition disp_univalent_2_disp_bicat_topos_with_NNO_univ_terminal_type
-  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_terminal_type.
-Proof.
-  use disp_cell_unit_bicat_univalent_2.
-  - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
-  - intros.
-    apply isaprop_functor_preserves_type_in_cat_univ.
-  - intros.
-    apply isaset_type_in_cat_univ.
-  - intros E c₁ c₂ F.
-    apply terminal_in_cat_univ_univalence_lemma.
-    exact (pr1 F).
-Qed.
-
-Proposition disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_terminal_type
-  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_terminal_type.
-Proof.
-  apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_terminal_type.
-Qed.
-
-Proposition disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_terminal_type
-  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_terminal_type.
-Proof.
-  apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_terminal_type.
-Qed.
-
-(** ** 6.2. Initial type *)
-Definition disp_cat_ob_mor_topos_with_NNO_univ_initial_type
-  : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ (E : univ_topos_with_NNO_univ),
-           initial_in_cat_univ
-             (C := E)
-             (strict_initial_to_initial
-                (strict_initial_univ_pretopos E))).
-  - exact (λ (E₁ E₂ : univ_topos_with_NNO_univ)
-             (c₁ : initial_in_cat_univ
-                     (C := E₁)
-                     (strict_initial_to_initial
-                        (strict_initial_univ_pretopos E₁)))
-             (c₂ : initial_in_cat_univ
-                     (C := E₂)
-                     (strict_initial_to_initial
-                        (strict_initial_univ_pretopos E₂)))
-             (F : functor_topos_with_NNO_univ E₁ E₂),
-           functor_preserves_initial_in_cat_univ
-             c₁ c₂
-             (functor_topos_with_NNO_universe F)
-             (preserves_initial_functor_pretopos
-                (functor_topos_with_NNO_univ_to_functor_pretopos F))).
-Defined.
-
-Proposition disp_cat_id_comp_topos_with_NNO_univ_initial_type
-  : disp_cat_id_comp
-      bicat_of_univ_topos_with_NNO_univ
-      disp_cat_ob_mor_topos_with_NNO_univ_initial_type.
-Proof.
-  split.
-  - intros E c.
-    refine (transportf
-              (functor_preserves_initial_in_cat_univ _ _ _)
-              _
-              (id_functor_preserves_initial_in_cat_univ c)).
-    apply isaprop_preserves_initial.
-  - intros E₁ E₂ E₃ F G c₁ c₂ c₃ Fc Gc.
-    refine (transportf
-              (functor_preserves_initial_in_cat_univ _ _ _)
-              _
-              (comp_functor_preserves_initial_in_cat_univ Fc Gc)).
-    apply isaprop_preserves_initial.
-Defined.
-
-Definition disp_cat_data_topos_with_NNO_univ_initial_type
-  : disp_cat_data bicat_of_univ_topos_with_NNO_univ.
-Proof.
-  simple refine (_ ,, _).
-  - exact disp_cat_ob_mor_topos_with_NNO_univ_initial_type.
-  - exact disp_cat_id_comp_topos_with_NNO_univ_initial_type.
-Defined.
-
-Definition disp_bicat_topos_with_NNO_univ_initial_type
-  : disp_bicat bicat_of_univ_topos_with_NNO_univ.
-Proof.
-  use disp_cell_unit_bicat.
-  exact disp_cat_data_topos_with_NNO_univ_initial_type.
-Defined.
-
-Proposition disp_univalent_2_disp_bicat_topos_with_NNO_univ_initial_type
-  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_initial_type.
-Proof.
-  use disp_cell_unit_bicat_univalent_2.
-  - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
-  - intros.
-    apply isaprop_functor_preserves_type_in_cat_univ.
-  - intros.
-    apply isaset_type_in_cat_univ.
-  - intros E c₁ c₂ F.
-    apply initial_in_cat_univ_univalence_lemma.
-    refine (transportf
-              (functor_preserves_initial_in_cat_univ _ _ _)
-              _
-              (pr1 F)).
-    apply isaprop_preserves_initial.
-Qed.
-
-Proposition disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_initial_type
-  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_initial_type.
-Proof.
-  apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_initial_type.
-Qed.
-
-Proposition disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_initial_type
-  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_initial_type.
-Proof.
-  apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_initial_type.
-Qed.
-
-(** ** 6.3. Parameterized NNO *)
+(** ** 6.1. Parameterized NNO *)
 Definition disp_cat_ob_mor_topos_with_NNO_univ_nno_type
   : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
 Proof.
@@ -1076,7 +883,7 @@ Proof.
   apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_nno_type.
 Qed.
 
-(** ** 6.4. Subobject classifier *)
+(** ** 6.2. Subobject classifier *)
 Definition disp_cat_ob_mor_topos_with_NNO_univ_subobj_classifier
   : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
 Proof.
@@ -1164,7 +971,7 @@ Proof.
   apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_subobj_classifier.
 Qed.
 
-(** ** 6.5. Propositional resizing *)
+(** ** 6.3. Propositional resizing *)
 Definition disp_cat_ob_mor_topos_with_NNO_univ_resizing
   : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
 Proof.
@@ -1233,96 +1040,7 @@ Proof.
   apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_resizing.
 Qed.
 
-(** ** 6.6. Sum-types *)
-Definition disp_cat_ob_mor_topos_with_NNO_univ_sums
-  : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ (E : univ_topos_with_NNO_univ),
-           cat_univ_stable_codes_sums
-             (C := E)
-             (bincoproducts_univ_pretopos E)).
-  - exact (λ (E₁ E₂ : univ_topos_with_NNO_univ)
-             (c₁ : cat_univ_stable_codes_sums
-                     (C := E₁)
-                     (bincoproducts_univ_pretopos E₁))
-             (c₂ : cat_univ_stable_codes_sums
-                     (C := E₂)
-                     (bincoproducts_univ_pretopos E₂))
-             (F : functor_topos_with_NNO_univ E₁ E₂),
-           functor_preserves_stable_codes_sums
-             c₁ c₂
-             (functor_topos_with_NNO_universe F)
-             (preserves_bincoproduct_functor_pretopos
-                (functor_topos_with_NNO_univ_to_functor_pretopos F))).
-Defined.
-
-Proposition disp_cat_id_comp_topos_with_NNO_univ_sums
-  : disp_cat_id_comp
-      bicat_of_univ_topos_with_NNO_univ
-      disp_cat_ob_mor_topos_with_NNO_univ_sums.
-Proof.
-  split.
-  - intros E c.
-    refine (transportf
-              (functor_preserves_stable_codes_sums _ _ _)
-              _
-              (identity_preserves_stable_codes_sums _ c)).
-    apply isaprop_preserves_bincoproduct.
-  - intros E₁ E₂ E₃ F G c₁ c₂ c₃ Fc Gc.
-    refine (transportf
-              (functor_preserves_stable_codes_sums _ _ _)
-              _
-              (comp_preserves_stable_codes_sums Fc Gc)).
-    apply isaprop_preserves_bincoproduct.
-Defined.
-
-Definition disp_cat_data_topos_with_NNO_univ_sums
-  : disp_cat_data bicat_of_univ_topos_with_NNO_univ.
-Proof.
-  simple refine (_ ,, _).
-  - exact disp_cat_ob_mor_topos_with_NNO_univ_sums.
-  - exact disp_cat_id_comp_topos_with_NNO_univ_sums.
-Defined.
-
-Definition disp_bicat_topos_with_NNO_univ_sums
-  : disp_bicat bicat_of_univ_topos_with_NNO_univ.
-Proof.
-  use disp_cell_unit_bicat.
-  exact disp_cat_data_topos_with_NNO_univ_sums.
-Defined.
-
-Proposition disp_univalent_2_disp_bicat_topos_with_NNO_univ_sums
-  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_sums.
-Proof.
-  use disp_cell_unit_bicat_univalent_2.
-  - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
-  - intros.
-    apply isaprop_functor_preserves_stable_codes_sums_sum.
-  - intros.
-    apply isaset_cat_univ_stable_codes_sums.
-  - intros E c₁ c₂ F.
-    apply cat_univ_stable_codes_sums_univalence_lemma.
-    refine (transportf
-              (functor_preserves_stable_codes_sums _ _ _)
-              _
-              (pr1 F)).
-    apply isaprop_preserves_bincoproduct.
-Qed.
-
-Proposition disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_sums
-  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_sums.
-Proof.
-  apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_sums.
-Qed.
-
-Proposition disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_sums
-  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_sums.
-Proof.
-  apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_sums.
-Qed.
-
-(** ** 6.7. ∑-types *)
+(** ** 6.4. ∑-types *)
 Definition disp_cat_ob_mor_topos_with_NNO_univ_sigma
   : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
 Proof.
@@ -1391,33 +1109,99 @@ Proof.
   apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_sigma.
 Qed.
 
-(** ** 6.8. ∏-types *)
+(** ** 6.5. ∏-types *)
+Definition disp_cat_ob_mor_topos_with_NNO_univ_pi
+  : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ (E : univ_topos_with_NNO_univ),
+           cat_univ_stable_codes_pi
+             (C := E)
+             (is_locally_cartesian_closed_univ_topos_with_NNO_univ E)).
+  - exact (λ (E₁ E₂ : univ_topos_with_NNO_univ)
+             (c₁ : cat_univ_stable_codes_pi
+                     (C := E₁)
+                     (is_locally_cartesian_closed_univ_topos_with_NNO_univ E₁))
+             (c₂ : cat_univ_stable_codes_pi
+                     (C := E₂)
+                     (is_locally_cartesian_closed_univ_topos_with_NNO_univ E₂))
+             (F : functor_topos_with_NNO_univ E₁ E₂),
+           functor_preserves_stable_codes_pi
+             c₁ c₂
+             (functor_topos_with_NNO_universe F)
+             (preserves_locally_cartesian_closed_functor_topos_with_NNO_univ F)).
+Defined.
+
+Proposition disp_cat_id_comp_topos_with_NNO_univ_pi
+  : disp_cat_id_comp
+      bicat_of_univ_topos_with_NNO_univ
+      disp_cat_ob_mor_topos_with_NNO_univ_pi.
+Proof.
+  split.
+  - intros E c.
+    exact (identity_preserves_stable_codes_pi c).
+  - intros E₁ E₂ E₃ F G c₁ c₂ c₃ Fc Gc.
+    exact (comp_preserves_stable_codes_pi Fc Gc).
+Defined.
+
+Definition disp_cat_data_topos_with_NNO_univ_pi
+  : disp_cat_data bicat_of_univ_topos_with_NNO_univ.
+Proof.
+  simple refine (_ ,, _).
+  - exact disp_cat_ob_mor_topos_with_NNO_univ_pi.
+  - exact disp_cat_id_comp_topos_with_NNO_univ_pi.
+Defined.
+
+Definition disp_bicat_topos_with_NNO_univ_pi
+  : disp_bicat bicat_of_univ_topos_with_NNO_univ.
+Proof.
+  use disp_cell_unit_bicat.
+  exact disp_cat_data_topos_with_NNO_univ_pi.
+Defined.
+
+Proposition disp_univalent_2_disp_bicat_topos_with_NNO_univ_pi
+  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_pi.
+Proof.
+  use disp_cell_unit_bicat_univalent_2.
+  - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - intros.
+    apply isaprop_functor_preserves_stable_codes_pi.
+  - intros.
+    apply isaset_cat_univ_stable_codes_pi.
+  - intros E c₁ c₂ F.
+    apply pi_univ_univalence_lemma.
+    exact (pr1 F).
+Qed.
+
+Proposition disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_pi
+  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_pi.
+Proof.
+  apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_pi.
+Qed.
+
+Proposition disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_pi
+  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_pi.
+Proof.
+  apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_pi.
+Qed.
 
 (** ** 6.9. Universes for toposes *)
 Definition disp_bicat_topos_with_NNO_univ_topos_univ
   : disp_bicat bicat_of_univ_topos_with_NNO_univ
   := disp_dirprod_bicat
-       disp_bicat_topos_with_NNO_univ_terminal_type
+       disp_bicat_topos_with_NNO_univ_nno_type
        (disp_dirprod_bicat
-          disp_bicat_topos_with_NNO_univ_initial_type
+          disp_bicat_topos_with_NNO_univ_subobj_classifier
           (disp_dirprod_bicat
-             disp_bicat_topos_with_NNO_univ_nno_type
+             disp_bicat_topos_with_NNO_univ_resizing
              (disp_dirprod_bicat
-                disp_bicat_topos_with_NNO_univ_subobj_classifier
-                (disp_dirprod_bicat
-                   disp_bicat_topos_with_NNO_univ_resizing
-                   (disp_dirprod_bicat
-                      disp_bicat_topos_with_NNO_univ_sums
-                      disp_bicat_topos_with_NNO_univ_sigma))))).
+                disp_bicat_topos_with_NNO_univ_sigma
+                disp_bicat_topos_with_NNO_univ_pi))).
 
 Proposition disp_univalent_2_disp_bicat_topos_with_NNO_univ_topos_univ
   : disp_univalent_2 disp_bicat_topos_with_NNO_univ_topos_univ.
 Proof.
   repeat (use is_univalent_2_dirprod_bicat).
-  - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
-  - exact disp_univalent_2_disp_bicat_topos_with_NNO_univ_terminal_type.
-  - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
-  - exact disp_univalent_2_disp_bicat_topos_with_NNO_univ_initial_type.
   - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
   - exact disp_univalent_2_disp_bicat_topos_with_NNO_univ_nno_type.
   - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
@@ -1425,8 +1209,8 @@ Proof.
   - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
   - exact disp_univalent_2_disp_bicat_topos_with_NNO_univ_resizing.
   - exact is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
-  - exact disp_univalent_2_disp_bicat_topos_with_NNO_univ_sums.
   - exact disp_univalent_2_disp_bicat_topos_with_NNO_univ_sigma.
+  - exact disp_univalent_2_disp_bicat_topos_with_NNO_univ_pi.
 Qed.
 
 Proposition disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_topos_univ
@@ -1530,51 +1314,35 @@ Coercion to_topos_with_NNO_univ
 Section UnivAccessors.
   Context (E : topos_with_NNO_univ_topos_univ).
 
-  Definition topos_with_NNO_univ_topos_univ_terminal
-    : terminal_in_cat_univ E
-    := pr12 E.
-
-  Definition topos_with_NNO_univ_topos_univ_initial
-    : initial_in_cat_univ
-        (C := E)
-        (strict_initial_to_initial
-           (strict_initial_univ_pretopos E))
-    := pr122 E.
-
   Definition topos_with_NNO_univ_topos_univ_pnno
     : pnno_in_cat_univ
         (C := E)
         (univ_topos_with_NNO_univ_NNO E)
-    := pr1 (pr222 E).
+    := pr12 E.
 
   Definition topos_with_NNO_univ_topos_univ_subobject_classifier
     : subobject_classifier_in_cat_univ
         (C := E)
         (univ_topos_with_NNO_univ_subobject_classifier E)
-    := pr12 (pr222 E).
+    := pr122 E.
 
   Definition topos_with_NNO_univ_topos_univ_resizing
     : cat_univ_stable_codes_resizing E
-    := pr122 (pr222 E).
-
-  Definition topos_with_NNO_univ_topos_univ_sums
-    : cat_univ_stable_codes_sums
-        (C := E)
-        (bincoproducts_univ_pretopos E)
-    := pr1 (pr222 (pr222 E)).
+    := pr1 (pr222 E).
 
   Definition topos_with_NNO_univ_topos_univ_sigma
     : cat_univ_stable_codes_sigma E
-    := pr2 (pr222 (pr222 E)).
+    := pr12 (pr222 E).
+
+  Definition topos_with_NNO_univ_topos_univ_pi
+    : cat_univ_stable_codes_pi
+        (C := E)
+        (is_locally_cartesian_closed_univ_topos_with_NNO_univ E)
+    := pr22 (pr222 E).
 End UnivAccessors.
 
 Definition make_topos_with_NNO_univ_topos_univ
            (E : univ_topos_with_NNO_univ)
-           (tc : terminal_in_cat_univ E)
-           (ic : initial_in_cat_univ
-                   (C := E)
-                   (strict_initial_to_initial
-                      (strict_initial_univ_pretopos E)))
            (nc : pnno_in_cat_univ
                    (C := E)
                    (univ_topos_with_NNO_univ_NNO E))
@@ -1582,12 +1350,12 @@ Definition make_topos_with_NNO_univ_topos_univ
                    (C := E)
                    (univ_topos_with_NNO_univ_subobject_classifier E))
            (rc : cat_univ_stable_codes_resizing E)
-           (sc : cat_univ_stable_codes_sums
-                   (C := E)
-                   (bincoproducts_univ_pretopos E))
            (Σc : cat_univ_stable_codes_sigma E)
+           (Πc : cat_univ_stable_codes_pi
+                   (C := E)
+                   (is_locally_cartesian_closed_univ_topos_with_NNO_univ E))
   : topos_with_NNO_univ_topos_univ
-  := E ,, tc ,, ic ,, nc ,, Ωc ,, rc ,, sc ,, Σc.
+  := E ,, nc ,, Ωc ,, rc ,, Σc ,, Πc.
 
 Definition functor_topos_with_NNO_univ_topos_univ
            (E₁ E₂ : topos_with_NNO_univ_topos_univ)
@@ -1600,26 +1368,6 @@ Coercion functor_topos_with_NNO_univ_topos_univ_to_functor_topos_with_NNO_univ
   : functor_topos_with_NNO_univ E₁ E₂
   := pr1 F.
 
-Definition functor_topos_with_NNO_univ_topos_univ_terminal
-           {E₁ E₂ : topos_with_NNO_univ_topos_univ}
-           (F : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
-  : functor_preserves_terminal_in_cat_univ
-      (topos_with_NNO_univ_topos_univ_terminal E₁)
-      (topos_with_NNO_univ_topos_univ_terminal E₂)
-      (functor_topos_with_NNO_universe F)
-  := pr12 F.
-
-Definition functor_topos_with_NNO_univ_topos_univ_initial
-           {E₁ E₂ : topos_with_NNO_univ_topos_univ}
-           (F : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
-  : functor_preserves_initial_in_cat_univ
-      (topos_with_NNO_univ_topos_univ_initial E₁)
-      (topos_with_NNO_univ_topos_univ_initial E₂)
-      (functor_topos_with_NNO_universe F)
-      (preserves_initial_functor_pretopos
-         (functor_topos_with_NNO_univ_to_functor_pretopos F))
-  := pr122 F.
-
 Definition functor_topos_with_NNO_univ_topos_univ_pnno
            {E₁ E₂ : topos_with_NNO_univ_topos_univ}
            (F : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
@@ -1628,7 +1376,7 @@ Definition functor_topos_with_NNO_univ_topos_univ_pnno
       (topos_with_NNO_univ_topos_univ_pnno E₂)
       (functor_topos_with_NNO_universe F)
       (preserves_NNO_functor_topos_with_NNO_univ F)
-  := pr1 (pr222 F).
+  := pr12 F.
 
 Definition functor_topos_with_NNO_univ_topos_univ_subobject_classifier
            {E₁ E₂ : topos_with_NNO_univ_topos_univ}
@@ -1638,7 +1386,7 @@ Definition functor_topos_with_NNO_univ_topos_univ_subobject_classifier
       (topos_with_NNO_univ_topos_univ_subobject_classifier E₂)
       (functor_topos_with_NNO_universe F)
       (preserves_subobject_classifier_functor_topos_with_NNO_univ F)
-  := pr12 (pr222 F).
+  := pr122 F.
 
 Definition functor_topos_with_NNO_univ_topos_univ_resizing
            {E₁ E₂ : topos_with_NNO_univ_topos_univ}
@@ -1647,18 +1395,7 @@ Definition functor_topos_with_NNO_univ_topos_univ_resizing
       (topos_with_NNO_univ_topos_univ_resizing E₁)
       (topos_with_NNO_univ_topos_univ_resizing E₂)
       (functor_topos_with_NNO_universe F)
-  := pr122 (pr222 F).
-
-Definition functor_topos_with_NNO_univ_topos_univ_sums
-           {E₁ E₂ : topos_with_NNO_univ_topos_univ}
-           (F : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
-  : functor_preserves_stable_codes_sums
-      (topos_with_NNO_univ_topos_univ_sums E₁)
-      (topos_with_NNO_univ_topos_univ_sums E₂)
-      (functor_topos_with_NNO_universe F)
-      (preserves_bincoproduct_functor_pretopos
-         (functor_topos_with_NNO_univ_to_functor_pretopos F))
-  := pr1 (pr222 (pr222 F)).
+  := pr1 (pr222 F).
 
 Definition functor_topos_with_NNO_univ_topos_univ_sigma
            {E₁ E₂ : topos_with_NNO_univ_topos_univ}
@@ -1667,21 +1404,21 @@ Definition functor_topos_with_NNO_univ_topos_univ_sigma
       (topos_with_NNO_univ_topos_univ_sigma E₁)
       (topos_with_NNO_univ_topos_univ_sigma E₂)
       (functor_topos_with_NNO_universe F)
-  := pr2 (pr222 (pr222 F)).
+  := pr12 (pr222 F).
+
+Definition functor_topos_with_NNO_univ_topos_univ_pi
+           {E₁ E₂ : topos_with_NNO_univ_topos_univ}
+           (F : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
+  : functor_preserves_stable_codes_pi
+      (topos_with_NNO_univ_topos_univ_pi E₁)
+      (topos_with_NNO_univ_topos_univ_pi E₂)
+      (functor_topos_with_NNO_universe F)
+      (preserves_locally_cartesian_closed_functor_topos_with_NNO_univ F)
+  := pr22 (pr222 F).
 
 Definition make_functor_topos_with_NNO_univ_topos_univ
            {E₁ E₂ : topos_with_NNO_univ_topos_univ}
            (F : functor_topos_with_NNO_univ E₁ E₂)
-           (Ft : functor_preserves_terminal_in_cat_univ
-                   (topos_with_NNO_univ_topos_univ_terminal E₁)
-                   (topos_with_NNO_univ_topos_univ_terminal E₂)
-                   (functor_topos_with_NNO_universe F))
-           (Fi : functor_preserves_initial_in_cat_univ
-                   (topos_with_NNO_univ_topos_univ_initial E₁)
-                   (topos_with_NNO_univ_topos_univ_initial E₂)
-                   (functor_topos_with_NNO_universe F)
-                   (preserves_initial_functor_pretopos
-                      (functor_topos_with_NNO_univ_to_functor_pretopos F)))
            (Fn : functor_preserves_pnno_in_cat_univ
                    (topos_with_NNO_univ_topos_univ_pnno E₁)
                    (topos_with_NNO_univ_topos_univ_pnno E₂)
@@ -1696,18 +1433,17 @@ Definition make_functor_topos_with_NNO_univ_topos_univ
                    (topos_with_NNO_univ_topos_univ_resizing E₁)
                    (topos_with_NNO_univ_topos_univ_resizing E₂)
                    (functor_topos_with_NNO_universe F))
-           (Fs : functor_preserves_stable_codes_sums
-                   (topos_with_NNO_univ_topos_univ_sums E₁)
-                   (topos_with_NNO_univ_topos_univ_sums E₂)
-                   (functor_topos_with_NNO_universe F)
-                   (preserves_bincoproduct_functor_pretopos
-                      (functor_topos_with_NNO_univ_to_functor_pretopos F)))
            (FΣ : functor_preserves_stable_codes_sigma
                    (topos_with_NNO_univ_topos_univ_sigma E₁)
                    (topos_with_NNO_univ_topos_univ_sigma E₂)
                    (functor_topos_with_NNO_universe F))
+           (FΠ : functor_preserves_stable_codes_pi
+                   (topos_with_NNO_univ_topos_univ_pi E₁)
+                   (topos_with_NNO_univ_topos_univ_pi E₂)
+                   (functor_topos_with_NNO_universe F)
+                   (preserves_locally_cartesian_closed_functor_topos_with_NNO_univ F))
   : functor_topos_with_NNO_univ_topos_univ E₁ E₂
-  := F ,, Ft ,, Fi ,, Fn ,, FΩ ,, Fr ,, Fs ,, FΣ.
+  := F ,, Fn ,, FΩ ,, Fr ,, FΣ ,, FΠ.
 
 Definition nat_trans_topos_with_NNO_univ_topos_univ
            {E₁ E₂ : topos_with_NNO_univ_topos_univ}
@@ -1727,7 +1463,7 @@ Definition make_nat_trans_topos_with_NNO_univ_topos_univ
            {F G : functor_topos_with_NNO_univ_topos_univ E₁ E₂}
            (τ : nat_trans_topos_with_NNO_univ F G)
   : nat_trans_topos_with_NNO_univ_topos_univ F G
-  := τ ,, tt ,, tt ,, tt ,, tt ,, tt ,, tt ,, tt.
+  := τ ,, tt ,, tt ,, tt ,, tt ,, tt.
 
 Proposition nat_trans_topos_with_NNO_univ_topos_univ_eq
             {E₁ E₂ : topos_with_NNO_univ_topos_univ}

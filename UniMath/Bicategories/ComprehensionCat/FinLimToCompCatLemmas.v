@@ -36,7 +36,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
@@ -45,6 +47,8 @@ Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+Require Import UniMath.Bicategories.ComprehensionCat.HPropMono.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
 
 Local Open Scope cat.
@@ -269,6 +273,56 @@ Section FinLimCompCatCalculation.
       dom_mor f · PullbackPr1 _.
   Proof.
     apply idpath.
+  Qed.
+
+  Proposition finlim_comp_cat_comp_mor_over_sub
+              {Γ : finlim_to_comp_cat C}
+              {A₁ A₂ : ty Γ}
+              (f : A₁ <: A₂)
+              {B₁ : ty (Γ & A₁)}
+              {B₂ : ty (Γ & A₂)}
+              (g : B₁ <: B₂ [[ comp_cat_comp_mor (C := finlim_to_comp_cat C) f ]])
+    : comp_cat_comp_mor_over_sub f g
+      =
+      dom_mor g · PullbackPr1 _.
+  Proof.
+    apply idpath.
+  Qed.
+
+  Proposition finlim_comp_cat_extend_over
+              {Γ Δ : finlim_to_comp_cat C}
+              (s : Γ --> Δ)
+              (A : ty Δ)
+    : comp_cat_extend_over A s = PullbackPr1 _.
+  Proof.
+    apply idpath.
+  Qed.
+
+  Definition finlim_comp_cat_monic_to_hprop_ty
+             {Γ A : finlim_to_dfl_comp_cat C}
+             (m : Monic _ A Γ)
+    : ty Γ
+    := A ,, pr1 m.
+
+  Definition finlim_comp_cat_monic_to_is_hprop_ty
+             {Γ A : finlim_to_dfl_comp_cat C}
+             (m : Monic _ A Γ)
+    : is_hprop_ty (finlim_comp_cat_monic_to_hprop_ty m).
+  Proof.
+    use mono_ty_to_hprop_ty.
+    apply MonicisMonic.
+  Qed.
+
+  Proposition dfl_ext_identity_eq_arrow
+              {Γ : finlim_to_dfl_comp_cat C}
+              {A : ty Γ}
+              (t₁ t₂ : tm Γ A)
+    : π (dfl_ext_identity_type t₁ t₂)
+      =
+      dom_mor (EqualizerArrow (dfl_ext_identity t₁ t₂)).
+  Proof.
+    cbn.
+    apply id_right.
   Qed.
 End FinLimCompCatCalculation.
 

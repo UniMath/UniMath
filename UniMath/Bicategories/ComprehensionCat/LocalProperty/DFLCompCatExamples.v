@@ -52,6 +52,8 @@ Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
 Require Import UniMath.Bicategories.ComprehensionCat.HPropMono.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
 
 Local Open Scope cat.
 Local Open Scope comp_cat.
@@ -209,6 +211,14 @@ Proof.
 Defined.
 
 (** * 3. Accessors for DFL comprehension categories with fiberwise binary coproducts *)
+Definition dfl_full_comp_cat_to_finlim_bincoproducts
+           {C : dfl_full_comp_cat}
+           (HC : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+  : BinCoproducts (dfl_full_comp_cat_to_finlim C)
+  := pr1 (local_property_in_dfl_comp_cat _ _ HC).
+
 Definition coprod_local_property_bincoproduct
            {C : dfl_full_comp_cat}
            (HC : fiberwise_cat_property
@@ -498,6 +508,18 @@ Proof.
   - exact (pr2 (fiberwise_cat_property_ob HC Γ)).
 Defined.
 
+Definition regular_local_property_base_regular
+           {C : dfl_full_comp_cat}
+           (HC : fiberwise_cat_property regular_local_property C)
+  : is_regular_category C.
+Proof.
+  repeat split.
+  - exact (terminal_univ_cat_with_finlim (dfl_full_comp_cat_to_finlim C)).
+  - exact (pullbacks_univ_cat_with_finlim (dfl_full_comp_cat_to_finlim C)).
+  - exact (pr1 (local_property_in_dfl_comp_cat _ _ HC)).
+  - exact (pr2 (local_property_in_dfl_comp_cat _ _ HC)).
+Defined.
+
 Proposition regular_local_property_subst_preserves_regular_epi
             {C : dfl_full_comp_cat}
             (HC : fiberwise_cat_property regular_local_property C)
@@ -534,6 +556,43 @@ Definition regular_local_property_trunc
           (dfl_full_comp_cat_terminal (Γ : C))
           A).
 
+Definition regular_local_property_trunc_Monic
+           {C : dfl_full_comp_cat}
+           (HC : fiberwise_cat_property regular_local_property C)
+           {Γ : C}
+           (A : ty Γ)
+  : Monic
+      ((disp_cat_of_types C)[{Γ}])
+      (regular_local_property_trunc HC A)
+      (dfl_full_comp_cat_terminal (Γ : C))
+  := regular_category_im_Monic
+       (regular_local_property_fiber_regular HC Γ)
+       (TerminalArrow
+          (dfl_full_comp_cat_terminal (Γ : C))
+          A).
+
+Definition to_regular_local_property_trunc
+           {C : dfl_full_comp_cat}
+           (HC : fiberwise_cat_property regular_local_property C)
+           {Γ : C}
+           (A : ty Γ)
+  : (disp_cat_of_types C)[{Γ}] ⟦ A , regular_local_property_trunc HC A ⟧
+  := regular_category_to_im
+       (regular_local_property_fiber_regular HC Γ)
+       (TerminalArrow
+          (dfl_full_comp_cat_terminal (Γ : C))
+          A).
+
+Proposition is_regular_to_regular_local_property_trunc
+            {C : dfl_full_comp_cat}
+            (HC : fiberwise_cat_property regular_local_property C)
+            {Γ : C}
+            (A : ty Γ)
+  : is_regular_epi (to_regular_local_property_trunc HC A).
+Proof.
+  apply is_regular_epi_regular_category_to_im.
+Qed.
+
 Proposition is_hprop_ty_trunc
             {C : dfl_full_comp_cat}
             (HC : fiberwise_cat_property regular_local_property C)
@@ -548,11 +607,7 @@ Proof.
             _
             (MonicisMonic
                _
-               (regular_category_im_Monic
-                  (regular_local_property_fiber_regular HC Γ)
-                  (TerminalArrow
-                     (dfl_full_comp_cat_terminal (Γ : C))
-                     A)))).
+               (regular_local_property_trunc_Monic HC A))).
   apply TerminalArrowEq.
 Qed.
 

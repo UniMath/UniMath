@@ -21,11 +21,13 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodDomain.
 
 Local Open Scope cat.
 
@@ -226,6 +228,20 @@ Proof.
   - exact (cod_fib_coproduct_in2 f g coprod).
   - use to_bincoproduct_slice.
     exact (isBinCoproduct_BinCoproduct _ coprod).
+Defined.
+
+Definition preserves_bincoproducts_slice_dom
+           {C : category}
+           (y : C)
+           (H : BinCoproducts C)
+  : preserves_bincoproduct (slice_dom y).
+Proof.
+  use preserves_bincoproduct_if_preserves_chosen.
+  {
+    exact (bincoproducts_cod_fib y H).
+  }
+  intros x₁ x₂.
+  apply isBinCoproduct_BinCoproduct.
 Defined.
 
 (** * 3. Coequalizers in the slice *)

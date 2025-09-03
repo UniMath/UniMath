@@ -399,6 +399,23 @@ Proof.
       (apply (PullbackArrow_PullbackPr2 (cat_stable_el_map_pb el s a))).
 Defined.
 
+Definition pb_mor_to_cat_stable_el_map_pb
+           {C : univ_cat_with_finlim_ob}
+           (el : cat_stable_el_map C)
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+           (t : Δ --> univ_cat_universe C)
+  : pullbacks_univ_cat_with_finlim C _ _ _ (cat_el_map_mor el t) s
+    -->
+    cat_el_map_el el (s · t).
+Proof.
+  use (PullbackArrow (cat_stable_el_map_pb el s t)).
+  - apply PullbackPr1.
+  - apply PullbackPr2.
+  - abstract
+      (apply PullbackSqrCommutes).
+Defined.
+
 (** * 3. Coherence *)
 Definition is_coherent_cat_stable_el_map
            {C : univ_cat_with_finlim_ob}
@@ -677,6 +694,94 @@ Proof.
   use (invmap (cat_el_map_eq_weq el₁ el₂)).
   exact ((λ Γ t, p Γ t ,, q Γ t) ,, r).
 Qed.
+
+Section SubstIso.
+  Context {C : univ_cat_with_finlim_ob}
+          (el : cat_stable_el_map_coherent C)
+          {Γ₁ Γ₂ : C}
+          (s : z_iso Γ₁ Γ₂)
+          (t : Γ₂ --> univ_cat_universe C).
+
+  Definition cat_el_map_pb_mor_inv
+    : cat_el_map_el el t --> cat_el_map_el el (s · t).
+  Proof.
+    refine (cat_el_map_el_eq el _ · cat_el_map_pb_mor el (inv_from_z_iso s) (s · t)).
+    abstract
+      (rewrite !assoc ;
+       rewrite z_iso_after_z_iso_inv ;
+       rewrite id_left ;
+       apply idpath).
+  Defined.
+
+  Arguments cat_el_map_pb_mor_inv /.
+
+  Proposition cat_el_map_pb_mor_inv_laws
+    : is_inverse_in_precat
+        (cat_el_map_pb_mor el s t)
+        cat_el_map_pb_mor_inv.
+  Proof.
+    cbn.
+    split.
+    - rewrite !assoc.
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (!_).
+        use cat_el_map_pb_mor_eq.
+        abstract
+          (rewrite !assoc ;
+           rewrite z_iso_inv_after_z_iso ;
+           rewrite id_left ;
+           apply idpath).
+      }
+      rewrite !assoc'.
+      rewrite (cat_el_map_pb_mor_comp' el).
+      refine (assoc _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply cat_el_map_el_eq_comp.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        use cat_el_map_pb_mor_id'.
+        rewrite z_iso_inv_after_z_iso.
+        apply idpath.
+      }
+      rewrite cat_el_map_el_eq_comp.
+      apply cat_el_map_el_eq_id.
+    - rewrite !assoc'.
+      rewrite (cat_el_map_pb_mor_comp' el).
+      refine (assoc _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply cat_el_map_el_eq_comp.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        use cat_el_map_pb_mor_id'.
+        rewrite z_iso_after_z_iso_inv.
+        apply idpath.
+      }
+      rewrite cat_el_map_el_eq_comp.
+      apply cat_el_map_el_eq_id.
+  Qed.
+
+  Definition is_z_isomorphism_cat_el_map_pb_mor
+    : is_z_isomorphism (cat_el_map_pb_mor el s t).
+  Proof.
+    use make_is_z_isomorphism.
+    - exact cat_el_map_pb_mor_inv.
+    - exact cat_el_map_pb_mor_inv_laws.
+  Defined.
+
+  Definition cat_el_map_pb_mor_z_iso
+    : z_iso (cat_el_map_el el (s · t)) (cat_el_map_el el t)
+    := cat_el_map_pb_mor el s t ,, is_z_isomorphism_cat_el_map_pb_mor.
+End SubstIso.
 
 (** * 4. Preservation by functors *)
 Definition functor_el_map

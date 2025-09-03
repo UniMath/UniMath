@@ -63,6 +63,7 @@ Require Import UniMath.CategoryTheory.RegularAndExact.RegularCategory.
 Require Import UniMath.CategoryTheory.RegularAndExact.RegularEpi.
 Require Import UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
@@ -88,6 +89,7 @@ Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.
@@ -983,6 +985,19 @@ Section TypesInCompCatUniv.
         exact (truncation_in_comp_cat_univ_comm trunc₂ a).
     Qed.
 
+    Proposition truncation_in_comp_cat_univ_code_eq
+                (trunc : truncation_in_comp_cat_univ)
+                {Γ : C}
+                {a₁ a₂ : tm Γ (dfl_full_comp_cat_univ Γ)}
+                (p : a₁ = a₂)
+      : (truncation_in_comp_cat_univ_code trunc a₁ : _ --> _)
+        =
+        truncation_in_comp_cat_univ_code trunc a₂.
+    Proof.
+      induction p.
+      apply idpath.
+    Qed.
+
     Definition trunc_in_comp_cat_univ_is_stable
                (trunc : truncation_in_comp_cat_univ)
       : UU
@@ -1039,6 +1054,39 @@ Section TypesInCompCatUniv.
       exact (pr2 trunc Γ Δ s a).
     Defined.
 
+    Proposition stable_truncation_in_comp_cat_univ_code_stable_mor
+                (trunc : stable_truncation_in_comp_cat_univ)
+                {Γ Δ : C}
+                (s : Γ --> Δ)
+                (a : tm Δ (dfl_full_comp_cat_univ Δ))
+      : s
+        · truncation_in_comp_cat_univ_code trunc a
+        · comprehension_functor_mor
+            (comp_cat_comprehension C)
+            (cleaving_of_types _ _ _ _ _)
+        =
+        truncation_in_comp_cat_univ_code trunc
+          (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+        · PullbackPr1 (comp_cat_pullback _ _).
+    Proof.
+      pose (maponpaths pr1 (stable_truncation_in_comp_cat_univ_code_stable trunc s a)) as p.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        exact (!p).
+      }
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        exact (comp_cat_comp_mor_sub_dfl_comp_cat_univ C s).
+      }
+      refine (assoc _ _ _ @ _).
+      apply maponpaths_2.
+      apply subst_comp_cat_tm_pr1.
+    Qed.
+
     Proposition stable_truncation_in_comp_cat_univ_eq
                 {trunc₁ trunc₂ : stable_truncation_in_comp_cat_univ}
                 (p : ∏ (Γ : C)
@@ -1072,8 +1120,8 @@ Section TypesInCompCatUniv.
            (B := comp_cat_univ_el el b),
          ∑ (sum : tm Γ (dfl_full_comp_cat_univ Γ))
            (f : z_iso
-                  (Γ & comp_cat_univ_el el sum)
-                  (Γ & coprod_local_property_sum HC A B)),
+                  (Γ & coprod_local_property_sum HC A B)
+                  (Γ & comp_cat_univ_el el sum)),
          f · π _ = π _.
 
     Proposition isaset_sum_in_comp_cat_univ
@@ -1097,11 +1145,11 @@ Section TypesInCompCatUniv.
                (f : ∏ (Γ : C)
                       (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
                     z_iso
-                      (Γ & comp_cat_univ_el el (sum Γ a b))
                       (Γ & coprod_local_property_sum
                              HC
                              (comp_cat_univ_el el a)
-                             (comp_cat_univ_el el b)))
+                             (comp_cat_univ_el el b))
+                      (Γ & comp_cat_univ_el el (sum Γ a b)))
                (p : ∏ (Γ : C)
                       (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
                     f Γ a b · π _ = π _)
@@ -1120,11 +1168,11 @@ Section TypesInCompCatUniv.
                {Γ : C}
                (a b : tm Γ (dfl_full_comp_cat_univ Γ))
       : z_iso
-          (Γ & comp_cat_univ_el el (sum_in_comp_cat_univ_code sum a b))
           (Γ & coprod_local_property_sum
                  HC
                  (comp_cat_univ_el el a)
                  (comp_cat_univ_el el b))
+          (Γ & comp_cat_univ_el el (sum_in_comp_cat_univ_code sum a b))
       := pr12 (sum Γ a b).
 
     Proposition sum_in_comp_cat_univ_comm
@@ -1142,16 +1190,70 @@ Section TypesInCompCatUniv.
                (a b : tm Γ (dfl_full_comp_cat_univ Γ))
       : z_iso
           (C := fiber_category _ _)
-          (comp_cat_univ_el el (sum_in_comp_cat_univ_code sum a b))
           (coprod_local_property_sum
              HC
              (comp_cat_univ_el el a)
-             (comp_cat_univ_el el b)).
+             (comp_cat_univ_el el b))
+          (comp_cat_univ_el el (sum_in_comp_cat_univ_code sum a b)).
     Proof.
       use cod_iso_to_type_iso.
       - exact (sum_in_comp_cat_univ_z_iso sum a b).
       - exact (sum_in_comp_cat_univ_comm sum a b).
     Defined.
+
+    Proposition sum_in_comp_cat_univ_code_eq
+                (sum : sum_in_comp_cat_univ)
+                {Γ : C}
+                {a a' b b' : tm Γ (dfl_full_comp_cat_univ Γ)}
+                (p : a = a')
+                (q : b = b')
+      : sum_in_comp_cat_univ_code sum a b
+        =
+        sum_in_comp_cat_univ_code sum a' b'.
+    Proof.
+      induction p, q.
+      apply idpath.
+    Qed.
+
+    Proposition sum_in_comp_cat_univ_z_iso_eq
+                (sum : sum_in_comp_cat_univ)
+                {Γ : C}
+                {a a' b b' : tm Γ (dfl_full_comp_cat_univ Γ)}
+                (p : a = a')
+                (q : b = b')
+      : (sum_in_comp_cat_univ_z_iso sum a b : _ --> _)
+        =
+        comp_cat_comp_mor
+          (BinCoproductOfArrows
+             _
+             (coprod_local_property_bincoproduct
+                HC
+                (comp_cat_univ_el el a)
+                (comp_cat_univ_el el b))
+             _
+             (comp_cat_el_map_on_eq el p)
+             (comp_cat_el_map_on_eq el q))
+        · sum_in_comp_cat_univ_z_iso sum a' b'
+        · comp_cat_comp_mor
+            (comp_cat_el_map_on_eq
+               el
+               (!(sum_in_comp_cat_univ_code_eq sum p q))).
+    Proof.
+      induction p, q ; simpl.
+      rewrite BinCoproduct_of_identities.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        apply comp_cat_comp_mor_id.
+      }
+      rewrite id_left.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      refine (_ @ comp_cat_comp_mor_id _).
+      apply maponpaths.
+      exact (comp_cat_el_map_on_idpath el _).
+    Qed.
 
     Proposition sum_in_comp_cat_univ_eq
                 {sum₁ sum₂ : sum_in_comp_cat_univ}
@@ -1162,8 +1264,8 @@ Section TypesInCompCatUniv.
                      sum_in_comp_cat_univ_code sum₂ a b)
                 (q : ∏ (Γ : C)
                        (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
-                     comp_cat_comp_mor (comp_cat_el_map_on_eq el (!(p Γ a b)))
-                     · sum_in_comp_cat_univ_z_iso sum₁ a b
+                     sum_in_comp_cat_univ_z_iso sum₁ a b
+                     · comp_cat_comp_mor (comp_cat_el_map_on_eq el (p Γ a b))
                      =
                      sum_in_comp_cat_univ_z_iso sum₂ a b)
       : sum₁ = sum₂.
@@ -1184,12 +1286,14 @@ Section TypesInCompCatUniv.
         {
           apply (pr1_transportf
                    (P := λ (x : tm Γ (dfl_full_comp_cat_univ Γ))
-                           (f : Γ & comp_cat_univ_el el x --> _),
+                           (f : Γ & coprod_local_property_sum HC _ _
+                                -->
+                                Γ & comp_cat_univ_el el x),
                       is_z_isomorphism _)).
         }
         etrans.
         {
-          exact (transportf_comp_cat_univ_el el (p Γ a b) _).
+          exact (transportf_comp_cat_univ_el' el (p Γ a b) _).
         }
         exact (q Γ a b).
     Qed.
@@ -1210,17 +1314,17 @@ Section TypesInCompCatUniv.
            (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
            (b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
          · comp_cat_comp_mor
-             (coprod_local_property_sum_functor
-                HC
-                (inv_from_z_iso (comp_cat_univ_el_stable el s a))
-                (inv_from_z_iso (comp_cat_univ_el_stable el s b))
-              · inv_from_z_iso (coprod_local_property_subst_z_iso HC s _ _))
+             (comp_cat_el_map_on_eq el (!p)
+              · inv_from_z_iso (comp_cat_univ_el_stable el s _))
          · comp_cat_extend_over _ s
          =
          comp_cat_comp_mor_over
            _
-           (comp_cat_el_map_on_eq el (!p)
-            · inv_from_z_iso (comp_cat_univ_el_stable el s _))
+           (coprod_local_property_sum_functor
+              HC
+              (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+              (inv_from_z_iso (comp_cat_univ_el_stable el s b))
+            · inv_from_z_iso (coprod_local_property_subst_z_iso HC s _ _))
          · sum_in_comp_cat_univ_z_iso sum a b.
 
     Proposition isaprop_sum_in_comp_cat_univ_is_stable
@@ -1275,31 +1379,204 @@ Section TypesInCompCatUniv.
       exact (pr1 (pr2 sum Γ Δ s a b)).
     Defined.
 
+    Proposition stable_sum_in_comp_cat_univ_code_stable_mor
+                (sum : stable_sum_in_comp_cat_univ)
+                {Γ Δ : C}
+                (s : Γ --> Δ)
+                (a b : tm Δ (dfl_full_comp_cat_univ Δ))
+      : s
+        · sum_in_comp_cat_univ_code sum a b
+        · comprehension_functor_mor
+            (comp_cat_comprehension C)
+            (cleaving_of_types _ _ _ _ _)
+        =
+        sum_in_comp_cat_univ_code
+          sum
+          (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+          (b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+        · PullbackPr1 (comp_cat_pullback _ _).
+    Proof.
+      pose (maponpaths pr1 (stable_sum_in_comp_cat_univ_code_stable sum s a b)) as p.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        exact (!p).
+      }
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        exact (comp_cat_comp_mor_sub_dfl_comp_cat_univ C s).
+      }
+      refine (assoc _ _ _ @ _).
+      apply maponpaths_2.
+      apply subst_comp_cat_tm_pr1.
+    Qed.
+
     Proposition stable_sum_in_comp_cat_univ_z_iso_stable
                 (sum : stable_sum_in_comp_cat_univ)
                 {Γ Δ : C}
                 (s : Γ --> Δ)
                 (a b : tm Δ (dfl_full_comp_cat_univ Δ))
       : sum_in_comp_cat_univ_z_iso
-          sum
-          (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
-          (b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+           sum
+           (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+           (b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
         · comp_cat_comp_mor
+            (comp_cat_el_map_on_eq el (!(stable_sum_in_comp_cat_univ_code_stable sum s a b))
+             · inv_from_z_iso (comp_cat_univ_el_stable el s _))
+        · comp_cat_extend_over _ s
+        =
+        comp_cat_comp_mor_over
+          _
+          (coprod_local_property_sum_functor
+             HC
+             (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+             (inv_from_z_iso (comp_cat_univ_el_stable el s b))
+           · inv_from_z_iso (coprod_local_property_subst_z_iso HC s _ _))
+        · sum_in_comp_cat_univ_z_iso sum a b.
+    Proof.
+      exact (pr2 (pr2 sum Γ Δ s a b)).
+    Defined.
+
+    Proposition stable_sum_in_comp_cat_univ_z_iso_stable_in1
+                (sum : stable_sum_in_comp_cat_univ)
+                {Γ Δ : C}
+                (s : Γ --> Δ)
+                (a b : tm Δ (dfl_full_comp_cat_univ Δ))
+      : comp_cat_comp_mor (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+        · comprehension_functor_mor
+            (comp_cat_comprehension
+               (dfl_full_comp_cat_with_univ_types C))
+            (comp_cat_subst (comp_cat_univ_el el a) s
+             ;; BinCoproductIn1
+                  (coprod_local_property_bincoproduct
+                     HC
+                     (comp_cat_univ_el el a)
+                     (comp_cat_univ_el el b)))
+        · sum_in_comp_cat_univ_z_iso sum a b
+        =
+        comp_cat_comp_mor (BinCoproductIn1 (coprod_local_property_bincoproduct HC _ _))
+        · comp_cat_comp_mor_over
+            _
             (coprod_local_property_sum_functor
                HC
                (inv_from_z_iso (comp_cat_univ_el_stable el s a))
                (inv_from_z_iso (comp_cat_univ_el_stable el s b))
              · inv_from_z_iso (coprod_local_property_subst_z_iso HC s _ _))
-        · comp_cat_extend_over _ s
-        =
-        comp_cat_comp_mor_over
-          _
-          (comp_cat_el_map_on_eq el (!(stable_sum_in_comp_cat_univ_code_stable sum s a b))
-           · inv_from_z_iso (comp_cat_univ_el_stable el s _))
         · sum_in_comp_cat_univ_z_iso sum a b.
     Proof.
-      exact (pr2 (pr2 sum Γ Δ s a b)).
-    Defined.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (assoc _ _ _ @ _).
+        apply maponpaths_2.
+        refine (!(comp_cat_comp_mor_comp _ _) @ _).
+        apply maponpaths.
+        etrans.
+        {
+          refine (assoc (C := fiber_category _ _) _ _ _ @ _).
+          apply maponpaths_2.
+          apply BinCoproductIn1Commutes.
+        }
+        refine (assoc' (C := fiber_category _ _) _ _ _ @ _).
+        apply maponpaths.
+        apply BinCoproductIn1Commutes.
+      }
+      etrans.
+      {
+        apply maponpaths_2.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply comp_cat_comp_mor_comp.
+        }
+        refine (assoc' _ _ _ @ _).
+        apply maponpaths.
+        etrans.
+        {
+          exact (!(comprehension_functor_mor_comp _ _ _)).
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply cartesian_factorisation_commutes.
+        }
+        apply comprehension_functor_mor_transportf.
+      }
+      apply idpath.
+    Qed.
+
+    Proposition stable_sum_in_comp_cat_univ_z_iso_stable_in2
+                (sum : stable_sum_in_comp_cat_univ)
+                {Γ Δ : C}
+                (s : Γ --> Δ)
+                (a b : tm Δ (dfl_full_comp_cat_univ Δ))
+      : comp_cat_comp_mor (inv_from_z_iso (comp_cat_univ_el_stable el s b))
+        · comprehension_functor_mor
+            (comp_cat_comprehension
+               (dfl_full_comp_cat_with_univ_types C))
+            (comp_cat_subst (comp_cat_univ_el el b) s
+             ;; BinCoproductIn2
+                  (coprod_local_property_bincoproduct
+                     HC
+                     (comp_cat_univ_el el a)
+                     (comp_cat_univ_el el b)))
+        · sum_in_comp_cat_univ_z_iso sum a b
+        =
+        comp_cat_comp_mor (BinCoproductIn2 (coprod_local_property_bincoproduct HC _ _))
+        · comp_cat_comp_mor_over
+            _
+            (coprod_local_property_sum_functor
+               HC
+               (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+               (inv_from_z_iso (comp_cat_univ_el_stable el s b))
+             · inv_from_z_iso (coprod_local_property_subst_z_iso HC s _ _))
+        · sum_in_comp_cat_univ_z_iso sum a b.
+    Proof.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (assoc _ _ _ @ _).
+        apply maponpaths_2.
+        refine (!(comp_cat_comp_mor_comp _ _) @ _).
+        apply maponpaths.
+        etrans.
+        {
+          refine (assoc (C := fiber_category _ _) _ _ _ @ _).
+          apply maponpaths_2.
+          apply BinCoproductIn2Commutes.
+        }
+        refine (assoc' (C := fiber_category _ _) _ _ _ @ _).
+        apply maponpaths.
+        apply BinCoproductIn2Commutes.
+      }
+      etrans.
+      {
+        apply maponpaths_2.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply comp_cat_comp_mor_comp.
+        }
+        refine (assoc' _ _ _ @ _).
+        apply maponpaths.
+        etrans.
+        {
+          exact (!(comprehension_functor_mor_comp _ _ _)).
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply cartesian_factorisation_commutes.
+        }
+        apply comprehension_functor_mor_transportf.
+      }
+      apply idpath.
+    Qed.
 
     Proposition stable_sum_in_comp_cat_univ_eq
                 {sum₁ sum₂ : stable_sum_in_comp_cat_univ}
@@ -1310,8 +1587,8 @@ Section TypesInCompCatUniv.
                      sum_in_comp_cat_univ_code sum₂ a b)
                 (q : ∏ (Γ : C)
                        (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
-                     comp_cat_comp_mor (comp_cat_el_map_on_eq el (!(p Γ a b)))
-                     · sum_in_comp_cat_univ_z_iso sum₁ a b
+                     sum_in_comp_cat_univ_z_iso sum₁ a b
+                     · comp_cat_comp_mor (comp_cat_el_map_on_eq el (p Γ a b))
                      =
                      sum_in_comp_cat_univ_z_iso sum₂ a b)
       : sum₁ = sum₂.
@@ -1428,6 +1705,217 @@ Section TypesInCompCatUniv.
          rewrite !assoc ;
          exact (sigma_in_comp_cat_univ_comm sig a b)).
   Defined.
+
+  Proposition sigma_in_comp_cat_univ_code_on_eq
+              (sig : sigma_in_comp_cat_univ)
+              {Γ : C}
+              {a a' : tm Γ (dfl_full_comp_cat_univ Γ)}
+              (p : a = a')
+              {b : tm (Γ & comp_cat_univ_el el a) (dfl_full_comp_cat_univ _)}
+              {b' : tm (Γ & comp_cat_univ_el el a') (dfl_full_comp_cat_univ _)}
+              (q : comp_cat_comp_mor (comp_cat_el_map_on_eq el p)
+                   · b'
+                   =
+                   b
+                   · comp_cat_comp_mor_over_sub
+                       (comp_cat_el_map_on_eq el p)
+                       (sub_dfl_comp_cat_univ_inv (C := C) _))
+    : sigma_in_comp_cat_univ_code sig a b
+      =
+      sigma_in_comp_cat_univ_code sig a' b'.
+  Proof.
+    induction p.
+    enough (b = b') as ->.
+    {
+      apply idpath.
+    }
+    use eq_comp_cat_tm.
+    refine (_ @ !q @ _).
+    - refine (!(id_right _) @ _).
+      apply maponpaths.
+      refine (!_).
+      use sub_dfl_comp_cat_univ_inv_on_id.
+      apply idpath.
+    - refine (_ @ id_left _).
+      apply maponpaths_2.
+      apply comp_cat_comp_mor_id.
+  Qed.
+
+  Proposition sigma_in_comp_cat_univ_code_on_eq'
+              (sig : sigma_in_comp_cat_univ)
+              {Γ : C}
+              {a a' : tm Γ (dfl_full_comp_cat_univ Γ)}
+              (p : a = a')
+              {b : tm (Γ & comp_cat_univ_el el a) (dfl_full_comp_cat_univ _)}
+              {b' : tm (Γ & comp_cat_univ_el el a') (dfl_full_comp_cat_univ _)}
+              (q : comp_cat_comp_mor (comp_cat_el_map_on_eq el p)
+                   · b'
+                   =
+                   b
+                   · comp_cat_comp_mor_over_sub
+                       (comp_cat_el_map_on_eq el p)
+                       (sub_dfl_comp_cat_univ_inv (C := C) _))
+    : (sigma_in_comp_cat_univ_code sig a b : _ --> _)
+      =
+      sigma_in_comp_cat_univ_code sig a' b'.
+  Proof.
+    exact (maponpaths pr1 (sigma_in_comp_cat_univ_code_on_eq sig p q)).
+  Qed.
+
+  Proposition sigma_in_comp_cat_univ_z_iso_on_eq
+              {sig : sigma_in_comp_cat_univ}
+              {Γ : C}
+              {a a' : tm Γ (dfl_full_comp_cat_univ Γ)}
+              (p : a = a')
+              {b : tm (Γ & comp_cat_univ_el el a) (dfl_full_comp_cat_univ _)}
+              {b' : tm (Γ & comp_cat_univ_el el a') (dfl_full_comp_cat_univ _)}
+              (q : comp_cat_comp_mor (comp_cat_el_map_on_eq el p)
+                   · b'
+                   =
+                   b
+                   · comp_cat_comp_mor_over_sub
+                       (comp_cat_el_map_on_eq el p)
+                       (sub_dfl_comp_cat_univ_inv (C := C) _))
+    : sigma_in_comp_cat_univ_z_iso sig a b
+      · comp_cat_comp_mor_over_sub
+          (comp_cat_el_map_on_eq el p)
+          (comp_cat_el_map_on_eq
+             el
+             (dfl_full_comp_cat_with_univ_dep_ty_eq p q)
+           · inv_from_z_iso (comp_cat_univ_el_stable el _ b'))
+      =
+      comp_cat_comp_mor
+        (comp_cat_el_map_on_eq
+           el
+           (sigma_in_comp_cat_univ_code_on_eq sig p q))
+      · sigma_in_comp_cat_univ_z_iso sig a' b'.
+  Proof.
+    induction p ; simpl.
+    refine (!_).
+    assert (b = b') as r.
+    {
+      use eq_comp_cat_tm.
+      refine (_ @ !q @ _).
+      - refine (!(id_right _) @ _).
+        apply maponpaths.
+        refine (!_).
+        use sub_dfl_comp_cat_univ_inv_on_id.
+        apply idpath.
+      - refine (_ @ id_left _).
+        apply maponpaths_2.
+        apply comp_cat_comp_mor_id.
+    }
+    induction r.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (_ @ comp_cat_comp_mor_id _).
+      apply maponpaths.
+      exact (comp_cat_el_map_on_idpath el _).
+    }
+    rewrite id_left.
+    refine (!(id_right _) @ _).
+    apply maponpaths.
+    refine (!_).
+    refine (!(comprehension_functor_mor_comp _ _ _) @ _).
+    cbn.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      apply maponpaths.
+      apply maponpaths_2.
+      apply maponpaths.
+      refine (comp_cat_univ_el_stable_id_coh_inv_alt el _ _ _).
+      refine (!_).
+      apply comp_cat_comp_mor_id.
+    }
+    cbn -[id_subst_ty eq_subst_ty].
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    rewrite !assoc_disp_var.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 4 apply maponpaths.
+      apply subst_ty_eq_disp_iso_comm.
+    }
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    unfold transportb.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite comprehension_functor_mor_transportf.
+    rewrite id_right_disp.
+    unfold transportb.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      apply maponpaths.
+      exact (comp_cat_el_map_on_disp_concat el _ _).
+    }
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      apply maponpaths.
+      exact (comp_cat_el_map_on_idpath el _).
+    }
+    apply comprehension_functor_mor_id.
+  Qed.
+
+  Proposition sigma_in_comp_cat_univ_z_iso_on_eq'
+              {sig : sigma_in_comp_cat_univ}
+              {Γ : C}
+              {a a' : tm Γ (dfl_full_comp_cat_univ Γ)}
+              (p : a = a')
+              {b : tm (Γ & comp_cat_univ_el el a) (dfl_full_comp_cat_univ _)}
+              {b' : tm (Γ & comp_cat_univ_el el a') (dfl_full_comp_cat_univ _)}
+              (q : comp_cat_comp_mor (comp_cat_el_map_on_eq el p)
+                   · b'
+                   =
+                   b
+                   · comp_cat_comp_mor_over_sub
+                       (comp_cat_el_map_on_eq el p)
+                       (sub_dfl_comp_cat_univ_inv (C := C) _))
+    : comp_cat_comp_mor
+        (comp_cat_el_map_on_eq
+           el
+           (!(sigma_in_comp_cat_univ_code_on_eq sig p q)))
+      · sigma_in_comp_cat_univ_z_iso sig a b
+      · comp_cat_comp_mor_over_sub
+          (comp_cat_el_map_on_eq el p)
+          (comp_cat_el_map_on_eq
+             el
+             (dfl_full_comp_cat_with_univ_dep_ty_eq p q)
+           · inv_from_z_iso (comp_cat_univ_el_stable el _ b'))
+      =
+      sigma_in_comp_cat_univ_z_iso sig a' b'.
+  Proof.
+    refine (assoc' _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths.
+      exact (sigma_in_comp_cat_univ_z_iso_on_eq p q).
+    }
+    rewrite assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!(comp_cat_comp_mor_comp _ _) @ _ @ comp_cat_comp_mor_id _).
+      apply maponpaths.
+      refine (!(comp_cat_el_map_on_concat el _ _) @ _).
+      apply (comp_cat_el_map_on_idpath el).
+    }
+    apply id_left.
+  Qed.
 
   Proposition sigma_in_comp_cat_univ_eq
               {sig₁ sig₂ : sigma_in_comp_cat_univ}
@@ -1549,6 +2037,41 @@ Section TypesInCompCatUniv.
     exact (pr1 (pr2 sig Γ Δ s a b)).
   Defined.
 
+  Proposition stable_sigma_in_comp_cat_univ_code_stable_mor
+              (sig : stable_sigma_in_comp_cat_univ)
+              {Γ Δ : C}
+              (s : Γ --> Δ)
+              (a : tm Δ (dfl_full_comp_cat_univ _))
+              (b : tm (Δ & comp_cat_univ_el el a) (dfl_full_comp_cat_univ _))
+    : s
+      · sigma_in_comp_cat_univ_code sig a b
+      · comprehension_functor_mor
+          (comp_cat_comprehension C)
+          (cleaving_of_types _ _ _ _ _)
+      =
+      sigma_in_comp_cat_univ_code sig
+        (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+        (b [[ extend_sub_univ el s a ]]tm ↑ sub_dfl_comp_cat_univ _)
+      · PullbackPr1 (comp_cat_pullback _ _).
+  Proof.
+    pose (maponpaths pr1 (stable_sigma_in_comp_cat_univ_code_stable sig s a b)) as p.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (!p).
+    }
+    refine (assoc' _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths.
+      exact (comp_cat_comp_mor_sub_dfl_comp_cat_univ C s).
+    }
+    refine (assoc _ _ _ @ _).
+    apply maponpaths_2.
+    apply subst_comp_cat_tm_pr1.
+  Qed.
+
   Proposition stable_sigma_in_comp_cat_univ_z_iso_stable
               (sig : stable_sigma_in_comp_cat_univ)
               {Γ Δ : C}
@@ -1570,7 +2093,7 @@ Section TypesInCompCatUniv.
     exact (pr2 (pr2 sig Γ Δ s a b)).
   Defined.
 
-  Proposition stable_sigma_in_comp_cat_univ_sig
+  Proposition stable_sigma_in_comp_cat_univ_eq
               {sig₁ sig₂ : stable_sigma_in_comp_cat_univ}
               (p : ∏ (Γ : C)
                      (a : tm Γ (dfl_full_comp_cat_univ Γ))

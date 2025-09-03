@@ -120,7 +120,6 @@ Section SigmaInCatWithUniv.
         (cat_el_map_el el b)
     := pr12 (Σ Γ a b).
 
-
   Proposition cat_univ_codes_sigma_comm
               (Σ : cat_univ_codes_sigma)
               {Γ : C}

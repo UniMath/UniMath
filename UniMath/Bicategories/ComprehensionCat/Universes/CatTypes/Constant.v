@@ -147,11 +147,38 @@ Section TypesInCatUniv.
     : UU
     := type_in_cat_univ 𝟙.
 
+  Proposition terminal_in_cat_univ_eq
+              {c₁ c₂ : terminal_in_cat_univ}
+              (p : type_in_cat_univ_code c₁ = type_in_cat_univ_code c₂)
+    : c₁ = c₂.
+  Proof.
+    use type_in_cat_univ_eq.
+    - exact p.
+    - apply TerminalArrowEq.
+  Qed.
+
   (** ** 2.2. The initial object *)
   Definition initial_in_cat_univ
              (I : Initial C)
     : UU
     := type_in_cat_univ I.
+
+  Proposition initial_in_cat_univ_eq
+              {I : Initial C}
+              {c₁ c₂ : initial_in_cat_univ I}
+              (p : type_in_cat_univ_code c₁ = type_in_cat_univ_code c₂)
+    : c₁ = c₂.
+  Proof.
+    use type_in_cat_univ_eq.
+    - exact p.
+    - refine (maponpaths
+                pr1
+                (z_iso_eq_inv
+                   (z_iso_comp (cat_el_map_el_eq el p) (type_in_cat_univ_z_iso c₂))
+                   (type_in_cat_univ_z_iso c₁)
+                   _)).
+      apply InitialArrowEq.
+  Qed.
 
   (** ** 2.3. Parameterized natural numbers object *)
   Definition pnno_in_cat_univ

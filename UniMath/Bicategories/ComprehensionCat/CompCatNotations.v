@@ -1178,6 +1178,247 @@ Proof.
   apply idpath.
 Qed.
 
+Definition comp_cat_extend_over_iso_sub_inv
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           {A : ty Γ₁}
+           {B : ty Γ₂}
+           (s : z_iso Γ₁ Γ₂)
+           (f : z_iso (C := fiber_category _ _) A (B [[ s ]]))
+  : Γ₂ & B --> Γ₁ & A.
+Proof.
+  refine (comp_cat_comp_mor_over (inv_from_z_iso s) _).
+  refine (_ · coerce_subst_ty (inv_from_z_iso s) (inv_from_z_iso f)).
+  refine (_ · comp_subst_ty_inv _ _ _).
+  refine (id_subst_ty _ · _).
+  use eq_subst_ty.
+  exact (!(z_iso_after_z_iso_inv s)).
+Defined.
+
+Proposition comp_cat_extend_over_iso_sub_laws
+            {C : comp_cat}
+            {Γ₁ Γ₂ : C}
+            {A : ty Γ₁}
+            {B : ty Γ₂}
+            (s : z_iso Γ₁ Γ₂)
+            (f : z_iso (C := fiber_category _ _) A (B [[ s ]]))
+  : is_inverse_in_precat
+      (comp_cat_comp_mor_over s (z_iso_mor f))
+      (comp_cat_extend_over_iso_sub_inv s f).
+Proof.
+  unfold comp_cat_extend_over_iso_sub_inv.
+  split.
+  - unfold comp_cat_comp_mor_over.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    cbn -[eq_subst_ty coerce_subst_ty comp_subst_ty_inv id_subst_ty].
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    rewrite !assoc_disp_var.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 6 apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 5 apply maponpaths.
+      rewrite assoc_disp.
+      apply maponpaths.
+      apply maponpaths_2.
+      apply cartesian_factorisation_commutes.
+    }
+    unfold transportb.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    refine (comprehension_functor_mor_comp _ _ _ @ _).
+    refine (_ @ comprehension_functor_mor_id _ _).
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      exact (z_iso_inv_after_z_iso f).
+    }
+    refine (comprehension_functor_mor_transportf _ _ _ @ _).
+    refine (comprehension_functor_mor_comp _ _ _ @ _).
+    apply maponpaths.
+    refine (!(id_left _) @ _).
+    refine (!_).
+    rewrite !assoc_disp.
+    unfold transportb.
+    rewrite !comprehension_functor_mor_transportf.
+    refine (comprehension_functor_mor_comp _ _ _ @ _).
+    apply maponpaths_2.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback _ _))).
+    + rewrite id_left.
+      refine (!(comprehension_functor_mor_comp _ _ _) @ _).
+      rewrite !assoc_disp_var.
+      rewrite !comprehension_functor_mor_transportf.
+      etrans.
+      {
+        do 4 apply maponpaths.
+        apply cartesian_factorisation_commutes.
+      }
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite comprehension_functor_mor_transportf.
+      etrans.
+      {
+        do 3 apply maponpaths.
+        apply subst_ty_eq_disp_iso_comm.
+      }
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite comprehension_functor_mor_transportf.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply cartesian_factorisation_commutes.
+      }
+      unfold transportb.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite comprehension_functor_mor_transportf.
+      rewrite id_right_disp.
+      unfold transportb.
+      rewrite comprehension_functor_mor_transportf.
+      apply idpath.
+    + etrans.
+      {
+        apply comprehension_functor_mor_comm.
+      }
+      rewrite !id_left, !id_right.
+      rewrite z_iso_inv_after_z_iso.
+      apply id_right.
+  - unfold comp_cat_comp_mor_over.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    cbn -[eq_subst_ty coerce_subst_ty comp_subst_ty_inv id_subst_ty].
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    rewrite !assoc_disp_var.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 4 apply maponpaths.
+      rewrite !assoc_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths.
+      do 2 apply maponpaths_2.
+      apply cartesian_factorisation_commutes.
+    }
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    rewrite !assoc_disp_var.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 4 apply maponpaths.
+      rewrite assoc_disp_var.
+      do 2 apply maponpaths.
+      rewrite assoc_disp.
+      apply maponpaths.
+      apply maponpaths_2.
+      refine (_ @ maponpaths (transportb _ (id_right _)) (z_iso_after_z_iso_inv f) @ _).
+      {
+        cbn.
+        rewrite transportbfinv.
+        apply idpath.
+      }
+      cbn.
+      apply idpath.
+    }
+    unfold transportb.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    rewrite id_left_disp.
+    unfold transportb.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      rewrite assoc_disp.
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply cartesian_factorisation_commutes.
+      }
+      apply cartesian_factorisation_commutes.
+    }
+    unfold transportb.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply subst_ty_eq_disp_iso_comm.
+    }
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    unfold transportb.
+    rewrite comprehension_functor_mor_transportf.
+    apply comprehension_functor_mor_id.
+Qed.
+
+Definition comp_cat_extend_over_iso_sub
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           {A : ty Γ₁}
+           {B : ty Γ₂}
+           (s : z_iso Γ₁ Γ₂)
+           (f : z_iso (C := fiber_category _ _) A (B [[ s ]]))
+  : z_iso (Γ₁ & A) (Γ₂ & B).
+Proof.
+  use make_z_iso.
+  - exact (comp_cat_comp_mor_over s (z_iso_mor f)).
+  - exact (comp_cat_extend_over_iso_sub_inv s f).
+  - exact (comp_cat_extend_over_iso_sub_laws s f).
+Defined.
+
 Proposition id_sub_comp_cat_tm
             {C : comp_cat}
             {Γ : C}

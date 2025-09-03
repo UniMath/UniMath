@@ -512,6 +512,41 @@ Proof.
   apply comp_cat_el_map_on_idpath.
 Qed.
 
+Proposition comp_cat_univ_el_stable_id_coh_inv_alt_eq
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ : C}
+            (s : Γ --> Γ)
+            (p : identity _ = s)
+            (t : comp_cat_tm Γ (comp_cat_univ Γ))
+  : t [[ s ]]tm ↑ sub_comp_cat_univ s
+    =
+    t.
+Proof.
+  induction p.
+  exact (!(comp_cat_univ_id_coherence t)).
+Defined.
+
+Proposition comp_cat_univ_el_stable_id_coh_inv_alt
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ : C}
+            (s : Γ --> Γ)
+            (p : identity _ = s)
+            (t : comp_cat_tm Γ (comp_cat_univ Γ))
+  : inv_from_z_iso (comp_cat_univ_el_stable el s t)
+    =
+    comp_cat_el_map_on_eq el (comp_cat_univ_el_stable_id_coh_inv_alt_eq el s p t)
+    · id_subst_ty _
+    · eq_subst_ty _ p.
+Proof.
+  induction p.
+  refine (comp_cat_univ_el_stable_id_coh_inv el t @ _).
+  rewrite eq_subst_ty_idpath.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
 Proposition comp_cat_univ_el_stable_comp_coh
             {C : comp_cat_with_ob}
             (el : comp_cat_univ_type C)

@@ -331,6 +331,60 @@ Section SumsInCatWithUniv.
     exact (pr2 (pr2 sum Γ Δ s a b)).
   Defined.
 
+  Proposition cat_univ_codes_sums_z_iso_stable_in1
+              (sum : cat_univ_stable_codes_sums)
+              {Γ Δ : C}
+              (s : Γ --> Δ)
+              (a b : Δ --> univ_cat_universe C)
+    : cat_el_map_pb_mor el s a
+      · BinCoproductIn1 _
+      · cat_univ_codes_sums_z_iso sum a b
+      =
+      BinCoproductIn1 _
+      · cat_univ_codes_sums_z_iso sum (s · a) (s · b)
+      · cat_el_map_el_eq el (!(cat_univ_codes_sums_sum_stable sum s a b))
+      · cat_el_map_pb_mor el s (cat_univ_codes_sums_sum sum a b).
+  Proof.
+    rewrite !assoc'.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      exact (!(cat_univ_codes_sums_z_iso_stable sum s a b)).
+    }
+    rewrite !assoc.
+    rewrite BinCoproductOfArrowsIn1.
+    apply idpath.
+  Qed.
+
+  Proposition cat_univ_codes_sums_z_iso_stable_in2
+              (sum : cat_univ_stable_codes_sums)
+              {Γ Δ : C}
+              (s : Γ --> Δ)
+              (a b : Δ --> univ_cat_universe C)
+    : cat_el_map_pb_mor el s b
+      · BinCoproductIn2 _
+      · cat_univ_codes_sums_z_iso sum a b
+      =
+      BinCoproductIn2 _
+      · cat_univ_codes_sums_z_iso sum (s · a) (s · b)
+      · cat_el_map_el_eq el (!(cat_univ_codes_sums_sum_stable sum s a b))
+      · cat_el_map_pb_mor el s (cat_univ_codes_sums_sum sum a b).
+  Proof.
+    rewrite !assoc'.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      exact (!(cat_univ_codes_sums_z_iso_stable sum s a b)).
+    }
+    rewrite !assoc.
+    rewrite BinCoproductOfArrowsIn2.
+    apply idpath.
+  Qed.
+
   Proposition cat_univ_stable_codes_sums_eq
               {sum₁ sum₂ : cat_univ_stable_codes_sums}
               (p : ∏ (Γ : C)

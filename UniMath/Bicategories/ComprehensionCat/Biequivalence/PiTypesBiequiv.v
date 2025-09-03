@@ -447,3 +447,15 @@ Proof.
   - intros x xx.
     use disp_adjoint_equiv_disp_bicat_univ_lccc.
 Defined.
+
+Definition lang_lccc
+  : psfunctor bicat_of_univ_lccc bicat_of_pi_type_dfl_full_comp_cat
+  := total_psfunctor
+       _ _ _
+       finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types.
+
+Definition internal_language_lccc
+  : is_biequivalence lang_lccc
+  := total_is_biequivalence
+       _ _ _
+       finlim_biequiv_dfl_comp_cat_psfunctor_pi_types.

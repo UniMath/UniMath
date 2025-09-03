@@ -524,6 +524,15 @@ Section ComprehensionEso.
          (adj_equivalence_of_cats_inv
             _
             (fiber_functor_comprehension_adj_equiv Γ)).
+
+  Definition preserves_pullback_fiber_functor_comprehension
+             (Γ : C)
+    : preserves_pullback (fiber_functor (comp_cat_comprehension C) Γ)
+    := right_adjoint_preserves_pullback
+         _
+         (adj_equivalence_of_cats_inv
+            _
+            (fiber_functor_comprehension_adj_equiv Γ)).
 End ComprehensionEso.
 
 (**

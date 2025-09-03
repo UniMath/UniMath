@@ -34,7 +34,7 @@
  3. A type `A` is a proposition iff all terms of type `A` in every context are equal
  4. A type `A` is a proposition iff morphisms to the unit is a monomorphism
  5. Propositions are closed under substitution
- 6. The identity type is a proposition
+ 6. Examples of propositions
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -531,7 +531,16 @@ Section MonoVSHProp.
     exact (MonicPullbackisMonic _ (hprop_ty_to_monic HA) _ (comp_cat_pullback A s)).
   Qed.
 
-  (** * 6. The identity type is a proposition *)
+  (** * 6. Examples of propositions *)
+  Proposition is_hprop_ty_unit_type
+              (Γ : C)
+    : is_hprop_ty (dfl_full_comp_cat_unit Γ).
+  Proof.
+    use mono_ty_to_hprop_ty.
+    use is_iso_isMonic.
+    apply dfl_full_comp_cat_extend_unit.
+  Qed.
+
   Proposition is_hprop_ty_dfl_ext_identity_type
               {Γ : C}
               {A : ty Γ}

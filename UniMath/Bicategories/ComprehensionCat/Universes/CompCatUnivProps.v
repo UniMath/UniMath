@@ -202,6 +202,37 @@ Proof.
   apply homset_property.
 Qed.
 
+Proposition comp_cat_univ_el_stable_natural_inv_disp_alt
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ Δ : C}
+            (s : Γ --> Δ)
+            {t₁ t₂ : tm Δ (comp_cat_univ Δ)}
+            (p : t₁ = t₂)
+            (q : t₁ [[ s ]]tm ↑ sub_comp_cat_univ s
+                 =
+                 t₂ [[ s ]]tm ↑ sub_comp_cat_univ s)
+  : (comp_cat_el_map_on_eq el q
+     ;; inv_from_z_iso (comp_cat_univ_el_stable el s t₂)
+     =
+     transportf
+       (λ z, _ -->[ z ] _)
+       (id_right _ @ !(id_left _))
+       (inv_from_z_iso (comp_cat_univ_el_stable el s t₁)
+        ;; coerce_subst_ty s (comp_cat_el_map_on_eq el p)))%mor_disp.
+Proof.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply comp_cat_univ_el_stable_natural_inv_disp.
+  }
+  rewrite transport_f_f.
+  rewrite transportf_set ; [ | apply homset_property ].
+  apply maponpaths_2.
+  apply eq_comp_cat_el_map_on_eq.
+Qed.
+
 Proposition comp_cat_univ_el_stable_natural_disp
             {C : comp_cat_with_ob}
             (el : comp_cat_univ_type C)

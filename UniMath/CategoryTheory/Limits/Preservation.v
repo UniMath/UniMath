@@ -911,6 +911,104 @@ Proof.
   use isapropiscontr.
 Qed.
 
+Section PreservesPullbackIso.
+  Context {C₁ C₂ : category}
+          {F : C₁ ⟶ C₂}
+          (HC₁ : Pullbacks C₁)
+          (HC₂ : Pullbacks C₂)
+          (HF : preserves_pullback F)
+          {x y z : C₁}
+          (f : x --> z)
+          (g : y --> z).
+
+  Lemma preserve_pullback_to_z_iso_eq
+    : #F (PullbackPr1 (HC₁ z x y f g)) · #F f
+      =
+      #F (PullbackPr2 (HC₁ z x y f g)) · #F g.
+  Proof.
+    rewrite <- !functor_comp.
+    apply maponpaths.
+    apply PullbackSqrCommutes.
+  Qed.
+
+  Let p := preserve_pullback_to_z_iso_eq.
+
+  Definition functor_preserves_pullback_on_pullback
+    : Pullback (#F f) (#F g)
+    := make_Pullback _ (HF _ _ _ _ _ _ _ _ _ p (isPullback_Pullback (HC₁ _ _ _ f g))).
+
+  Let PB := functor_preserves_pullback_on_pullback.
+
+  Definition preserve_pullback_to_z_iso_mor
+    : F(HC₁ _ _ _ f g) --> HC₂ _ _ _ (#F f) (#F g).
+  Proof.
+    use PullbackArrow.
+    - exact (#F(PullbackPr1 _)).
+    - exact (#F(PullbackPr2 _)).
+    - exact preserve_pullback_to_z_iso_eq.
+  Defined.
+
+  Definition preserve_pullback_to_z_iso_inv
+    : HC₂ _ _ _ (#F f) (#F g) --> F(HC₁ _ _ _ f g).
+  Proof.
+    use (PullbackArrow PB).
+    - apply PullbackPr1.
+    - apply PullbackPr2.
+    - apply PullbackSqrCommutes.
+  Defined.
+
+  Proposition preserve_pullback_to_z_iso_laws
+    : is_inverse_in_precat
+        preserve_pullback_to_z_iso_mor
+        preserve_pullback_to_z_iso_inv.
+  Proof.
+    split.
+    - use (MorphismsIntoPullbackEqual (isPullback_Pullback PB)).
+      + rewrite id_left.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply (PullbackArrow_PullbackPr1 PB).
+        }
+        apply PullbackArrow_PullbackPr1.
+      + rewrite id_left.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply (PullbackArrow_PullbackPr2 PB).
+        }
+        apply PullbackArrow_PullbackPr2.
+    - use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      + rewrite id_left.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply PullbackArrow_PullbackPr1.
+        }
+        apply (PullbackArrow_PullbackPr1 PB).
+      + rewrite id_left.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply PullbackArrow_PullbackPr2.
+        }
+        apply (PullbackArrow_PullbackPr2 PB).
+  Qed.
+
+  Definition preserve_pullback_to_z_iso
+    : z_iso (F(HC₁ _ _ _ f g)) (HC₂ _ _ _ (#F f) (#F g)).
+  Proof.
+    use make_z_iso.
+    - exact preserve_pullback_to_z_iso_mor.
+    - exact preserve_pullback_to_z_iso_inv.
+    - exact preserve_pullback_to_z_iso_laws.
+  Defined.
+End PreservesPullbackIso.
+
 Definition preserves_chosen_pullback
            {C₁ C₂ : category}
            (HC₁ : Pullbacks C₁)

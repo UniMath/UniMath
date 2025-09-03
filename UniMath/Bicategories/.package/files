@@ -470,8 +470,8 @@ ComprehensionCat/LocalProperty/LocalProperties.v
 ComprehensionCat/LocalProperty/Examples.v
 ComprehensionCat/LocalProperty/CatWithProp.v
 ComprehensionCat/LocalProperty/DFLCompCatWithProp.v
-ComprehensionCat/LocalProperty/DFLCompCatExamples.v
 ComprehensionCat/Biequivalence/LocalProperty.v
+ComprehensionCat/LocalProperty/DFLCompCatExamples.v
 
 ComprehensionCat/Biequivalence/PiTypesBiequiv.v
 
@@ -502,13 +502,31 @@ ComprehensionCat/Universes/UniverseBiequiv.v
 
 ComprehensionCat/Universes/CompCatUniv/DFLCompCatUniv.v
 
-ComprehensionCat/Universes/Types/Constant.v
-ComprehensionCat/Universes/Types/Identity.v
-ComprehensionCat/Universes/Types/Resizing.v
-ComprehensionCat/Universes/Types/Sigma.v
-ComprehensionCat/Universes/Types/Sum.v
-ComprehensionCat/Universes/Types/Truncation.v
-ComprehensionCat/Universes/Types/CompCatTypes.v
+ComprehensionCat/Universes/CatTypes/Constant.v
+ComprehensionCat/Universes/CatTypes/Identity.v
+ComprehensionCat/Universes/CatTypes/Resizing.v
+ComprehensionCat/Universes/CatTypes/Truncation.v
+ComprehensionCat/Universes/CatTypes/Sum.v
+ComprehensionCat/Universes/CatTypes/Sigma.v
+ComprehensionCat/Universes/CatTypes/PiTypesBasics.v
+ComprehensionCat/Universes/CatTypes/PiTypesComp.v
+ComprehensionCat/Universes/CatTypes/PiTypes.v
+
+ComprehensionCat/Universes/SmallMaps.v
+
+ComprehensionCat/Universes/CompCatTypes/Constant.v
+ComprehensionCat/Universes/CompCatTypes/Identity.v
+ComprehensionCat/Universes/CompCatTypes/Resizing.v
+ComprehensionCat/Universes/CompCatTypes/Truncation.v
+ComprehensionCat/Universes/CompCatTypes/Sum.v
+ComprehensionCat/Universes/CompCatTypes/Sigma.v
+
+ComprehensionCat/Universes/TypeConstructions/Constant.v
+ComprehensionCat/Universes/TypeConstructions/Identity.v
+ComprehensionCat/Universes/TypeConstructions/Resizing.v
+ComprehensionCat/Universes/TypeConstructions/Truncation.v
+ComprehensionCat/Universes/TypeConstructions/Sum.v
+ComprehensionCat/Universes/TypeConstructions.v
 
 ComprehensionCat/InternalLanguageTopos/Pretopos.v
 ComprehensionCat/InternalLanguageTopos/PiPretopos.v
