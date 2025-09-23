@@ -22,6 +22,7 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
@@ -64,10 +65,9 @@ Section Connectives.
     Proof.
       refine (hyperdoctrine_cut p _).
       unfold per_subobject_forall_form.
-      simplify_form.
+      hypersimplify_form.
       use weaken_left.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     Qed.
 
@@ -83,14 +83,14 @@ Section Connectives.
       use (impl_elim q).
       refine (hyperdoctrine_cut p _).
       unfold per_subobject_forall_form.
-      simplify_form.
+      hypersimplify_form.
       use weaken_right.
-      simplify.
+      hypersimplify.
       refine (hyperdoctrine_cut _ _).
       {
         exact (forall_elim (hyperdoctrine_hyp _) a).
       }
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     Qed.
 
@@ -105,12 +105,11 @@ Section Connectives.
       : Δ ⊢ per_subobject_forall_form [ b ].
     Proof.
       unfold per_subobject_forall_form.
-      simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify_form.
+      hypersimplify.
       use conj_intro.
       - exact p.
-      - simplify.
+      - hypersimplify.
         exact q.
     Qed.
 
@@ -124,10 +123,10 @@ Section Connectives.
         unfold per_subobject_forall_form.
         pose (b := π₂ (tm_var (𝟙 ×h B))).
         fold b.
-        simplify_form.
+        hypersimplify_form.
         rewrite partial_setoid_subst.
         use weaken_left.
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
       - do 2 use forall_intro.
         use impl_intro.
@@ -137,9 +136,8 @@ Section Connectives.
         + use weaken_left.
           exact (partial_setoid_refl_r (hyperdoctrine_hyp _)).
         + use forall_intro.
-          simplify_form.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify_form.
+          hypersimplify.
           pose (b₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A))))).
           pose (b₂ := π₂ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A)))).
           pose (a := π₂ (tm_var (((𝟙 ×h B) ×h B) ×h A))).
@@ -183,16 +181,14 @@ Section Connectives.
       use weaken_right.
       use impl_intro.
       cbn.
-      simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify_form.
+      hypersimplify.
       use hyp_sym.
       use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
       rewrite !conj_subst.
       use hyp_ltrans.
       use weaken_right.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (a₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h A) ×h A) ×h B))))).
       pose (a₂ := π₂ (π₁ (tm_var (((𝟙 ×h A) ×h A) ×h B)))).
       pose (b := π₂ (tm_var (((𝟙 ×h A) ×h A) ×h B))).
@@ -233,8 +229,7 @@ Section Connectives.
       use weaken_right.
       use impl_intro.
       cbn.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use to_per_subobject_forall_form.
       - pose (b₁ := π₂ (π₁ (tm_var ((𝟙 ×h B) ×h B)))).
         pose (b₂ := π₂ (tm_var ((𝟙 ×h B) ×h B))).
@@ -243,9 +238,8 @@ Section Connectives.
         exact (partial_setoid_refl_r (hyperdoctrine_hyp _)).
       - use forall_intro.
         use impl_intro.
-        simplify_form.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify_form.
+        hypersimplify.
         pose (b₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A))))).
         pose (b₂ := π₂ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A)))).
         pose (a := π₂ (tm_var (((𝟙 ×h B) ×h B) ×h A))).
@@ -253,18 +247,17 @@ Section Connectives.
         use (per_subobject_mor p).
         + exact a.
         + cbn.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use weaken_right.
           use (partial_setoid_mor_dom_defined φ a b₂).
           apply hyperdoctrine_hyp.
         + cbn.
-          simplify.
+          hypersimplify.
           use exists_intro.
           {
             exact b₁.
           }
-          simplify.
+          hypersimplify.
           use conj_intro.
           * use (partial_setoid_mor_eq_defined φ).
             ** exact a.
@@ -289,19 +282,19 @@ Section Connectives.
              (φ : partial_setoid_morphism A B)
     : dependent_product (disp_cat_per_subobject_cleaving H) φ.
   Proof.
-    use left_adjoint_from_partial.
-    - exact (λ ψ, per_subobject_forall φ ψ).
-    - exact (λ ψ, per_subobject_forall_elim φ ψ).
-    - intros ψ χ p.
-      use iscontraprop1.
-      + abstract
-          (use invproofirrelevance ;
-           intros ζ₁ ζ₂ ;
-           use subtypePath ; [ intro ; apply homset_property | ] ;
-           apply locally_prop_disp_cat_per_subobject).
-      + simple refine (_ ,, _).
-        * exact (per_subobject_forall_intro φ ψ p).
-        * apply (@locally_prop_disp_cat_per_subobject H).
+    apply right_adjoint_weq_coreflections.
+    intro ψ.
+    use make_coreflection'.
+    - exact (per_subobject_forall φ ψ).
+    - exact (per_subobject_forall_elim φ ψ).
+    - intro p.
+      use make_coreflection_arrow.
+      + exact (per_subobject_forall_intro φ _ (coreflection_data_arrow p)).
+      + apply (@locally_prop_disp_cat_per_subobject H).
+      + abstract (
+          intros;
+          apply proofirrelevance, (locally_prop_disp_cat_per_subobject B B)
+        ).
   Defined.
 
   Definition dependent_products_per_subobject

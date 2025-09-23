@@ -111,6 +111,22 @@ Section Iso.
 
 End Iso.
 
+Definition make_β_lambda_theory_z_iso
+  {L L' : β_lambda_theory}
+  (f : z_iso (L : lambda_theory) (L' : lambda_theory))
+  : z_iso L L'.
+Proof.
+  use make_z_iso.
+  - exact (make_β_lambda_theory_morphism (f : _ --> _)).
+  - exact (make_β_lambda_theory_morphism (z_iso_inv f : _ --> _)).
+  - abstract (
+      apply make_is_inverse_in_precat;
+      apply β_lambda_theory_morphism_eq;
+      [ apply z_iso_inv_after_z_iso
+      | apply z_iso_after_z_iso_inv ]
+    ).
+Defined.
+
 (** * 2. Univalence *)
 
 Lemma is_univalent_disp_lambda_theory_data_disp_cat

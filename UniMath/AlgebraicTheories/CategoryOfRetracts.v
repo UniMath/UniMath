@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   The category of retracts of a λ-theory
 
@@ -21,19 +21,20 @@
   6. Every object is a retract of λ x, x [retraction_is_retraction]
   7. R is equivalent to the category given by the idempotents of L_1 [R_ob_weq_R']
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
-Require Import UniMath.CategoryTheory.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Tuples.
 Require Import UniMath.Combinatorics.Vectors.
@@ -62,6 +63,12 @@ Section Category.
   Coercion R_ob_to_L (A : R_ob) : L n := pr1 A.
   Definition R_ob_idempotent (A : R_ob) : A ∘ A = A := pr2 A.
 
+  Definition make_R_ob
+    (l : L n)
+    (Hl : l ∘ l = l)
+    : R_ob
+    := l ,, Hl.
+
   Lemma R_ob_eq
     {A B : R_ob}
     (H : (A : L n) = B)
@@ -75,31 +82,69 @@ Section Category.
     exact H.
   Qed.
 
-  Definition R_mor (A B : R_ob) : UU := ∑ (f : L n), B ∘ f ∘ A = f.
+  Definition R_mor (A B : R_ob) : UU := ∑ (f : L n), f ∘ A = f × B ∘ f = f.
   Coercion R_mor_to_L {A B : R_ob} (f : R_mor A B) : L n := pr1 f.
-  Definition R_mor_is_mor {A B : R_ob} (f : R_mor A B) : B ∘ f ∘ A = f := pr2 f.
 
-  Lemma R_mor_is_mor_left
+  Definition R_mor_is_mor_left
     {A B : R_ob}
     (f : R_mor A B)
-    : B ∘ f = f.
+    : B ∘ f = f
+    := pr22 f.
+
+  Definition R_mor_is_mor_right
+    {A B : R_ob}
+    (f : R_mor A B)
+    : f ∘ A = f
+    := pr12 f.
+
+  Lemma R_mor_is_mor
+    {A B : R_ob}
+    (f : R_mor A B)
+    : B ∘ f ∘ A = f.
   Proof.
-    refine '(!maponpaths _ (R_mor_is_mor _) @ _).
-    refine '(compose_assoc _ Lβ _ _ _ @ _).
-    refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
-    refine '(maponpaths (λ x, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
-    apply R_mor_is_mor.
+    exact (maponpaths_2 _ (R_mor_is_mor_left f) _ @ R_mor_is_mor_right _).
   Qed.
 
-  Lemma R_mor_is_mor_right
+  Lemma split_is_R_mor
     {A B : R_ob}
-    (f : R_mor A B)
-    : f ∘ A = f.
+    (f : L n)
+    (Hf : B ∘ f ∘ A = f)
+    : f ∘ A = f × B ∘ f = f.
   Proof.
-    refine '(!maponpaths (λ x, x ∘ _) (R_mor_is_mor _) @ _).
-    refine '(!compose_assoc _ Lβ _ _ _ @ _).
-    refine '(maponpaths _ (R_ob_idempotent _) @ _).
-    apply R_mor_is_mor.
+    split.
+    - refine '(!maponpaths_2 _ Hf _ @ _).
+      refine '(!compose_assoc _ Lβ _ _ _ @ _).
+      refine '(maponpaths _ (R_ob_idempotent _) @ _).
+      apply Hf.
+    - refine '(!maponpaths _ Hf @ _).
+      refine '(compose_assoc _ Lβ _ _ _ @ _).
+      refine '(maponpaths_2 _ (compose_assoc _ Lβ _ _ _) _ @ _).
+      refine '(maponpaths (λ x, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
+      apply Hf.
+  Qed.
+
+  Definition make_R_mor
+    {A B : R_ob}
+    (f : L n)
+    (Hright : f ∘ A = f)
+    (Hleft : B ∘ f = f)
+    : R_mor A B
+    := f ,, Hright ,, Hleft.
+
+  Definition make_R_mor'
+    {A B : R_ob}
+    (f : L n)
+    (Hf : B ∘ f ∘ A = f)
+    : R_mor A B
+    := f ,, split_is_R_mor f Hf.
+
+  Lemma isaprop_is_R_mor
+    {A B : R_ob}
+    (f : L n)
+    : isaprop (f ∘ A = f × B ∘ f = f).
+  Proof.
+    apply isapropdirprod;
+      apply setproperty.
   Qed.
 
   Lemma R_mor_eq
@@ -109,8 +154,7 @@ Section Category.
     : f = g.
   Proof.
     apply subtypePath.
-    - intro.
-      apply setproperty.
+    - exact isaprop_is_R_mor.
     - apply H.
   Qed.
 
@@ -123,17 +167,18 @@ Section Category.
           -- exact R_ob.
           -- exact R_mor.
         * refine '(λ (A : R_ob), _).
-          exists A.
+          apply (make_R_mor' A).
           abstract (exact (maponpaths (λ x, x ∘ _) (R_ob_idempotent A) @ R_ob_idempotent A)).
         * refine '(λ (A B C : R_ob) (f g : R_mor _ _), _).
-          exists (g ∘ f).
-          abstract (
-            refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _);
-            refine '(!compose_assoc _ Lβ _ _ _ @ _);
-            refine '(maponpaths (λ x, x ∘ _) _ @ maponpaths _ _) >
-            [ apply R_mor_is_mor_left
-            | apply R_mor_is_mor_right ]
-          ).
+          apply (make_R_mor (g ∘ f)).
+          -- abstract (
+              refine '(!compose_assoc _ Lβ _ _ _ @ _);
+              exact (maponpaths _ (R_mor_is_mor_right _))
+            ).
+          -- abstract (
+              refine '(compose_assoc _ Lβ _ _ _ @ _);
+              exact (maponpaths_2 _ (R_mor_is_mor_left _) _)
+            ).
       + abstract (
           apply make_is_precategory_one_assoc >
           [ intros A B f;
@@ -153,7 +198,7 @@ Section Category.
         [ apply setproperty
         | intro t;
           apply isasetaprop;
-          apply setproperty ]
+          apply isaprop_is_R_mor ]
       ).
   Defined.
 
@@ -205,7 +250,7 @@ Section Category.
 
       Definition terminal_arrow
         : R_mor A terminal
-        := terminal_arrow_term ,, terminal_arrow_is_mor.
+        := make_R_mor' terminal_arrow_term terminal_arrow_is_mor.
 
       Lemma terminal_arrow_unique
         (t : R_mor A terminal)
@@ -327,7 +372,7 @@ Section Category.
 
     Definition R_fixpoint
       : R_mor (TerminalObject R_terminal) B
-      := _ ,, fixpoint_is_mor.
+      := make_R_mor' _ fixpoint_is_mor.
 
   End Fixpoints.
 
@@ -378,7 +423,7 @@ Section Category.
 
     Definition p1
       : R_mor prod A
-      := p1_term ,, p1_is_mor.
+      := make_R_mor' p1_term p1_is_mor.
 
     Definition p2_term
       : L n
@@ -397,7 +442,7 @@ Section Category.
 
     Definition p2
       : R_mor prod B
-      := p2_term ,, p2_is_mor.
+      := make_R_mor' p2_term p2_is_mor.
 
     Section Arrow.
 
@@ -430,7 +475,7 @@ Section Category.
 
       Definition prod_arrow
         : R_mor C prod
-        := prod_arrow_term ,, prod_arrow_is_mor.
+        := make_R_mor' prod_arrow_term prod_arrow_is_mor.
 
       Definition p1_commutes
         : (prod_arrow : R⟦_, _⟧) · p1 = f.
@@ -731,7 +776,7 @@ Section Category.
 
       Definition eval_mor
         : R_mor (prod exponential_ob B) C
-        := eval_term ,, eval_is_mor.
+        := make_R_mor' eval_term eval_is_mor.
 
       Section Lambda.
 
@@ -865,7 +910,7 @@ Section Category.
 
         Definition lifted_mor
           : R_mor A exponential_ob
-          := lifted_term ,, lifted_is_mor.
+          := make_R_mor' lifted_term lifted_is_mor.
 
         Lemma lifted_mor_commutes
           : h = # (constprod_functor2 R_binproducts B) lifted_mor · eval_mor.
@@ -1034,17 +1079,19 @@ Section Category.
 
     End Object.
 
-    Lemma is_universal_arrow
+    Definition R_exponential_coreflection
       (B C : R)
-      : is_universal_arrow_from (constprod_functor2 R_binproducts B) C (exponential_ob B C) (eval_mor B C).
+      : coreflection C (constprod_functor2 R_binproducts B).
     Proof.
-      intros A h.
-      refine '(unique_exists _ _ _ _).
-      + exact (lifted_mor B C A h).
-      + exact (lifted_mor_commutes B C A h).
-      + intro y.
-        apply homset_property.
-      + apply lifted_mor_unique.
+      refine '(make_coreflection' _ _ _).
+      - exact (exponential_ob B C).
+      - exact (eval_mor B C).
+      - intro h.
+        refine '(make_coreflection_arrow _ _ _).
+        + apply lifted_mor.
+          exact (h : _ --> _).
+        + exact (lifted_mor_commutes _ _ _ _).
+        + apply lifted_mor_unique.
     Defined.
 
     Definition R_exponentials
@@ -1052,10 +1099,8 @@ Section Category.
     Proof.
       intro B.
       apply is_exponentiable'_to_is_exponentiable.
-      refine '(left_adjoint_from_partial _ _ _ _).
-      - exact (exponential_ob B).
-      - exact (eval_mor B).
-      - apply is_universal_arrow.
+      apply coreflections_to_is_left_adjoint.
+      apply R_exponential_coreflection.
     Defined.
 
   End Exponentials.
@@ -1078,6 +1123,11 @@ Section Category.
       refine '(maponpaths (λ x, (abs x)) (var_subst _ _ _) @ _).
       exact (maponpaths (λ x, (abs x)) (extend_tuple_inr _ _ _)).
     Qed.
+
+    Definition inflate_U_term
+      {m : nat}
+      : inflate (U_term (m := m)) = U_term
+      := subst_U_term _.
 
     Lemma app_U
       {m : nat}
@@ -1139,7 +1189,7 @@ Section Category.
 
     Definition R_retraction
       : R_mor U A
-      := (A : L n) ,, R_retraction_is_mor.
+      := make_R_mor' A R_retraction_is_mor.
 
     Lemma R_section_is_mor
       : U ∘ A ∘ A = A.
@@ -1149,7 +1199,7 @@ Section Category.
 
     Definition R_section
       : R_mor A U
-      := (A : L n) ,, R_section_is_mor.
+      := make_R_mor' A R_section_is_mor.
 
     Lemma R_retraction_is_retraction
       : is_retraction (C := R) R_section R_retraction.
@@ -1161,102 +1211,3 @@ Section Category.
   End Retractions.
 
 End Category.
-
-(** * 7. R is equivalent to the category given by the idempotents of L_1 *)
-
-Section Category'.
-  Context (L : lambda_theory).
-  Context (Lβ : has_β L).
-
-  Lemma compose_is_subst
-    (A : L 1)
-    : abs A ∘ abs A = abs (A • (λ _, A)).
-  Proof.
-    refine '(compose_abs _ Lβ _ _ @ _).
-    refine '(maponpaths (λ x, (abs (app x _))) (inflate_abs _ _) @ _).
-    refine '(maponpaths (λ x, (abs x)) (beta_equality _ Lβ _ _) @ _).
-    refine '(maponpaths (λ x, (abs x)) (subst_subst _ _ _ _) @ _).
-    do 2 (apply maponpaths).
-    apply funextfun.
-    intro i.
-    refine '(maponpaths (λ x, extend_tuple _ _ x • _) (pr2 iscontrstn1 i) @ _).
-    refine '(var_subst _ _ _ @ _).
-    apply extend_tuple_inr.
-  Qed.
-
-  Definition R'_ob : UU
-    := ∑ (l : L 1), l • (λ i, l) = l.
-
-  Coercion R'_ob_to_L
-    (A : R'_ob)
-    : L 1
-    := pr1 A.
-
-  Definition R'_ob_idempotent
-    (A : R'_ob)
-    : A • (λ i, A) = (A : L 1)
-    := pr2 A.
-
-  Lemma R'_ob_eq
-    {A B : R'_ob}
-    (H : (A : L 1) = B)
-    : A = B.
-  Proof.
-    apply subtypePath.
-    {
-      intro.
-      apply setproperty.
-    }
-    exact H.
-  Qed.
-
-  Definition R_ob_weq_R'
-    : R_ob (n := 0) L ≃ R'_ob.
-  Proof.
-    refine '(weq_iso _ _ _ _).
-    - intro A.
-      exists (app (inflate A) (var (stnweq (inr tt)))).
-      abstract (
-        refine '(subst_app _ _ _ _ @ _);
-        refine '(maponpaths (λ x, (app x _)) (subst_inflate _ _ _) @ _);
-        refine '(maponpaths (λ x, (app _ x)) (var_subst _ _ _) @ _);
-        refine '(maponpaths (λ x, app (_ • x) _) (proofirrelevancecontr (iscontr_empty_tuple _) _ (λ i, var (stnweq (inl i)))) @ _);
-        refine '(!Lβ 0 _ @ _);
-        refine '(maponpaths appx (R_ob_idempotent _ A) @ _);
-        apply appx_to_app
-      ).
-    - intro A.
-      exists (abs A).
-      abstract (
-        refine '(compose_abs _ Lβ _ _ @ _);
-        refine '(maponpaths (λ x, (abs (app x _))) (inflate_abs _ _) @ _);
-        refine '(maponpaths (λ x, (abs x)) (beta_equality _ Lβ _ _) @ _);
-        refine '(maponpaths (λ x, (abs x)) (subst_subst _ _ _ _) @ _);
-        apply maponpaths;
-        refine '(_ @ R'_ob_idempotent _);
-        apply maponpaths;
-        apply funextfun;
-        intro i;
-        induction (!uniqueness iscontrstn1 _ : stnweq (inr tt) = i);
-        refine '(maponpaths (λ x, (x • _)) (extend_tuple_inr _ _ _) @ _);
-        refine '(var_subst _ _ _ @ _);
-        apply extend_tuple_inr
-      ).
-    - abstract (
-        intro A;
-        apply R_ob_eq;
-        refine '(!maponpaths abs (appx_to_app A) @ _);
-        refine '(_ @ R_ob_idempotent _ _);
-        apply (maponpaths abs);
-        refine '(!maponpaths appx (R_ob_idempotent _ _) @ _);
-        apply Lβ
-      ).
-    - abstract (
-        intro A;
-        apply R'_ob_eq;
-        refine '(!appx_to_app _ @ _);
-        apply Lβ
-      ).
-  Defined.
-
-End Category'.

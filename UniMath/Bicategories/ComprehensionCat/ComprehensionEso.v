@@ -205,19 +205,15 @@ Section ComprehensionEso.
       : comp_cat_tm
           Δ
           (dfl_ext_identity_type
-             (sub_comp_cat_tm
-                left_tm
-                comprehension_eso_inv_mor_help_sub)
-             (sub_comp_cat_tm
-                right_tm
-                comprehension_eso_inv_mor_help_sub)).
+             (left_tm [[ comprehension_eso_inv_mor_help_sub ]]tm)
+             (right_tm [[ comprehension_eso_inv_mor_help_sub ]]tm)).
     Proof.
       use dfl_ext_identity_type_tm.
       use (MorphismsIntoPullbackEqual
              (isPullback_Pullback
                 (comp_cat_pullback DΓ' comprehension_eso_inv_mor_help_sub))).
       - rewrite !assoc'.
-        rewrite !sub_comp_cat_tm_pr1.
+        rewrite !subst_comp_cat_tm_pr1.
         use (MorphismsIntoPullbackEqual (isPullback_Pullback HΓ)).
         + rewrite !assoc'.
           apply maponpaths.
@@ -255,13 +251,13 @@ Section ComprehensionEso.
         etrans.
         {
           apply maponpaths.
-          apply sub_comp_cat_tm_pr2.
+          apply subst_comp_cat_tm_pr2.
         }
         refine (!_).
         etrans.
         {
           apply maponpaths.
-          apply sub_comp_cat_tm_pr2.
+          apply subst_comp_cat_tm_pr2.
         }
         apply idpath.
     Qed.

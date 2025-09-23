@@ -1,5 +1,3 @@
-(* -*- coding: utf-8 -*- *)
-
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.MoreFoundations.Tactics.

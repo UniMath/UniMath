@@ -21,7 +21,7 @@ Definition eq_is_invertible_2cell
   : is_invertible_2cell β.
 Proof.
   use make_is_invertible_2cell.
-  - exact (Hα^-1).
+  - exact Hα^-1.
   - abstract
       (rewrite <- p ;
        apply vcomp_rinv).
@@ -288,8 +288,8 @@ Lemma path_inverse_2cell
   : η₁ = η₂ -> inv_η₁^-1 = inv_η₂^-1.
 Proof.
   intros p.
-  rewrite <- (id2_left (inv_η₁^-1)).
-  rewrite <- (id2_right (inv_η₂^-1)).
+  rewrite <- (id2_left inv_η₁^-1).
+  rewrite <- (id2_right inv_η₂^-1).
   rewrite <- (vcomp_linv inv_η₂).
   rewrite <- vassocr.
   apply maponpaths.
@@ -336,7 +336,7 @@ Definition inv_of_invertible_2cell
 Proof.
   intro α.
   use make_invertible_2cell.
-  - exact (α^-1).
+  - exact α^-1.
   - is_iso.
 Defined.
 
@@ -465,7 +465,7 @@ Section InvertibleIsIso.
              (Hα : is_invertible_2cell α)
     : is_z_isomorphism α.
   Proof.
-    exists (Hα^-1).
+    exists Hα^-1.
     abstract (split ; [ apply vcomp_rinv | apply vcomp_linv]).
   Defined.
 

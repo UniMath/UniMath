@@ -825,7 +825,7 @@ Section Enriched.
       + apply inv_enriched_profunctor_transformation_left.
     - intros Hτ y x.
       use make_is_z_isomorphism.
-      + exact (pr1 (Hτ^-1) y x).
+      + exact (pr1 Hτ^-1 y x).
       + split.
         * abstract
             (exact (from_eq_enriched_profunctor_transformation (vcomp_rinv Hτ) y x)).

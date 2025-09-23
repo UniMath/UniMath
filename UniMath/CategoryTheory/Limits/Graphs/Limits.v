@@ -25,7 +25,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+
+Require Export UniMath.CategoryTheory.Limits.Graphs.Diagrams.
 
 Local Open Scope cat.
 
@@ -91,6 +92,9 @@ Definition lim {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) 
 
 Definition limCone {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) :
   cone d (lim CC) := pr2 (pr1 CC).
+
+Definition isLimCone_from_LimCone {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) :
+  isLimCone d (lim CC) _ := pr2 CC.
 
 Definition limOut {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) :
   ∏ (v : vertex g), C⟦lim CC, dob d v⟧ := coneOut (limCone CC).
@@ -622,10 +626,12 @@ End Reflects.
 
 (** Put in a module for namespace reasons *)
 
+Require UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require UniMath.CategoryTheory.opp_precat.
 
 Module co.
 
+Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Import UniMath.CategoryTheory.opp_precat.
 
 Section lim_def.

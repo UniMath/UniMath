@@ -44,7 +44,7 @@ Proof.
   simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
   - exact (left_adjoint_right_adjoint g_equiv).
   - exact ((left_adjoint_unit g_equiv)
-           • ((Hα^-1) ▹ left_adjoint_right_adjoint g_equiv)).
+           • (Hα^-1 ▹ left_adjoint_right_adjoint g_equiv)).
   - exact ((left_adjoint_right_adjoint g_equiv ◃ α)
            • (left_adjoint_counit g_equiv)).
   - cbn.

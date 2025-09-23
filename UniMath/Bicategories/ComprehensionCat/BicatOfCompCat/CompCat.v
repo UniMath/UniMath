@@ -951,6 +951,38 @@ Definition comp_cat_nat_trans_comprehension
     τ _ · comprehension_nat_trans_mor (comp_cat_functor_comprehension G) xx
   := pr2 τ x xx.
 
+Proposition from_eq_2cell_comp_cat_nat_trans
+            {C₁ C₂ : comp_cat}
+            {F G : comp_cat_functor C₁ C₂}
+            {τ θ : comp_cat_nat_trans F G}
+            (p : τ = θ)
+            (Γ : C₁)
+  : τ Γ = θ Γ.
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Proposition from_eq_2cell_comp_cat_disp
+            {C₁ C₂ : comp_cat}
+            {F G : comp_cat_functor C₁ C₂}
+            {τ θ : comp_cat_nat_trans F G}
+            (p : τ = θ)
+            {Γ : C₁}
+            (A : disp_cat_of_types C₁ Γ)
+  : comp_cat_type_nat_trans τ Γ A
+    =
+    transportf
+      (λ z, _ -->[ z ] _)
+      (from_eq_2cell_comp_cat_nat_trans (!p) Γ)
+      (comp_cat_type_nat_trans θ Γ A).
+Proof.
+  induction p ; cbn.
+  refine (!_).
+  apply transportf_set.
+  apply homset_property.
+Qed.
+
 (** * 6. Comparison *)
 Section ToCompCat.
   Context {C : univalent_category}

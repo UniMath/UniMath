@@ -70,6 +70,7 @@ Require Import UniMath.Algebra.Free_Monoids_and_Groups.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Categories.Rel.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Comonads.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -660,43 +661,35 @@ Section CofreeComonoidUMP.
 
     Definition comonoid_mor_REL_to_monoid_mor
       : monoidfun (free_abmonoid X) (REL_comonoid_to_monoid C)
-      := comonoid_mor_REL_to_map ,, ismonoidfun_comonoid_mor_REL_to_map.
+      := make_monoidfun ismonoidfun_comonoid_mor_REL_to_map.
   End ToMonoidMor.
 
   Proposition cofree_comonoid_REL_map_unique
-    : isaprop
-        (∑ f',
-         f
-         =
-         # (underlying_commutative_comonoid REL_sym_mon_closed_cat) f'
-         · map_to_cofree_comonoid_REL X).
+    (g : C --> cofree_comonoid_REL X)
+    (Hg : f = # (underlying_commutative_comonoid REL_sym_mon_closed_cat) g · map_to_cofree_comonoid_REL X)
+    : g = cofree_comonoid_REL_map.
   Proof.
-    use invproofirrelevance.
-    intros φ₁ φ₂.
-    use subtypePath.
-    {
-      intro.
-      apply homset_property.
-    }
     use subtypePath.
     {
       intro.
       apply is_locally_propositional_commutative_comonoid.
     }
-    enough (comonoid_mor_REL_to_monoid_mor (pr1 φ₁)
+    enough (comonoid_mor_REL_to_monoid_mor g
             =
-            comonoid_mor_REL_to_monoid_mor (pr1 φ₂))
+            comonoid_mor_REL_to_monoid_mor cofree_comonoid_REL_map)
       as H.
     {
       use funextsec ; intro y₁.
       use funextsec ; intro y₂.
       use hPropUnivalence.
       - intro p.
-        exact (eqweqmaphProp (eqtohomot (eqtohomot (maponpaths pr1 H) y₂) y₁) p).
+        exact (eqweqmaphProp (eqtohomot (monoidfun_eq H y₂) y₁) p).
       - intro p.
-        exact (eqweqmaphProp (!eqtohomot (eqtohomot (maponpaths pr1 H) y₂) y₁) p).
+        exact (eqweqmaphProp (!eqtohomot (monoidfun_eq H y₂) y₁) p).
     }
-    use free_abmonoid_mor_eq.
+    refine (invmap monoidfun_eq (abelian_monoid_morphism_eq (free_abmonoid_mor_eq
+      (f := monoidfun_to_abelian_monoid_morphism (comonoid_mor_REL_to_monoid_mor _))
+      (g := monoidfun_to_abelian_monoid_morphism (comonoid_mor_REL_to_monoid_mor _)) _))).
     intro x ; cbn.
     use funextsec ; intro y.
     use hPropUnivalence.
@@ -704,7 +697,7 @@ Section CofreeComonoidUMP.
       unfold comonoid_mor_REL_to_map in a.
       assert (p := eqweqmaphProp
                      (eqtohomot
-                        (eqtohomot (!(pr2 φ₁) @ pr2 φ₂) y)
+                        (eqtohomot (!Hg @ cofree_comonoid_REL_map_comm) y)
                         x)
                      (hinhpr (_ ,, a ,, idpath _))).
       revert p.
@@ -716,7 +709,7 @@ Section CofreeComonoidUMP.
       unfold comonoid_mor_REL_to_map in a.
       assert (p := eqweqmaphProp
                      (!eqtohomot
-                        (eqtohomot (!(pr2 φ₁) @ pr2 φ₂) y)
+                        (eqtohomot (!Hg @ cofree_comonoid_REL_map_comm) y)
                         x)
                      (hinhpr (_ ,, a ,, idpath _))).
       revert p.
@@ -726,21 +719,28 @@ Section CofreeComonoidUMP.
       exact p₁.
   Qed.
 
-  Corollary cofree_comonoid_REL_map_contr
-    : iscontr
-        (∑ f' : commutative_comonoid_category REL_sym_mon_closed_cat ⟦ C, cofree_comonoid_REL X ⟧,
-         f
-         =
-         # (underlying_commutative_comonoid REL_sym_mon_closed_cat) f'
-         · map_to_cofree_comonoid_REL X).
-  Proof.
-    use iscontraprop1.
-    - apply cofree_comonoid_REL_map_unique.
-    - simple refine (_ ,, _).
-      + exact cofree_comonoid_REL_map.
-      + exact cofree_comonoid_REL_map_comm.
-  Defined.
 End CofreeComonoidUMP.
+
+Definition cofree_comonoid_REL_coreflection_data
+  (X : REL_sym_mon_closed_cat)
+  : coreflection_data X (underlying_commutative_comonoid REL_sym_mon_closed_cat).
+Proof.
+  use make_coreflection_data.
+  - exact (cofree_comonoid_REL X).
+  - exact (map_to_cofree_comonoid_REL X).
+Defined.
+
+Corollary cofree_comonoid_REL_is_coreflection
+  (X : REL_sym_mon_closed_cat)
+  : is_coreflection (cofree_comonoid_REL_coreflection_data X).
+Proof.
+  intro f.
+  use make_coreflection_arrow.
+  - apply cofree_comonoid_REL_map.
+    exact f.
+  - apply cofree_comonoid_REL_map_comm.
+  - apply cofree_comonoid_REL_map_unique.
+Defined.
 
 (** * 4. The relational model of linear logic *)
 Definition relational_model
@@ -748,8 +748,9 @@ Definition relational_model
 Proof.
   use make_lafont_category.
   - exact REL_sym_mon_closed_cat.
-  - use left_adjoint_from_partial.
-    + exact cofree_comonoid_REL.
-    + exact map_to_cofree_comonoid_REL.
-    + exact cofree_comonoid_REL_map_contr.
+  - use coreflections_to_is_left_adjoint.
+    intro X.
+    use make_coreflection.
+    + exact (cofree_comonoid_REL_coreflection_data X).
+    + exact (cofree_comonoid_REL_is_coreflection X).
 Defined.

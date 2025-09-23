@@ -162,6 +162,15 @@ Proof.
   exact (e ,, (e₁ ,, e₂)).
 Qed.
 
+Corollary weak_equiv_preserves_pullback
+  {C D : category} {F : C ⟶ D} (F_weq : is_weak_equiv F)
+  {z x_l x_r : C} (f_l : C⟦x_l, z⟧) (f_r : C⟦x_r, z⟧) (c : Pullback f_l f_r)
+  : Pullback (#F f_l) (#F f_r).
+Proof.
+  use (make_Pullback _ (weak_equiv_preserves_pullbacks F_weq _ _ _ _ f_l f_r _ _ _ _ (isPullback_Pullback c))).
+  abstract (do 2 rewrite <- functor_comp ; apply maponpaths ; apply PullbackSqrCommutes).
+Defined.
+
 Corollary weak_equiv_preserves_chosen_pullbacks
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F) (PB : Pullbacks C)
   : preserves_chosen_pullback PB F.

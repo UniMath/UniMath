@@ -1,5 +1,24 @@
+(**************************************************************************************************
+
+  Decidable Propositions
+
+  This file contains a grab-bag of material on decidable propositions and classical logic, including:
+
+  - a few miscellaneous lemmas on decidable propositions and classical logic
+  - definitions of LEM and other classicality principles, and relationships between them
+  - a couple of alternative frameworks for working with decidable relations and propositions, besides [decprop], [decrel] already provided upstream in [Foundations]
+ **************************************************************************************************)
+
 Require Export UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Export UniMath.MoreFoundations.Propositions.
+Require Import UniMath.MoreFoundations.Nat.
+
+(** * Miscellaneous lemmas
+
+Results on decidable propositions, using the framework provided upstream in [Foundations], needed later in this file *)
+
+Section Misc.
 
 Lemma retract_dec {X Y} (f : X -> Y) (g : Y -> X) (h : f ∘ g ~ idfun Y) : isdeceq X -> isdeceq Y.
 Proof.
@@ -18,9 +37,96 @@ Defined.
 
 Definition decidable_prop (X:hProp) := make_hProp (decidable X) (isapropdec X (pr2 X)).
 
+Definition dnegelim {P Q : UU} : complementary P Q -> ¬¬ P -> P.
+Proof.
+  intros c nnp. induction c as [n c].
+  induction c as [p|q].
+  - assumption.
+  - contradicts nnp (λ p, n p q).
+Defined.
+
+End Misc.
+
+(** * The Law of Excluded Middle, and equivalent principles *)
+
+Section LEM.
+(* Law of Excluded Middle
+
+   We don't state LEM as an axiom, because we want to force it
+   to be a hypothesis of any corollaries of any theorems that
+   appeal to it. *)
 Definition LEM : hProp := ∀ P : hProp, decidable_prop P.
 
-(** ** Decidability via complementary pairs *)
+Lemma LEM_for_sets (X : UU) : LEM -> isaset X -> isdeceq X.
+Proof. intros lem is x y. exact (lem (make_hProp (x = y) (is x y))). Defined.
+
+Lemma isaprop_LEM : isaprop LEM.
+Proof.
+  unfold LEM. apply impred_isaprop; intro P. apply isapropdec. apply propproperty.
+Defined.
+
+Lemma dneg_LEM (P : hProp) : LEM -> ¬¬ P -> P.
+Proof. intros lem. exact (dnegelim ((λ p np, np p),,lem P)). Defined.
+
+Corollary reversal_LEM (P Q : hProp) : LEM -> (¬ P -> Q) -> (¬ Q -> P).
+Proof.
+  intros lem f n.
+  assert (g := negf f); clear f.
+  assert (h := g n); clear g n.
+  apply (dneg_LEM _ lem).
+  exact h.
+Defined.
+
+End LEM.
+
+Section Classicality_Principles.
+Local Open Scope logic.
+
+Lemma decidable_proof_by_contradiction {P:hProp} : decidable P -> ¬ ¬ P -> P.
+Proof.
+  intros dec nnp. induction dec as [p|np].
+  - exact p.
+  - apply fromempty. exact (nnp np).
+Defined.
+
+Lemma proof_by_contradiction {P:hProp} : LEM -> ¬ ¬ P -> P.
+Proof.
+  intro lem.
+  exact (decidable_proof_by_contradiction (lem P)).
+Defined.
+
+Lemma dneg_elim_to_LEM : (∏ P:hProp, ¬ ¬ P -> P) -> LEM.
+(* a converse for Lemma dneg_LEM *)
+Proof.
+  intros dne. intros P. simple refine (dne (_,,_) _).
+  simpl. intros n.
+  assert (q : ¬ (P ∨ ¬ P)).
+  { now apply weqnegtonegishinh. }
+  assert (r := fromnegcoprod_prop q).
+  exact (pr2 r (pr1 r)).
+Defined.
+
+Lemma negforall_to_existsneg {X:UU} (P:X->hProp) : LEM -> (¬ ∀ x, P x) -> (∃ x, ¬ (P x)).
+(* was omitted from the section on "Negation and quantification" in Foundations/Propositions.v *)
+Proof.
+  intros lem nf. apply (proof_by_contradiction lem); intro c. use nf; clear nf. intro x.
+  assert (q := neghexisttoforallneg _ c x); clear c; simpl in q.
+  exact (proof_by_contradiction lem q).
+Defined.
+
+Lemma negimpl_to_conj (P Q:hProp) : LEM -> ( ¬ (P ⇒ Q) -> P ∧ ¬ Q ).
+Proof.
+  intros lem ni. assert (r := negforall_to_existsneg _ lem ni); clear lem ni.
+  apply (squash_to_hProp r); clear r; intros [p nq]. exact (p,,nq).
+Defined.
+
+End Classicality_Principles.
+
+
+(** * Complementary pairs
+
+An alternative framework for working with decidable propositions as represented by complementary pairs of propositions. *)
+Section ComplementaryPairs.
 
 Definition ComplementaryPair : UU := ∑ (P Q : UU), complementary P Q.
 Definition Part1 (C : ComplementaryPair) : UU := pr1 C.
@@ -149,43 +255,14 @@ Proof.
   exact (pairNegation (pairConjunction (pairNegation C) (pairNegation C'))).
 Defined.
 
-Definition dnegelim {P Q : UU} : complementary P Q -> ¬¬ P -> P.
-Proof.
-  intros c nnp. induction c as [n c].
-  induction c as [p|q].
-  - assumption.
-  - contradicts nnp (λ p, n p q).
-Defined.
+End ComplementaryPairs.
 
-(* Law of Excluded Middle
+(** * Decidable Propositions
 
-   We don't state LEM as an axiom, because we want to force it
-   to be a hypothesis of any corollaries of any theorems that
-   appeal to it. *)
+Another framework for working with decidable propositions, just as propositions together with a proof of decidability.
 
-Lemma LEM_for_sets (X : UU) : LEM -> isaset X -> isdeceq X.
-Proof. intros lem is x y. exact (lem (make_hProp (x = y) (is x y))). Defined.
-
-Lemma isaprop_LEM : isaprop LEM.
-Proof.
-  unfold LEM. apply impred_isaprop; intro P. apply isapropdec. apply propproperty.
-Defined.
-
-Lemma dneg_LEM (P : hProp) : LEM -> ¬¬ P -> P.
-Proof. intros lem. exact (dnegelim ((λ p np, np p),,lem P)). Defined.
-
-Corollary reversal_LEM (P Q : hProp) : LEM -> (¬ P -> Q) -> (¬ Q -> P).
-Proof.
-  intros lem f n.
-  assert (g := negf f); clear f.
-  assert (h := g n); clear g n.
-  apply (dneg_LEM _ lem).
-  exact h.
-Defined.
-
-(*****************************************************************************)
-(* all of this stuff about decidable propositions will be replaced by the better code above *)
-(*****************************************************************************)
+Possibly should be replaced by the better approach based on complementary pairs *)
+Section DecidablePropositions.
 
 Definition DecidableProposition : UU := ∑ X : UU, isdecprop X.
 
@@ -262,6 +339,8 @@ Proof.
   intros. exists (¬ P). apply neg_isdecprop; apply decidabilityProperty.
 Defined.
 
+End DecidablePropositions.
+
 Declare Scope decidable_logic.
 Notation "X ∨ Y" := (decidableOr X Y) (at level 85, right associativity) :
                       decidable_logic.
@@ -272,6 +351,8 @@ Notation "'¬' X" := (decidableNot X) (at level 35, right associativity) :
 Delimit Scope decidable_logic with declog.
 
 Ltac choose P yes no := induction (pr1 (decidabilityProperty P)) as [yes|no].
+
+Section DecidablePropositions.
 
 Definition choice {W : UU} : DecidableProposition -> W -> W -> W.
 Proof.
@@ -373,6 +454,41 @@ Definition nateq_DecidableProposition : DecidableRelation nat :=
 Definition natneq_DecidableProposition : DecidableRelation nat :=
   decrel_to_DecidableRelation natdecneq.
 
+End DecidablePropositions.
+
+Section DecidableEquality.
+
+Lemma isdeceq_subtype {X : UU} (P : hsubtype X) : 
+  isdeceq X → isdeceq P.
+Proof.
+  intros deceqX predP. apply isdeceq_total2.
+  + apply deceqX.
+  + intros x. apply isdeceqifisaprop, propproperty.
+Qed.
+
+  Definition singleton_complement {X : UU} (y : X) : hsubtype X := λ x, make_hProp (x != y) (isapropneg (x = y)).
+
+  Lemma weq_singleton_complement_unit {X : UU} (y : X) : isdeceq X → carrier (singleton_complement y) ⨿ unit ≃ X.
+  Proof.
+    intros deceqx.
+    use weq_iso.
+    - intros [[x neq] | tt]; [apply x | apply y].
+    - intros x. induction (deceqx x y); [right; apply tt | left].
+      apply tpair with (pr1 := x), b. 
+    - intros [[x neq] | tt].
+      + induction (deceqx x y).
+        * apply fromempty. induction neq. assumption.
+        * cbn. apply maponpaths, subtypePath_prop, idpath. 
+      + induction (deceqx y y).
+        * induction tt. apply idpath.
+        * apply fromempty, b, idpath.
+    - intros x; cbn beta.
+      induction (deceqx x y); cbn beta;
+      try induction a; apply idpath.
+  Qed.
+
+End DecidableEquality.
+
 Declare Scope decidable_nat.
 Notation " x < y " := (natlth_DecidableProposition x y) (at level 70, no associativity) :
                         decidable_nat.
@@ -392,3 +508,4 @@ Notation " x ≠ y " := (natneq_DecidableProposition x y) (at level 70, no assoc
                         decidable_nat.
 
 Delimit Scope decidable_nat with dnat.
+Local Open Scope decidable_nat.

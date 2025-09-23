@@ -33,13 +33,18 @@ Categories/HSET/Core.v
 CategorySum.v
 Subcategory/Core.v
 Subcategory/Full.v
-Retracts.v
+IdempotentsAndSplitting/Retracts.v
+IdempotentsAndSplitting/Set.v
+IdempotentsAndSplitting/FunctorCategory.v
+IdempotentsAndSplitting/Fullsub.v
 Monics.v
 Epis.v
 SplitMonicsAndEpis.v
 HomotopicalCategory.v
 Adjunctions/Core.v
 Adjunctions/AdjunctionMonics.v
+Adjunctions/Reflections.v
+Adjunctions/Coreflections.v
 Monads/RelativeMonads.v
 Monads/RelMonads_Coreflection.v
 Monads/RelativeModules.v
@@ -56,6 +61,7 @@ PrecategoriesWithAbgrops.v
 covyoneda.v
 Limits/Cones.v
 Limits/Equalizers.v
+Limits/Graphs/Diagrams.v
 Limits/Graphs/Colimits.v
 Limits/Graphs/Limits.v
 Limits/Graphs/EqDiag.v
@@ -66,6 +72,7 @@ Limits/Terminal.v
 Limits/Zero.v
 Limits/BinCoproducts.v
 Limits/BinProducts.v
+Limits/BinBiproducts.v
 
 Limits/Graphs/BinCoproducts.v
 Limits/Graphs/Coproducts.v
@@ -219,23 +226,43 @@ CategoryEquality.v
 Core/PosetCat.v
 
 WeakEquivalences/Core.v
+WeakEquivalences/TwoOutOfThree.v
+WeakEquivalences/Opp.v
 WeakEquivalences/Terminal.v
+WeakEquivalences/Initial.v
+WeakEquivalences/Mono.v
 WeakEquivalences/Preservation/Binproducts.v
 WeakEquivalences/Reflection/BinProducts.v
 WeakEquivalences/Creation/BinProducts.v
+WeakEquivalences/Preservation/Bincoproducts.v
+WeakEquivalences/Reflection/BinCoproducts.v
+WeakEquivalences/LiftPreservation/BinCoproducts.v
 WeakEquivalences/LiftPreservation/BinProducts.v
 WeakEquivalences/Preservation/Equalizers.v
 WeakEquivalences/Reflection/Equalizers.v
 WeakEquivalences/Creation/Equalizers.v
+WeakEquivalences/Coequalizers.v
 WeakEquivalences/LiftPreservation/Equalizers.v
 WeakEquivalences/Preservation/Pullbacks.v
 WeakEquivalences/Reflection/Pullbacks.v
 WeakEquivalences/Creation/Pullbacks.v
 WeakEquivalences/LiftPreservation/Pullbacks.v
+WeakEquivalences/Preservation/SubobjectClassifier.v
+WeakEquivalences/Reflection/SubobjectClassifier.v
+WeakEquivalences/LiftPreservation/SubobjectClassifier.v
+WeakEquivalences/RegularEpi.v
+WeakEquivalences/Regular.v
+WeakEquivalences/Exact.v
+WeakEquivalences/Preservation/NNO.v
+WeakEquivalences/PNNO.v
+WeakEquivalences/Slice.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 
-exponentials.v
+Exponentials.v
+WeakEquivalences/Preservation/Exponentials.v
+WeakEquivalences/Reflection/Exponentials.v
+WeakEquivalences/LiftPreservation/Exponentials.v
 slicecat.v
 Limits/PullbacksSliceProductsEquiv.v
 Additive.v
@@ -251,6 +278,7 @@ LocalizingClass.v
 UnderCategories.v
 Subobjects.v
 SubobjectClassifier/SubobjectClassifier.v
+SubobjectClassifier/Operations.v
 SubobjectClassifier/SubobjectClassifierIso.v
 Quotobjects.v
 AbelianPushoutPullback.v
@@ -270,21 +298,27 @@ Categories/CategoryOfSetGroupoids.v
 Limits/Examples/CategoryOfSetcategoriesLimits.v
 Limits/Examples/CategoryOfSetGroupoidsLimits.v
 Categories/SetWith2BinOp.v
+Categories/Magma.v
 Categories/Monoid.v
-Categories/Abmonoid.v
-Categories/Gr.v
-Categories/Abgr.v
+Categories/AbelianMonoid.v
+Categories/Group.v
+Categories/AbelianGroup.v
 Categories/Rig.v
 Categories/Commrig.v
 Categories/Ring.v
 Categories/Commring.v
 Categories/Intdom.v
 Categories/Fld.v
+Categories/ModuleCore.v
 Categories/Module.v
 Categories/StandardCategories.v
 Categories/PreorderCategory/Core.v
 Categories/PreorderCategory/Sieves.v
 Categories/MonoidToCategory.v
+Categories/KaroubiEnvelope/Core.v
+Categories/KaroubiEnvelope/SetKaroubi.v
+Categories/KaroubiEnvelope/UnivalentKaroubi.v
+Categories/KaroubiEnvelope/RezkCompletion.v
 
 Limits/Examples/UnitCategoryLimits.v
 
@@ -338,6 +372,7 @@ LeftKanExtension.v
 Categories/CartesianCubicalSets.v
 
 OppositeCategory/OppositeAdjunction.v
+OppositeCategory/OppositeEquivalence.v
 OppositeCategory/OppositeOfFunctorCategory.v
 
 Chains/Chains.v
@@ -363,6 +398,7 @@ Chains/CoAdamek.v
 Chains/OmegaCocontFunctors.v
 OppositeCategory/LimitsAsColimits.v
 Chains/OmegaContFunctors.v
+Chains/OmegaContPolynomialFunctors.v
 Chains/All.v
 Inductives/Lists.v
 Inductives/Trees.v
@@ -389,8 +425,8 @@ Monads/MonadAlgebras.v
 Monads/Comonads.v
 Monads/ComonadCoalgebras.v
 
-DisplayedCats/Limits.v
 DisplayedCats/Examples/Sigma.v
+DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/Examples/CategoryOfPosets.v
@@ -413,6 +449,7 @@ DisplayedCats/Examples/Three.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
+DisplayedCats/DisplayMapCat.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
 DisplayedCats/ReindexingForward.v
@@ -441,6 +478,7 @@ Categories/Rel.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
+Monoidal/CategoriesForQuantum.v
 Monoidal/StrongMonad.v
 
 Monoidal/Structure/Symmetric.v
@@ -718,6 +756,8 @@ DaggerCategories/Univalence.v
 DaggerCategories/Functors.v
 DaggerCategories/Transformations.v
 
+Monoidal/DaggerMonoidal.v
+
 DaggerCategories/FunctorCategory.v
 
 DaggerCategories/Examples/Groupoids.v
@@ -731,6 +771,14 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+ModelCategories/Retract.v
+ModelCategories/MorphismClass.v
+ModelCategories/WFS.v
+ModelCategories/WeakEquivalences.v
+ModelCategories/ModelCategories.v
+ModelCategories/NWFS.v
+ModelCategories/NWFSisWFS.v
 
 MarkovCategories/MarkovCategory.v
 MarkovCategories/Determinism.v

@@ -13,11 +13,13 @@ Direct implementation of binary coproducts togther with:
 - The type of coproducts on a given diagram is a proposition
 - Associativity
 - Distribution over a functor
+- Stability under isomorphic objects
 
 Written by Benedikt Ahrens, March 2015
 Extended by Anders Mörtberg and Tomi Pannila, 2016
 Extended by Langston Barrett (@siddharthist), 2018
 Extended by Ralph Matthes, 2023
+Extended by Kobe Wullaert, 2025
 
 *********************************************)
 
@@ -229,6 +231,16 @@ Proof.
   { apply proofirrelevancecontr. apply H'. }
   apply pathsinv0.
   apply (base_paths _ _ X').
+Qed.
+
+Lemma BinCoproduct_of_identities {a b : C} (CC : BinCoproduct a b)
+  : BinCoproductOfArrows CC CC (identity a) (identity b) = identity CC.
+Proof.
+  apply pathsinv0, BinCoproduct_endo_is_identity.
+  - etrans. { apply BinCoproductOfArrowsIn1. }
+    apply id_left.
+  - etrans. { apply BinCoproductOfArrowsIn2. }
+    apply id_left.
 Qed.
 
 Definition from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
@@ -1503,6 +1515,8 @@ Section DistributionForPrecompositionFunctor.
 
 End DistributionForPrecompositionFunctor.
 
+(** * Binary coproducts are stable under isomorphic objects *)
+
 Definition isBinCoproduct_z_iso
            {C : category}
            {x y a₁ a₂ : C}
@@ -1548,3 +1562,127 @@ Proof.
          rewrite id_left ;
          apply (BinCoproductIn2Commutes _ _ _ coprod)).
 Defined.
+
+Section BinCoproductOfIso.
+
+  Context {C : category} {x1 x2 y1 y2 : C}
+    (px : BinCoproduct x1 x2).
+
+  Lemma isbincoproduct_of_isos_uniqueness
+    {py : ob C}
+    {i1 : z_iso y1 x1} {i2 : z_iso y2 x2}
+    {i : z_iso py px}
+    {f1 : C ⟦y1, py⟧} {f2 : C ⟦y2, py⟧}
+    (pf1 : i1 · BinCoproductIn1 px = f1 · i)
+    (pf2 : i2 · BinCoproductIn2 px = f2 · i)
+    {c : C} {g1 : C⟦y1, c⟧} {g2 : C⟦y2, c⟧}
+    (φ₁ φ₂ : ∑ k : C ⟦ py, c ⟧, f1 · k = g1 × f2 · k = g2)
+    : φ₁ = φ₂.
+  Proof.
+    use subtypePath.
+    { intro. apply isapropdirprod ; apply homset_property. }
+
+    use (cancel_z_iso' _ _ _ (BinCoproductArrowsEq _ _ _ px _ (_ · pr1 φ₁) (_ · pr1 φ₂) _ _)).
+    - exact (z_iso_inv i).
+    - rewrite <- (z_iso_inv_on_right _ _ _ _ _ _ (! pf1)).
+      rewrite ! assoc'.
+      apply maponpaths.
+      etrans. {
+        apply maponpaths.
+        rewrite assoc, z_iso_inv_after_z_iso.
+        apply id_left.
+      }
+        refine (pr12 φ₁ @ ! pr12 φ₂ @ _).
+      apply maponpaths.
+      rewrite assoc, z_iso_inv_after_z_iso.
+      apply pathsinv0, id_left.
+    - rewrite <- (z_iso_inv_on_right _ _ _ _ _ _ (! pf2)).
+      rewrite ! assoc'.
+      apply maponpaths.
+      etrans. {
+        apply maponpaths.
+        rewrite assoc, z_iso_inv_after_z_iso.
+        apply id_left.
+      }
+      refine (pr22 φ₁ @ ! pr22 φ₂ @ _).
+      apply maponpaths.
+      rewrite assoc, z_iso_inv_after_z_iso.
+      apply pathsinv0, id_left.
+  Qed.
+
+  Lemma isbincoproduct_of_isos_existence_in1
+    {py : ob C}
+    {i1 : z_iso y1 x1} {i2 : z_iso y2 x2}
+    {i : z_iso py px}
+    {f1 : C ⟦y1, py⟧} (* {f2 : C ⟦y2, py⟧}*)
+    (pf1 : i1 · BinCoproductIn1 px = f1 · i)
+    {c : C} (g1 : C⟦y1, c⟧) (g2 : C⟦y2, c⟧)
+    : f1 · pr11 (z_iso_to_isBinCoproduct C px i c (z_iso_inv i1 · g1) (z_iso_inv i2 · g2)) = g1.
+  Proof.
+    set (t := pr1 (z_iso_to_isBinCoproduct C px i c (z_iso_inv i1 · g1) (z_iso_inv i2 · g2))).
+    refine (_ @ z_iso_inv_on_right _ _ _ _ _ _ (pr12 t)).
+    rewrite ! assoc.
+    cbn ; rewrite pf1.
+    apply maponpaths_2.
+    refine (! id_right _ @ _).
+    rewrite assoc'.
+    apply maponpaths.
+    apply pathsinv0, z_iso_inv_after_z_iso.
+  Qed.
+
+  Lemma isbincoproduct_of_isos_existence_in2
+    {py : ob C}
+    {i1 : z_iso y1 x1} {i2 : z_iso y2 x2}
+    {i : z_iso py px}
+    {f2 : C ⟦y2, py⟧}
+    (pf2 : i2 · BinCoproductIn2 px = f2 · i)
+    {c : C} (g1 : C⟦y1, c⟧) (g2 : C⟦y2, c⟧)
+    : f2 · pr11 (z_iso_to_isBinCoproduct C px i c (z_iso_inv i1 · g1) (z_iso_inv i2 · g2)) = g2.
+  Proof.
+    set (t := pr1 (z_iso_to_isBinCoproduct C px i c (z_iso_inv i1 · g1) (z_iso_inv i2 · g2))).
+    refine (_ @ z_iso_inv_on_right _ _ _ _ _ _ (pr22 t)).
+    rewrite ! assoc.
+    cbn ; rewrite pf2.
+    apply maponpaths_2.
+    refine (! id_right _ @ _).
+    rewrite assoc'.
+    apply maponpaths.
+    apply pathsinv0, z_iso_inv_after_z_iso.
+  Qed.
+
+  Lemma isbincoproduct_of_isos
+    (py : ob C)
+    (i1 : z_iso y1 x1) (i2 : z_iso y2 x2)
+    (i : z_iso py px)
+    (f1 : C ⟦y1, py⟧) (f2 : C ⟦y2, py⟧)
+    (pf1 : i1 · BinCoproductIn1 px = f1 · i)
+    (pf2 : i2 · BinCoproductIn2 px = f2 · i)
+    : isBinCoproduct _ y1 y2 py f1 f2.
+  Proof.
+    use make_isBinCoproduct.
+    { apply homset_property. }
+    intros c g1 g2.
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros φ₁ φ₂.
+      apply (isbincoproduct_of_isos_uniqueness pf1 pf2).
+    - set (t := pr1 (z_iso_to_isBinCoproduct _ px i c (z_iso_inv i1 · g1) (z_iso_inv i2 · g2))).
+      exists (pr1 t).
+      split.
+      + apply (isbincoproduct_of_isos_existence_in1 pf1).
+      + apply (isbincoproduct_of_isos_existence_in2 pf2).
+  Defined.
+
+  Lemma bincoproduct_of_isos
+    (i1 : z_iso x1 y1) (i2 : z_iso x2 y2)
+    : BinCoproduct y1 y2.
+  Proof.
+    use make_BinCoproduct.
+    - exact px.
+    - exact (z_iso_inv i1 · BinCoproductIn1 px).
+    - exact (z_iso_inv i2 · BinCoproductIn2 px).
+    - use (isbincoproduct_of_isos px (z_iso_inv i1) (z_iso_inv i2) (identity_z_iso px))
+      ; cbn ; now rewrite id_right.
+  Defined.
+
+End BinCoproductOfIso.

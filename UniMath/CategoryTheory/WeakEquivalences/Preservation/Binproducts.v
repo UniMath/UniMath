@@ -2,7 +2,7 @@
    In this file, we show that an arbitrary weak equivalence F : C -> D preserves binary products.
    The main work is done in [weak_equiv_preserves_binproducts], where we show that the image (under F) of a binary product in C is also a product in D.
 
-   If both C and D have binary products and D is univalent, we conclude that the image of a pullback is the pullback of the images.
+   If both C and D have binary products and D is univalent, we conclude that the image of a binary product is the binary product of the images.
  *)
 
 Require Import UniMath.Foundations.All.
@@ -140,7 +140,7 @@ Proof.
     + exact (weak_equiv_preserves_binproducts_map Fw BP g1 g2 yi).
     + apply (weak_equiv_preserves_binproducts_pr1 Fw BP).
     + apply (weak_equiv_preserves_binproducts_pr2 Fw BP).
-Qed.
+Defined.
 
 Corollary weak_equiv_preserves_chosen_binproducts
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F) (BP : BinProducts C)
@@ -149,7 +149,7 @@ Proof.
   intros x1 x2.
   use (weak_equiv_preserves_binproducts Fw).
   apply isBinProduct_BinProduct.
-Qed.
+Defined.
 
 Corollary weak_equiv_preserves_binproducts_eq
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F) (Duniv : is_univalent D)

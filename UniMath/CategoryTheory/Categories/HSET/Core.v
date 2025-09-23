@@ -90,7 +90,7 @@ Section HomSetFunctors.
 Context {C : category}.
 
 Definition homSet_functor_data :
-  functor_data (category_binproduct (C^op) C) hset_category.
+  functor_data (category_binproduct C^op C) hset_category.
 Proof.
   use make_functor_data.
   + intros pair.
@@ -117,15 +117,15 @@ Proof.
     reflexivity.
 Defined.
 
-Definition homSet_functor : functor (category_binproduct (C^op) C) hset_category :=
+Definition homSet_functor : functor (category_binproduct C^op C) hset_category :=
   make_functor _ is_functor_homSet_functor_type.
 
 Context (c : C).
 
 Definition cov_homSet_functor : functor C hset_category :=
-  functor_fix_fst_arg (C^op) _ _ homSet_functor c.
+  functor_fix_fst_arg C^op _ _ homSet_functor c.
 
-Definition contra_homSet_functor : functor (C^op) hset_category :=
-  functor_fix_snd_arg (C^op) _ _ homSet_functor c.
+Definition contra_homSet_functor : functor C^op hset_category :=
+  functor_fix_snd_arg C^op _ _ homSet_functor c.
 
 End HomSetFunctors.

@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.ProductCategory.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 
@@ -85,11 +85,11 @@ Definition BindingSigToSignature :
 (** Definition 10 and Lemma 11 and 12: see UniMath/SubstitutionSystems/SignatureExamples.v *)
 
 (** Definition 15: Graph *)
-Definition graph : UU := @UniMath.CategoryTheory.Limits.Graphs.Colimits.graph.
+Definition graph : UU := @UniMath.CategoryTheory.Limits.Graphs.Diagrams.graph.
 
 (** Definition 16: Diagram *)
 Definition diagram : graph → category → UU :=
-  @UniMath.CategoryTheory.Limits.Graphs.Colimits.diagram.
+  @UniMath.CategoryTheory.Limits.Graphs.Diagrams.diagram.
 
 (** Definition 17: Cocone *)
 Definition cocone : ∏ {C : category} {g : graph}, diagram g C → C → UU :=
@@ -172,7 +172,7 @@ Defined.
 (** Lemma 32: Examples of preservation of colimits *)
 (** (i): Identity functor *)
 Lemma preserves_colimit_identity :
-  ∏ (C : category) (g : Colimits.graph) (d : Colimits.diagram g C)
+  ∏ (C : category) (g : Diagrams.graph) (d : Diagrams.diagram g C)
       (L : C) (cc : Colimits.cocone d L),
   preserves_colimit (functor_identity C) d L cc.
 Proof.

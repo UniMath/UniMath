@@ -45,7 +45,7 @@ Proof.
   set (t := weak_equiv_preserves_binproducts Fw _ _ _ _ _ (pr2 p)).
   pose (PB := make_BinProduct _ _ _ _ _ _ t).
   exact (binproduct_of_isos PB i1 i2).
-Qed.
+Defined.
 
 Definition weak_equiv_into_univ_creates_binproducts
   {C1 C2 : category}
@@ -67,4 +67,4 @@ Proof.
 
   set (t := weak_equiv_preserves_chosen_binproducts Fw C1_prod).
   exact (make_BinProduct _ _ _ _ _ _ (t x1 y1)).
-Qed.
+Defined.

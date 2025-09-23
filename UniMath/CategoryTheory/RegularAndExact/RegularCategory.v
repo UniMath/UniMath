@@ -483,3 +483,38 @@ Proof.
   - exact (is_regular_category_coeqs_of_kernel_pair HC).
   - exact (is_regular_category_regular_epi_pb_stable HC).
 Defined.
+
+Section Accessors.
+  Context {C : category}
+          (HC : is_regular_category C)
+          {x y : C}
+          (f : x --> y).
+
+  Definition regular_category_im
+    : C
+    := pr1 (regular_category_epi_mono_factorization HC f).
+
+  Definition regular_category_to_im
+    : x --> regular_category_im
+    := pr12 (regular_category_epi_mono_factorization HC f).
+
+  Proposition is_regular_epi_regular_category_to_im
+    : is_regular_epi regular_category_to_im.
+  Proof.
+    exact (pr1 (pr222 (regular_category_epi_mono_factorization HC f))).
+  Defined.
+
+  Definition regular_category_im_Monic
+    : Monic C regular_category_im y.
+  Proof.
+    use make_Monic.
+    - exact (pr122 (regular_category_epi_mono_factorization HC f)).
+    - exact (pr12 (pr222 (regular_category_epi_mono_factorization HC f))).
+  Defined.
+
+  Proposition regular_category_im_commutes
+    : f = regular_category_to_im · regular_category_im_Monic.
+  Proof.
+    exact (pr22 (pr222 (regular_category_epi_mono_factorization HC f))).
+  Defined.
+End Accessors.

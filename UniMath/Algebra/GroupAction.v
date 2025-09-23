@@ -1,5 +1,3 @@
-(* -*- coding: utf-8 *)
-
 (** * Group actions *)
 
 Require Import UniMath.Foundations.All.
@@ -750,9 +748,3 @@ Defined.
     So RCG is connected and its loop space is G.
 
     A formalization of that argument should be added eventually. *)
-
-(*
-Local Variables:
-compile-command: "make -C ../.. UniMath/CategoryTheory/RepresentableFunctors/GroupAction.vo"
-End:
-*)

@@ -40,13 +40,11 @@ Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Categories.Monoid.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.catiso.
 
 (* For the endomorphism ring  *)
-Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -90,8 +88,8 @@ Example symmetric_grp (X : hSet) := @automorphism_grp hset_category X.
 
 (** *** The endomorphism ring in an additive category *)
 
-Definition endomorphism_ring {C : AdditiveCategory}
-           (_ : ob (PreAdditive_categoryWithAbgrops C)) : ring.
+Definition endomorphism_ring {C : PreAdditive}
+           (X : ob (PreAdditive_categoryWithAbgrops C)) : ring.
 Proof.
   (** The multiplication operation is composition, we reuse the proof
       from the endomorphism monoid. The addition operation is the addition
@@ -240,12 +238,15 @@ Proof.
   - exact monoid_to_category.
   - exact (uncurry contr_category_to_monoid).
   - (** By univalence for monoids, it suffices to show that they are isomorphic *)
-    intros Mon; apply monoid_univalence.
-    use tpair.
-    + apply idweq.
-    + use make_dirprod.
-      * intros ? ?; apply idpath.
-      * apply idpath.
+    intros Mon. apply is_univalent_monoid_category.
+    use make_z_iso.
+    + use make_monoidfun.
+      * exact (idfun _).
+      * abstract easy.
+    + use make_monoidfun.
+      * exact (idfun _).
+      * abstract easy.
+    + abstract now (apply make_is_inverse_in_precat; apply monoidfun_eq).
   - intros contrcat.
     use contr_cat_eq.
     + use make_functor.
@@ -306,7 +307,7 @@ Definition functor_to_monoidfun {CC1 CC2 : contr_cat} (funct : functor CC1 CC2) 
   monoidfun (invmap monoid_weq_contr_category CC1)
             (invmap monoid_weq_contr_category CC2).
 Proof.
-  use monoidfunconstr.
+  use make_monoidfun.
   - cbn in *.
     intros endo.
     apply (contr_cat_hom_weq (funct (iscontrpr1 (pr2 CC1)))
@@ -386,7 +387,7 @@ Definition monaction_equivariant_map
 
 (** **** Ring actions *)
 
-Definition ringaction_as_morphism {C : AdditiveCategory } (R : ring) (X : ob C) :=
+Definition ringaction_as_morphism {C : PreAdditive } (R : ring) (X : ob C) :=
   ringfun R (endomorphism_ring X).
 
 (** *** As functors *)

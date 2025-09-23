@@ -4,35 +4,36 @@
 
   A proof of the representation theorem for the λ-calculus, first proven by Dana Scott in 1980.
   It shows that any model for the λ-calculus can be viewed as the set of endomorphisms of some
-  (reflexive) object in some category.
+  (reflexive) object in some category. Because of univalence, we can frame this as "the endomorphism
+  theory construction has a right inverse".
 
   Contents
   1. A proof that the object (theory_presheaf) can be exponentiated [theory_presheaf_exponentiable]
   2. A construction of the lambda endomorphism theory of theory_presheaf [presheaf_lambda_theory]
   3. An isomorphism between the two λ-theories [presheaf_lambda_theory_iso]
+  4. The right inverse [endomorphism_theory_right_inverse]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Tuples.
 
@@ -47,6 +48,7 @@ Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.PresheafCategory.
 Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
 Require Import UniMath.AlgebraicTheories.Presheaves.
+Require Import UniMath.AlgebraicTheories.ReflexiveObjects.
 
 Local Open Scope algebraic_theories.
 Local Open Scope cat.
@@ -56,7 +58,7 @@ Local Open Scope mor_disp.
 
 Section RepresentationTheorem.
 
-  Context (L : lambda_theory).
+  Context (L : β_lambda_theory).
 
   Let pow
     (n : nat)
@@ -224,36 +226,30 @@ Section RepresentationTheorem.
 
     Lemma presheaf_exponent_induced_morphism_unique
       {P P' : presheaf L}
-      (F : presheaf_morphism (BPO P' (theory_presheaf L)) P)
-      (F' : ∑ (f' : presheaf_morphism P' (plus_1_presheaf P)),
-        F
+      (f : presheaf_morphism (BPO P' (theory_presheaf L)) P)
+      (f' : presheaf_morphism P' (plus_1_presheaf P))
+      (Hf' : f
         = # (constprod_functor2 (bin_products_presheaf_cat _) (theory_presheaf L))
         (f' : presheaf_cat L ⟦P', plus_1_presheaf P⟧)
         · presheaf_exponent_morphism P
       )
-      : F'
-      = presheaf_exponent_induced_morphism F,, presheaf_exponent_induced_morphism_commutes F.
+      : f' = presheaf_exponent_induced_morphism f.
     Proof.
-      apply subtypePairEquality.
-      {
-        intro.
-        apply (homset_property (presheaf_cat L)).
-      }
-      apply (presheaf_morphism_eq (pr1 F') _).
+      apply (presheaf_morphism_eq f' _).
       intro n.
       apply funextfun.
       intro t.
-      refine (_ @ maponpaths (λ x, pr1 x _ _) (!pr2 F')).
+      refine (_ @ maponpaths (λ x, pr1 x _ _) (!Hf')).
       refine (!(maponpaths (λ x, x _) (presheaf_mor_comp (P := BPO _ _) _ _ _) @ _)).
       refine (maponpaths
         (λ x, op (x _ : P _ : hSet) _)
-        (presheaf_mor_comp _ (pr1 F' : presheaf_cat L ⟦P', plus_1_presheaf P⟧) _)
+        (presheaf_mor_comp _ (f' : presheaf_cat L ⟦P', plus_1_presheaf P⟧) _)
       @ _).
       refine (maponpaths
         (λ x, (pr12 P) _ _ (x : P _ : hSet) _)
-        (mor_op (pr1 F') _ _)
+        (mor_op f' _ _)
       @ _).
-      refine (op_op P (pr1 F' n t) _ _ @ _).
+      refine (op_op P (f' n t) _ _ @ _).
       refine (_ @ op_var _ _).
       apply maponpaths.
       apply funextfun.
@@ -278,15 +274,18 @@ Section RepresentationTheorem.
       : is_exponentiable (bin_products_presheaf_cat _) (theory_presheaf L).
     Proof.
       apply is_exponentiable'_to_is_exponentiable.
-      use left_adjoint_from_partial.
-      - exact plus_1_presheaf.
-      - exact presheaf_exponent_morphism.
-      - intros P P' F.
-        use make_iscontr.
-        + use tpair.
-          * exact (presheaf_exponent_induced_morphism F).
-          * exact (presheaf_exponent_induced_morphism_commutes F).
-        + exact (presheaf_exponent_induced_morphism_unique F).
+      apply coreflections_to_is_left_adjoint.
+      intro T.
+      use make_coreflection'.
+      - apply plus_1_presheaf.
+        exact T.
+      - exact (presheaf_exponent_morphism T).
+      - intro f.
+        use make_coreflection_arrow.
+        + apply presheaf_exponent_induced_morphism.
+          exact (f : _ --> _).
+        + apply presheaf_exponent_induced_morphism_commutes.
+        + apply presheaf_exponent_induced_morphism_unique.
     Defined.
 
     Lemma invmap_hom_weq_eq
@@ -320,7 +319,7 @@ Section RepresentationTheorem.
     Proof.
       refine (maponpaths (λ (x : presheaf_morphism (PO n) _), x m l)
         (is_exponentiable'_to_is_exponentiable'_lam _ _ ) @ _).
-      exact (maponpaths (λ (x : presheaf_morphism (PO n) _), x _ _) (φ_adj_from_partial (constprod_functor2 _ (theory_presheaf L)) _ _ _ _ _ _)).
+      exact (maponpaths (λ (x : presheaf_morphism (PO n) _), x _ _) (coreflections_to_are_adjoints_φ_adj _ _)).
     Qed.
 
   End Exponentiable.
@@ -343,39 +342,72 @@ Section RepresentationTheorem.
     - exact (!maponpaths (λ x, let c := x in _) (homotinvweqweq _ _)).
   Qed.
 
-  Definition presheaf_lambda_theory : lambda_theory.
+  Definition reflexive_presheaf_abs
+    : presheaf_morphism
+      (exp theory_presheaf_exponentiable (theory_presheaf L))
+      (theory_presheaf L).
   Proof.
-    pose (exponential_object := pr1 theory_presheaf_exponentiable (theory_presheaf L) : presheaf L).
-    use endomorphism_lambda_theory.
+    use make_presheaf_morphism.
+    - intro.
+      apply abs.
+    - abstract (
+        intros m n a f;
+        refine (_ @ abs_subst _ _ _);
+        apply (maponpaths (λ x, abs (a • x)));
+        symmetry;
+        apply presheaf_lambda_theory_aux
+      ).
+  Defined.
+
+  Definition reflexive_presheaf_app
+    : presheaf_morphism
+      (theory_presheaf L)
+      (exp theory_presheaf_exponentiable (theory_presheaf L)).
+  Proof.
+    use make_presheaf_morphism.
+    - intros n.
+      apply appx.
+    - abstract (
+        intros m n a f;
+        refine (app_subst _ _ _ @ _);
+        apply (maponpaths (λ x, appx a • x));
+        apply presheaf_lambda_theory_aux
+      ).
+  Defined.
+
+  Lemma reflexive_presheaf_is_reflexive
+    : is_retraction
+      reflexive_presheaf_abs
+      reflexive_presheaf_app.
+  Proof.
+    apply presheaf_morphism_eq.
+    intro n.
+    refine (presheaf_mor_comp _ _ _ @ _).
+    apply funextfun.
+    exact (β_lambda_theory_has_β L n).
+  Qed.
+
+  Definition lambda_theory_to_reflexive_object
+    : reflexive_object.
+  Proof.
+    use make_reflexive_object.
     - exact (presheaf_cat L).
-    - exact (terminal_presheaf_cat _).
-    - exact (bin_products_presheaf_cat _).
+    - exact (terminal_presheaf_cat L).
+    - exact (bin_products_presheaf_cat L).
     - exact (theory_presheaf L).
     - exact theory_presheaf_exponentiable.
-    - use (make_presheaf_morphism (P := exponential_object) (P' := theory_presheaf L)).
-      + intro.
-        apply abs.
-      + abstract (
-          intros m n a f;
-          refine (_ @ abs_subst _ _ _);
-          apply (maponpaths (λ x, abs (a • x)));
-          symmetry;
-          apply presheaf_lambda_theory_aux
-        ).
-    - use (make_presheaf_morphism (P := theory_presheaf L) (P' := exponential_object)).
-      + intros n.
-        apply appx.
-      + abstract (
-          intros m n a f;
-          refine (app_subst _ _ _ @ _);
-          apply (maponpaths (λ x, appx a • x));
-          apply presheaf_lambda_theory_aux
-        ).
+    - exact reflexive_presheaf_abs.
+    - exact reflexive_presheaf_app.
+    - exact reflexive_presheaf_is_reflexive.
   Defined.
 
   (** * 3. An isomorphism between the two λ-theories *)
 
   Section Iso.
+
+    Definition presheaf_lambda_theory
+      : β_lambda_theory
+      := reflexive_object_to_lambda_theory lambda_theory_to_reflexive_object.
 
     Definition presheaf_to_L
       : algebraic_theory_morphism_data presheaf_lambda_theory L.
@@ -569,8 +601,9 @@ Section RepresentationTheorem.
     Qed.
 
     Definition presheaf_lambda_theory_iso
-      : z_iso (C := lambda_theory_cat) presheaf_lambda_theory L.
+      : z_iso (C := β_lambda_theory_cat) presheaf_lambda_theory L.
     Proof.
+      use make_β_lambda_theory_z_iso.
       use make_lambda_theory_z_iso.
       - apply z_iso_inv.
         use make_algebraic_theory_z_iso.
@@ -594,3 +627,17 @@ Section RepresentationTheorem.
   End Iso.
 
 End RepresentationTheorem.
+
+(** * 4. The right inverse *)
+
+Lemma endomorphism_theory_right_inverse
+  : funcomp
+    lambda_theory_to_reflexive_object
+    reflexive_object_to_lambda_theory
+  = idfun β_lambda_theory.
+Proof.
+  apply funextsec.
+  intro L.
+  apply (isotoid _ is_univalent_β_lambda_theory_cat).
+  apply presheaf_lambda_theory_iso.
+Defined.

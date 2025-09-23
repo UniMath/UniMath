@@ -592,7 +592,7 @@ Defined.
 
 
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Notation "C '^op'" := (opp_precat C) (format "C ^op").
 
 Let Yon (X : EndC) : functor EndC^op HSET := yoneda_objects EndC X.
 

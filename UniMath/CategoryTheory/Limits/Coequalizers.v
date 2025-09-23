@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
-Require Import UniMath.CategoryTheory.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
 
 Section def_coequalizers.
 
@@ -523,3 +523,83 @@ Proof.
         exact Hg'
       ).
 Defined.
+
+Section CoequalizerStableUnderIsomorphism.
+
+  Context {C : category} {x x' y y' : C}
+    (f g : C⟦x, y⟧) (f' g' : C⟦x',y'⟧)
+    (i : z_iso x' x) (j : z_iso y' y) (z : Coequalizer f g)
+    (p : f' · j = i · f) (q : g' · j = i · g).
+
+  Local Lemma coequalizer_stable_under_iso_diagram_commutes
+    : f' · (j · CoequalizerArrow z) = g' · (j · CoequalizerArrow z).
+  Proof.
+    rewrite assoc, p.
+    rewrite assoc', CoequalizerEqAr.
+    rewrite assoc, <- q.
+    now rewrite assoc.
+  Qed.
+
+  Lemma coequalizer_stable_under_iso_cocone_transforms
+    {w : C} {h : C⟦y', w⟧}
+    (pf : f' · h = g' · h)
+    : f · (inv_from_z_iso j · h) = g · (inv_from_z_iso j · h).
+  Proof.
+    do 2 rewrite assoc.
+    use (cancel_z_iso' i).
+    rewrite ! assoc.
+    rewrite <- p, <- q.
+    etrans. {
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths, z_iso_inv_after_z_iso.
+    }
+    etrans.
+    2: {
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths, pathsinv0, z_iso_inv_after_z_iso.
+    }
+    do 2 rewrite id_right.
+    exact pf.
+  Qed.
+
+  Lemma coequalizer_stable_under_iso_uvp_equiv
+    {w : C} (h : C⟦y', w⟧) (k : C ⟦ z, w ⟧)
+    : j · CoequalizerArrow z · k = h ≃ CoequalizerArrow z · k = inv_from_z_iso j · h.
+  Proof.
+    use weqimplimpl.
+    - intro pf'.
+      apply pathsinv0, z_iso_inv_on_right.
+      exact (! pf' @ assoc' _ _ _).
+    - intro pf'.
+      rewrite assoc'.
+      apply pathsinv0.
+      use z_iso_inv_to_left.
+      exact (! pf').
+    - apply homset_property.
+    - apply homset_property.
+  Qed.
+
+  Lemma coequalizer_stable_under_iso_is_coequalizer
+    : isCoequalizer f' g' (j · CoequalizerArrow z) coequalizer_stable_under_iso_diagram_commutes.
+  Proof.
+    intros w h pf.
+    use (iscontrweqb' (isCoequalizer_Coequalizer z w (inv_from_z_iso j · h) _)).
+    - exact (coequalizer_stable_under_iso_cocone_transforms pf).
+    - use weqfibtototal.
+      intro k.
+      apply coequalizer_stable_under_iso_uvp_equiv.
+  Defined.
+
+  Proposition coequalizer_stable_under_iso
+    : Coequalizer f' g'.
+  Proof.
+    use make_Coequalizer.
+    - exact z.
+    - exact (j · CoequalizerArrow z).
+    - exact coequalizer_stable_under_iso_diagram_commutes.
+    - apply coequalizer_stable_under_iso_is_coequalizer.
+  Defined.
+
+End CoequalizerStableUnderIsomorphism.

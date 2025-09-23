@@ -351,12 +351,12 @@ Section SigmaTotalUnivalent.
   Proof.
     intros Hα.
     use tpair.
-    - exact (cell_E₁_to_E₂ (Hα^-1)).
+    - exact (cell_E₁_to_E₂ Hα^-1).
     - split.
-      + exact ((cell_E₁_to_E₂_vcomp α (Hα^-1))
+      + exact ((cell_E₁_to_E₂_vcomp α Hα^-1)
                   @ maponpaths cell_E₁_to_E₂ (pr12 Hα)
                   @ cell_E₁_to_E₂_id₂ _).
-      + exact ((cell_E₁_to_E₂_vcomp (Hα^-1) α)
+      + exact ((cell_E₁_to_E₂_vcomp Hα^-1 α)
                  @ maponpaths cell_E₁_to_E₂ (pr22 Hα)
                  @ cell_E₁_to_E₂_id₂ _).
   Defined.
@@ -369,12 +369,12 @@ Section SigmaTotalUnivalent.
   Proof.
     intros Hα.
     use tpair.
-    - exact (cell_E₂_to_E₁ (Hα^-1)).
+    - exact (cell_E₂_to_E₁ Hα^-1).
     - split.
-      + exact ((cell_E₂_to_E₁_vcomp α (Hα^-1))
+      + exact ((cell_E₂_to_E₁_vcomp α Hα^-1)
                  @ maponpaths cell_E₂_to_E₁ (pr12 Hα)
                  @ cell_E₂_to_E₁_id₂ _).
-      + exact ((cell_E₂_to_E₁_vcomp (Hα^-1) α)
+      + exact ((cell_E₂_to_E₁_vcomp Hα^-1 α)
                  @ maponpaths cell_E₂_to_E₁ (pr22 Hα)
                  @ cell_E₂_to_E₁_id₂ _).
   Defined.
@@ -388,12 +388,12 @@ Section SigmaTotalUnivalent.
     use tpair.
     - exact (cell_E₁_to_E₂ (cell_from_invertible_2cell α)).
     - use tpair.
-      + exact (cell_E₁_to_E₂ (α^-1)).
+      + exact (cell_E₁_to_E₂ α^-1).
       + split.
-        * exact ((cell_E₁_to_E₂_vcomp α (α^-1))
+        * exact ((cell_E₁_to_E₂_vcomp α α^-1)
                    @ maponpaths cell_E₁_to_E₂ (pr122 α)
                    @ cell_E₁_to_E₂_id₂ (mor_E₂_to_E₁ f)).
-        * exact ((cell_E₁_to_E₂_vcomp (α^-1) α)
+        * exact ((cell_E₁_to_E₂_vcomp α^-1 α)
                    @ maponpaths cell_E₁_to_E₂ (pr222 α)
                    @ cell_E₁_to_E₂_id₂ (mor_E₂_to_E₁ g)).
   Defined.
@@ -407,12 +407,12 @@ Section SigmaTotalUnivalent.
     use tpair.
     - exact (cell_E₂_to_E₁ (cell_from_invertible_2cell α)).
     - use tpair.
-      + exact (cell_E₂_to_E₁ (α^-1)).
+      + exact (cell_E₂_to_E₁ α^-1).
       + split.
-        * exact ((cell_E₂_to_E₁_vcomp α (α^-1))
+        * exact ((cell_E₂_to_E₁_vcomp α α^-1)
                    @ maponpaths cell_E₂_to_E₁ (pr122 α)
                    @ cell_E₂_to_E₁_id₂ _).
-        * exact ((cell_E₂_to_E₁_vcomp (α^-1) α)
+        * exact ((cell_E₂_to_E₁_vcomp α^-1 α)
                    @ maponpaths cell_E₂_to_E₁ (pr222 α)
                    @ cell_E₂_to_E₁_id₂ _).
   Defined.
@@ -821,6 +821,31 @@ Section SigmaDisplayedUnivalent.
     - apply disp_locally_groupoid_sigma ; assumption.
   Defined.
 
+  Definition pair_disp_left_adjoint_equivalence_sigma
+             {x : C}
+             {xx : (sigma_bicat C D₁ D₂) x}
+             {yy : (sigma_bicat C D₁ D₂) x}
+             {ff : xx -->[ identity _ ] yy}
+             (Hff₁ : disp_left_adjoint_equivalence
+                       (internal_adjoint_equivalence_identity x)
+                       (pr1 ff))
+             (Hff₂ : disp_left_adjoint_equivalence
+                       (invmap
+                          (adjoint_equivalence_total_disp_weq
+                             (pr1 xx) (pr1 yy))
+                          (internal_adjoint_equivalence_identity x ,, pr1 ff ,, Hff₁))
+                       (pr2 ff))
+    : disp_left_adjoint_equivalence
+        (internal_adjoint_equivalence_identity x)
+        ff.
+  Proof.
+    exact (pair_disp_adjequiv_to_sigma_disp_adjequiv
+             xx yy
+             ((pr1 ff ,, Hff₁)
+               ,,
+               (pr2 ff ,, Hff₂))).
+  Defined.
+
   Definition pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr1
              {x : C}
              (xx : (sigma_bicat C D₁ D₂) x)
@@ -1125,3 +1150,21 @@ Section SigmaDisplayedUnivalent.
     - apply sigma_disp_univalent_2_1_with_props.
   Defined.
 End SigmaDisplayedUnivalent.
+
+Lemma disp_2cells_of_sigma_iscontr
+  {B : bicat} {D : disp_bicat B} {E : disp_bicat (total_bicat D)}
+  (D_contr : disp_2cells_iscontr D) (E_contr : disp_2cells_iscontr E)
+  : disp_2cells_iscontr (sigma_bicat _ _ E).
+Proof.
+  intro ; intros.
+  use iscontraprop1.
+  - apply isaproptotal2.
+    { intro ; apply isapropifcontr, E_contr. }
+    intro ; intros.
+    use proofirrelevance.
+    apply isapropifcontr.
+    apply D_contr.
+  - use tpair.
+    + apply D_contr.
+    + apply E_contr.
+Qed.

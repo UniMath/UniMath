@@ -1,7 +1,7 @@
 * Avoid inductive types
 * Use notation wherever possible (and feasible)
 * Make sure that all variables (from induction and intros) are introduced by name
-* [Make everything opaque that should be opaque](./On-opaqueness)
+* [Make everything opaque that should be opaque](../guides/Opaqueness)
 * Split long definitions into smaller parts. This makes unification faster, allows you to more easily make the right parts opaque and is more readable.
 * Structure your proof with [bullets](https://coq.inria.fr/refman/proofs/writing-proofs/proof-mode.html#bullets). An occasional proof part with curly braces is okay, but preferably use bullets. The first three levels are `-`, `+` and `*`. If you need more levels, start with `--` (or maybe `**`), but at that point you should probably start splitting up your proof.
 * Minimize your imports: When you create a commit or PR in which you have added `Require Import` statements to a file, or (re)moved code, check that all involved import statements are indeed used or useful. For larger changes, [JasonGross has created a tool](https://github.com/JasonGross/coq-tools) which can come in handy. However, always verify the outcome, because some redundant imports are still good to have (see [this discussion](https://github.com/UniMath/UniMath/issues/1664) for more details).
@@ -16,7 +16,7 @@ Here is a couple of guidelines for naming different things:
 ## Add comments to your code
 Keep the following guideline in mind: The top part is what you expect everybody to read. Comments in the middle are harder to find, so you should expect people to read them unless if they go very deeply into the file. Use some inline comments to explain interesting or hard parts of a proof. Regarding the header, it should tell a user what they can find inside the file. Here is a template:
 ```coq
-(**************************************************************************************************
+(**
 
   Title of one line
 
@@ -28,7 +28,7 @@ Keep the following guideline in mind: The top part is what you expect everybody 
   1.1. Explaining the layout of the file [layout]
   2. With the names of the main theorems or definitions in brackets [main_theorem]
 
- **************************************************************************************************)
+ *)
 ```
 Then make sure to refer back to the table of contents with headers inside your code, looking like this (the asterisks are to adhere to [coqdoc](https://coq.inria.fr/refman/using/tools/coqdoc.html#sections)):
 ```coq

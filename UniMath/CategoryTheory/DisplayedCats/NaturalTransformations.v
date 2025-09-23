@@ -269,6 +269,30 @@ Section Utilities.
     apply idpath.
   Qed.
 
+  Lemma disp_nat_trans_transportb
+        {C' C : category}
+        {D' : disp_cat C'}
+        {D : disp_cat C}
+        (F' F : functor C' C)
+        (a' a : nat_trans F' F)
+        (p : a = a' )
+        (FF' : disp_functor F' D' D)
+        (FF : disp_functor F D' D)
+        (b : disp_nat_trans a' FF' FF)
+        (c' : C')
+        (xx' : D' c')
+    :
+    pr1 (transportb (λ x, disp_nat_trans x FF' FF) p b) c' xx' =
+      transportb (mor_disp (FF' c' xx') (FF c' xx'))
+                 (nat_trans_eq_pointwise p _ )  (b c' xx').
+  Proof.
+    induction p.
+    assert (XR : nat_trans_eq_pointwise (idpath a) c' = idpath _ ).
+    { apply homset_property. }
+    rewrite XR.
+    apply idpath.
+  Qed.
+
   Lemma disp_nat_trans_id_left
         {C' C : category}
         {D' : disp_cat C'}

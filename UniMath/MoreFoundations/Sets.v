@@ -8,14 +8,18 @@ Require Export UniMath.Foundations.Sets.
   - (More entries need to be added here...)
   - An equality lemma for elements of a carrier type [carrier_eq]
   - Other universal properties for [setquot]
+  - The trivial equivalence relation on the unit type
   - The equivalence relation of being in the same fiber
   - Subsets
   - Binary relations
+  - Set truncation
  *)
 
 Local Open Scope logic.
 
 Definition hProp_set : hSet := make_hSet _ isasethProp.
+
+Definition emptyset : hSet := make_hSet ∅ isasetempty.
 
 Definition isconst {X:UU} {Y:hSet} (f : X -> Y) : hProp := ∀ x x', f x = f x'.
 
@@ -125,6 +129,63 @@ Theorem setquotuniv4prop' {X : UU} {R : eqrel X}
 Proof.
   exact (setquotuniv4prop R (λ x1 x2 x3 x4, make_hProp (P x1 x2 x3 x4) (H x1 x2 x3 x4)) ps).
 Defined.
+
+(** ** The trivial equivalence relation on the unit type*)
+Definition unittrivialrel : hrel unit := λ _ _, htrue.
+
+Lemma iseqrelunittrivialrel : iseqrel unittrivialrel.
+Proof.
+  use iseqrelconstr.
+  - intros ? ? ? ? ?. exact tt.
+  - intros ?. exact tt.
+  - intros ? ? ?. exact tt.
+Qed.
+
+Definition uniteqrel : eqrel unit := unittrivialrel,,iseqrelunittrivialrel.
+
+Definition unittrivialrel_iseqclasstotalsubtype : iseqclass uniteqrel (totalsubtype unit).
+Proof.
+  use iseqclassconstr.
+  - use hinhpr.
+    use (invmap (weqtotalsubtype _)).
+    exact tt.
+  - intros _ ? _ _.
+    exact tt.
+  - intros ? ? _ _.
+    exact tt.
+Qed.
+
+Definition unittrivialrel_setquot := totalsubtype unit ,, unittrivialrel_iseqclasstotalsubtype.
+
+Lemma unittrivialrel_setquot_eq (c : setquot uniteqrel) : totalsubtype unit = c.
+Proof.
+  use funextsec.
+  intro t.
+  induction t.
+  cbn.
+  use hPropUnivalence.
+  - intros _ .
+    induction c as [c iseqclass].
+    induction iseqclass as [ishinh is].
+    use (squash_to_hProp ishinh).
+    intro t.
+    induction t as [t tinc].
+    induction t.
+    exact tinc.
+  - intros _.
+    exact tt.
+Qed.
+
+Lemma iscontr_setquotuniteqrel : iscontr (setquot uniteqrel).
+Proof.
+  use make_iscontr.
+  - exact unittrivialrel_setquot.
+  - intro c.
+    use pathsinv0.
+    use subtypePath.
+    + use isapropiseqclass.
+    + use unittrivialrel_setquot_eq.
+Qed.
 
 (** ** The equivalence relation of being in the same fiber *)
 
@@ -369,6 +430,14 @@ Proof.
   now apply pr2.
 Qed.
 
+(*Accessor to iseqrel from eqrel*)
+Definition iseqreleqrel {X : UU} (R : eqrel X) : iseqrel R := pr2 R.
+
+Definition iseqreldirprod {X Y : UU} (RX : hrel X) (RY : hrel Y)
+           (isx : iseqrel RX) (isy : iseqrel RY) :
+  iseqrel (hreldirprod RX RY)
+  := pr2 (eqreldirprod (RX,,isx) (RY,,isy)).
+
 (**
  Useful functions for when using univalence of sets
  *)
@@ -428,4 +497,106 @@ Proof.
   rewrite hSet_univalence_map_inv.
   rewrite hSet_univalence_map_univalence_hSet.
   apply idpath.
+Qed.
+
+(** ** Set truncation
+    Based on a post by Niels van der Weide on June 13, 2023
+ *)
+
+Local Close Scope logic.
+
+Lemma path_eqrel_iseqrel
+  (X : UU)
+  : iseqrel (λ x₁ x₂ : X, ∥ x₁ = x₂ ∥ : hProp).
+Proof.
+  repeat split.
+  + intros x₁ x₂ x₃.
+    use factor_through_squash.
+    {
+      apply impred ; intro.
+      apply propproperty.
+    }
+    intro p.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intro q.
+    apply hinhpr.
+    exact (p @ q).
+  + intros x.
+    exact (hinhpr (idpath _)).
+  + intros x₁ x₂.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intro p.
+    apply hinhpr.
+    exact (!p).
+Qed.
+
+Definition path_eqrel
+  (X : UU)
+  : eqrel X.
+Proof.
+  use make_eqrel.
+  - exact (λ x₁ x₂, ∥ x₁ = x₂ ∥ : hProp).
+  - apply path_eqrel_iseqrel.
+Defined.
+
+Definition settrunc
+           (X : UU)
+  : hSet
+  := setquotinset (path_eqrel X).
+
+Definition settruncin
+           (X : UU)
+  : X → settrunc X
+  := setquotpr (path_eqrel X).
+
+
+Definition settrunc_rec
+           (X : UU)
+           {Y : hSet}
+           (i : X → Y)
+  : settrunc X → Y.
+Proof.
+  use setquotuniv.
+  - exact i.
+  - intros x₁ x₂.
+    use factor_through_squash.
+    {
+      apply setproperty.
+    }
+    intro p.
+    exact (maponpaths i p).
+Defined.
+
+Definition settrunc_rec_eq
+           (X : UU)
+           {Y : hSet}
+           (i : X → Y)
+           (x : X)
+  : settrunc_rec X i (settruncin X x) = i x.
+Proof.
+  apply idpath.
+Qed.
+
+Definition settrunc_rec_unique
+           (X : UU)
+           {Y : hSet}
+           (f g : settrunc X → Y)
+           (p : ∏ (x : X), f (settruncin X x) = g (settruncin X x))
+  : f = g.
+Proof.
+  use funextsec.
+  use setquotunivprop'.
+  {
+    intro.
+    apply setproperty.
+  }
+  intro x.
+  cbn.
+  exact (p x).
 Qed.

@@ -272,7 +272,7 @@ Definition inv2cell_are_companions
   : invertible_2cell v₁ v₂.
 Proof.
   use make_invertible_2cell.
-  - exact (cell_are_companions H (τ^-1) c₁ c₂).
+  - exact (cell_are_companions H τ^-1 c₁ c₂).
   - use make_is_invertible_2cell.
     + exact (cell_are_companions H τ c₂ c₁).
     + abstract

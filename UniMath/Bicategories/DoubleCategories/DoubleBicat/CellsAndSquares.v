@@ -318,7 +318,7 @@ Section VerticalCellsAreSquares.
     use make_invertible_vertical_square.
     - use make_invertible_vertical_square_data.
       + exact (vertical_cell_to_square τ).
-      + exact (vertical_cell_to_square (τ^-1)).
+      + exact (vertical_cell_to_square τ^-1).
     - split.
       + abstract
           (cbn -[comp_ver_globular_square] ;
@@ -600,7 +600,7 @@ Section HorizontalCellsAreSquares.
     use make_invertible_horizontal_square.
     - use make_invertible_horizontal_square_data.
       + exact (horizontal_cell_to_square τ).
-      + exact (horizontal_cell_to_square (τ^-1)).
+      + exact (horizontal_cell_to_square τ^-1).
     - split.
       + abstract
           (cbn -[comp_hor_globular_square] ;

@@ -315,7 +315,7 @@ Section EMObject.
       : is_invertible_2cell (em_ump_2_cell α).
     Proof.
       use make_is_invertible_2cell.
-      - exact (em_ump_2_cell (Hα^-1)).
+      - exact (em_ump_2_cell Hα^-1).
       - use (em_ump_eq (id2 _)).
         + abstract
             (rewrite psfunctor_vcomp ;

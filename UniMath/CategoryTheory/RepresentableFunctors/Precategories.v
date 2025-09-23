@@ -1,5 +1,3 @@
-(* -*- coding: utf-8 -*- *)
-
 Require Export UniMath.CategoryTheory.Core.Categories. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.Core.Isos. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.Core.Functors.
@@ -63,7 +61,7 @@ Proof.
   exact (λ a b, pr2 C b a).
 Defined.
 
-Notation "C '^op'" := (oppositecategory C) (at level 3, format "C ^op") : cat. (* this overwrites the previous definition *)
+Notation "C '^op'" := (oppositecategory C) (at level 1, format "C ^op") : cat. (* this overwrites the previous definition *)
 
 
 Definition precategory_obmor (C:precategory) : precategory_ob_mor :=

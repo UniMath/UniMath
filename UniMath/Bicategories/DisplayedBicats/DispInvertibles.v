@@ -203,7 +203,7 @@ Section Prop_disp_invertible_2cell.
     intros z.
     use tpair.
     - use tpair.
-      + exact (x^-1).
+      + exact x^-1.
       + exact (pr1 z).
     - split ; cbn.
       + use total2_paths_f ; cbn.

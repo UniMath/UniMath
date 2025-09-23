@@ -32,7 +32,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Limits.Products.
@@ -44,13 +44,13 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
-Require Import UniMath.Combinatorics.Tuples.
+Require Import UniMath.AlgebraicTheories.ReflexiveObjects.
 
 Local Open Scope cat.
 
 (** * 1. The definition of the endomorphism algebraic theory *)
 
-Section EndomorphismAlgebraicTheory.
+Section EndomorphismTheory.
 
   Context {C : category}.
   Context (C_terminal : Terminal C).
@@ -217,7 +217,16 @@ Section EndomorphismAlgebraicTheory.
     exact abs_after_app.
   Qed.
 
-End EndomorphismAlgebraicTheory.
+End EndomorphismTheory.
+
+Definition reflexive_object_to_lambda_theory
+  (X : reflexive_object)
+  : β_lambda_theory.
+Proof.
+  refine (make_β_lambda_theory _ (endomorphism_theory_has_β _ _ _ _ _ _ _)).
+  - exact (reflexive_object_Terminal X).
+  - exact (reflexive_object_is_reflexive X).
+Defined.
 
 (** * 5. The endomorphism theory of a set *)
 
@@ -225,6 +234,8 @@ Definition set_endomorphism_theory
   (X : hSet)
   : algebraic_theory
   := endomorphism_theory (TerminalHSET) BinProductsHSET (X : ob HSET).
+
+(** * 6. The morphism between endomorphism theories *)
 
 Section Morphism.
 

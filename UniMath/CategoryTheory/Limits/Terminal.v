@@ -308,3 +308,14 @@ Proof.
        apply TerminalArrowEq).
   - exact (TerminalArrow T w · i).
 Defined.
+
+Lemma Terminal_unique_up_to_id_if_univalent
+  (C : univalent_category) (T₁ T₂ : Terminal C)
+  : T₁ = T₂.
+Proof.
+  use subtypePath.
+  { intro ; apply isaprop_isTerminal. }
+  use isotoid.
+  { apply C. }
+  use z_iso_Terminals.
+Defined.

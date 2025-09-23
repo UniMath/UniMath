@@ -860,7 +860,7 @@ Proof.
   use make_invertible_2cell.
   - exact (pr11 α ,, pr121 α).
   - use make_is_invertible_2cell.
-    + exact (pr1 (α^-1) ,, pr12 (α^-1)).
+    + exact (pr1 α^-1 ,, pr12 α^-1).
     + abstract
         (use total2_paths_f ; [ apply (maponpaths pr1 (vcomp_rinv α)) | ] ;
          cbn ;
@@ -897,7 +897,7 @@ Proof.
   use make_invertible_2cell.
   - exact (pr11 α ,, pr221 α).
   - use make_is_invertible_2cell.
-    + exact (pr1 (α^-1) ,, pr22 (α^-1)).
+    + exact (pr1 α^-1 ,, pr22 α^-1).
     + abstract
         (use total2_paths_f ; [ apply (maponpaths pr1 (vcomp_rinv α)) | ] ;
          cbn ;
@@ -917,3 +917,14 @@ Proof.
                   (λ z, pr12 g ==>[ z ] pr12 g)
                   (λ z, pr22 g ==>[ z ] pr22 g))).
 Defined.
+
+Lemma disp_2cells_of_dirprod_iscontr
+  {B : bicat} {D₁ D₂ : disp_bicat B}
+  (D₁_contr : disp_2cells_iscontr D₁) (D₂_contr : disp_2cells_iscontr D₂)
+  : disp_2cells_iscontr (disp_dirprod_bicat D₁ D₂).
+Proof.
+  intro ; intros.
+  apply iscontr_prod.
+  - apply D₁_contr.
+  - apply D₂_contr.
+Qed.

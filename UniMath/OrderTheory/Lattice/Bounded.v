@@ -3,8 +3,7 @@
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Propositions.
 
-Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.OrderTheory.Lattice.Lattice.
 
 Definition bounded_latticeop {X : hSet} (l : lattice X) (bot top : X) :=

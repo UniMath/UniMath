@@ -13,8 +13,6 @@ Extended by: Anders Mörtberg, 2016
 Contents :
 
 - Definition of adjunction
-- Construction of an adjunction from some partial data (Theorem 2 (iv) of Chapter IV.1 of
-      MacLane)
 - Post-composition with a left adjoint is a left adjoint ([is_left_adjoint_post_composition_functor])
 - Lemmas about adjunctions
 
@@ -40,12 +38,12 @@ Local Open Scope cat.
 (** * Adjunctions *)
 Section adjunctions.
 
-Definition adjunction_data (A B : category) : UU
+Definition adjunction_data (A B : precategory) : UU
   := ∑ (F : functor A B) (G : functor B A),
      nat_trans (functor_identity A) (F ∙ G) ×
                nat_trans (G ∙ F) (functor_identity B).
 
-Definition make_adjunction_data {A B : category}
+Definition make_adjunction_data {A B : precategory}
            (F : functor A B)
            (G : functor B A)
            (η : functor_identity _ ⟹ (F ∙ G))
@@ -66,12 +64,12 @@ Definition adjcounit {A B} (X : adjunction_data A B)
   : nat_trans (_ ∙ _ ) (functor_identity _)
   := pr2 (pr2 (pr2 X)).
 
-Definition triangle_1_statement {A B : category} (X : adjunction_data A B)
+Definition triangle_1_statement {A B : precategory} (X : adjunction_data A B)
            (F := left_functor X) (η := adjunit X) (ε := adjcounit X)
   : UU
   :=  ∏ a : A, # F (η a) · ε (F a) = identity (F a).
 
-Definition triangle_2_statement {A B : category} (X : adjunction_data A B)
+Definition triangle_2_statement {A B : precategory} (X : adjunction_data A B)
            (G := right_functor X) (η := adjunit X) (ε := adjcounit X)
   : UU
   := ∏ b : B, η (G b) · # G (ε b) = identity (G b).
@@ -79,7 +77,7 @@ Definition triangle_2_statement {A B : category} (X : adjunction_data A B)
 Definition form_adjunction' {A B} (X : adjunction_data A B) : UU
   := triangle_1_statement X × triangle_2_statement X.
 
-Definition form_adjunction {A B : category} (F : functor A B) (G : functor B A)
+Definition form_adjunction {A B : precategory} (F : functor A B) (G : functor B A)
              (eta : nat_trans (functor_identity A) (functor_composite F G))
              (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
   form_adjunction' (F,,G,,eta,,eps).
@@ -94,19 +92,19 @@ Proof.
   - apply A.
 Defined.
 
-Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor B A}
+Definition make_form_adjunction {A B : precategory} {F : functor A B} {G : functor B A}
            {eta : nat_trans (functor_identity A) (functor_composite F G)}
            {eps : nat_trans (functor_composite G F) (functor_identity B)}
            (H1 : ∏ a : A, # F (eta a) · eps (F a) = identity (F a))
            (H2 : ∏ b : B, eta (G b) · # G (eps b) = identity (G b)) :
   form_adjunction F G eta eps := (H1,,H2).
 
-  Definition are_adjoints {A B : category} (F : functor A B) (G : functor B A) : UU :=
+  Definition are_adjoints {A B : precategory} (F : functor A B) (G : functor B A) : UU :=
     ∑ (etaeps : (nat_trans (functor_identity A) (functor_composite F G))
                   × (nat_trans (functor_composite G F) (functor_identity B))),
     form_adjunction F G (pr1 etaeps) (pr2 etaeps).
 
-  Definition make_are_adjoints {A B : category}
+  Definition make_are_adjoints {A B : precategory}
              (F : functor A B) (G : functor B A)
              (eta : nat_trans (functor_identity A) (functor_composite F G))
              (eps : nat_trans (functor_composite G F) (functor_identity B))
@@ -116,26 +114,26 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
     exact HH.
   Defined.
 
-  Definition adjunction (A B : category) : UU
+  Definition adjunction (A B : precategory) : UU
     := ∑ X : adjunction_data A B, form_adjunction' X.
 
   Coercion data_from_adjunction {A B} (X : adjunction A B)
     : adjunction_data _ _ := pr1 X.
 
-  Definition make_adjunction {A B : category}
+  Definition make_adjunction {A B : precategory}
              (adjData : adjunction_data A B)
              (adjProp : form_adjunction' adjData) : adjunction A B
     := (adjData ,, adjProp).
 
-  Definition form_adjunction_from_adjunction {A B : category}
+  Definition form_adjunction_from_adjunction {A B : precategory}
              (adj : adjunction A B) : form_adjunction' adj
     := pr2 adj.
 
-  Definition triangle_1_statement_from_adjunction {A B : category}
+  Definition triangle_1_statement_from_adjunction {A B : precategory}
              (adj : adjunction A B) : triangle_1_statement adj
     := pr1 (pr2 adj).
 
-  Definition triangle_2_statement_from_adjunction {A B : category}
+  Definition triangle_2_statement_from_adjunction {A B : precategory}
              (adj : adjunction A B) : triangle_2_statement adj
     := pr2 (pr2 adj).
 
@@ -148,85 +146,90 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
     - exact(form_adjunction_from_adjunction X).
   Defined.
 
-  Definition unit_from_are_adjoints {A B : category}
+  Definition unit_from_are_adjoints {A B : precategory}
              {F : functor A B} {G : functor B A} (H : are_adjoints F G) :
     nat_trans (functor_identity A) (functor_composite F G) := pr1 (pr1 H).
 
-  Definition counit_from_are_adjoints {A B : category}
+  Definition counit_from_are_adjoints {A B : precategory}
              {F : functor A B} {G : functor B A} (H : are_adjoints F G)  :
     nat_trans (functor_composite G F) (functor_identity B) := pr2 (pr1 H).
 
-  Definition is_left_adjoint {A B : category} (F : functor A B) : UU :=
+  Definition is_left_adjoint {A B : precategory} (F : functor A B) : UU :=
     ∑ (G : functor B A), are_adjoints F G.
 
-  Coercion adjunction_data_from_is_left_adjoint {A B : category}
+  Coercion adjunction_data_from_is_left_adjoint {A B : precategory}
          {F : functor A B} (HF : is_left_adjoint F)
   : adjunction_data A B
   := (F,, _ ,,unit_from_are_adjoints (pr2 HF) ,,counit_from_are_adjoints (pr2 HF) ).
 
-  Definition is_right_adjoint {A B : category} (G : functor B A) : UU :=
+  Definition is_right_adjoint {A B : precategory} (G : functor B A) : UU :=
     ∑ (F : functor A B), are_adjoints F G.
 
-  Definition are_adjoints_to_is_left_adjoint {A B : category} (F : functor A B) (G : functor B A)
+  Definition adjunction_data_from_is_right_adjoint {A B : precategory}
+         {F : functor A B} (HF : is_right_adjoint F)
+  : adjunction_data B A
+  := make_adjunction_data _ F (unit_from_are_adjoints (pr2 HF)) (counit_from_are_adjoints (pr2 HF)).
+
+  Definition are_adjoints_to_is_left_adjoint {A B : precategory} (F : functor A B) (G : functor B A)
              (H : are_adjoints F G) : is_left_adjoint F := (G,,H).
 
   Coercion are_adjoints_to_is_left_adjoint : are_adjoints >-> is_left_adjoint.
 
-  Definition are_adjoints_to_is_right_adjoint {A B : category} (F : functor A B)
+  Definition are_adjoints_to_is_right_adjoint {A B : precategory} (F : functor A B)
              (G : functor B A) (H : are_adjoints F G) : is_right_adjoint G := (F,,H).
 
   Coercion are_adjoints_to_is_right_adjoint : are_adjoints >-> is_right_adjoint.
 
-  Definition right_adjoint {A B : category}
+  Definition right_adjoint {A B : precategory}
              {F : functor A B} (H : is_left_adjoint F) : functor B A := pr1 H.
 
-  Lemma is_right_adjoint_right_adjoint {A B : category}
+  Lemma is_right_adjoint_right_adjoint {A B : precategory}
         {F : functor A B} (H : is_left_adjoint F) : is_right_adjoint (right_adjoint H).
   Proof.
     exact (F,,pr2 H).
   Defined.
 
-  Definition left_adjoint {A B : category}
+  Definition left_adjoint {A B : precategory}
              {G : functor B A} (H : is_right_adjoint G) : functor A B := pr1 H.
 
-  Lemma is_left_adjoint_left_adjoint {A B : category}
+  Lemma is_left_adjoint_left_adjoint {A B : precategory}
         {G : functor B A} (H : is_right_adjoint G) : is_left_adjoint (left_adjoint H).
   Proof.
     exact (G,,pr2 H).
   Defined.
 
-  Definition unit_from_left_adjoint {A B : category}
+  Definition unit_from_left_adjoint {A B : precategory}
              {F : functor A B}  (H : is_left_adjoint F) :
     nat_trans (functor_identity A) (functor_composite F (right_adjoint H))
     := adjunit H. (* makes use of the coercion above *)
 
-  Definition unit_from_right_adjoint {A B : category}
+  Definition unit_from_right_adjoint {A B : precategory}
              {G : functor B A}  (H : is_right_adjoint G) :
     nat_trans (functor_identity A) (functor_composite (left_adjoint H) G)
     := unit_from_are_adjoints (pr2 H).
 
-  Definition counit_from_left_adjoint {A B : category}
+  Definition counit_from_left_adjoint {A B : precategory}
              {F : functor A B}   (H : is_left_adjoint F)  :
     nat_trans (functor_composite (right_adjoint H) F) (functor_identity B)
     := counit_from_are_adjoints (pr2 H).
 
-  Definition counit_from_right_adjoint {A B : category}
+  Definition counit_from_right_adjoint {A B : precategory}
              {G : functor B A} (H : is_right_adjoint G)  :
     nat_trans (functor_composite G (left_adjoint H)) (functor_identity B)
     := counit_from_are_adjoints (pr2 H).
 
-  Definition triangle_id_left_ad {A B : category} {F : functor A B} {G : functor B A}
+  Definition triangle_id_left_ad {A B : precategory} {F : functor A B} {G : functor B A}
              (H : are_adjoints F G) :
     ∏ a, # F (unit_from_are_adjoints H a)
            · counit_from_are_adjoints H (F a) = identity (F a) := pr1 (pr2 H).
 
-  Definition triangle_id_right_ad {A B : category} {F : functor A B} {G : functor B A}
+  Definition triangle_id_right_ad {A B : precategory} {F : functor A B} {G : functor B A}
              (H : are_adjoints F G) :
     ∏ b, unit_from_are_adjoints H (G b) · # G (counit_from_are_adjoints H b) = identity (G b)
     := pr2 (pr2 H).
 
   Lemma are_adjoints_functor_composite
-        {A B C : category} {F1 : functor A B} {F2 : functor B C}
+        {A B C : precategory} {F1 : functor A B} {F2 : functor B C}
         {G1 : functor B A} {G2 : functor C B}
         (H1 : are_adjoints F1 G1) (H2 : are_adjoints F2 G2) :
     are_adjoints (functor_composite F1 F2) (functor_composite G2 G1).
@@ -268,7 +271,7 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
   Defined.
 
   Lemma is_left_adjoint_functor_composite
-        {A B C : category} {F1 : functor A B} {F2 : functor B C}
+        {A B C : precategory} {F1 : functor A B} {F2 : functor B C}
         (H1 : is_left_adjoint F1) (H2 : is_left_adjoint F2) :
     is_left_adjoint (functor_composite F1 F2).
   Proof.
@@ -343,7 +346,7 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
   (** * Identity functor is a left adjoint *)
 
 
-  Lemma is_left_adjoint_functor_identity {A : category} :
+  Lemma is_left_adjoint_functor_identity {A : precategory} :
     is_left_adjoint (functor_identity A).
   Proof.
     use tpair.
@@ -351,226 +354,6 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
     + exists (nat_trans_id _,, nat_trans_id _).
       abstract (now split; [intros a; apply id_left| intros a; apply id_left]).
   Defined.
-
-  (** * Construction of an adjunction from some partial data (Theorem 2 (iv) of Chapter IV.1 of
-      MacLane) *)
-Section right_adjoint_from_partial.
-
-Definition is_universal_arrow_from {D C : category}
-           (S : functor D C) (c : C) (r : D) (v : C⟦S r, c⟧) : UU :=
-  ∏ (d : D) (f : C⟦S d,c⟧), ∃! (f' : D⟦d,r⟧), f = # S f' · v.
-
-Context {X A : category}
-        (F : functor X A)
-        (G0 : ob A -> ob X)
-        (eps : ∏ a, A⟦F (G0 a),a⟧)
-        (Huniv : ∏ a, is_universal_arrow_from F a (G0 a) (eps a)).
-
-Local Definition G_data : functor_data A X.
-Proof.
-  use tpair.
-  + apply G0.
-  + intros a b f.
-    apply (pr1 (pr1 (Huniv b (G0 a) (eps a · f)))).
-Defined.
-
-Local Definition G_is_functor : is_functor G_data.
-Proof.
-  split.
-  + intro a; simpl.
-    assert (H : eps a · identity a = # F (identity (G0 a)) · eps a).
-    { now rewrite functor_id, id_left, id_right. }
-    set (H2 := Huniv a (G0 a) (eps a · identity a)).
-    apply (pathsinv0 (maponpaths pr1 (pr2 H2 (_,,H)))).
-  + intros a b c f g; simpl.
-    set (H2 := Huniv c (G0 a) (eps a · (f · g))).
-    destruct H2 as [[fac Hfac] p]; simpl.
-    set (H1 := Huniv b (G0 a) (eps a · f)).
-    destruct H1 as [[fab Hfab] p1]; simpl.
-    set (H0 := Huniv c (G0 b) (eps b · g)).
-    destruct H0 as [[fbc Hfbc] p2]; simpl.
-    assert (H : eps a · (f · g) = # F (fab · fbc) · eps c).
-    { now rewrite assoc, Hfab, <- assoc, Hfbc, assoc, <- functor_comp. }
-    apply (pathsinv0 (maponpaths pr1 (p (_,,H)))).
-Qed.
-
-Local Definition G : functor A X := tpair _ G_data G_is_functor.
-
-Local Definition unit : nat_trans (functor_identity X) (functor_composite F G).
-Proof.
-  use make_nat_trans.
-  * intro x.
-    apply (pr1 (pr1 (Huniv (F x) x (identity _)))).
-  * abstract (
-      intros x y f;
-      simpl;
-      destruct (Huniv (F y) y (identity (F y))) as [t p], t as [t p0];
-      simpl;
-      destruct (Huniv (F x) x (identity (F x))) as [t0 p1], t0 as [t0 p2];
-      simpl;
-      destruct
-        (Huniv (F y) (G0 (F x)) (eps (F x) · # F f)) as [t1 p3], t1 as [t1 p4];
-      simpl;
-      assert (H1 : # F f = # F (t0 · t1) · eps (F y));
-      [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
-      destruct (Huniv (F y) x (# F f)) as [t2 p5];
-      set (HH := (maponpaths pr1 (p5 (_,,H1))));
-      simpl in HH;
-      rewrite HH;
-      assert (H2 : # F f = # F (f · t) · eps (F y));
-      [now rewrite functor_comp, <- assoc, <- p0, id_right|];
-      set (HHH := (maponpaths pr1 (p5 (_,,H2)))); simpl in HHH;
-      now rewrite HHH
-    ).
-Defined.
-
-Local Definition counit : nat_trans (functor_composite G F) (functor_identity A).
-Proof.
-  use tpair.
-  * red.
-    apply eps.
-  * abstract (
-      intros a b f;
-      apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a · f)))))
-    ).
-Defined.
-
-Local Lemma form_adjunctionFG : form_adjunction F G unit counit.
-Proof.
-  use tpair; simpl.
-  + unfold triangle_1_statement; cbn.
-    intros x.
-    destruct (Huniv (F x) x (identity (F x))) as [[f hf] H]; simpl.
-    apply (!hf).
-  + intros a; simpl.
-    destruct (Huniv (F (G0 a)) (G0 a) (identity (F (G0 a)))) as [[f hf] H]; simpl.
-    destruct ((Huniv a (G0 (F (G0 a))) (eps (F (G0 a)) · eps a))) as [[g hg] Hg]; simpl.
-    destruct (Huniv _ _ (eps a)) as [t p].
-    assert (H1 : eps a = # F (identity _) · eps a).
-    now rewrite functor_id, id_left.
-    assert (H2 : eps a = # F (f · g) · eps a).
-    now rewrite functor_comp, <- assoc, <- hg, assoc, <- hf, id_left.
-    set (HH := maponpaths pr1 (p (_,,H1))); simpl in HH.
-    set (HHH := maponpaths pr1 (p (_,,H2))); simpl in HHH.
-    now rewrite HHH, <- HH.
-Qed.
-
-Definition left_adjoint_from_partial : is_left_adjoint F :=
-  (G,, (unit,, counit),, form_adjunctionFG).
-Definition right_adjoint_from_partial : is_right_adjoint G :=
-  (F,, (unit,, counit),, form_adjunctionFG).
-
-End right_adjoint_from_partial.
-
-  (** * Construction of an adjunction from some partial data
-
-(Theorem 2 (ii) of Chapter IV.1 of  MacLane) *)
-
-Section left_adjoint_from_partial.
-
-
-Definition is_universal_arrow_to {D C : precategory}
-           (S : functor D C) (c : C) (r : D) (v : C⟦c, S r⟧) : UU :=
-  ∏ (d : D) (f : C⟦c, S d⟧), ∃! (f' : D⟦r,d⟧), v · #S f' = f.
-
-Context {X A : category}
-        (G : functor A X)
-        (F0 : ob X -> ob A)
-        (eta : ∏ x, X⟦x, G (F0 x)⟧)
-        (Huniv : ∏ x, is_universal_arrow_to G x (F0 x) (eta x)).
-
-Local Definition F_data : functor_data X A.
-Proof.
-  use tpair.
-  + apply F0.
-  + intros a b f.
-    use (pr1 (pr1 (Huniv _ _ _ ))). apply (f · eta _ ).
-    (* apply (pr1 (pr1 (Huniv b (G0 a) (eps a · f)))). *)
-Defined.
-
-Local Definition F_is_functor : is_functor F_data.
-Proof.
-  split.
-  + intro x; simpl.
-    apply pathsinv0, path_to_ctr.
-    rewrite functor_id, id_left, id_right; apply idpath.
-  + intros a b c f g; simpl.
-    apply pathsinv0, path_to_ctr.
-    rewrite functor_comp, assoc.
-    set (H2 := Huniv _ _ (f · eta _ )).
-    rewrite (pr2 (pr1 H2)).
-    do 2 rewrite <- assoc; apply maponpaths.
-    set (H3 := Huniv _ _ (g · eta _ )).
-    apply (pr2 (pr1 H3)).
-Defined.
-
-Local Definition left_adj_from_partial : functor X A := F_data,, F_is_functor.
-Local Notation F := left_adj_from_partial.
-
-Local Definition counit_left_from_partial
-  : functor_composite G F ⟹ functor_identity A.
-Proof.
-  use make_nat_trans.
-  - intro a.
-    apply (pr1 (pr1 (Huniv _ _  (identity _)))).
-  - intros a b f; simpl.
-    destruct (Huniv _ _ (identity (G b))) as [t p], t as [t p0]; simpl.
-    destruct (Huniv _ _ (identity (G a))) as [t0 p1], t0 as [t0 p2]; simpl.
-    destruct
-      (Huniv _ _  (#G f · eta _ )) as [t1 p3], t1 as [t1 p4]; simpl.
-    assert (H1 : # G f =  eta _ · # G (t1 · t)  ).
-    { rewrite functor_comp. rewrite assoc. rewrite p4.
-      rewrite <- assoc. rewrite p0. rewrite id_right; apply idpath. }
-    destruct (Huniv _ _  (# G f)) as [t2 p5].
-    set (HH := (maponpaths pr1 (p5 (_,,!H1))));
-    simpl in HH; rewrite HH.
-    assert (H2 : #G f = eta _ · #G (t0 · f)).
-    { rewrite functor_comp. rewrite assoc. rewrite p2.
-      rewrite id_left; apply idpath. }
-    set (HHH := (maponpaths pr1 (p5 (_,,!H2)))); simpl in HHH;
-    now rewrite HHH.
-Defined.
-
-Local Definition unit_left_from_partial : functor_identity X ⟹ functor_composite F G.
-Proof.
-  use tpair.
-  * red. apply eta.
-  * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv _ _  (f · eta _ )))))).
-Defined.
-
-Local Lemma form_adjunctionFG_left_from_partial
-  : form_adjunction F G unit_left_from_partial counit_left_from_partial.
-Proof.
-  use tpair; simpl.
-  + unfold triangle_1_statement; cbn.
-    intros x; simpl.
-    destruct (Huniv _ _ (identity (G (F0 x)))) as [[f hf] H]; simpl.
-    destruct ((Huniv _ _ (*eps (F (G0 a)) · eps a*)
-                         (eta _ · eta (G (F0 x))))) as [[g hg] Hg]; simpl.
-    destruct (Huniv _ _ (eta x)) as [t p].
-    assert (H1 : eta x =  eta x · # G (identity _)).
-    { now rewrite functor_id, id_right. }
-    assert (H2 : eta x = eta x · # G (g · f) ).
-    { rewrite functor_comp.  rewrite assoc. rewrite hg.
-      rewrite <- assoc. rewrite hf. now rewrite id_right. }
-    set (HH := maponpaths pr1 (p (_,,!H1))); simpl in HH.
-    set (HHH := maponpaths pr1 (p (_,,!H2))); simpl in HHH.
-    now rewrite HHH, <- HH.
-  + unfold triangle_2_statement; cbn.
-    intro a.
-    destruct (Huniv _ _ (identity (G a))) as [[f hf] H]; simpl.
-    apply hf.
-Defined.
-
-Definition right_adjoint_left_from_partial : is_right_adjoint G :=
-  (F,, (unit_left_from_partial,, counit_left_from_partial),,
-    form_adjunctionFG_left_from_partial).
-
-Definition left_adjoint_left_from_partial : is_left_adjoint F :=
-  (G,, (unit_left_from_partial,, _),, form_adjunctionFG_left_from_partial).
-
-End left_adjoint_from_partial.
-
 
 (** * Post-composition with a left adjoint is a left adjoint *)
 Section postcomp.
@@ -665,7 +448,7 @@ End adjunctions.
 
 Section HomSetIso_from_Adjunction.
 
-  Context {C D : category} {F : functor C D} {G : functor D C} (H : are_adjoints F G).
+  Context {C D : precategory} {F : functor C D} {G : functor D C} (H : are_adjoints F G).
 
   Let η := unit_from_are_adjoints H.
   Let ε := counit_from_are_adjoints H.
@@ -828,77 +611,6 @@ Section HomSetIsoClosedUnderIso.
 
 End HomSetIsoClosedUnderIso.
 
-Section HomSetIsoRightFromPartial.
-
-  Context {X A : category}.
-  Context (F : functor X A).
-  Context (G0 : ob A -> ob X).
-  Context (eps : ∏ a, A⟦F (G0 a),a⟧).
-  Context (Huniv : ∏ a, is_universal_arrow_from F a (G0 a) (eps a)).
-  Context (a : A).
-  Context (x : X).
-
-  Let G
-    : A ⟶ X
-    := G F G0 eps Huniv.
-
-  Let Adj
-    : are_adjoints F G
-    := (unit _ _ _ Huniv ,, counit _ _ _ _) ,, form_adjunctionFG F G0 eps Huniv.
-
-  (* Note that for f : X⟦x, G a⟧, we have φ_adj_inv Adj f = #F f · eps a definitionally *)
-
-  Lemma φ_adj_from_partial
-    (f : A⟦F x, a⟧)
-  : φ_adj Adj f = pr11 (Huniv a x f).
-  Proof.
-    refine (base_paths _ _ (pr2 (Huniv a x f) (_ ,, !_))).
-    refine (maponpaths (λ x, x · _) (functor_comp _ _ _) @ _).
-    refine (assoc' _ _ _ @ _).
-    refine (!maponpaths (λ x, _ · x) (pr21 (Huniv _ _ _)) @ _).
-    refine (assoc _ _ _ @ _).
-    refine (!maponpaths (λ x, x · _) (pr21 (Huniv _ _ _)) @ _).
-    apply id_left.
-  Qed.
-
-End HomSetIsoRightFromPartial.
-
-Section HomSetIsoLeftFromPartial.
-
-  Context {X A : category}.
-  Context (G : functor A X).
-  Context (F0 : ob X -> ob A).
-  Context (eta : ∏ x, X⟦x, G (F0 x)⟧).
-  Context (Huniv : ∏ x, is_universal_arrow_to G x (F0 x) (eta x)).
-  Context (x : X).
-  Context (a : A).
-
-  Let F
-    : X ⟶ A
-    := left_adj_from_partial G F0 eta Huniv.
-
-  Let Adj
-    : are_adjoints F G
-    := (unit_left_from_partial _ _ _ Huniv ,, counit_left_from_partial _ _ _ _) ,,
-      form_adjunctionFG_left_from_partial G F0 eta Huniv.
-
-  (* Note that for f : A⟦F x, a⟧, we have φ_adj Adj f = eta x · #G f definitionally *)
-
-  Lemma φ_adj_inv_from_partial
-    (f : X⟦x, G a⟧)
-  : φ_adj_inv Adj f = pr11 (Huniv x a f).
-  Proof.
-    refine (base_paths _ _ (pr2 (Huniv x a f) (_ ,, _))).
-    refine (maponpaths (λ x, _ · x) (functor_comp _ _ _) @ _).
-    refine (assoc _ _ _ @ _).
-    refine (maponpaths (λ x, x · _) (pr21 (Huniv _ _ _)) @ _).
-    refine (assoc' _ _ _ @ _).
-    refine (maponpaths (λ x, _ · x) (pr21 (Huniv _ _ _)) @ _).
-    apply id_right.
-  Qed.
-
-End HomSetIsoLeftFromPartial.
-
 (** * Adjunction defined from a natural isomorphism on homsets (F A --> B) ≃ (A --> G B) *)
 
 Definition natural_hom_weq {C D : precategory} (F : functor C D) (G : functor D C) : UU
@@ -921,7 +633,7 @@ Definition hom_natural_postcomp {C D : precategory} {F : functor C D} { G : func
 
 Section Adjunction_from_HomSetIso.
 
-  Context {C D : category} {F : functor C D} {G : functor D C}
+  Context {C D : precategory} {F : functor C D} {G : functor D C}
           (H : natural_hom_weq F G).
 
   Local Definition hom_inv : ∏ {A : C} {B : D}, A --> G B → F A --> B

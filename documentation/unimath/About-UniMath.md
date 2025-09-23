@@ -1,5 +1,12 @@
 # About UniMath
 
+* For articles that have accompanying proofs in UniMath or built upon UniMath, or articles that describe UniMath, see [Articles with formalization](./Articles-with-formalization.md).
+* For events about UniMath, see the [Calendar](./Calendar.md).
+* For discussions of different aspects of formalization, see [Discussions](./Discussions.md).
+* For the formal language used in the UniMath project, see [Martin-Löf Type Theory](./Martin-Lof-type-theory.md).
+* For a summary of various attempts to introduce resizing rules, to get rid of -type-in-type, see [Resizing Rules](./Resizing-rules.md).
+* For an overview of the most important symbols used in UniMath, see [Symbols List](./Symbols-list.md).
+
 ## Citing UniMath
 To cite UniMath in your article, you can use the following bibtex item:
 ```bibtex
@@ -27,6 +34,7 @@ The current members of the UniMath Coordinating Committee are:
 
 - Benedikt Ahrens
 - Daniel Grayson
+- Arnoud van der Leer
 - Michael Lindgren
 - Peter LeFanu Lumsdaine
 - Ralph Matthes

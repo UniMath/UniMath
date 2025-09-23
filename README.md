@@ -15,11 +15,11 @@ This [Rocq](https://coq.inria.fr/) library aims to formalize a substantial body 
 You can try out UniMath in the browser by clicking [here](https://unimath.github.io/live/).
 For instance, you can run the files from the [School on Univalent Mathematics](https://unimath.github.io/Schools/) in the browser.
 
-## Further documentation
+## Documentation
 
-* For **general** information about UniMath, citing UniMath and the coordinating committee, see the documentation page [about UniMath](./documentation/misc/About-UniMath.md).
-* For **installing** UniMath and other software-related information, see [setup](./documentation/setup/Setup.md).
-* For **contributing** to UniMath, see the documentation about [contributing](documentation/contributing/Contributing.md).
+See [the documentation](./documentation/Documentation.md) for [general information](./documentation/unimath/About-UniMath.md) about UniMath, [install instructions](./documentation/setup/Setup.md), [guides](./documentation/guides/Guides.md), [tutorials](./documentation/guides/tutorials/) and information about [contributing](./documentation/contributing/Contributing.md).
+
+See also the automatically generated [alectryon](http://unimath.github.io/UniMath/gen/alectryon/UniMath.Foundations.PartA) documentation, where you can step through the proofs, viewing the goals at every step, and the [rocqdoc](https://unimath.github.io/UniMath/gen/rocqdoc/toc) documentation, where you can click on identifiers (like [`disp_cat`](https://unimath.github.io/UniMath/gen/rocqdoc/UniMath.CategoryTheory.DisplayedCats.Core#disp_cat)) to go to their definition. By replacing `rocqdoc` with `alectryon` in the url and vice versa, you can switch between the rocqdoc and alectryon documentation.
 
 ## Acknowledgments
 

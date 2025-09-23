@@ -1,16 +1,22 @@
 (**
 
-Definition natural number objects (NNO's)
+- Definition natural number objects (NNO's) [NNO];
+- A proof that the existence of an NNO is independent of the choice of terminal object [NNO_transport_along_terminal];
+- A proof that NNO's are unique up to isomorphism [iso_between_NNO];
+- Definitions of functors preserving NNO's [preserves_NNO, preserves_chosen_NNO];
+- Proofs that the identity preserve NNO's, and that the composition of NNO preserving functors is NNO preserving.
 
 This is related to the initial algebra definition in FunctorAlgebras.v
 
 Written by: Anders Mörtberg, 2018
+Extended by: Kobe Wullaert, 2025
 
 *)
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Local Open Scope cat.
 
@@ -40,7 +46,7 @@ Definition sucNNO (n : NNO) : C ⟦n,n⟧ := pr1 (pr2 (pr2 n)).
 Lemma isNNO_NNO (n : NNO) : isNNO n (zeroNNO n) (sucNNO n).
 Proof.
 exact (pr2 (pr2 (pr2 n))).
-Qed.
+Defined.
 
 Section UniversalMappingProperty.
   Context (N : NNO)
@@ -80,6 +86,20 @@ Section UniversalMappingProperty.
                 (f ,, fz ,, fs)
                 (g ,, gz ,, gs))).
   Qed.
+
+  Proposition NNO_mor_unique'
+              {f : N --> x}
+              (fz : zeroNNO N · f = z)
+              (fs : sucNNO N · f = f · s)
+    : f = NNO_mor.
+  Proof.
+    apply NNO_mor_unique.
+    - exact fz.
+    - apply NNO_mor_Z.
+    - exact fs.
+    - exact NNO_mor_S.
+  Qed.
+
 End UniversalMappingProperty.
 
 Definition make_NNO (n : C) (z : C ⟦ 1, n ⟧) (s : C ⟦ n, n ⟧)
@@ -88,6 +108,72 @@ Definition make_NNO (n : C) (z : C ⟦ 1, n ⟧) (s : C ⟦ n, n ⟧)
 Definition hasNNO : hProp := ∥ NNO ∥.
 
 End nno.
+
+Section IndependenceOfTerminal.
+  (* A change of base *)
+
+  Context {C : category} (T₀ T₁ : Terminal C).
+
+  Section TransportNNO_along_terminal_UVP.
+
+    Context (N : NNO T₀)
+      {a : C} (q : C⟦T₁, a⟧) (f : C⟦a, a⟧).
+
+    Let u := NNO_mor _ N (TerminalArrow T₁ _ · q) f.
+
+    Lemma NNO_mor_Z_after_terminal_change
+      : TerminalArrow T₀ T₁ · zeroNNO T₀ N · NNO_mor T₀ N (TerminalArrow T₁ T₀ · q) f = q.
+    Proof.
+      refine (assoc' _ _ _ @ _).
+      etrans. { apply maponpaths, NNO_mor_Z. }
+      refine (assoc _ _ _ @ _).
+      refine (_ @ id_left _).
+      apply maponpaths_2.
+      apply proofirrelevance, isapropifcontr, T₁.
+    Qed.
+
+    Let uvp : UU
+        := ∑ u : C ⟦ N, a ⟧, TerminalArrow T₀ T₁ · zeroNNO T₀ N · u = q × sucNNO T₀ N · u = u · f.
+
+    Definition NNO_mor_after_terminal_change
+      : uvp.
+    Proof.
+      simple refine (_ ,, _ ,, _).
+      - exact (NNO_mor _ N (TerminalArrow T₁ _ · q) f).
+      - apply NNO_mor_Z_after_terminal_change.
+      - apply NNO_mor_S.
+    Defined.
+
+    Lemma NNO_mor_after_terminal_change_uniqueness (ϕ : uvp)
+      : ϕ = NNO_mor_after_terminal_change.
+    Proof.
+      use subtypePath.
+      { intro ; apply isapropdirprod ; apply homset_property. }
+      use (NNO_mor_unique' _ N).
+      - etrans.
+        2: { apply maponpaths, (pr12 ϕ). }
+        rewrite ! assoc.
+        apply maponpaths_2.
+        refine (! id_left _ @ _).
+        apply maponpaths_2.
+        apply proofirrelevance, isapropifcontr, T₀.
+      - exact (pr22 ϕ).
+    Qed.
+
+  End TransportNNO_along_terminal_UVP.
+
+  Definition NNO_transport_along_terminal
+    : NNO T₀ → NNO T₁.
+  Proof.
+    intro N.
+    apply (make_NNO _ N (TerminalArrow T₀ _ · zeroNNO _ N) (sucNNO _ N)).
+    intros a q f.
+    use make_iscontr.
+    - apply NNO_mor_after_terminal_change.
+    - apply NNO_mor_after_terminal_change_uniqueness.
+  Defined.
+
+End IndependenceOfTerminal.
 
 Section UniqueUpToIso.
   Context {C : category}
@@ -136,3 +222,150 @@ Section UniqueUpToIso.
         (split ; apply mor_between_NNO_inv).
   Defined.
 End UniqueUpToIso.
+
+Section HomomorphismNNO.
+
+  Definition preserves_NNO
+    {C₀ C₁ : category}
+    {F : functor C₀ C₁}
+    (F_pT : preserves_terminal F) : UU
+    := ∏ (T₀ : Terminal C₀) (N₀ : NNO T₀),
+      isNNO
+        (preserves_terminal_to_terminal _ F_pT T₀)
+        (F N₀)
+        (#F (zeroNNO _ N₀))
+        (#F (sucNNO _ N₀)).
+
+  Lemma isaprop_preserves_NNO
+    {C₀ C₁ : category}
+    {F : functor C₀ C₁}
+    (F_pT : preserves_terminal F)
+    : isaprop (preserves_NNO F_pT).
+  Proof.
+    do 2 (apply impred_isaprop ; intro).
+    apply isNNO.
+  Qed.
+
+  Lemma identity_preserves_NNO
+    (C : category)
+    : preserves_NNO (identity_preserves_terminal C).
+  Proof.
+    intro ; intro ; apply isNNO_NNO.
+  Defined.
+
+  Lemma composition_preserves_NNO
+    {C₀ C₁ C₂ : category}
+    {F : functor C₀ C₁} {G : functor C₁ C₂}
+    {F_pT : preserves_terminal F}
+    {G_pT : preserves_terminal G}
+    (F_pN : preserves_NNO F_pT)
+    (G_pN : preserves_NNO G_pT)
+    : preserves_NNO (composition_preserves_terminal F_pT G_pT).
+  Proof.
+    intros T₀ N₀.
+    set (N₁ := make_NNO _ _ _ _ (F_pN _ N₀)).
+    set (N₂ := make_NNO _ _ _ _ (G_pN _ N₁)).
+    exact (isNNO_NNO _ N₂).
+  Defined.
+
+  Definition preserves_chosen_NNO
+    {C₀ C₁ : category}
+    {F : functor C₀ C₁}
+    {T₀ : Terminal C₀}
+    {T₁ : Terminal C₁}
+    (F_pT : preserves_chosen_terminal T₀ F)
+    (N₀ : NNO T₀)
+    (N₁ : NNO T₁)
+    : UU
+    := is_z_isomorphism
+         (NNO_mor _ N₁
+            (preserves_chosen_terminal_to_z_iso F_pT T₁ · #F (zeroNNO _ N₀))
+            (#F (sucNNO _ N₀))
+         ).
+
+  Lemma isaprop_preserves_chosen_NNO
+    {C₀ C₁ : category}
+    {F : functor C₀ C₁}
+    {T₀ : Terminal C₀}
+    {T₁ : Terminal C₁}
+    (F_pT : preserves_chosen_terminal T₀ F)
+    (N₀ : NNO T₀)
+    (N₁ : NNO T₁)
+    : isaprop (preserves_chosen_NNO F_pT N₀ N₁).
+  Proof.
+    apply isaprop_is_z_isomorphism.
+  Qed.
+
+  Lemma identity_preserves_chosen_NNO
+    {C : category} {T : Terminal C} (N : NNO T)
+    : preserves_chosen_NNO (identity_preserves_chosen_terminal T) N N.
+  Proof.
+    use (transportf _ _ (pr2 (iso_between_NNO N N))).
+    simpl ; unfold mor_between_NNO.
+    apply maponpaths_2.
+    refine (! id_left _ @ _).
+    apply maponpaths_2.
+    use proofirrelevance.
+    use isapropifcontr.
+    apply T.
+  Qed.
+
+  Lemma composition_preserves_chosen_NNO
+    {C₀ C₁ C₂ : category}
+    {F : functor C₀ C₁} {G : functor C₁ C₂}
+    {T₀ : Terminal C₀} {T₁ : Terminal C₁} {T₂ : Terminal C₂}
+    {F_pT : preserves_chosen_terminal T₀ F}
+    {G_pT : preserves_chosen_terminal T₁ G}
+    {N₀ : NNO T₀} {N₁ : NNO T₁} {N₂ : NNO T₂}
+    (F_pN : preserves_chosen_NNO F_pT N₀ N₁)
+    (G_pN : preserves_chosen_NNO G_pT N₁ N₂)
+    : preserves_chosen_NNO (composition_preserves_chosen_terminal F_pT G_pT) N₀ N₂.
+  Proof.
+    use is_z_isomorphism_path.
+    - refine (NNO_mor _ N₂ _ _ · #G (NNO_mor _ N₁ _ _)).
+      + exact (preserves_chosen_terminal_to_z_iso G_pT T₂ · #G (zeroNNO T₁ N₁)).
+      + exact (#G (sucNNO T₁ N₁)).
+      + exact (preserves_chosen_terminal_to_z_iso F_pT T₁ · # F (zeroNNO T₀ N₀)).
+      + exact (# F (sucNNO T₀ N₀)).
+    - use NNO_mor_unique'.
+      + refine (assoc _ _ _ @ _).
+        etrans. {
+          apply maponpaths_2.
+          apply NNO_mor_Z.
+        }
+        refine (assoc' _ _ _ @ _).
+        etrans. {
+          apply maponpaths.
+          apply pathsinv0.
+          apply (functor_comp G).
+        }
+        etrans. {
+          apply maponpaths.
+          apply maponpaths_1.
+          apply NNO_mor_Z.
+        }
+        etrans. {
+          apply maponpaths.
+          apply (functor_comp G).
+        }
+        refine (assoc _ _ _ @ _).
+        apply maponpaths_2.
+        use proofirrelevance.
+        apply isapropifcontr.
+        apply (composition_preserves_chosen_terminal F_pT G_pT _).
+      + cbn.
+        rewrite assoc.
+        rewrite NNO_mor_S.
+        rewrite assoc'.
+        rewrite <- (functor_comp G).
+        rewrite NNO_mor_S.
+        rewrite ! assoc'.
+        apply maponpaths.
+        now rewrite functor_comp.
+    - use is_z_isomorphism_comp.
+      + exact G_pN.
+      + apply (functor_on_is_z_isomorphism G).
+        exact F_pN.
+  Qed.
+
+End HomomorphismNNO.
