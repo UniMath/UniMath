@@ -5,7 +5,8 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
-    ready_for_review
+    types:
+      - ready_for_review
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   schedule:
