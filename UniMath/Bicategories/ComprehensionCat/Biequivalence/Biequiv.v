@@ -77,3 +77,22 @@ Definition finlim_biequiv_dfl_comp_cat_psfunctor
   := finlim_to_dfl_comp_cat_psfunctor
      ,,
      is_biequivalence_finlim_to_dfl_comp_cat_psfunctor.
+
+Definition finlim_biequiv_dfl_comp_cat_psfunctor_triangle
+           (C : dfl_full_comp_cat)
+  : invertible_2cell
+      (identity _)
+      (finlim_dfl_comp_cat_unit (dfl_full_comp_cat_to_finlim C)
+       · dfl_functor_comp_cat_to_finlim_functor (finlim_dfl_comp_cat_counit C)).
+Proof.
+  use invertible_2cell_cat_with_finlim.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + exact (λ _, identity _).
+    + abstract
+        (intros x y f ; simpl ;
+         rewrite id_right, id_left ;
+         apply idpath).
+  - intro.
+    apply is_z_isomorphism_identity.
+Defined.

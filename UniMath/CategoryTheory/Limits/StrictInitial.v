@@ -97,6 +97,23 @@ Proof.
   exact (z_iso_inv f_iso).
 Defined.
 
+Proposition strict_initial_from_initial_mor
+            {C : category}
+            (I : Initial C)
+            (H : ∏ (x : C)
+                   (f : x --> I),
+                 isInitial _ x)
+  : is_strict_initial I.
+Proof.
+  intros x f.
+  specialize (H x f).
+  use make_is_z_isomorphism.
+  - apply InitialArrow.
+  - split ; [ | apply InitialArrowEq ].
+    pose (I' := make_Initial _ H).
+    apply (InitialArrowEq (O := I')).
+Qed.
+
 (** * 2. Strictness is preserved under isomorphism *)
 Definition strict_initial_z_iso
            {C : category}
@@ -145,6 +162,72 @@ Proof.
   use to_initial_slice ; cbn.
   use (is_initial_mor_to_strict_initial I).
   apply PullbackPr1.
+Qed.
+
+Proposition strict_initial_from_stable
+            {C : category}
+            (HC : Pullbacks C)
+            (I : Initial C)
+            (H : ∏ (x y : C) (f : x --> y),
+                 preserves_initial (cod_pb HC f))
+  : is_strict_initial I.
+Proof.
+  use strict_initial_from_initial_mor.
+  intros x f.
+  specialize (H x I f _ (pr2 (initial_cod_fib _ I))).
+  pose (I' := make_Initial _ H).
+  pose (I'' := initial_cod_fib x I).
+  pose proof (g := z_iso_to_cod_dom _ _ _ (ziso_Initials I' I'')).
+  simpl in g.
+  use (iso_to_Initial I).
+  refine (z_iso_inv _).
+  refine (z_iso_comp _ g).
+  use make_z_iso.
+  - use PullbackArrow.
+    + exact f.
+    + exact (identity _).
+    + abstract
+        (rewrite id_left ;
+         refine (_ @ id_right _) ;
+         apply maponpaths ;
+         apply InitialArrowEq).
+  - apply PullbackPr2.
+  - split.
+    + apply PullbackArrow_PullbackPr2.
+    + use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      * rewrite !assoc'.
+        rewrite PullbackArrow_PullbackPr1.
+        rewrite <- PullbackSqrCommutes.
+        rewrite id_left.
+        refine (_ @ id_right _).
+        apply maponpaths.
+        apply InitialArrowEq.
+      * rewrite !assoc'.
+        rewrite PullbackArrow_PullbackPr2.
+        rewrite id_left, id_right.
+        apply idpath.
+Qed.
+
+(**
+   In a category with pullbacks, initial objects are strict if and only if
+   the pullback functor preserves initial objects.
+ *)
+Proposition is_strict_initial_weq_stable
+            {C : category}
+            (HC : Pullbacks C)
+            (I : Initial C)
+  : is_strict_initial I
+    ≃
+    ∏ (x y : C) (f : x --> y),
+    preserves_initial (cod_pb HC f).
+Proof.
+  use weqimplimpl.
+  - intros HI x y f.
+    exact (stict_initial_stable HC (make_strict_initial I HI) f).
+  - exact (strict_initial_from_stable HC I).
+  - apply isaprop_is_strict_initial.
+  - do 3 (use impred ; intro).
+    apply isaprop_preserves_initial.
 Qed.
 
 (** * 4. Monics from strict initial objects *)

@@ -136,6 +136,8 @@ DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
 DisplayedCats/Codomain/CodRegular.v
 
+RegularAndExact/SliceInternalEqRel.v
+
 DisplayedCats/MonoCodomain/FiberMonoCod.v
 DisplayedCats/MonoCodomain/MonoCodFunctor.v
 DisplayedCats/MonoCodomain/Inclusion.v

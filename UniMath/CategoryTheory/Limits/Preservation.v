@@ -20,10 +20,8 @@
  *********************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
@@ -673,6 +671,78 @@ Proof.
     + exact Hx.
 Defined.
 
+Section Iso.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          (HF : preserves_equalizer F)
+          {x y : C₁}
+          {f g : x --> y}
+          (e₁ : Equalizer f g)
+          (e₂ : Equalizer (#F f) (#F g)).
+
+  Lemma preserves_equalizer_z_iso_help_eq
+    : #F (EqualizerArrow e₁) · #F f = #F (EqualizerArrow e₁) · #F g.
+  Proof.
+    rewrite <- !functor_comp.
+    rewrite EqualizerEqAr.
+    apply idpath.
+  Qed.
+
+  Let Fe : Equalizer (#F f) (#F g)
+    := make_Equalizer
+         _ _ _ _
+         (HF _ _ _ _ _ _ _
+             preserves_equalizer_z_iso_help_eq
+             (isEqualizer_Equalizer e₁)).
+
+  Definition preserves_equalizer_z_iso_mor
+    : F e₁ --> e₂.
+  Proof.
+    use EqualizerIn.
+    - exact (#F (EqualizerArrow e₁)).
+    - exact preserves_equalizer_z_iso_help_eq.
+  Defined.
+
+  Definition preserves_equalizer_z_iso_inv
+    : e₂ --> F e₁.
+  Proof.
+    use (EqualizerIn Fe).
+    - exact (EqualizerArrow e₂).
+    - abstract
+        (apply EqualizerEqAr).
+  Defined.
+
+  Proposition preserves_equalizer_z_iso_eqs
+    : is_inverse_in_precat
+        preserves_equalizer_z_iso_mor
+        preserves_equalizer_z_iso_inv.
+  Proof.
+    unfold preserves_equalizer_z_iso_mor, preserves_equalizer_z_iso_inv.
+    split.
+    - use (EqualizerInsEq Fe).
+      rewrite !assoc'.
+      rewrite (EqualizerCommutes Fe).
+      rewrite EqualizerCommutes.
+      rewrite id_left.
+      apply idpath.
+    - use EqualizerInsEq.
+      rewrite !assoc'.
+      rewrite EqualizerCommutes.
+      rewrite (EqualizerCommutes Fe).
+      rewrite id_left.
+      apply idpath.
+  Qed.
+
+  Definition preserves_equalizer_z_iso
+    : z_iso (F e₁) e₂.
+  Proof.
+    use make_z_iso.
+    - exact preserves_equalizer_z_iso_mor.
+    - exact preserves_equalizer_z_iso_inv.
+    - exact preserves_equalizer_z_iso_eqs.
+  Defined.
+End Iso.
+
 Definition isaprop_preserves_equalizer
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
@@ -841,6 +911,104 @@ Proof.
   use isapropiscontr.
 Qed.
 
+Section PreservesPullbackIso.
+  Context {C₁ C₂ : category}
+          {F : C₁ ⟶ C₂}
+          (HC₁ : Pullbacks C₁)
+          (HC₂ : Pullbacks C₂)
+          (HF : preserves_pullback F)
+          {x y z : C₁}
+          (f : x --> z)
+          (g : y --> z).
+
+  Lemma preserve_pullback_to_z_iso_eq
+    : #F (PullbackPr1 (HC₁ z x y f g)) · #F f
+      =
+      #F (PullbackPr2 (HC₁ z x y f g)) · #F g.
+  Proof.
+    rewrite <- !functor_comp.
+    apply maponpaths.
+    apply PullbackSqrCommutes.
+  Qed.
+
+  Let p := preserve_pullback_to_z_iso_eq.
+
+  Definition functor_preserves_pullback_on_pullback
+    : Pullback (#F f) (#F g)
+    := make_Pullback _ (HF _ _ _ _ _ _ _ _ _ p (isPullback_Pullback (HC₁ _ _ _ f g))).
+
+  Let PB := functor_preserves_pullback_on_pullback.
+
+  Definition preserve_pullback_to_z_iso_mor
+    : F(HC₁ _ _ _ f g) --> HC₂ _ _ _ (#F f) (#F g).
+  Proof.
+    use PullbackArrow.
+    - exact (#F(PullbackPr1 _)).
+    - exact (#F(PullbackPr2 _)).
+    - exact preserve_pullback_to_z_iso_eq.
+  Defined.
+
+  Definition preserve_pullback_to_z_iso_inv
+    : HC₂ _ _ _ (#F f) (#F g) --> F(HC₁ _ _ _ f g).
+  Proof.
+    use (PullbackArrow PB).
+    - apply PullbackPr1.
+    - apply PullbackPr2.
+    - apply PullbackSqrCommutes.
+  Defined.
+
+  Proposition preserve_pullback_to_z_iso_laws
+    : is_inverse_in_precat
+        preserve_pullback_to_z_iso_mor
+        preserve_pullback_to_z_iso_inv.
+  Proof.
+    split.
+    - use (MorphismsIntoPullbackEqual (isPullback_Pullback PB)).
+      + rewrite id_left.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply (PullbackArrow_PullbackPr1 PB).
+        }
+        apply PullbackArrow_PullbackPr1.
+      + rewrite id_left.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply (PullbackArrow_PullbackPr2 PB).
+        }
+        apply PullbackArrow_PullbackPr2.
+    - use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      + rewrite id_left.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply PullbackArrow_PullbackPr1.
+        }
+        apply (PullbackArrow_PullbackPr1 PB).
+      + rewrite id_left.
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply PullbackArrow_PullbackPr2.
+        }
+        apply (PullbackArrow_PullbackPr2 PB).
+  Qed.
+
+  Definition preserve_pullback_to_z_iso
+    : z_iso (F(HC₁ _ _ _ f g)) (HC₂ _ _ _ (#F f) (#F g)).
+  Proof.
+    use make_z_iso.
+    - exact preserve_pullback_to_z_iso_mor.
+    - exact preserve_pullback_to_z_iso_inv.
+    - exact preserve_pullback_to_z_iso_laws.
+  Defined.
+End PreservesPullbackIso.
+
 Definition preserves_chosen_pullback
            {C₁ C₂ : category}
            (HC₁ : Pullbacks C₁)
@@ -938,6 +1106,42 @@ Proof.
   rewrite HFxy.
   now rewrite HGxy.
 Qed.
+
+(**
+   Functors that preserve pullbacks, also preserve monomorphisms
+ *)
+Proposition is_monic_functor_preserves_pb
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            (HF : preserves_pullback F)
+            {x y : C₁}
+            (m : x --> y)
+            (Hm : isMonic m)
+  : isMonic (#F m).
+Proof.
+  use isPullback_to_isMonic.
+  apply isMonic_to_isPullback in Hm.
+  use (isPullback_mor_paths _ _ _ _ _ _ (HF _ _ _ _ _ _ _ _ _ (idpath _) Hm)).
+  - apply idpath.
+  - apply idpath.
+  - apply functor_id.
+  - apply functor_id.
+Qed.
+
+Definition functor_preserves_pb_on_monic
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           (HF : preserves_pullback F)
+           {x y : C₁}
+           (m : Monic C₁ x y)
+  : Monic C₂ (F x) (F y).
+Proof.
+  use make_Monic.
+  - exact (#F m).
+  - apply is_monic_functor_preserves_pb.
+    + exact HF.
+    + apply MonicisMonic.
+Defined.
 
 (**
  6. Preservation of initial objects

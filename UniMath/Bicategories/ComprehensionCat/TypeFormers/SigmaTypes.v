@@ -82,6 +82,14 @@ Section Projections.
           {Γ : C}
           (A : ty Γ).
 
+  Definition dep_sum_is_right_adjoint
+    : is_right_adjoint
+        (fiber_functor_from_cleaving
+           (disp_cat_of_types C)
+           (cleaving_of_types C)
+           (π A))
+    := pr1 S Γ A.
+
   Definition dep_sum_cc
              (B : ty (Γ & A))
     : ty Γ
@@ -97,6 +105,54 @@ Section Projections.
     : dep_sum_cc (subst_ty (π A) B) -->[ identity _ ] B
     := counit_from_right_adjoint (pr1 S Γ A) B.
 End Projections.
+
+Definition dep_sum_comp_cat_iso_help
+           {C : comp_cat}
+           (P : comp_cat_dependent_sum C)
+           {Γ Δ : C}
+           (A : ty Γ)
+           (s : (Γ & A) = Δ)
+           (s' : Δ --> Γ)
+           (p : idtoiso (!s) · π A = s')
+  : dependent_sum (cleaving_of_types C) s'.
+Proof.
+  induction s ; cbn in p.
+  induction p.
+  rewrite id_left.
+  apply P.
+Qed.
+
+Definition dep_sum_comp_cat_iso
+           {C : comp_cat}
+           (P : comp_cat_dependent_sum C)
+           {Γ Δ : C}
+           (A : ty Γ)
+           (s : z_iso Δ (Γ & A))
+           (s' : Δ --> Γ)
+           (p : s · π A = s')
+  : dependent_sum (cleaving_of_types C) s'.
+Proof.
+  use dep_sum_comp_cat_iso_help.
+  - exact P.
+  - exact A.
+  - refine (!(isotoid _ _ s)).
+    apply univalent_category_is_univalent.
+  - rewrite pathsinv0inv0.
+    rewrite idtoiso_isotoid.
+    exact p.
+Qed.
+
+Definition dep_sum_comp_cat_iso_ty
+           {C : comp_cat}
+           (P : comp_cat_dependent_sum C)
+           {Γ Δ : C}
+           (A : ty Γ)
+           (B : ty Δ)
+           (s : z_iso Δ (Γ & A))
+           (s' : Δ --> Γ)
+           (p : s · π A = s')
+  : ty Γ
+  := pr1 (dep_sum_comp_cat_iso P A s s' p) B.
 
 Proposition isaprop_dependent_sum
             {C : cat_with_terminal_cleaving}
@@ -220,6 +276,15 @@ Definition strong_dependent_sums_iso
            (B : ty (Γ & A))
   : is_z_isomorphism (dependent_sum_map D A B)
   := pr2 D Γ A B.
+
+Definition strong_dependent_sum_z_iso
+           {C : comp_cat}
+           (D : strong_dependent_sums C)
+           {Γ : C}
+           (A : ty Γ)
+           (B : ty (Γ & A))
+  : z_iso (Γ & A & B) (Γ & dep_sum_cc D A B)
+  := _ ,, strong_dependent_sums_iso D A B.
 
 Proposition isaprop_strong_dependent_sums
             (C : comp_cat)

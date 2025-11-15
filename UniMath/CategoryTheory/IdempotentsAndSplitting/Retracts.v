@@ -7,14 +7,15 @@
 
   Contents
   1. Retractions [retraction]
-  2. Idempotents and split idempotents [idempotent] [split_idempotent]
-  2.1. Split idempotent implies idempotent [split_idempotent_is_idempotent]
-  2.2. In a univalent category, being split idempotent is a mere proposition
+  2. Sections
+  3. Idempotents and split idempotents [idempotent] [split_idempotent]
+  3.1. Split idempotent implies idempotent [split_idempotent_is_idempotent]
+  3.2. In a univalent category, being split idempotent is a mere proposition
     [isaprop_is_split_idempotent]
-  3. Functors
-  3.1. Retractions are preserved by functors [functor_preserves_retraction]
-  3.2. Idempotents are preserved by functors [functor_preserves_idempotent]
-  3.3. Split idempotents are preserved by functors [functor_preserves_split_idempotent]
+  4. Functors
+  4.1. Retractions are preserved by functors [functor_preserves_retraction]
+  4.2. Idempotents are preserved by functors [functor_preserves_idempotent]
+  4.3. Split idempotents are preserved by functors [functor_preserves_split_idempotent]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -112,9 +113,78 @@ Section SectionsAndRetractions.
       ).
   Defined.
 
+  (** * 2. Sections *)
+  Definition section_of_mor
+             {x y : C}
+             (r : x --> y)
+    : UU
+    := ∑ (s : y --> x),
+       is_retraction s r.
+
+  Definition make_section_of_mor
+             {x y : C}
+             (r : x --> y)
+             (s : y --> x)
+             (sr : is_retraction s r)
+    : section_of_mor r.
+  Proof.
+    simple refine (_ ,, _).
+    - exact s.
+    - exact sr.
+  Defined.
+
+  Coercion section_of_mor_to_mor
+           {x y : C}
+           {r : x --> y}
+           (s : section_of_mor r)
+    : y --> x
+    := pr1 s.
+
+  Proposition section_of_mor_eq
+              {x y : C}
+              {r : x --> y}
+              (s : section_of_mor r)
+    : s · r = identity _.
+  Proof.
+    exact (pr2 s).
+  Defined.
 End SectionsAndRetractions.
 
-(** * 2. Idempotents and split idempotents *)
+Proposition eq_section_of_mor
+            {C : category}
+            {x y : C}
+            {r : x --> y}
+            {s₁ s₂ : section_of_mor r}
+            (p : (s₁ : y --> x) = s₂)
+  : s₁ = s₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_retraction.
+    apply homset_property.
+  }
+  exact p.
+Qed.
+
+Definition functor_on_section
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           {x y : C₁}
+           {r : x --> y}
+           (s : section_of_mor r)
+  : section_of_mor (#F r).
+Proof.
+  use make_section_of_mor.
+  - exact (#F s).
+  - abstract
+      (unfold is_retraction ;
+       rewrite <- functor_comp ;
+       rewrite section_of_mor_eq ;
+       apply functor_id).
+Defined.
+
+(** * 3. Idempotents and split idempotents *)
 Section Idempotents.
 
   Context {C : precategory}.
@@ -192,7 +262,7 @@ Section Idempotents.
     : split_idempotent_morphism e = split_idempotent_retraction e · retraction_section (split_idempotent_retraction e)
     := pr222 e.
 
-(** ** 2.1. Split idempotent implies idempotent *)
+(** ** 3.1. Split idempotent implies idempotent *)
   Lemma split_idempotent_is_idempotent
     {c : C}
     (e : split_idempotent c)
@@ -213,7 +283,7 @@ Definition idempotents_split
   : UU
   := ∏ (x : C) (f : idempotent x), ∥ is_split_idempotent f ∥.
 
-(** ** 2.2. In a univalent category, being split idempotent is a mere proposition *)
+(** ** 3.2. In a univalent category, being split idempotent is a mere proposition *)
 
 Definition is_split_idempotent_eq
   {C : category}
@@ -281,14 +351,14 @@ Proof.
     apply id_right.
 Qed.
 
-(** * 3. Functors *)
+(** * 4. Functors *)
 Section Functors.
 
   Context {C D : category}.
   Context (F : C ⟶ D).
   Context (H : fully_faithful F).
 
-(** ** 3.1. Retractions are preserved by functors *)
+(** ** 4.1. Retractions are preserved by functors *)
   Lemma functor_preserves_is_retraction
     {a b : C}
     (f : retraction b a)
@@ -321,7 +391,7 @@ Section Functors.
     : retraction b a
     := _ ,, _ ,, fully_faithful_functor_reflects_is_retraction f.
 
-(** ** 3.2. Idempotents are preserved by functors *)
+(** ** 4.2. Idempotents are preserved by functors *)
   Lemma functor_preserves_is_idempotent
     {c : C}
     (f : idempotent c)
@@ -354,7 +424,7 @@ Section Functors.
     : idempotent c
     := _ ,, fully_faithful_functor_reflects_is_idempotent f.
 
-(** ** 3.3. Split idempotents are preserved by functors *)
+(** ** 4.3. Split idempotents are preserved by functors *)
   Lemma functor_preserves_is_split_idempotent
     {c : C}
     (f : split_idempotent c)

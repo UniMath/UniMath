@@ -1258,3 +1258,30 @@ Proof.
      rewrite idtoiso_2_1_isotoid_2_1 ;
      apply idpath).
 Defined.
+
+(** Convenient builder for invertible 2-cells in the total bicategory *)
+Definition make_invertible_2cell_total_disp_locally_groupoid
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD : disp_locally_groupoid D)
+           {x y : B}
+           {f g : x --> y}
+           {τ : invertible_2cell f g}
+           {xx : D x}
+           {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (ττ : ff ==>[ τ ] gg)
+  : invertible_2cell
+      (C := total_bicat D)
+      (a := x ,, xx)
+      (b := y ,, yy)
+      (f ,, ff)
+      (g ,, gg).
+Proof.
+  use make_invertible_2cell.
+  - exact (pr1 τ ,, ττ).
+  - use is_invertible_disp_to_total.
+    refine (pr2 τ ,, _).
+    apply HD.
+Defined.

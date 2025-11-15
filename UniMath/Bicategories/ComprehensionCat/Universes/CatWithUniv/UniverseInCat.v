@@ -61,6 +61,9 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
@@ -93,6 +96,18 @@ Definition cat_el_map_mor
   : cat_el_map_el el t --> Γ
   := pr2 (el Γ t).
 
+Definition cat_el_map_slice
+           {C : univ_cat_with_finlim_ob}
+           (el : cat_el_map C)
+           {Γ : C}
+           (t : Γ --> univ_cat_universe C)
+  : C/Γ.
+Proof.
+  use make_cod_fib_ob.
+  - exact (cat_el_map_el el t).
+  - exact (cat_el_map_mor el t).
+Defined.
+
 Definition cat_el_map_el_eq
            {C : univ_cat_with_finlim_ob}
            (el : cat_el_map C)
@@ -119,8 +134,6 @@ Proof.
   }
   apply idpath.
 Qed.
-
-Notation "'el_eq'" := (cat_el_map_el_eq _ _) (only printing).
 
 Proposition cat_el_map_el_eq_id
             {C : univ_cat_with_finlim_ob}
@@ -216,6 +229,44 @@ Proof.
   apply cat_el_map_el_eq_eq.
 Qed.
 
+Proposition transportf_cat_el_map_el
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_el_map C)
+            {Γ A : C}
+            {f g : Γ --> univ_cat_universe C}
+            (p : f = g)
+            (h : cat_el_map_el el f --> A)
+  : transportf
+      (λ (f : Γ --> univ_cat_universe C), cat_el_map_el el f --> A)
+      p
+      h
+    =
+    cat_el_map_el_eq el (!p) · h.
+Proof.
+  induction p ; cbn.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
+Proposition transportf_cat_el_map_el'
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_el_map C)
+            {Γ A : C}
+            {f g : Γ --> univ_cat_universe C}
+            (p : f = g)
+            (h : A --> cat_el_map_el el f)
+  : transportf
+      (λ (f : Γ --> univ_cat_universe C), A --> cat_el_map_el el f)
+      p
+      h
+    =
+    h · cat_el_map_el_eq el p.
+Proof.
+  induction p ; cbn.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
 (** * 2. Stability *)
 Definition cat_el_map_stable
            {C : univ_cat_with_finlim_ob}
@@ -258,6 +309,36 @@ Definition cat_el_map_pb_mor
   : cat_el_map_el el (s · t) --> cat_el_map_el el t
   := pr1 (pr2 el Γ Δ s t).
 
+Proposition cat_el_map_pb_mor_comm
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_stable_el_map C)
+            {Γ Δ : C}
+            (s : Γ --> Δ)
+            (t : Δ --> univ_cat_universe C)
+  : cat_el_map_pb_mor el s t · cat_el_map_mor el t
+    =
+    cat_el_map_mor el (s · t) · s.
+Proof.
+  exact (pr12 (pr2 el Γ Δ s t)).
+Defined.
+
+Proposition cat_el_map_pb_mor_subst_eq
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_stable_el_map C)
+            {Γ Δ : C}
+            {s s' : Γ --> Δ}
+            (p : s = s')
+            (t : Δ --> univ_cat_universe C)
+  : cat_el_map_pb_mor el s t
+    =
+    cat_el_map_el_eq el (maponpaths (λ z, z · t) p)
+    · cat_el_map_pb_mor el s' t.
+Proof.
+  induction p ; cbn.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
 Proposition cat_el_map_pb_mor_eq
             {C : univ_cat_with_finlim_ob}
             (el : cat_stable_el_map C)
@@ -292,8 +373,47 @@ Proof.
   - exact (cat_el_map_el el (s · t)).
   - exact (cat_el_map_pb_mor el s t).
   - exact (cat_el_map_mor el (s · t)).
-  - exact (pr12 (pr2 el Γ Δ s t)).
+  - exact (cat_el_map_pb_mor_comm el s t).
   - exact (pr22 (pr2 el Γ Δ s t)).
+Defined.
+
+Proposition subst_cat_univ_tm
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_stable_el_map C)
+            {Γ Δ : C}
+            (s : Γ --> Δ)
+            (a : Δ --> univ_cat_universe C)
+            (t : section_of_mor (cat_el_map_mor el a))
+  : section_of_mor (cat_el_map_mor el (s · a)).
+Proof.
+  use make_section_of_mor.
+  - use (PullbackArrow (cat_stable_el_map_pb el s a)).
+    + exact (s · t).
+    + apply identity.
+    + abstract
+        (rewrite !assoc' ;
+         rewrite section_of_mor_eq ;
+         rewrite id_left, id_right ;
+         apply idpath).
+  - abstract
+      (apply (PullbackArrow_PullbackPr2 (cat_stable_el_map_pb el s a))).
+Defined.
+
+Definition pb_mor_to_cat_stable_el_map_pb
+           {C : univ_cat_with_finlim_ob}
+           (el : cat_stable_el_map C)
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+           (t : Δ --> univ_cat_universe C)
+  : pullbacks_univ_cat_with_finlim C _ _ _ (cat_el_map_mor el t) s
+    -->
+    cat_el_map_el el (s · t).
+Proof.
+  use (PullbackArrow (cat_stable_el_map_pb el s t)).
+  - apply PullbackPr1.
+  - apply PullbackPr2.
+  - abstract
+      (apply PullbackSqrCommutes).
 Defined.
 
 (** * 3. Coherence *)
@@ -575,6 +695,94 @@ Proof.
   exact ((λ Γ t, p Γ t ,, q Γ t) ,, r).
 Qed.
 
+Section SubstIso.
+  Context {C : univ_cat_with_finlim_ob}
+          (el : cat_stable_el_map_coherent C)
+          {Γ₁ Γ₂ : C}
+          (s : z_iso Γ₁ Γ₂)
+          (t : Γ₂ --> univ_cat_universe C).
+
+  Definition cat_el_map_pb_mor_inv
+    : cat_el_map_el el t --> cat_el_map_el el (s · t).
+  Proof.
+    refine (cat_el_map_el_eq el _ · cat_el_map_pb_mor el (inv_from_z_iso s) (s · t)).
+    abstract
+      (rewrite !assoc ;
+       rewrite z_iso_after_z_iso_inv ;
+       rewrite id_left ;
+       apply idpath).
+  Defined.
+
+  Arguments cat_el_map_pb_mor_inv /.
+
+  Proposition cat_el_map_pb_mor_inv_laws
+    : is_inverse_in_precat
+        (cat_el_map_pb_mor el s t)
+        cat_el_map_pb_mor_inv.
+  Proof.
+    cbn.
+    split.
+    - rewrite !assoc.
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (!_).
+        use cat_el_map_pb_mor_eq.
+        abstract
+          (rewrite !assoc ;
+           rewrite z_iso_inv_after_z_iso ;
+           rewrite id_left ;
+           apply idpath).
+      }
+      rewrite !assoc'.
+      rewrite (cat_el_map_pb_mor_comp' el).
+      refine (assoc _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply cat_el_map_el_eq_comp.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        use cat_el_map_pb_mor_id'.
+        rewrite z_iso_inv_after_z_iso.
+        apply idpath.
+      }
+      rewrite cat_el_map_el_eq_comp.
+      apply cat_el_map_el_eq_id.
+    - rewrite !assoc'.
+      rewrite (cat_el_map_pb_mor_comp' el).
+      refine (assoc _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply cat_el_map_el_eq_comp.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        use cat_el_map_pb_mor_id'.
+        rewrite z_iso_after_z_iso_inv.
+        apply idpath.
+      }
+      rewrite cat_el_map_el_eq_comp.
+      apply cat_el_map_el_eq_id.
+  Qed.
+
+  Definition is_z_isomorphism_cat_el_map_pb_mor
+    : is_z_isomorphism (cat_el_map_pb_mor el s t).
+  Proof.
+    use make_is_z_isomorphism.
+    - exact cat_el_map_pb_mor_inv.
+    - exact cat_el_map_pb_mor_inv_laws.
+  Defined.
+
+  Definition cat_el_map_pb_mor_z_iso
+    : z_iso (cat_el_map_el el (s · t)) (cat_el_map_el el t)
+    := cat_el_map_pb_mor el s t ,, is_z_isomorphism_cat_el_map_pb_mor.
+End SubstIso.
+
 (** * 4. Preservation by functors *)
 Definition functor_el_map
            {C₁ C₂ : univ_cat_with_finlim_ob}
@@ -765,6 +973,21 @@ Proof.
        apply idpath).
 Defined.
 
+Proposition comp_functor_el_map_path
+            {C₁ C₂ C₃ : univ_cat_with_finlim_ob}
+            (F : functor_finlim_ob C₁ C₂)
+            (G : functor_finlim_ob C₂ C₃)
+            {Γ : C₁}
+            (t : Γ --> univ_cat_universe C₁)
+  : #G(#F t · functor_on_universe F) · functor_on_universe G
+    =
+    #G(#F  t) · (#G (functor_on_universe F) · functor_on_universe G).
+Proof.
+  rewrite functor_comp.
+  rewrite !assoc'.
+  apply idpath.
+Qed.
+
 Definition comp_functor_el_map
            {C₁ C₂ C₃ : univ_cat_with_finlim_ob}
            {F : functor_finlim_ob C₁ C₂}
@@ -778,17 +1001,13 @@ Definition comp_functor_el_map
 Proof.
   use make_functor_el_map.
   - intros Γ t.
-    cbn.
     refine (z_iso_comp
               (functor_on_z_iso G (functor_el_map_iso Fel t))
               _).
     refine (z_iso_comp
               (functor_el_map_iso Gel _)
               (cat_el_map_el_eq el₃ _)).
-    abstract
-      (rewrite functor_comp ;
-       rewrite !assoc' ;
-       apply idpath).
+    apply (comp_functor_el_map_path F G t).
   - abstract
       (intros Γ t ; cbn ;
        refine (maponpaths (λ z, #G z) (functor_el_map_comm Fel t) @ _) ;
@@ -800,6 +1019,26 @@ Proof.
        refine (!_) ;
        apply cat_el_map_mor_eq).
 Defined.
+
+Proposition comp_functor_el_map_on_tm
+            {C₁ C₂ C₃ : univ_cat_with_finlim_ob}
+            {F : functor_finlim_ob C₁ C₂}
+            {G : functor_finlim_ob C₂ C₃}
+            {el₁ : cat_el_map C₁}
+            {el₂ : cat_el_map C₂}
+            {el₃ : cat_el_map C₃}
+            (Fel : functor_el_map el₁ el₂ F)
+            (Gel : functor_el_map el₂ el₃ G)
+            {Γ : C₁}
+            (t : Γ --> univ_cat_universe C₁)
+  : (functor_el_map_iso (comp_functor_el_map Fel Gel) t : _ --> _)
+    =
+    #G(functor_el_map_iso Fel t)
+    · functor_el_map_iso Gel _
+    · cat_el_map_el_eq el₃ (comp_functor_el_map_path F G t).
+Proof.
+  apply assoc.
+Qed.
 
 (** * 6. Functors that preserve stable universes *)
 Proposition functor_stable_el_map_path
@@ -906,6 +1145,30 @@ Definition make_functor_preserves_el
   : functor_preserves_el el₁ el₂ F
   := Fel ,, Fp.
 
+Definition functor_finlim_on_universe_tm
+           {C₁ C₂ : univ_cat_with_finlim_ob}
+           {el₁ : cat_stable_el_map_coherent C₁}
+           {el₂ : cat_stable_el_map_coherent C₂}
+           {F : functor_finlim_ob C₁ C₂}
+           (Fel : functor_preserves_el el₁ el₂ F)
+           {Γ : C₁}
+           {a : Γ --> univ_cat_universe C₁}
+           (t : section_of_mor (cat_el_map_mor el₁ a))
+  : section_of_mor (cat_el_map_mor el₂ (#F a · functor_on_universe F)).
+Proof.
+  use make_section_of_mor.
+  - exact (#F t · functor_el_map_iso Fel _).
+  - abstract
+      (cbn ;
+       unfold is_retraction ;
+       rewrite !assoc' ;
+       rewrite <- functor_el_map_comm ;
+       rewrite <- functor_comp ;
+       rewrite section_of_mor_eq ;
+       apply functor_id).
+Defined.
+
+(** * 7. The identity and composition *)
 Definition id_functor_stable_el_map
            {C : univ_cat_with_finlim_ob}
            (el : cat_stable_el_map C)
@@ -925,7 +1188,6 @@ Proof.
   apply cat_el_map_el_eq_eq.
 Qed.
 
-(** * 7. The identity and composition *)
 Definition id_functor_preserves_el
            {C : univ_cat_with_finlim_ob}
            (el : cat_stable_el_map C)
@@ -935,6 +1197,18 @@ Proof.
   - apply id_functor_el_map.
   - apply id_functor_stable_el_map.
 Defined.
+
+Proposition id_functor_el_map_iso
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_stable_el_map C)
+            {Γ : C}
+            (t : Γ --> univ_cat_universe C)
+  : pr1 (functor_el_map_iso (id_functor_preserves_el el) t)
+    =
+    cat_el_map_el_eq el (!(id_right _)).
+Proof.
+  apply idpath.
+Qed.
 
 Proposition comp_functor_stable_el_map
             {C₁ C₂ C₃ : univ_cat_with_finlim_ob}
@@ -1022,6 +1296,27 @@ Proof.
   - exact (comp_functor_el_map Fel Gel).
   - exact (comp_functor_stable_el_map Fel Gel).
 Defined.
+
+Definition comp_functor_el_map_iso
+           {C₁ C₂ C₃ : univ_cat_with_finlim_ob}
+           {F : functor_finlim_ob C₁ C₂}
+           {G : functor_finlim_ob C₂ C₃}
+           {el₁ : cat_stable_el_map C₁}
+           {el₂ : cat_stable_el_map C₂}
+           {el₃ : cat_stable_el_map C₃}
+           (Fel : functor_preserves_el el₁ el₂ F)
+           (Gel : functor_preserves_el el₂ el₃ G)
+           {Γ : C₁}
+           (t : Γ --> univ_cat_universe C₁)
+  : pr1 (functor_el_map_iso (comp_functor_preserves_el Fel Gel) t)
+    =
+    #G(functor_el_map_iso Fel t)
+    · functor_el_map_iso Gel _
+    · cat_el_map_el_eq el₃ (comp_functor_el_map_path F G t).
+Proof.
+  cbn.
+  apply assoc.
+Qed.
 
 (** * 8. Preservation by natural transformations *)
 Proposition nat_trans_preserves_el_path

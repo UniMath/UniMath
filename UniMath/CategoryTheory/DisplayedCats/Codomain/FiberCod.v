@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
@@ -355,10 +356,10 @@ Section CodomainFiber.
   Qed.
 
   Definition cod_fiber_functor_from_cleaving_comp_mor_inv
-              {x y z : C}
-              (f : x --> y)
-              (g : y --> z)
-              (φ : C/z)
+             {x y z : C}
+             (f : x --> y)
+             (g : y --> z)
+             (φ : C/z)
     : cod_pb HC (f · g) φ --> cod_pb HC f (cod_pb HC g φ).
   Proof.
     use make_cod_fib_mor.
@@ -409,6 +410,133 @@ Section CodomainFiber.
       refine (PullbackArrow_PullbackPr2 _ _ _ _ _ @ _).
       rewrite PullbackArrow_PullbackPr2.
       apply id_right.
+  Qed.
+
+  Definition cod_pb_left_functorial
+             {x : C}
+             {f g : C/x}
+             (h : C/x)
+             (k : f --> g)
+    : cod_dom (cod_pb HC (cod_mor f) h)
+      -->
+      cod_dom (cod_pb HC (cod_mor g) h).
+  Proof.
+    use PullbackArrow.
+    - exact (PullbackPr1 _).
+    - exact (PullbackPr2 _ · dom_mor k).
+    - abstract
+        (refine (PullbackSqrCommutes _ @ _) ;
+         rewrite !assoc' ;
+         apply maponpaths ;
+         exact (!(mor_eq k))).
+  Defined.
+
+  Proposition cod_pb_left_functorial_natural
+              {x : C}
+              {f g : C/x}
+              {h h' : C/x}
+              (mh : h --> h')
+              (k : f --> g)
+    : cod_pb_left_functorial h k · dom_mor (#(cod_pb HC (cod_mor g)) mh)
+      =
+      dom_mor (#(cod_pb HC (cod_mor f)) mh) · cod_pb_left_functorial h' k.
+  Proof.
+    rewrite !cod_fiber_functor_on_mor.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        apply PullbackArrow_PullbackPr1.
+      }
+      etrans.
+      {
+        refine (assoc _ _ _ @ _).
+        apply maponpaths_2.
+        apply PullbackArrow_PullbackPr1.
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply PullbackArrow_PullbackPr1.
+      }
+      apply PullbackArrow_PullbackPr1.
+    - rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        apply PullbackArrow_PullbackPr2.
+      }
+      etrans.
+      {
+        apply PullbackArrow_PullbackPr2.
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply PullbackArrow_PullbackPr2.
+      }
+      refine (assoc _ _ _ @ _).
+      apply maponpaths_2.
+      apply PullbackArrow_PullbackPr2.
+  Qed.
+
+  Proposition cod_pb_left_functorial_id
+              {x : C}
+              {f : C/x}
+              (h : C/x)
+    : cod_pb_left_functorial h (identity f)
+      =
+      identity _.
+  Proof.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - rewrite id_left.
+      apply PullbackArrow_PullbackPr1.
+    - etrans.
+      {
+        apply PullbackArrow_PullbackPr2.
+      }
+      simpl.
+      rewrite id_left, id_right.
+      apply idpath.
+  Qed.
+
+  Definition cod_pb_left_functorial_comp
+             {x : C}
+             {f₁ f₂ f₃ : C/x}
+             (h : C/x)
+             (k₁ : f₁ --> f₂)
+             (k₂ : f₂ --> f₃)
+    : cod_pb_left_functorial h (k₁ · k₂)
+      =
+      cod_pb_left_functorial h k₁ · cod_pb_left_functorial h k₂.
+  Proof.
+    unfold cod_pb_left_functorial.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - rewrite assoc'.
+      rewrite PullbackArrow_PullbackPr1.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply PullbackArrow_PullbackPr1.
+      }
+      apply PullbackArrow_PullbackPr1.
+    - rewrite assoc'.
+      rewrite PullbackArrow_PullbackPr2.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply PullbackArrow_PullbackPr2.
+      }
+      rewrite assoc.
+      rewrite PullbackArrow_PullbackPr2.
+      rewrite assoc'.
+      rewrite comp_in_cod_fib.
+      apply idpath.
   Qed.
 
   (** * 5. The fiber of terminal objects *)
@@ -576,4 +704,10 @@ Section IsoInSlice.
       apply i.
   Defined.
 
+  Definition z_iso_to_cod_dom
+             (f : z_iso a b)
+    : z_iso (cod_dom a) (cod_dom b).
+  Proof.
+    exact (pr1 (disp_iso_to_iso _ _ (z_iso_disp_from_z_iso_fiber _ _ _ _ f))).
+  Defined.
 End IsoInSlice.

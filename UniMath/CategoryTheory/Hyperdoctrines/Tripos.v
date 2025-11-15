@@ -51,7 +51,7 @@ Local Open Scope hd.
 
 (** * 1. Tripos *)
 Definition is_power_object_tripos
-           {H : first_order_hyperdoctrine}
+           {H : first_order_preorder_hyperdoctrine}
            (X : ty H)
            (PX : ty H)
            (inX : form (X ×h PX))
@@ -63,11 +63,31 @@ Definition is_power_object_tripos
      =
      inX [ ⟨ π₁ (tm_var _) , f [ π₂ (tm_var _) ]tm ⟩ ].
 
-Definition is_tripos
-           (H : first_order_hyperdoctrine)
+Definition is_preorder_tripos
+           (H : first_order_preorder_hyperdoctrine)
   : UU
   := ∏ (X : ty H),
      ∑ (PX : ty H)
+       (inX : form (X ×h PX)),
+     is_power_object_tripos X PX inX.
+
+Definition preorder_tripos
+  : UU
+  := ∑ (H : first_order_preorder_hyperdoctrine), is_preorder_tripos H.
+
+Coercion preorder_tripos_to_first_order_hyperdoctrine
+         (H : preorder_tripos)
+  : first_order_preorder_hyperdoctrine.
+Proof.
+  exact (pr1 H).
+Defined.
+
+Definition is_tripos
+           (H : first_order_hyperdoctrine)
+           (H' := first_order_hyperdoctrine_to_preorder_hyperdoctrine H)
+  : UU
+  := ∏ (X : ty H'),
+     ∑ (PX : ty H')
        (inX : form (X ×h PX)),
      is_power_object_tripos X PX inX.
 

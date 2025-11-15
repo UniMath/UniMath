@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.
@@ -55,6 +56,24 @@ Section DependentProductsCodomain.
       apply is_symmetric_isPullback.
       exact H.
   Defined.
+
+  Definition lccc_exp_fib_subst
+             {Γ Δ : C}
+             (s : Γ --> Δ)
+             (πA : C/Δ)
+             (πB : C/cod_dom πA)
+    : z_iso
+        (cod_pb PB s (lccc_exp_fib HC πA πB))
+        (lccc_exp_fib
+           HC
+           (cod_pb PB s πA)
+           (cod_pb PB (PullbackPr1 _) πB))
+    := _
+       ,,
+       cod_right_beck_chevalley
+         _ _ _ _ _
+         (isPullback_Pullback (PB _ _ _ (cod_mor πA) s))
+         πB.
 
   (** * 2. Dependent products in a locally cartesian closed category *)
   Definition cod_dependent_products
