@@ -378,7 +378,7 @@ Definition first_order_hyperdoctrine_conj
   : form Γ
   := BinProductObject _ (binprod_in_fib (pr1 (pr222 H)) φ ψ).
 
-Notation "φ ∧ ψ" := (first_order_hyperdoctrine_conj φ ψ).
+Notation "φ ∧ ψ" := (first_order_hyperdoctrine_conj φ ψ) : hyperdoctrine.
 
 Proposition conj_intro
             {H : first_order_hyperdoctrine}
@@ -555,7 +555,7 @@ Definition first_order_hyperdoctrine_disj
   : form Γ
   := BinCoproductObject (bincoprod_in_fib (pr12 (pr222 H)) φ ψ).
 
-Notation "φ ∨ ψ" := (first_order_hyperdoctrine_disj φ ψ).
+Notation "φ ∨ ψ" := (first_order_hyperdoctrine_disj φ ψ) : hyperdoctrine.
 
 Proposition disj_intro_left
             {H : first_order_hyperdoctrine}
@@ -628,7 +628,7 @@ Definition first_order_hyperdoctrine_impl
   : form Γ
   := exp_in_fib (pr122 (pr222 H)) φ ψ.
 
-Notation "φ ⇒ ψ" := (first_order_hyperdoctrine_impl φ ψ).
+Notation "φ ⇒ ψ" := (first_order_hyperdoctrine_impl φ ψ) : hyperdoctrine.
 
 Proposition impl_intro
             {H : first_order_hyperdoctrine}
@@ -1511,7 +1511,7 @@ Definition first_order_hyperdoctrine_iff
   : form Γ
   := (φ ⇒ ψ) ∧ (ψ ⇒ φ).
 
-Notation "φ ⇔ ψ" := (first_order_hyperdoctrine_iff φ ψ).
+Notation "φ ⇔ ψ" := (first_order_hyperdoctrine_iff φ ψ) : hyperdoctrine.
 
 Proposition iff_intro
             {H : first_order_hyperdoctrine}
@@ -1638,7 +1638,7 @@ Definition first_order_hyperdoctrine_neg
   : form Γ
   := φ ⇒ ⊥.
 
-Notation "¬ φ" := (first_order_hyperdoctrine_neg φ).
+Notation "¬ φ" := (first_order_hyperdoctrine_neg φ) : hyperdoctrine.
 
 Proposition neg_intro
             {H : first_order_hyperdoctrine}

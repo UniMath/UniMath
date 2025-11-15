@@ -448,7 +448,6 @@ Proof.
   apply reindex_disp_is_biequivalence.
 Defined.
 
-(** * *)
 Definition reindex_is_disp_biequivalence_unit_counit_univ_coh
            {B₁ B₂ : bicat}
            (univ_2_B₁ : is_univalent_2 B₁)

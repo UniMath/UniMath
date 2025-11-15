@@ -1082,6 +1082,140 @@ Proof.
       apply PullbackArrow_PullbackPr2.
 Qed.
 
+Section LCCCFunctorIso.
+  Context {C : category}
+          {PB : Pullbacks C}
+          (HC : is_locally_cartesian_closed PB)
+          {Γ : C}
+          {πA πA' : C/Γ}
+          {πB : C/cod_dom πA}
+          {πB' : C/cod_dom πA'}
+          {hf : z_iso (cod_dom πA') (cod_dom πA)}
+          (p : cod_mor πA' = hf · cod_mor πA)
+          (hg : z_iso (cod_pb PB hf πB) πB').
+
+  Definition lccc_exp_functor_z_iso_inv
+    : cod_dom (lccc_exp_fib HC πA' πB')
+      -->
+      cod_dom (lccc_exp_fib HC πA πB).
+  Proof.
+    use lccc_exp_functor.
+    - exact (z_iso_inv hf).
+    - abstract
+        (refine (!_) ;
+         use z_iso_inv_on_right ;
+         exact p).
+    - refine (#(cod_pb PB (z_iso_inv hf)) (z_iso_inv hg) · _).
+      refine (cod_fiber_functor_from_cleaving_comp_mor _ _ _ _ · _).
+      use make_cod_fib_mor.
+      + exact (PullbackPr1 _).
+      + abstract
+          (refine (PullbackSqrCommutes _ @ _) ;
+           refine (_ @ id_right _) ;
+           apply maponpaths ;
+           apply z_iso_after_z_iso_inv).
+  Defined.
+
+  Proposition lccc_exp_functor_z_iso_inv_laws
+    : is_inverse_in_precat
+        (lccc_exp_functor HC p hg)
+        lccc_exp_functor_z_iso_inv.
+  Proof.
+    unfold lccc_exp_functor_z_iso_inv.
+    split.
+    - rewrite lccc_exp_functor_on_comp.
+      use lccc_exp_functor_on_id ; [ exact (!(z_iso_after_z_iso_inv hf)) | ].
+      rewrite !comp_in_cod_fib.
+      rewrite !cod_fiber_functor_on_mor.
+      simpl.
+      rewrite PullbackArrow_PullbackPr1.
+      rewrite (maponpaths (λ z, _ · z) (assoc _ _ _)).
+      rewrite PullbackArrow_PullbackPr1.
+      rewrite !assoc'.
+      rewrite (maponpaths (λ z, _ · z) (assoc _ _ _)).
+      rewrite PullbackArrow_PullbackPr1.
+      unfold cod_pb_comp_fib_mor_mor.
+      rewrite !assoc.
+      rewrite PullbackArrow_PullbackPr1.
+      rewrite !assoc'.
+      rewrite (maponpaths (λ z, _ · z) (assoc _ _ _)).
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        refine (!(comp_in_cod_fib hg (inv_from_z_iso hg)) @ _).
+        rewrite (maponpaths dom_mor (z_iso_inv_after_z_iso hg)).
+        apply idpath.
+      }
+      cbn.
+      rewrite id_left.
+      unfold cod_pb_comp_fib_mor_mor_pb_mor.
+      rewrite PullbackArrow_PullbackPr1.
+      apply idpath.
+    - rewrite lccc_exp_functor_on_comp.
+      use lccc_exp_functor_on_id ; [ exact (!(z_iso_inv_after_z_iso hf)) | ].
+      rewrite !comp_in_cod_fib.
+      rewrite !cod_fiber_functor_on_mor.
+      use (z_iso_inv_to_right _ _ _ _ (z_iso_to_cod_dom _ _ _ hg)).
+      simpl.
+      unfold cod_pb_comp_fib_mor_mor.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      + rewrite !assoc'.
+        rewrite PullbackArrow_PullbackPr1.
+        rewrite !assoc.
+        rewrite PullbackArrow_PullbackPr1.
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            exact (comp_in_cod_fib
+                     (cod_fiber_functor_pb PB (inv_from_z_iso hf) (inv_from_z_iso hg))
+                     _).
+          }
+          apply maponpaths.
+          apply comp_in_cod_fib.
+        }
+        simpl.
+        rewrite PullbackArrow_PullbackPr1.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !assoc.
+          rewrite PullbackArrow_PullbackPr1.
+          apply idpath.
+        }
+        unfold cod_pb_comp_fib_mor_mor_pb_mor.
+        rewrite !assoc.
+        rewrite PullbackArrow_PullbackPr1.
+        apply idpath.
+      + rewrite !assoc'.
+        rewrite PullbackArrow_PullbackPr2.
+        rewrite !assoc.
+        rewrite PullbackArrow_PullbackPr2.
+        cbn.
+        refine (!_).
+        rewrite !assoc'.
+        etrans.
+        {
+          apply maponpaths.
+          apply (mor_eq (inv_from_z_iso hg)).
+        }
+        rewrite PullbackSqrCommutes.
+        rewrite z_iso_inv_after_z_iso.
+        apply id_right.
+  Qed.
+
+  Definition lccc_exp_functor_z_iso
+    : z_iso (cod_dom (lccc_exp_fib HC πA πB)) (cod_dom (lccc_exp_fib HC πA' πB')).
+  Proof.
+    use make_z_iso.
+    - exact (lccc_exp_functor _ p hg).
+    - exact lccc_exp_functor_z_iso_inv.
+    - exact lccc_exp_functor_z_iso_inv_laws.
+  Defined.
+End LCCCFunctorIso.
+
 (** * 4. The slices of locally Cartesian closed categories are Cartesian closed *)
 Definition locally_cartesian_closed_to_exponentials_nat_trans_data
            {C : category}

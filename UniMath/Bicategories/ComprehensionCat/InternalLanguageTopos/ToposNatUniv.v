@@ -35,7 +35,7 @@
  6.5. ∏-types
  6.6. Universes for toposes
  7. Accessors for topos universes
- 8. Comprehension categories with a topos universe
+ 8. The biequivalence for topos universes
 
                                                                                           *)
 Require Import UniMath.Foundations.All.
@@ -1185,7 +1185,7 @@ Proof.
   apply disp_univalent_2_disp_bicat_topos_with_NNO_univ_pi.
 Qed.
 
-(** ** 6.9. Universes for toposes *)
+(** ** 6.6. Universes for toposes *)
 Definition disp_bicat_topos_with_NNO_univ_topos_univ
   : disp_bicat bicat_of_univ_topos_with_NNO_univ
   := disp_dirprod_bicat
@@ -1521,7 +1521,7 @@ Definition univ_topos_with_NNO_topos_univ_language_nat_comp_cat_trans
       (univ_topos_with_NNO_topos_univ_language_comp_cat_functor G)
   := pr1 τ.
 
-(** * 8. Comprehension categories with a topos universe *)
+(** * 8. The biequivalence for topos universes *)
 Definition disp_psfunctor_lang_univ_topos_with_NNO_topos_univ
   : disp_psfunctor
       disp_bicat_topos_with_NNO_univ_topos_univ

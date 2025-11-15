@@ -80,6 +80,7 @@
  7. Copairs are small
  8. Small NNOs
  9. Small subobject classifiers
+ 10. ∏-types
                                                                                            *)
 
 Require Import UniMath.MoreFoundations.All.
@@ -91,6 +92,12 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+Require Import UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
@@ -102,6 +109,7 @@ Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Identity
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Resizing.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Sigma.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Sum.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.PiTypes.
 
 Local Open Scope cat.
 
@@ -422,5 +430,201 @@ Section SmallMaps.
     - exact (type_in_cat_univ_code Ω_c).
     - exact (type_in_cat_univ_z_iso _).
     - apply TerminalArrowEq.
+  Qed.
+
+  (** * 10. ∏-types *)
+  Section HelpIso.
+    Context {Γ : C}
+            {πA : C/Γ}
+            {a : Γ --> u}
+            (hg : z_iso (cat_el_map_el el a) (cod_dom πA))
+            (b : cod_dom πA --> u).
+
+    Definition pi_types_small_pb_iso_mor
+      : pullbacks_univ_cat_with_finlim
+          C
+          (cat_el_map_el el a)
+          (cat_el_map_el (univ_cat_cat_stable_el_map C) (hg · b)) (cod_dom πA)
+          (cat_el_map_mor (univ_cat_cat_stable_el_map C) (hg · b)) (inv_from_z_iso hg)
+         -->
+         cat_el_map_el el (hg · b).
+    Proof.
+      use (PullbackArrow (cat_stable_el_map_pb el hg b)).
+      - exact (PullbackPr1 _ · cat_el_map_pb_mor_z_iso el hg b).
+      - exact (PullbackPr2 _ · inv_from_z_iso hg).
+      - abstract
+          (simpl ;
+           rewrite !assoc' ;
+           refine (maponpaths (λ z, _ · z) (cat_el_map_pb_mor_comm el hg b) @ _) ;
+           rewrite !assoc ;
+           apply maponpaths_2 ;
+           apply PullbackSqrCommutes).
+    Defined.
+
+    Definition pi_types_small_pb_iso_inv
+      : cat_el_map_el el (hg · b)
+        -->
+        pullbacks_univ_cat_with_finlim
+          C
+          (cat_el_map_el el a)
+          (cat_el_map_el (univ_cat_cat_stable_el_map C) (hg · b)) (cod_dom πA)
+          (cat_el_map_mor (univ_cat_cat_stable_el_map C) (hg · b)) (inv_from_z_iso hg).
+    Proof.
+      use PullbackArrow.
+      - apply identity.
+      - exact (cat_el_map_mor el _ · hg).
+      - abstract
+          (rewrite id_left ;
+           use z_iso_inv_on_left ;
+           apply idpath).
+    Defined.
+
+    Proposition pi_types_small_pb_iso_laws
+      : is_inverse_in_precat
+          pi_types_small_pb_iso_mor
+          pi_types_small_pb_iso_inv.
+    Proof.
+      unfold pi_types_small_pb_iso_mor, pi_types_small_pb_iso_inv.
+      split.
+      - use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+        + rewrite !assoc'.
+          rewrite PullbackArrow_PullbackPr1.
+          rewrite id_left, id_right.
+          use (MorphismsIntoPullbackEqual
+                 (isPullback_Pullback (cat_stable_el_map_pb el hg b))).
+          * rewrite PullbackArrow_PullbackPr1 ; simpl.
+            apply idpath.
+          * rewrite PullbackArrow_PullbackPr2 ; simpl.
+            refine (!_).
+            apply PullbackSqrCommutes.
+        + rewrite !assoc'.
+          rewrite PullbackArrow_PullbackPr2.
+          rewrite id_left.
+          rewrite !assoc.
+          etrans.
+          {
+            apply maponpaths_2.
+            apply (PullbackArrow_PullbackPr2 (cat_stable_el_map_pb el hg b)).
+          }
+          rewrite !assoc'.
+          rewrite z_iso_after_z_iso_inv.
+          apply id_right.
+      - use (MorphismsIntoPullbackEqual
+               (isPullback_Pullback (cat_stable_el_map_pb el hg b))).
+        + rewrite !assoc'.
+          etrans.
+          {
+            apply maponpaths.
+            apply (PullbackArrow_PullbackPr1 (cat_stable_el_map_pb el hg b)).
+          }
+          rewrite !assoc.
+          rewrite PullbackArrow_PullbackPr1.
+          apply idpath.
+        + rewrite !assoc'.
+          etrans.
+          {
+            apply maponpaths.
+            apply (PullbackArrow_PullbackPr2 (cat_stable_el_map_pb el hg b)).
+          }
+          rewrite !assoc.
+          rewrite PullbackArrow_PullbackPr2.
+          rewrite id_left.
+          refine (!_).
+          use z_iso_inv_on_left.
+          apply idpath.
+    Qed.
+
+    Definition pi_types_small_pb_iso
+      : z_iso
+          (pullbacks_univ_cat_with_finlim
+             C
+             (cat_el_map_el el a)
+             (cat_el_map_el (univ_cat_cat_stable_el_map C) (hg · b)) (cod_dom πA)
+             (cat_el_map_mor (univ_cat_cat_stable_el_map C) (hg · b)) (inv_from_z_iso hg))
+          (cat_el_map_el el (hg · b)).
+    Proof.
+      use make_z_iso.
+      - exact pi_types_small_pb_iso_mor.
+      - exact pi_types_small_pb_iso_inv.
+      - exact pi_types_small_pb_iso_laws.
+    Defined.
+
+    Definition pi_types_small_iso
+      : z_iso
+          (cod_pb
+             (pullbacks_univ_cat_with_finlim C)
+             (z_iso_inv hg)
+             (cat_el_map_slice
+                (univ_cat_cat_stable_el_map C)
+                (hg · b)))
+          (cat_el_map_slice el b).
+    Proof.
+      use make_z_iso_in_slice.
+      - exact (z_iso_comp
+                 pi_types_small_pb_iso
+                 (cat_el_map_pb_mor_z_iso el hg b)).
+      - abstract
+          (simpl ;
+           rewrite !assoc' ;
+           etrans ;
+           [ apply maponpaths ;
+             apply (cat_el_map_pb_mor_comm el hg b)
+           | ] ;
+           rewrite !assoc ;
+           etrans ;
+           [ apply maponpaths_2 ;
+             apply (PullbackArrow_PullbackPr2 (cat_stable_el_map_pb el hg b))
+           | ] ;
+           rewrite !assoc' ;
+           rewrite z_iso_after_z_iso_inv ;
+           apply id_right).
+    Defined.
+  End HelpIso.
+
+  Proposition pi_types_small
+              {HC : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C)}
+              (Π : cat_univ_stable_codes_pi HC)
+              {Γ : C}
+              {πA : C/Γ}
+              {πB : C/cod_dom πA}
+              (HA : is_small_map (cod_mor πA))
+              (HB : is_small_map (cod_mor πB))
+    : is_small_map (cod_mor (lccc_exp_fib HC πA πB)).
+  Proof.
+    revert HA.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intros [ a [ hg qg ]].
+    revert HB.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intros [ b [ hf qf ]].
+    use hinhpr.
+    simple refine (_ ,, _ ,, _).
+    - exact (cat_univ_codes_pi_ty Π a (hg · b)).
+    - refine (z_iso_comp _ _).
+      + exact (z_iso_to_cod_dom _ _ _ (cat_univ_codes_pi_iso_slice Π a (hg · b))).
+      + use lccc_exp_functor_z_iso.
+        * exact (z_iso_inv hg).
+        * abstract
+            (refine (!_) ;
+             use z_iso_inv_on_right ;
+             exact qg).
+        * exact (z_iso_comp
+                   (pi_types_small_iso hg b)
+                   (make_z_iso_in_slice _ _ _ hf (!qf))).
+    - simpl.
+      rewrite !assoc'.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply mor_eq.
+      }
+      apply mor_eq.
   Qed.
 End SmallMaps.
