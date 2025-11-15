@@ -2,7 +2,7 @@
 
  Preservation by the comprehension functor
 
- If `C` is a DFL full comprehension category, then it comprehension functor `χ` is an
+ If `C` is a DFL full comprehension category, then its comprehension functor `χ` is an
  adjoint equivalence. This allows us to deduce that it preserves structure and properties
  of the fiber categories, for instance, initial objects and subobject classifiers.
 
