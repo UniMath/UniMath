@@ -332,9 +332,9 @@ Proof.
   set (carrcomm := colimArrowCommutes (homset_ccbase_CC) _ (colimCocone (ColimsHSET _ (homSet_diagram (pr1 (morcls_lp_map S)) d))) v).
   use (pathscomp1 (funeq carrcomm (pr2 S))); [|reflexivity].
   etrans. use (funeq _ (pr2 S)).
-          2: {
-            use (colimArrowCommutes (homset_ccbase_CC)).
-          }
+  {
+    use (colimArrowCommutes (homset_ccbase_CC)).
+  }
   (* unfold Sinarr. *)
   unfold presentable_lp_homSet_colim_arrow.
   set (iso := isColim_is_z_iso

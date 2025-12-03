@@ -506,7 +506,7 @@ Section IndAndCoind.
                                  ⟦ pr1 (pr1 STLC_gen (sorted_option_functorSet s (sorted_option_functorSet (s ⇒ s) ξ))) s,
                                    pr1 (pr1 STLC_gen (sorted_option_functorSet s (sorted_option_functorSet (s ⇒ s) ξ'))) s ⟧
                          => x thearg)).
-        2: { apply sortToSet2_comp_on_mor. }
+        { apply sortToSet2_comp_on_mor. }
         rewrite <- app_map_gen_natural_ppointwise.
         apply maponpaths.
         use dirprodeq; [unfold pr1 | unfold pr2].
@@ -566,7 +566,7 @@ Section IndAndCoind.
                                       ⟦ pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ) (s ⇒ s),
                                         pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ') (s ⇒ s) ⟧
                               =>  x thearg)).
-              2: { apply pathsinv0, sortToSet2_comp_on_mor. }
+              { apply pathsinv0, sortToSet2_comp_on_mor. }
         }
         etrans.
         2: { apply lam_map_gen_natural_ppointwise. }
@@ -629,7 +629,7 @@ Section IndAndCoind.
                                    ⟦ pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ) (s ⇒ s),
                                      pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ') (s ⇒ s) ⟧
                            =>  x thearg)).
-          2: { apply sortToSet2_comp_on_mor. }
+          { apply sortToSet2_comp_on_mor. }
           etrans.
           { apply pathsinv0, lam_map_gen_natural_ppointwise. }
           apply maponpaths.
@@ -647,7 +647,7 @@ Section IndAndCoind.
        ⟦ pr1 (pr1 (functor_compose (sorted_option_functorSet s) STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ)) s,
         pr1 (pr1 (functor_compose (sorted_option_functorSet s) STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ')) s ⟧
                              => x thearg)).
-            2: { apply sortToSet2_comp_on_mor. }
+            { apply sortToSet2_comp_on_mor. }
             etrans.
             { apply pathsinv0, STLC_eta_gen_natural'_ppointwise. }
             apply maponpaths.
@@ -673,7 +673,7 @@ Section IndAndCoind.
        ⟦ pr1 (pr1 (sorted_option_functor sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET (s ⇒ s) ∙ STLC_gen) ξ) (s ⇒ s),
        pr1 (pr1 (sorted_option_functor sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET (s ⇒ s) ∙ STLC_gen) ξ') (s ⇒ s) ⟧
                              => x thearg)).
-            2: { apply sortToSet2_comp_on_mor. }
+            { apply sortToSet2_comp_on_mor. }
             rewrite <- lam_map_gen_natural_ppointwise.
             apply maponpaths.
             use dirprodeq.
@@ -691,7 +691,7 @@ Section IndAndCoind.
        ⟦ pr1 (pr1 (sorted_option_functorSet s ∙ STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ)) s,
         pr1 (pr1 (sorted_option_functorSet s ∙ STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ')) s ⟧
                                 => x thearg)).
-               2: { apply sortToSet2_comp_on_mor. }
+               { apply sortToSet2_comp_on_mor. }
                rewrite <- app_map_gen_natural_ppointwise.
                apply maponpaths.
                use dirprodeq; [unfold pr1 | unfold pr2].
