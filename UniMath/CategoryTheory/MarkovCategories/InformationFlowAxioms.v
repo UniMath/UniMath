@@ -232,14 +232,16 @@ Section CausalityProperties.
   Proof.
     cbn.
     intros E.
-    rewrite <- !assoc in E.
+    apply make_equal_almost_surely_r.
+    pose(F := equal_almost_surely_r _ _ _ E).
+    rewrite <- !assoc in F.
     apply pairing_flip.
     apply causality_l; [ assumption | ].
     rewrite assoc.
     symmetry. rewrite assoc. symmetry.
     apply pairing_flip.
     rewrite <- !assoc.
-    exact E.
+    exact F.
   Qed.
 
   Proposition ase_comp {x y z w : C} (f : x --> y) (g : y --> z) (h1 h2 : z --> w) :
