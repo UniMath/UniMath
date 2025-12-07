@@ -313,7 +313,7 @@ Section BayesianInverseLaws.
   Proposition bayesian_inverse_comp 
     {x y z : C} (p : I_{C} --> x) (f : x --> y) (g : y --> z) (fi : y --> x) (gi : z --> y)
     (bf : is_bayesian_inverse p f fi) (bg : is_bayesian_inverse (p · f) g gi)
-  : is_bayesian_inverse p (f · g) (gi · fi).
+    : is_bayesian_inverse p (f · g) (gi · fi).
   Proof.
     unfold is_bayesian_inverse in *.
     etrans. { 

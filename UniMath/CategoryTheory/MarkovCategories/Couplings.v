@@ -617,7 +617,7 @@ Section CouplingsDaggerStructure.
       intros p q γ.
       apply coupling_ext ; cbn.
       apply coupling_dagger_involution.
-  Defined.
+  Qed.
 
   Definition couplings_dagger : dagger (couplings C) 
     := _ ,, couplings_dagger_laws.

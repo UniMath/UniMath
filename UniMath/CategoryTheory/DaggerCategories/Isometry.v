@@ -22,10 +22,10 @@ Section IsometriesDef.
   Local Notation "f †" := (dag _ _ f).
 
   Definition is_isometry {x y : C} (f : x --> y) : UU
-  := f · (f †) = identity x.
+    := f · (f †) = identity x.
 
   Definition isometry (x y : C) : UU
-  := ∑ f : x --> y, is_isometry f.
+    := ∑ f : x --> y, is_isometry f.
 
   Definition make_isometry {x y : C} (f : x --> y) (p : is_isometry f) : isometry x y
     := f ,, p.
@@ -54,9 +54,9 @@ Section IsometriesDef.
   Lemma isometry_eq {x y : C} (f g : isometry x y) :
     pr1 f = pr1 g -> f = g.
   Proof.
+    use subtypePath.
     intro p.
-    apply (total2_paths_f p).
-    apply isaprop_is_isometry.
+    apply isaprop_is_isometry.    
   Qed.
 
 End IsometriesDef.
@@ -69,7 +69,7 @@ Section CoisometriesDef.
     := (f †) · f = identity y.
 
   Definition coisometry (x y : C) : UU
-  := ∑ f : x --> y, is_coisometry f.
+    := ∑ f : x --> y, is_coisometry f.
 
   Definition make_coisometry {x y : C} (f : x --> y) (p : is_coisometry f) : coisometry x y
     := f ,, p.
@@ -98,8 +98,8 @@ Section CoisometriesDef.
   Lemma coisometry_eq {x y : C} (f g : coisometry x y) :
     pr1 f = pr1 g -> f = g.
   Proof.
+    use subtypePath.
     intro p.
-    apply (total2_paths_f p).
     apply isaprop_is_coisometry.
   Qed.
 
@@ -110,6 +110,7 @@ Section IsometryCoisometryProperties.
   Local Notation "f †" := (dag _ _ f).
 
   (* Isometries: Identity and composition *)
+
   Proposition is_isometry_id {x : C} : is_isometry dag (identity x).
   Proof.
     unfold is_isometry.
@@ -125,7 +126,7 @@ Section IsometryCoisometryProperties.
   Defined.
 
   Proposition is_isometry_comp {x y z : C} {f : x --> y} {g : y --> z} 
-  : is_isometry dag f -> is_isometry dag g -> is_isometry dag (f · g).
+    : is_isometry dag f -> is_isometry dag g -> is_isometry dag (f · g).
   Proof.
     unfold is_isometry. 
     intros isomf isomg.
@@ -144,6 +145,7 @@ Section IsometryCoisometryProperties.
   Defined.
 
   (* Coisometries: Identity and composition *)
+  
   Proposition is_coisometry_id {x : C} : is_coisometry dag (identity x).
   Proof.
     unfold is_coisometry.
@@ -159,7 +161,7 @@ Section IsometryCoisometryProperties.
   Defined.
 
   Proposition is_coisometry_comp {x y z : C} {f : x --> y} {g : y --> z} 
-  : is_coisometry dag f -> is_coisometry dag g -> is_coisometry dag (f · g).
+    : is_coisometry dag f -> is_coisometry dag g -> is_coisometry dag (f · g).
   Proof.
     unfold is_coisometry. 
     intros coisomf coisomg.
@@ -198,7 +200,7 @@ Section IsometryCoisometryProperties.
     use make_coisometry.
     - exact (f †).
     - abstract (apply isometry_coisometry_dagger; apply isometry_property).
-    Defined.  
+  Defined.  
 
   Definition coisometry_dag {x y : C} (f : coisometry dag x y) : isometry dag y x.
   Proof.

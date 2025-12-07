@@ -225,7 +225,7 @@ Section ProbabilitySpacesDagger.
       + apply bayesian_inverse_eq.
       + apply bayesian_inverse_idempotent.
         apply bayesian_inverse_eq. 
-  Defined.
+  Qed.
 
   Definition prob_space_dagger : dagger (prob_space C_is_causal)
     := _ ,, prob_space_dagger_laws.
