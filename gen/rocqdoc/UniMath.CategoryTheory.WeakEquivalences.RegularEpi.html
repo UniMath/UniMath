@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.WeakEquivalences.RegularEpi</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.WeakEquivalences.RegularEpi</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+   Interaction Regular Epimorphisms And Weak Equivalences
+
+<div class="paragraph"> </div>
+
+   In this file, we show that weak equivalences reflect and preserve regular epimorphisms.
+   Furthermore, we show that the preservation of reg. epis is lifts along weak equivalences.
+
+<div class="paragraph"> </div>
+
+   Contents.
+   1. Preservation <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#weak_equiv_preserves_regular_epi"><span class="id" title="lemma">weak_equiv_preserves_regular_epi</span></a></span>
+   2. Reflection <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#weak_equiv_reflects_regular_epi"><span class="id" title="lemma">weak_equiv_reflects_regular_epi</span></a></span>
+   3. Lift Preservation <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#weak_equiv_lifts_preserves_regular_epi"><span class="id" title="lemma">weak_equiv_lifts_preserves_regular_epi</span></a></span>
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Coequalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Coequalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#"><span class="id" title="library">UniMath.CategoryTheory.RegularAndExact.RegularEpi</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.WeakEquivalences.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Coequalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.WeakEquivalences.Coequalizers</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3119"></a><h1 class="section">1. Preservation</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="weak_equiv_preserves_regular_epi" class="idref" href="#weak_equiv_preserves_regular_epi"><span class="id" title="lemma">weak_equiv_preserves_regular_epi</span></a><br/>
+&nbsp;&nbsp;{<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> <a id="D:2" class="idref" href="#D:2"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} {<a id="F:3" class="idref" href="#F:3"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#C:1"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#D:2"><span class="id" title="variable">D</span></a>} (<a id="F_weq:4" class="idref" href="#F_weq:4"><span class="id" title="binder">F_weq</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#F:3"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#preserves_regular_epi"><span class="id" title="definition">preserves_regular_epi</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#F:3"><span class="id" title="variable">F</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">f_e</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">f_e</span>).<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#isapropishinh"><span class="id" title="lemma">isapropishinh</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [<span class="id" title="var">w</span> [<span class="id" title="var">g₁</span> [<span class="id" title="var">g₂</span> [<span class="id" title="var">p</span> <span class="id" title="var">pe</span>]]]].<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="var">F</span> <span class="id" title="var">w</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a><span class="id" title="var">F</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">g₁</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a><span class="id" title="var">F</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">g₂</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">p'</span> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <span class="id" title="var">F</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">g₁</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <span class="id" title="var">F</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <span class="id" title="var">F</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">g₂</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a><span class="id" title="var">F</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">f</span></a>). {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">p'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Coequalizers.html#weak_equiv_preserves_coequalizers"><span class="id" title="lemma">weak_equiv_preserves_coequalizers</span></a> <span class="id" title="var">F_weq</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>  <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">p'</span> <span class="id" title="var">pe</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3120"></a><h1 class="section">2. Reflection</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="weak_equiv_reflects_regular_epi" class="idref" href="#weak_equiv_reflects_regular_epi"><span class="id" title="lemma">weak_equiv_reflects_regular_epi</span></a><br/>
+&nbsp;&nbsp;{<a id="C:5" class="idref" href="#C:5"><span class="id" title="binder">C</span></a> <a id="D:6" class="idref" href="#D:6"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} {<a id="F:7" class="idref" href="#F:7"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#C:5"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#D:6"><span class="id" title="variable">D</span></a>} (<a id="F_weq:8" class="idref" href="#F_weq:8"><span class="id" title="binder">F_weq</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#F:7"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:9" class="idref" href="#x:9"><span class="id" title="binder">x</span></a> <a id="y:10" class="idref" href="#y:10"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#C:5"><span class="id" title="variable">C</span></a>) (<a id="f:11" class="idref" href="#f:11"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#C:5"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#x:9"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#y:10"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#is_regular_epi"><span class="id" title="definition">is_regular_epi</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a><a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#F:7"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">f</span></a>) <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#is_regular_epi"><span class="id" title="definition">is_regular_epi</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#f:11"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">f_e</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">f_e</span>).<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#isapropishinh"><span class="id" title="lemma">isapropishinh</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [<span class="id" title="var">w</span> [<span class="id" title="var">g₁</span> [<span class="id" title="var">g₂</span> [<span class="id" title="var">p</span> <span class="id" title="var">pe</span>]]]].<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#eso_from_weak_equiv"><span class="id" title="definition">eso_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">F_weq</span> <span class="id" title="var">w</span>)).<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#isaprop_is_regular_epi"><span class="id" title="lemma">isaprop_is_regular_epi</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [<span class="id" title="var">v</span> <span class="id" title="var">i</span>].<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">f₁</span> := <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#fully_faithful_inv_hom"><span class="id" title="definition">fully_faithful_inv_hom</span></a> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#ff_from_weak_equiv"><span class="id" title="definition">ff_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">F_weq</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="var">i</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">g₁</span>) : <span class="id" title="var">C</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><span class="id" title="var">v</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <span class="id" title="var">x</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">f₂</span> := <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#fully_faithful_inv_hom"><span class="id" title="definition">fully_faithful_inv_hom</span></a> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#ff_from_weak_equiv"><span class="id" title="definition">ff_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">F_weq</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="var">i</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">g₂</span>) : <span class="id" title="var">C</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><span class="id" title="var">v</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <span class="id" title="var">x</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">v</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">f₁</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">f₂</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">p'</span> : <span class="id" title="var">f₁</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">f₂</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">f</span>). {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#faithful_reflects_morphism_equality"><span class="id" title="lemma">faithful_reflects_morphism_equality</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#ff_from_weak_equiv"><span class="id" title="definition">ff_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">F_weq</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">f₁</span>, <span class="id" title="var">f₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_on_fully_faithful_inv_hom"><span class="id" title="definition">functor_on_fully_faithful_inv_hom</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">p'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Coequalizers.html#weak_equiv_reflects_coequalizers"><span class="id" title="lemma">weak_equiv_reflects_coequalizers</span></a> <span class="id" title="var">F_weq</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">u</span> <span class="id" title="var">h</span> <span class="id" title="var">pf</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="var">pe</span> <span class="id" title="var">u</span> <span class="id" title="var">h</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">f₁</span>, <span class="id" title="var">f₂</span> <span class="id" title="tactic">in</span> <span class="id" title="var">pf</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_on_fully_faithful_inv_hom"><span class="id" title="definition">functor_on_fully_faithful_inv_hom</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#ff_from_weak_equiv"><span class="id" title="definition">ff_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">F_weq</span>)) <span class="id" title="tactic">in</span> <span class="id" title="var">pf</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#cancel_z_iso'"><span class="id" title="lemma">cancel_z_iso'</span></a> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">pf</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3121"></a><h1 class="section">3. Lift Preservation</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="weak_equiv_lifts_preserves_regular_epi" class="idref" href="#weak_equiv_lifts_preserves_regular_epi"><span class="id" title="lemma">weak_equiv_lifts_preserves_regular_epi</span></a><br/>
+&nbsp;&nbsp;{<a id="C:12" class="idref" href="#C:12"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="D:13" class="idref" href="#D:13"><span class="id" title="binder">D</span></a> <a id="E:14" class="idref" href="#E:14"><span class="id" title="binder">E</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a>)<br/>
+&nbsp;&nbsp;{<a id="F:15" class="idref" href="#F:15"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#C:12"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#E:14"><span class="id" title="variable">E</span></a>} {<a id="G:16" class="idref" href="#G:16"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#C:12"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#D:13"><span class="id" title="variable">D</span></a>} {<a id="H:17" class="idref" href="#H:17"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#D:13"><span class="id" title="variable">D</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#E:14"><span class="id" title="variable">E</span></a>}<br/>
+&nbsp;&nbsp;(<a id="27bc4a6ffbba547cad8b636e127a5e76" class="idref" href="#27bc4a6ffbba547cad8b636e127a5e76"><span class="id" title="binder">α</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_z_iso"><span class="id" title="definition">nat_z_iso</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_composite"><span class="id" title="definition">functor_composite</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#G:16"><span class="id" title="variable">G</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#H:17"><span class="id" title="variable">H</span></a>) <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#F:15"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;(<a id="G_weq:19" class="idref" href="#G_weq:19"><span class="id" title="binder">G_weq</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#G:16"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#preserves_regular_epi"><span class="id" title="definition">preserves_regular_epi</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#F:15"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#preserves_regular_epi"><span class="id" title="definition">preserves_regular_epi</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#H:17"><span class="id" title="variable">H</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">F_e</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#preserves_regular_epi"><span class="id" title="definition">preserves_regular_epi</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">d₁</span> <span class="id" title="var">d₂</span> <span class="id" title="var">f_D</span> <span class="id" title="var">f_D_e</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#eso_from_weak_equiv"><span class="id" title="definition">eso_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">G_weq</span> <span class="id" title="var">d₁</span>)).<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#isaprop_is_regular_epi"><span class="id" title="lemma">isaprop_is_regular_epi</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [<span class="id" title="var">c₁</span> <span class="id" title="var">i₁</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#eso_from_weak_equiv"><span class="id" title="definition">eso_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">G_weq</span> <span class="id" title="var">d₂</span>)).<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#isaprop_is_regular_epi"><span class="id" title="lemma">isaprop_is_regular_epi</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [<span class="id" title="var">c₂</span> <span class="id" title="var">i₂</span>].<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">p₁</span> := <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#isotoid"><span class="id" title="definition">isotoid</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">D</span>) <span class="id" title="var">i₁</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">p₂</span> := <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#isotoid"><span class="id" title="definition">isotoid</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">D</span>) <span class="id" title="var">i₂</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p₁</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p₂</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">f_C</span> := <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#fully_faithful_inv_hom"><span class="id" title="definition">fully_faithful_inv_hom</span></a> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#ff_from_weak_equiv"><span class="id" title="definition">ff_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">G_weq</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">f_D</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">f_C_e</span> : <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#is_regular_epi"><span class="id" title="definition">is_regular_epi</span></a> <span class="id" title="var">f_C</span>).<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.RegularEpi.html#weak_equiv_reflects_regular_epi"><span class="id" title="lemma">weak_equiv_reflects_regular_epi</span></a> <span class="id" title="var">G_weq</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">f_C</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_on_fully_faithful_inv_hom"><span class="id" title="definition">functor_on_fully_faithful_inv_hom</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">f_D_e</span>.<br/>
+&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">f_E_e</span> := <span class="id" title="var">F_e</span> <span class="id" title="var">c₁</span> <span class="id" title="var">c₂</span> <span class="id" title="var">f_C</span> <span class="id" title="var">f_C_e</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">αi</span> := <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_z_iso_inv"><span class="id" title="definition">nat_z_iso_inv</span></a> <span class="id" title="var">α</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularEpi.html#is_regular_epi_arrow_z_iso_f"><span class="id" title="lemma">is_regular_epi_arrow_z_iso_f</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">f_E_e</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_z_iso_pointwise_z_iso"><span class="id" title="definition">nat_z_iso_pointwise_z_iso</span></a> <span class="id" title="var">αi</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_z_iso_pointwise_z_iso"><span class="id" title="definition">nat_z_iso_pointwise_z_iso</span></a> <span class="id" title="var">αi</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">etrans</span>. { <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_ax"><span class="id" title="definition">nat_trans_ax</span></a> <span class="id" title="var">αi</span>). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> ; <span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">f_C</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_on_fully_faithful_inv_hom"><span class="id" title="definition">functor_on_fully_faithful_inv_hom</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.Lattice.Examples.Subsets</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.Lattice.Examples.Subsets</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3968"></a><h1 class="section">Lattice of subsets</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Preamble.html#"><span class="id" title="library">UniMath.Foundations.Preamble</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartA.html#"><span class="id" title="library">UniMath.Foundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Sets.html#"><span class="id" title="library">UniMath.MoreFoundations.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.MoreFoundations.Propositions.html#"><span class="id" title="library">UniMath.MoreFoundations.Propositions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#"><span class="id" title="library">UniMath.MoreFoundations.Subtypes</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#"><span class="id" title="library">UniMath.Algebra.BinaryOperations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Lattice</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Bounded</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Distributive.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Distributive</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Complement</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Boolean</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Subsets" class="idref" href="#Subsets"><span class="id" title="section">Subsets</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Subsets.X" class="idref" href="#Subsets.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="intersection_binop" class="idref" href="#intersection_binop"><span class="id" title="definition">intersection_binop</span></a> : <a class="idref" href="UniMath.Foundations.PartA.html#binop"><span class="id" title="definition">binop</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_set"><span class="id" title="definition">subtype_set</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#infinitary_op_to_binop"><span class="id" title="lemma">infinitary_op_to_binop</span></a>; <span class="id" title="tactic">exact</span> (@<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_intersection"><span class="id" title="definition">subtype_intersection</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="isassoc_intersection_binop" class="idref" href="#isassoc_intersection_binop"><span class="id" title="lemma">isassoc_intersection_binop</span></a> : <a class="idref" href="UniMath.Algebra.BinaryOperations.html#isassoc"><span class="id" title="definition">isassoc</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#intersection_binop"><span class="id" title="definition">intersection_binop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">W</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)), <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_equal_cond"><span class="id" title="lemma">subtype_equal_cond</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">f</span> <span class="id" title="var">b</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ </div>
+
+<div class="doc">
+<span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.GenMendlerIteration_alt.html#GenMenIt.the_iteration_principle.general_case.z"><span class="id" title="variable">z</span></a></span> <span class="inlinecode">∈</span> <span class="inlinecode"><a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a></span> 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span> <span class="id" title="var">b</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* </div>
+
+<div class="doc">
+<span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.GenMendlerIteration_alt.html#GenMenIt.the_iteration_principle.general_case.z"><span class="id" title="variable">z</span></a></span> <span class="inlinecode">∈</span> <span class="inlinecode"><a class="idref" href="UniMath.Topology.Filters.html#filterdirprod.Y"><span class="id" title="variable">Y</span></a></span> 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* </div>
+
+<div class="doc">
+<span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.GenMendlerIteration_alt.html#GenMenIt.the_iteration_principle.general_case.z"><span class="id" title="variable">z</span></a></span> <span class="inlinecode">∈</span> <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.html#fix_a_category.prep_hss.fix_a_pointed_functor.Z"><span class="id" title="variable">Z</span></a></span> 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span> <span class="id" title="var">b</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="iscomm_intersection_binop" class="idref" href="#iscomm_intersection_binop"><span class="id" title="lemma">iscomm_intersection_binop</span></a> : <a class="idref" href="UniMath.Algebra.BinaryOperations.html#iscomm"><span class="id" title="definition">iscomm</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#intersection_binop"><span class="id" title="definition">intersection_binop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ? ?; <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#intersection_binop"><span class="id" title="definition">intersection_binop</span></a>, <a class="idref" href="UniMath.Algebra.BinaryOperations.html#infinitary_op_to_binop"><span class="id" title="lemma">infinitary_op_to_binop</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)), <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_equal_cond"><span class="id" title="lemma">subtype_equal_cond</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="tactic">intro</span>; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">b</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="union_binop" class="idref" href="#union_binop"><span class="id" title="definition">union_binop</span></a> : <a class="idref" href="UniMath.Foundations.PartA.html#binop"><span class="id" title="definition">binop</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_set"><span class="id" title="definition">subtype_set</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#infinitary_op_to_binop"><span class="id" title="lemma">infinitary_op_to_binop</span></a>; <span class="id" title="tactic">exact</span> (@<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_union"><span class="id" title="definition">subtype_union</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="squash_to_prop_ishinh" class="idref" href="#squash_to_prop_ishinh"><span class="id" title="lemma">squash_to_prop_ishinh</span></a> {<a id="Y:2" class="idref" href="#Y:2"><span class="id" title="binder">Y</span></a> <a id="Q:3" class="idref" href="#Q:3"><span class="id" title="binder">Q</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Y:2"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Y:2"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Q:3"><span class="id" title="variable">Q</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a><a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Q:3"><span class="id" title="variable">Q</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#squash_to_prop"><span class="id" title="lemma">squash_to_prop</span></a> <span class="id" title="var">z</span>); [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#isapropishinh"><span class="id" title="lemma">isapropishinh</span></a>|].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="isassoc_union_binop" class="idref" href="#isassoc_union_binop"><span class="id" title="lemma">isassoc_union_binop</span></a> : <a class="idref" href="UniMath.Algebra.BinaryOperations.html#isassoc"><span class="id" title="definition">isassoc</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#union_binop"><span class="id" title="definition">union_binop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ? ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)), <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_equal_cond"><span class="id" title="lemma">subtype_equal_cond</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">intros</span> ? <span class="id" title="var">ain</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#squash_to_prop_ishinh"><span class="id" title="lemma">squash_to_prop_ishinh</span></a> <span class="id" title="var">ain</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">ain</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">ain</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">ain</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">b</span> <span class="id" title="var">bin</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">bin</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#squash_to_prop_ishinh"><span class="id" title="lemma">squash_to_prop_ishinh</span></a> <span class="id" title="var">bin</span>); <span class="id" title="tactic">clear</span> <span class="id" title="var">bin</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">bin</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">bin</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">c</span> <span class="id" title="var">cin</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">c</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">do</span> 2 (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>); <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">bin</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">do</span> 2 (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>); <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#squash_to_prop_ishinh"><span class="id" title="lemma">squash_to_prop_ishinh</span></a> <span class="id" title="var">bin</span>); <span class="id" title="tactic">clear</span> <span class="id" title="var">bin</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">bin</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">bin</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">c</span> <span class="id" title="var">cin</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">c</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="iscomm_union_binop" class="idref" href="#iscomm_union_binop"><span class="id" title="lemma">iscomm_union_binop</span></a> : <a class="idref" href="UniMath.Algebra.BinaryOperations.html#iscomm"><span class="id" title="definition">iscomm</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#union_binop"><span class="id" title="definition">union_binop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ? ?; <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#union_binop"><span class="id" title="definition">union_binop</span></a>, <a class="idref" href="UniMath.Algebra.BinaryOperations.html#infinitary_op_to_binop"><span class="id" title="lemma">infinitary_op_to_binop</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)), <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_equal_cond"><span class="id" title="lemma">subtype_equal_cond</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="tactic">intro</span>; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">ain</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#squash_to_prop_ishinh"><span class="id" title="lemma">squash_to_prop_ishinh</span></a> <span class="id" title="var">ain</span>); <span class="id" title="tactic">clear</span> <span class="id" title="var">ain</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">ain</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">ain</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">b</span> <span class="id" title="var">bin</span>]; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="subset_lattice" class="idref" href="#subset_lattice"><span class="id" title="lemma">subset_lattice</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#lattice"><span class="id" title="definition">lattice</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_set"><span class="id" title="definition">subtype_set</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#make_lattice"><span class="id" title="definition">make_lattice</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#intersection_binop"><span class="id" title="definition">intersection_binop</span></a>. </div>
+
+<div class="doc">
+<span class="inlinecode"><a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmin"><span class="id" title="definition">Lmin</span></a></span> 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#union_binop"><span class="id" title="definition">union_binop</span></a>. </div>
+
+<div class="doc">
+<span class="inlinecode"><a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmax"><span class="id" title="definition">Lmax</span></a></span> 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;- </div>
+
+<div class="doc">
+TODO: constructor for this 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>|<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>|<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#isassoc_intersection_binop"><span class="id" title="lemma">isassoc_intersection_binop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#iscomm_intersection_binop"><span class="id" title="lemma">iscomm_intersection_binop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#isassoc_union_binop"><span class="id" title="lemma">isassoc_union_binop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#iscomm_union_binop"><span class="id" title="lemma">iscomm_union_binop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)), <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_equal_cond"><span class="id" title="lemma">subtype_equal_cond</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> ? <span class="id" title="var">f</span>; <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">b</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)), <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_equal_cond"><span class="id" title="lemma">subtype_equal_cond</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> ? <span class="id" title="var">f</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhuniv"><span class="id" title="definition">hinhuniv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">f</span>); <span class="id" title="tactic">clear</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">f</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">b</span> <span class="id" title="var">bin</span>]; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">bin</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- <span class="id" title="tactic">apply</span> (<span class="id" title="var">bin</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> ? ?; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="subset_lattice_is_bounded" class="idref" href="#subset_lattice_is_bounded"><span class="id" title="lemma">subset_lattice_is_bounded</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_latticeop"><span class="id" title="definition">bounded_latticeop</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#subset_lattice"><span class="id" title="lemma">subset_lattice</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#emptysubtype"><span class="id" title="definition">emptysubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>) (<a class="idref" href="UniMath.Foundations.Sets.html#totalsubtype"><span class="id" title="definition">totalsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+</div>
+
+<div class="doc">
+TODO: constructor 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)), <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_equal_cond"><span class="id" title="lemma">subtype_equal_cond</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? <span class="id" title="var">in_union</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhuniv"><span class="id" title="definition">hinhuniv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">in_union</span>); <span class="id" title="tactic">clear</span> <span class="id" title="var">in_union</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">in_union</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">in_union</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">b</span> <span class="id" title="var">bin</span>]; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">bin</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">induction</span> <span class="id" title="var">bin</span>. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ?; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>; <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)), <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_equal_cond"><span class="id" title="lemma">subtype_equal_cond</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? <span class="id" title="var">in_intersection</span>; <span class="id" title="tactic">exact</span> (<span class="id" title="var">in_intersection</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ? <span class="id" title="var">b</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Using <span class="inlinecode"><a class="idref" href="UniMath.MoreFoundations.DecidablePropositions.html#LEM"><span class="id" title="definition">LEM</span></a></span>, we can show the lattice is complemented 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="subset_lattice_is_complemented" class="idref" href="#subset_lattice_is_complemented"><span class="id" title="lemma">subset_lattice_is_complemented</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.MoreFoundations.DecidablePropositions.html#LEM"><span class="id" title="definition">LEM</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complemented_structure"><span class="id" title="definition">complemented_structure</span></a> (<a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#make_bounded_lattice"><span class="id" title="definition">make_bounded_lattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#subset_lattice_is_bounded"><span class="id" title="lemma">subset_lattice_is_bounded</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">lem</span> <span class="id" title="var">sub</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_complement"><span class="id" title="definition">subtype_complement</span></a> <span class="id" title="var">sub</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_complement_union"><span class="id" title="lemma">subtype_complement_union</span></a> <span class="id" title="var">lem</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>; <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>; <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- </div>
+
+<div class="doc">
+We don't need <span class="inlinecode"><a class="idref" href="UniMath.MoreFoundations.DecidablePropositions.html#LEM"><span class="id" title="definition">LEM</span></a></span> for this branch. 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#hsubtype_univalence"><span class="id" title="lemma">hsubtype_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_complement_intersection_empty"><span class="id" title="lemma">subtype_complement_intersection_empty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>; <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>; <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subset_bounded_lattice" class="idref" href="#subset_bounded_lattice"><span class="id" title="definition">subset_bounded_lattice</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_lattice"><span class="id" title="definition">bounded_lattice</span></a> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#subtype_set"><span class="id" title="definition">subtype_set</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#make_bounded_lattice"><span class="id" title="definition">make_bounded_lattice</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#subset_lattice"><span class="id" title="lemma">subset_lattice</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Subtypes.html#emptysubtype"><span class="id" title="definition">emptysubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Sets.html#totalsubtype"><span class="id" title="definition">totalsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#subset_lattice_is_bounded"><span class="id" title="lemma">subset_lattice_is_bounded</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="subset_lattice_is_distributive" class="idref" href="#subset_lattice_is_distributive"><span class="id" title="lemma">subset_lattice_is_distributive</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Distributive.html#is_distributive"><span class="id" title="definition">is_distributive</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#subset_lattice"><span class="id" title="lemma">subset_lattice</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Abort</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subset_lattice_is_boolean" class="idref" href="#subset_lattice_is_boolean"><span class="id" title="definition">subset_lattice_is_boolean</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.MoreFoundations.DecidablePropositions.html#LEM"><span class="id" title="definition">LEM</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#is_boolean"><span class="id" title="definition">is_boolean</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#subset_bounded_lattice"><span class="id" title="definition">subset_bounded_lattice</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">lem</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#make_is_boolean"><span class="id" title="definition">make_is_boolean</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;2: <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#subset_lattice_is_complemented"><span class="id" title="lemma">subset_lattice_is_complemented</span></a> <span class="id" title="var">lem</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Abort</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Subsets.html#Subsets"><span class="id" title="section">Subsets</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

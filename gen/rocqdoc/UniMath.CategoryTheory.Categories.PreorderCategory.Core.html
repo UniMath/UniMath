@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.PreorderCategory.Core</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.PreorderCategory.Core</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="PoCategory" class="idref" href="#PoCategory"><span class="id" title="section">PoCategory</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="PoCategory.X" class="idref" href="#PoCategory.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1833"></a><h1 class="section">1. The category over a preorder</h1>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="po_precategory_ob_mor" class="idref" href="#po_precategory_ob_mor"><span class="id" title="definition">po_precategory_ob_mor</span></a> (<a id="PO:2" class="idref" href="#PO:2"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_ob_mor"><span class="id" title="definition">precategory_ob_mor</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_ob_mor"><span class="id" title="definition">make_precategory_ob_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#carrierofpo"><span class="id" title="definition">carrierofpo</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:2"><span class="id" title="variable">PO</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="po_precategory_data" class="idref" href="#po_precategory_data"><span class="id" title="definition">po_precategory_data</span></a> (<a id="PO:3" class="idref" href="#PO:3"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_data"><span class="id" title="definition">precategory_data</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_data"><span class="id" title="definition">make_precategory_data</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_precategory_ob_mor"><span class="id" title="definition">po_precategory_ob_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:3"><span class="id" title="variable">PO</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:3"><span class="id" title="variable">PO</span></a>)) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:3"><span class="id" title="variable">PO</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="po_homsets_isaprop" class="idref" href="#po_homsets_isaprop"><span class="id" title="lemma">po_homsets_isaprop</span></a> (<a id="PO:4" class="idref" href="#PO:4"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) (<a id="a:5" class="idref" href="#a:5"><span class="id" title="binder">a</span></a> <a id="b:6" class="idref" href="#b:6"><span class="id" title="binder">b</span></a> : (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_precategory_data"><span class="id" title="definition">po_precategory_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:4"><span class="id" title="variable">PO</span></a>)) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_precategory_data"><span class="id" title="definition">po_precategory_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:4"><span class="id" title="variable">PO</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#a:5"><span class="id" title="variable">a</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#b:6"><span class="id" title="variable">b</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="po_precategory_data_is_precategory" class="idref" href="#po_precategory_data_is_precategory"><span class="id" title="definition">po_precategory_data_is_precategory</span></a> (<a id="PO:7" class="idref" href="#PO:7"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#is_precategory"><span class="id" title="definition">is_precategory</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_precategory_data"><span class="id" title="definition">po_precategory_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:7"><span class="id" title="variable">PO</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_is_precategory"><span class="id" title="definition">make_is_precategory</span></a>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_homsets_isaprop"><span class="id" title="lemma">po_homsets_isaprop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="po_precategory" class="idref" href="#po_precategory"><span class="id" title="definition">po_precategory</span></a> (<a id="PO:8" class="idref" href="#PO:8"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory"><span class="id" title="definition">make_precategory</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_precategory_data"><span class="id" title="definition">po_precategory_data</span></a> <span class="id" title="var">PO</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_precategory_data_is_precategory"><span class="id" title="definition">po_precategory_data_is_precategory</span></a> <span class="id" title="var">PO</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="po_precategory_has_homsets" class="idref" href="#po_precategory_has_homsets"><span class="id" title="definition">po_precategory_has_homsets</span></a> (<a id="PO:9" class="idref" href="#PO:9"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#has_homsets"><span class="id" title="definition">has_homsets</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_precategory_ob_mor"><span class="id" title="definition">po_precategory_ob_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:9"><span class="id" title="variable">PO</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#hlevelntosn"><span class="id" title="lemma">hlevelntosn</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_homsets_isaprop"><span class="id" title="lemma">po_homsets_isaprop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="po_category" class="idref" href="#po_category"><span class="id" title="definition">po_category</span></a> (<a id="PO:10" class="idref" href="#PO:10"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_category"><span class="id" title="definition">make_category</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_precategory"><span class="id" title="definition">po_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:10"><span class="id" title="variable">PO</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_precategory_has_homsets"><span class="id" title="definition">po_precategory_has_homsets</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:10"><span class="id" title="variable">PO</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1834"></a><h1 class="section">2. Univalence</h1>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="PoCategory.Univalence" class="idref" href="#PoCategory.Univalence"><span class="id" title="section">Univalence</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="PoCategory.Univalence.xisaset" class="idref" href="#PoCategory.Univalence.xisaset"><span class="id" title="variable">xisaset</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="antisymm_po_category_isoiseq" class="idref" href="#antisymm_po_category_isoiseq"><span class="id" title="lemma">antisymm_po_category_isoiseq</span></a> (<a id="PO:12" class="idref" href="#PO:12"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) {<a id="A:13" class="idref" href="#A:13"><span class="id" title="binder">A</span></a> <a id="B:14" class="idref" href="#B:14"><span class="id" title="binder">B</span></a> : (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_category"><span class="id" title="definition">po_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:12"><span class="id" title="variable">PO</span></a>)}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="poasymm:15" class="idref" href="#poasymm:15"><span class="id" title="binder">poasymm</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#isantisymm"><span class="id" title="definition">isantisymm</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:12"><span class="id" title="variable">PO</span></a>) (<a id="isoAB:16" class="idref" href="#isoAB:16"><span class="id" title="binder">isoAB</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#A:13"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#B:14"><span class="id" title="variable">B</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#A:13"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#B:14"><span class="id" title="variable">B</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.Sets.html#isantisymm"><span class="id" title="definition">isantisymm</span></a> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">poasymm</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_mor"><span class="id" title="definition">z_iso_mor</span></a> <span class="id" title="var">isoAB</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#inv_from_z_iso"><span class="id" title="definition">inv_from_z_iso</span></a> <span class="id" title="var">isoAB</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="antisymm_po_category_isweq" class="idref" href="#antisymm_po_category_isweq"><span class="id" title="lemma">antisymm_po_category_isweq</span></a> (<a id="PO:17" class="idref" href="#PO:17"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) {<a id="A:18" class="idref" href="#A:18"><span class="id" title="binder">A</span></a> <a id="B:19" class="idref" href="#B:19"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_category"><span class="id" title="definition">po_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:17"><span class="id" title="variable">PO</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="poasymm:20" class="idref" href="#poasymm:20"><span class="id" title="binder">poasymm</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#isantisymm"><span class="id" title="definition">isantisymm</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:17"><span class="id" title="variable">PO</span></a>) : <a class="idref" href="UniMath.Foundations.PartA.html#isweq"><span class="id" title="definition">isweq</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="p:21" class="idref" href="#p:21"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#A:18"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#B:19"><span class="id" title="variable">B</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#idtoiso"><span class="id" title="definition">idtoiso</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#p:21"><span class="id" title="variable">p</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#isweq_iso"><span class="id" title="lemma">isweq_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#antisymm_po_category_isoiseq"><span class="id" title="lemma">antisymm_po_category_isoiseq</span></a> <span class="id" title="var">PO</span> <span class="id" title="var">poasymm</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">eq</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#proofirrelevance"><span class="id" title="lemma">proofirrelevance</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.Univalence.xisaset"><span class="id" title="variable">xisaset</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">iso</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_eq"><span class="id" title="lemma">z_iso_eq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#proofirrelevance"><span class="id" title="lemma">proofirrelevance</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="po_category_is_univalent_iff_is_antisymm" class="idref" href="#po_category_is_univalent_iff_is_antisymm"><span class="id" title="lemma">po_category_is_univalent_iff_is_antisymm</span></a> (<a id="PO:22" class="idref" href="#PO:22"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_category"><span class="id" title="definition">po_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:22"><span class="id" title="variable">PO</span></a>) <a class="idref" href="UniMath.Foundations.PartA.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#isantisymm"><span class="id" title="definition">isantisymm</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:22"><span class="id" title="variable">PO</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">isuni</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">relab</span> <span class="id" title="var">relba</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#isotoid"><span class="id" title="definition">isotoid</span></a> <span class="id" title="var">_</span> <span class="id" title="var">isuni</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">relab</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">relba</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#make_is_inverse_in_precat"><span class="id" title="definition">make_is_inverse_in_precat</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_homsets_isaprop"><span class="id" title="lemma">po_homsets_isaprop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">poasymm</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#antisymm_po_category_isweq"><span class="id" title="lemma">antisymm_po_category_isweq</span></a> <span class="id" title="var">PO</span> <span class="id" title="var">poasymm</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="antisymm_po_univalent_category" class="idref" href="#antisymm_po_univalent_category"><span class="id" title="definition">antisymm_po_univalent_category</span></a> (<a id="PO:23" class="idref" href="#PO:23"><span class="id" title="binder">PO</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.X"><span class="id" title="variable">X</span></a>) (<a id="poasymm:24" class="idref" href="#poasymm:24"><span class="id" title="binder">poasymm</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#isantisymm"><span class="id" title="definition">isantisymm</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PO:23"><span class="id" title="variable">PO</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#make_univalent_category"><span class="id" title="definition">make_univalent_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_category"><span class="id" title="definition">po_category</span></a> <span class="id" title="var">PO</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#po_category_is_univalent_iff_is_antisymm"><span class="id" title="lemma">po_category_is_univalent_iff_is_antisymm</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">poasymm</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory.Univalence"><span class="id" title="section">Univalence</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.PreorderCategory.Core.html#PoCategory"><span class="id" title="section">PoCategory</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

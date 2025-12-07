@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Induction.PolynomialFunctors</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Induction.PolynomialFunctors</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3699"></a><h2 class="section">Polynomial functors</h2>
+
+
+<div class="paragraph"> </div>
+
+    Using the formalism of a polynomial functor, one can build any functor
+    combining constant types, +, and ×, where the variable X is to the right
+    of the arrow →.
+
+<div class="paragraph"> </div>
+
+    W-types are (up to isomorphism) initial algebras of polynomial functors,
+    whereas M-types are final coalgebras.
+
+<div class="paragraph"> </div>
+
+    (Definition 2 in Ahrens, Capriotti, and Spadotti)
+
+<div class="paragraph"> </div>
+
+    Author: Langston Barrett (@siddharthist)
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Preamble.html#"><span class="id" title="library">UniMath.Foundations.Preamble</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartA.html#"><span class="id" title="library">UniMath.Foundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#"><span class="id" title="library">UniMath.Foundations.UnivalenceAxiom</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#"><span class="id" title="library">UniMath.Induction.FunctorAlgebras_legacy</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#"><span class="id" title="library">UniMath.Induction.FunctorCoalgebras_legacy</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Type.Core</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="PolynomialFunctors" class="idref" href="#PolynomialFunctors"><span class="id" title="section">PolynomialFunctors</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="PolynomialFunctors.A" class="idref" href="#PolynomialFunctors.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="PolynomialFunctors.B" class="idref" href="#PolynomialFunctors.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#PolynomialFunctors.A"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="polynomial_functor_obj" class="idref" href="#polynomial_functor_obj"><span class="id" title="definition">polynomial_functor_obj</span></a> := <span class="id" title="keyword">fun</span> (<a id="X:3" class="idref" href="#X:3"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) =&gt; <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="a:4" class="idref" href="#a:4"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#PolynomialFunctors.A"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#PolynomialFunctors.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#a:4"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#X:3"><span class="id" title="variable">X</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The action on arrows is defined by composition in the second projection. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="polynomial_functor_arr" class="idref" href="#polynomial_functor_arr"><span class="id" title="definition">polynomial_functor_arr</span></a> {<a id="X:5" class="idref" href="#X:5"><span class="id" title="binder">X</span></a> <a id="Y:6" class="idref" href="#Y:6"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} (<a id="f:7" class="idref" href="#f:7"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#X:5"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#Y:6"><span class="id" title="variable">Y</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_obj"><span class="id" title="definition">polynomial_functor_obj</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#X:5"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_obj"><span class="id" title="definition">polynomial_functor_obj</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#Y:6"><span class="id" title="variable">Y</span></a><a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">)</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">fun</span> <a id="o:8" class="idref" href="#o:8"><span class="id" title="binder">o</span></a> =&gt; (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#o:8"><span class="id" title="variable">o</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> (<a class="idref" href="UniMath.Induction.PolynomialFunctors.html#f:7"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#o:8"><span class="id" title="variable">o</span></a>)%<span class="id" title="var">functions</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Polynomial functors aren't functors in the usual sense, since UU is an
+      (∞,1)-category. However, they are functors in the sense of UniMath's
+      definition. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="polynomial_functor_data" class="idref" href="#polynomial_functor_data"><span class="id" title="definition">polynomial_functor_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_data"><span class="id" title="definition">functor_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_data_constr"><span class="id" title="definition">functor_data_constr</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_obj"><span class="id" title="definition">polynomial_functor_obj</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(@<a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_arr"><span class="id" title="definition">polynomial_functor_arr</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="polynomial_functor_is_functor" class="idref" href="#polynomial_functor_is_functor"><span class="id" title="lemma">polynomial_functor_is_functor</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#is_functor"><span class="id" title="definition">is_functor</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_data"><span class="id" title="definition">polynomial_functor_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> ? ? ? ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="polynomial_functor" class="idref" href="#polynomial_functor"><span class="id" title="definition">polynomial_functor</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor"><span class="id" title="definition">make_functor</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_data"><span class="id" title="definition">polynomial_functor_data</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_is_functor"><span class="id" title="lemma">polynomial_functor_is_functor</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+An algebra with an uncurried structure map 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="polynomial_alg_uncurried" class="idref" href="#polynomial_alg_uncurried"><span class="id" title="definition">polynomial_alg_uncurried</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="X:9" class="idref" href="#X:9"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="a:10" class="idref" href="#a:10"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#PolynomialFunctors.A"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Induction.PolynomialFunctors.html#PolynomialFunctors.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#a:10"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#X:9"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#X:9"><span class="id" title="variable">X</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The uncurried and curried versions are equivalent 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="polynomial_alg_uncurried_equiv" class="idref" href="#polynomial_alg_uncurried_equiv"><span class="id" title="lemma">polynomial_alg_uncurried_equiv</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_alg_uncurried"><span class="id" title="definition">polynomial_alg_uncurried</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor"><span class="id" title="definition">polynomial_functor</span></a><a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#weq_iso"><span class="id" title="definition">weq_iso</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="p:12" class="idref" href="#p:12"><span class="id" title="binder"><span id="p:14" class="id">p</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#p:12"><span class="id" title="variable">p</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#uncurry"><span class="id" title="definition">uncurry</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#p:12"><span class="id" title="variable">p</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">)</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="p:11" class="idref" href="#p:11"><span class="id" title="binder"><span id="p:13" class="id">p</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#p:11"><span class="id" title="variable">p</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#curry"><span class="id" title="definition">curry</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#p:11"><span class="id" title="variable">p</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">)</span></a>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">try</span> <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#PolynomialFunctors"><span class="id" title="section">PolynomialFunctors</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

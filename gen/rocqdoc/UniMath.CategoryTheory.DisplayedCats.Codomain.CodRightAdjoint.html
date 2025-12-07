@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.html#"><span class="id" title="library">UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DualBeckChevalley.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.DualBeckChevalley</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="DependentProductsCodomain" class="idref" href="#DependentProductsCodomain"><span class="id" title="section">DependentProductsCodomain</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="DependentProductsCodomain.C" class="idref" href="#DependentProductsCodomain.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="DependentProductsCodomain.PB" class="idref" href="#DependentProductsCodomain.PB"><span class="id" title="variable">PB</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#Pullbacks"><span class="id" title="definition">Pullbacks</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#C:1"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="DependentProductsCodomain.HC" class="idref" href="#DependentProductsCodomain.HC"><span class="id" title="variable">HC</span></a> : <a class="idref" href="UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.html#is_locally_cartesian_closed"><span class="id" title="definition">is_locally_cartesian_closed</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#PB:2"><span class="id" title="variable">PB</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="DependentProductsCodomain.HD" class="idref" href="#DependentProductsCodomain.HD"><span class="id" title="variable">HD</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cleaving"><span class="id" title="definition">cleaving</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.html#disp_codomain"><span class="id" title="definition">disp_codomain</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#DependentProductsCodomain.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.html#disp_codomain_cleaving"><span class="id" title="definition">disp_codomain_cleaving</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#DependentProductsCodomain.PB"><span class="id" title="variable">PB</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2104"></a><h1 class="section">1. The Beck-Chevalley condition</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="cod_right_beck_chevalley" class="idref" href="#cod_right_beck_chevalley"><span class="id" title="lemma">cod_right_beck_chevalley</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="w:4" class="idref" href="#w:4"><span class="id" title="binder">w</span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a> <a id="y:6" class="idref" href="#y:6"><span class="id" title="binder">y</span></a> <a id="z:7" class="idref" href="#z:7"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#DependentProductsCodomain.C"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:8" class="idref" href="#f:8"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#x:5"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#w:4"><span class="id" title="variable">w</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="g:9" class="idref" href="#g:9"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#y:6"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#w:4"><span class="id" title="variable">w</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="h:10" class="idref" href="#h:10"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#z:7"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#y:6"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="k:11" class="idref" href="#k:11"><span class="id" title="binder">k</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#z:7"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#x:5"><span class="id" title="variable">x</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:12" class="idref" href="#p:12"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#k:11"><span class="id" title="variable">k</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#f:8"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#h:10"><span class="id" title="variable">h</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#g:9"><span class="id" title="variable">g</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:13" class="idref" href="#H:13"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#isPullback"><span class="id" title="definition">isPullback</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#p:12"><span class="id" title="variable">p</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.html#right_beck_chevalley"><span class="id" title="definition">right_beck_chevalley</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#DependentProductsCodomain.HD"><span class="id" title="variable">HD</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#f:8"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#g:9"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#h:10"><span class="id" title="variable">h</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#k:11"><span class="id" title="variable">k</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#p:12"><span class="id" title="variable">p</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#DependentProductsCodomain.HC"><span class="id" title="variable">HC</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#x:5"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#w:4"><span class="id" title="variable">w</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#f:8"><span class="id" title="variable">f</span></a>) (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#DependentProductsCodomain.HC"><span class="id" title="variable">HC</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#z:7"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#y:6"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#h:10"><span class="id" title="variable">h</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DualBeckChevalley.html#right_from_left_beck_chevalley"><span class="id" title="definition">right_from_left_beck_chevalley</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.html#is_right_adjoint_cod_fiber_functor"><span class="id" title="definition">is_right_adjoint_cod_fiber_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.html#is_right_adjoint_cod_fiber_functor"><span class="id" title="definition">is_right_adjoint_cod_fiber_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.html#cod_left_beck_chevalley"><span class="id" title="definition">cod_left_beck_chevalley</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#is_symmetric_isPullback"><span class="id" title="lemma">is_symmetric_isPullback</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2105"></a><h1 class="section">2. Dependent products in a locally cartesian closed category</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="cod_dependent_products" class="idref" href="#cod_dependent_products"><span class="id" title="definition">cod_dependent_products</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.html#has_dependent_products"><span class="id" title="definition">has_dependent_products</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#DependentProductsCodomain.HD"><span class="id" title="variable">HD</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#DependentProductsCodomain.HC"><span class="id" title="variable">HC</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> @<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#cod_right_beck_chevalley"><span class="id" title="lemma">cod_right_beck_chevalley</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.html#DependentProductsCodomain"><span class="id" title="section">DependentProductsCodomain</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Induction.W.WtypesAsW</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Induction.W.WtypesAsW</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3720"></a><h1 class="section">From axiomatic W-types to W-types as initial algebras.</h1>
+
+<div class="paragraph"> </div>
+
+Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021.
+
+<div class="paragraph"> </div>
+
+It is a proof that the rules for W-types gives an initial agebra
+
+<div class="paragraph"> </div>
+
+Derived from the code in the GitHub repository <a href="https://github.com/HoTT/Archive/tree/master/LICS2012">
+https://github.com/HoTT/Archive/tree/master/LICS2012 </a>, which accompanies the paper
+"_Inductive Types in Homotopy Type Theory_", by S. Awodey, N. Gambino and K. Sojakova.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#"><span class="id" title="library">UniMath.MoreFoundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.W.Wtypes.html#"><span class="id" title="library">UniMath.Induction.W.Wtypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.W.Core.html#"><span class="id" title="library">UniMath.Induction.W.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#"><span class="id" title="library">UniMath.Induction.FunctorAlgebras_legacy</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#"><span class="id" title="library">UniMath.Induction.PolynomialFunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.PolynomialAlgebras2Cells.html#"><span class="id" title="library">UniMath.Induction.PolynomialAlgebras2Cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="ddfa557d890d9c0cd173d40cb7db80da" class="idref" href="#ddfa557d890d9c0cd173d40cb7db80da"><span class="id" title="notation">&quot;</span></a>a ;; b" := (<a class="idref" href="UniMath.Foundations.PartA.html#funcomp"><span class="id" title="definition">funcomp</span></a> <span class="id" title="var">a</span> <span class="id" title="var">b</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="From_W_types_to_initiality" class="idref" href="#From_W_types_to_initiality"><span class="id" title="section">From_W_types_to_initiality</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> {<a id="From_W_types_to_initiality.A" class="idref" href="#From_W_types_to_initiality.A"><span class="id" title="variable">A</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} {<a id="From_W_types_to_initiality.B" class="idref" href="#From_W_types_to_initiality.B"><span class="id" title="variable">B</span></a>: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} (<a id="From_W_types_to_initiality.W" class="idref" href="#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a>: <a class="idref" href="UniMath.Induction.W.Wtypes.html#Wtype"><span class="id" title="definition">Wtype</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#B:2"><span class="id" title="variable">B</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We define the algebra associated to W 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id="P" class="idref" href="#P"><span class="id" title="abbreviation">P</span></a> := (<a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor"><span class="id" title="definition">polynomial_functor</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.A"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.B"><span class="id" title="variable">B</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.s_W" class="idref" href="#From_W_types_to_initiality.s_W"><span class="id" title="variable">s_W</span></a> (<a id="c:4" class="idref" href="#c:4"><span class="id" title="binder">c</span></a>: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a>) : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a> := <a class="idref" href="UniMath.Induction.W.Wtypes.html#w_sup"><span class="id" title="definition">w_sup</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#c:4"><span class="id" title="variable">c</span></a>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#c:4"><span class="id" title="variable">c</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="w_algebra" class="idref" href="#w_algebra"><span class="id" title="definition">w_algebra</span></a>: <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a> := <a class="idref" href="UniMath.Induction.W.Wtypes.html#w_carrier"><span class="id" title="definition">w_carrier</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.s_W"><span class="id" title="variable">s_W</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id="WW" class="idref" href="#WW"><span class="id" title="abbreviation">WW</span></a> := (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w_algebra"><span class="id" title="definition">w_algebra</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We consider another algebra. For simplicity we first prove the claim for algebras in canonical form. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="From_W_types_to_initiality.Towards_contractibility" class="idref" href="#From_W_types_to_initiality.Towards_contractibility"><span class="id" title="section">Towards_contractibility</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="From_W_types_to_initiality.Towards_contractibility.EE" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.EE"><span class="id" title="variable">EE</span></a>: <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.E" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.E"><span class="id" title="variable">E</span></a> := <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#alg_carrier"><span class="id" title="definition">alg_carrier</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.EE"><span class="id" title="variable">EE</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.s_E" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.s_E"><span class="id" title="variable">s_E</span></a> := <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#alg_map"><span class="id" title="definition">alg_map</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.EE"><span class="id" title="variable">EE</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The map j : W → E, which we will show to be an algebra map.
+It is defined by W-recursion, so we construct the eliminating term. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.d_j" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.d_j"><span class="id" title="variable">d_j</span></a> (<a id="x:6" class="idref" href="#x:6"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.A"><span class="id" title="variable">A</span></a>) (<a id="u:7" class="idref" href="#u:7"><span class="id" title="binder">u</span></a>: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:6"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a>) (<a id="IH:8" class="idref" href="#IH:8"><span class="id" title="binder">IH</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:6"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.E"><span class="id" title="variable">E</span></a>): <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.E"><span class="id" title="variable">E</span></a> := <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.s_E"><span class="id" title="variable">s_E</span></a> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:6"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#IH:8"><span class="id" title="variable">IH</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.j" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> (<a id="w:9" class="idref" href="#w:9"><span class="id" title="binder">w</span></a>: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a>): <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.E"><span class="id" title="variable">E</span></a> := <a class="idref" href="UniMath.Induction.W.Wtypes.html#w_ind"><span class="id" title="definition">w_ind</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.d_j"><span class="id" title="variable">d_j</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w:9"><span class="id" title="variable">w</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Construction of a homotopy sigma_j which is used to show that j is an algebra map. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.sigma_j_flat" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.sigma_j_flat"><span class="id" title="variable">sigma_j_flat</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="c:10" class="idref" href="#c:10"><span class="id" title="binder">c</span></a>: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.s_W"><span class="id" title="variable">s_W</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#c:10"><span class="id" title="variable">c</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.s_E"><span class="id" title="variable">s_E</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">j</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">c</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">c</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">x</span> <span class="id" title="var">u</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Induction.W.Wtypes.html#w_beta"><span class="id" title="definition">w_beta</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.E"><span class="id" title="variable">E</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.sigma_j_sharp" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.sigma_j_sharp"><span class="id" title="variable">sigma_j_sharp</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#is_algebra_mor"><span class="id" title="definition">is_algebra_mor</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#WW"><span class="id" title="abbreviation">WW</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.EE"><span class="id" title="variable">EE</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.sigma_j_flat"><span class="id" title="variable">sigma_j_flat</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We introduce the evaluation morphism as the algebra map (j, sigma_j_sharp), which will be the center of the contraction. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="w_eval" class="idref" href="#w_eval"><span class="id" title="definition">w_eval</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_mor"><span class="id" title="definition">algebra_mor</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#WW"><span class="id" title="abbreviation">WW</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.EE"><span class="id" title="variable">EE</span></a> := <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.sigma_j_sharp"><span class="id" title="variable">sigma_j_sharp</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id="jj" class="idref" href="#jj"><span class="id" title="abbreviation">jj</span></a> := (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w_eval"><span class="id" title="definition">w_eval</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We now assume that to have a  algebra map kk : WW → EE and we show that it is propositionally equal to jj
+For simplicity, we first prove this for algebra maps in canonical form. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="From_W_types_to_initiality.Towards_contractibility.kk" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.kk"><span class="id" title="variable">kk</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_mor"><span class="id" title="definition">algebra_mor</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#WW"><span class="id" title="abbreviation">WW</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.EE"><span class="id" title="variable">EE</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.k" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.E"><span class="id" title="variable">E</span></a> := <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#mor_from_algebra_mor"><span class="id" title="definition">mor_from_algebra_mor</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#WW"><span class="id" title="abbreviation">WW</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.EE"><span class="id" title="variable">EE</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.kk"><span class="id" title="variable">kk</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.sigma_k" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.sigma_k"><span class="id" title="variable">sigma_k</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#is_algebra_mor"><span class="id" title="definition">is_algebra_mor</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#WW"><span class="id" title="abbreviation">WW</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.EE"><span class="id" title="variable">EE</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.kk"><span class="id" title="variable">kk</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The homotopy associated to s_k  
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.sigma_k_flat" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.sigma_k_flat"><span class="id" title="variable">sigma_k_flat</span></a>: <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:12" class="idref" href="#x:12"><span class="id" title="binder">x</span></a>: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.s_W"><span class="id" title="variable">s_W</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:12"><span class="id" title="variable">x</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.s_E"><span class="id" title="variable">s_E</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#P"><span class="id" title="abbreviation">P</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">k</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">x</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.sigma_k"><span class="id" title="variable">sigma_k</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Construction of the homotopy from j to k by W-elimination 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.d_theta" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.d_theta"><span class="id" title="variable">d_theta</span></a> (<a id="x:13" class="idref" href="#x:13"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.A"><span class="id" title="variable">A</span></a>) (<a id="u:14" class="idref" href="#u:14"><span class="id" title="binder">u</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:13"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a>) (<a id="IH:16" class="idref" href="#IH:16"><span class="id" title="binder">IH</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="c:15" class="idref" href="#c:15"><span class="id" title="binder">c</span></a>: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:13"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#u:14"><span class="id" title="variable">u</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#c:15"><span class="id" title="variable">c</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#u:14"><span class="id" title="variable">u</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#c:15"><span class="id" title="variable">c</span></a>))<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> (<a class="idref" href="UniMath.Induction.W.Wtypes.html#w_sup"><span class="id" title="definition">w_sup</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:13"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#u:14"><span class="id" title="variable">u</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> (<a class="idref" href="UniMath.Induction.W.Wtypes.html#w_sup"><span class="id" title="definition">w_sup</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:13"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#u:14"><span class="id" title="variable">u</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">e_1</span> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> (<a class="idref" href="UniMath.Induction.W.Wtypes.html#w_sup"><span class="id" title="definition">w_sup</span></a> <span class="id" title="var">x</span> <span class="id" title="var">u</span>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.s_E"><span class="id" title="variable">s_E</span></a> (<span class="id" title="var">x</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">u</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#ddfa557d890d9c0cd173d40cb7db80da"><span class="id" title="notation">;;</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a>)).<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.sigma_j_flat"><span class="id" title="variable">sigma_j_flat</span></a> (<span class="id" title="var">x</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">u</span>)).<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">e_2</span> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.s_E"><span class="id" title="variable">s_E</span></a> (<span class="id" title="var">x</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">u</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#ddfa557d890d9c0cd173d40cb7db80da"><span class="id" title="notation">;;</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.s_E"><span class="id" title="variable">s_E</span></a> (<span class="id" title="var">x</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">u</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#ddfa557d890d9c0cd173d40cb7db80da"><span class="id" title="notation">;;</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a>)).<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">IH</span>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">e_3</span> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.s_E"><span class="id" title="variable">s_E</span></a> (<span class="id" title="var">x</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">u</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#ddfa557d890d9c0cd173d40cb7db80da"><span class="id" title="notation">;;</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> (<a class="idref" href="UniMath.Induction.W.Wtypes.html#w_sup"><span class="id" title="definition">w_sup</span></a> <span class="id" title="var">x</span> <span class="id" title="var">u</span>)).<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.sigma_k_flat"><span class="id" title="variable">sigma_k_flat</span></a> (<span class="id" title="var">x</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">u</span>)<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">(</span></a><span class="id" title="var">e_1</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">e_2</span><a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">e_3</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The homotopy between j and k 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.theta" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.theta"><span class="id" title="variable">theta</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#3b607cd2b1a9e24566af78883872a576"><span class="id" title="notation">~</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> := <a class="idref" href="UniMath.Induction.W.Wtypes.html#w_ind"><span class="id" title="definition">w_ind</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="w:17" class="idref" href="#w:17"><span class="id" title="binder">w</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w:17"><span class="id" title="variable">w</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w:17"><span class="id" title="variable">w</span></a>) <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.d_theta"><span class="id" title="variable">d_theta</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.theta_comp" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.theta_comp"><span class="id" title="variable">theta_comp</span></a> (<a id="x:18" class="idref" href="#x:18"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.A"><span class="id" title="variable">A</span></a>) (<a id="u:19" class="idref" href="#u:19"><span class="id" title="binder">u</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:18"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.theta"><span class="id" title="variable">theta</span></a> (<a class="idref" href="UniMath.Induction.W.Wtypes.html#w_sup"><span class="id" title="definition">w_sup</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:18"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#u:19"><span class="id" title="variable">u</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.d_theta"><span class="id" title="variable">d_theta</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:18"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#u:19"><span class="id" title="variable">u</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="y:20" class="idref" href="#y:20"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:18"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.theta"><span class="id" title="variable">theta</span></a> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#u:19"><span class="id" title="variable">u</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#y:20"><span class="id" title="variable">y</span></a>))<br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Induction.W.Wtypes.html#w_beta"><span class="id" title="definition">w_beta</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="w:21" class="idref" href="#w:21"><span class="id" title="binder">w</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.W"><span class="id" title="variable">W</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w:21"><span class="id" title="variable">w</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w:21"><span class="id" title="variable">w</span></a>) <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.d_theta"><span class="id" title="variable">d_theta</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#x:18"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#u:19"><span class="id" title="variable">u</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Verification that theta is a algebra map homotopy 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.s_theta" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.s_theta"><span class="id" title="variable">s_theta</span></a> : <a class="idref" href="UniMath.Induction.PolynomialAlgebras2Cells.html#isalgmaphomotopy"><span class="id" title="definition">isalgmaphomotopy</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.sigma_j_flat"><span class="id" title="variable">sigma_j_flat</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.sigma_k_flat"><span class="id" title="variable">sigma_k_flat</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.theta"><span class="id" title="variable">theta</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#homotcomp"><span class="id" title="definition">homotcomp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#hornRotation_rr"><span class="id" title="definition">hornRotation_rr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.theta_comp"><span class="id" title="variable">theta_comp</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The path p : k = j associated to theta 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.p" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.p"><span class="id" title="variable">p</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.j"><span class="id" title="variable">j</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> := <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.theta"><span class="id" title="variable">theta</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The proof that p is an algebra 2-cell. This exploits the work on
+relating algebra map homotopies and algebra map 2-cells done earlier 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="From_W_types_to_initiality.Towards_contractibility.s_p" class="idref" href="#From_W_types_to_initiality.Towards_contractibility.s_p"><span class="id" title="variable">s_p</span></a> : <a class="idref" href="UniMath.Induction.PolynomialAlgebras2Cells.html#isalg2cell"><span class="id" title="definition">isalg2cell</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#jj"><span class="id" title="abbreviation">jj</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.kk"><span class="id" title="variable">kk</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.p"><span class="id" title="variable">p</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">s_k_flat_sharp</span> := <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.sigma_k_flat"><span class="id" title="variable">sigma_k_flat</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">e</span> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.sigma_k"><span class="id" title="variable">sigma_k</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">s_k_flat_sharp</span>).<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#homotinvweqweq0"><span class="id" title="definition">homotinvweqweq0</span></a>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportb"><span class="id" title="definition">transportb</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="u:22" class="idref" href="#u:22"><span class="id" title="binder"><span id="u:23" class="id">u</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Induction.PolynomialAlgebras2Cells.html#isalg2cell"><span class="id" title="definition">isalg2cell</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#jj"><span class="id" title="abbreviation">jj</span></a> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.k"><span class="id" title="variable">k</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#u:22"><span class="id" title="variable">u</span></a>) <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.p"><span class="id" title="variable">p</span></a>) <span class="id" title="var">e</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Induction.PolynomialAlgebras2Cells.html#alghomotopytoalg2cell"><span class="id" title="definition">alghomotopytoalg2cell</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.s_theta"><span class="id" title="variable">s_theta</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Proof that jj is propositionally equal to kk 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pq" class="idref" href="#pq"><span class="id" title="definition">pq</span></a> : <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#jj"><span class="id" title="abbreviation">jj</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.kk"><span class="id" title="variable">kk</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Induction.PolynomialAlgebras2Cells.html#weqfromalg2celltoidalgmap"><span class="id" title="definition">weqfromalg2celltoidalgmap</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.p"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility.s_p"><span class="id" title="variable">s_p</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality.Towards_contractibility"><span class="id" title="section">Towards_contractibility</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Proof of initiality of W 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="w_types_are_initial" class="idref" href="#w_types_are_initial"><span class="id" title="lemma">w_types_are_initial</span></a> : <a class="idref" href="UniMath.Induction.W.Core.html#is_initial"><span class="id" title="definition">is_initial</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#WW"><span class="id" title="abbreviation">WW</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">EE</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w_eval"><span class="id" title="definition">w_eval</span></a> <span class="id" title="var">EE</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">kk</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Induction.W.WtypesAsW.html#pq"><span class="id" title="definition">pq</span></a> <span class="id" title="var">EE</span> <span class="id" title="var">kk</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#From_W_types_to_initiality"><span class="id" title="section">From_W_types_to_initiality</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="Wtype_is_W" class="idref" href="#Wtype_is_W"><span class="id" title="lemma">Wtype_is_W</span></a> {<a id="A:24" class="idref" href="#A:24"><span class="id" title="binder">A</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} {<a id="B:25" class="idref" href="#B:25"><span class="id" title="binder">B</span></a>: <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#A:24"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} (<a id="W':26" class="idref" href="#W':26"><span class="id" title="binder">W'</span></a>: <a class="idref" href="UniMath.Induction.W.Wtypes.html#Wtype"><span class="id" title="definition">Wtype</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#A:24"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#B:25"><span class="id" title="variable">B</span></a>) : <a class="idref" href="UniMath.Induction.W.Core.html#W"><span class="id" title="definition">W</span></a> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#B:25"><span class="id" title="variable">B</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w_algebra"><span class="id" title="definition">w_algebra</span></a> <span class="id" title="var">W'</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Induction.W.WtypesAsW.html#w_types_are_initial"><span class="id" title="lemma">w_types_are_initial</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

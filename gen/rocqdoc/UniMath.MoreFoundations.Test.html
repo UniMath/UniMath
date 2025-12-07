@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.MoreFoundations.Test</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.MoreFoundations.Test</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3786"></a><h1 class="section">Tests</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Init.html#"><span class="id" title="library">UniMath.Foundations.Init</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#"><span class="id" title="library">UniMath.MoreFoundations.Bool</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3787"></a><h2 class="section">Bool.v</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">andb</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">true</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">andb</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">false</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">andb</span></a> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">false</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">andb</span></a> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">false</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">orb</span></a> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">true</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm4" class="idref" href="#Unnamed_thm4"><span class="id" title="definition">orb</span></a> <a id="Unnamed_thm4" class="idref" href="#Unnamed_thm4"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm4" class="idref" href="#Unnamed_thm4"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm4" class="idref" href="#Unnamed_thm4"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm4" class="idref" href="#Unnamed_thm4"><span class="id" title="definition">true</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm5" class="idref" href="#Unnamed_thm5"><span class="id" title="definition">orb</span></a> <a id="Unnamed_thm5" class="idref" href="#Unnamed_thm5"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm5" class="idref" href="#Unnamed_thm5"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm5" class="idref" href="#Unnamed_thm5"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm5" class="idref" href="#Unnamed_thm5"><span class="id" title="definition">true</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm6" class="idref" href="#Unnamed_thm6"><span class="id" title="definition">orb</span></a> <a id="Unnamed_thm6" class="idref" href="#Unnamed_thm6"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm6" class="idref" href="#Unnamed_thm6"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm6" class="idref" href="#Unnamed_thm6"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm6" class="idref" href="#Unnamed_thm6"><span class="id" title="definition">false</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm7" class="idref" href="#Unnamed_thm7"><span class="id" title="definition">implb</span></a> <a id="Unnamed_thm7" class="idref" href="#Unnamed_thm7"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm7" class="idref" href="#Unnamed_thm7"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm7" class="idref" href="#Unnamed_thm7"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm7" class="idref" href="#Unnamed_thm7"><span class="id" title="definition">true</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm8" class="idref" href="#Unnamed_thm8"><span class="id" title="definition">implb</span></a> <a id="Unnamed_thm8" class="idref" href="#Unnamed_thm8"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm8" class="idref" href="#Unnamed_thm8"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm8" class="idref" href="#Unnamed_thm8"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm8" class="idref" href="#Unnamed_thm8"><span class="id" title="definition">false</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm9" class="idref" href="#Unnamed_thm9"><span class="id" title="definition">implb</span></a> <a id="Unnamed_thm9" class="idref" href="#Unnamed_thm9"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm9" class="idref" href="#Unnamed_thm9"><span class="id" title="definition">true</span></a> <a id="Unnamed_thm9" class="idref" href="#Unnamed_thm9"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm9" class="idref" href="#Unnamed_thm9"><span class="id" title="definition">true</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm10" class="idref" href="#Unnamed_thm10"><span class="id" title="definition">implb</span></a> <a id="Unnamed_thm10" class="idref" href="#Unnamed_thm10"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm10" class="idref" href="#Unnamed_thm10"><span class="id" title="definition">false</span></a> <a id="Unnamed_thm10" class="idref" href="#Unnamed_thm10"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm10" class="idref" href="#Unnamed_thm10"><span class="id" title="definition">true</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

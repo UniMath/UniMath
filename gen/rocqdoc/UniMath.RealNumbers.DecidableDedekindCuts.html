@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.RealNumbers.DecidableDedekindCuts</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.RealNumbers.DecidableDedekindCuts</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab4005"></a><h1 class="section">A library about decidable Dedekind Cuts</h1>
+ Author: Catherine LELAY. Oct 2015 -  Additional results about Dedekind cuts which cannot be proved  without decidability 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Preamble.html#"><span class="id" title="library">UniMath.Foundations.Preamble</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#"><span class="id" title="library">UniMath.RealNumbers.Prelim</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.RealNumbers.Sets.html#"><span class="id" title="library">UniMath.RealNumbers.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.RealNumbers.NonnegativeRationals.html#"><span class="id" title="library">UniMath.RealNumbers.NonnegativeRationals</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#"><span class="id" title="library">UniMath.RealNumbers.NonnegativeReals</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">Dcuts_scope</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">DC_scope</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4006"></a><h2 class="section">Definition</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isboolDcuts_isaprop" class="idref" href="#isboolDcuts_isaprop"><span class="id" title="lemma">isboolDcuts_isaprop</span></a> (<a id="x:1" class="idref" href="#x:1"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#Dcuts"><span class="id" title="definition">Dcuts</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="r:2" class="idref" href="#r:2"><span class="id" title="binder">r</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#r:2"><span class="id" title="variable">r</span></a> <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#784bce8fa3f3eb01bdd4c059746a5e8e"><span class="id" title="notation">∈</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#x:1"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">∨</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#neg"><span class="id" title="definition">neg</span></a> (<a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#r:2"><span class="id" title="variable">r</span></a> <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#784bce8fa3f3eb01bdd4c059746a5e8e"><span class="id" title="notation">∈</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#x:1"><span class="id" title="variable">x</span></a>)<a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">)</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">r</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="isboolDcuts" class="idref" href="#isboolDcuts"><span class="id" title="definition">isboolDcuts</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#Dcuts"><span class="id" title="definition">Dcuts</span></a> :=<br/>
+&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:3" class="idref" href="#x:3"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#Dcuts"><span class="id" title="definition">Dcuts</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#make_hProp"><span class="id" title="definition">make_hProp</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#isboolDcuts_isaprop"><span class="id" title="lemma">isboolDcuts_isaprop</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#x:3"><span class="id" title="variable">x</span></a>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isaset_boolDcuts" class="idref" href="#isaset_boolDcuts"><span class="id" title="lemma">isaset_boolDcuts</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#isboolDcuts"><span class="id" title="definition">isboolDcuts</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetsubset"><span class="id" title="lemma">isasetsubset</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isinclpr1"><span class="id" title="definition">isinclpr1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="boolDcuts" class="idref" href="#boolDcuts"><span class="id" title="definition">boolDcuts</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Sets.html#make_hSet"><span class="id" title="definition">make_hSet</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#carrier"><span class="id" title="definition">carrier</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#isboolDcuts"><span class="id" title="definition">isboolDcuts</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#isaset_boolDcuts"><span class="id" title="lemma">isaset_boolDcuts</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_boolDcuts" class="idref" href="#make_boolDcuts"><span class="id" title="definition">make_boolDcuts</span></a> (<a id="x:4" class="idref" href="#x:4"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#Dcuts"><span class="id" title="definition">Dcuts</span></a>) (<a id="Hdec:6" class="idref" href="#Hdec:6"><span class="id" title="binder">Hdec</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="r:5" class="idref" href="#r:5"><span class="id" title="binder">r</span></a> : <a class="idref" href="UniMath.RealNumbers.NonnegativeRationals.html#NonnegativeRationals"><span class="id" title="definition">NonnegativeRationals</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#r:5"><span class="id" title="variable">r</span></a> <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#784bce8fa3f3eb01bdd4c059746a5e8e"><span class="id" title="notation">∈</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#x:4"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#r:5"><span class="id" title="variable">r</span></a> <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#784bce8fa3f3eb01bdd4c059746a5e8e"><span class="id" title="notation">∈</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#x:4"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">)</span></a>) : <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#boolDcuts"><span class="id" title="definition">boolDcuts</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#x:4"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="r:7" class="idref" href="#r:7"><span class="id" title="binder">r</span></a> : <a class="idref" href="UniMath.RealNumbers.NonnegativeRationals.html#NonnegativeRationals"><span class="id" title="definition">NonnegativeRationals</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#Hdec:6"><span class="id" title="variable">Hdec</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#r:7"><span class="id" title="variable">r</span></a>)<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_zero_dec" class="idref" href="#is_zero_dec"><span class="id" title="lemma">is_zero_dec</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:8" class="idref" href="#x:8"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#Dcuts"><span class="id" title="definition">Dcuts</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#isboolDcuts"><span class="id" title="definition">isboolDcuts</span></a> <a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#x:8"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#x:8"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 0<a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">∨</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.DecidableDedekindCuts.html#x:8"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 0<a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">)</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">Hx</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> (<span class="id" title="var">Hx</span> 0%<span class="id" title="var">NRat</span>) ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhfun"><span class="id" title="definition">hinhfun</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#sumofmaps"><span class="id" title="definition">sumofmaps</span></a> ; <span class="id" title="tactic">intros</span> <span class="id" title="var">Hx0</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">right</span> ; <span class="id" title="tactic">intro</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">Hx0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#Dcuts_zero_empty"><span class="id" title="lemma">Dcuts_zero_empty</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">Hx0</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">left</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#Dcuts_eq_is_eq"><span class="id" title="lemma">Dcuts_eq_is_eq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">Hr</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hx0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#is_Dcuts_bot"><span class="id" title="lemma">is_Dcuts_bot</span></a> <span class="id" title="var">x</span> <span class="id" title="var">r</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <span class="id" title="var">Hr</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.NonnegativeRationals.html#isnonnegative_NonnegativeRationals"><span class="id" title="lemma">isnonnegative_NonnegativeRationals</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">Hr</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.NonnegativeReals.html#Dcuts_zero_empty"><span class="id" title="lemma">Dcuts_zero_empty</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">Hr</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

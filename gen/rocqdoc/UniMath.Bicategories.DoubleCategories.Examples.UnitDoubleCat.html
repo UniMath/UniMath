@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.StandardCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#"><span class="id" title="library">UniMath.CategoryTheory.Groupoids</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfUnivCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Limits.Final.html#"><span class="id" title="library">UniMath.Bicategories.Limits.Final</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.DoubleCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1159"></a><h1 class="section">1. Horizontal operations of the unit double category</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="unit_double_cat_hor_id_data" class="idref" href="#unit_double_cat_hor_id_data"><span class="id" title="definition">unit_double_cat_hor_id_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_id_data"><span class="id" title="definition">hor_id_data</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#constant_twosided_disp_cat"><span class="id" title="definition">constant_twosided_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_id_data"><span class="id" title="definition">make_hor_id_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="unit_double_cat_hor_id_laws" class="idref" href="#unit_double_cat_hor_id_laws"><span class="id" title="lemma">unit_double_cat_hor_id_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_id_laws"><span class="id" title="definition">hor_id_laws</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_id_data"><span class="id" title="definition">unit_double_cat_hor_id_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_double_cat_hor_id" class="idref" href="#unit_double_cat_hor_id"><span class="id" title="definition">unit_double_cat_hor_id</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_id"><span class="id" title="definition">hor_id</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#constant_twosided_disp_cat"><span class="id" title="definition">constant_twosided_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_id"><span class="id" title="definition">make_hor_id</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_id_data"><span class="id" title="definition">unit_double_cat_hor_id_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_id_laws"><span class="id" title="lemma">unit_double_cat_hor_id_laws</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_double_cat_hor_comp_data" class="idref" href="#unit_double_cat_hor_comp_data"><span class="id" title="definition">unit_double_cat_hor_comp_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_comp_data"><span class="id" title="definition">hor_comp_data</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#constant_twosided_disp_cat"><span class="id" title="definition">constant_twosided_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_comp_data"><span class="id" title="definition">make_hor_comp_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="unit_double_cat_hor_comp_laws" class="idref" href="#unit_double_cat_hor_comp_laws"><span class="id" title="lemma">unit_double_cat_hor_comp_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_comp_laws"><span class="id" title="definition">hor_comp_laws</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_comp_data"><span class="id" title="definition">unit_double_cat_hor_comp_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_double_cat_hor_comp" class="idref" href="#unit_double_cat_hor_comp"><span class="id" title="definition">unit_double_cat_hor_comp</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_comp"><span class="id" title="definition">hor_comp</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#constant_twosided_disp_cat"><span class="id" title="definition">constant_twosided_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_comp"><span class="id" title="definition">make_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_comp_data"><span class="id" title="definition">unit_double_cat_hor_comp_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_comp_laws"><span class="id" title="lemma">unit_double_cat_hor_comp_laws</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_double_lunitor" class="idref" href="#unit_double_lunitor"><span class="id" title="definition">unit_double_lunitor</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_cat_lunitor"><span class="id" title="definition">double_cat_lunitor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_id"><span class="id" title="definition">unit_double_cat_hor_id</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_comp"><span class="id" title="definition">unit_double_cat_hor_comp</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_double_lunitor"><span class="id" title="definition">make_double_lunitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#make_iso_twosided_disp"><span class="id" title="definition">make_iso_twosided_disp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#to_is_twosided_disp_cat_iso_constant"><span class="id" title="definition">to_is_twosided_disp_cat_iso_constant</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#path_groupoid"><span class="id" title="definition">path_groupoid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_double_runitor" class="idref" href="#unit_double_runitor"><span class="id" title="definition">unit_double_runitor</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_cat_runitor"><span class="id" title="definition">double_cat_runitor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_id"><span class="id" title="definition">unit_double_cat_hor_id</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_comp"><span class="id" title="definition">unit_double_cat_hor_comp</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_double_runitor"><span class="id" title="definition">make_double_runitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#make_iso_twosided_disp"><span class="id" title="definition">make_iso_twosided_disp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#to_is_twosided_disp_cat_iso_constant"><span class="id" title="definition">to_is_twosided_disp_cat_iso_constant</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#path_groupoid"><span class="id" title="definition">path_groupoid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_double_associator" class="idref" href="#unit_double_associator"><span class="id" title="definition">unit_double_associator</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_cat_associator"><span class="id" title="definition">double_cat_associator</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_comp"><span class="id" title="definition">unit_double_cat_hor_comp</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_double_associator"><span class="id" title="definition">make_double_associator</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#make_iso_twosided_disp"><span class="id" title="definition">make_iso_twosided_disp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#to_is_twosided_disp_cat_iso_constant"><span class="id" title="definition">to_is_twosided_disp_cat_iso_constant</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#path_groupoid"><span class="id" title="definition">path_groupoid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1160"></a><h1 class="section">2. The unit double category</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="unit_double_cat" class="idref" href="#unit_double_cat"><span class="id" title="definition">unit_double_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#double_cat"><span class="id" title="definition">double_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#make_double_cat"><span class="id" title="definition">make_double_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#constant_twosided_disp_cat"><span class="id" title="definition">constant_twosided_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_id"><span class="id" title="definition">unit_double_cat_hor_id</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat_hor_comp"><span class="id" title="definition">unit_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_lunitor"><span class="id" title="definition">unit_double_lunitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_runitor"><span class="id" title="definition">unit_double_runitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_associator"><span class="id" title="definition">unit_double_associator</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="is_flat_unit_double_cat" class="idref" href="#is_flat_unit_double_cat"><span class="id" title="lemma">is_flat_unit_double_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#is_flat_double_cat"><span class="id" title="definition">is_flat_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat"><span class="id" title="definition">unit_double_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_univalent_double_cat" class="idref" href="#unit_univalent_double_cat"><span class="id" title="definition">unit_univalent_double_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#univalent_double_cat"><span class="id" title="definition">univalent_double_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#make_univalent_double_cat"><span class="id" title="definition">make_univalent_double_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_double_cat"><span class="id" title="definition">unit_double_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category_is_univalent"><span class="id" title="definition">univalent_category_is_univalent</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.html#is_univalent_constant_twosided_disp_cat"><span class="id" title="definition">is_univalent_constant_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category_is_univalent"><span class="id" title="definition">univalent_category_is_univalent</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1161"></a><h1 class="section">3. Functors to the unit double category</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="FunctorToUnitDoubleCat" class="idref" href="#FunctorToUnitDoubleCat"><span class="id" title="section">FunctorToUnitDoubleCat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="FunctorToUnitDoubleCat.C" class="idref" href="#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#univalent_double_cat"><span class="id" title="definition">univalent_double_cat</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="twosided_disp_functor_to_unit_double_cat_data" class="idref" href="#twosided_disp_functor_to_unit_double_cat_data"><span class="id" title="definition">twosided_disp_functor_to_unit_double_cat_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.html#twosided_disp_functor_data"><span class="id" title="definition">twosided_disp_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#hor_mor"><span class="id" title="definition">hor_mor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#hor_mor"><span class="id" title="definition">hor_mor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_univalent_double_cat"><span class="id" title="definition">unit_univalent_double_cat</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="twosided_disp_functor_to_unit_double_cat_laws" class="idref" href="#twosided_disp_functor_to_unit_double_cat_laws"><span class="id" title="lemma">twosided_disp_functor_to_unit_double_cat_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.html#twosided_disp_functor_laws"><span class="id" title="definition">twosided_disp_functor_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#twosided_disp_functor_to_unit_double_cat_data"><span class="id" title="definition">twosided_disp_functor_to_unit_double_cat_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span> ; <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="twosided_disp_functor_to_unit_double_cat" class="idref" href="#twosided_disp_functor_to_unit_double_cat"><span class="id" title="definition">twosided_disp_functor_to_unit_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.html#twosided_disp_functor"><span class="id" title="definition">twosided_disp_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#hor_mor"><span class="id" title="definition">hor_mor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#hor_mor"><span class="id" title="definition">hor_mor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_univalent_double_cat"><span class="id" title="definition">unit_univalent_double_cat</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#twosided_disp_functor_to_unit_double_cat_data"><span class="id" title="definition">twosided_disp_functor_to_unit_double_cat_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#twosided_disp_functor_to_unit_double_cat_laws"><span class="id" title="lemma">twosided_disp_functor_to_unit_double_cat_laws</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lax_double_functor_to_unit_double_cat_hor_id" class="idref" href="#lax_double_functor_to_unit_double_cat_hor_id"><span class="id" title="definition">lax_double_functor_to_unit_double_cat_hor_id</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.html#double_functor_hor_id"><span class="id" title="definition">double_functor_hor_id</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#twosided_disp_functor_to_unit_double_cat"><span class="id" title="definition">twosided_disp_functor_to_unit_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#hor_id_double_cat"><span class="id" title="definition">hor_id_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#hor_id_double_cat"><span class="id" title="definition">hor_id_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_univalent_double_cat"><span class="id" title="definition">unit_univalent_double_cat</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.html#make_double_functor_hor_id"><span class="id" title="definition">make_double_functor_hor_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lax_double_functor_to_unit_double_cat_hor_comp" class="idref" href="#lax_double_functor_to_unit_double_cat_hor_comp"><span class="id" title="definition">lax_double_functor_to_unit_double_cat_hor_comp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.html#double_functor_hor_comp"><span class="id" title="definition">double_functor_hor_comp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#twosided_disp_functor_to_unit_double_cat"><span class="id" title="definition">twosided_disp_functor_to_unit_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#hor_comp_double_cat"><span class="id" title="definition">hor_comp_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#hor_comp_double_cat"><span class="id" title="definition">hor_comp_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_univalent_double_cat"><span class="id" title="definition">unit_univalent_double_cat</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.html#make_double_functor_hor_comp"><span class="id" title="definition">make_double_functor_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lax_double_functor_to_unit_double_cat" class="idref" href="#lax_double_functor_to_unit_double_cat"><span class="id" title="definition">lax_double_functor_to_unit_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#lax_double_functor"><span class="id" title="definition">lax_double_functor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_univalent_double_cat"><span class="id" title="definition">unit_univalent_double_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#make_lax_double_functor"><span class="id" title="definition">make_lax_double_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#functor_to_unit"><span class="id" title="definition">functor_to_unit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#twosided_disp_functor_to_unit_double_cat"><span class="id" title="definition">twosided_disp_functor_to_unit_double_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#lax_double_functor_to_unit_double_cat_hor_id"><span class="id" title="definition">lax_double_functor_to_unit_double_cat_hor_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#lax_double_functor_to_unit_double_cat_hor_comp"><span class="id" title="definition">lax_double_functor_to_unit_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#FunctorToUnitDoubleCat"><span class="id" title="section">FunctorToUnitDoubleCat</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1162"></a><h1 class="section">4. Transformations to the unit double category</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="NatTransToUnitDoubleCat" class="idref" href="#NatTransToUnitDoubleCat"><span class="id" title="section">NatTransToUnitDoubleCat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="NatTransToUnitDoubleCat.C" class="idref" href="#NatTransToUnitDoubleCat.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#univalent_double_cat"><span class="id" title="definition">univalent_double_cat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="NatTransToUnitDoubleCat.F" class="idref" href="#NatTransToUnitDoubleCat.F"><span class="id" title="variable">F</span></a> <a id="NatTransToUnitDoubleCat.G" class="idref" href="#NatTransToUnitDoubleCat.G"><span class="id" title="variable">G</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#lax_double_functor"><span class="id" title="definition">lax_double_functor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#C:2"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_univalent_double_cat"><span class="id" title="definition">unit_univalent_double_cat</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="twosided_disp_nat_trans_to_unit_double_cat" class="idref" href="#twosided_disp_nat_trans_to_unit_double_cat"><span class="id" title="definition">twosided_disp_nat_trans_to_unit_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.html#twosided_disp_nat_trans"><span class="id" title="definition">twosided_disp_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category_nat_trans"><span class="id" title="definition">unit_category_nat_trans</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#NatTransToUnitDoubleCat.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#NatTransToUnitDoubleCat.G"><span class="id" title="variable">G</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category_nat_trans"><span class="id" title="definition">unit_category_nat_trans</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#NatTransToUnitDoubleCat.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#NatTransToUnitDoubleCat.G"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#lax_double_functor_hor_mor"><span class="id" title="definition">lax_double_functor_hor_mor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#NatTransToUnitDoubleCat.F"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#lax_double_functor_hor_mor"><span class="id" title="definition">lax_double_functor_hor_mor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#NatTransToUnitDoubleCat.G"><span class="id" title="variable">G</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="double_transformation_to_unit_double_cat" class="idref" href="#double_transformation_to_unit_double_cat"><span class="id" title="definition">double_transformation_to_unit_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#double_transformation"><span class="id" title="definition">double_transformation</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#NatTransToUnitDoubleCat.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#NatTransToUnitDoubleCat.G"><span class="id" title="variable">G</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#make_double_transformation"><span class="id" title="definition">make_double_transformation</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category_nat_trans"><span class="id" title="definition">unit_category_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#twosided_disp_nat_trans_to_unit_double_cat"><span class="id" title="definition">twosided_disp_nat_trans_to_unit_double_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#NatTransToUnitDoubleCat"><span class="id" title="section">NatTransToUnitDoubleCat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="double_transformation_to_unit_double_cat_eq" class="idref" href="#double_transformation_to_unit_double_cat_eq"><span class="id" title="definition">double_transformation_to_unit_double_cat_eq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:5" class="idref" href="#C:5"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#univalent_double_cat"><span class="id" title="definition">univalent_double_cat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="F:6" class="idref" href="#F:6"><span class="id" title="binder">F</span></a> <a id="G:7" class="idref" href="#G:7"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#lax_double_functor"><span class="id" title="definition">lax_double_functor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#C:5"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_univalent_double_cat"><span class="id" title="definition">unit_univalent_double_cat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="4fa10eb8318ee85f9e7538d63823827a" class="idref" href="#4fa10eb8318ee85f9e7538d63823827a"><span class="id" title="binder">τ</span></a> <a id="f176788ac0942f0bc949ea062f230c37" class="idref" href="#f176788ac0942f0bc949ea062f230c37"><span class="id" title="binder">θ</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#double_transformation"><span class="id" title="definition">double_transformation</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#F:6"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#G:7"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#4fa10eb8318ee85f9e7538d63823827a"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#f176788ac0942f0bc949ea062f230c37"><span class="id" title="variable">θ</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#double_transformation_eq"><span class="id" title="lemma">double_transformation_eq</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1163"></a><h1 class="section">5. The unit double category is a terminal object</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="is_bifinal_unit_univalent_double_cat" class="idref" href="#is_bifinal_unit_univalent_double_cat"><span class="id" title="definition">is_bifinal_unit_univalent_double_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Limits.Final.html#is_bifinal"><span class="id" title="definition">is_bifinal</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#unit_univalent_double_cat"><span class="id" title="definition">unit_univalent_double_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Limits.Final.html#make_is_bifinal"><span class="id" title="definition">make_is_bifinal</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:10" class="idref" href="#C:10"><span class="id" title="binder"><span id="C:11" class="id">C</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#lax_double_functor_to_unit_double_cat"><span class="id" title="definition">lax_double_functor_to_unit_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#C:10"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:12" class="idref" href="#C:12"><span class="id" title="binder"><span id="C:15" class="id">C</span></span></a> <a id="F:13" class="idref" href="#F:13"><span class="id" title="binder"><span id="F:16" class="id">F</span></span></a> <a id="G:14" class="idref" href="#G:14"><span class="id" title="binder"><span id="G:17" class="id">G</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#double_transformation_to_unit_double_cat"><span class="id" title="definition">double_transformation_to_unit_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#F:13"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#G:14"><span class="id" title="variable">G</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:18" class="idref" href="#C:18"><span class="id" title="binder"><span id="C:23" class="id">C</span></span></a> <a id="F:19" class="idref" href="#F:19"><span class="id" title="binder"><span id="F:24" class="id">F</span></span></a> <a id="G:20" class="idref" href="#G:20"><span class="id" title="binder"><span id="G:25" class="id">G</span></span></a> <a id="b41575182aafdf1b24372763b9cfe753" class="idref" href="#b41575182aafdf1b24372763b9cfe753"><span class="id" title="binder"><span id="625295a83607c4158cc0b7caec18ea6a" class="id">τ</span></span></a> <a id="8901eecbad7446d620d56a6fa17048c6" class="idref" href="#8901eecbad7446d620d56a6fa17048c6"><span class="id" title="binder"><span id="e88ed8e875ddc0277cf54da124098b87" class="id">θ</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#double_transformation_to_unit_double_cat_eq"><span class="id" title="definition">double_transformation_to_unit_double_cat_eq</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#b41575182aafdf1b24372763b9cfe753"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.UnitDoubleCat.html#8901eecbad7446d620d56a6fa17048c6"><span class="id" title="variable">θ</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

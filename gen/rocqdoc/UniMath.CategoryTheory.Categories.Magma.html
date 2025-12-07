@@ -1,0 +1,385 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.Magma</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.Magma</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+  The Category of Magmas and Related Categories
+
+<div class="paragraph"> </div>
+
+  This file defines the category of magmas.
+  It defines the categories of abelian magmas, semigroups and unital magmas as displayed categories
+  over the category of magmas.
+  It then defines the category of monoids as a displayed product category of semigroups and unital
+  magmas.
+  The category of groups is constructed via a displayed category over the category of monoids.
+  Lastly, the categories of abelian groups and abelian monoids are again a displayed product of
+  their respective category and the category of abelian magmas.
+  For the categories that do not have their own files in this package (magmas, abelian magmas,
+  semigroups and unital magmas), univalence is shown here.
+
+<div class="paragraph"> </div>
+
+  Contents
+  1. The category of magmas <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#is_univalent_magma_category"><span class="id" title="lemma">is_univalent_magma_category</span></a></span>
+  1.1. Magmas <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma"><span class="id" title="definition">magma</span></a></span>
+  1.2. Magma morphisms <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_morphism"><span class="id" title="definition">magma_morphism</span></a></span>
+  2. The category of abelian magmas <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_magma_disp_cat"><span class="id" title="definition">abelian_magma_disp_cat</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#is_univalent_abelian_magma_disp_cat"><span class="id" title="lemma">is_univalent_abelian_magma_disp_cat</span></a></span>
+  3. The category of semigroups <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#semigroup_disp_cat"><span class="id" title="definition">semigroup_disp_cat</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#is_univalent_semigroup_disp_cat"><span class="id" title="lemma">is_univalent_semigroup_disp_cat</span></a></span>
+  4. The category of unital magmas <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#unital_magma_disp_cat"><span class="id" title="definition">unital_magma_disp_cat</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#is_univalent_unital_magma_disp_cat"><span class="id" title="lemma">is_univalent_unital_magma_disp_cat</span></a></span>
+  5. The category of monoids <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#monoid_category"><span class="id" title="definition">monoid_category</span></a></span>
+  6. The category of abelian monoids <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_monoid_category"><span class="id" title="definition">abelian_monoid_category</span></a></span>
+  7. The category of groups <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#group_category"><span class="id" title="definition">group_category</span></a></span>
+  8. The category of abelian groups <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_group_category"><span class="id" title="definition">abelian_group_category</span></a></span>
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#"><span class="id" title="library">UniMath.Algebra.BinaryOperations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.Product.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions.Product</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Examples.Sigma</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Total</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1703"></a><h1 class="section">1. The category of magmas</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="magma_disp_cat" class="idref" href="#magma_disp_cat"><span class="id" title="definition">magma_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.html#disp_struct"><span class="id" title="definition">disp_struct</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="X:1" class="idref" href="#X:1"><span class="id" title="binder"><span id="X:2" class="id">X</span></span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#binop"><span class="id" title="definition">binop</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#X:1"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:3" class="idref" href="#X:3"><span class="id" title="binder"><span id="X:10" class="id">X</span></span></a> <a id="Y:4" class="idref" href="#Y:4"><span class="id" title="binder"><span id="Y:11" class="id">Y</span></span></a> <a id="op:5" class="idref" href="#op:5"><span class="id" title="binder"><span id="op:12" class="id">op</span></span></a> <a id="op':6" class="idref" href="#op':6"><span class="id" title="binder"><span id="op':13" class="id">op'</span></span></a> <a id="f:7" class="idref" href="#f:7"><span class="id" title="binder"><span id="f:14" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:8" class="idref" href="#x:8"><span class="id" title="binder"><span id="x:15" class="id">x</span></span></a> <a id="y:9" class="idref" href="#y:9"><span class="id" title="binder"><span id="y:16" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#f:7"><span class="id" title="variable">f</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#op:5"><span class="id" title="variable">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#x:8"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#y:9"><span class="id" title="variable">y</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#op':6"><span class="id" title="variable">op'</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#f:7"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#x:8"><span class="id" title="variable">x</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#f:7"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#y:9"><span class="id" title="variable">y</span></a>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> <span class="id" title="var">easy</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">opX</span> <span class="id" title="var">opY</span> <span class="id" title="var">opZ</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">Hf</span> <span class="id" title="var">Hg</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">Hg</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">g</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hf</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_univalent_magma_disp_cat" class="idref" href="#is_univalent_magma_disp_cat"><span class="id" title="lemma">is_univalent_magma_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#is_univalent_disp"><span class="id" title="definition">is_univalent_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_disp_cat"><span class="id" title="definition">magma_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#is_univalent_disp_iff_fibers_are_univalent"><span class="id" title="definition">is_univalent_disp_iff_fibers_are_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">op</span> <span class="id" title="var">op'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#isweq_iso"><span class="id" title="lemma">isweq_iso</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_mor"><span class="id" title="definition">z_iso_mor</span></a> <span class="id" title="var">f</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#proofirrelevance"><span class="id" title="lemma">proofirrelevance</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#isasetbinoponhSet"><span class="id" title="definition">isasetbinoponhSet</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_eq"><span class="id" title="lemma">z_iso_eq</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#proofirrelevance"><span class="id" title="lemma">proofirrelevance</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="magma_category" class="idref" href="#magma_category"><span class="id" title="definition">magma_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_disp_cat"><span class="id" title="definition">magma_disp_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_univalent_magma_category" class="idref" href="#is_univalent_magma_category"><span class="id" title="lemma">is_univalent_magma_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#is_univalent_total_category"><span class="id" title="lemma">is_univalent_total_category</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#is_univalent_HSET"><span class="id" title="lemma">is_univalent_HSET</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#is_univalent_magma_disp_cat"><span class="id" title="lemma">is_univalent_magma_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1704"></a><h2 class="section">1.1. Magmas</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="magma" class="idref" href="#magma"><span class="id" title="definition">magma</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a id="magma_to_setwithbinop" class="idref" href="#magma_to_setwithbinop"><span class="id" title="definition">magma_to_setwithbinop</span></a> (<a id="X:17" class="idref" href="#X:17"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma"><span class="id" title="definition">magma</span></a>) : <a class="idref" href="UniMath.Algebra.BinaryOperations.html#setwithbinop"><span class="id" title="definition">setwithbinop</span></a> := <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#X:17"><span class="id" title="variable">X</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1705"></a><h2 class="section">1.2. Magma morphisms</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="magma_morphism" class="idref" href="#magma_morphism"><span class="id" title="definition">magma_morphism</span></a><br/>
+&nbsp;&nbsp;(<a id="X:18" class="idref" href="#X:18"><span class="id" title="binder">X</span></a> <a id="Y:19" class="idref" href="#Y:19"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma"><span class="id" title="definition">magma</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#X:18"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#Y:19"><span class="id" title="variable">Y</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a id="magma_morphism_to_binopfun" class="idref" href="#magma_morphism_to_binopfun"><span class="id" title="definition">magma_morphism_to_binopfun</span></a><br/>
+&nbsp;&nbsp;{<a id="X:20" class="idref" href="#X:20"><span class="id" title="binder">X</span></a> <a id="Y:21" class="idref" href="#Y:21"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma"><span class="id" title="definition">magma</span></a>}<br/>
+&nbsp;&nbsp;(<a id="f:22" class="idref" href="#f:22"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_morphism"><span class="id" title="definition">magma_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#X:20"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#Y:21"><span class="id" title="variable">Y</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.BinaryOperations.html#binopfun"><span class="id" title="definition">binopfun</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#X:20"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#Y:21"><span class="id" title="variable">Y</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#f:22"><span class="id" title="variable">f</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1706"></a><h1 class="section">2. The category of abelian magmas</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="abelian_magma_disp_cat" class="idref" href="#abelian_magma_disp_cat"><span class="id" title="definition">abelian_magma_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#disp_full_sub"><span class="id" title="definition">disp_full_sub</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:23" class="idref" href="#X:23"><span class="id" title="binder">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#iscomm"><span class="id" title="definition">iscomm</span></a> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<span class="id" title="var">X</span> := <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#X:23"><span class="id" title="variable">X</span></a>))).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_univalent_abelian_magma_disp_cat" class="idref" href="#is_univalent_abelian_magma_disp_cat"><span class="id" title="lemma">is_univalent_abelian_magma_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#is_univalent_disp"><span class="id" title="definition">is_univalent_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_magma_disp_cat"><span class="id" title="definition">abelian_magma_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#disp_full_sub_univalent"><span class="id" title="lemma">disp_full_sub_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#isapropiscomm"><span class="id" title="lemma">isapropiscomm</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1707"></a><h1 class="section">3. The category of semigroups</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="semigroup_disp_cat" class="idref" href="#semigroup_disp_cat"><span class="id" title="definition">semigroup_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#disp_full_sub"><span class="id" title="definition">disp_full_sub</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:24" class="idref" href="#X:24"><span class="id" title="binder">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#isassoc"><span class="id" title="definition">isassoc</span></a> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<span class="id" title="var">X</span> := <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#X:24"><span class="id" title="variable">X</span></a>))).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_univalent_semigroup_disp_cat" class="idref" href="#is_univalent_semigroup_disp_cat"><span class="id" title="lemma">is_univalent_semigroup_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#is_univalent_disp"><span class="id" title="definition">is_univalent_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#semigroup_disp_cat"><span class="id" title="definition">semigroup_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#disp_full_sub_univalent"><span class="id" title="lemma">disp_full_sub_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#isapropisassoc"><span class="id" title="lemma">isapropisassoc</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1708"></a><h1 class="section">4. The category of unital magmas</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unital_magma_disp_cat" class="idref" href="#unital_magma_disp_cat"><span class="id" title="definition">unital_magma_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.html#disp_struct"><span class="id" title="definition">disp_struct</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#isunital"><span class="id" title="definition">isunital</span></a> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<span class="id" title="var">X</span> := <span class="id" title="var">X</span>))).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:25" class="idref" href="#X:25"><span class="id" title="binder"><span id="X:30" class="id">X</span></span></a> <a id="Y:26" class="idref" href="#Y:26"><span class="id" title="binder"><span id="Y:31" class="id">Y</span></span></a> <a id="uX:27" class="idref" href="#uX:27"><span class="id" title="binder"><span id="uX:32" class="id">uX</span></span></a> <a id="uY:28" class="idref" href="#uY:28"><span class="id" title="binder"><span id="uY:33" class="id">uY</span></span></a> (<a id="f:29" class="idref" href="#f:29"><span class="id" title="binder"><span id="f:34" class="id">f</span></span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_morphism"><span class="id" title="definition">magma_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#X:25"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#Y:26"><span class="id" title="variable">Y</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">uX</span>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">uY</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> <span class="id" title="var">easy</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:35" class="idref" href="#X:35"><span class="id" title="binder"><span id="X:45" class="id">X</span></span></a> <a id="Y:36" class="idref" href="#Y:36"><span class="id" title="binder"><span id="Y:46" class="id">Y</span></span></a> <a id="Z:37" class="idref" href="#Z:37"><span class="id" title="binder"><span id="Z:47" class="id">Z</span></span></a> <a id="uX:38" class="idref" href="#uX:38"><span class="id" title="binder"><span id="uX:48" class="id">uX</span></span></a> <a id="uY:39" class="idref" href="#uY:39"><span class="id" title="binder"><span id="uY:49" class="id">uY</span></span></a> <a id="uZ:40" class="idref" href="#uZ:40"><span class="id" title="binder"><span id="uZ:50" class="id">uZ</span></span></a> (<a id="f:41" class="idref" href="#f:41"><span class="id" title="binder"><span id="f:51" class="id">f</span></span></a> <a id="g:42" class="idref" href="#g:42"><span class="id" title="binder"><span id="g:52" class="id">g</span></span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_morphism"><span class="id" title="definition">magma_morphism</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a id="Hf:43" class="idref" href="#Hf:43"><span class="id" title="binder"><span id="Hf:53" class="id">Hf</span></span></a> <a id="Hg:44" class="idref" href="#Hg:44"><span class="id" title="binder"><span id="Hg:54" class="id">Hg</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">Hg</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">g</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hf</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_univalent_unital_magma_disp_cat" class="idref" href="#is_univalent_unital_magma_disp_cat"><span class="id" title="lemma">is_univalent_unital_magma_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#is_univalent_disp"><span class="id" title="definition">is_univalent_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#unital_magma_disp_cat"><span class="id" title="definition">unital_magma_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#is_univalent_disp_iff_fibers_are_univalent"><span class="id" title="definition">is_univalent_disp_iff_fibers_are_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="X:55" class="idref" href="#X:55"><span class="id" title="binder"><span id="X:58" class="id">X</span></span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma"><span class="id" title="definition">magma</span></a>) (<a id="u:56" class="idref" href="#u:56"><span class="id" title="binder"><span id="u:59" class="id">u</span></span></a> <a id="u':57" class="idref" href="#u':57"><span class="id" title="binder"><span id="u':60" class="id">u'</span></span></a> : <a class="idref" href="UniMath.Algebra.BinaryOperations.html#isunital"><span class="id" title="definition">isunital</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#isweq_iso"><span class="id" title="lemma">isweq_iso</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#proofirrelevance"><span class="id" title="lemma">proofirrelevance</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#isapropisunital"><span class="id" title="lemma">isapropisunital</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#proofirrelevance"><span class="id" title="lemma">proofirrelevance</span></a>, <a class="idref" href="UniMath.Foundations.PartB.html#isasetaprop"><span class="id" title="lemma">isasetaprop</span></a>, <a class="idref" href="UniMath.Algebra.BinaryOperations.html#isapropisunital"><span class="id" title="lemma">isapropisunital</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_eq"><span class="id" title="lemma">z_iso_eq</span></a>, <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1709"></a><h1 class="section">5. The category of monoids</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="monoid_disp_cat" class="idref" href="#monoid_disp_cat"><span class="id" title="definition">monoid_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.Product.html#dirprod_disp_cat"><span class="id" title="definition">dirprod_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#semigroup_disp_cat"><span class="id" title="definition">semigroup_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#unital_magma_disp_cat"><span class="id" title="definition">unital_magma_disp_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="monoid_category" class="idref" href="#monoid_category"><span class="id" title="definition">monoid_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#monoid_disp_cat"><span class="id" title="definition">monoid_disp_cat</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1710"></a><h1 class="section">6. The category of abelian monoids</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="abelian_monoid_disp_cat" class="idref" href="#abelian_monoid_disp_cat"><span class="id" title="definition">abelian_monoid_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.Product.html#dirprod_disp_cat"><span class="id" title="definition">dirprod_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#monoid_disp_cat"><span class="id" title="definition">monoid_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_magma_disp_cat"><span class="id" title="definition">abelian_magma_disp_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="abelian_monoid_category" class="idref" href="#abelian_monoid_category"><span class="id" title="definition">abelian_monoid_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_monoid_disp_cat"><span class="id" title="definition">abelian_monoid_disp_cat</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1711"></a><h1 class="section">7. The category of groups</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="group_disp_cat" class="idref" href="#group_disp_cat"><span class="id" title="definition">group_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.html#sigma_disp_cat"><span class="id" title="definition">sigma_disp_cat</span></a> (<span class="id" title="var">D</span> := <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#monoid_disp_cat"><span class="id" title="definition">monoid_disp_cat</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.html#disp_struct"><span class="id" title="definition">disp_struct</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#invstruct"><span class="id" title="definition">invstruct</span></a> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">X</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">invX</span> <span class="id" title="var">invY</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:61" class="idref" href="#x:61"><span class="id" title="binder"><span id="x:62" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">f</span> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_morphism"><span class="id" title="definition">magma_morphism</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">invX</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#x:61"><span class="id" title="variable">x</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">invY</span> ((<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">f</span> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_morphism"><span class="id" title="definition">magma_morphism</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#x:61"><span class="id" title="variable">x</span></a>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> <span class="id" title="var">easy</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">opX</span> <span class="id" title="var">opY</span> <span class="id" title="var">opZ</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">Hf</span> <span class="id" title="var">Hg</span> <span class="id" title="var">x</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">Hg</span> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">g</span> : <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_morphism"><span class="id" title="definition">magma_morphism</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hf</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="group_category" class="idref" href="#group_category"><span class="id" title="definition">group_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#group_disp_cat"><span class="id" title="definition">group_disp_cat</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1712"></a><h1 class="section">8. The category of abelian groups</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="abelian_group_disp_cat" class="idref" href="#abelian_group_disp_cat"><span class="id" title="definition">abelian_group_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#magma_category"><span class="id" title="definition">magma_category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.Product.html#dirprod_disp_cat"><span class="id" title="definition">dirprod_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#group_disp_cat"><span class="id" title="definition">group_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_magma_disp_cat"><span class="id" title="definition">abelian_magma_disp_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="abelian_group_category" class="idref" href="#abelian_group_category"><span class="id" title="definition">abelian_group_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_group_disp_cat"><span class="id" title="definition">abelian_group_disp_cat</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

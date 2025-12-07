@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.Woset</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.Woset</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+This file defines two category structures on well-ordered sets:
+
+<div class="paragraph"> </div>
+
+1. This first where the morphisms are maps that preserve the ordering and initial segments
+(<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#wosetfuncat"><span class="id" title="definition">wosetfuncat</span></a></span>).
+
+<div class="paragraph"> </div>
+
+2. The second with arbitrary set theoretic functions as morphisms (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET"><span class="id" title="definition">WOSET</span></a></span>).
+
+<div class="paragraph"> </div>
+
+Both of these have initial (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#Initial_wosetfuncat"><span class="id" title="lemma">Initial_wosetfuncat</span></a></span>, <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#Initial_WOSET"><span class="id" title="lemma">Initial_WOSET</span></a></span>) and terminal objects
+(<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#Terminal_wosetfuncat"><span class="id" title="lemma">Terminal_wosetfuncat</span></a></span>, <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#Terminal_WOSET"><span class="id" title="lemma">Terminal_WOSET</span></a></span>). The former doesn't seem to have binary products (see
+discussion below), but using Zermelo's well-ordering theorem (and hence the axiom of choice) I have
+proved that the latter merely has binary products (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#hasBinProducts_WOSET"><span class="id" title="lemma">hasBinProducts_WOSET</span></a></span>). I believe that the
+proofs that WOSET has all limits and colimits carry over exactly like the proof for binary products,
+but because the category only merely has binary products I ran into all kinds of problems when
+trying to prove that it merely has exponentials, see discussion at the end of the file.
+
+<div class="paragraph"> </div>
+
+Written by: Anders Mörtberg (Feb 2018)
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.OrderedSets.html#"><span class="id" title="library">UniMath.OrderTheory.OrderedSets.OrderedSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#"><span class="id" title="library">UniMath.OrderTheory.OrderedSets.WellOrderedSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Setcategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Setcategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Limits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.Exponentials</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">woset</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">functions</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1752"></a><h1 class="section">The category of well-ordered sets with order preserving morphisms</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="wosetfuncat" class="idref" href="#wosetfuncat"><span class="id" title="section">wosetfuncat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="wosetfun_precategory" class="idref" href="#wosetfun_precategory"><span class="id" title="definition">wosetfun_precategory</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory"><span class="id" title="definition">make_precategory</span></a>.<br/>
+- <span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#WellOrderedSet"><span class="id" title="definition">WellOrderedSet</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#wofun"><span class="id" title="definition">wofun</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#iswofun_idfun"><span class="id" title="lemma">iswofun_idfun</span></a>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#iswofun_funcomp"><span class="id" title="lemma">iswofun_funcomp</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span>).<br/>
+- <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>; <span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#wofun_eq"><span class="id" title="lemma">wofun_eq</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="has_homsets_wosetfun_precategory" class="idref" href="#has_homsets_wosetfun_precategory"><span class="id" title="lemma">has_homsets_wosetfun_precategory</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#has_homsets"><span class="id" title="definition">has_homsets</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#wosetfun_precategory"><span class="id" title="definition">wosetfun_precategory</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>.<br/>
+<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartB.html#isasetsubset"><span class="id" title="lemma">isasetsubset</span></a> (<a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#pr1wofun"><span class="id" title="definition">pr1wofun</span></a> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>)).<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#isaset_set_fun_space"><span class="id" title="lemma">isaset_set_fun_space</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isinclpr1"><span class="id" title="definition">isinclpr1</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#isaprop_iswofun"><span class="id" title="lemma">isaprop_iswofun</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="wosetfuncat" class="idref" href="#wosetfuncat"><span class="id" title="definition">wosetfuncat</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> :=<br/>
+&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#wosetfun_precategory"><span class="id" title="definition">wosetfun_precategory</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#has_homsets_wosetfun_precategory"><span class="id" title="lemma">has_homsets_wosetfun_precategory</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+TODO: remove this assumption by proving it 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="wo_setcategory" class="idref" href="#wo_setcategory"><span class="id" title="definition">wo_setcategory</span></a> (<a id="isaset_WellOrderedSet:1" class="idref" href="#isaset_WellOrderedSet:1"><span class="id" title="binder">isaset_WellOrderedSet</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#WellOrderedSet"><span class="id" title="definition">WellOrderedSet</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Setcategories.html#setcategory"><span class="id" title="definition">setcategory</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#wosetfun_precategory"><span class="id" title="definition">wosetfun_precategory</span></a>.<br/>
+<span class="id" title="tactic">split</span>.<br/>
+- <span class="id" title="tactic">apply</span> <span class="id" title="var">isaset_WellOrderedSet</span>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#has_homsets_wosetfun_precategory"><span class="id" title="lemma">has_homsets_wosetfun_precategory</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Initial_wosetfuncat" class="idref" href="#Initial_wosetfuncat"><span class="id" title="lemma">Initial_wosetfuncat</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#wosetfuncat"><span class="id" title="definition">wosetfuncat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#make_Initial"><span class="id" title="definition">make_Initial</span></a>.<br/>
+- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#empty_woset"><span class="id" title="definition">empty_woset</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#make_isInitial"><span class="id" title="definition">make_isInitial</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> []).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#wofun_eq"><span class="id" title="lemma">wofun_eq</span></a>, <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intros</span> []).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Terminal_wosetfuncat" class="idref" href="#Terminal_wosetfuncat"><span class="id" title="lemma">Terminal_wosetfuncat</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#wosetfuncat"><span class="id" title="definition">wosetfuncat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#make_Terminal"><span class="id" title="definition">make_Terminal</span></a>.<br/>
++ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#unit_woset"><span class="id" title="definition">unit_woset</span></a>.<br/>
++ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#make_isTerminal"><span class="id" title="definition">make_isTerminal</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">split</span>; [<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">H</span>|<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> [] []]; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#WO_isrefl"><span class="id" title="definition">WO_isrefl</span></a> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#unit_woset"><span class="id" title="definition">unit_woset</span></a>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#wofun_eq"><span class="id" title="lemma">wofun_eq</span></a>, <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">f</span> <span class="id" title="var">x</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Can we prove any further properties of wosetcat? It doesn't seem like it has binary products, at
+least the lexicographic ordering does not work. Consider {0,1} × {2,3}, in it we have (0,3) &lt; (1,2)
+but pr2 doesn't preserve the ordering. (Thanks Dan for pointing this out to me!) 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#wosetfuncat"><span class="id" title="section">wosetfuncat</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1753"></a><h1 class="section">The category of well-ordered sets with arbitrary functions as morphisms</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="WOSET" class="idref" href="#WOSET"><span class="id" title="section">WOSET</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+TODO: prove the following missing result 
+</div>
+<div class="code">
+<span class="id" title="keyword">Variable</span> <a id="WOSET.isaset_WellOrderedSet" class="idref" href="#WOSET.isaset_WellOrderedSet"><span class="id" title="variable">isaset_WellOrderedSet</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#WellOrderedSet"><span class="id" title="definition">WellOrderedSet</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="WOSET_precategory" class="idref" href="#WOSET_precategory"><span class="id" title="definition">WOSET_precategory</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory"><span class="id" title="definition">make_precategory</span></a>.<br/>
+- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> ((<a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#WellOrderedSet"><span class="id" title="definition">WellOrderedSet</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET.isaset_WellOrderedSet"><span class="id" title="variable">isaset_WellOrderedSet</span></a>) : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:4" class="idref" href="#X:4"><span class="id" title="binder"><span id="X:6" class="id">X</span></span></a> <a id="Y:5" class="idref" href="#Y:5"><span class="id" title="binder"><span id="Y:7" class="id">Y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr11'_x"><span class="id" title="notation">pr11</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#X:4"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr11'_x"><span class="id" title="notation">pr11</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#Y:5"><span class="id" title="variable">Y</span></a>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">split</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>; <span class="id" title="tactic">apply</span> (<span class="id" title="var">g</span> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <span class="id" title="var">f</span>).<br/>
+- <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">intros</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="has_homsets_WOSET" class="idref" href="#has_homsets_WOSET"><span class="id" title="lemma">has_homsets_WOSET</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#has_homsets"><span class="id" title="definition">has_homsets</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET_precategory"><span class="id" title="definition">WOSET_precategory</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">red</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#isaset_set_fun_space"><span class="id" title="lemma">isaset_set_fun_space</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="WOSET" class="idref" href="#WOSET"><span class="id" title="definition">WOSET</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := (<a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET_precategory"><span class="id" title="definition">WOSET_precategory</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#has_homsets_WOSET"><span class="id" title="lemma">has_homsets_WOSET</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="WOSET_setcategory" class="idref" href="#WOSET_setcategory"><span class="id" title="definition">WOSET_setcategory</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Setcategories.html#setcategory"><span class="id" title="definition">setcategory</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET"><span class="id" title="definition">WOSET</span></a>.<br/>
+<span class="id" title="tactic">split</span>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#has_homsets_WOSET"><span class="id" title="lemma">has_homsets_WOSET</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Initial_WOSET" class="idref" href="#Initial_WOSET"><span class="id" title="lemma">Initial_WOSET</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET"><span class="id" title="definition">WOSET</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#make_Initial"><span class="id" title="definition">make_Initial</span></a>.<br/>
+- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#empty_woset"><span class="id" title="definition">empty_woset</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#make_isInitial"><span class="id" title="definition">make_isInitial</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">e</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">e</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">e</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Terminal_WOSET" class="idref" href="#Terminal_WOSET"><span class="id" title="lemma">Terminal_WOSET</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET"><span class="id" title="definition">WOSET</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#make_Terminal"><span class="id" title="definition">make_Terminal</span></a>.<br/>
+- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#unit_woset"><span class="id" title="definition">unit_woset</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#make_isTerminal"><span class="id" title="definition">make_isTerminal</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">case</span> (<span class="id" title="var">f</span> <span class="id" title="var">x</span>); <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Direct proof that woset has binary products using Zermelo's well-ordering theorem. We could
+prove this using the lexicograpic ordering, but it seems like we need decidable equality for this to
+work which would not work very well when we construct exponentials. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="hasBinProducts_WOSET" class="idref" href="#hasBinProducts_WOSET"><span class="id" title="lemma">hasBinProducts_WOSET</span></a> (<a id="AC:8" class="idref" href="#AC:8"><span class="id" title="binder">AC</span></a> : <a class="idref" href="UniMath.MoreFoundations.AxiomOfChoice.html#AxiomOfChoice"><span class="id" title="definition">AxiomOfChoice</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#hasBinProducts"><span class="id" title="definition">hasBinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET"><span class="id" title="definition">WOSET</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">intros</span> <span class="id" title="var">A</span> <span class="id" title="var">B</span>.<br/>
+<span class="id" title="tactic">set</span> (<span class="id" title="var">AB</span> := <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#BinProductsHSET"><span class="id" title="lemma">BinProductsHSET</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">A</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">B</span>)) : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>).<br/>
+<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.MoreFoundations.Propositions.html#squash_to_hProp"><span class="id" title="lemma">squash_to_hProp</span></a> (@<a class="idref" href="UniMath.OrderTheory.OrderedSets.WellOrderedSets.html#ZermeloWellOrdering"><span class="id" title="lemma">ZermeloWellOrdering</span></a> <span class="id" title="var">AB</span> <span class="id" title="var">AC</span>)); <span class="id" title="tactic">intros</span> <span class="id" title="var">R</span>.<br/>
+<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#make_BinProduct"><span class="id" title="definition">make_BinProduct</span></a>.<br/>
+- <span class="id" title="tactic">exists</span> <span class="id" title="var">AB</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">R</span>.<br/>
+- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1"><span class="id" title="definition">BinProductPr1</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#BinProductsHSET"><span class="id" title="lemma">BinProductsHSET</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2"><span class="id" title="definition">BinProductPr2</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#BinProductsHSET"><span class="id" title="lemma">BinProductsHSET</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+- <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#isBinProduct_BinProduct"><span class="id" title="definition">isBinProduct_BinProduct</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#BinProductsHSET"><span class="id" title="lemma">BinProductsHSET</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">H</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Using the axiom of choice we can push the quantifiers into the truncation. Hopefully this will
+help with using this definition below for defining exponentials. However it might run into problems
+with AC not computing. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="squash_BinProducts_WOSET" class="idref" href="#squash_BinProducts_WOSET"><span class="id" title="definition">squash_BinProducts_WOSET</span></a> (<a id="AC:9" class="idref" href="#AC:9"><span class="id" title="binder">AC</span></a> : <a class="idref" href="UniMath.MoreFoundations.AxiomOfChoice.html#AxiomOfChoice"><span class="id" title="definition">AxiomOfChoice</span></a>) : <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET"><span class="id" title="definition">WOSET</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <span class="id" title="var">AC</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">A</span>; <span class="id" title="var">use</span> <span class="id" title="var">AC</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">B</span>.<br/>
+<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#hasBinProducts_WOSET"><span class="id" title="lemma">hasBinProducts_WOSET</span></a> <span class="id" title="var">AC</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below follows an attempt to prove that this category has exponentials 
+</div>
+<div class="code">
+
+<br/>
+
+<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Woset.html#WOSET"><span class="id" title="section">WOSET</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

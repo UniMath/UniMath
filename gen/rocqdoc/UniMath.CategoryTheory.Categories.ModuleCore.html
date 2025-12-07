@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.ModuleCore</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.ModuleCore</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+  The Category of R-Modules
+
+<div class="paragraph"> </div>
+
+  This file defines the category of ring modules for a fixed ring R via a displayed category over
+  the category of abelian groups. The data over a group G are the ring morphisms from R to the
+  (opposite) endomorphism ring of G.
+
+<div class="paragraph"> </div>
+
+  Contents
+  1. The category of R-modules <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#module_category"><span class="id" title="definition">module_category</span></a></span>
+
+<div class="paragraph"> </div>
+
+  Originally written by Anthony Bordg, Langston Barrett (@siddharthist)
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.AbelianGroups.html#"><span class="id" title="library">UniMath.Algebra.AbelianGroups</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#"><span class="id" title="library">UniMath.Algebra.RigsAndRings</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actions.html#"><span class="id" title="library">UniMath.CategoryTheory.Actions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.AbelianGroup.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.AbelianGroup</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Total</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1715"></a><h1 class="section">1. The category of R-modules</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="group_endomorphism_ring" class="idref" href="#group_endomorphism_ring"><span class="id" title="definition">group_endomorphism_ring</span></a> (<a id="G:1" class="idref" href="#G:1"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.Algebra.AbelianGroups.html#abgr"><span class="id" title="definition">abgr</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.RigsAndRings.html#opposite_ring"><span class="id" title="definition">opposite_ring</span></a> (<a class="idref" href="UniMath.CategoryTheory.Actions.html#endomorphism_ring"><span class="id" title="definition">endomorphism_ring</span></a> (<span class="id" title="var">C</span> := <a class="idref" href="UniMath.CategoryTheory.Categories.AbelianGroup.html#abgr_PreAdditive"><span class="id" title="definition">abgr_PreAdditive</span></a>) <a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#G:1"><span class="id" title="variable">G</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Mod" class="idref" href="#Mod"><span class="id" title="section">Mod</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Mod.R" class="idref" href="#Mod.R"><span class="id" title="variable">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="module_disp_cat" class="idref" href="#module_disp_cat"><span class="id" title="definition">module_disp_cat</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_group_category"><span class="id" title="definition">abelian_group_category</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.html#disp_struct"><span class="id" title="definition">disp_struct</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">M</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringfun"><span class="id" title="definition">ringfun</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#Mod.R"><span class="id" title="variable">R</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#group_endomorphism_ring"><span class="id" title="definition">group_endomorphism_ring</span></a> <span class="id" title="var">M</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">M</span> <span class="id" title="var">N</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="r:3" class="idref" href="#r:3"><span class="id" title="binder"><span id="r:4" class="id">r</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <span class="id" title="var">f</span> <a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#r:3"><span class="id" title="variable">r</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">h</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">h</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">g</span> <a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#r:3"><span class="id" title="variable">r</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span> <span class="id" title="var">r</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">L</span> <span class="id" title="var">M</span> <span class="id" title="var">N</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span> <span class="id" title="var">Hs</span> <span class="id" title="var">Ht</span> <span class="id" title="var">r</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>, <span class="id" title="var">Hs</span>, <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>, <span class="id" title="var">Ht</span>, <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="module_category" class="idref" href="#module_category"><span class="id" title="definition">module_category</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#module_disp_cat"><span class="id" title="definition">module_disp_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#Mod"><span class="id" title="section">Mod</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

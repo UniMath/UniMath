@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.yoneda.html#"><span class="id" title="library">UniMath.CategoryTheory.yoneda</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#"><span class="id" title="library">UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#"><span class="id" title="library">UniMath.CategoryTheory.IdempotentsAndSplitting.Set</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.IdempotentsAndSplitting.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Fullsub.html#"><span class="id" title="library">UniMath.CategoryTheory.IdempotentsAndSplitting.Fullsub</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1826"></a><h1 class="section">1. The univalent Karoubi envelope</h1>
+<a id="lab1827"></a><h2 class="section">1.1. The category</h2>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="RetractsOfPresheaves" class="idref" href="#RetractsOfPresheaves"><span class="id" title="section">RetractsOfPresheaves</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="RetractsOfPresheaves.X" class="idref" href="#RetractsOfPresheaves.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="presheaf_is_retract" class="idref" href="#presheaf_is_retract"><span class="id" title="definition">presheaf_is_retract</span></a> (<a id="F:2" class="idref" href="#F:2"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#RetractsOfPresheaves.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">∃</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">(</span></a><a id="x:3" class="idref" href="#x:3"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#RetractsOfPresheaves.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#retraction"><span class="id" title="definition">retraction</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#F:2"><span class="id" title="variable">F</span></a> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#RetractsOfPresheaves.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#x:3"><span class="id" title="variable">x</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="isaprop_presheaf_is_retract" class="idref" href="#isaprop_presheaf_is_retract"><span class="id" title="lemma">isaprop_presheaf_is_retract</span></a> (<a id="F:4" class="idref" href="#F:4"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#RetractsOfPresheaves.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#presheaf_is_retract"><span class="id" title="definition">presheaf_is_retract</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#F:4"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#isapropishinh"><span class="id" title="lemma">isapropishinh</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="representable_presheaf_is_retract" class="idref" href="#representable_presheaf_is_retract"><span class="id" title="lemma">representable_presheaf_is_retract</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#RetractsOfPresheaves.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#presheaf_is_retract"><span class="id" title="definition">presheaf_is_retract</span></a> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#RetractsOfPresheaves.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#x:5"><span class="id" title="variable">x</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#make_retraction"><span class="id" title="definition">make_retraction</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#RetractsOfPresheaves"><span class="id" title="section">RetractsOfPresheaves</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="DefinitionOfKaroubi" class="idref" href="#DefinitionOfKaroubi"><span class="id" title="section">DefinitionOfKaroubi</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="DefinitionOfKaroubi.X" class="idref" href="#DefinitionOfKaroubi.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="univalent_karoubi_cat" class="idref" href="#univalent_karoubi_cat"><span class="id" title="definition">univalent_karoubi_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#full_subcat"><span class="id" title="definition">full_subcat</span></a> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#DefinitionOfKaroubi.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#presheaf_is_retract"><span class="id" title="definition">presheaf_is_retract</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="is_univalent_karoubi_cat" class="idref" href="#is_univalent_karoubi_cat"><span class="id" title="lemma">is_univalent_karoubi_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_cat"><span class="id" title="definition">univalent_karoubi_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#is_univalent_full_subcat"><span class="id" title="definition">is_univalent_full_subcat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#is_univalent_functor_category"><span class="id" title="lemma">is_univalent_functor_category</span></a>, <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#is_univalent_HSET"><span class="id" title="lemma">is_univalent_HSET</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#isaprop_presheaf_is_retract"><span class="id" title="lemma">isaprop_presheaf_is_retract</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#DefinitionOfKaroubi"><span class="id" title="section">DefinitionOfKaroubi</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="HelperLemmas" class="idref" href="#HelperLemmas"><span class="id" title="section">HelperLemmas</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="univalent_karoubi_eq_on_mor" class="idref" href="#univalent_karoubi_eq_on_mor"><span class="id" title="lemma">univalent_karoubi_eq_on_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:7" class="idref" href="#X:7"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} {<a id="cc38258da29ec207c45845dc163a39ec" class="idref" href="#cc38258da29ec207c45845dc163a39ec"><span class="id" title="binder">o₁</span></a> <a id="6b9085a604e6751132a512570d0aa839" class="idref" href="#6b9085a604e6751132a512570d0aa839"><span class="id" title="binder">o₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_cat"><span class="id" title="definition">univalent_karoubi_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#X:7"><span class="id" title="variable">X</span></a>} (<a id="f:10" class="idref" href="#f:10"><span class="id" title="binder">f</span></a> <a id="g:11" class="idref" href="#g:11"><span class="id" title="binder">g</span></a> : <span class="id" title="var">_</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#cc38258da29ec207c45845dc163a39ec"><span class="id" title="variable">o₁</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#6b9085a604e6751132a512570d0aa839"><span class="id" title="variable">o₂</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#f:10"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#g:11"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#f:10"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#g:11"><span class="id" title="variable">g</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#HelperLemmas"><span class="id" title="section">HelperLemmas</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1828"></a><h2 class="section">1.2. The fully faithful embedding</h2>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="EmbeddingIntoKaroubi" class="idref" href="#EmbeddingIntoKaroubi"><span class="id" title="section">EmbeddingIntoKaroubi</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="EmbeddingIntoKaroubi.X" class="idref" href="#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="EmbeddingIntoKaroubi.KE" class="idref" href="#EmbeddingIntoKaroubi.KE"><span class="id" title="variable">KE</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_cat"><span class="id" title="definition">univalent_karoubi_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="embedding_into_karoubi_data" class="idref" href="#embedding_into_karoubi_data"><span class="id" title="definition">embedding_into_karoubi_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_data"><span class="id" title="definition">functor_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.KE"><span class="id" title="variable">KE</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor_data"><span class="id" title="definition">make_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#representable_presheaf_is_retract"><span class="id" title="lemma">representable_presheaf_is_retract</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x₀</span> <span class="id" title="var">x₁</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#(</span></a><a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="embedding_into_karoubi_is_functor" class="idref" href="#embedding_into_karoubi_is_functor"><span class="id" title="lemma">embedding_into_karoubi_is_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#is_functor"><span class="id" title="definition">is_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi_data"><span class="id" title="definition">embedding_into_karoubi_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span> ; <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_eq_on_mor"><span class="id" title="lemma">univalent_karoubi_eq_on_mor</span></a> ; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="embedding_into_karoubi" class="idref" href="#embedding_into_karoubi"><span class="id" title="definition">embedding_into_karoubi</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.KE"><span class="id" title="variable">KE</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor"><span class="id" title="definition">make_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi_data"><span class="id" title="definition">embedding_into_karoubi_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi_is_functor"><span class="id" title="lemma">embedding_into_karoubi_is_functor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="univalent_karoubi_eq_on_mor_from_embedding" class="idref" href="#univalent_karoubi_eq_on_mor_from_embedding"><span class="id" title="lemma">univalent_karoubi_eq_on_mor_from_embedding</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="237dc87ef6e17fece174a61ff5f18315" class="idref" href="#237dc87ef6e17fece174a61ff5f18315"><span class="id" title="binder">x₁</span></a> <a id="6dea68b236e058ba95a7d2655d9d4d06" class="idref" href="#6dea68b236e058ba95a7d2655d9d4d06"><span class="id" title="binder">x₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:15" class="idref" href="#f:15"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.KE"><span class="id" title="variable">KE</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi"><span class="id" title="definition">embedding_into_karoubi</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#237dc87ef6e17fece174a61ff5f18315"><span class="id" title="variable">x₁</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi"><span class="id" title="definition">embedding_into_karoubi</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#6dea68b236e058ba95a7d2655d9d4d06"><span class="id" title="variable">x₂</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="g:16" class="idref" href="#g:16"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#237dc87ef6e17fece174a61ff5f18315"><span class="id" title="variable">x₁</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#6dea68b236e058ba95a7d2655d9d4d06"><span class="id" title="variable">x₂</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#(</span></a><a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">g</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#f:15"><span class="id" title="variable">f</span></a><a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#(</span></a><a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">g</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#f:15"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#weq_iso"><span class="id" title="definition">weq_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_eq_on_mor"><span class="id" title="lemma">univalent_karoubi_eq_on_mor</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi"><span class="id" title="definition">embedding_into_karoubi</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">g</span></a>) <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#proofirrelevance"><span class="id" title="lemma">proofirrelevance</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.KE"><span class="id" title="variable">KE</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi"><span class="id" title="definition">embedding_into_karoubi</span></a> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi"><span class="id" title="definition">embedding_into_karoubi</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Corollary</span> <a id="embedding_into_karoubi_is_fully_faithful" class="idref" href="#embedding_into_karoubi_is_fully_faithful"><span class="id" title="lemma">embedding_into_karoubi_is_fully_faithful</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#fully_faithful"><span class="id" title="definition">fully_faithful</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi"><span class="id" title="definition">embedding_into_karoubi</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x₁</span> <span class="id" title="var">x₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#iscontrweqf"><span class="id" title="lemma">iscontrweqf</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="g:17" class="idref" href="#g:17"><span class="id" title="binder"><span id="g:18" class="id">g</span></span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><span class="id" title="var">x₁</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <span class="id" title="var">x₂</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#(</span></a><a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">g</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#hfiber"><span class="id" title="definition">hfiber</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#weqfibtototal"><span class="id" title="definition">weqfibtototal</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_eq_on_mor_from_embedding"><span class="id" title="lemma">univalent_karoubi_eq_on_mor_from_embedding</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda_fully_faithful"><span class="id" title="lemma">yoneda_fully_faithful</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi.X"><span class="id" title="variable">X</span></a> <span class="id" title="var">x₁</span> <span class="id" title="var">x₂</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#EmbeddingIntoKaroubi"><span class="id" title="section">EmbeddingIntoKaroubi</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1829"></a><h2 class="section">1.3. Every idempotent in the karoubi envelope splits</h2>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="SplitIdempotents" class="idref" href="#SplitIdempotents"><span class="id" title="section">SplitIdempotents</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="SplitIdempotents.C" class="idref" href="#SplitIdempotents.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="SplitIdempotents.X" class="idref" href="#SplitIdempotents.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_cat"><span class="id" title="definition">univalent_karoubi_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="SplitIdempotents.f" class="idref" href="#SplitIdempotents.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#idempotent"><span class="id" title="definition">idempotent</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.X"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="univalent_karoubi_split_idempotent_presheaf" class="idref" href="#univalent_karoubi_split_idempotent_presheaf"><span class="id" title="definition">univalent_karoubi_split_idempotent_presheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#::cat:'PreShv'_x"><span class="id" title="notation">PreShv</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.C"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Equalizers_PreShv"><span class="id" title="definition">Equalizers_PreShv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#idempotent_morphism"><span class="id" title="definition">idempotent_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.f"><span class="id" title="variable">f</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="univalent_karoubi_split_idempotent_presheaf_retraction" class="idref" href="#univalent_karoubi_split_idempotent_presheaf_retraction"><span class="id" title="definition">univalent_karoubi_split_idempotent_presheaf_retraction</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#retraction"><span class="id" title="definition">retraction</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_split_idempotent_presheaf"><span class="id" title="definition">univalent_karoubi_split_idempotent_presheaf</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#make_retraction"><span class="id" title="definition">make_retraction</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#EqualizerArrow"><span class="id" title="definition">EqualizerArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#EqualizerIn"><span class="id" title="definition">EqualizerIn</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#idempotent_morphism"><span class="id" title="definition">idempotent_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.f"><span class="id" title="variable">f</span></a>)) <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.Foundations.PartA.html#base_paths"><span class="id" title="lemma">base_paths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#idempotent_is_idempotent"><span class="id" title="definition">idempotent_is_idempotent</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.f"><span class="id" title="variable">f</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#EqualizerInsEq"><span class="id" title="lemma">EqualizerInsEq</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#EqualizerCommutes"><span class="id" title="lemma">EqualizerCommutes</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#EqualizerEqAr"><span class="id" title="definition">EqualizerEqAr</span></a> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="univalent_karoubi_split_idempotent_object" class="idref" href="#univalent_karoubi_split_idempotent_object"><span class="id" title="definition">univalent_karoubi_split_idempotent_object</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_cat"><span class="id" title="definition">univalent_karoubi_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_split_idempotent_presheaf"><span class="id" title="definition">univalent_karoubi_split_idempotent_presheaf</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhfun"><span class="id" title="definition">hinhfun</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.X"><span class="id" title="variable">X</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">HX</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">HX</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#compose_retraction"><span class="id" title="definition">compose_retraction</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_split_idempotent_presheaf_retraction"><span class="id" title="definition">univalent_karoubi_split_idempotent_presheaf_retraction</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">HX</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="univalent_karoubi_split_idempotent" class="idref" href="#univalent_karoubi_split_idempotent"><span class="id" title="definition">univalent_karoubi_split_idempotent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#is_split_idempotent"><span class="id" title="definition">is_split_idempotent</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#make_is_split_idempotent"><span class="id" title="definition">make_is_split_idempotent</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_split_idempotent_object"><span class="id" title="definition">univalent_karoubi_split_idempotent_object</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#fully_faithful_functor_reflects_retraction"><span class="id" title="definition">fully_faithful_functor_reflects_retraction</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#full_subcat_pr1_fully_faithful"><span class="id" title="definition">full_subcat_pr1_fully_faithful</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_split_idempotent_presheaf_retraction"><span class="id" title="definition">univalent_karoubi_split_idempotent_presheaf_retraction</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_eq_on_mor"><span class="id" title="lemma">univalent_karoubi_eq_on_mor</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#EqualizerCommutes"><span class="id" title="lemma">EqualizerCommutes</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#SplitIdempotents"><span class="id" title="section">SplitIdempotents</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="univalent_karoubi_idempotents_split" class="idref" href="#univalent_karoubi_idempotents_split"><span class="id" title="definition">univalent_karoubi_idempotents_split</span></a><br/>
+&nbsp;&nbsp;(<a id="C:22" class="idref" href="#C:22"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.html#idempotents_split"><span class="id" title="definition">idempotents_split</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_cat"><span class="id" title="definition">univalent_karoubi_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#C:22"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_split_idempotent"><span class="id" title="definition">univalent_karoubi_split_idempotent</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1830"></a><h2 class="section">1.4. Every object of the karoubi envelope is a retract of an element of C</h2>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="univalent_karoubi_objects_are_retracts" class="idref" href="#univalent_karoubi_objects_are_retracts"><span class="id" title="definition">univalent_karoubi_objects_are_retracts</span></a><br/>
+&nbsp;&nbsp;(<a id="C:23" class="idref" href="#C:23"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.html#objects_are_retracts"><span class="id" title="definition">objects_are_retracts</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi"><span class="id" title="definition">embedding_into_karoubi</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#C:23"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhfun"><span class="id" title="definition">hinhfun</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">X</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">HX</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">HX</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#fully_faithful_functor_reflects_retraction"><span class="id" title="definition">fully_faithful_functor_reflects_retraction</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#full_subcat_pr1_fully_faithful"><span class="id" title="definition">full_subcat_pr1_fully_faithful</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">HX</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1831"></a><h2 class="section">1.5. The bundling of the above into a term of univalent_karoubi_envelope</h2>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="univalent_karoubi" class="idref" href="#univalent_karoubi"><span class="id" title="definition">univalent_karoubi</span></a><br/>
+&nbsp;&nbsp;(<a id="C:24" class="idref" href="#C:24"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.html#univalent_karoubi_envelope"><span class="id" title="definition">univalent_karoubi_envelope</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#C:24"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.html#make_univalent_karoubi_envelope"><span class="id" title="definition">make_univalent_karoubi_envelope</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.html#make_karoubi_envelope"><span class="id" title="definition">make_karoubi_envelope</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.html#make_karoubi_envelope_data"><span class="id" title="definition">make_karoubi_envelope_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_cat"><span class="id" title="definition">univalent_karoubi_cat</span></a> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi"><span class="id" title="definition">embedding_into_karoubi</span></a> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.html#make_is_karoubi_envelope"><span class="id" title="definition">make_is_karoubi_envelope</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_idempotents_split"><span class="id" title="definition">univalent_karoubi_idempotents_split</span></a> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#embedding_into_karoubi_is_fully_faithful"><span class="id" title="lemma">embedding_into_karoubi_is_fully_faithful</span></a> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_objects_are_retracts"><span class="id" title="definition">univalent_karoubi_objects_are_retracts</span></a> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#is_univalent_karoubi_cat"><span class="id" title="lemma">is_univalent_karoubi_cat</span></a> <span class="id" title="var">C</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1832"></a><h2 class="section">1.6. Another proof of the splitting</h2>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Proposition</span> <a id="idempotents_in_karoubi_envelope_split" class="idref" href="#idempotents_in_karoubi_envelope_split"><span class="id" title="lemma">idempotents_in_karoubi_envelope_split</span></a> (<a id="X:25" class="idref" href="#X:25"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.html#idempotents_split"><span class="id" title="definition">idempotents_split</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#univalent_karoubi_cat"><span class="id" title="definition">univalent_karoubi_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.KaroubiEnvelope.UnivalentKaroubi.html#X:25"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Fullsub.html#idempotents_split_in_full_subcat"><span class="id" title="lemma">idempotents_split_in_full_subcat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.FunctorCategory.html#idempotents_split_in_functor_cat"><span class="id" title="definition">idempotents_split_in_functor_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#is_univalent_HSET"><span class="id" title="lemma">is_univalent_HSET</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#idempotents_split_in_set"><span class="id" title="lemma">idempotents_split_in_set</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">F</span> <span class="id" title="var">G</span> <span class="id" title="var">r</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">F</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#isapropishinh"><span class="id" title="lemma">isapropishinh</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [<span class="id" title="var">x</span> <span class="id" title="var">r'</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#compose_retraction"><span class="id" title="definition">compose_retraction</span></a> <span class="id" title="var">r</span> <span class="id" title="var">r'</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

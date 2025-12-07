@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.Posets.Examples.StandardFiniteSet</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.Posets.Examples.StandardFiniteSet</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3981"></a><h1 class="section">1. The partially ordered set stn n</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="stnposet" class="idref" href="#stnposet"><span class="id" title="definition">stnposet</span></a> ( <a id="n:1" class="idref" href="#n:1"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a> ) : <a class="idref" href="UniMath.Foundations.Sets.html#Poset"><span class="id" title="definition">Poset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.Sets.html#Poset"><span class="id" title="definition">Poset</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a> <span class="id" title="var">n</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="i:2" class="idref" href="#i:2"><span class="id" title="binder"><span id="i:4" class="id">i</span></span></a> <a id="j:3" class="idref" href="#j:3"><span class="id" title="binder"><span id="j:5" class="id">j</span></span></a>: <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a><span class="id" title="var">n</span><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.Examples.StandardFiniteSet.html#i:2"><span class="id" title="variable">i</span></a> <a class="idref" href="UniMath.MoreFoundations.DecidablePropositions.html#783cdc2b128a0a927b98126ebb7622d6"><span class="id" title="notation">≤</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.Examples.StandardFiniteSet.html#j:3"><span class="id" title="variable">j</span></a>)%<span class="id" title="var">dnat</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.Sets.html#isPartialOrder"><span class="id" title="definition">isPartialOrder</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.Sets.html#ispreorder"><span class="id" title="definition">ispreorder</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">i</span> <span class="id" title="var">j</span> <span class="id" title="var">k</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#istransnatleh"><span class="id" title="definition">istransnatleh</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">i</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#isreflnatleh"><span class="id" title="definition">isreflnatleh</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">i</span> <span class="id" title="var">j</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartB.html#invmaponpathsincl"><span class="id" title="definition">invmaponpathsincl</span></a> <span class="id" title="var">_</span> ( <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isinclstntonat"><span class="id" title="lemma">isinclstntonat</span></a> <span class="id" title="var">_</span> )).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#isantisymmnatleh"><span class="id" title="definition">isantisymmnatleh</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Induction.M.Core</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Induction.M.Core</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3705"></a><h2 class="section">M-types</h2>
+
+
+<div class="paragraph"> </div>
+
+    The M-type associated to (A, B) is the final coalgebra of the associated
+    polynomial functor.
+
+<div class="paragraph"> </div>
+
+    We can't use (1) the definition of <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a></span>, because we can't use (2)
+    that (co)algebras and their morphisms form a precategory, because this is
+    only true when the base category has homsets, which <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a></span> doesn't.
+    Therefore, we must redefine what it means to be a final coalgebra here
+    without categorical language.
+
+<div class="paragraph"> </div>
+
+    (Definition 4 in Ahrens, Capriotti, and Spadotti)
+    (IsFinal in HoTT/M-types)
+
+<div class="paragraph"> </div>
+
+    Author: Langston Barrett (@siddharthist)
+  
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#"><span class="id" title="library">UniMath.Induction.FunctorCoalgebras_legacy</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#"><span class="id" title="library">UniMath.Induction.PolynomialFunctors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="M" class="idref" href="#M"><span class="id" title="section">M</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="M.A" class="idref" href="#M.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} (<a id="M.B" class="idref" href="#M.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.Induction.M.Core.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="F" class="idref" href="#F"><span class="id" title="abbreviation">F</span></a> := (<a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor"><span class="id" title="definition">polynomial_functor</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#M.A"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#M.B"><span class="id" title="variable">B</span></a>). 
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_prefinal" class="idref" href="#is_prefinal"><span class="id" title="definition">is_prefinal</span></a> (<a id="X:3" class="idref" href="#X:3"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra"><span class="id" title="definition">coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="Y:4" class="idref" href="#Y:4"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra"><span class="id" title="definition">coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra_homo"><span class="id" title="definition">coalgebra_homo</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#Y:4"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#X:3"><span class="id" title="variable">X</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_final" class="idref" href="#is_final"><span class="id" title="definition">is_final</span></a> (<a id="X:5" class="idref" href="#X:5"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra"><span class="id" title="definition">coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="Y:6" class="idref" href="#Y:6"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra"><span class="id" title="definition">coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> (<a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra_homo"><span class="id" title="definition">coalgebra_homo</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#Y:6"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#X:5"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+prop-IsFinal in HoTT/M-types 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="isaprop_is_final" class="idref" href="#isaprop_is_final"><span class="id" title="definition">isaprop_is_final</span></a> (<a id="X:7" class="idref" href="#X:7"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra"><span class="id" title="definition">coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a>) : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.Induction.M.Core.html#is_final"><span class="id" title="definition">is_final</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#X:7"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropiscontr"><span class="id" title="lemma">isapropiscontr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="is_prefinal_to_is_final" class="idref" href="#is_prefinal_to_is_final"><span class="id" title="lemma">is_prefinal_to_is_final</span></a> (<a id="X:8" class="idref" href="#X:8"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra"><span class="id" title="definition">coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Induction.M.Core.html#is_prefinal"><span class="id" title="definition">is_prefinal</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#X:8"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="Y:9" class="idref" href="#Y:9"><span class="id" title="binder">Y</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra_homo"><span class="id" title="definition">coalgebra_homo</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#Y:9"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#X:8"><span class="id" title="variable">X</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#is_final"><span class="id" title="definition">is_final</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#X:8"><span class="id" title="variable">X</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="is_pre:10" class="idref" href="#is_pre:10"><span class="id" title="binder"><span id="is_pre:13" class="id">is_pre</span></span></a> <a id="is_prop:11" class="idref" href="#is_prop:11"><span class="id" title="binder"><span id="is_prop:14" class="id">is_prop</span></span></a> <a id="Y:12" class="idref" href="#Y:12"><span class="id" title="binder"><span id="Y:15" class="id">Y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a> (<a class="idref" href="UniMath.Induction.M.Core.html#is_prop:11"><span class="id" title="variable">is_prop</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#Y:12"><span class="id" title="variable">Y</span></a>) (<a class="idref" href="UniMath.Induction.M.Core.html#is_pre:10"><span class="id" title="variable">is_pre</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#Y:12"><span class="id" title="variable">Y</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="M" class="idref" href="#M"><span class="id" title="definition">M</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="X:16" class="idref" href="#X:16"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra"><span class="id" title="definition">coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#is_final"><span class="id" title="definition">is_final</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#X:16"><span class="id" title="variable">X</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="M_coalgebra" class="idref" href="#M_coalgebra"><span class="id" title="definition">M_coalgebra</span></a> : <a class="idref" href="UniMath.Induction.M.Core.html#M"><span class="id" title="definition">M</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra"><span class="id" title="definition">coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#F"><span class="id" title="abbreviation">F</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="M_is_final" class="idref" href="#M_is_final"><span class="id" title="definition">M_is_final</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="m:17" class="idref" href="#m:17"><span class="id" title="binder">m</span></a> : <a class="idref" href="UniMath.Induction.M.Core.html#M"><span class="id" title="definition">M</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#is_final"><span class="id" title="definition">is_final</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#m:17"><span class="id" title="variable">m</span></a>) := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.Induction.M.Core.html#M_coalgebra"><span class="id" title="definition">M_coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#M_coalgebra"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#M_coalgebra"><span class="id" title="definition">M</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#M_coalgebra"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.Induction.M.Core.html#M_coalgebra"><span class="id" title="definition">coalgebra</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Induction.M.Core.html#M"><span class="id" title="section">M</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Induction.M.Core.html#isaprop_is_final"><span class="id" title="definition">isaprop_is_final</span></a> {<span class="id" title="var">_</span> <span class="id" title="var">_</span>} <span class="id" title="var">_</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Induction.M.Core.html#is_prefinal"><span class="id" title="definition">is_prefinal</span></a> {<span class="id" title="var">_</span> <span class="id" title="var">_</span>} <span class="id" title="var">_</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Induction.M.Core.html#is_final"><span class="id" title="definition">is_final</span></a> {<span class="id" title="var">_</span> <span class="id" title="var">_</span>} <span class="id" title="var">_</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab1191"></a><h3 class="section">Going into the opposite direction of <span class="inlinecode"><a class="idref" href="UniMath.Bicategories.Core.Examples.BicategoryFromWhiskeredMonoidal.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicategoryFromWhiskeredMonoidal</span></a></span></h3>
+ We fix a bicategory and an object of it and construct the (whiskered) monoidal category of endomorphisms.
+
+<div class="paragraph"> </div>
+
+Written by Ralph Matthes in 2019, adapted in 2022.
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#"><span class="id" title="library">UniMath.Bicategories.Core.Unitors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Monoidal_Cat_From_Bicat" class="idref" href="#Monoidal_Cat_From_Bicat"><span class="id" title="section">Monoidal_Cat_From_Bicat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">bicategory_scope</span>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> {<a id="Monoidal_Cat_From_Bicat.C" class="idref" href="#Monoidal_Cat_From_Bicat.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}.<br/>
+<span class="id" title="keyword">Context</span> (<a id="Monoidal_Cat_From_Bicat.c0" class="idref" href="#Monoidal_Cat_From_Bicat.c0"><span class="id" title="variable">c0</span></a>: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#Monoidal_Cat_From_Bicat.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="precategory_data_from_bicat_and_ob" class="idref" href="#precategory_data_from_bicat_and_ob"><span class="id" title="definition">precategory_data_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_data"><span class="id" title="definition">precategory_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_data"><span class="id" title="definition">make_precategory_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_ob_mor"><span class="id" title="definition">make_precategory_ob_mor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#Monoidal_Cat_From_Bicat.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#Monoidal_Cat_From_Bicat.c0"><span class="id" title="variable">c0</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#Monoidal_Cat_From_Bicat.c0"><span class="id" title="variable">c0</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#prebicat_cells"><span class="id" title="definition">prebicat_cells</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#id2"><span class="id" title="definition">id2</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">c</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vcomp2"><span class="id" title="definition">vcomp2</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_precategory_data_from_prebicat_and_ob" class="idref" href="#is_precategory_data_from_prebicat_and_ob"><span class="id" title="lemma">is_precategory_data_from_prebicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#is_precategory"><span class="id" title="definition">is_precategory</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#precategory_data_from_bicat_and_ob"><span class="id" title="definition">precategory_data_from_bicat_and_ob</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_is_precategory"><span class="id" title="definition">make_is_precategory</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#id2_left"><span class="id" title="definition">id2_left</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#id2_right"><span class="id" title="definition">id2_right</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">c</span> <span class="id" title="var">d</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocr"><span class="id" title="definition">vassocr</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">c</span> <span class="id" title="var">d</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocr"><span class="id" title="definition">vassocr</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="precategory_from_bicat_and_ob" class="idref" href="#precategory_from_bicat_and_ob"><span class="id" title="definition">precategory_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a> := <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#is_precategory_data_from_prebicat_and_ob"><span class="id" title="lemma">is_precategory_data_from_prebicat_and_ob</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="has_homsets_precategory_from_bicat_and_ob" class="idref" href="#has_homsets_precategory_from_bicat_and_ob"><span class="id" title="lemma">has_homsets_precategory_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#has_homsets"><span class="id" title="definition">has_homsets</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#precategory_from_bicat_and_ob"><span class="id" title="definition">precategory_from_bicat_and_ob</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">red</span>. <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#cellset_property"><span class="id" title="definition">cellset_property</span></a>(<span class="id" title="var">C</span>:=<a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#Monoidal_Cat_From_Bicat.C"><span class="id" title="variable">C</span></a>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="category_from_bicat_and_ob" class="idref" href="#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#precategory_from_bicat_and_ob"><span class="id" title="definition">precategory_from_bicat_and_ob</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#has_homsets_precategory_from_bicat_and_ob"><span class="id" title="lemma">has_homsets_precategory_from_bicat_and_ob</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="EndC" class="idref" href="#EndC"><span class="id" title="abbreviation">EndC</span></a> := <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="tensor_data_from_bicat_and_ob" class="idref" href="#tensor_data_from_bicat_and_ob"><span class="id" title="definition">tensor_data_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_data"><span class="id" title="definition">bifunctor_data</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#make_bifunctor_data"><span class="id" title="definition">make_bifunctor_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span>. <span class="id" title="tactic">exact</span> (<span class="id" title="var">a</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">b</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b1</span> <span class="id" title="var">b2</span> <span class="id" title="var">β</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker"><span class="id" title="definition">lwhisker</span></a> <span class="id" title="var">_</span> <span class="id" title="var">β</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">b</span> <span class="id" title="var">a1</span> <span class="id" title="var">a2</span> <span class="id" title="var">α</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rwhisker"><span class="id" title="definition">rwhisker</span></a> <span class="id" title="var">_</span> <span class="id" title="var">α</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+we explicitly do not opacify the following definition: 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="tensor_laws_from_bicat_and_ob" class="idref" href="#tensor_laws_from_bicat_and_ob"><span class="id" title="definition">tensor_laws_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#is_bifunctor"><span class="id" title="definition">is_bifunctor</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#tensor_data_from_bicat_and_ob"><span class="id" title="definition">tensor_data_from_bicat_and_ob</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">red</span>; <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>; <span class="id" title="tactic">red</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker_id2"><span class="id" title="definition">lwhisker_id2</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#id2_rwhisker"><span class="id" title="definition">id2_rwhisker</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker_vcomp"><span class="id" title="definition">lwhisker_vcomp</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rwhisker_vcomp"><span class="id" title="definition">rwhisker_vcomp</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vcomp_whisker"><span class="id" title="definition">vcomp_whisker</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="tensor_from_bicat_and_ob" class="idref" href="#tensor_from_bicat_and_ob"><span class="id" title="definition">tensor_from_bicat_and_ob</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor"><span class="id" title="definition">bifunctor</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#make_bifunctor"><span class="id" title="definition">make_bifunctor</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#tensor_data_from_bicat_and_ob"><span class="id" title="definition">tensor_data_from_bicat_and_ob</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#tensor_laws_from_bicat_and_ob"><span class="id" title="definition">tensor_laws_from_bicat_and_ob</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="monoidal_data_from_bicat_and_ob" class="idref" href="#monoidal_data_from_bicat_and_ob"><span class="id" title="definition">monoidal_data_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_data"><span class="id" title="definition">monoidal_data</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#make_monoidal_data"><span class="id" title="definition">make_monoidal_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#tensor_data_from_bicat_and_ob"><span class="id" title="definition">tensor_data_from_bicat_and_ob</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#46b41c79418eb42c47823c4a4ce2ccbd"><span class="id" title="notation">id₁</span></a> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#46b41c79418eb42c47823c4a4ce2ccbd"><span class="id" title="notation">c0</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lunitor"><span class="id" title="definition">lunitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#linvunitor"><span class="id" title="definition">linvunitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#runitor"><span class="id" title="definition">runitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rinvunitor"><span class="id" title="definition">rinvunitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rassociator"><span class="id" title="definition">rassociator</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lassociator"><span class="id" title="definition">lassociator</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="MD" class="idref" href="#MD"><span class="id" title="definition">MD</span></a> := <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#monoidal_data_from_bicat_and_ob"><span class="id" title="definition">monoidal_data_from_bicat_and_ob</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="leftunitor_law_from_bicat_and_ob" class="idref" href="#leftunitor_law_from_bicat_and_ob"><span class="id" title="lemma">leftunitor_law_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#leftunitor_law"><span class="id" title="definition">leftunitor_law</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#1d513a9a118ae1ef39b7c1bcaa09f679"><span class="id" title="notation">lu_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#1d513a9a118ae1ef39b7c1bcaa09f679"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#1d513a9a118ae1ef39b7c1bcaa09f679"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#8fdc7c1db831a644669dbadfee66e8c2"><span class="id" title="notation">luinv_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#8fdc7c1db831a644669dbadfee66e8c2"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#8fdc7c1db831a644669dbadfee66e8c2"><span class="id" title="notation">}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">red</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vcomp_lunitor"><span class="id" title="definition">vcomp_lunitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#is_invertible_2cell_lunitor"><span class="id" title="lemma">is_invertible_2cell_lunitor</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="rightunitor_law_from_bicat_and_ob" class="idref" href="#rightunitor_law_from_bicat_and_ob"><span class="id" title="lemma">rightunitor_law_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#rightunitor_law"><span class="id" title="definition">rightunitor_law</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#ab67aa36a8f6cd6556ffd7dabc806e24"><span class="id" title="notation">ru_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#ab67aa36a8f6cd6556ffd7dabc806e24"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#ab67aa36a8f6cd6556ffd7dabc806e24"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#a4617e4513f89da6070763248d296599"><span class="id" title="notation">ruinv_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#a4617e4513f89da6070763248d296599"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#a4617e4513f89da6070763248d296599"><span class="id" title="notation">}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">red</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vcomp_runitor"><span class="id" title="definition">vcomp_runitor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#is_invertible_2cell_runitor"><span class="id" title="lemma">is_invertible_2cell_runitor</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="associator_law_from_bicat_and_ob" class="idref" href="#associator_law_from_bicat_and_ob"><span class="id" title="lemma">associator_law_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#associator_law"><span class="id" title="definition">associator_law</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">α_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#b9e269c6f7b87eb7eb201f88b64035dd"><span class="id" title="notation">αinv_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#b9e269c6f7b87eb7eb201f88b64035dd"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#b9e269c6f7b87eb7eb201f88b64035dd"><span class="id" title="notation">}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">red</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lwhisker_lwhisker_rassociator"><span class="id" title="lemma">lwhisker_lwhisker_rassociator</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rwhisker_rwhisker_alt"><span class="id" title="lemma">rwhisker_rwhisker_alt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rwhisker_lwhisker_rassociator"><span class="id" title="lemma">rwhisker_lwhisker_rassociator</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#is_invertible_2cell_rassociator"><span class="id" title="lemma">is_invertible_2cell_rassociator</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#is_invertible_2cell_rassociator"><span class="id" title="lemma">is_invertible_2cell_rassociator</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="triangle_identity_from_bicat_and_ob" class="idref" href="#triangle_identity_from_bicat_and_ob"><span class="id" title="lemma">triangle_identity_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#triangle_identity"><span class="id" title="definition">triangle_identity</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#1d513a9a118ae1ef39b7c1bcaa09f679"><span class="id" title="notation">lu_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#1d513a9a118ae1ef39b7c1bcaa09f679"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#1d513a9a118ae1ef39b7c1bcaa09f679"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#ab67aa36a8f6cd6556ffd7dabc806e24"><span class="id" title="notation">ru_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#ab67aa36a8f6cd6556ffd7dabc806e24"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#ab67aa36a8f6cd6556ffd7dabc806e24"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">α_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">red</span>; <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#lunitor_lwhisker"><span class="id" title="lemma">lunitor_lwhisker</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+the next two lemmas only for illustration that the extra triangle laws are already available in bicategories 
+</div>
+<div class="code">
+<span class="id" title="keyword">Local Lemma</span> <a id="triangle_identity'_from_bicat_and_ob" class="idref" href="#triangle_identity'_from_bicat_and_ob"><span class="id" title="lemma">triangle_identity'_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#triangle_identity'"><span class="id" title="definition">triangle_identity'</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#1d513a9a118ae1ef39b7c1bcaa09f679"><span class="id" title="notation">lu_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#1d513a9a118ae1ef39b7c1bcaa09f679"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#1d513a9a118ae1ef39b7c1bcaa09f679"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">α_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>; <span class="id" title="var">cbn</span>. <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#lunitor_triangle"><span class="id" title="definition">lunitor_triangle</span></a>. <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocr"><span class="id" title="definition">vassocr</span></a>. <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rassociator_lassociator"><span class="id" title="definition">rassociator_lassociator</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#id2_left"><span class="id" title="definition">id2_left</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="triangle_identity''_from_bicat_and_ob" class="idref" href="#triangle_identity''_from_bicat_and_ob"><span class="id" title="lemma">triangle_identity''_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#triangle_identity''"><span class="id" title="definition">triangle_identity''</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#ab67aa36a8f6cd6556ffd7dabc806e24"><span class="id" title="notation">ru_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#ab67aa36a8f6cd6556ffd7dabc806e24"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#ab67aa36a8f6cd6556ffd7dabc806e24"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">α_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>; <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#runitor_triangle"><span class="id" title="lemma">runitor_triangle</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="pentagon_identity_from_bicat_and_ob" class="idref" href="#pentagon_identity_from_bicat_and_ob"><span class="id" title="lemma">pentagon_identity_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#pentagon_identity"><span class="id" title="definition">pentagon_identity</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">α_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#MD"><span class="id" title="definition">MD</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#3f5cb319ae9805732016e793b92ec340"><span class="id" title="notation">}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">red</span>; <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#rassociator_rassociator"><span class="id" title="lemma">rassociator_rassociator</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="monoidal_from_bicat_and_ob" class="idref" href="#monoidal_from_bicat_and_ob"><span class="id" title="definition">monoidal_from_bicat_and_ob</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#category_from_bicat_and_ob"><span class="id" title="definition">category_from_bicat_and_ob</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#monoidal_data_from_bicat_and_ob"><span class="id" title="definition">monoidal_data_from_bicat_and_ob</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#tensor_from_bicat_and_ob"><span class="id" title="definition">tensor_from_bicat_and_ob</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#leftunitor_law_from_bicat_and_ob"><span class="id" title="lemma">leftunitor_law_from_bicat_and_ob</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#rightunitor_law_from_bicat_and_ob"><span class="id" title="lemma">rightunitor_law_from_bicat_and_ob</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#associator_law_from_bicat_and_ob"><span class="id" title="lemma">associator_law_from_bicat_and_ob</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#triangle_identity_from_bicat_and_ob"><span class="id" title="lemma">triangle_identity_from_bicat_and_ob</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#pentagon_identity_from_bicat_and_ob"><span class="id" title="lemma">pentagon_identity_from_bicat_and_ob</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.html#Monoidal_Cat_From_Bicat"><span class="id" title="section">Monoidal_Cat_From_Bicat</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

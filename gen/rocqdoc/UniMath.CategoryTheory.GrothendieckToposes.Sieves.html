@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.GrothendieckToposes.Sieves</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.GrothendieckToposes.Sieves</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subobjects.html#"><span class="id" title="library">UniMath.CategoryTheory.Subobjects</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.yoneda.html#"><span class="id" title="library">UniMath.CategoryTheory.yoneda</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#"><span class="id" title="library">UniMath.CategoryTheory.Monics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Sieves" class="idref" href="#Sieves"><span class="id" title="section">Sieves</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Sieves.C" class="idref" href="#Sieves.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2481"></a><h1 class="section">1. Sieves</h1>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sieve" class="idref" href="#sieve"><span class="id" title="definition">sieve</span></a> (<a id="c:2" class="idref" href="#c:2"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Subobjects.html#Subobjectscategory"><span class="id" title="definition">Subobjectscategory</span></a> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#c:2"><span class="id" title="variable">c</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="Sieves.Accessors" class="idref" href="#Sieves.Accessors"><span class="id" title="section">Accessors</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Sieves.Accessors.c" class="idref" href="#Sieves.Accessors.c"><span class="id" title="variable">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sieve_functor" class="idref" href="#sieve_functor"><span class="id" title="definition">sieve_functor</span></a> (<a id="S:4" class="idref" href="#S:4"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve"><span class="id" title="definition">sieve</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.Accessors.c"><span class="id" title="variable">c</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Subobjects.html#Subobject_dom"><span class="id" title="definition">Subobject_dom</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#S:4"><span class="id" title="variable">S</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sieve_nat_trans" class="idref" href="#sieve_nat_trans"><span class="id" title="definition">sieve_nat_trans</span></a> (<a id="S:5" class="idref" href="#S:5"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve"><span class="id" title="definition">sieve</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.Accessors.c"><span class="id" title="variable">c</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_functor"><span class="id" title="definition">sieve_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#S:5"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda_objects"><span class="id" title="definition">yoneda_objects</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.Accessors.c"><span class="id" title="variable">c</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Subobjects.html#Subobject_mor"><span class="id" title="definition">Subobject_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#S:5"><span class="id" title="variable">S</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.Accessors"><span class="id" title="section">Accessors</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2482"></a><h1 class="section">2. Pullback of sieves</h1>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sieve_pullback" class="idref" href="#sieve_pullback"><span class="id" title="definition">sieve_pullback</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:6" class="idref" href="#X:6"><span class="id" title="binder">X</span></a> <a id="Y:7" class="idref" href="#Y:7"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:8" class="idref" href="#f:8"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Y:7"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#X:6"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="S:9" class="idref" href="#S:9"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve"><span class="id" title="definition">sieve</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#X:6"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve"><span class="id" title="definition">sieve</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Y:7"><span class="id" title="variable">Y</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Subobjects.html#PullbackSubobject"><span class="id" title="definition">PullbackSubobject</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Pullbacks_PreShv"><span class="id" title="lemma">Pullbacks_PreShv</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#S:9"><span class="id" title="variable">S</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">f</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2483"></a><h1 class="section">3. Selected morphisms</h1>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="Sieves.SelectedMorphisms" class="idref" href="#Sieves.SelectedMorphisms"><span class="id" title="section">SelectedMorphisms</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Sieves.SelectedMorphisms.c" class="idref" href="#Sieves.SelectedMorphisms.c"><span class="id" title="variable">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sieve_selected_morphism" class="idref" href="#sieve_selected_morphism"><span class="id" title="definition">sieve_selected_morphism</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="S:11" class="idref" href="#S:11"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve"><span class="id" title="definition">sieve</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.c"><span class="id" title="variable">c</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="d:12" class="idref" href="#d:12"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_functor"><span class="id" title="definition">sieve_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#S:11"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#d:12"><span class="id" title="variable">d</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">)</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="make_sieve_selected_morphism" class="idref" href="#make_sieve_selected_morphism"><span class="id" title="definition">make_sieve_selected_morphism</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="S:13" class="idref" href="#S:13"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve"><span class="id" title="definition">sieve</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.c"><span class="id" title="variable">c</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="d:14" class="idref" href="#d:14"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:15" class="idref" href="#f:15"><span class="id" title="binder">f</span></a> : (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_functor"><span class="id" title="definition">sieve_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#S:13"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#d:14"><span class="id" title="variable">d</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism"><span class="id" title="definition">sieve_selected_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#S:13"><span class="id" title="variable">S</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#d:14"><span class="id" title="variable">d</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#f:15"><span class="id" title="variable">f</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="Sieves.SelectedMorphisms.Accessors" class="idref" href="#Sieves.SelectedMorphisms.Accessors"><span class="id" title="section">Accessors</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Sieves.SelectedMorphisms.Accessors.S" class="idref" href="#Sieves.SelectedMorphisms.Accessors.S"><span class="id" title="variable">S</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve"><span class="id" title="definition">sieve</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.c"><span class="id" title="variable">c</span></a>}.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Sieves.SelectedMorphisms.Accessors.f" class="idref" href="#Sieves.SelectedMorphisms.Accessors.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism"><span class="id" title="definition">sieve_selected_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.Accessors.S"><span class="id" title="variable">S</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sieve_selected_morphism_domain" class="idref" href="#sieve_selected_morphism_domain"><span class="id" title="definition">sieve_selected_morphism_domain</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.Accessors.f"><span class="id" title="variable">f</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sieve_selected_morphism_preimage" class="idref" href="#sieve_selected_morphism_preimage"><span class="id" title="definition">sieve_selected_morphism_preimage</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_functor"><span class="id" title="definition">sieve_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.Accessors.S"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism_domain"><span class="id" title="definition">sieve_selected_morphism_domain</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.Accessors.f"><span class="id" title="variable">f</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sieve_selected_morphism_morphism" class="idref" href="#sieve_selected_morphism_morphism"><span class="id" title="definition">sieve_selected_morphism_morphism</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism_domain"><span class="id" title="definition">sieve_selected_morphism_domain</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.c"><span class="id" title="variable">c</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_nat_trans"><span class="id" title="definition">sieve_nat_trans</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.Accessors.S"><span class="id" title="variable">S</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism_preimage"><span class="id" title="definition">sieve_selected_morphism_preimage</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sieve_selected_morphism_compose" class="idref" href="#sieve_selected_morphism_compose"><span class="id" title="definition">sieve_selected_morphism_compose</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="d:18" class="idref" href="#d:18"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="g:19" class="idref" href="#g:19"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#d:18"><span class="id" title="variable">d</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism_domain"><span class="id" title="definition">sieve_selected_morphism_domain</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism"><span class="id" title="definition">sieve_selected_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.Accessors.S"><span class="id" title="variable">S</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#d:18"><span class="id" title="variable">d</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_functor"><span class="id" title="definition">sieve_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.Accessors.S"><span class="id" title="variable">S</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">g</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">f</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms.Accessors"><span class="id" title="section">Accessors</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.SelectedMorphisms"><span class="id" title="section">SelectedMorphisms</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="maximal_sieve" class="idref" href="#maximal_sieve"><span class="id" title="definition">maximal_sieve</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="X:20" class="idref" href="#X:20"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve"><span class="id" title="definition">sieve</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#X:20"><span class="id" title="variable">X</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Subobjects.html#Subobjectscategory_ob"><span class="id" title="definition">Subobjectscategory_ob</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#X:20"><span class="id" title="variable">X</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monics.html#identity_isMonic"><span class="id" title="lemma">identity_isMonic</span></a> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#Sieves"><span class="id" title="section">Sieves</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism_morphism"><span class="id" title="definition">sieve_selected_morphism_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism_morphism"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism_morphism"><span class="id" title="definition">sieve_selected_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism_morphism"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sieves.html#sieve_selected_morphism_morphism"><span class="id" title="definition">precategory_morphisms</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

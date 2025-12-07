@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.Type.Colimits</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.Type.Colimits</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab1840"></a><h1 class="section">Colimits in the precategory of types</h1>
+
+
+<div class="paragraph"> </div>
+
+Author: Langston Barrett (@siddharthist), Feb 2018
+
+<div class="paragraph"> </div>
+
+<a id="lab1841"></a><h2 class="section">Contents:</h2>
+
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Initial object (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Type.Colimits.html#InitialType"><span class="id" title="lemma">InitialType</span></a></span>)
+
+</li>
+<li> Binary coproducts (<span class="inlinecode"><span class="id" title="var">BinCoproductsType</span></span>)
+
+</li>
+</ul>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartA.html#"><span class="id" title="library">UniMath.Foundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Type.Core</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1842"></a><h2 class="section">Initial object (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.Type.Colimits.html#InitialType"><span class="id" title="lemma">InitialType</span></a></span>)</h2>
+
+<div class="paragraph"> </div>
+
+ The <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Preamble.html#empty"><span class="id" title="inductive">empty</span></a></span> type is an initial object for the precategory of types. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="InitialType" class="idref" href="#InitialType"><span class="id" title="lemma">InitialType</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#make_Initial"><span class="id" title="definition">make_Initial</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#empty"><span class="id" title="inductive">empty</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#type_precat"><span class="id" title="definition">type_precat</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.PartD.html#iscontrfunfromempty"><span class="id" title="lemma">iscontrfunfromempty</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

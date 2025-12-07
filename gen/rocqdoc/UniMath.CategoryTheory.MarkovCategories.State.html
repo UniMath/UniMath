@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.MarkovCategories.State</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.MarkovCategories.State</h1>
+
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#"><span class="id" title="library">UniMath.CategoryTheory.coslicecat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Quotient.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Quotient</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Cartesian</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.MarkovCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.MarkovCategories.MarkovCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.Determinism.html#"><span class="id" title="library">UniMath.CategoryTheory.MarkovCategories.Determinism</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#"><span class="id" title="library">UniMath.CategoryTheory.MarkovCategories.AlmostSurely</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">moncat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">markov</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="state" class="idref" href="#state"><span class="id" title="definition">state</span></a> (<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.MarkovCategory.html#markov_category"><span class="id" title="definition">markov_category</span></a>) := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="x:2" class="idref" href="#x:2"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">I_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#x:2"><span class="id" title="variable">x</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="state_ob" class="idref" href="#state_ob"><span class="id" title="definition">state_ob</span></a> {<a id="C:3" class="idref" href="#C:3"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.MarkovCategory.html#markov_category"><span class="id" title="definition">markov_category</span></a>} (<a id="p:4" class="idref" href="#p:4"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#C:3"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#C:3"><span class="id" title="variable">C</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#p:4"><span class="id" title="variable">p</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a id="state_mor" class="idref" href="#state_mor"><span class="id" title="definition">state_mor</span></a> {<a id="C:5" class="idref" href="#C:5"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.MarkovCategory.html#markov_category"><span class="id" title="definition">markov_category</span></a>} (<a id="p:6" class="idref" href="#p:6"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#C:5"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">I_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#C:5"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state_ob"><span class="id" title="definition">state_ob</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#p:6"><span class="id" title="variable">p</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#p:6"><span class="id" title="variable">p</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="faithful" class="idref" href="#faithful"><span class="id" title="definition">faithful</span></a> {<a id="C:7" class="idref" href="#C:7"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.MarkovCategory.html#markov_category"><span class="id" title="definition">markov_category</span></a>} {<a id="y:8" class="idref" href="#y:8"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#C:7"><span class="id" title="variable">C</span></a>} (<a id="p:9" class="idref" href="#p:9"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#C:7"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="f:10" class="idref" href="#f:10"><span class="id" title="binder">f</span></a> <a id="g:11" class="idref" href="#g:11"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#state_ob"><span class="id" title="definition">state_ob</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#p:9"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#y:8"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#f:10"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#dd92faddf9165134ac77683a239187a1"><span class="id" title="notation">=</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#dd92faddf9165134ac77683a239187a1"><span class="id" title="notation">_</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#dd92faddf9165134ac77683a239187a1"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#p:9"><span class="id" title="variable">p</span></a><a class="idref" href="UniMath.CategoryTheory.MarkovCategories.AlmostSurely.html#dd92faddf9165134ac77683a239187a1"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#g:11"><span class="id" title="variable">g</span></a><a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#f:10"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.MarkovCategories.State.html#g:11"><span class="id" title="variable">g</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.MoreFoundations.Bool</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.MoreFoundations.Bool</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3729"></a><h1 class="section">Booleans</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Init.html#"><span class="id" title="library">UniMath.Foundations.Init</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="andb" class="idref" href="#andb"><span class="id" title="definition">andb</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">b1</span> <span class="id" title="var">b2</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>; [<span class="id" title="tactic">exact</span> <span class="id" title="var">b2</span>|<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>].<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="orb" class="idref" href="#orb"><span class="id" title="definition">orb</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">b1</span> <span class="id" title="var">b2</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>; [<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>|<span class="id" title="tactic">exact</span> <span class="id" title="var">b2</span>].<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="implb" class="idref" href="#implb"><span class="id" title="definition">implb</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">b1</span> <span class="id" title="var">b2</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>; [<span class="id" title="tactic">exact</span> <span class="id" title="var">b2</span>|<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>].<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="andb_is_associative" class="idref" href="#andb_is_associative"><span class="id" title="lemma">andb_is_associative</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="b1:1" class="idref" href="#b1:1"><span class="id" title="binder">b1</span></a> <a id="b2:2" class="idref" href="#b2:2"><span class="id" title="binder">b2</span></a> <a id="b3:3" class="idref" href="#b3:3"><span class="id" title="binder">b3</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#andb"><span class="id" title="definition">andb</span></a> (<a class="idref" href="UniMath.MoreFoundations.Bool.html#andb"><span class="id" title="definition">andb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b1:1"><span class="id" title="variable">b1</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b2:2"><span class="id" title="variable">b2</span></a>) <a class="idref" href="UniMath.MoreFoundations.Bool.html#b3:3"><span class="id" title="variable">b3</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#andb"><span class="id" title="definition">andb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b1:1"><span class="id" title="variable">b1</span></a> (<a class="idref" href="UniMath.MoreFoundations.Bool.html#andb"><span class="id" title="definition">andb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b2:2"><span class="id" title="variable">b2</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b3:3"><span class="id" title="variable">b3</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b2</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b3</span>; <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="orb_is_associative" class="idref" href="#orb_is_associative"><span class="id" title="lemma">orb_is_associative</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="b1:4" class="idref" href="#b1:4"><span class="id" title="binder">b1</span></a> <a id="b2:5" class="idref" href="#b2:5"><span class="id" title="binder">b2</span></a> <a id="b3:6" class="idref" href="#b3:6"><span class="id" title="binder">b3</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#orb"><span class="id" title="definition">orb</span></a> (<a class="idref" href="UniMath.MoreFoundations.Bool.html#orb"><span class="id" title="definition">orb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b1:4"><span class="id" title="variable">b1</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b2:5"><span class="id" title="variable">b2</span></a>) <a class="idref" href="UniMath.MoreFoundations.Bool.html#b3:6"><span class="id" title="variable">b3</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#orb"><span class="id" title="definition">orb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b1:4"><span class="id" title="variable">b1</span></a> (<a class="idref" href="UniMath.MoreFoundations.Bool.html#orb"><span class="id" title="definition">orb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b2:5"><span class="id" title="variable">b2</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b3:6"><span class="id" title="variable">b3</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b2</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b3</span>; <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="andb_is_commutative" class="idref" href="#andb_is_commutative"><span class="id" title="lemma">andb_is_commutative</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="b1:7" class="idref" href="#b1:7"><span class="id" title="binder">b1</span></a> <a id="b2:8" class="idref" href="#b2:8"><span class="id" title="binder">b2</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#andb"><span class="id" title="definition">andb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b1:7"><span class="id" title="variable">b1</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b2:8"><span class="id" title="variable">b2</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#andb"><span class="id" title="definition">andb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b2:8"><span class="id" title="variable">b2</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b1:7"><span class="id" title="variable">b1</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b2</span>; <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="orb_is_commutative" class="idref" href="#orb_is_commutative"><span class="id" title="lemma">orb_is_commutative</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="b1:9" class="idref" href="#b1:9"><span class="id" title="binder">b1</span></a> <a id="b2:10" class="idref" href="#b2:10"><span class="id" title="binder">b2</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#orb"><span class="id" title="definition">orb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b1:9"><span class="id" title="variable">b1</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b2:10"><span class="id" title="variable">b2</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#orb"><span class="id" title="definition">orb</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b2:10"><span class="id" title="variable">b2</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#b1:9"><span class="id" title="variable">b1</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b2</span>; <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

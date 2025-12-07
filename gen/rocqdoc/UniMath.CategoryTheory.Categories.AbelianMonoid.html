@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.AbelianMonoid</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.AbelianMonoid</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+  The Univalent Category of Abelian Monoids
+
+<div class="paragraph"> </div>
+
+  This file shows that the category of abelian monoids, already defined in Magma.v, is univalent.
+
+<div class="paragraph"> </div>
+
+  Contents
+  1. The univalent category of abelian monoids <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.AbelianMonoid.html#abelian_monoid_univalent_category"><span class="id" title="definition">abelian_monoid_univalent_category</span></a></span>
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Magma</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Monoid.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Monoid</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.Product.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions.Product</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Total</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1655"></a><h1 class="section">1. The univalent category of abelian monoids</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_univalent_abelian_monoid_disp_cat" class="idref" href="#is_univalent_abelian_monoid_disp_cat"><span class="id" title="definition">is_univalent_abelian_monoid_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#is_univalent_disp"><span class="id" title="definition">is_univalent_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_monoid_disp_cat"><span class="id" title="definition">abelian_monoid_disp_cat</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.Product.html#dirprod_disp_cat_is_univalent"><span class="id" title="lemma">dirprod_disp_cat_is_univalent</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Monoid.html#is_univalent_monoid_disp_cat"><span class="id" title="definition">is_univalent_monoid_disp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#is_univalent_abelian_magma_disp_cat"><span class="id" title="lemma">is_univalent_abelian_magma_disp_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_univalent_abelian_monoid_category" class="idref" href="#is_univalent_abelian_monoid_category"><span class="id" title="definition">is_univalent_abelian_monoid_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_monoid_category"><span class="id" title="definition">abelian_monoid_category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#is_univalent_total_category"><span class="id" title="lemma">is_univalent_total_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#is_univalent_magma_category"><span class="id" title="lemma">is_univalent_magma_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.AbelianMonoid.html#is_univalent_abelian_monoid_disp_cat"><span class="id" title="definition">is_univalent_abelian_monoid_disp_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="abelian_monoid_univalent_category" class="idref" href="#abelian_monoid_univalent_category"><span class="id" title="definition">abelian_monoid_univalent_category</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#make_univalent_category"><span class="id" title="definition">make_univalent_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#abelian_monoid_category"><span class="id" title="definition">abelian_monoid_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.AbelianMonoid.html#is_univalent_abelian_monoid_category"><span class="id" title="definition">is_univalent_abelian_monoid_category</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

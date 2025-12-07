@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Quotobjects</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Quotobjects</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab1488"></a><h1 class="section">Quotobjects</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Propositions.html#"><span class="id" title="library">UniMath.Foundations.Propositions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.UnderCategories.html#"><span class="id" title="library">UniMath.CategoryTheory.UnderCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Epis.html#"><span class="id" title="library">UniMath.CategoryTheory.Epis</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Core</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pushouts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pushouts</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1489"></a><h1 class="section">Definition of quotient objects</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="def_quotobjects" class="idref" href="#def_quotobjects"><span class="id" title="section">def_quotobjects</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="def_quotobjects.C" class="idref" href="#def_quotobjects.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Quotobjectscategory" class="idref" href="#Quotobjectscategory"><span class="id" title="definition">Quotobjectscategory</span></a> (<a id="c:3" class="idref" href="#c:3"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.UnderCategories.html#Undercategory"><span class="id" title="definition">Undercategory</span></a> (<a class="idref" href="UniMath.CategoryTheory.Epis.html#subprecategory_of_epis"><span class="id" title="definition">subprecategory_of_epis</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Epis.html#has_homsets_subprecategory_of_epis"><span class="id" title="definition">has_homsets_subprecategory_of_epis</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Epis.html#subprecategory_of_epis_ob"><span class="id" title="definition">subprecategory_of_epis_ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#c:3"><span class="id" title="variable">c</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Construction of a quotient object from an epi 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Quotobjectscategory_ob" class="idref" href="#Quotobjectscategory_ob"><span class="id" title="definition">Quotobjectscategory_ob</span></a> {<a id="c:4" class="idref" href="#c:4"><span class="id" title="binder">c</span></a> <a id="c':5" class="idref" href="#c':5"><span class="id" title="binder">c'</span></a> : <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a>} (<a id="h:6" class="idref" href="#h:6"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#c:4"><span class="id" title="variable">c</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#c':5"><span class="id" title="variable">c'</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>) (<a id="isE:7" class="idref" href="#isE:7"><span class="id" title="binder">isE</span></a> : <a class="idref" href="UniMath.CategoryTheory.Epis.html#isEpi"><span class="id" title="definition">isEpi</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#h:6"><span class="id" title="variable">h</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#Quotobjectscategory"><span class="id" title="definition">Quotobjectscategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#c:4"><span class="id" title="variable">c</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Epis.html#subprecategory_of_epis_ob"><span class="id" title="definition">subprecategory_of_epis_ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#c':5"><span class="id" title="variable">c'</span></a>) (<a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#h:6"><span class="id" title="variable">h</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#isE:7"><span class="id" title="variable">isE</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Hypothesis</span> <a id="def_quotobjects.hpo" class="idref" href="#def_quotobjects.hpo"><span class="id" title="variable">hpo</span></a> : @<a class="idref" href="UniMath.CategoryTheory.Limits.Pushouts.html#Pushouts"><span class="id" title="definition">Pushouts</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Given any quotient object Q of c and a morphism h : c -&gt; c', by taking then pushout of Q by h
+      we obtain a quotient object of c'. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="PushoutQuotobject" class="idref" href="#PushoutQuotobject"><span class="id" title="definition">PushoutQuotobject</span></a> {<a id="c:10" class="idref" href="#c:10"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a>} (<a id="Q:11" class="idref" href="#Q:11"><span class="id" title="binder">Q</span></a> : <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#Quotobjectscategory"><span class="id" title="definition">Quotobjectscategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#c:10"><span class="id" title="variable">c</span></a>) {<a id="c':12" class="idref" href="#c':12"><span class="id" title="binder">c'</span></a> : <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a>} (<a id="h:13" class="idref" href="#h:13"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#c:10"><span class="id" title="variable">c</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#c':12"><span class="id" title="variable">c'</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#Quotobjectscategory"><span class="id" title="definition">Quotobjectscategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#c':12"><span class="id" title="variable">c'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">po</span> := <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects.hpo"><span class="id" title="variable">hpo</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">h</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">Q</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#Quotobjectscategory_ob"><span class="id" title="definition">Quotobjectscategory_ob</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">po</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Pushouts.html#PushoutIn1"><span class="id" title="definition">Limits.Pushouts.PushoutIn1</span></a> <span class="id" title="var">po</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pushouts.html#EpiPushoutisEpi'"><span class="id" title="lemma">EpiPushoutisEpi'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Quotobjects.html#def_quotobjects"><span class="id" title="section">def_quotobjects</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

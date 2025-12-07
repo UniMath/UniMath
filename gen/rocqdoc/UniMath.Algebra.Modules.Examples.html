@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.Modules.Examples</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.Modules.Examples</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+  Examples of Ring Modules
+
+<div class="paragraph"> </div>
+
+  This file lists some examples of ring modules, like the identity multimodule morphism, the
+  R-module structure on a ring S from a morphism R → S (the identity on R gives the R-module
+  structure on R). It also gives the zero module, and the definition of R-S bimodules (a module with
+  a left R-action and a right S-action) via multimodules.
+
+<div class="paragraph"> </div>
+
+  Contents
+  1. The identity multimodule morphism
+  2. Constructing a module from a ring morphism
+  3. The zero module
+  4. Bimodules
+
+<div class="paragraph"> </div>
+
+  Originally written by Langston Barrett (@siddharthist), November-December 2017
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.ModuleCore</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Groups.html#"><span class="id" title="library">UniMath.Algebra.Groups</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Modules.Core.html#"><span class="id" title="library">UniMath.Algebra.Modules.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Modules.Multimodules.html#"><span class="id" title="library">UniMath.Algebra.Modules.Multimodules</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#"><span class="id" title="library">UniMath.Algebra.RigsAndRings</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">ring_scope</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab218"></a><h1 class="section">1. The identity multimodule morphism</h1>
+
+<div class="paragraph"> </div>
+
+ The identity function is multilinear 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="idfun_multilinear" class="idref" href="#idfun_multilinear"><span class="id" title="lemma">idfun_multilinear</span></a> {<a id="I:1" class="idref" href="#I:1"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} {<a id="rings:2" class="idref" href="#rings:2"><span class="id" title="binder">rings</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Examples.html#I:1"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>} (<a id="MM:3" class="idref" href="#MM:3"><span class="id" title="binder">MM</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Multimodules.html#multimodule"><span class="id" title="definition">multimodule</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#rings:2"><span class="id" title="variable">rings</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Modules.Multimodules.html#ismultilinear"><span class="id" title="definition">ismultilinear</span></a> (<span class="id" title="var">rings</span> := <a class="idref" href="UniMath.Algebra.Modules.Examples.html#rings:2"><span class="id" title="variable">rings</span></a>) (<a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#MM:3"><span class="id" title="variable">MM</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">easy</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The identity function is a multimodule morphism 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="id_multimodulefun" class="idref" href="#id_multimodulefun"><span class="id" title="lemma">id_multimodulefun</span></a> {<a id="I:4" class="idref" href="#I:4"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} {<a id="rings:5" class="idref" href="#rings:5"><span class="id" title="binder">rings</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Examples.html#I:4"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>} (<a id="MM:6" class="idref" href="#MM:6"><span class="id" title="binder">MM</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Multimodules.html#multimodule"><span class="id" title="definition">multimodule</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#rings:5"><span class="id" title="variable">rings</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Modules.Multimodules.html#ismultimodulefun"><span class="id" title="definition">ismultimodulefun</span></a> (<span class="id" title="var">rings</span> := <a class="idref" href="UniMath.Algebra.Modules.Examples.html#rings:5"><span class="id" title="variable">rings</span></a>) (<a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#MM:6"><span class="id" title="variable">MM</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">easy</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab219"></a><h1 class="section">2. Constructing a module from a ring morphism</h1>
+
+<div class="paragraph"> </div>
+
+ The left action of a ring through a ring homomorphism
+    See Bourbaki's Algebra, II §1.4, no. 1, Example 1.
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="ringfun_left_mult" class="idref" href="#ringfun_left_mult"><span class="id" title="definition">ringfun_left_mult</span></a> {<a id="R:7" class="idref" href="#R:7"><span class="id" title="binder">R</span></a> <a id="S:8" class="idref" href="#S:8"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>} (<a id="f:9" class="idref" href="#f:9"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringfun"><span class="id" title="definition">ringfun</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:7"><span class="id" title="variable">R</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#S:8"><span class="id" title="variable">S</span></a>) (<a id="r:10" class="idref" href="#r:10"><span class="id" title="binder">r</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:7"><span class="id" title="variable">R</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#group_endomorphism_ring"><span class="id" title="definition">group_endomorphism_ring</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#S:8"><span class="id" title="variable">S</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.AbelianGroups.html#make_abelian_group_morphism"><span class="id" title="definition">make_abelian_group_morphism</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <span class="id" title="var">r</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#2d0cfb150261028f4ebd2ba355623dcc"><span class="id" title="notation">*</span></a> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigldistr"><span class="id" title="definition">rigldistr</span></a> <span class="id" title="var">S</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+An important special case: the left action of a ring on itself 
+</div>
+<div class="code">
+<span class="id" title="keyword">Example</span> <a id="ring_left_mult" class="idref" href="#ring_left_mult"><span class="id" title="definition">ring_left_mult</span></a> {<a id="R:11" class="idref" href="#R:11"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>} : <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:11"><span class="id" title="variable">R</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.ModuleCore.html#group_endomorphism_ring"><span class="id" title="definition">group_endomorphism_ring</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:11"><span class="id" title="variable">R</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Modules.Examples.html#ringfun_left_mult"><span class="id" title="definition">ringfun_left_mult</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigisotorigfun"><span class="id" title="definition">rigisotorigfun</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#idrigiso"><span class="id" title="definition">idrigiso</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:11"><span class="id" title="variable">R</span></a>)).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A ring morphism R -&gt; S defines an R-module structure on the additive abelian
+    group of S 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="ringfun_module" class="idref" href="#ringfun_module"><span class="id" title="definition">ringfun_module</span></a> {<a id="R:12" class="idref" href="#R:12"><span class="id" title="binder">R</span></a> <a id="S:13" class="idref" href="#S:13"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>} (<a id="f:14" class="idref" href="#f:14"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringfun"><span class="id" title="definition">ringfun</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:12"><span class="id" title="variable">R</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#S:13"><span class="id" title="variable">S</span></a>) : <a class="idref" href="UniMath.Algebra.Modules.Core.html#module"><span class="id" title="definition">module</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:12"><span class="id" title="variable">R</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Algebra.Modules.Core.html#make_module"><span class="id" title="definition">make_module</span></a> (@<a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringaddabgr"><span class="id" title="definition">ringaddabgr</span></a> <span class="id" title="var">S</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (@<a class="idref" href="UniMath.Algebra.Modules.Core.html#mult_to_module_struct"><span class="id" title="definition">mult_to_module_struct</span></a> <span class="id" title="var">R</span> <span class="id" title="var">S</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:15" class="idref" href="#x:15"><span class="id" title="binder"><span id="x:16" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Algebra.Modules.Examples.html#ringfun_left_mult"><span class="id" title="definition">ringfun_left_mult</span></a> <span class="id" title="var">f</span> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#x:15"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.Algebra.AbelianGroups.html#abelian_group_morphism"><span class="id" title="definition">abelian_group_morphism</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">)</span></a>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#funcomp"><span class="id" title="definition">funcomp</span></a>, <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>, <a class="idref" href="UniMath.Algebra.Modules.Examples.html#ringfun_left_mult"><span class="id" title="definition">ringfun_left_mult</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">r</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringldistr"><span class="id" title="definition">ringldistr</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringrdistr"><span class="id" title="definition">ringrdistr</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:17" class="idref" href="#x:17"><span class="id" title="binder"><span id="x:18" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#x:17"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#2d0cfb150261028f4ebd2ba355623dcc"><span class="id" title="notation">*</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#binopfunisbinopfun"><span class="id" title="definition">binopfunisbinopfun</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringaddfun"><span class="id" title="definition">ringaddfun</span></a> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigassoc2"><span class="id" title="definition">rigassoc2</span></a> <span class="id" title="var">S</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:19" class="idref" href="#x:19"><span class="id" title="binder"><span id="x:20" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#x:19"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#2d0cfb150261028f4ebd2ba355623dcc"><span class="id" title="notation">*</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#binopfunisbinopfun"><span class="id" title="definition">binopfunisbinopfun</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringmultfun"><span class="id" title="definition">ringmultfun</span></a> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#riglunax2"><span class="id" title="definition">riglunax2</span></a> <span class="id" title="var">S</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:21" class="idref" href="#x:21"><span class="id" title="binder"><span id="x:22" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#x:21"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#2d0cfb150261028f4ebd2ba355623dcc"><span class="id" title="notation">*</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#monoidfununel"><span class="id" title="definition">monoidfununel</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringmultfun"><span class="id" title="definition">ringmultfun</span></a> <span class="id" title="var">f</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+An important special case: a ring is a module over itself 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="ring_is_module" class="idref" href="#ring_is_module"><span class="id" title="definition">ring_is_module</span></a> (<a id="R:23" class="idref" href="#R:23"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>) : <a class="idref" href="UniMath.Algebra.Modules.Core.html#module"><span class="id" title="definition">module</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:23"><span class="id" title="variable">R</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Modules.Examples.html#ringfun_module"><span class="id" title="definition">ringfun_module</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigisotorigfun"><span class="id" title="definition">rigisotorigfun</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#idrigiso"><span class="id" title="definition">idrigiso</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:23"><span class="id" title="variable">R</span></a>)).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab220"></a><h1 class="section">3. The zero module</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="zero_module" class="idref" href="#zero_module"><span class="id" title="definition">zero_module</span></a> (<a id="R:24" class="idref" href="#R:24"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>) : <a class="idref" href="UniMath.Algebra.Modules.Core.html#module"><span class="id" title="definition">module</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:24"><span class="id" title="variable">R</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Algebra.AbelianGroups.html#unitabgr"><span class="id" title="definition">unitabgr</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (@<a class="idref" href="UniMath.Algebra.Modules.Core.html#mult_to_module_struct"><span class="id" title="definition">mult_to_module_struct</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <a id="u:25" class="idref" href="#u:25"><span class="id" title="binder"><span id="u:26" class="id">u</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#u:25"><span class="id" title="variable">u</span></a>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">easy</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+4. Bimodules 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="tactic">ring</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+An R-S-bimodule is a left R module and a right S module, that is
+    With our definitions, this means a multimodule over bool with an R-module
+    structre, an S⁰-module structure, and some compatibility between them. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="bimodule" class="idref" href="#bimodule"><span class="id" title="definition">bimodule</span></a> (<a id="R:27" class="idref" href="#R:27"><span class="id" title="binder">R</span></a> <a id="S:28" class="idref" href="#S:28"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := @<a class="idref" href="UniMath.Algebra.Modules.Multimodules.html#multimodule"><span class="id" title="definition">multimodule</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#bool_rect"><span class="id" title="definition">bool_rect</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:27"><span class="id" title="variable">R</span></a> (<a class="idref" href="UniMath.Algebra.Modules.Examples.html#S:28"><span class="id" title="variable">S⁰</span></a>)).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The more immediate/intuitive description of a bimodule. Below, we provide a
+    way to construct a bimodule from this definition (make_bimodule). 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="bimodule_struct'" class="idref" href="#bimodule_struct'"><span class="id" title="definition">bimodule_struct'</span></a> (<a id="R:29" class="idref" href="#R:29"><span class="id" title="binder">R</span></a> <a id="S:30" class="idref" href="#S:30"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>) (<a id="G:31" class="idref" href="#G:31"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.Algebra.AbelianGroups.html#abgr"><span class="id" title="definition">abgr</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="mr:32" class="idref" href="#mr:32"><span class="id" title="binder">mr</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Core.html#module_struct"><span class="id" title="definition">module_struct</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:29"><span class="id" title="variable">R</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#G:31"><span class="id" title="variable">G</span></a>) (<a id="ms:33" class="idref" href="#ms:33"><span class="id" title="binder">ms</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Core.html#module_struct"><span class="id" title="definition">module_struct</span></a> (<a class="idref" href="UniMath.Algebra.Modules.Examples.html#S:30"><span class="id" title="variable">S⁰</span></a>) <a class="idref" href="UniMath.Algebra.Modules.Examples.html#G:31"><span class="id" title="variable">G</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <a id="mulr:34" class="idref" href="#mulr:34"><span class="id" title="binder">mulr</span></a> := <a class="idref" href="UniMath.Algebra.Modules.Core.html#module_mult"><span class="id" title="definition">module_mult</span></a> (<a class="idref" href="UniMath.Algebra.Modules.Examples.html#G:31"><span class="id" title="variable">G</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#mr:32"><span class="id" title="variable">mr</span></a>) <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <a id="muls:35" class="idref" href="#muls:35"><span class="id" title="binder">muls</span></a> := <a class="idref" href="UniMath.Algebra.Modules.Core.html#module_mult"><span class="id" title="definition">module_mult</span></a> (<a class="idref" href="UniMath.Algebra.Modules.Examples.html#G:31"><span class="id" title="variable">G</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#ms:33"><span class="id" title="variable">ms</span></a>) <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="r:36" class="idref" href="#r:36"><span class="id" title="binder">r</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:29"><span class="id" title="variable">R</span></a>) (<a id="s:37" class="idref" href="#s:37"><span class="id" title="binder">s</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Examples.html#S:30"><span class="id" title="variable">S</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#mulr:34"><span class="id" title="variable">mulr</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#r:36"><span class="id" title="variable">r</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#muls:35"><span class="id" title="variable">muls</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#s:37"><span class="id" title="variable">s</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#muls:35"><span class="id" title="variable">muls</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#s:37"><span class="id" title="variable">s</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#mulr:34"><span class="id" title="variable">mulr</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#r:36"><span class="id" title="variable">r</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_bimodule" class="idref" href="#make_bimodule"><span class="id" title="definition">make_bimodule</span></a> (<a id="R:38" class="idref" href="#R:38"><span class="id" title="binder">R</span></a> <a id="S:39" class="idref" href="#S:39"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ring"><span class="id" title="definition">ring</span></a>) {<a id="G:40" class="idref" href="#G:40"><span class="id" title="binder">G</span></a>} (<a id="str:41" class="idref" href="#str:41"><span class="id" title="binder">str</span></a> : <a class="idref" href="UniMath.Algebra.Modules.Examples.html#bimodule_struct'"><span class="id" title="definition">bimodule_struct'</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:38"><span class="id" title="variable">R</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#S:39"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#G:40"><span class="id" title="variable">G</span></a>) : <a class="idref" href="UniMath.Algebra.Modules.Examples.html#bimodule"><span class="id" title="definition">bimodule</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:38"><span class="id" title="variable">R</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#S:39"><span class="id" title="variable">S</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">G</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Index the module structs over bool 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#bool_rect"><span class="id" title="definition">bool_rect</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">str</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">str</span>))<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Algebra.Modules.Multimodules.html#multimodule_struct"><span class="id" title="definition">multimodule_struct</span></a>.<br/>
+</div>
+
+<div class="doc">
+the <span class="inlinecode"></span> <span class="inlinecode">|</span> <span class="inlinecode"></span> pattern yields cases with hypotheses false ≠ false and
+      true ≠ true, so we use them as contradictions or clear the useless
+      hypothesis 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [ | ] [ | ] <span class="id" title="var">neq</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">try</span> (<span class="id" title="var">contradiction</span> (<span class="id" title="var">neq</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>))); <span class="id" title="tactic">clear</span> <span class="id" title="var">neq</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+
+<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> ((<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">str</span>)) <span class="id" title="var">r</span> <span class="id" title="var">s</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a>(<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">str</span>)) <span class="id" title="var">s</span> <span class="id" title="var">r</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A commutative ring is a bimodule over itself 
+</div>
+<div class="code">
+<span class="id" title="keyword">Example</span> <a id="commring_bimodule" class="idref" href="#commring_bimodule"><span class="id" title="definition">commring_bimodule</span></a> (<a id="R:42" class="idref" href="#R:42"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#commring"><span class="id" title="definition">commring</span></a>) : <a class="idref" href="UniMath.Algebra.Modules.Examples.html#bimodule"><span class="id" title="definition">bimodule</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:42"><span class="id" title="variable">R</span></a> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#R:42"><span class="id" title="variable">R</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (@<a class="idref" href="UniMath.Algebra.Modules.Examples.html#make_bimodule"><span class="id" title="definition">make_bimodule</span></a> <span class="id" title="var">R</span> <span class="id" title="var">R</span> (@<a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringaddabgr"><span class="id" title="definition">ringaddabgr</span></a> <span class="id" title="var">R</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Algebra.Modules.Examples.html#bimodule_struct'"><span class="id" title="definition">bimodule_struct'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Algebra.Modules.Core.html#pr2module"><span class="id" title="definition">pr2module</span></a> (<a class="idref" href="UniMath.Algebra.Modules.Examples.html#ring_is_module"><span class="id" title="definition">ring_is_module</span></a> <span class="id" title="var">R</span>)<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We transport the module structure across the isomorphism R ≅ R⁰ 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Algebra.Modules.Core.html#pr2module"><span class="id" title="definition">pr2module</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Algebra.Modules.Examples.html#ringfun_module"><span class="id" title="definition">ringfun_module</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigisotorigfun"><span class="id" title="definition">rigisotorigfun</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#invrigiso"><span class="id" title="definition">invrigiso</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#iso_commring_opposite"><span class="id" title="definition">iso_commring_opposite</span></a> <span class="id" title="var">R</span>))))<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a>@<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigassoc2"><span class="id" title="definition">rigassoc2</span></a> <span class="id" title="var">R</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> <span class="id" title="var">x</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<span class="id" title="keyword">fun</span> <a id="z:43" class="idref" href="#z:43"><span class="id" title="binder"><span id="z:44" class="id">z</span></span></a> =&gt; <a class="idref" href="UniMath.Algebra.Modules.Examples.html#z:43"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#2d0cfb150261028f4ebd2ba355623dcc"><span class="id" title="notation">*</span></a> <span class="id" title="var">x</span>) (@<a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringcomm2"><span class="id" title="definition">ringcomm2</span></a> <span class="id" title="var">R</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span>)<a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigassoc2"><span class="id" title="definition">rigassoc2</span></a> <span class="id" title="var">R</span> <span class="id" title="var">s</span> <span class="id" title="var">r</span> <span class="id" title="var">x</span><a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">)</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Close</span> <span class="id" title="keyword">Scope</span> <span class="id" title="tactic">ring</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.Graph</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.Graph</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab1693"></a><h1 class="section">Bicategory of graphs</h1>
+
+    Benedikt Ahrens, Marco Maggesi
+    May 2018
+    Revised June 2019
+ ********************************************************************************* 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartB.html#"><span class="id" title="library">UniMath.Foundations.PartB</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.Graph.html#"><span class="id" title="library">UniMath.Combinatorics.Graph</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+NB: pregraph is the same as precategory_ob_mor. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>. <span class="id" title="keyword">Require</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>. 
+<br/>
+</div>
+
+<div class="doc">
+Should be moved in Combinatorics/Graph.v,
+    but it depends on code from CategoryTheory for now. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="graph_mor_eq" class="idref" href="#graph_mor_eq"><span class="id" title="definition">graph_mor_eq</span></a> {<a id="G:1" class="idref" href="#G:1"><span class="id" title="binder">G</span></a> <a id="H:2" class="idref" href="#H:2"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.Combinatorics.Graph.html#pregraph"><span class="id" title="definition">pregraph</span></a>} (<a id="p:3" class="idref" href="#p:3"><span class="id" title="binder">p</span></a> <a id="q:4" class="idref" href="#q:4"><span class="id" title="binder">q</span></a> : <a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor"><span class="id" title="definition">graph_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#G:1"><span class="id" title="variable">G</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#H:2"><span class="id" title="variable">H</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="af18f14277f33f3f6d15a4bbca3dd2da" class="idref" href="#af18f14277f33f3f6d15a4bbca3dd2da"><span class="id" title="binder">e₀</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Combinatorics.Graph.html#vertex"><span class="id" title="definition">vertex</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#G:1"><span class="id" title="variable">G</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Combinatorics.Graph.html#onvertex"><span class="id" title="definition">onvertex</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#p:3"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#x:5"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.Graph.html#onvertex"><span class="id" title="definition">onvertex</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#q:4"><span class="id" title="variable">q</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#x:5"><span class="id" title="variable">x</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="593c48535d27c88b741ed8090bd5375e" class="idref" href="#593c48535d27c88b741ed8090bd5375e"><span class="id" title="binder">e₁</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:7" class="idref" href="#x:7"><span class="id" title="binder">x</span></a> <a id="y:8" class="idref" href="#y:8"><span class="id" title="binder">y</span></a> (<a id="f:9" class="idref" href="#f:9"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Combinatorics.Graph.html#edge"><span class="id" title="definition">edge</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#G:1"><span class="id" title="variable">G</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#y:8"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#double_transport"><span class="id" title="definition">UniMath.CategoryTheory.Core.Univalence.double_transport</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#af18f14277f33f3f6d15a4bbca3dd2da"><span class="id" title="variable">e₀</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#x:7"><span class="id" title="variable">x</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#af18f14277f33f3f6d15a4bbca3dd2da"><span class="id" title="variable">e₀</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#y:8"><span class="id" title="variable">y</span></a>) (<a class="idref" href="UniMath.Combinatorics.Graph.html#onedge"><span class="id" title="definition">onedge</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#p:3"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#f:9"><span class="id" title="variable">f</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.Graph.html#onedge"><span class="id" title="definition">onedge</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#q:4"><span class="id" title="variable">q</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#f:9"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#p:3"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#q:4"><span class="id" title="variable">q</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_data_eq"><span class="id" title="lemma">UniMath.CategoryTheory.Core.Functors.functor_data_eq</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#G:1"><span class="id" title="variable">G</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#H:2"><span class="id" title="variable">H</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#p:3"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#q:4"><span class="id" title="variable">q</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#af18f14277f33f3f6d15a4bbca3dd2da"><span class="id" title="variable">e₀</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#593c48535d27c88b741ed8090bd5375e"><span class="id" title="variable">e₁</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isaprop_has_edgesets" class="idref" href="#isaprop_has_edgesets"><span class="id" title="lemma">isaprop_has_edgesets</span></a> (<a id="G:11" class="idref" href="#G:11"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.Combinatorics.Graph.html#pregraph"><span class="id" title="definition">pregraph</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.Combinatorics.Graph.html#has_edgesets"><span class="id" title="definition">has_edgesets</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#G:11"><span class="id" title="variable">G</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#isaprop_has_homsets"><span class="id" title="lemma">UniMath.CategoryTheory.Core.Categories.isaprop_has_homsets</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1694"></a><h2 class="section">Precategory of pregraphs.</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pregraph_precategory_ob_mor" class="idref" href="#pregraph_precategory_ob_mor"><span class="id" title="definition">pregraph_precategory_ob_mor</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_ob_mor"><span class="id" title="definition">precategory_ob_mor</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_ob_mor"><span class="id" title="definition">make_precategory_ob_mor</span></a> <a class="idref" href="UniMath.Combinatorics.Graph.html#pregraph"><span class="id" title="definition">pregraph</span></a> <a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor"><span class="id" title="definition">graph_mor</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pregraph_precategory_data" class="idref" href="#pregraph_precategory_data"><span class="id" title="definition">pregraph_precategory_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_data"><span class="id" title="definition">precategory_data</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_data"><span class="id" title="definition">make_precategory_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#pregraph_precategory_ob_mor"><span class="id" title="definition">pregraph_precategory_ob_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_id"><span class="id" title="definition">graph_mor_id</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(@<a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_comp"><span class="id" title="definition">graph_mor_comp</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_precategory_pregraph" class="idref" href="#is_precategory_pregraph"><span class="id" title="lemma">is_precategory_pregraph</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#is_precategory"><span class="id" title="definition">is_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#pregraph_precategory_data"><span class="id" title="definition">pregraph_precategory_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#is_precategory_one_assoc_to_two"><span class="id" title="definition">is_precategory_one_assoc_to_two</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> @<a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_id_left"><span class="id" title="lemma">graph_mor_id_left</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> @<a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_id_right"><span class="id" title="lemma">graph_mor_id_right</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> @<a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_comp_assoc"><span class="id" title="lemma">graph_mor_comp_assoc</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pregraph_category" class="idref" href="#pregraph_category"><span class="id" title="definition">pregraph_category</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory"><span class="id" title="definition">make_precategory</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#pregraph_precategory_data"><span class="id" title="definition">pregraph_precategory_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#is_precategory_pregraph"><span class="id" title="lemma">is_precategory_pregraph</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1695"></a><h2 class="section">Category of graphs.</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="graph_precategory_ob_mor" class="idref" href="#graph_precategory_ob_mor"><span class="id" title="definition">graph_precategory_ob_mor</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_ob_mor"><span class="id" title="definition">precategory_ob_mor</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_ob_mor"><span class="id" title="definition">make_precategory_ob_mor</span></a> <a class="idref" href="UniMath.Combinatorics.Graph.html#graph"><span class="id" title="definition">graph</span></a> <a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor"><span class="id" title="definition">graph_mor</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="graph_precategory_data" class="idref" href="#graph_precategory_data"><span class="id" title="definition">graph_precategory_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_data"><span class="id" title="definition">precategory_data</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_data"><span class="id" title="definition">make_precategory_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#graph_precategory_ob_mor"><span class="id" title="definition">graph_precategory_ob_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="G:12" class="idref" href="#G:12"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.Combinatorics.Graph.html#graph"><span class="id" title="definition">graph</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_id"><span class="id" title="definition">graph_mor_id</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#G:12"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="G:13" class="idref" href="#G:13"><span class="id" title="binder">G</span></a> <a id="H:14" class="idref" href="#H:14"><span class="id" title="binder">H</span></a> <a id="K:15" class="idref" href="#K:15"><span class="id" title="binder">K</span></a> : <a class="idref" href="UniMath.Combinatorics.Graph.html#graph"><span class="id" title="definition">graph</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_comp"><span class="id" title="definition">graph_mor_comp</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_precategory_graph" class="idref" href="#is_precategory_graph"><span class="id" title="lemma">is_precategory_graph</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#is_precategory"><span class="id" title="definition">is_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#graph_precategory_data"><span class="id" title="definition">graph_precategory_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#is_precategory_one_assoc_to_two"><span class="id" title="definition">is_precategory_one_assoc_to_two</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> @<a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_id_left"><span class="id" title="lemma">graph_mor_id_left</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> @<a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_id_right"><span class="id" title="lemma">graph_mor_id_right</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> @<a class="idref" href="UniMath.Combinatorics.Graph.html#graph_mor_comp_assoc"><span class="id" title="lemma">graph_mor_comp_assoc</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="graph_precategory" class="idref" href="#graph_precategory"><span class="id" title="definition">graph_precategory</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory"><span class="id" title="definition">make_precategory</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#graph_precategory_data"><span class="id" title="definition">graph_precategory_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#is_precategory_graph"><span class="id" title="lemma">is_precategory_graph</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="has_homsets_graph" class="idref" href="#has_homsets_graph"><span class="id" title="lemma">has_homsets_graph</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#has_homsets"><span class="id" title="definition">has_homsets</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Graph.html#graph_precategory_ob_mor"><span class="id" title="definition">graph_precategory_ob_mor</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">G</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.Graph.html#isaset_graph_mor"><span class="id" title="lemma">isaset_graph_mor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Combinatorics.Graph.html#isaset_vertex"><span class="id" title="definition">isaset_vertex</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Combinatorics.Graph.html#isaset_edge"><span class="id" title="definition">isaset_edge</span></a> <span class="id" title="var">H</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

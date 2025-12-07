@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Monoids.html#"><span class="id" title="library">UniMath.Algebra.Monoids</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Monoid.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Monoid</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.MonoidToCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.MonoidToCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Setcategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Setcategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#"><span class="id" title="library">UniMath.AlgebraicTheories.AlgebraicTheories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.html#"><span class="id" title="library">UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.html#"><span class="id" title="library">UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToLawvereTheory.html#"><span class="id" title="library">UniMath.AlgebraicTheories.AlgebraicTheoryToLawvereTheory</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">algebraic_theories</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab336"></a><h1 class="section">1. The construction of the monoid</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="AlgebraicTheoryToMonoid" class="idref" href="#AlgebraicTheoryToMonoid"><span class="id" title="section">AlgebraicTheoryToMonoid</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="AlgebraicTheoryToMonoid.Ob" class="idref" href="#AlgebraicTheoryToMonoid.Ob"><span class="id" title="section">Ob</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="AlgebraicTheoryToMonoid.Ob.T" class="idref" href="#AlgebraicTheoryToMonoid.Ob.T"><span class="id" title="variable">T</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#algebraic_theory"><span class="id" title="definition">algebraic_theory</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="algebraic_theory_to_monoid_ob" class="idref" href="#algebraic_theory_to_monoid_ob"><span class="id" title="definition">algebraic_theory_to_monoid_ob</span></a> : <a class="idref" href="UniMath.Algebra.Monoids2.html#monoid"><span class="id" title="definition">monoid</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#make_monoid"><span class="id" title="definition">make_monoid</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#make_setwithbinop"><span class="id" title="definition">make_setwithbinop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Ob.T"><span class="id" title="variable">T</span></a> 1).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">a</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#6c93869cea8f5761f02d7fd28ef4af6a"><span class="id" title="notation">•</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#6c93869cea8f5761f02d7fd28ef4af6a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">b</span><a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#6c93869cea8f5761f02d7fd28ef4af6a"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#make_ismonoidop"><span class="id" title="definition">make_ismonoidop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">c</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#subst_subst"><span class="id" title="definition">subst_subst</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#var"><span class="id" title="definition">var</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a> 0 : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 1)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ <span class="id" title="tactic">intro</span> <span class="id" title="var">m</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#var_subst"><span class="id" title="definition">var_subst</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="tactic">intro</span> <span class="id" title="var">m</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#subst_var"><span class="id" title="definition">subst_var</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#subst"><span class="id" title="definition">subst</span></a> <span class="id" title="var">m</span>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">symmetry</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#iscontr_uniqueness"><span class="id" title="definition">iscontr_uniqueness</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#iscontrstn1"><span class="id" title="lemma">iscontrstn1</span></a>)) ]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Ob"><span class="id" title="section">Ob</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="AlgebraicTheoryToMonoid.Mor" class="idref" href="#AlgebraicTheoryToMonoid.Mor"><span class="id" title="section">Mor</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="AlgebraicTheoryToMonoid.Mor.T" class="idref" href="#AlgebraicTheoryToMonoid.Mor.T"><span class="id" title="variable">T</span></a> <a id="AlgebraicTheoryToMonoid.Mor.T'" class="idref" href="#AlgebraicTheoryToMonoid.Mor.T'"><span class="id" title="variable">T'</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#algebraic_theory"><span class="id" title="definition">algebraic_theory</span></a>}.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="AlgebraicTheoryToMonoid.Mor.f" class="idref" href="#AlgebraicTheoryToMonoid.Mor.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.html#algebraic_theory_morphism"><span class="id" title="definition">algebraic_theory_morphism</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Mor.T"><span class="id" title="variable">T</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Mor.T'"><span class="id" title="variable">T'</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="algebraic_theory_morphism_to_ismonoidfun" class="idref" href="#algebraic_theory_morphism_to_ismonoidfun"><span class="id" title="lemma">algebraic_theory_morphism_to_ismonoidfun</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Monoids2.html#ismonoidfun"><span class="id" title="definition">ismonoidfun</span></a> (<span class="id" title="var">X</span> := <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_to_monoid_ob"><span class="id" title="definition">algebraic_theory_to_monoid_ob</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Mor.T"><span class="id" title="variable">T</span></a>) (<span class="id" title="var">Y</span> := <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_to_monoid_ob"><span class="id" title="definition">algebraic_theory_to_monoid_ob</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Mor.T'"><span class="id" title="variable">T'</span></a>) (<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Mor.f"><span class="id" title="variable">f</span></a> 1).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#make_ismonoidfun"><span class="id" title="definition">make_ismonoidfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.html#mor_subst"><span class="id" title="definition">mor_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.html#mor_var"><span class="id" title="definition">mor_var</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="algebraic_theory_morphism_to_monoidfun" class="idref" href="#algebraic_theory_morphism_to_monoidfun"><span class="id" title="definition">algebraic_theory_morphism_to_monoidfun</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Monoids2.html#monoidfun"><span class="id" title="definition">monoidfun</span></a> (<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_to_monoid_ob"><span class="id" title="definition">algebraic_theory_to_monoid_ob</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Mor.T"><span class="id" title="variable">T</span></a>) (<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_to_monoid_ob"><span class="id" title="definition">algebraic_theory_to_monoid_ob</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Mor.T'"><span class="id" title="variable">T'</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Monoids2.html#make_monoidfun"><span class="id" title="definition">make_monoidfun</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_morphism_to_ismonoidfun"><span class="id" title="lemma">algebraic_theory_morphism_to_ismonoidfun</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid.Mor"><span class="id" title="section">Mor</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="algebraic_theory_to_monoid_functor_data" class="idref" href="#algebraic_theory_to_monoid_functor_data"><span class="id" title="definition">algebraic_theory_to_monoid_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_data"><span class="id" title="definition">functor_data</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.html#algebraic_theory_cat"><span class="id" title="definition">algebraic_theory_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#monoid_category"><span class="id" title="definition">monoid_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor_data"><span class="id" title="definition">make_functor_data</span></a> (<span class="id" title="var">C'</span> := <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#monoid_category"><span class="id" title="definition">monoid_category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_to_monoid_ob"><span class="id" title="definition">algebraic_theory_to_monoid_ob</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_morphism_to_monoidfun"><span class="id" title="definition">algebraic_theory_morphism_to_monoidfun</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="algebraic_theory_to_monoid_is_functor" class="idref" href="#algebraic_theory_to_monoid_is_functor"><span class="id" title="lemma">algebraic_theory_to_monoid_is_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#is_functor"><span class="id" title="definition">is_functor</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_to_monoid_functor_data"><span class="id" title="definition">algebraic_theory_to_monoid_functor_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">T</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#monoidfun_paths"><span class="id" title="definition">monoidfun_paths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">T</span> <span class="id" title="var">T'</span> <span class="id" title="var">T''</span> <span class="id" title="var">f</span> <span class="id" title="var">f'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#monoidfun_paths"><span class="id" title="definition">monoidfun_paths</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="algebraic_theory_to_monoid" class="idref" href="#algebraic_theory_to_monoid"><span class="id" title="definition">algebraic_theory_to_monoid</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.html#algebraic_theory_cat"><span class="id" title="definition">algebraic_theory_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Magma.html#monoid_category"><span class="id" title="definition">monoid_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor"><span class="id" title="definition">make_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_to_monoid_functor_data"><span class="id" title="definition">algebraic_theory_to_monoid_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_to_monoid_is_functor"><span class="id" title="lemma">algebraic_theory_to_monoid_is_functor</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#AlgebraicTheoryToMonoid"><span class="id" title="section">AlgebraicTheoryToMonoid</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab337"></a><h1 class="section">2. The embedding into the Lawvere theory</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Lawvere" class="idref" href="#Lawvere"><span class="id" title="section">Lawvere</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Lawvere.T" class="idref" href="#Lawvere.T"><span class="id" title="variable">T</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#algebraic_theory"><span class="id" title="definition">algebraic_theory</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="algebraic_theory_monoid_category" class="idref" href="#algebraic_theory_monoid_category"><span class="id" title="definition">algebraic_theory_monoid_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Setcategories.html#setcategory"><span class="id" title="definition">setcategory</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Categories.MonoidToCategory.html#monoid_to_category"><span class="id" title="definition">monoid_to_category</span></a> (<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_to_monoid"><span class="id" title="definition">algebraic_theory_to_monoid</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#Lawvere.T"><span class="id" title="variable">T</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="theory_monoid_to_lawvere" class="idref" href="#theory_monoid_to_lawvere"><span class="id" title="definition">theory_monoid_to_lawvere</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#algebraic_theory_monoid_category"><span class="id" title="definition">algebraic_theory_monoid_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToLawvereTheory.html#algebraic_theory_to_lawvere"><span class="id" title="definition">algebraic_theory_to_lawvere</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#Lawvere.T"><span class="id" title="variable">T</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Setcategories.html#setcategory"><span class="id" title="definition">setcategory</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor"><span class="id" title="definition">make_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor_data"><span class="id" title="definition">make_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> 1.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">t</span> <span class="id" title="var">t'</span> <span class="id" title="var">f</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#var"><span class="id" title="definition">var</span></a>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#proofirrelevancecontr"><span class="id" title="lemma">proofirrelevancecontr</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#iscontrstn1"><span class="id" title="lemma">iscontrstn1</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span> <span class="id" title="var">easy</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="theory_monoid_to_lawvere_fully_faithful" class="idref" href="#theory_monoid_to_lawvere_fully_faithful"><span class="id" title="definition">theory_monoid_to_lawvere_fully_faithful</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#fully_faithful"><span class="id" title="definition">fully_faithful</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#theory_monoid_to_lawvere"><span class="id" title="definition">theory_monoid_to_lawvere</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">t</span> <span class="id" title="var">t'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#isweq_iso"><span class="id" title="lemma">isweq_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a> 0 : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 1)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> <span class="id" title="tactic">trivial</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">f</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#proofirrelevancecontr"><span class="id" title="lemma">proofirrelevancecontr</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#iscontrstn1"><span class="id" title="lemma">iscontrstn1</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.html#Lawvere"><span class="id" title="section">Lawvere</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

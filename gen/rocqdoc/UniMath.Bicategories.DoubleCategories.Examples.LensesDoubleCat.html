@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Setcategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Setcategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfUnivCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.DoubleCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="LensesDoubleCat" class="idref" href="#LensesDoubleCat"><span class="id" title="section">LensesDoubleCat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="LensesDoubleCat.C" class="idref" href="#LensesDoubleCat.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="LensesDoubleCat.PC" class="idref" href="#LensesDoubleCat.PC"><span class="id" title="variable">PC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#C:1"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1048"></a><h1 class="section">1. The horizontal identity</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lenses_double_cat_hor_id_data" class="idref" href="#lenses_double_cat_hor_id_data"><span class="id" title="definition">lenses_double_cat_hor_id_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_id_data"><span class="id" title="definition">hor_id_data</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#twosided_disp_cat_of_lenses"><span class="id" title="definition">twosided_disp_cat_of_lenses</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#LensesDoubleCat.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#LensesDoubleCat.PC"><span class="id" title="variable">PC</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_id_data"><span class="id" title="definition">make_hor_id_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#identity_lens"><span class="id" title="definition">identity_lens</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:3" class="idref" href="#x:3"><span class="id" title="binder"><span id="x:6" class="id">x</span></span></a> <a id="y:4" class="idref" href="#y:4"><span class="id" title="binder"><span id="y:7" class="id">y</span></span></a> <a id="f:5" class="idref" href="#f:5"><span class="id" title="binder"><span id="f:8" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#identity_lens_mor"><span class="id" title="lemma">identity_lens_mor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#f:5"><span class="id" title="variable">f</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lenses_double_cat_hor_id" class="idref" href="#lenses_double_cat_hor_id"><span class="id" title="definition">lenses_double_cat_hor_id</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_id"><span class="id" title="definition">hor_id</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#twosided_disp_cat_of_lenses"><span class="id" title="definition">twosided_disp_cat_of_lenses</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#LensesDoubleCat.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#LensesDoubleCat.PC"><span class="id" title="variable">PC</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_id"><span class="id" title="definition">make_hor_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_id_data"><span class="id" title="definition">lenses_double_cat_hor_id_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">split</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1049"></a><h1 class="section">2. Horizontal composition</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lenses_double_cat_hor_comp_data" class="idref" href="#lenses_double_cat_hor_comp_data"><span class="id" title="definition">lenses_double_cat_hor_comp_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_comp_data"><span class="id" title="definition">hor_comp_data</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#twosided_disp_cat_of_lenses"><span class="id" title="definition">twosided_disp_cat_of_lenses</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#LensesDoubleCat.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#LensesDoubleCat.PC"><span class="id" title="variable">PC</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_comp_data"><span class="id" title="definition">make_hor_comp_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:9" class="idref" href="#x:9"><span class="id" title="binder"><span id="x:14" class="id">x</span></span></a> <a id="y:10" class="idref" href="#y:10"><span class="id" title="binder"><span id="y:15" class="id">y</span></span></a> <a id="z:11" class="idref" href="#z:11"><span class="id" title="binder"><span id="z:16" class="id">z</span></span></a> <a id="99af43f5442bad99b9ddc85136a0c51b" class="idref" href="#99af43f5442bad99b9ddc85136a0c51b"><span class="id" title="binder"><span id="1a39ac94da217bffda3dd2f0b3f1e182" class="id">l₁</span></span></a> <a id="c6fee0c7b262d463a91b7e6d379ebec7" class="idref" href="#c6fee0c7b262d463a91b7e6d379ebec7"><span class="id" title="binder"><span id="3b15521d3cccfeb2032a473927c23dad" class="id">l₂</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#comp_lens"><span class="id" title="definition">comp_lens</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#99af43f5442bad99b9ddc85136a0c51b"><span class="id" title="variable">l₁</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#c6fee0c7b262d463a91b7e6d379ebec7"><span class="id" title="variable">l₂</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="811db5421995400350703bd290e285cb" class="idref" href="#811db5421995400350703bd290e285cb"><span class="id" title="binder"><span id="8e7f840b74fab454c6e56ff90b691f85" class="id">φ</span></span></a> <a id="f33024492691f4a5a4026067e3f41e5d" class="idref" href="#f33024492691f4a5a4026067e3f41e5d"><span class="id" title="binder"><span id="770b920d4334bf666cf9a9b5b5b6d4d6" class="id">ψ</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#comp_lens_mor"><span class="id" title="lemma">comp_lens_mor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#811db5421995400350703bd290e285cb"><span class="id" title="variable">φ</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#f33024492691f4a5a4026067e3f41e5d"><span class="id" title="variable">ψ</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lenses_double_cat_hor_comp" class="idref" href="#lenses_double_cat_hor_comp"><span class="id" title="definition">lenses_double_cat_hor_comp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_comp"><span class="id" title="definition">hor_comp</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#twosided_disp_cat_of_lenses"><span class="id" title="definition">twosided_disp_cat_of_lenses</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#LensesDoubleCat.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#LensesDoubleCat.PC"><span class="id" title="variable">PC</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_comp"><span class="id" title="definition">make_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_comp_data"><span class="id" title="definition">lenses_double_cat_hor_comp_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">split</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1050"></a><h1 class="section">3. Unitors and associators</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lenses_double_cat_lunitor" class="idref" href="#lenses_double_cat_lunitor"><span class="id" title="definition">lenses_double_cat_lunitor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_cat_lunitor"><span class="id" title="definition">double_cat_lunitor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_id"><span class="id" title="definition">lenses_double_cat_hor_id</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_comp"><span class="id" title="definition">lenses_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_double_lunitor"><span class="id" title="definition">make_double_lunitor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#make_iso_twosided_disp"><span class="id" title="definition">make_iso_twosided_disp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#make_lens_mor"><span class="id" title="definition">make_lens_mor</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductOfArrowsPr1"><span class="id" title="lemma">BinProductOfArrowsPr1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1Commutes"><span class="id" title="lemma">BinProductPr1Commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lenses_double_cat_runitor" class="idref" href="#lenses_double_cat_runitor"><span class="id" title="definition">lenses_double_cat_runitor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_cat_runitor"><span class="id" title="definition">double_cat_runitor</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_id"><span class="id" title="definition">lenses_double_cat_hor_id</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_comp"><span class="id" title="definition">lenses_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_double_runitor"><span class="id" title="definition">make_double_runitor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#make_iso_twosided_disp"><span class="id" title="definition">make_iso_twosided_disp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#make_lens_mor"><span class="id" title="definition">make_lens_mor</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductOfArrows_id"><span class="id" title="lemma">BinProductOfArrows_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrowEta"><span class="id" title="lemma">BinProductArrowEta</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#postcompWithBinProductArrow"><span class="id" title="lemma">postcompWithBinProductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductOfArrowsPr1"><span class="id" title="lemma">BinProductOfArrowsPr1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lenses_double_cat_associator" class="idref" href="#lenses_double_cat_associator"><span class="id" title="definition">lenses_double_cat_associator</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_cat_associator"><span class="id" title="definition">double_cat_associator</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_comp"><span class="id" title="definition">lenses_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_double_associator"><span class="id" title="definition">make_double_associator</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#make_iso_twosided_disp"><span class="id" title="definition">make_iso_twosided_disp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#make_lens_mor"><span class="id" title="definition">make_lens_mor</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductOfArrows_id"><span class="id" title="lemma">BinProductOfArrows_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#postcompWithBinProductArrow"><span class="id" title="lemma">postcompWithBinProductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#precompWithBinProductArrow"><span class="id" title="lemma">precompWithBinProductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#postcompWithBinProductArrow"><span class="id" title="lemma">postcompWithBinProductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductOfArrowsPr2"><span class="id" title="lemma">BinProductOfArrowsPr2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2Commutes"><span class="id" title="lemma">BinProductPr2Commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#postcompWithBinProductArrow"><span class="id" title="lemma">postcompWithBinProductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductOfArrows_comp"><span class="id" title="definition">BinProductOfArrows_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#LensesDoubleCat"><span class="id" title="section">LensesDoubleCat</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1051"></a><h1 class="section">4. The double category</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="lenses_double_cat" class="idref" href="#lenses_double_cat"><span class="id" title="definition">lenses_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:23" class="idref" href="#C:23"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PC:24" class="idref" href="#PC:24"><span class="id" title="binder">PC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#C:23"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#double_cat"><span class="id" title="definition">double_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#make_double_cat"><span class="id" title="definition">make_double_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">C</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#twosided_disp_cat_of_lenses"><span class="id" title="definition">twosided_disp_cat_of_lenses</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_id"><span class="id" title="definition">lenses_double_cat_hor_id</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_comp"><span class="id" title="definition">lenses_double_cat_hor_comp</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_lunitor"><span class="id" title="definition">lenses_double_cat_lunitor</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_runitor"><span class="id" title="definition">lenses_double_cat_runitor</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_associator"><span class="id" title="definition">lenses_double_cat_associator</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="is_flat_lenses_double_cat" class="idref" href="#is_flat_lenses_double_cat"><span class="id" title="lemma">is_flat_lenses_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:25" class="idref" href="#C:25"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PC:26" class="idref" href="#PC:26"><span class="id" title="binder">PC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#C:25"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#is_flat_double_cat"><span class="id" title="definition">is_flat_double_cat</span></a> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat"><span class="id" title="definition">lenses_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#C:25"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#PC:26"><span class="id" title="variable">PC</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lenses_double_cat_ver_weq_square" class="idref" href="#lenses_double_cat_ver_weq_square"><span class="id" title="definition">lenses_double_cat_ver_weq_square</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:27" class="idref" href="#C:27"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PC:28" class="idref" href="#PC:28"><span class="id" title="binder">PC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#C:27"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#ver_weq_square"><span class="id" title="definition">ver_weq_square</span></a> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat"><span class="id" title="definition">lenses_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#C:27"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#PC:28"><span class="id" title="variable">PC</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#isweqimplimpl"><span class="id" title="lemma">isweqimplimpl</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">q</span> := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr11'_x"><span class="id" title="notation">pr11</span></a> <span class="id" title="var">p</span>) ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">q</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#invproofirrelevance"><span class="id" title="lemma">invproofirrelevance</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lenses_univalent_double_cat" class="idref" href="#lenses_univalent_double_cat"><span class="id" title="definition">lenses_univalent_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:29" class="idref" href="#C:29"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PC:30" class="idref" href="#PC:30"><span class="id" title="binder">PC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#C:29"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#univalent_double_cat"><span class="id" title="definition">univalent_double_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#make_univalent_double_cat"><span class="id" title="definition">make_univalent_double_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat"><span class="id" title="definition">lenses_double_cat</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category_is_univalent"><span class="id" title="definition">univalent_category_is_univalent</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#is_univalent_lenses_twosided_disp_cat"><span class="id" title="definition">is_univalent_lenses_twosided_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1052"></a><h1 class="section">5. The strict double category</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="lenses_strict_double_cat" class="idref" href="#lenses_strict_double_cat"><span class="id" title="definition">lenses_strict_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:31" class="idref" href="#C:31"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Setcategories.html#setcategory"><span class="id" title="definition">setcategory</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PC:32" class="idref" href="#PC:32"><span class="id" title="binder">PC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#C:31"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.html#strict_double_cat"><span class="id" title="definition">strict_double_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.html#make_strict_double_cat"><span class="id" title="definition">make_strict_double_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">C</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#twosided_disp_cat_of_lenses"><span class="id" title="definition">twosided_disp_cat_of_lenses</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#is_strict_twosided_disp_cat_of_lenses"><span class="id" title="lemma">is_strict_twosided_disp_cat_of_lenses</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_id"><span class="id" title="definition">lenses_double_cat_hor_id</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.LensesDoubleCat.html#lenses_double_cat_hor_comp"><span class="id" title="definition">lenses_double_cat_hor_comp</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#lens_id_left"><span class="id" title="lemma">lens_id_left</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#lens_id_right"><span class="id" title="lemma">lens_id_right</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#lens_assoc"><span class="id" title="lemma">lens_assoc</span></a> <span class="id" title="var">C</span> <span class="id" title="var">PC</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.html#discrete_lenses_twosided_disp_cat"><span class="id" title="definition">discrete_lenses_twosided_disp_cat</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

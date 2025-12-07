@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Limits.Graphs.Coproducts</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Limits.Graphs.Coproducts</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+****************************************************************
+
+<div class="paragraph"> </div>
+
+ Coproducts from colimits
+
+<div class="paragraph"> </div>
+
+ We show that coproducts can be constructed from colimits.
+
+<div class="paragraph"> </div>
+
+ Contents
+ 1. The graph
+ 2. The construction
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Coproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Coproducts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="CoproductGraph" class="idref" href="#CoproductGraph"><span class="id" title="section">CoproductGraph</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="CoproductGraph.I" class="idref" href="#CoproductGraph.I"><span class="id" title="variable">I</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2806"></a><h1 class="section">1. The graph</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="type_graph" class="idref" href="#type_graph"><span class="id" title="definition">type_graph</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#graph"><span class="id" title="definition">graph</span></a> := <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.I"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#empty"><span class="id" title="inductive">empty</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="coproduct_diagram" class="idref" href="#coproduct_diagram"><span class="id" title="definition">coproduct_diagram</span></a> {<a id="C:2" class="idref" href="#C:2"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="f:3" class="idref" href="#f:3"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.I"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#C:2"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#diagram"><span class="id" title="definition">diagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#type_graph"><span class="id" title="definition">type_graph</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#C:2"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">u</span> <span class="id" title="var">v</span> <span class="id" title="var">F</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">F</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2807"></a><h1 class="section">2. The construction</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="CoproductGraph.CoproductsFromColims" class="idref" href="#CoproductGraph.CoproductsFromColims"><span class="id" title="section">CoproductsFromColims</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="CoproductGraph.CoproductsFromColims.C" class="idref" href="#CoproductGraph.CoproductsFromColims.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="CoproductGraph.CoproductsFromColims.HC" class="idref" href="#CoproductGraph.CoproductsFromColims.HC"><span class="id" title="variable">HC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#Colims_of_shape"><span class="id" title="definition">Colims_of_shape</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#type_graph"><span class="id" title="definition">type_graph</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#C:4"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="CoproductGraph.CoproductsFromColims.CoproductsFromColim" class="idref" href="#CoproductGraph.CoproductsFromColims.CoproductsFromColim"><span class="id" title="section">CoproductsFromColim</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="CoproductGraph.CoproductsFromColims.CoproductsFromColim.f" class="idref" href="#CoproductGraph.CoproductsFromColims.CoproductsFromColim.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.I"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="CoproductGraph.CoproductsFromColims.CoproductsFromColim.D" class="idref" href="#CoproductGraph.CoproductsFromColims.CoproductsFromColim.D"><span class="id" title="variable">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#diagram"><span class="id" title="definition">diagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#type_graph"><span class="id" title="definition">type_graph</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.C"><span class="id" title="variable">C</span></a> := <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#coproduct_diagram"><span class="id" title="definition">coproduct_diagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="CoproductGraph.CoproductsFromColims.CoproductsFromColim.L" class="idref" href="#CoproductGraph.CoproductsFromColims.CoproductsFromColim.L"><span class="id" title="variable">L</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#ColimCocone"><span class="id" title="definition">ColimCocone</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.D"><span class="id" title="variable">D</span></a> := <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.HC"><span class="id" title="variable">HC</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.D"><span class="id" title="variable">D</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="CoproductGraph.CoproductsFromColims.CoproductsFromColim.x" class="idref" href="#CoproductGraph.CoproductsFromColims.CoproductsFromColim.x"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.C"><span class="id" title="variable">C</span></a> := <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#colim"><span class="id" title="definition">colim</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.L"><span class="id" title="variable">L</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="CoproductGraph.CoproductsFromColims.CoproductsFromColim.fs" class="idref" href="#CoproductGraph.CoproductsFromColims.CoproductsFromColim.fs"><span class="id" title="variable">fs</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="i:7" class="idref" href="#i:7"><span class="id" title="binder">i</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.I"><span class="id" title="variable">I</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.f"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#i:7"><span class="id" title="variable">i</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.x"><span class="id" title="variable">x</span></a> := <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="i:8" class="idref" href="#i:8"><span class="id" title="binder">i</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#colimIn"><span class="id" title="definition">colimIn</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.L"><span class="id" title="variable">L</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#i:8"><span class="id" title="variable">i</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="isCoproduct_from_colims_unique" class="idref" href="#isCoproduct_from_colims_unique"><span class="id" title="lemma">isCoproduct_from_colims_unique</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="y:9" class="idref" href="#y:9"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.C"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="gs:11" class="idref" href="#gs:11"><span class="id" title="binder">gs</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="i:10" class="idref" href="#i:10"><span class="id" title="binder">i</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.I"><span class="id" title="variable">I</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.f"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#i:10"><span class="id" title="variable">i</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#y:9"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="g:12" class="idref" href="#g:12"><span class="id" title="binder">g</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="i:13" class="idref" href="#i:13"><span class="id" title="binder">i</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.I"><span class="id" title="variable">I</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.fs"><span class="id" title="variable">fs</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#i:13"><span class="id" title="variable">i</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#g:12"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#gs:11"><span class="id" title="variable">gs</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#i:13"><span class="id" title="variable">i</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#invproofirrelevance"><span class="id" title="lemma">invproofirrelevance</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> φ<span class="id" title="var">₁</span> φ<span class="id" title="var">₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a> ; <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#colimArrowUnique'"><span class="id" title="lemma">colimArrowUnique'</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> φ<span class="id" title="var">₁</span> <span class="id" title="var">i</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> φ<span class="id" title="var">₂</span> <span class="id" title="var">i</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="isCoproduct_from_colims" class="idref" href="#isCoproduct_from_colims"><span class="id" title="definition">isCoproduct_from_colims</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Coproducts.html#isCoproduct"><span class="id" title="definition">isCoproduct</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.I"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.f"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.fs"><span class="id" title="variable">fs</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">y</span> <span class="id" title="var">gs</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#isCoproduct_from_colims_unique"><span class="id" title="lemma">isCoproduct_from_colims_unique</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#colimArrow"><span class="id" title="definition">colimArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#make_cocone"><span class="id" title="definition">make_cocone</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> <span class="id" title="var">gs</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">u</span> <span class="id" title="var">v</span> <span class="id" title="var">F</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">F</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#colimArrowCommutes"><span class="id" title="lemma">colimArrowCommutes</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim.L"><span class="id" title="variable">L</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.CoproductsFromColim"><span class="id" title="section">CoproductsFromColim</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="Coproducts_from_Colims" class="idref" href="#Coproducts_from_Colims"><span class="id" title="lemma">Coproducts_from_Colims</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Coproducts.html#Coproducts"><span class="id" title="definition">Coproducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.I"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Coproducts.html#make_Coproduct"><span class="id" title="definition">make_Coproduct</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#isCoproduct_from_colims"><span class="id" title="definition">isCoproduct_from_colims</span></a> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph.CoproductsFromColims"><span class="id" title="section">CoproductsFromColims</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coproducts.html#CoproductGraph"><span class="id" title="section">CoproductGraph</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

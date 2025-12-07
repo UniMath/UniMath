@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.SubstitutionSystems.SimplifiedHSS.Lam</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.SubstitutionSystems.SimplifiedHSS.Lam</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+**********************************************************
+
+<div class="paragraph"> </div>
+
+Benedikt Ahrens, Ralph Matthes
+
+<div class="paragraph"> </div>
+
+SubstitutionSystems
+
+<div class="paragraph"> </div>
+
+2015
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+ **********************************************************
+
+<div class="paragraph"> </div>
+
+Contents :
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Specification of an initial morphism of substitution systems from
+  lambda calculus with explicit flattening to lambda calculus
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+ 
+<div class="paragraph"> </div>
+
+ version for simplified notion of HSS by Ralph Matthes (2022, 2023)
+    the file is identical to the homonymous file in the parent directory,
+    except for importing files from the present directory and
+    WARNING: a big part of the previous development is commented out since
+    the adaptation does to seem to be smooth here 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Kernel</span> <span class="id" title="var">Term</span> <span class="id" title="var">Sharing</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorAlgebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PointedFunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.PointedFunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#"><span class="id" title="library">UniMath.CategoryTheory.PrecategoryBinProduct</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#"><span class="id" title="library">UniMath.SubstitutionSystems.Signatures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.BinSumOfSignatures.html#"><span class="id" title="library">UniMath.SubstitutionSystems.BinSumOfSignatures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SubstitutionSystems</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#"><span class="id" title="library">UniMath.SubstitutionSystems.LamSignature</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.LiftingInitial.html#"><span class="id" title="library">UniMath.SubstitutionSystems.LiftingInitial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.html#"><span class="id" title="library">UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#"><span class="id" title="library">UniMath.SubstitutionSystems.Notation</span></a>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">subsys</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Lambda" class="idref" href="#Lambda"><span class="id" title="section">Lambda</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="Lambda.C" class="idref" href="#Lambda.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The category of endofunctors on <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.html#fix_a_category.C"><span class="id" title="variable">C</span></a></span> 
+</div>
+<div class="code">
+<span class="id" title="keyword">Local Notation</span> <a id="Lambda.:::'EndC'" class="idref" href="#Lambda.:::'EndC'"><span class="id" title="notation">&quot;</span></a>'EndC'":= (<a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a>) .<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="Lambda.terminal" class="idref" href="#Lambda.terminal"><span class="id" title="variable">terminal</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a>) (<a id="Lambda.CC" class="idref" href="#Lambda.CC"><span class="id" title="variable">CC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a>) (<a id="Lambda.CP" class="idref" href="#Lambda.CP"><span class="id" title="variable">CP</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="Lambda.:::'Ptd'" class="idref" href="#Lambda.:::'Ptd'"><span class="id" title="notation">&quot;</span></a>'Ptd'" := (<a class="idref" href="UniMath.CategoryTheory.PointedFunctors.html#category_Ptd"><span class="id" title="definition">category_Ptd</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="Lambda.CPEndC" class="idref" href="#Lambda.CPEndC"><span class="id" title="variable">CPEndC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.:::'EndC'"><span class="id" title="notation">EndC</span></a> := <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts_functor_precat"><span class="id" title="definition">BinCoproducts_functor_precat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a>.<br/>
+<span class="id" title="keyword">Let</span> <a id="Lambda.EndEndC" class="idref" href="#Lambda.EndEndC"><span class="id" title="variable">EndEndC</span></a> := <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.:::'EndC'"><span class="id" title="notation">EndC</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.:::'EndC'"><span class="id" title="notation">EndC</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a>.<br/>
+<span class="id" title="keyword">Let</span> <a id="Lambda.CPEndEndC" class="idref" href="#Lambda.CPEndEndC"><span class="id" title="variable">CPEndEndC</span></a>:= <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts_functor_precat"><span class="id" title="definition">BinCoproducts_functor_precat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CPEndC"><span class="id" title="variable">CPEndC</span></a>: <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.EndEndC"><span class="id" title="variable">EndEndC</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="Lambda.one" class="idref" href="#Lambda.one"><span class="id" title="variable">one</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> :=  @<a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalObject"><span class="id" title="definition">TerminalObject</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.terminal"><span class="id" title="variable">terminal</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="Lambda.KanExt" class="idref" href="#Lambda.KanExt"><span class="id" title="variable">KanExt</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="Z:5" class="idref" href="#Z:5"><span class="id" title="binder">Z</span></a> : <a class="idref" href="UniMath.CategoryTheory.PointedFunctors.html#precategory_Ptd"><span class="id" title="definition">precategory_Ptd</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.RightKanExtension.html#GlobalRightKanExtensionExists"><span class="id" title="definition">RightKanExtension.GlobalRightKanExtensionExists</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.SubstitutionSystems.Notation.html#::subsys:'U'"><span class="id" title="notation">U</span></a> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#::subsys:'U'"><span class="id" title="notation">Z</span></a>) <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="Lambda.Lam_S" class="idref" href="#Lambda.Lam_S"><span class="id" title="variable">Lam_S</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#Signature"><span class="id" title="definition">Signature</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> := <a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#Lam_Sig"><span class="id" title="definition">Lam_Sig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.terminal"><span class="id" title="variable">terminal</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CP"><span class="id" title="variable">CP</span></a>.<br/>
+<span class="id" title="keyword">Let</span> <a id="Lambda.LamE_S" class="idref" href="#Lambda.LamE_S"><span class="id" title="variable">LamE_S</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#Signature"><span class="id" title="definition">Signature</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> := <a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#LamE_Sig"><span class="id" title="definition">LamE_Sig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.terminal"><span class="id" title="variable">terminal</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CP"><span class="id" title="variable">CP</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="Lambda.Lam_Initial" class="idref" href="#Lambda.Lam_Initial"><span class="id" title="variable">Lam_Initial</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(@<a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#category_FunctorAlg"><span class="id" title="definition">category_FunctorAlg</span></a> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#Id_H"><span class="id" title="definition">Id_H</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam_S"><span class="id" title="variable">Lam_S</span></a>))).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="Lambda.Lam" class="idref" href="#Lambda.Lam"><span class="id" title="variable">Lam</span></a> := <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam_Initial"><span class="id" title="variable">Lam_Initial</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+bracket for Lam from the initial hss obtained via theorem 15+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="LamHSS_Initial" class="idref" href="#LamHSS_Initial"><span class="id" title="definition">LamHSS_Initial</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#hss_category"><span class="id" title="definition">hss_category</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam_S"><span class="id" title="variable">Lam_S</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.LiftingInitial.html#InitialHSS"><span class="id" title="lemma">InitialHSS</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.KanExt"><span class="id" title="variable">KanExt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam_Initial"><span class="id" title="variable">Lam_Initial</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Let</span> <a id="Lambda.LamHSS" class="idref" href="#Lambda.LamHSS"><span class="id" title="variable">LamHSS</span></a> := <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#LamHSS_Initial"><span class="id" title="definition">LamHSS_Initial</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+extract constructors 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Lam_Var" class="idref" href="#Lam_Var"><span class="id" title="definition">Lam_Var</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.:::'EndC'"><span class="id" title="notation">EndC</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#6f2f7304141c15bf565f34aa10b8e335"><span class="id" title="abbreviation">η</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.LamHSS"><span class="id" title="variable">LamHSS</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Lam_App_Abs" class="idref" href="#Lam_App_Abs"><span class="id" title="definition">Lam_App_Abs</span></a> :  <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a><br/>
+&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.BinSumOfSignatures.html#H"><span class="id" title="definition">H</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#App_H"><span class="id" title="definition">App_H</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CP"><span class="id" title="variable">CP</span></a>) (<a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#Abs_H"><span class="id" title="definition">Abs_H</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.terminal"><span class="id" title="variable">terminal</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a>)) <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#a788b57bb5319497a4de11f3392dcbc3"><span class="id" title="abbreviation">τ</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.LamHSS"><span class="id" title="variable">LamHSS</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Lam_App" class="idref" href="#Lam_App"><span class="id" title="definition">Lam_App</span></a> : <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#App_H"><span class="id" title="definition">App_H</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CP"><span class="id" title="variable">CP</span></a>) <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductIn1"><span class="id" title="definition">BinCoproductIn1</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts_functor_precat"><span class="id" title="definition">BinCoproducts_functor_precat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lam_App_Abs"><span class="id" title="definition">Lam_App_Abs</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Lam_Abs" class="idref" href="#Lam_Abs"><span class="id" title="definition">Lam_Abs</span></a> : <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#Abs_H"><span class="id" title="definition">Abs_H</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.terminal"><span class="id" title="variable">terminal</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a>) <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductIn2"><span class="id" title="definition">BinCoproductIn2</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts_functor_precat"><span class="id" title="definition">BinCoproducts_functor_precat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lam_App_Abs"><span class="id" title="definition">Lam_App_Abs</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4177"></a><h1 class="section">Definition of a "model" of the flattening arity in pure lambda calculus</h1>
+
+<div class="paragraph"> </div>
+
+ we need a flattening in order to get a model for LamE 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Lam_Flatten" class="idref" href="#Lam_Flatten"><span class="id" title="definition">Lam_Flatten</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#Flat_H"><span class="id" title="definition">Flat_H</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.C"><span class="id" title="variable">C</span></a>) <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#prejoin_from_hetsubst"><span class="id" title="definition">prejoin_from_hetsubst</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#hetsubst_from_hss"><span class="id" title="definition">hetsubst_from_hss</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.LamHSS"><span class="id" title="variable">LamHSS</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+now get a LamE-algebra 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="LamE_algebra_on_Lam" class="idref" href="#LamE_algebra_on_Lam"><span class="id" title="definition">LamE_algebra_on_Lam</span></a> : <a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#FunctorAlg"><span class="id" title="definition">FunctorAlg</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#Id_H"><span class="id" title="definition">Id_H</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.LamE_S"><span class="id" title="variable">LamE_S</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> ( <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#e6765cb919b22acf22456d0e45531c33"><span class="id" title="notation">`</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductArrow"><span class="id" title="definition">BinCoproductArrow</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CPEndC"><span class="id" title="variable">CPEndC</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lam_Var"><span class="id" title="definition">Lam_Var</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductArrow"><span class="id" title="definition">BinCoproductArrow</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CPEndC"><span class="id" title="variable">CPEndC</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lam_App_Abs"><span class="id" title="definition">Lam_App_Abs</span></a>. &nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lam_Flatten"><span class="id" title="definition">Lam_Flatten</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="133dce05ba61ed5196a54972e78712a6" class="idref" href="#133dce05ba61ed5196a54972e78712a6"><span class="id" title="lemma">τ</span></a><a id="133dce05ba61ed5196a54972e78712a6" class="idref" href="#133dce05ba61ed5196a54972e78712a6"><span class="id" title="lemma">_LamE_algebra_on_Lam</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#a788b57bb5319497a4de11f3392dcbc3"><span class="id" title="abbreviation">τ</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#LamE_algebra_on_Lam"><span class="id" title="definition">LamE_algebra_on_Lam</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductArrow"><span class="id" title="definition">BinCoproductArrow</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CPEndC"><span class="id" title="variable">CPEndC</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> ) <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lam_App_Abs"><span class="id" title="definition">Lam_App_Abs</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lam_Flatten"><span class="id" title="definition">Lam_Flatten</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductIn2Commutes"><span class="id" title="lemma">BinCoproductIn2Commutes</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+now define bracket operation for a given <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.html#fix_a_category.prep_hss.fix_a_pointed_functor.Z"><span class="id" title="variable">Z</span></a></span> and <span class="inlinecode"><a class="idref" href="UniMath.Topology.Filters.html#filterim.f"><span class="id" title="variable">f</span></a></span> 
+<div class="paragraph"> </div>
+
+ preparations for typedness 
+</div>
+<div class="code">
+<span class="id" title="keyword">Local Definition</span> <a id="helper_to" class="idref" href="#helper_to"><span class="id" title="definition">helper_to</span></a>: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#ptd_from_alg_functor"><span class="id" title="definition">ptd_from_alg_functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.LamE_S"><span class="id" title="variable">LamE_S</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#LamE_algebra_on_Lam"><span class="id" title="definition">LamE_algebra_on_Lam</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#ptd_from_alg_functor"><span class="id" title="definition">ptd_from_alg_functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam_S"><span class="id" title="variable">Lam_S</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_id"><span class="id" title="definition">nat_trans_id</span></a> <span class="id" title="var">_</span> ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>; <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductIn1Commutes_left_dir"><span class="id" title="lemma">BinCoproductIn1Commutes_left_dir</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="helper_from" class="idref" href="#helper_from"><span class="id" title="definition">helper_from</span></a>: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#ptd_from_alg_functor"><span class="id" title="definition">ptd_from_alg_functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam_S"><span class="id" title="variable">Lam_S</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#ptd_from_alg_functor"><span class="id" title="definition">ptd_from_alg_functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.LamE_S"><span class="id" title="variable">LamE_S</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#LamE_algebra_on_Lam"><span class="id" title="definition">LamE_algebra_on_Lam</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_id"><span class="id" title="definition">nat_trans_id</span></a> <span class="id" title="var">_</span> ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>; <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductIn1Commutes_right_dir"><span class="id" title="lemma">BinCoproductIn1Commutes_right_dir</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>) .<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+this iso does nothing, but is needed to make the argument to <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.html#fbracket"><span class="id" title="definition">fbracket</span></a></span> below well-typed 
+</div>
+<div class="code">
+<span class="id" title="keyword">Local Definition</span> <a id="bracket_property_for_LamE_algebra_on_Lam_helper" class="idref" href="#bracket_property_for_LamE_algebra_on_Lam_helper"><span class="id" title="definition">bracket_property_for_LamE_algebra_on_Lam_helper</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#iso"><span class="id" title="definition">iso</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#ptd_from_alg_functor"><span class="id" title="definition">ptd_from_alg_functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.LamE_S"><span class="id" title="variable">LamE_S</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#LamE_algebra_on_Lam"><span class="id" title="definition">LamE_algebra_on_Lam</span></a>) (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#ptd_from_alg_functor"><span class="id" title="definition">ptd_from_alg_functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.CC"><span class="id" title="variable">CC</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam_S"><span class="id" title="variable">Lam_S</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda.Lam"><span class="id" title="variable">Lam</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#iso"><span class="id" title="definition">iso</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#helper_to"><span class="id" title="definition">helper_to</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_iso_from_is_z_iso"><span class="id" title="lemma">is_iso_from_is_z_iso</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#helper_from"><span class="id" title="definition">helper_from</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>; [<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> (<a class="idref" href="UniMath.CategoryTheory.PointedFunctors.html#eq_ptd_mor"><span class="id" title="lemma">eq_ptd_mor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq"><span class="id" title="lemma">nat_trans_eq</span></a>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a> |] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">c</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.PointedFunctors.html#eq_ptd_mor_cat"><span class="id" title="lemma">eq_ptd_mor_cat</span></a>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> (<a class="idref" href="UniMath.CategoryTheory.PointedFunctors.html#eq_ptd_mor"><span class="id" title="lemma">eq_ptd_mor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq"><span class="id" title="lemma">nat_trans_eq</span></a>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a> |];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">c</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a> ]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+WARNING: the rest is commented out since the adaptation to SimplifiedHSS is not yet clear 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.Lam.html#Lambda"><span class="id" title="section">Lambda</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

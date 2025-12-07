@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Combinatorics.DecSet</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Combinatorics.DecSet</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3133"></a><h1 class="section">Decidable sets.</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartB.html#"><span class="id" title="library">UniMath.Foundations.PartB</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="decSet" class="idref" href="#decSet"><span class="id" title="definition">decSet</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isdeceq"><span class="id" title="definition">isdeceq</span></a> <a class="idref" href="UniMath.Combinatorics.DecSet.html#X:1"><span class="id" title="variable">X</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_decSet" class="idref" href="#make_decSet"><span class="id" title="definition">make_decSet</span></a> (<a id="X:2" class="idref" href="#X:2"><span class="id" title="binder">X</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) (<a id="i:3" class="idref" href="#i:3"><span class="id" title="binder">i</span></a>: <a class="idref" href="UniMath.Foundations.PartB.html#isdeceq"><span class="id" title="definition">isdeceq</span></a> <a class="idref" href="UniMath.Combinatorics.DecSet.html#X:2"><span class="id" title="variable">X</span></a>): <a class="idref" href="UniMath.Combinatorics.DecSet.html#decSet"><span class="id" title="definition">decSet</span></a> := <a class="idref" href="UniMath.Combinatorics.DecSet.html#X:2"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Combinatorics.DecSet.html#i:3"><span class="id" title="variable">i</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pr1decSet" class="idref" href="#pr1decSet"><span class="id" title="definition">pr1decSet</span></a>: <a class="idref" href="UniMath.Combinatorics.DecSet.html#decSet"><span class="id" title="definition">decSet</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.Combinatorics.DecSet.html#pr1decSet"><span class="id" title="definition">pr1decSet</span></a><a class="idref" href="UniMath.Combinatorics.DecSet.html#pr1decSet"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.Combinatorics.DecSet.html#pr1decSet"><span class="id" title="definition">decSet</span></a> <a class="idref" href="UniMath.Combinatorics.DecSet.html#pr1decSet"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.Combinatorics.DecSet.html#pr1decSet"><span class="id" title="definition">UU</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="decproperty" class="idref" href="#decproperty"><span class="id" title="definition">decproperty</span></a> (<a id="X:4" class="idref" href="#X:4"><span class="id" title="binder">X</span></a>: <a class="idref" href="UniMath.Combinatorics.DecSet.html#decSet"><span class="id" title="definition">decSet</span></a>) := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Combinatorics.DecSet.html#X:4"><span class="id" title="variable">X</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

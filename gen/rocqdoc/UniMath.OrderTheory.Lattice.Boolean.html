@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.Lattice.Boolean</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.Lattice.Boolean</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3911"></a><h1 class="section">Boolean algebras</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Preamble.html#"><span class="id" title="library">UniMath.Foundations.Preamble</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Monoids.html#"><span class="id" title="library">UniMath.Algebra.Monoids</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Lattice</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Bounded</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Complement</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Distributive.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Distributive</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Heyting.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Heyting</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Def" class="idref" href="#Def"><span class="id" title="section">Def</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Def.X" class="idref" href="#Def.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>} (<a id="Def.L" class="idref" href="#Def.L"><span class="id" title="variable">L</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_lattice"><span class="id" title="definition">bounded_lattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#X:1"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The normal "∧", "∨" notation conflicts with that for <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a></span>, whereas
+      "+", "×" conflict with notation for types. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="71d9189efd708e02567bd7d9ae7e38e7" class="idref" href="#71d9189efd708e02567bd7d9ae7e38e7"><span class="id" title="notation">&quot;</span></a>x ≤ y" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lle"><span class="id" title="definition">Lle</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Def.L"><span class="id" title="variable">L</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="fa053fcee467e7e00d324f8c43bdb468" class="idref" href="#fa053fcee467e7e00d324f8c43bdb468"><span class="id" title="notation">&quot;</span></a>x ⊗ y" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmin"><span class="id" title="definition">Lmin</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Def.L"><span class="id" title="variable">L</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="db8c07ad7ba1beee6899f0d919330784" class="idref" href="#db8c07ad7ba1beee6899f0d919330784"><span class="id" title="notation">&quot;</span></a>x ⊕ y" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmax"><span class="id" title="definition">Lmax</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Def.L"><span class="id" title="variable">L</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="3b307056cfa4a72f13d59170001e652f" class="idref" href="#3b307056cfa4a72f13d59170001e652f"><span class="id" title="notation">&quot;</span></a>⊤" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#Ltop"><span class="id" title="definition">Ltop</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Def.L"><span class="id" title="variable">L</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="83f2b23f227957f535b6313567353334" class="idref" href="#83f2b23f227957f535b6313567353334"><span class="id" title="notation">&quot;</span></a>⊥" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#Lbot"><span class="id" title="definition">Lbot</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Def.L"><span class="id" title="variable">L</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+While complements are in general not unique, we regain uniqueness in the
+      case of Boolean algebras. Therefore, Boolean algebra structure is a proposition. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_boolean" class="idref" href="#is_boolean"><span class="id" title="definition">is_boolean</span></a> : <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#make_hProp"><span class="id" title="definition">make_hProp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="is_distr:3" class="idref" href="#is_distr:3"><span class="id" title="binder"><span id="is_distr:4" class="id">is_distr</span></span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Distributive.html#is_distributive"><span class="id" title="definition">is_distributive</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Def.L"><span class="id" title="variable">L</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#make_hProp"><span class="id" title="definition">make_hProp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complemented_structure"><span class="id" title="definition">complemented_structure</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Def.L"><span class="id" title="variable">L</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a>; <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Distributive.html#distributive_lattice_complements_are_unique"><span class="id" title="lemma">distributive_lattice_complements_are_unique</span></a>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#isaprop_total2"><span class="id" title="lemma">isaprop_total2</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Def"><span class="id" title="section">Def</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_is_boolean" class="idref" href="#make_is_boolean"><span class="id" title="definition">make_is_boolean</span></a> {<a id="X:5" class="idref" href="#X:5"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>} (<a id="L:6" class="idref" href="#L:6"><span class="id" title="binder">L</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_lattice"><span class="id" title="definition">bounded_lattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#X:5"><span class="id" title="variable">X</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.OrderTheory.Lattice.Distributive.html#is_distributive"><span class="id" title="definition">is_distributive</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#L:6"><span class="id" title="variable">L</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complemented_structure"><span class="id" title="definition">complemented_structure</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#L:6"><span class="id" title="variable">L</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#is_boolean"><span class="id" title="definition">is_boolean</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#L:6"><span class="id" title="variable">L</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ? ?.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="boolean_algebra" class="idref" href="#boolean_algebra"><span class="id" title="definition">boolean_algebra</span></a> (<a id="X:7" class="idref" href="#X:7"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="L:8" class="idref" href="#L:8"><span class="id" title="binder">L</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_lattice"><span class="id" title="definition">bounded_lattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#X:7"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#is_boolean"><span class="id" title="definition">is_boolean</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#L:8"><span class="id" title="variable">L</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Accessors" class="idref" href="#Accessors"><span class="id" title="section">Accessors</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Accessors.X" class="idref" href="#Accessors.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>} (<a id="Accessors.B" class="idref" href="#Accessors.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra"><span class="id" title="definition">boolean_algebra</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#X:9"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="boolean_algebra_lattice" class="idref" href="#boolean_algebra_lattice"><span class="id" title="definition">boolean_algebra_lattice</span></a>  : <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_lattice"><span class="id" title="definition">bounded_lattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Accessors.X"><span class="id" title="variable">X</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Accessors.B"><span class="id" title="variable">B</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="boolean_algebra_is_boolean" class="idref" href="#boolean_algebra_is_boolean"><span class="id" title="definition">boolean_algebra_is_boolean</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#is_boolean"><span class="id" title="definition">is_boolean</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra_lattice"><span class="id" title="definition">boolean_algebra_lattice</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Accessors.B"><span class="id" title="variable">B</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="boolean_algebra_complement" class="idref" href="#boolean_algebra_complement"><span class="id" title="definition">boolean_algebra_complement</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complemented_structure"><span class="id" title="definition">complemented_structure</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra_lattice"><span class="id" title="definition">boolean_algebra_lattice</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Accessors.B"><span class="id" title="variable">B</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Accessors"><span class="id" title="section">Accessors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra_lattice"><span class="id" title="definition">boolean_algebra_lattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra_lattice"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra_lattice"><span class="id" title="definition">boolean_algebra</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra_lattice"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra_lattice"><span class="id" title="definition">bounded_lattice</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Every Boolean algebra has eponentials (is a Heyting algebra). 
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="Heyting" class="idref" href="#Heyting"><span class="id" title="section">Heyting</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Heyting.X" class="idref" href="#Heyting.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>} (<a id="Heyting.L" class="idref" href="#Heyting.L"><span class="id" title="variable">L</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra"><span class="id" title="definition">boolean_algebra</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#X:11"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The normal "∧", "∨" notation conflicts with that for <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a></span>, whereas
+      "+", "×" conflict with notation for types. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="4f7d07bd3139c31737138d0e6444c1bc" class="idref" href="#4f7d07bd3139c31737138d0e6444c1bc"><span class="id" title="notation">&quot;</span></a>x ⊕ y" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmax"><span class="id" title="definition">Lmax</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Heyting.L"><span class="id" title="variable">L</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="a49c4b5a883533ff6d866e0f46a7e38c" class="idref" href="#a49c4b5a883533ff6d866e0f46a7e38c"><span class="id" title="notation">&quot;</span></a>¬ x" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#boolean_algebra_complement"><span class="id" title="definition">boolean_algebra_complement</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Heyting.L"><span class="id" title="variable">L</span></a> <span class="id" title="var">x</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="boolean_algebra_exponential" class="idref" href="#boolean_algebra_exponential"><span class="id" title="lemma">boolean_algebra_exponential</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Heyting.html#exponential"><span class="id" title="definition">exponential</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Heyting.L"><span class="id" title="variable">L</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Heyting.html#make_exponential"><span class="id" title="definition">make_exponential</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>; <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#4f7d07bd3139c31737138d0e6444c1bc"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#a49c4b5a883533ff6d866e0f46a7e38c"><span class="id" title="notation">¬</span></a> <span class="id" title="var">x</span><a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#4f7d07bd3139c31737138d0e6444c1bc"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#4f7d07bd3139c31737138d0e6444c1bc"><span class="id" title="notation">⊕</span></a> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span>; <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Abort</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#Heyting"><span class="id" title="section">Heyting</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.Preorders</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.Preorders</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3858"></a><h1 class="section">1. The preorder structure on a subtype</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="SubPreorder" class="idref" href="#SubPreorder"><span class="id" title="section">SubPreorder</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="SubPreorder.X" class="idref" href="#SubPreorder.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="SubPreorder.P" class="idref" href="#SubPreorder.P"><span class="id" title="variable">P</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#SubPreorder.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="SubPreorder.A" class="idref" href="#SubPreorder.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#SubPreorder.X"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subpreorder" class="idref" href="#subpreorder"><span class="id" title="definition">subpreorder</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#SubPreorder.A"><span class="id" title="variable">A</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Sets.html#make_po"><span class="id" title="definition">make_po</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Sets.html#resrel"><span class="id" title="definition">resrel</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#SubPreorder.P"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#SubPreorder.A"><span class="id" title="variable">A</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#istransresrel"><span class="id" title="definition">istransresrel</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.Orders.html#istrans_po"><span class="id" title="definition">istrans_po</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#isreflresrel"><span class="id" title="definition">isreflresrel</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.Orders.html#isrefl_po"><span class="id" title="definition">isrefl_po</span></a> ]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.Preorders.html#SubPreorder"><span class="id" title="section">SubPreorder</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3859"></a><h1 class="section">2. Down- and up-types</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="DownType" class="idref" href="#DownType"><span class="id" title="section">DownType</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="down_type" class="idref" href="#down_type"><span class="id" title="definition">down_type</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:4" class="idref" href="#X:4"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="P:5" class="idref" href="#P:5"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hrel"><span class="id" title="definition">hrel</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#X:4"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="y:6" class="idref" href="#y:6"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.OrderTheory.Preorders.html#X:4"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#X:4"><span class="id" title="variable">X</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:7" class="idref" href="#x:7"><span class="id" title="binder">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#P:5"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#y:6"><span class="id" title="variable">y</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="up_type" class="idref" href="#up_type"><span class="id" title="definition">up_type</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:8" class="idref" href="#X:8"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="P:9" class="idref" href="#P:9"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hrel"><span class="id" title="definition">hrel</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#X:8"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:10" class="idref" href="#x:10"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.Preorders.html#X:8"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#X:8"><span class="id" title="variable">X</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="y:11" class="idref" href="#y:11"><span class="id" title="binder">y</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#P:9"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#x:10"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#y:11"><span class="id" title="variable">y</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownType"><span class="id" title="section">DownType</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3860"></a><h1 class="section">3. Downward closed subsets</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="DownwardClosed" class="idref" href="#DownwardClosed"><span class="id" title="section">DownwardClosed</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="DownwardClosed.X" class="idref" href="#DownwardClosed.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="DownwardClosed.P" class="idref" href="#DownwardClosed.P"><span class="id" title="variable">P</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hrel"><span class="id" title="definition">hrel</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosed.X"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_downward_closed" class="idref" href="#is_downward_closed"><span class="id" title="definition">is_downward_closed</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:14" class="idref" href="#f:14"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosed.X"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:15" class="idref" href="#x:15"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.Preorders.html#f:14"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="y:16" class="idref" href="#y:16"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.OrderTheory.Preorders.html#down_type"><span class="id" title="definition">down_type</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosed.P"><span class="id" title="variable">P</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#pr1carrier"><span class="id" title="definition">pr1carrier</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.OrderTheory.Preorders.html#x:15"><span class="id" title="variable">x</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.OrderTheory.Preorders.html#f:14"><span class="id" title="variable">f</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#pr1carrier"><span class="id" title="definition">pr1carrier</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.OrderTheory.Preorders.html#y:16"><span class="id" title="variable">y</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="downward_closed_subtype" class="idref" href="#downward_closed_subtype"><span class="id" title="definition">downward_closed_subtype</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="f:17" class="idref" href="#f:17"><span class="id" title="binder">f</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#is_downward_closed"><span class="id" title="definition">is_downward_closed</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#f:17"><span class="id" title="variable">f</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a id="downward_closed_subtype_to_subtype" class="idref" href="#downward_closed_subtype_to_subtype"><span class="id" title="definition">downward_closed_subtype_to_subtype</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:18" class="idref" href="#f:18"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.OrderTheory.Preorders.html#downward_closed_subtype"><span class="id" title="definition">downward_closed_subtype</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosed.X"><span class="id" title="variable">X</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#f:18"><span class="id" title="variable">f</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="downward_closed_is_downward_closed" class="idref" href="#downward_closed_is_downward_closed"><span class="id" title="definition">downward_closed_is_downward_closed</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:19" class="idref" href="#f:19"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.OrderTheory.Preorders.html#downward_closed_subtype"><span class="id" title="definition">downward_closed_subtype</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Preorders.html#is_downward_closed"><span class="id" title="definition">is_downward_closed</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#f:19"><span class="id" title="variable">f</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#f:19"><span class="id" title="variable">f</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="make_downward_closed_subtype" class="idref" href="#make_downward_closed_subtype"><span class="id" title="definition">make_downward_closed_subtype</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:20" class="idref" href="#f:20"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosed.X"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:21" class="idref" href="#H:21"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.OrderTheory.Preorders.html#is_downward_closed"><span class="id" title="definition">is_downward_closed</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#f:20"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Preorders.html#downward_closed_subtype"><span class="id" title="definition">downward_closed_subtype</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.OrderTheory.Preorders.html#f:20"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#H:21"><span class="id" title="variable">H</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosed"><span class="id" title="section">DownwardClosed</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3861"></a><h1 class="section">4. The downward closure</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="DownwardClosure" class="idref" href="#DownwardClosure"><span class="id" title="section">DownwardClosure</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="DownwardClosure.X" class="idref" href="#DownwardClosure.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="DownwardClosure.P" class="idref" href="#DownwardClosure.P"><span class="id" title="variable">P</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#po"><span class="id" title="definition">po</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="DownwardClosure.f" class="idref" href="#DownwardClosure.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure.X"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="downward_closure_hsubtype" class="idref" href="#downward_closure_hsubtype"><span class="id" title="definition">downward_closure_hsubtype</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure.X"><span class="id" title="variable">X</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">∃</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">(</span></a><a id="z:25" class="idref" href="#z:25"><span class="id" title="binder"><span id="z:26" class="id">z</span></span></a> : <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure.f"><span class="id" title="variable">f</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure.P"><span class="id" title="variable">P</span></a> <span class="id" title="var">y</span> (<a class="idref" href="UniMath.Foundations.Sets.html#pr1carrier"><span class="id" title="definition">pr1carrier</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.OrderTheory.Preorders.html#z:25"><span class="id" title="variable">z</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="downward_closure_is_downward_closed" class="idref" href="#downward_closure_is_downward_closed"><span class="id" title="lemma">downward_closure_is_downward_closed</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Preorders.html#is_downward_closed"><span class="id" title="definition">is_downward_closed</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure.P"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#downward_closure_hsubtype"><span class="id" title="definition">downward_closure_hsubtype</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhfun"><span class="id" title="definition">hinhfun</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">y</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">Hy</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">Hy</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.MoreFoundations.Orders.html#istrans_po"><span class="id" title="definition">istrans_po</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure.P"><span class="id" title="variable">P</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">z</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">Hy</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="downward_closure" class="idref" href="#downward_closure"><span class="id" title="definition">downward_closure</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Preorders.html#downward_closed_subtype"><span class="id" title="definition">downward_closed_subtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure.P"><span class="id" title="variable">P</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.OrderTheory.Preorders.html#make_downward_closed_subtype"><span class="id" title="definition">make_downward_closed_subtype</span></a> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure.P"><span class="id" title="variable">P</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.OrderTheory.Preorders.html#downward_closure_is_downward_closed"><span class="id" title="lemma">downward_closure_is_downward_closed</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.Preorders.html#DownwardClosure"><span class="id" title="section">DownwardClosure</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.Lattice.Examples.Bool</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.Lattice.Examples.Bool</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3938"></a><h1 class="section">Lattice structure on <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Sets.html#boolset"><span class="id" title="definition">boolset</span></a></span></h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Preamble.html#"><span class="id" title="library">UniMath.Foundations.Preamble</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#"><span class="id" title="library">UniMath.MoreFoundations.Bool</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#"><span class="id" title="library">UniMath.Algebra.BinaryOperations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Lattice</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Bounded</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Distributive.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Distributive</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Complement</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Boolean</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="boolset_lattice" class="idref" href="#boolset_lattice"><span class="id" title="lemma">boolset_lattice</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#lattice"><span class="id" title="definition">lattice</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#boolset"><span class="id" title="definition">boolset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#make_lattice"><span class="id" title="definition">make_lattice</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#andb"><span class="id" title="definition">andb</span></a>. </div>
+
+<div class="doc">
+<span class="inlinecode"><a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmin"><span class="id" title="definition">Lmin</span></a></span> 
+</div>
+<div class="code">
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#orb"><span class="id" title="definition">orb</span></a>. </div>
+
+<div class="doc">
+<span class="inlinecode"><a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmax"><span class="id" title="definition">Lmax</span></a></span> 
+</div>
+<div class="code">
+&nbsp;&nbsp;- </div>
+
+<div class="doc">
+TODO: constructor for this 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>|<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>|<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ? ?; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#andb_is_associative"><span class="id" title="lemma">andb_is_associative</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ?; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#andb_is_commutative"><span class="id" title="lemma">andb_is_commutative</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ? ?; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#orb_is_associative"><span class="id" title="lemma">orb_is_associative</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ?; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#orb_is_commutative"><span class="id" title="lemma">orb_is_commutative</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">b1</span> <span class="id" title="var">b2</span>; <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>, <span class="id" title="var">b2</span>; <span class="id" title="tactic">reflexivity</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">b1</span> <span class="id" title="var">b2</span>; <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>, <span class="id" title="var">b2</span>; <span class="id" title="tactic">reflexivity</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="boolset_lattice_is_bounded" class="idref" href="#boolset_lattice_is_bounded"><span class="id" title="lemma">boolset_lattice_is_bounded</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_latticeop"><span class="id" title="definition">bounded_latticeop</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_lattice"><span class="id" title="lemma">boolset_lattice</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="tactic">compute</span>; <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="boolset_lattice_is_complemented" class="idref" href="#boolset_lattice_is_complemented"><span class="id" title="lemma">boolset_lattice_is_complemented</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complemented_structure"><span class="id" title="definition">complemented_structure</span></a> (<a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#make_bounded_lattice"><span class="id" title="definition">make_bounded_lattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_lattice_is_bounded"><span class="id" title="lemma">boolset_lattice_is_bounded</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">b</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a> <span class="id" title="var">b</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="tactic">reflexivity</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="tactic">reflexivity</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="boolset_bounded_lattice" class="idref" href="#boolset_bounded_lattice"><span class="id" title="definition">boolset_bounded_lattice</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_lattice"><span class="id" title="definition">bounded_lattice</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#boolset"><span class="id" title="definition">boolset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#make_bounded_lattice"><span class="id" title="definition">make_bounded_lattice</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_lattice"><span class="id" title="lemma">boolset_lattice</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_lattice_is_bounded"><span class="id" title="lemma">boolset_lattice_is_bounded</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="boolset_lattice_is_distributive" class="idref" href="#boolset_lattice_is_distributive"><span class="id" title="lemma">boolset_lattice_is_distributive</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Distributive.html#is_distributive"><span class="id" title="definition">is_distributive</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_lattice"><span class="id" title="lemma">boolset_lattice</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">b1</span> <span class="id" title="var">b2</span> <span class="id" title="var">b3</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">b1</span>, <span class="id" title="var">b2</span>, <span class="id" title="var">b3</span>; <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="subset_lattice_is_boolean" class="idref" href="#subset_lattice_is_boolean"><span class="id" title="definition">subset_lattice_is_boolean</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#is_boolean"><span class="id" title="definition">is_boolean</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_bounded_lattice"><span class="id" title="definition">boolset_bounded_lattice</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Boolean.html#make_is_boolean"><span class="id" title="definition">make_is_boolean</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_lattice_is_distributive"><span class="id" title="lemma">boolset_lattice_is_distributive</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_lattice_is_complemented"><span class="id" title="lemma">boolset_lattice_is_complemented</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

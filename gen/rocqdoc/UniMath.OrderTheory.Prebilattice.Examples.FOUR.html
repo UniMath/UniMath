@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.Prebilattice.Examples.FOUR</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.Prebilattice.Examples.FOUR</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+The pre-bilattice FOUR  Georgios V. Pitsiladis, Aug. 2024 - 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Prebilattice.Prebilattice.html#"><span class="id" title="library">UniMath.OrderTheory.Prebilattice.Prebilattice</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Prebilattice.Product.html#"><span class="id" title="library">UniMath.OrderTheory.Prebilattice.Product</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Prebilattice.Interlaced.html#"><span class="id" title="library">UniMath.OrderTheory.Prebilattice.Interlaced</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Prebilattice.Distributive.html#"><span class="id" title="library">UniMath.OrderTheory.Prebilattice.Distributive</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Examples.Bool</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#"><span class="id" title="library">UniMath.MoreFoundations.Bool</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="FOUR" class="idref" href="#FOUR"><span class="id" title="definition">FOUR</span></a> := <a class="idref" href="UniMath.OrderTheory.Prebilattice.Product.html#make_bounded_prod_prebilattice"><span class="id" title="definition">make_bounded_prod_prebilattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_bounded_lattice"><span class="id" title="definition">boolset_bounded_lattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Bool.html#boolset_bounded_lattice"><span class="id" title="definition">boolset_bounded_lattice</span></a> .<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_interlaced_FOUR" class="idref" href="#is_interlaced_FOUR"><span class="id" title="lemma">is_interlaced_FOUR</span></a> : <a class="idref" href="UniMath.OrderTheory.Prebilattice.Interlaced.html#is_interlaced"><span class="id" title="definition">is_interlaced</span></a> <a class="idref" href="UniMath.OrderTheory.Prebilattice.Examples.FOUR.html#FOUR"><span class="id" title="definition">FOUR</span></a> .<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Prebilattice.Product.html#prod_prebilattices_are_interlaced"><span class="id" title="lemma">prod_prebilattices_are_interlaced</span></a> <a class="idref" href="UniMath.OrderTheory.Prebilattice.Examples.FOUR.html#FOUR"><span class="id" title="definition">FOUR</span></a>) .<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_distributive_FOUR" class="idref" href="#is_distributive_FOUR"><span class="id" title="definition">is_distributive_FOUR</span></a> : <a class="idref" href="UniMath.OrderTheory.Prebilattice.Distributive.html#is_distributive_prebilattice"><span class="id" title="definition">is_distributive_prebilattice</span></a> <a class="idref" href="UniMath.OrderTheory.Prebilattice.Examples.FOUR.html#FOUR"><span class="id" title="definition">FOUR</span></a> .<br/>
+<span class="id" title="keyword">Proof</span> .<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">do</span> 9 (<span class="id" title="tactic">try</span> <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>); <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.OrderTheory.Prebilattice.Prebilattice.html#consensus"><span class="id" title="definition">consensus</span></a>, <a class="idref" href="UniMath.OrderTheory.Prebilattice.Prebilattice.html#gullibility"><span class="id" title="definition">gullibility</span></a>, <a class="idref" href="UniMath.OrderTheory.Prebilattice.Prebilattice.html#meet"><span class="id" title="definition">meet</span></a>, <a class="idref" href="UniMath.OrderTheory.Prebilattice.Prebilattice.html#join"><span class="id" title="definition">join</span></a>, <a class="idref" href="UniMath.OrderTheory.Prebilattice.Prebilattice.html#tlattice"><span class="id" title="definition">tlattice</span></a>, <a class="idref" href="UniMath.OrderTheory.Prebilattice.Prebilattice.html#klattice"><span class="id" title="definition">klattice</span></a>, <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmin"><span class="id" title="definition">Lattice.Lmin</span></a>, <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmax"><span class="id" title="definition">Lattice.Lmax</span></a>; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.OrderTheory.Prebilattice.Product.html#prod_prebilattice_consensus"><span class="id" title="definition">prod_prebilattice_consensus</span></a>, <a class="idref" href="UniMath.OrderTheory.Prebilattice.Product.html#prod_prebilattice_gullibility"><span class="id" title="definition">prod_prebilattice_gullibility</span></a>, <a class="idref" href="UniMath.OrderTheory.Prebilattice.Product.html#prod_prebilattice_meet"><span class="id" title="definition">prod_prebilattice_meet</span></a>, <a class="idref" href="UniMath.OrderTheory.Prebilattice.Product.html#prod_prebilattice_join"><span class="id" title="definition">prod_prebilattice_join</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span>; <span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">x</span>), (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">x</span>), (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">y</span>), (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">y</span>), (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">z</span>), (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">z</span>); <span class="id" title="tactic">trivial</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

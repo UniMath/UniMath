@@ -1,0 +1,431 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Subcategory.Limits</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Subcategory.Limits</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3008"></a><h2 class="section">(Co)limits in full subprecategories</h2>
+
+
+<div class="paragraph"> </div>
+
+If
+
+<div class="paragraph"> </div>
+
+<a id="lab3009"></a><h1 class="section">C has (co)limits of shape F,</h1>
+
+<a id="lab3010"></a><h1 class="section">C' : ob C → UU is a proposition on the objects of C, and</h1>
+
+<a id="lab3011"></a><h1 class="section">C' is closed under the formation of (co)limits of shape F,</h1>
+
+
+<div class="paragraph"> </div>
+
+then the full subcategory on C'-objects has (co)limits of shape F.
+
+<div class="paragraph"> </div>
+
+Such proofs are mostly just a lot of insertions of
+
+<div class="paragraph"> </div>
+
+<a id="lab3012"></a><h1 class="section"><span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_from_sub_precategory_object"><span class="id" title="definition">precategory_object_from_sub_precategory_object</span></a></span></h1>
+
+<a id="lab3013"></a><h1 class="section"><span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_morphism_from_sub_precategory_morphism"><span class="id" title="definition">precategory_morphism_from_sub_precategory_morphism</span></a></span></h1>
+
+
+<div class="paragraph"> </div>
+
+and their "inverses"
+
+<div class="paragraph"> </div>
+
+<a id="lab3014"></a><h1 class="section"><span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_morphisms_in_subcat"><span class="id" title="definition">precategory_morphisms_in_subcat</span></a></span></h1>
+
+<a id="lab3015"></a><h1 class="section"><span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_in_subcat"><span class="id" title="definition">precategory_object_in_subcat</span></a></span>.</h1>
+
+
+<div class="paragraph"> </div>
+
+Author: Langston Barrett (@siddharthist) (March 2018)
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+<a id="lab3016"></a><h2 class="section">Contents</h2>
+
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Limits
+<ul class="doclist">
+<li> Binary products
+
+</li>
+</ul>
+
+</li>
+<li> Colimits
+
+</li>
+</ul>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartA.html#"><span class="id" title="library">UniMath.Foundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Full</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Limits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Colimits</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3017"></a><h2 class="section">The subcategory inclusion reflects limits</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="reflects_all_limits_sub_precategory_inclusion" class="idref" href="#reflects_all_limits_sub_precategory_inclusion"><span class="id" title="lemma">reflects_all_limits_sub_precategory_inclusion</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="C':2" class="idref" href="#C':2"><span class="id" title="binder">C'</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:1"><span class="id" title="variable">C</span></a>)) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#reflects_all_limits"><span class="id" title="definition">reflects_all_limits</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#sub_precategory_inclusion"><span class="id" title="definition">sub_precategory_inclusion</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:1"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':2"><span class="id" title="variable">C'</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#fully_faithful_reflects_all_limits"><span class="id" title="lemma">fully_faithful_reflects_all_limits</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#fully_faithful_sub_precategory_inclusion"><span class="id" title="lemma">fully_faithful_sub_precategory_inclusion</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Limits" class="idref" href="#Limits"><span class="id" title="section">Limits</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3018"></a><h2 class="section">Limits</h2>
+
+<div class="paragraph"> </div>
+
+<a id="lab3019"></a><h3 class="section">Terminal objects</h3>
+
+<div class="paragraph"> </div>
+
+ As long as the predicate holds for the terminal object, it's terminal in the full subcategory. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="terminal_in_full_subcategory" class="idref" href="#terminal_in_full_subcategory"><span class="id" title="lemma">terminal_in_full_subcategory</span></a> {<a id="C:3" class="idref" href="#C:3"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="C':4" class="idref" href="#C':4"><span class="id" title="binder">C'</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:3"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="TC:5" class="idref" href="#TC:5"><span class="id" title="binder">TC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:3"><span class="id" title="variable">C</span></a>) (<a id="TC':6" class="idref" href="#TC':6"><span class="id" title="binder">TC'</span></a> : <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':4"><span class="id" title="variable">C'</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalObject"><span class="id" title="definition">TerminalObject</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#TC:5"><span class="id" title="variable">TC</span></a>)) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':4"><span class="id" title="variable">C'</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_in_subcat"><span class="id" title="definition">precategory_object_in_subcat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalObject"><span class="id" title="definition">TerminalObject</span></a> <span class="id" title="var">TC</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_iscontr"><span class="id" title="definition">make_iscontr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#morphism_in_full_subcat"><span class="id" title="definition">morphism_in_full_subcat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrow"><span class="id" title="definition">TerminalArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#eq_in_sub_precategory"><span class="id" title="lemma">eq_in_sub_precategory</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrowUnique"><span class="id" title="lemma">TerminalArrowUnique</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3020"></a><h3 class="section">Binary products</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="bin_products_in_full_subcategory" class="idref" href="#bin_products_in_full_subcategory"><span class="id" title="lemma">bin_products_in_full_subcategory</span></a> {<a id="C:7" class="idref" href="#C:7"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="C':8" class="idref" href="#C':8"><span class="id" title="binder">C'</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:7"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="BPC:9" class="idref" href="#BPC:9"><span class="id" title="binder">BPC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:7"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="all:12" class="idref" href="#all:12"><span class="id" title="binder">all</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="c1:10" class="idref" href="#c1:10"><span class="id" title="binder">c1</span></a> <a id="c2:11" class="idref" href="#c2:11"><span class="id" title="binder">c2</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:7"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':8"><span class="id" title="variable">C'</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c1:10"><span class="id" title="variable">c1</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':8"><span class="id" title="variable">C'</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c2:11"><span class="id" title="variable">c2</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':8"><span class="id" title="variable">C'</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#BPC:9"><span class="id" title="variable">BPC</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c1:10"><span class="id" title="variable">c1</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c2:11"><span class="id" title="variable">c2</span></a>))) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':8"><span class="id" title="variable">C'</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c1'</span> <span class="id" title="var">c2'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">c1'_in_C</span> := (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_from_sub_precategory_object"><span class="id" title="definition">precategory_object_from_sub_precategory_object</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">c1'</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">c2'_in_C</span> := (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_from_sub_precategory_object"><span class="id" title="definition">precategory_object_from_sub_precategory_object</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">c2'</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>; [<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>|]; [|<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>|].<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_in_subcat"><span class="id" title="definition">precategory_object_in_subcat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> (<span class="id" title="var">BPC</span> <span class="id" title="var">c1'_in_C</span> <span class="id" title="var">c2'_in_C</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="var">all</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">c1'</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">c2'</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#morphism_in_full_subcat"><span class="id" title="definition">morphism_in_full_subcat</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1"><span class="id" title="definition">BinProductPr1</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#morphism_in_full_subcat"><span class="id" title="definition">morphism_in_full_subcat</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2"><span class="id" title="definition">BinProductPr2</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#isBinProduct"><span class="id" title="definition">isBinProduct</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">bp'</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_morphisms_in_subcat"><span class="id" title="definition">precategory_morphisms_in_subcat</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrow"><span class="id" title="definition">BinProductArrow</span></a>|<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_morphism_from_sub_precategory_morphism"><span class="id" title="definition">precategory_morphism_from_sub_precategory_morphism</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <span class="id" title="var">C'</span>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#eq_in_sub_precategory"><span class="id" title="lemma">eq_in_sub_precategory</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1Commutes"><span class="id" title="lemma">BinProductPr1Commutes</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2Commutes"><span class="id" title="lemma">BinProductPr2Commutes</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">otherarrow</span>.<br/>
+</div>
+
+<div class="doc">
+This is where we use the condition that C has homsets. 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#is_set_sub_precategory_morphisms"><span class="id" title="lemma">is_set_sub_precategory_morphisms</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#eq_in_sub_precategory"><span class="id" title="lemma">eq_in_sub_precategory</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrowUnique"><span class="id" title="lemma">BinProductArrowUnique</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#dirprod_pr1"><span class="id" title="definition">dirprod_pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">otherarrow</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#dirprod_pr2"><span class="id" title="definition">dirprod_pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">otherarrow</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3021"></a><h3 class="section">General limits</h3>
+
+<div class="paragraph"> </div>
+
+ Lift a diagram from a full subcategory into the parent category 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="lift_diagram_full_subcategory" class="idref" href="#lift_diagram_full_subcategory"><span class="id" title="definition">lift_diagram_full_subcategory</span></a> {<a id="C:13" class="idref" href="#C:13"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} {<a id="C':14" class="idref" href="#C':14"><span class="id" title="binder">C'</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:13"><span class="id" title="variable">C</span></a>)} {<a id="g:15" class="idref" href="#g:15"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#graph"><span class="id" title="definition">graph</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="d:16" class="idref" href="#d:16"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#diagram"><span class="id" title="definition">diagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#g:15"><span class="id" title="variable">g</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':14"><span class="id" title="variable">C'</span></a>)) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#diagram"><span class="id" title="definition">diagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#g:15"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:13"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">v</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_from_sub_precategory_object"><span class="id" title="definition">precategory_object_from_sub_precategory_object</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <span class="id" title="var">C'</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#dob"><span class="id" title="definition">dob</span></a> <span class="id" title="var">d</span> <span class="id" title="var">v</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">u</span> <span class="id" title="var">v</span> <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_morphism_from_sub_precategory_morphism"><span class="id" title="definition">precategory_morphism_from_sub_precategory_morphism</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <span class="id" title="var">C'</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#dmor"><span class="id" title="definition">dmor</span></a> <span class="id" title="var">d</span> <span class="id" title="var">e</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Equivalence between cones in the parent category and those in the subcategory 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cone_in_full_subcategory" class="idref" href="#cone_in_full_subcategory"><span class="id" title="definition">cone_in_full_subcategory</span></a> {<a id="C:17" class="idref" href="#C:17"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} {<a id="g:18" class="idref" href="#g:18"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#graph"><span class="id" title="definition">graph</span></a>} (<a id="C':19" class="idref" href="#C':19"><span class="id" title="binder">C'</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:17"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="d:20" class="idref" href="#d:20"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#diagram"><span class="id" title="definition">diagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#g:18"><span class="id" title="variable">g</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':19"><span class="id" title="variable">C'</span></a>)}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="c:21" class="idref" href="#c:21"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:17"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="tip:22" class="idref" href="#tip:22"><span class="id" title="binder">tip</span></a> : <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':19"><span class="id" title="variable">C'</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c:21"><span class="id" title="variable">c</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#cone"><span class="id" title="definition">cone</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#lift_diagram_full_subcategory"><span class="id" title="definition">lift_diagram_full_subcategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#d:20"><span class="id" title="variable">d</span></a>) <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c:21"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#cone"><span class="id" title="definition">cone</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#d:20"><span class="id" title="variable">d</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c:21"><span class="id" title="variable">c</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#tip:22"><span class="id" title="variable">tip</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#cone"><span class="id" title="definition">cone</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#weqbandf"><span class="id" title="definition">weqbandf</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#weqonsecfibers"><span class="id" title="definition">weqonsecfibers</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="keyword">beta</span>.<br/>
+</div>
+
+<div class="doc">
+The following line works because of the computational behavior of
+        <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#lift_diagram_full_subcategory"><span class="id" title="definition">lift_diagram_full_subcategory</span></a></span>, namely:
+<pre>
+        (∏ v : vertex g, C' (dob (lift_diagram_full_subcategory d) v))
+        → C' c
+        → ∏ v : vertex g,
+            pr1 (dob d v) = dob (lift_diagram_full_subcategory d) v
+</pre>
+      
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (@<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#weq_hom_in_subcat_from_hom_in_precat"><span class="id" title="definition">weq_hom_in_subcat_from_hom_in_precat</span></a> <span class="id" title="var">C</span> <span class="id" title="var">C'</span> (<span class="id" title="var">c</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">tip</span>) (<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#dob"><span class="id" title="definition">dob</span></a> <span class="id" title="var">d</span> <span class="id" title="var">x</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">legs</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="keyword">beta</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#weqonsecfibers"><span class="id" title="definition">weqonsecfibers</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">u</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#weqonsecfibers"><span class="id" title="definition">weqonsecfibers</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">v</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#weqonsecfibers"><span class="id" title="definition">weqonsecfibers</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartB.html#subtypeInjectivity"><span class="id" title="lemma">subtypeInjectivity</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A full subcategory has a limit of a given shape if the proposition holds
+    for the tip of the lifted limit diagram in the parent category. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="lim_cone_in_full_subcategory" class="idref" href="#lim_cone_in_full_subcategory"><span class="id" title="lemma">lim_cone_in_full_subcategory</span></a> {<a id="C:23" class="idref" href="#C:23"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="C':24" class="idref" href="#C':24"><span class="id" title="binder">C'</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:23"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="g:25" class="idref" href="#g:25"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#graph"><span class="id" title="definition">graph</span></a>} {<a id="d:26" class="idref" href="#d:26"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#diagram"><span class="id" title="definition">diagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#g:25"><span class="id" title="variable">g</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':24"><span class="id" title="variable">C'</span></a>)}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="LC:27" class="idref" href="#LC:27"><span class="id" title="binder">LC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#Lims_of_shape"><span class="id" title="definition">Lims_of_shape</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#g:25"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:23"><span class="id" title="variable">C</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':24"><span class="id" title="variable">C'</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#lim"><span class="id" title="definition">lim</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#LC:27"><span class="id" title="variable">LC</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#lift_diagram_full_subcategory"><span class="id" title="definition">lift_diagram_full_subcategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#d:26"><span class="id" title="variable">d</span></a>))) <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#LimCone"><span class="id" title="definition">LimCone</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#d:26"><span class="id" title="variable">d</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">Z</span> := <span class="id" title="var">LC</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#lift_diagram_full_subcategory"><span class="id" title="definition">lift_diagram_full_subcategory</span></a> <span class="id" title="var">d</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#LimCone"><span class="id" title="definition">LimCone</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_in_subcat"><span class="id" title="definition">precategory_object_in_subcat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">eapply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#lim"><span class="id" title="definition">lim</span></a>; <span class="id" title="var">eassumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#cone_in_full_subcategory"><span class="id" title="definition">cone_in_full_subcategory</span></a>, <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#limCone"><span class="id" title="definition">limCone</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#reflects_all_limits_sub_precategory_inclusion"><span class="id" title="lemma">reflects_all_limits_sub_precategory_inclusion</span></a> <span class="id" title="var">C'</span> <span class="id" title="var">g</span> <span class="id" title="var">d</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">Z</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3022"></a><h2 class="section">Colimits</h2>
+
+<div class="paragraph"> </div>
+
+<a id="lab3023"></a><h3 class="section">Initial objects</h3>
+
+<div class="paragraph"> </div>
+
+ As long as the predicate holds for the initial object, it's initial in the full subcategory. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="initial_in_full_subcategory" class="idref" href="#initial_in_full_subcategory"><span class="id" title="lemma">initial_in_full_subcategory</span></a> {<a id="C:28" class="idref" href="#C:28"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="C':29" class="idref" href="#C':29"><span class="id" title="binder">C'</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:28"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="IC:30" class="idref" href="#IC:30"><span class="id" title="binder">IC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:28"><span class="id" title="variable">C</span></a>) (<a id="IC':31" class="idref" href="#IC':31"><span class="id" title="binder">IC'</span></a> : <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':29"><span class="id" title="variable">C'</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#IC:30"><span class="id" title="variable">IC</span></a>)) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':29"><span class="id" title="variable">C'</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_in_subcat"><span class="id" title="definition">precategory_object_in_subcat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <span class="id" title="var">IC</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_iscontr"><span class="id" title="definition">make_iscontr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#morphism_in_full_subcat"><span class="id" title="definition">morphism_in_full_subcat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialArrow"><span class="id" title="definition">InitialArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#eq_in_sub_precategory"><span class="id" title="lemma">eq_in_sub_precategory</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialArrowUnique"><span class="id" title="lemma">InitialArrowUnique</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3024"></a><h3 class="section">Binary coproducts</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="bin_coproducts_in_full_subcategory" class="idref" href="#bin_coproducts_in_full_subcategory"><span class="id" title="lemma">bin_coproducts_in_full_subcategory</span></a> {<a id="C:32" class="idref" href="#C:32"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="C':33" class="idref" href="#C':33"><span class="id" title="binder">C'</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:32"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="BPC:34" class="idref" href="#BPC:34"><span class="id" title="binder">BPC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:32"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="all:37" class="idref" href="#all:37"><span class="id" title="binder">all</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="c1:35" class="idref" href="#c1:35"><span class="id" title="binder">c1</span></a> <a id="c2:36" class="idref" href="#c2:36"><span class="id" title="binder">c2</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C:32"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':33"><span class="id" title="variable">C'</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c1:35"><span class="id" title="variable">c1</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':33"><span class="id" title="variable">C'</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c2:36"><span class="id" title="variable">c2</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':33"><span class="id" title="variable">C'</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductObject"><span class="id" title="definition">BinCoproductObject</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#BPC:34"><span class="id" title="variable">BPC</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c1:35"><span class="id" title="variable">c1</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#c2:36"><span class="id" title="variable">c2</span></a>))) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#C':33"><span class="id" title="variable">C'</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c1'</span> <span class="id" title="var">c2'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">c1'_in_C</span> := (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_from_sub_precategory_object"><span class="id" title="definition">precategory_object_from_sub_precategory_object</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">c1'</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">c2'_in_C</span> := (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_from_sub_precategory_object"><span class="id" title="definition">precategory_object_from_sub_precategory_object</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">c2'</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>; [<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>|]; [|<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>|].<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_in_subcat"><span class="id" title="definition">precategory_object_in_subcat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductObject"><span class="id" title="definition">BinCoproductObject</span></a> (<span class="id" title="var">BPC</span> <span class="id" title="var">c1'_in_C</span> <span class="id" title="var">c2'_in_C</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="var">all</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">c1'</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">c2'</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#morphism_in_full_subcat"><span class="id" title="definition">morphism_in_full_subcat</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductIn1"><span class="id" title="definition">BinCoproductIn1</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#morphism_in_full_subcat"><span class="id" title="definition">morphism_in_full_subcat</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductIn2"><span class="id" title="definition">BinCoproductIn2</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#isBinCoproduct"><span class="id" title="definition">isBinCoproduct</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">bp'</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_morphisms_in_subcat"><span class="id" title="definition">precategory_morphisms_in_subcat</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductArrow"><span class="id" title="definition">BinCoproductArrow</span></a>|<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_morphism_from_sub_precategory_morphism"><span class="id" title="definition">precategory_morphism_from_sub_precategory_morphism</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <span class="id" title="var">C'</span>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#eq_in_sub_precategory"><span class="id" title="lemma">eq_in_sub_precategory</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductIn1Commutes"><span class="id" title="lemma">BinCoproductIn1Commutes</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductIn2Commutes"><span class="id" title="lemma">BinCoproductIn2Commutes</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">otherarrow</span>.<br/>
+</div>
+
+<div class="doc">
+This is where we use the condition that C has homsets. 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#is_set_sub_precategory_morphisms"><span class="id" title="lemma">is_set_sub_precategory_morphisms</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#eq_in_sub_precategory"><span class="id" title="lemma">eq_in_sub_precategory</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductArrowUnique"><span class="id" title="lemma">BinCoproductArrowUnique</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#dirprod_pr1"><span class="id" title="definition">dirprod_pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">otherarrow</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#dirprod_pr2"><span class="id" title="definition">dirprod_pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">otherarrow</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Limits.html#Limits"><span class="id" title="section">Limits</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

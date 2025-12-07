@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Induction.SetBasedPolynomialFunctors</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Induction.SetBasedPolynomialFunctors</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3700"></a><h2 class="section">Set Based Polynomial Functors</h2>
+
+
+<div class="paragraph"> </div>
+
+    Author : Ralph Matthes (@rmatthes), 2025
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#"><span class="id" title="library">UniMath.Induction.PolynomialFunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.M.Core.html#"><span class="id" title="library">UniMath.Induction.M.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Type.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="SetBasedPolynomialFunctors" class="idref" href="#SetBasedPolynomialFunctors"><span class="id" title="section">SetBasedPolynomialFunctors</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="SetBasedPolynomialFunctors.A" class="idref" href="#SetBasedPolynomialFunctors.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="SetBasedPolynomialFunctors.B" class="idref" href="#SetBasedPolynomialFunctors.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#SetBasedPolynomialFunctors.A"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="polynomial_functor_HSET_obj" class="idref" href="#polynomial_functor_HSET_obj"><span class="id" title="definition">polynomial_functor_HSET_obj</span></a> (<a id="X:3" class="idref" href="#X:3"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_obj"><span class="id" title="definition">polynomial_functor_obj</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#SetBasedPolynomialFunctors.A"><span class="id" title="variable">A</span></a>) (<span class="id" title="keyword">fun</span> <a id="a:4" class="idref" href="#a:4"><span class="id" title="binder"><span id="a:5" class="id">a</span></span></a> =&gt; <a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> (<a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#SetBasedPolynomialFunctors.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#a:4"><span class="id" title="variable">a</span></a>)) <span class="id" title="var">X</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_obj"><span class="id" title="definition">polynomial_functor_obj</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">transparent</span> <span class="id" title="tactic">assert</span> (<span class="id" title="var">f</span> : (<a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#SetBasedPolynomialFunctors.A"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> (<a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#SetBasedPolynomialFunctors.B"><span class="id" title="variable">B</span></a> <span class="id" title="var">a</span>) <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> <span class="id" title="var">X</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#isaset_forall_hSet"><span class="id" title="lemma">isaset_forall_hSet</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Sets.html#isaset_total2_hSet"><span class="id" title="lemma">isaset_total2_hSet</span></a> <span class="id" title="var">_</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="polynomial_functor_HSET_data" class="idref" href="#polynomial_functor_HSET_data"><span class="id" title="definition">polynomial_functor_HSET_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_data"><span class="id" title="definition">functor_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor_data"><span class="id" title="definition">make_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#polynomial_functor_HSET_obj"><span class="id" title="definition">polynomial_functor_HSET_obj</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor_arr"><span class="id" title="definition">polynomial_functor_arr</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#SetBasedPolynomialFunctors.A"><span class="id" title="variable">A</span></a>) (<span class="id" title="keyword">fun</span> <a id="a:6" class="idref" href="#a:6"><span class="id" title="binder"><span id="a:7" class="id">a</span></span></a> =&gt; <a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> (<a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#SetBasedPolynomialFunctors.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#a:6"><span class="id" title="variable">a</span></a>))).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="polynomial_functor_HSET_is_functor" class="idref" href="#polynomial_functor_HSET_is_functor"><span class="id" title="lemma">polynomial_functor_HSET_is_functor</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#is_functor"><span class="id" title="definition">is_functor</span></a> <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#polynomial_functor_HSET_data"><span class="id" title="definition">polynomial_functor_HSET_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> ? ? ? ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="polynomial_functor_HSET" class="idref" href="#polynomial_functor_HSET"><span class="id" title="definition">polynomial_functor_HSET</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> := <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#polynomial_functor_HSET_is_functor"><span class="id" title="lemma">polynomial_functor_HSET_is_functor</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Induction.SetBasedPolynomialFunctors.html#SetBasedPolynomialFunctors"><span class="id" title="section">SetBasedPolynomialFunctors</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

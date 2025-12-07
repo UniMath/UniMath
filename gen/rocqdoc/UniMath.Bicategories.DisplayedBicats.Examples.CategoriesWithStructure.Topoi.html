@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+  Displayed Bicategories Of Topoi
+
+<div class="paragraph"> </div>
+
+  In this file, we define bicategories of topoi.
+
+<div class="paragraph"> </div>
+
+  Contents
+  1. Elementary topoi <span class="inlinecode"><a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_elementarytopoi"><span class="id" title="definition">disp_bicat_elementarytopoi</span></a></span>
+  2. Arithmetic topoi <span class="inlinecode"><span class="id" title="var">disp_bicat_elementarytopoi_NNO</span></span>
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#"><span class="id" title="library">UniMath.CategoryTheory.Arithmetic.ParameterizedNNO</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#Notations"><span class="id" title="module">DispBicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.FullSub.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.FullSub</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Sigma</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Prod</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.RegularAndExact.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.RegularAndExact</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.ParameterizedNNO.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.ParameterizedNNO</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab794"></a><h1 class="section">1. Elementary Topoi = Finite Limits &amp; Cartesian Closed &amp; Subobject Classifier</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="ElementaryTopoi" class="idref" href="#ElementaryTopoi"><span class="id" title="section">ElementaryTopoi</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_elementarytopoi'" class="idref" href="#disp_bicat_elementarytopoi'"><span class="id" title="definition">disp_bicat_elementarytopoi'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#total_bicat"><span class="id" title="definition">total_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#disp_bicat_limits"><span class="id" title="definition">disp_bicat_limits</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials_over_lim"><span class="id" title="definition">disp_bicat_exponentials_over_lim</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#disp_bicat_subobject_classifier'"><span class="id" title="definition">disp_bicat_subobject_classifier'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_bicat_elementarytopoi'_is_locally_contractible" class="idref" href="#disp_bicat_elementarytopoi'_is_locally_contractible"><span class="id" title="lemma">disp_bicat_elementarytopoi'_is_locally_contractible</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_elementarytopoi'"><span class="id" title="definition">disp_bicat_elementarytopoi'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_2cells_of_dirprod_iscontr"><span class="id" title="lemma">disp_2cells_of_dirprod_iscontr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_2cells_iscontr_exponentials_over_lim"><span class="id" title="lemma">disp_2cells_iscontr_exponentials_over_lim</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#disp_2cells_iscontr_subobject_classifier'"><span class="id" title="lemma">disp_2cells_iscontr_subobject_classifier'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_elementarytopoi" class="idref" href="#disp_bicat_elementarytopoi"><span class="id" title="definition">disp_bicat_elementarytopoi</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#sigma_bicat"><span class="id" title="definition">sigma_bicat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_elementarytopoi'"><span class="id" title="definition">disp_bicat_elementarytopoi'</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_bicat_elementarytopoi_is_locally_contractible" class="idref" href="#disp_bicat_elementarytopoi_is_locally_contractible"><span class="id" title="lemma">disp_bicat_elementarytopoi_is_locally_contractible</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_elementarytopoi"><span class="id" title="definition">disp_bicat_elementarytopoi</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#disp_2cells_of_sigma_iscontr"><span class="id" title="lemma">disp_2cells_of_sigma_iscontr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#disp_2cells_iscontr_limits"><span class="id" title="lemma">disp_2cells_iscontr_limits</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_elementarytopoi'_is_locally_contractible"><span class="id" title="lemma">disp_bicat_elementarytopoi'_is_locally_contractible</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#ElementaryTopoi"><span class="id" title="section">ElementaryTopoi</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab795"></a><h1 class="section">2. Arithmetic Topoi</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="ArithmeticTopoi" class="idref" href="#ArithmeticTopoi"><span class="id" title="section">ArithmeticTopoi</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_arithmetic_elementarytopoi'" class="idref" href="#disp_bicat_arithmetic_elementarytopoi'"><span class="id" title="definition">disp_bicat_arithmetic_elementarytopoi'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#total_bicat"><span class="id" title="definition">total_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_elementarytopoi"><span class="id" title="definition">disp_bicat_elementarytopoi</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_subbicat"><span class="id" title="definition">disp_subbicat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> [<span class="id" title="var">C</span> [[[<span class="id" title="var">T</span> ?] [[<span class="id" title="var">P</span> ?] ?]] ?]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#parameterized_NNO"><span class="id" title="definition">parameterized_NNO</span></a> <span class="id" title="var">T</span> <span class="id" title="var">P</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span> <span class="id" title="var">N₁</span> <span class="id" title="var">N₂</span> [<span class="id" title="var">F</span> [[[? <span class="id" title="var">pt</span>] ?] ?]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#preserves_parameterized_NNO"><span class="id" title="definition">preserves_parameterized_NNO</span></a> <span class="id" title="var">N₁</span> <span class="id" title="var">N₂</span> <span class="id" title="var">_</span> <span class="id" title="var">pt</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#id_preserves_parameterized_NNO"><span class="id" title="lemma">id_preserves_parameterized_NNO</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="bb75a926ea33f1e8cd7ba786e368c6a8" class="idref" href="#bb75a926ea33f1e8cd7ba786e368c6a8"><span class="id" title="binder"><span id="44580adf888b14ce6029fc781c63fec9" class="id">p₁</span></span></a> <a id="3e4cc083dd1037e65d2ffce5721fc525" class="idref" href="#3e4cc083dd1037e65d2ffce5721fc525"><span class="id" title="binder"><span id="7f50a4e91fd8643bc31169e743c5b986" class="id">p₂</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#comp_preserves_parameterized_NNO"><span class="id" title="lemma">comp_preserves_parameterized_NNO</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#bb75a926ea33f1e8cd7ba786e368c6a8"><span class="id" title="variable">p₁</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#3e4cc083dd1037e65d2ffce5721fc525"><span class="id" title="variable">p₂</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_arithmetic_elementarytopoi" class="idref" href="#disp_bicat_arithmetic_elementarytopoi"><span class="id" title="definition">disp_bicat_arithmetic_elementarytopoi</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#sigma_bicat"><span class="id" title="definition">sigma_bicat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_arithmetic_elementarytopoi'"><span class="id" title="definition">disp_bicat_arithmetic_elementarytopoi'</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_bicat_arithmetic_elementarytopoi'_is_locally_contractible" class="idref" href="#disp_bicat_arithmetic_elementarytopoi'_is_locally_contractible"><span class="id" title="lemma">disp_bicat_arithmetic_elementarytopoi'_is_locally_contractible</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_arithmetic_elementarytopoi'"><span class="id" title="definition">disp_bicat_arithmetic_elementarytopoi'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_2cells_iscontr_subbicat"><span class="id" title="definition">disp_2cells_iscontr_subbicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_bicat_arithmetic_elementarytopoi_is_locally_contractible" class="idref" href="#disp_bicat_arithmetic_elementarytopoi_is_locally_contractible"><span class="id" title="lemma">disp_bicat_arithmetic_elementarytopoi_is_locally_contractible</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_arithmetic_elementarytopoi"><span class="id" title="definition">disp_bicat_arithmetic_elementarytopoi</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#disp_2cells_of_sigma_iscontr"><span class="id" title="lemma">disp_2cells_of_sigma_iscontr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_elementarytopoi_is_locally_contractible"><span class="id" title="lemma">disp_bicat_elementarytopoi_is_locally_contractible</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#disp_bicat_arithmetic_elementarytopoi'_is_locally_contractible"><span class="id" title="lemma">disp_bicat_arithmetic_elementarytopoi'_is_locally_contractible</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Topoi.html#ArithmeticTopoi"><span class="id" title="section">ArithmeticTopoi</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

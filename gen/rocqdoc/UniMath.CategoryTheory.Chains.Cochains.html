@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Chains.Cochains</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Chains.Cochains</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab1868"></a><h1 class="section">Cochains</h1>
+
+
+<div class="paragraph"> </div>
+
+Cochains are diagrams of the form X₀ ← X₁ ← ⋯.
+
+<div class="paragraph"> </div>
+
+Author: Langston Barrett (@siddharthist), February 2018
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartA.html#"><span class="id" title="library">UniMath.Foundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#"><span class="id" title="library">UniMath.Foundations.NaturalNumbers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Limits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Define the cochain:
+<pre>
+     0 &lt;-- 1 &lt;-- 2 &lt;-- 3 &lt;-- ...
+</pre>
+   with exactly one arrow from S n to n.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="conat_graph" class="idref" href="#conat_graph"><span class="id" title="definition">conat_graph</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#graph"><span class="id" title="definition">graph</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#make_graph"><span class="id" title="definition">make_graph</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="m:1" class="idref" href="#m:1"><span class="id" title="binder">m</span></a> <a id="n:2" class="idref" href="#n:2"><span class="id" title="binder">n</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#n:2"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#m:1"><span class="id" title="variable">m</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id=":::'cochain'" class="idref" href="#:::'cochain'"><span class="id" title="notation">&quot;</span></a>'cochain'" := (<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#diagram"><span class="id" title="definition">diagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#conat_graph"><span class="id" title="definition">conat_graph</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A diagram for a cochain is what it should be, a collection of objects and
+    arrows arranged so: X₀ ⟵ X₁ ⟵ ⋯. This can be used to easily construct
+    cochains, see e.g. <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#termCochain"><span class="id" title="definition">termCochain</span></a></span>. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cochain_weq" class="idref" href="#cochain_weq"><span class="id" title="definition">cochain_weq</span></a> {<a id="C:3" class="idref" href="#C:3"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a>} :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="obs:5" class="idref" href="#obs:5"><span class="id" title="binder">obs</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:4" class="idref" href="#n:4"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:3"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:6" class="idref" href="#n:6"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#obs:5"><span class="id" title="variable">obs</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#n:6"><span class="id" title="variable">n</span></a>) <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#obs:5"><span class="id" title="variable">obs</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#n:6"><span class="id" title="variable">n</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">)</span></a><a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">cochain</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#weqfibtototal"><span class="id" title="definition">weqfibtototal</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">obs</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#weq_iso"><span class="id" title="definition">weq_iso</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">ars</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">aeqSb</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">ars</span> <span class="id" title="var">b</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="o:7" class="idref" href="#o:7"><span class="id" title="binder"><span id="o:8" class="id">o</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">C</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a> <span class="id" title="var">obs</span> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#o:7"><span class="id" title="variable">o</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <span class="id" title="var">obs</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">b</span>) <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>) <span class="id" title="var">aeqSb</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="ars:9" class="idref" href="#ars:9"><span class="id" title="binder"><span id="ars:11" class="id">ars</span></span></a> <a id="n:10" class="idref" href="#n:10"><span class="id" title="binder"><span id="n:12" class="id">n</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#ars:9"><span class="id" title="variable">ars</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#n:10"><span class="id" title="variable">n</span></a>) <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#n:10"><span class="id" title="variable">n</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">ars</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">ars</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">b</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="mapcochain" class="idref" href="#mapcochain"><span class="id" title="definition">mapcochain</span></a> {<a id="C:13" class="idref" href="#C:13"><span class="id" title="binder">C</span></a> <a id="D:14" class="idref" href="#D:14"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a>} (<a id="F:15" class="idref" href="#F:15"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:13"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#D:14"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="c:16" class="idref" href="#c:16"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">cochain</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">C</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">cochain</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">D</span></a> := <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#mapdiagram"><span class="id" title="definition">mapdiagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#F:15"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#c:16"><span class="id" title="variable">c</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Any j &gt; i gives a morphism in the cochain via composition 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cochain_mor" class="idref" href="#cochain_mor"><span class="id" title="definition">cochain_mor</span></a> {<a id="C:17" class="idref" href="#C:17"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="c:18" class="idref" href="#c:18"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">cochain</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">C</span></a>) {<a id="i:19" class="idref" href="#i:19"><span class="id" title="binder">i</span></a> <a id="j:20" class="idref" href="#j:20"><span class="id" title="binder">j</span></a>} :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#i:19"><span class="id" title="variable">i</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#::nat_scope:x_'&lt;'_x"><span class="id" title="notation">&lt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#j:20"><span class="id" title="variable">j</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:17"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#dob"><span class="id" title="definition">dob</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#c:18"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#j:20"><span class="id" title="variable">j</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#dob"><span class="id" title="definition">dob</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#c:18"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#i:19"><span class="id" title="variable">i</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">j</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">j</span> <span class="id" title="var">IHj</span>].<br/>
+- <span class="id" title="tactic">intros</span> <span class="id" title="var">Hi0</span>; <span class="id" title="tactic">destruct</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#negnatlthn0"><span class="id" title="definition">negnatlthn0</span></a> 0 <span class="id" title="var">Hi0</span>).<br/>
+- <span class="id" title="tactic">intros</span> <span class="id" title="var">Hij</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natlehchoice4"><span class="id" title="lemma">natlehchoice4</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">Hij</span>) <span class="id" title="keyword">as</span> [|<span class="id" title="var">H</span>].<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">IHj</span> <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#dmor"><span class="id" title="definition">dmor</span></a> <span class="id" title="var">c</span>), (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#dmor"><span class="id" title="definition">dmor</span></a> <span class="id" title="var">c</span>), (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">H</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Construct the cochain:
+<pre>
+         !          F!            F^2 !
+     1 &lt;----- F 1 &lt;------ F^2 1 &lt;-------- F^3 1 &lt;--- ...
+</pre>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="termCochain" class="idref" href="#termCochain"><span class="id" title="definition">termCochain</span></a> {<a id="C:21" class="idref" href="#C:21"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a>} (<a id="TermC:22" class="idref" href="#TermC:22"><span class="id" title="binder">TermC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:21"><span class="id" title="variable">C</span></a>) (<a id="F:23" class="idref" href="#F:23"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:21"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:21"><span class="id" title="variable">C</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">cochain</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#cochain_weq"><span class="id" title="definition">cochain_weq</span></a>; <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="m:24" class="idref" href="#m:24"><span class="id" title="binder"><span id="m:25" class="id">m</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#iter_functor"><span class="id" title="definition">iter_functor</span></a> <span class="id" title="var">F</span> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#m:24"><span class="id" title="variable">m</span></a> <span class="id" title="var">TermC</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">n</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">IHn</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrow"><span class="id" title="definition">TerminalArrow</span></a> <span class="id" title="var">TermC</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <span class="id" title="var">F</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">IHn</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1869"></a><h2 class="section">Definition of (ω-)continuous functors</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_cont" class="idref" href="#is_cont"><span class="id" title="definition">is_cont</span></a> {<a id="C:26" class="idref" href="#C:26"><span class="id" title="binder">C</span></a> <a id="D:27" class="idref" href="#D:27"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="F:28" class="idref" href="#F:28"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:26"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#D:27"><span class="id" title="variable">D</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="g:29" class="idref" href="#g:29"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#graph"><span class="id" title="definition">graph</span></a>) (<a id="d:30" class="idref" href="#d:30"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#diagram"><span class="id" title="definition">diagram</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#g:29"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:26"><span class="id" title="variable">C</span></a>) (<a id="L:31" class="idref" href="#L:31"><span class="id" title="binder">L</span></a> : <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:26"><span class="id" title="variable">C</span></a>) (<a id="cc:32" class="idref" href="#cc:32"><span class="id" title="binder">cc</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#cone"><span class="id" title="definition">cone</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#d:30"><span class="id" title="variable">d</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#L:31"><span class="id" title="variable">L</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#preserves_limit"><span class="id" title="definition">preserves_limit</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#F:28"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#d:30"><span class="id" title="variable">d</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#L:31"><span class="id" title="variable">L</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#cc:32"><span class="id" title="variable">cc</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_omega_cont" class="idref" href="#is_omega_cont"><span class="id" title="definition">is_omega_cont</span></a> {<a id="C:33" class="idref" href="#C:33"><span class="id" title="binder">C</span></a> <a id="D:34" class="idref" href="#D:34"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="F:35" class="idref" href="#F:35"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:33"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#D:34"><span class="id" title="variable">D</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="c:36" class="idref" href="#c:36"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">cochain</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#:::'cochain'"><span class="id" title="notation">C</span></a>) (<a id="L:37" class="idref" href="#L:37"><span class="id" title="binder">L</span></a> : <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:33"><span class="id" title="variable">C</span></a>) (<a id="cc:38" class="idref" href="#cc:38"><span class="id" title="binder">cc</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#cone"><span class="id" title="definition">cone</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#c:36"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#L:37"><span class="id" title="variable">L</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Limits.html#preserves_limit"><span class="id" title="definition">preserves_limit</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#F:35"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#c:36"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#L:37"><span class="id" title="variable">L</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#cc:38"><span class="id" title="variable">cc</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="omega_cont_functor" class="idref" href="#omega_cont_functor"><span class="id" title="definition">omega_cont_functor</span></a> (<a id="C:39" class="idref" href="#C:39"><span class="id" title="binder">C</span></a> <a id="D:40" class="idref" href="#D:40"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="F:41" class="idref" href="#F:41"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#C:39"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#D:40"><span class="id" title="variable">D</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#is_omega_cont"><span class="id" title="definition">is_omega_cont</span></a> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#F:41"><span class="id" title="variable">F</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Foundations.HLevels</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Foundations.HLevels</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3242"></a><h1 class="section"><span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#HLevel"><span class="id" title="definition">HLevel</span></a>(<a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a>)</span> is of hlevel n+1</h1>
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+   Authors: Benedikt Ahrens, Chris Kapulkin
+   Title: HLevel(n) is of hlevel n+1
+   Date: December 2012
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+   In this file we prove the main result of this work:
+   the type of types of hlevel n is itself of hlevel n+1.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Propositions.html#"><span class="id" title="library">UniMath.Foundations.Propositions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#"><span class="id" title="library">UniMath.Foundations.UnivalenceAxiom</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3243"></a><h2 class="section">Weak equivalence between identity types in <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#HLevel"><span class="id" title="definition">HLevel</span></a></span> and <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#topologydirprod.U"><span class="id" title="variable">U</span></a></span></h2>
+
+<div class="paragraph"> </div>
+
+ To show that HLevel(n) is of hlevel n + 1, we need to show that
+    its path spaces are of hlevel n.
+
+<div class="paragraph"> </div>
+
+    First, we show that each of its path spaces equivalent to the
+     path space of the underlying types.
+
+<div class="paragraph"> </div>
+
+    More generally, we prove this for any predicate <span class="inlinecode"><a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Sieves.html#FixPoset.P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode">:</span> <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a></span> <span class="inlinecode">-&gt;</span> <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a></span>
+    which we later instantiate with <span class="inlinecode"><a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Sieves.html#FixPoset.P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode">:=</span> <span class="inlinecode"><a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span>.
+
+<div class="paragraph"> </div>
+
+ Overview of the proof:
+   Identity of Sigmas &lt;~&gt; Sigma of Identities &lt;~&gt; Identities in <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#topologydirprod.U"><span class="id" title="variable">U</span></a></span> ,
+   where the first equivalence is called <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#weq1"><span class="id" title="lemma">weq1</span></a></span> and the second one
+   is called <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#weq2"><span class="id" title="lemma">weq2</span></a></span>.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="weq1" class="idref" href="#weq1"><span class="id" title="lemma">weq1</span></a>  (<a id="P:1" class="idref" href="#P:1"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>) (<a id="X:2" class="idref" href="#X:2"><span class="id" title="binder">X</span></a> <a id="X':3" class="idref" href="#X':3"><span class="id" title="binder">X'</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:4" class="idref" href="#p:4"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:1"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:2"><span class="id" title="variable">X</span></a>) (<a id="p':5" class="idref" href="#p':5"><span class="id" title="binder">p'</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:1"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':3"><span class="id" title="variable">X'</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.HLevels.html#X:2"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p:4"><span class="id" title="variable">p</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.HLevels.html#X':3"><span class="id" title="variable">X'</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p':5"><span class="id" title="variable">p'</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="T:6" class="idref" href="#T:6"><span class="id" title="binder">T</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#P:1"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#T:6"><span class="id" title="variable">T</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="w:7" class="idref" href="#w:7"><span class="id" title="binder">w</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#X:2"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':3"><span class="id" title="variable">X'</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#P:1"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#w:7"><span class="id" title="variable">w</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p:4"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p':5"><span class="id" title="variable">p'</span></a><a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_equiv"><span class="id" title="lemma">total2_paths_equiv</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+This helper lemma is needed to show that our fibration
+    is indeed a predicate, so that we can instantiate
+    the hProposition <span class="inlinecode"><a class="idref" href="UniMath.OrderTheory.Lattice.Examples.Sieves.html#FixPoset.P"><span class="id" title="variable">P</span></a></span> with this fibration.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="ident_is_prop" class="idref" href="#ident_is_prop"><span class="id" title="lemma">ident_is_prop</span></a> (<a id="P:8" class="idref" href="#P:8"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>) (<a id="X:9" class="idref" href="#X:9"><span class="id" title="binder">X</span></a> <a id="X':10" class="idref" href="#X':10"><span class="id" title="binder">X'</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:11" class="idref" href="#p:11"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:8"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:9"><span class="id" title="variable">X</span></a>) (<a id="p':12" class="idref" href="#p':12"><span class="id" title="binder">p'</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:8"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':10"><span class="id" title="variable">X'</span></a>) (<a id="w:13" class="idref" href="#w:13"><span class="id" title="binder">w</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#X:9"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':10"><span class="id" title="variable">X'</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#P:8"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#w:13"><span class="id" title="variable">w</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p:11"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p':12"><span class="id" title="variable">p'</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropifcontr"><span class="id" title="lemma">isapropifcontr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<span class="id" title="var">P</span> <span class="id" title="var">X'</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We construct the equivalence <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#weq2"><span class="id" title="lemma">weq2</span></a></span> as a projection
+    from a total space, which, by the previous lemma, is
+    a weak equivalence.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="weq2" class="idref" href="#weq2"><span class="id" title="lemma">weq2</span></a> (<a id="P:14" class="idref" href="#P:14"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>) (<a id="X:15" class="idref" href="#X:15"><span class="id" title="binder">X</span></a> <a id="X':16" class="idref" href="#X':16"><span class="id" title="binder">X'</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:17" class="idref" href="#p:17"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:14"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:15"><span class="id" title="variable">X</span></a>) (<a id="p':18" class="idref" href="#p':18"><span class="id" title="binder">p'</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:14"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':16"><span class="id" title="variable">X'</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="w:19" class="idref" href="#w:19"><span class="id" title="binder">w</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#X:15"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':16"><span class="id" title="variable">X'</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#P:14"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#w:19"><span class="id" title="variable">w</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p:17"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p':18"><span class="id" title="variable">p'</span></a><a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.HLevels.html#X:15"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':16"><span class="id" title="variable">X'</span></a><a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#weqpr1"><span class="id" title="definition">weqpr1</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>. <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<span class="id" title="var">P</span> <span class="id" title="var">X'</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ Composing <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#weq1"><span class="id" title="lemma">weq1</span></a></span> and <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#weq2"><span class="id" title="lemma">weq2</span></a></span> yields the desired
+     weak equivalence.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="Id_p_weq_Id" class="idref" href="#Id_p_weq_Id"><span class="id" title="lemma">Id_p_weq_Id</span></a> (<a id="P:20" class="idref" href="#P:20"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>) (<a id="X:21" class="idref" href="#X:21"><span class="id" title="binder">X</span></a> <a id="X':22" class="idref" href="#X':22"><span class="id" title="binder">X'</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:23" class="idref" href="#p:23"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:20"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:21"><span class="id" title="variable">X</span></a>) (<a id="p':24" class="idref" href="#p':24"><span class="id" title="binder">p'</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:20"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':22"><span class="id" title="variable">X'</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.HLevels.html#X:21"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p:23"><span class="id" title="variable">p</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.HLevels.html#X':22"><span class="id" title="variable">X'</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#p':24"><span class="id" title="variable">p'</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="T:25" class="idref" href="#T:25"><span class="id" title="binder">T</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#P:20"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#T:25"><span class="id" title="variable">T</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.HLevels.html#X:21"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':22"><span class="id" title="variable">X'</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">f</span> := <a class="idref" href="UniMath.Foundations.HLevels.html#weq1"><span class="id" title="lemma">weq1</span></a> <span class="id" title="var">P</span> <span class="id" title="var">X</span> <span class="id" title="var">X'</span> <span class="id" title="var">p</span> <span class="id" title="var">p'</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">g</span> := <a class="idref" href="UniMath.Foundations.HLevels.html#weq2"><span class="id" title="lemma">weq2</span></a> <span class="id" title="var">P</span> <span class="id" title="var">X</span> <span class="id" title="var">X'</span> <span class="id" title="var">p</span> <span class="id" title="var">p'</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">fg</span> := <a class="idref" href="UniMath.Foundations.PartA.html#weqcomp"><span class="id" title="definition">weqcomp</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">fg</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3244"></a><h2 class="section">Hlevel of path spaces</h2>
+
+<div class="paragraph"> </div>
+
+  We show that if <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#topologygenerated.X"><span class="id" title="variable">X</span></a></span> and <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.GenMendlerIteration_alt.html#GenMenIt.fusion_law.X'"><span class="id" title="variable">X'</span></a></span> are of hlevel <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span>, then so is their
+      identity type <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#topologygenerated.X"><span class="id" title="variable">X</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.GenMendlerIteration_alt.html#GenMenIt.fusion_law.X'"><span class="id" title="variable">X'</span></a></span>.
+ The proof works differently for <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode">0</span> and <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SignatureExamples.html#f093429e5130da576739eea614b12913"><span class="id" title="variable">S</span></a></span> <span class="inlinecode"><span class="id" title="var">n'</span></span>,
+    so we treat these two cases in separate lemmas
+    <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#isofhlevel0pathspace"><span class="id" title="lemma">isofhlevel0pathspace</span></a></span> and <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#isofhlevelSnpathspace"><span class="id" title="lemma">isofhlevelSnpathspace</span></a></span> and put them
+    together in the lemma <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#isofhlevelpathspace"><span class="id" title="lemma">isofhlevelpathspace</span></a></span>.
+
+<div class="paragraph"> </div>
+
+<a id="lab3245"></a><h3 class="section">The case <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode">0</span></h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="iscontr_weq" class="idref" href="#iscontr_weq"><span class="id" title="lemma">iscontr_weq</span></a> (<a id="X:26" class="idref" href="#X:26"><span class="id" title="binder">X</span></a> <a id="Y:27" class="idref" href="#Y:27"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:26"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#Y:27"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> (<a class="idref" href="UniMath.Foundations.HLevels.html#X:26"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#Y:27"><span class="id" title="variable">Y</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">cX</span> <span class="id" title="var">cY</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.PartA.html#weqcontrcontr"><span class="id" title="definition">weqcontrcontr</span></a> <span class="id" title="var">cX</span> <span class="id" title="var">cY</span> ).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropisweq"><span class="id" title="lemma">isapropisweq</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>. <span class="id" title="var">cbn</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">cY</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isofhlevel0pathspace" class="idref" href="#isofhlevel0pathspace"><span class="id" title="lemma">isofhlevel0pathspace</span></a> (<a id="X:28" class="idref" href="#X:28"><span class="id" title="binder">X</span></a> <a id="Y:29" class="idref" href="#Y:29"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:28"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#Y:29"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> (<a class="idref" href="UniMath.Foundations.HLevels.html#X:28"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#Y:29"><span class="id" title="variable">Y</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">pX</span> <span class="id" title="var">pY</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H</span> := <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevelweqb"><span class="id" title="lemma">isofhlevelweqb</span></a> 0 (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#eqweqmap"><span class="id" title="definition">eqweqmap</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalenceAxiom"><span class="id" title="axiom">univalenceAxiom</span></a> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>. <span class="id" title="tactic">clear</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.HLevels.html#iscontr_weq"><span class="id" title="lemma">iscontr_weq</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3246"></a><h3 class="section">The case <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SignatureExamples.html#f093429e5130da576739eea614b12913"><span class="id" title="variable">S</span></a></span> <span class="inlinecode"><span class="id" title="var">n'</span></span></h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isofhlevelSnpathspace" class="idref" href="#isofhlevelSnpathspace"><span class="id" title="lemma">isofhlevelSnpathspace</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:30" class="idref" href="#n:30"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="X:31" class="idref" href="#X:31"><span class="id" title="binder">X</span></a> <a id="Y:32" class="idref" href="#Y:32"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#n:30"><span class="id" title="variable">n</span></a>) <a class="idref" href="UniMath.Foundations.HLevels.html#Y:32"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#n:30"><span class="id" title="variable">n</span></a>) (<a class="idref" href="UniMath.Foundations.HLevels.html#X:31"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#Y:32"><span class="id" title="variable">Y</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">pY</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H</span>:=<a class="idref" href="UniMath.Foundations.PartB.html#isofhlevelweqb"><span class="id" title="lemma">isofhlevelweqb</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">n</span>) (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#eqweqmap"><span class="id" title="definition">eqweqmap</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalenceAxiom"><span class="id" title="axiom">univalenceAxiom</span></a> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isofhlevelsnweqtohlevelsn"><span class="id" title="lemma">isofhlevelsnweqtohlevelsn</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3247"></a><h2 class="section">The lemma itself</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isofhlevelpathspace" class="idref" href="#isofhlevelpathspace"><span class="id" title="lemma">isofhlevelpathspace</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:33" class="idref" href="#n:33"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="X:34" class="idref" href="#X:34"><span class="id" title="binder">X</span></a> <a id="Y:35" class="idref" href="#Y:35"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#n:33"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:34"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#n:33"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#Y:35"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#n:33"><span class="id" title="variable">n</span></a> (<a class="idref" href="UniMath.Foundations.HLevels.html#X:34"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#Y:35"><span class="id" title="variable">Y</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [| <span class="id" title="var">n</span> <span class="id" title="var">_</span> ].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">pX</span> <span class="id" title="var">pY</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.HLevels.html#isofhlevel0pathspace"><span class="id" title="lemma">isofhlevel0pathspace</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.HLevels.html#isofhlevelSnpathspace"><span class="id" title="lemma">isofhlevelSnpathspace</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3248"></a><h2 class="section">HLevel</h2>
+
+<div class="paragraph"> </div>
+
+ We define the type <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#HLevel"><span class="id" title="definition">HLevel</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span> of types of hlevel n. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="HLevel" class="idref" href="#HLevel"><span class="id" title="definition">HLevel</span></a> (<a id="n:36" class="idref" href="#n:36"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="X:37" class="idref" href="#X:37"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#n:36"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:37"><span class="id" title="variable">X</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3249"></a><h1 class="section">Main theorem: <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#HLevel"><span class="id" title="definition">HLevel</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span> is of hlevel <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SignatureExamples.html#f093429e5130da576739eea614b12913"><span class="id" title="variable">S</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span></h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isofhlevel_HLevel" class="idref" href="#isofhlevel_HLevel"><span class="id" title="lemma">isofhlevel_HLevel</span></a> (<a id="n:38" class="idref" href="#n:38"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#n:38"><span class="id" title="variable">n</span></a>) (<a class="idref" href="UniMath.Foundations.HLevels.html#HLevel"><span class="id" title="definition">HLevel</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#n:38"><span class="id" title="variable">n</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">X'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">X</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">X</span> <span class="id" title="var">p</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">X'</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">X'</span> <span class="id" title="var">p'</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H</span> := <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevelweqb"><span class="id" title="lemma">isofhlevelweqb</span></a> <span class="id" title="var">n</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.HLevels.html#Id_p_weq_Id"><span class="id" title="lemma">Id_p_weq_Id</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:39" class="idref" href="#X:39"><span class="id" title="binder"><span id="X:40" class="id">X</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> <span class="id" title="var">n</span> <a class="idref" href="UniMath.Foundations.HLevels.html#X:39"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.PartD.html#isapropisofhlevel"><span class="id" title="lemma">isapropisofhlevel</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">)</span></a>) <span class="id" title="var">X</span> <span class="id" title="var">X'</span> <span class="id" title="var">p</span> <span class="id" title="var">p'</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.HLevels.html#isofhlevelpathspace"><span class="id" title="lemma">isofhlevelpathspace</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3250"></a><h2 class="section">Aside: Univalence for predicates and hlevels</h2>
+
+<div class="paragraph"> </div>
+
+ As a corollary from <span class="inlinecode"><a class="idref" href="UniMath.Foundations.HLevels.html#Id_p_weq_Id"><span class="id" title="lemma">Id_p_weq_Id</span></a></span>,
+    we obtain a version of the Univalence Axiom for
+    predicates on the universe <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#topologydirprod.U"><span class="id" title="variable">U</span></a></span>.
+    In particular, we can instantiate this predicate with
+    <span class="inlinecode"><a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span>.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="UA_for_Predicates" class="idref" href="#UA_for_Predicates"><span class="id" title="lemma">UA_for_Predicates</span></a> (<a id="P:41" class="idref" href="#P:41"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>) (<a id="X:42" class="idref" href="#X:42"><span class="id" title="binder">X</span></a> <a id="X':43" class="idref" href="#X':43"><span class="id" title="binder">X'</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="pX:44" class="idref" href="#pX:44"><span class="id" title="binder">pX</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:41"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:42"><span class="id" title="variable">X</span></a>) (<a id="pX':45" class="idref" href="#pX':45"><span class="id" title="binder">pX'</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#P:41"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':43"><span class="id" title="variable">X'</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.HLevels.html#X:42"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#pX:44"><span class="id" title="variable">pX</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#P:41"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':43"><span class="id" title="variable">X'</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#pX':45"><span class="id" title="variable">pX'</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.HLevels.html#X:42"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':43"><span class="id" title="variable">X'</span></a><a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">f</span> := <a class="idref" href="UniMath.Foundations.HLevels.html#Id_p_weq_Id"><span class="id" title="lemma">Id_p_weq_Id</span></a> <span class="id" title="var">P</span> <span class="id" title="var">X</span> <span class="id" title="var">X'</span> <span class="id" title="var">pX</span> <span class="id" title="var">pX'</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">g</span> := <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalenceAxiom"><span class="id" title="axiom">univalenceAxiom</span></a> <span class="id" title="var">X</span> <span class="id" title="var">X'</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#weqcomp"><span class="id" title="definition">weqcomp</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="UA_for_HLevels" class="idref" href="#UA_for_HLevels"><span class="id" title="lemma">UA_for_HLevels</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="n:46" class="idref" href="#n:46"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) (<a id="X:47" class="idref" href="#X:47"><span class="id" title="binder">X</span></a> <a id="X':48" class="idref" href="#X':48"><span class="id" title="binder">X'</span></a> : <a class="idref" href="UniMath.Foundations.HLevels.html#HLevel"><span class="id" title="definition">HLevel</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#n:46"><span class="id" title="variable">n</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.HLevels.html#X:47"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':48"><span class="id" title="variable">X'</span></a><a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X:47"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Foundations.HLevels.html#X':48"><span class="id" title="variable">X'</span></a><a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span> [<span class="id" title="var">X</span> <span class="id" title="var">pX</span>] [<span class="id" title="var">X'</span> <span class="id" title="var">pX'</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.HLevels.html#UA_for_Predicates"><span class="id" title="lemma">UA_for_Predicates</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:49" class="idref" href="#X:49"><span class="id" title="binder"><span id="X:50" class="id">X</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> <span class="id" title="var">n</span> <a class="idref" href="UniMath.Foundations.HLevels.html#X:49"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.PartD.html#isapropisofhlevel"><span class="id" title="lemma">isapropisofhlevel</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>))).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

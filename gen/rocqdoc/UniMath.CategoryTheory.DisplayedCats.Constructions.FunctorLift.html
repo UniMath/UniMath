@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Total</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">mor_disp_scope</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2133"></a><h1 class="section">1. The construction of functors via lifting</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FunctorLifting" class="idref" href="#FunctorLifting"><span class="id" title="section">FunctorLifting</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="5a8235c72f0291a1674c6e64efb4af1e" class="idref" href="#5a8235c72f0291a1674c6e64efb4af1e"><span class="id" title="notation">&quot;</span></a># F" := (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp_on_morphisms"><span class="id" title="definition">section_disp_on_morphisms</span></a> <span class="id" title="var">F</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 3) : <span class="id" title="var">mor_disp_scope</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FunctorLifting.C" class="idref" href="#FunctorLifting.C"><span class="id" title="variable">C</span></a> <a id="FunctorLifting.C'" class="idref" href="#FunctorLifting.C'"><span class="id" title="variable">C'</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FunctorLifting.D" class="idref" href="#FunctorLifting.D"><span class="id" title="variable">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.C"><span class="id" title="variable">C</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FunctorLifting.F" class="idref" href="#FunctorLifting.F"><span class="id" title="variable">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.C'"><span class="id" title="variable">C'</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.C"><span class="id" title="variable">C</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="functor_lifting" class="idref" href="#functor_lifting"><span class="id" title="definition">functor_lifting</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp"><span class="id" title="definition">section_disp</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.html#reindex_disp_cat"><span class="id" title="definition">reindex_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.D"><span class="id" title="variable">D</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Identity</span> <span class="id" title="keyword">Coercion</span> <span class="id" title="var">section_from_functor_lifting</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <span class="id" title="var">functor_lifting</span> &gt;-&gt; <span class="id" title="var">section_disp</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Note: perhaps it would be better to define <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#functor_lifting"><span class="id" title="definition">functor_lifting</span></a></span> directly?
+  Reindexed displayed-cats are a bit confusing to work in, since a term like <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#id_disp"><span class="id" title="definition">id_disp</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.Semantics.LinearLogic.LinearToLinearNonLinear.html#ConstructionOfComonoidsInEilenbergMoore.xx"><span class="id" title="variable">xx</span></a></span> is ambiguous: it can mean both the identity in the original displayed category, or the identity in the reindexing, which is nearly but not quite the same.  This shows up already in the proofs of <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#lifted_functor_axioms"><span class="id" title="definition">lifted_functor_axioms</span></a></span> below. 
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lifted_functor_data" class="idref" href="#lifted_functor_data"><span class="id" title="definition">lifted_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FF:5" class="idref" href="#FF:5"><span class="id" title="binder">FF</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#functor_lifting"><span class="id" title="definition">functor_lifting</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_data"><span class="id" title="definition">functor_data</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.C'"><span class="id" title="variable">C'</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.D"><span class="id" title="variable">D</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:6" class="idref" href="#x:6"><span class="id" title="binder"><span id="x:7" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#x:6"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">FF</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#x:6"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>. <span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">f</span></a>)%<span class="id" title="var">cat</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#5a8235c72f0291a1674c6e64efb4af1e"><span class="id" title="notation">#</span></a> <span class="id" title="var">FF</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#5a8235c72f0291a1674c6e64efb4af1e"><span class="id" title="notation">f</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lifted_functor_axioms" class="idref" href="#lifted_functor_axioms"><span class="id" title="definition">lifted_functor_axioms</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FF:8" class="idref" href="#FF:8"><span class="id" title="binder">FF</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#functor_lifting"><span class="id" title="definition">functor_lifting</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#is_functor"><span class="id" title="definition">is_functor</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#lifted_functor_data"><span class="id" title="definition">lifted_functor_data</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FF:8"><span class="id" title="variable">FF</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>. <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_id"><span class="id" title="definition">functor_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathscomp0"><span class="id" title="definition">pathscomp0</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>, (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp_id"><span class="id" title="definition">section_disp_id</span></a> <span class="id" title="var">FF</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportfbinv"><span class="id" title="definition">transportfbinv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>. <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathscomp0"><span class="id" title="definition">pathscomp0</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>, (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp_comp"><span class="id" title="definition">section_disp_comp</span></a> <span class="id" title="var">FF</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportfbinv"><span class="id" title="definition">transportfbinv</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lifted_functor" class="idref" href="#lifted_functor"><span class="id" title="definition">lifted_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FF:9" class="idref" href="#FF:9"><span class="id" title="binder">FF</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#functor_lifting"><span class="id" title="definition">functor_lifting</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.C'"><span class="id" title="variable">C'</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.D"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#lifted_functor_axioms"><span class="id" title="definition">lifted_functor_axioms</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FF:9"><span class="id" title="variable">FF</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="from_lifted_functor" class="idref" href="#from_lifted_functor"><span class="id" title="lemma">from_lifted_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FF:10" class="idref" href="#FF:10"><span class="id" title="binder">FF</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#functor_lifting"><span class="id" title="definition">functor_lifting</span></a>):<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_composite"><span class="id" title="definition">functor_composite</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#lifted_functor"><span class="id" title="definition">lifted_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FF:10"><span class="id" title="variable">FF</span></a>) (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#pr1_category"><span class="id" title="definition">pr1_category</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.D"><span class="id" title="variable">D</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.F"><span class="id" title="variable">F</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_eq"><span class="id" title="lemma">functor_eq</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting.C"><span class="id" title="variable">C</span></a>)). <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#FunctorLifting"><span class="id" title="section">FunctorLifting</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#functor_lifting"><span class="id" title="definition">functor_lifting</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">C'</span>} <span class="id" title="var">D</span> <span class="id" title="var">F</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2134"></a><h1 class="section">2. The special case where F is the identity</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Sections" class="idref" href="#Sections"><span class="id" title="section">Sections</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Sections.C" class="idref" href="#Sections.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Sections.D" class="idref" href="#Sections.D"><span class="id" title="variable">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.C"><span class="id" title="variable">C</span></a>}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2135"></a><h2 class="section">2.1. The construction of a section from a displayed section</h2>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="Sections.Ob" class="idref" href="#Sections.Ob"><span class="id" title="section">Ob</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Sections.Ob.sd" class="idref" href="#Sections.Ob.sd"><span class="id" title="variable">sd</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp"><span class="id" title="definition">section_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.D"><span class="id" title="variable">D</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="section_functor_data" class="idref" href="#section_functor_data"><span class="id" title="definition">section_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_data"><span class="id" title="definition">functor_data</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.C"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.D"><span class="id" title="variable">D</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:14" class="idref" href="#x:14"><span class="id" title="binder"><span id="x:15" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#x:14"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Ob.sd"><span class="id" title="variable">sd</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#x:14"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>. <span class="id" title="tactic">exists</span> <span class="id" title="var">f</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp_on_morphisms"><span class="id" title="definition">section_disp_on_morphisms</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Ob.sd"><span class="id" title="variable">sd</span></a> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="section_functor_axioms" class="idref" href="#section_functor_axioms"><span class="id" title="definition">section_functor_axioms</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#is_functor"><span class="id" title="definition">is_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor_data"><span class="id" title="definition">section_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>. <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp_id"><span class="id" title="definition">section_disp_id</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Ob.sd"><span class="id" title="variable">sd</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>. <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp_comp"><span class="id" title="definition">section_disp_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Ob.sd"><span class="id" title="variable">sd</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="section_functor" class="idref" href="#section_functor"><span class="id" title="definition">section_functor</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.C"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.D"><span class="id" title="variable">D</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor_data"><span class="id" title="definition">section_functor_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor_axioms"><span class="id" title="definition">section_functor_axioms</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="from_section_functor" class="idref" href="#from_section_functor"><span class="id" title="lemma">from_section_functor</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_composite"><span class="id" title="definition">functor_composite</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor"><span class="id" title="definition">section_functor</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#pr1_category"><span class="id" title="definition">pr1_category</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.D"><span class="id" title="variable">D</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_eq"><span class="id" title="lemma">functor_eq</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.C"><span class="id" title="variable">C</span></a>)). <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Ob"><span class="id" title="section">Ob</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2136"></a><h2 class="section">2.2. The construction of a natural transformation from a morphism</h2>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="Sections.Mor" class="idref" href="#Sections.Mor"><span class="id" title="section">Mor</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Sections.Mor.F" class="idref" href="#Sections.Mor.F"><span class="id" title="variable">F</span></a> <a id="Sections.Mor.F'" class="idref" href="#Sections.Mor.F'"><span class="id" title="variable">F'</span></a>: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp"><span class="id" title="definition">section_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.D"><span class="id" title="variable">D</span></a>}.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Sections.Mor.nt" class="idref" href="#Sections.Mor.nt"><span class="id" title="variable">nt</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_nat_trans_disp"><span class="id" title="definition">section_nat_trans_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.F'"><span class="id" title="variable">F'</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="section_nat_trans_data" class="idref" href="#section_nat_trans_data"><span class="id" title="definition">section_nat_trans_data</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_data"><span class="id" title="definition">nat_trans_data</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor"><span class="id" title="definition">section_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.F"><span class="id" title="variable">F</span></a>) (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor"><span class="id" title="definition">section_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.F'"><span class="id" title="variable">F'</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.nt"><span class="id" title="variable">nt</span></a> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="section_nat_trans_axioms" class="idref" href="#section_nat_trans_axioms"><span class="id" title="definition">section_nat_trans_axioms</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#is_nat_trans"><span class="id" title="definition">is_nat_trans</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor"><span class="id" title="definition">section_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.F"><span class="id" title="variable">F</span></a>) (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor"><span class="id" title="definition">section_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.F'"><span class="id" title="variable">F'</span></a>) <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_nat_trans_data"><span class="id" title="definition">section_nat_trans_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">x'</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simpl</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_nt_disp_axioms_from_section_nt_disp"><span class="id" title="definition">section_nt_disp_axioms_from_section_nt_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.nt"><span class="id" title="variable">nt</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportf_paths"><span class="id" title="lemma">transportf_paths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="section_nat_trans" class="idref" href="#section_nat_trans"><span class="id" title="definition">section_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans"><span class="id" title="definition">nat_trans</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor"><span class="id" title="definition">section_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.F"><span class="id" title="variable">F</span></a>) (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor"><span class="id" title="definition">section_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor.F'"><span class="id" title="variable">F'</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_nat_trans_data"><span class="id" title="definition">section_nat_trans_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_nat_trans_axioms"><span class="id" title="definition">section_nat_trans_axioms</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.Mor"><span class="id" title="section">Mor</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2137"></a><h2 class="section">2.3. The functor from displayed sections to the functor category</h2>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="section_id_nat_trans" class="idref" href="#section_id_nat_trans"><span class="id" title="lemma">section_id_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:19" class="idref" href="#F:19"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp"><span class="id" title="definition">section_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.D"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_nat_trans"><span class="id" title="definition">section_nat_trans</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_nat_trans_id"><span class="id" title="definition">section_nat_trans_id</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#F:19"><span class="id" title="variable">F</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_id"><span class="id" title="definition">nat_trans_id</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor"><span class="id" title="definition">section_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#F:19"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq_alt"><span class="id" title="lemma">nat_trans_eq_alt</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="section_comp_nat_trans" class="idref" href="#section_comp_nat_trans"><span class="id" title="lemma">section_comp_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="F:20" class="idref" href="#F:20"><span class="id" title="binder">F</span></a> <a id="F':21" class="idref" href="#F':21"><span class="id" title="binder">F'</span></a> <a id="F'':22" class="idref" href="#F'':22"><span class="id" title="binder">F''</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp"><span class="id" title="definition">section_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.D"><span class="id" title="variable">D</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="nt:23" class="idref" href="#nt:23"><span class="id" title="binder">nt</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_nat_trans_disp"><span class="id" title="definition">section_nat_trans_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#F:20"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#F':21"><span class="id" title="variable">F'</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="nt':24" class="idref" href="#nt':24"><span class="id" title="binder">nt'</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_nat_trans_disp"><span class="id" title="definition">section_nat_trans_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#F':21"><span class="id" title="variable">F'</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#F'':22"><span class="id" title="variable">F''</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_nat_trans"><span class="id" title="definition">section_nat_trans</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_nat_trans_comp"><span class="id" title="definition">section_nat_trans_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#nt:23"><span class="id" title="variable">nt</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#nt':24"><span class="id" title="variable">nt'</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_comp"><span class="id" title="definition">nat_trans_comp</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_nat_trans"><span class="id" title="definition">section_nat_trans</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#nt:23"><span class="id" title="variable">nt</span></a>) (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_nat_trans"><span class="id" title="definition">section_nat_trans</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#nt':24"><span class="id" title="variable">nt'</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq_alt"><span class="id" title="lemma">nat_trans_eq_alt</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_b"><span class="id" title="lemma">total2_paths_b</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:25" class="idref" href="#x:25"><span class="id" title="binder"><span id="x:26" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#x:25"><span class="id" title="variable">x</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0inv0"><span class="id" title="definition">pathsinv0inv0</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="section_disp_to_section" class="idref" href="#section_disp_to_section"><span class="id" title="definition">section_disp_to_section</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.html#section_disp_cat"><span class="id" title="definition">section_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.D"><span class="id" title="variable">D</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections.D"><span class="id" title="variable">D</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor"><span class="id" title="definition">make_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor_data"><span class="id" title="definition">make_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_functor"><span class="id" title="definition">section_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_nat_trans"><span class="id" title="definition">section_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_id_nat_trans"><span class="id" title="lemma">section_id_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">do</span> 3 <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_comp_nat_trans"><span class="id" title="lemma">section_comp_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#Sections"><span class="id" title="section">Sections</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FunctorLift.html#section_disp_to_section"><span class="id" title="definition">section_disp_to_section</span></a> {<span class="id" title="var">C</span>} <span class="id" title="var">D</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

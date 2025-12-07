@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Combinatorics.FVectors</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Combinatorics.FVectors</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3142"></a><h1 class="section">Finite sequences</h1>
+
+
+<div class="paragraph"> </div>
+
+Vectors defined in March 2018 by Langston Barrett (@siddharthist).
+ 
+<div class="paragraph"> </div>
+
+<a id="lab3143"></a><h2 class="section">Contents</h2>
+
+
+<div class="paragraph"> </div>
+
+  Vectors
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3144"></a><h2 class="section">Vectors</h2>
+
+<div class="paragraph"> </div>
+
+ A <span class="inlinecode"><a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a></span> of length n with values in X is an ordered n-tuple of elements of X,
+    encoded here as a function ⟦n⟧ → X. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="Vector" class="idref" href="#Vector"><span class="id" title="definition">Vector</span></a> (<a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) (<a id="n:2" class="idref" href="#n:2"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:2"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:1"><span class="id" title="variable">X</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+hlevel of vectors 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="vector_hlevel" class="idref" href="#vector_hlevel"><span class="id" title="lemma">vector_hlevel</span></a> (<a id="X:3" class="idref" href="#X:3"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) (<a id="n:4" class="idref" href="#n:4"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) {<a id="m:5" class="idref" href="#m:5"><span class="id" title="binder">m</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>} (<a id="ism:6" class="idref" href="#ism:6"><span class="id" title="binder">ism</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#m:5"><span class="id" title="variable">m</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:3"><span class="id" title="variable">X</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#m:5"><span class="id" title="variable">m</span></a> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:3"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:4"><span class="id" title="variable">n</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a>; <span class="id" title="tactic">auto</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Constant vector 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="const_vec" class="idref" href="#const_vec"><span class="id" title="definition">const_vec</span></a> {<a id="X:7" class="idref" href="#X:7"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} {<a id="n:8" class="idref" href="#n:8"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>} (<a id="x:9" class="idref" href="#x:9"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:7"><span class="id" title="variable">X</span></a>) : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:7"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:8"><span class="id" title="variable">n</span></a> := <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#x:9"><span class="id" title="variable">x</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The unique empty vector 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="iscontr_vector_0" class="idref" href="#iscontr_vector_0"><span class="id" title="definition">iscontr_vector_0</span></a> <a id="X:10" class="idref" href="#X:10"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:10"><span class="id" title="variable">X</span></a> 0).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>. <span class="id" title="tactic">apply</span> (@<a class="idref" href="UniMath.Foundations.PartA.html#iscontrweqb"><span class="id" title="lemma">iscontrweqb</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#empty"><span class="id" title="inductive">empty</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="var">X</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#weqbfun"><span class="id" title="definition">weqbfun</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqstn0toempty"><span class="id" title="definition">weqstn0toempty</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#iscontrfunfromempty"><span class="id" title="lemma">iscontrfunfromempty</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="empty_vec" class="idref" href="#empty_vec"><span class="id" title="definition">empty_vec</span></a> {<a id="X:11" class="idref" href="#X:11"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:11"><span class="id" title="variable">X</span></a> 0 := <a class="idref" href="UniMath.Foundations.PartA.html#iscontrpr1"><span class="id" title="definition">iscontrpr1</span></a> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#iscontr_vector_0"><span class="id" title="definition">iscontr_vector_0</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:11"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Every type is equivalent to vectors of length 1 on that type. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="weq_vector_1" class="idref" href="#weq_vector_1"><span class="id" title="lemma">weq_vector_1</span></a> {<a id="X:12" class="idref" href="#X:12"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} : <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:12"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:12"><span class="id" title="variable">X</span></a> 1.<br/>
+&nbsp;&nbsp;<span class="id" title="var">intermediate_weq</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <span class="id" title="var">X</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a>, <a class="idref" href="UniMath.Foundations.PartD.html#weqfunfromunit"><span class="id" title="definition">weqfunfromunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#weqbfun"><span class="id" title="definition">weqbfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqstn1tounit"><span class="id" title="definition">weqstn1tounit</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Append" class="idref" href="#Append"><span class="id" title="section">Append</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Append.X" class="idref" href="#Append.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} {<a id="Append.n" class="idref" href="#Append.n"><span class="id" title="variable">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>} (<a id="Append.vec" class="idref" href="#Append.vec"><span class="id" title="variable">vec</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:13"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:14"><span class="id" title="variable">n</span></a>) (<a id="Append.x" class="idref" href="#Append.x"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:13"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="append_vec" class="idref" href="#append_vec"><span class="id" title="definition">append_vec</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.X"><span class="id" title="variable">X</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.n"><span class="id" title="variable">n</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natlehchoice4"><span class="id" title="lemma">natlehchoice4</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">i</span>) <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.n"><span class="id" title="variable">n</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">i</span>)) <span class="id" title="keyword">as</span> [<span class="id" title="var">c</span>|<span class="id" title="var">d</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.vec"><span class="id" title="variable">vec</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">i</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><span class="id" title="var">c</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.x"><span class="id" title="variable">x</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="append_vec_compute_1" class="idref" href="#append_vec_compute_1"><span class="id" title="definition">append_vec_compute_1</span></a> <a id="i:17" class="idref" href="#i:17"><span class="id" title="binder">i</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#dni"><span class="id" title="definition">dni</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#lastelement"><span class="id" title="definition">lastelement</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#i:17"><span class="id" title="variable">i</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.vec"><span class="id" title="variable">vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#i:17"><span class="id" title="variable">i</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">i</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">i</span> <span class="id" title="var">b</span>]; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#replace_dni_last"><span class="id" title="definition">replace_dni_last</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natlehchoice4"><span class="id" title="lemma">natlehchoice4</span></a> <span class="id" title="var">i</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.n"><span class="id" title="variable">n</span></a> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natlthtolths"><span class="id" title="definition">natlthtolths</span></a> <span class="id" title="var">i</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.n"><span class="id" title="variable">n</span></a> <span class="id" title="var">b</span>)) <span class="id" title="keyword">as</span> [<span class="id" title="var">p</span>|<span class="id" title="var">p</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isinjstntonat"><span class="id" title="lemma">isinjstntonat</span></a>; <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">destruct</span> <span class="id" title="var">p</span>. <span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#isirreflnatlth"><span class="id" title="definition">isirreflnatlth</span></a> <span class="id" title="var">i</span> <span class="id" title="var">b</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="append_vec_compute_2" class="idref" href="#append_vec_compute_2"><span class="id" title="definition">append_vec_compute_2</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#lastelement"><span class="id" title="definition">lastelement</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.x"><span class="id" title="variable">x</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natlehchoice4"><span class="id" title="lemma">natlehchoice4</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.n"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.n"><span class="id" title="variable">n</span></a> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natgthsnn"><span class="id" title="lemma">natgthsnn</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.n"><span class="id" title="variable">n</span></a>)) <span class="id" title="keyword">as</span> [<span class="id" title="var">a</span>|<span class="id" title="var">a</span>]; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">contradicts</span> <span class="id" title="var">a</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#isirreflnatlth"><span class="id" title="definition">isirreflnatlth</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append.n"><span class="id" title="variable">n</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Append"><span class="id" title="section">Append</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="drop_and_append_vec" class="idref" href="#drop_and_append_vec"><span class="id" title="lemma">drop_and_append_vec</span></a> {<a id="X:18" class="idref" href="#X:18"><span class="id" title="binder">X</span></a> <a id="n:19" class="idref" href="#n:19"><span class="id" title="binder">n</span></a>} (<a id="x:20" class="idref" href="#x:20"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:18"><span class="id" title="variable">X</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:19"><span class="id" title="variable">n</span></a>)) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#x:20"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#dni_lastelement"><span class="id" title="definition">dni_lastelement</span></a>) (<a class="idref" href="UniMath.Combinatorics.FVectors.html#x:20"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#lastelement"><span class="id" title="definition">lastelement</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#x:20"><span class="id" title="variable">x</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intros</span> [<span class="id" title="var">i</span> <span class="id" title="var">b</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natlehchoice4"><span class="id" title="lemma">natlehchoice4</span></a> <span class="id" title="var">i</span> <span class="id" title="var">n</span> <span class="id" title="var">b</span>) <span class="id" title="keyword">as</span> [<span class="id" title="var">p</span>|<span class="id" title="var">p</span>].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natlehchoice4"><span class="id" title="lemma">natlehchoice4</span></a> <span class="id" title="var">i</span> <span class="id" title="var">n</span> <span class="id" title="var">b</span>) <span class="id" title="keyword">as</span> [<span class="id" title="var">q</span>|<span class="id" title="var">q</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isinjstntonat"><span class="id" title="lemma">isinjstntonat</span></a>; <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">induction</span> <span class="id" title="var">q</span>. <span class="id" title="var">contradicts</span> <span class="id" title="var">p</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#isirreflnatlth"><span class="id" title="definition">isirreflnatlth</span></a> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natlehchoice4"><span class="id" title="lemma">natlehchoice4</span></a> <span class="id" title="var">i</span> <span class="id" title="var">i</span> <span class="id" title="var">b</span>) <span class="id" title="keyword">as</span> [<span class="id" title="var">r</span>|<span class="id" title="var">r</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isinjstntonat"><span class="id" title="lemma">isinjstntonat</span></a>; <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isinjstntonat"><span class="id" title="lemma">isinjstntonat</span></a>; <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+An induction principle for vectors: If a statement is true for the empty
+    vector, and if it is true for vectors of length n it is also true for those
+    of length S n, then it is true for all vectors.
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="Vector_rect" class="idref" href="#Vector_rect"><span class="id" title="definition">Vector_rect</span></a> {<a id="X:21" class="idref" href="#X:21"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} {<a id="P:23" class="idref" href="#P:23"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:22" class="idref" href="#n:22"><span class="id" title="binder">n</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:21"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:22"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p0:24" class="idref" href="#p0:24"><span class="id" title="binder">p0</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#P:23"><span class="id" title="variable">P</span></a> 0 <a class="idref" href="UniMath.Combinatorics.FVectors.html#empty_vec"><span class="id" title="definition">empty_vec</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="ind:28" class="idref" href="#ind:28"><span class="id" title="binder">ind</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="n:25" class="idref" href="#n:25"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) (<a id="vec:26" class="idref" href="#vec:26"><span class="id" title="binder">vec</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:21"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:25"><span class="id" title="variable">n</span></a>) (<a id="x:27" class="idref" href="#x:27"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:21"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.FVectors.html#P:23"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:25"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#vec:26"><span class="id" title="variable">vec</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#P:23"><span class="id" title="variable">P</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:25"><span class="id" title="variable">n</span></a>) (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#vec:26"><span class="id" title="variable">vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#x:27"><span class="id" title="variable">x</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="n:29" class="idref" href="#n:29"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>} (<a id="vec:30" class="idref" href="#vec:30"><span class="id" title="binder">vec</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#X:21"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:29"><span class="id" title="variable">n</span></a>) : <a class="idref" href="UniMath.Combinatorics.FVectors.html#P:23"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#n:29"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#vec:30"><span class="id" title="variable">vec</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">IH</span>].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> (<span class="id" title="var">P</span> 0) <span class="id" title="var">_</span> <span class="id" title="var">p0</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#proofirrelevancecontr"><span class="id" title="lemma">proofirrelevancecontr</span></a>, <a class="idref" href="UniMath.Combinatorics.FVectors.html#iscontr_vector_0"><span class="id" title="definition">iscontr_vector_0</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> (<span class="id" title="var">P</span> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.Combinatorics.FVectors.html#drop_and_append_vec"><span class="id" title="lemma">drop_and_append_vec</span></a> <span class="id" title="var">vec</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">ind</span> <span class="id" title="var">_</span> (<span class="id" title="var">vec</span> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#dni_lastelement"><span class="id" title="definition">dni_lastelement</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">vec</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#lastelement"><span class="id" title="definition">lastelement</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">IH</span> (<span class="id" title="var">vec</span> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#dni_lastelement"><span class="id" title="definition">dni_lastelement</span></a>)))).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Lemmas" class="idref" href="#Lemmas"><span class="id" title="section">Lemmas</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Lemmas.X" class="idref" href="#Lemmas.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} {<a id="Lemmas.n" class="idref" href="#Lemmas.n"><span class="id" title="variable">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="vectorEquality" class="idref" href="#vectorEquality"><span class="id" title="definition">vectorEquality</span></a> {<a id="m:33" class="idref" href="#m:33"><span class="id" title="binder">m</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>} (<a id="f:34" class="idref" href="#f:34"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.n"><span class="id" title="variable">n</span></a>) (<a id="g:35" class="idref" href="#g:35"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#m:33"><span class="id" title="variable">m</span></a>) (<a id="p:36" class="idref" href="#p:36"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.n"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#m:33"><span class="id" title="variable">m</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="i:37" class="idref" href="#i:37"><span class="id" title="binder">i</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#f:34"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#i:37"><span class="id" title="variable">i</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#g:35"><span class="id" title="variable">g</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#p:36"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#i:37"><span class="id" title="variable">i</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.X"><span class="id" title="variable">X</span></a>) <a class="idref" href="UniMath.Combinatorics.FVectors.html#p:36"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#f:34"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#g:35"><span class="id" title="variable">g</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="tail" class="idref" href="#tail"><span class="id" title="definition">tail</span></a> (<a id="vecsn:38" class="idref" href="#vecsn:38"><span class="id" title="binder">vecsn</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.X"><span class="id" title="variable">X</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.n"><span class="id" title="variable">n</span></a>)) : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.n"><span class="id" title="variable">n</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.FVectors.html#vecsn:38"><span class="id" title="variable">vecsn</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#dni"><span class="id" title="definition">dni</span></a> (0<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natgthsn0"><span class="id" title="lemma">natgthsn0</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.n"><span class="id" title="variable">n</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+It doesn't matter what the proofs are in the stn inputs. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="vector_stn_proofirrelevance" class="idref" href="#vector_stn_proofirrelevance"><span class="id" title="definition">vector_stn_proofirrelevance</span></a> {<a id="vec:39" class="idref" href="#vec:39"><span class="id" title="binder">vec</span></a> : <a class="idref" href="UniMath.Combinatorics.FVectors.html#Vector"><span class="id" title="definition">Vector</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.n"><span class="id" title="variable">n</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="i:40" class="idref" href="#i:40"><span class="id" title="binder">i</span></a> <a id="j:41" class="idref" href="#j:41"><span class="id" title="binder">j</span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas.n"><span class="id" title="variable">n</span></a>} : <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stntonat"><span class="id" title="definition">stntonat</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#i:40"><span class="id" title="variable">i</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stntonat"><span class="id" title="definition">stntonat</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#j:41"><span class="id" title="variable">j</span></a><a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#vec:39"><span class="id" title="variable">vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#i:40"><span class="id" title="variable">i</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#vec:39"><span class="id" title="variable">vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#j:41"><span class="id" title="variable">j</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>, <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isinjstntonat"><span class="id" title="lemma">isinjstntonat</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Combinatorics.FVectors.html#Lemmas"><span class="id" title="section">Lemmas</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

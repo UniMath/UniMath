@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.MoreFoundations.NoInjectivePairing</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.MoreFoundations.NoInjectivePairing</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Univalence.html#"><span class="id" title="library">UniMath.MoreFoundations.Univalence</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We prove that the following lemma ("injective pairing") is inconsistent with univalence: 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="injective_pairing_statement" class="idref" href="#injective_pairing_statement"><span class="id" title="definition">injective_pairing_statement</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="A:1" class="idref" href="#A:1"><span class="id" title="binder">A</span></a> (<a id="B:2" class="idref" href="#B:2"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) <a id="a:3" class="idref" href="#a:3"><span class="id" title="binder">a</span></a> (<a id="b:4" class="idref" href="#b:4"><span class="id" title="binder">b</span></a> <a id="b':5" class="idref" href="#b':5"><span class="id" title="binder">b'</span></a> : <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#B:2"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#a:3"><span class="id" title="variable">a</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#a:3"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#b:4"><span class="id" title="variable">b</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#a:3"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#b':5"><span class="id" title="variable">b'</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#b:4"><span class="id" title="variable">b</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#b':5"><span class="id" title="variable">b'</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Proof sketch by Folkmar Frederik Ramcke. Formalisation by Jannis Limperg with help from Joj
+   Helfer. 
+<div class="paragraph"> </div>
+
+<a id="lab3747"></a><h1 class="section">Preliminaries</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="univalence_pathsinv0" class="idref" href="#univalence_pathsinv0"><span class="id" title="lemma">univalence_pathsinv0</span></a> {<a id="A:6" class="idref" href="#A:6"><span class="id" title="binder">A</span></a> <a id="B:7" class="idref" href="#B:7"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} (<a id="p:8" class="idref" href="#p:8"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#A:6"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#B:7"><span class="id" title="variable">B</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalence"><span class="id" title="definition">univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#p:8"><span class="id" title="variable">p</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalence"><span class="id" title="definition">univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#p:8"><span class="id" title="variable">p</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#eqweqmap_pathsinv0"><span class="id" title="lemma">eqweqmap_pathsinv0</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Inverting the path obtained from an equivalence is the same as inverting the equivalence. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="pathsinv0_weqtopaths" class="idref" href="#pathsinv0_weqtopaths"><span class="id" title="lemma">pathsinv0_weqtopaths</span></a> {<a id="A:9" class="idref" href="#A:9"><span class="id" title="binder">A</span></a> <a id="B:10" class="idref" href="#B:10"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} (<a id="eq:11" class="idref" href="#eq:11"><span class="id" title="binder">eq</span></a> : <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#A:9"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#B:10"><span class="id" title="variable">B</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtopaths"><span class="id" title="definition">weqtopaths</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#eq:11"><span class="id" title="variable">eq</span></a><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtopaths"><span class="id" title="definition">weqtopaths</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#eq:11"><span class="id" title="variable">eq</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">type_induction</span> <span class="id" title="var">eq</span> <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">symmetry</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#univalence_pathsinv0"><span class="id" title="lemma">univalence_pathsinv0</span></a> <span class="id" title="var">e</span>) <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#homotinvweqweq"><span class="id" title="definition">homotinvweqweq</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#homotinvweqweq"><span class="id" title="definition">homotinvweqweq</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3748"></a><h1 class="section">Refutation of Injective Pairing</h1>
+
+<div class="paragraph"> </div>
+
+ Boolean negation is a weak equivalence. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="negb_weq" class="idref" href="#negb_weq"><span class="id" title="definition">negb_weq</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">cbv</span>. <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">induction</span> <span class="id" title="var">y</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">t</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">b</span> <span class="id" title="var">eq</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">b</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">eq</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Thus, we can construct two equal pairs whose second components are different: 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="negb_weq_pair" class="idref" href="#negb_weq_pair"><span class="id" title="definition">negb_weq_pair</span></a><br/>
+&nbsp;&nbsp;: @<a class="idref" href="UniMath.Foundations.Preamble.html#paths"><span class="id" title="inductive">paths</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="A:12" class="idref" href="#A:12"><span class="id" title="binder">A</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#A:12"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>) (<a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>) (<a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a> (<span class="id" title="var">B</span> := <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="A:13" class="idref" href="#A:13"><span class="id" title="binder"><span id="A:14" class="id">A</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#A:13"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>) (<span class="id" title="var">s</span> := <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>) (<span class="id" title="var">s'</span> := <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtopaths"><span class="id" title="definition">weqtopaths</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#negb_weq"><span class="id" title="definition">negb_weq</span></a>) <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf_fun"><span class="id" title="definition">transportf_fun</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtopaths"><span class="id" title="definition">weqtopaths</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#negb_weq"><span class="id" title="definition">negb_weq</span></a>) (<a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>)) <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportb"><span class="id" title="definition">transportb</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#weqtopaths"><span class="id" title="definition">weqtopaths</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#negb_weq"><span class="id" title="definition">negb_weq</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#pathsinv0_weqtopaths"><span class="id" title="lemma">pathsinv0_weqtopaths</span></a> <span class="id" title="var">_</span> ) <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.Univalence.html#weqpath_transport"><span class="id" title="definition">weqpath_transport</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+By injective pairing, we get <span class="inlinecode"><a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a></span> <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a></span>, a contradiction. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Theorem</span> <a id="no_injective_pairing" class="idref" href="#no_injective_pairing"><span class="id" title="lemma">no_injective_pairing</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#injective_pairing_statement"><span class="id" title="definition">injective_pairing_statement</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#1dc2cb66c5ede645202bae131cc6745c"><span class="id" title="notation">∅</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">contra</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">contra</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#negb_weq_pair"><span class="id" title="definition">negb_weq_pair</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">contra</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#nopathstruetofalse"><span class="id" title="lemma">nopathstruetofalse</span></a> (<span class="id" title="var">contra</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3749"></a><h1 class="section">Injective Pairing &lt;-&gt; Uniqueness of Identity Proofs</h1>
+
+<div class="paragraph"> </div>
+
+ Another way to see why injective pairing cannot hold: It is logically equivalent to uniqueness
+    of identity proofs, which is in turn equivalent to the K axiom and incompatible with univalence. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="uip_statement" class="idref" href="#uip_statement"><span class="id" title="definition">uip_statement</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="A:15" class="idref" href="#A:15"><span class="id" title="binder">A</span></a> (<a id="x:16" class="idref" href="#x:16"><span class="id" title="binder">x</span></a> <a id="y:17" class="idref" href="#y:17"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#A:15"><span class="id" title="variable">A</span></a>) (<a id="p:18" class="idref" href="#p:18"><span class="id" title="binder">p</span></a> <a id="q:19" class="idref" href="#q:19"><span class="id" title="binder">q</span></a> : <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#x:16"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#y:17"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#p:18"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#q:19"><span class="id" title="variable">q</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Injective pairing implies uniqueness of identity proofs. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Theorem</span> <a id="injective_pairing_uip" class="idref" href="#injective_pairing_uip"><span class="id" title="lemma">injective_pairing_uip</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#injective_pairing_statement"><span class="id" title="definition">injective_pairing_statement</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#uip_statement"><span class="id" title="definition">uip_statement</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">injpair</span> <span class="id" title="var">A</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">eqpair</span> : @<a class="idref" href="UniMath.Foundations.Preamble.html#paths"><span class="id" title="inductive">paths</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="x:20" class="idref" href="#x:20"><span class="id" title="binder"><span id="x:21" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#x:20"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">y</span>) (<span class="id" title="var">x</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">p</span>) (<span class="id" title="var">x</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">q</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>. <span class="id" title="tactic">induction</span> <span class="id" title="var">q</span>. <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#injective_pairing_statement"><span class="id" title="definition">injective_pairing_statement</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">injpair</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">injpair</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:22" class="idref" href="#x:22"><span class="id" title="binder"><span id="x:23" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#x:22"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">y</span>) <span class="id" title="var">x</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> <span class="id" title="var">eqpair</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Uniqueness of identity proofs implies injective pairing. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Theorem</span> <a id="uip_injective_pairing" class="idref" href="#uip_injective_pairing"><span class="id" title="lemma">uip_injective_pairing</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#uip_statement"><span class="id" title="definition">uip_statement</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#injective_pairing_statement"><span class="id" title="definition">injective_pairing_statement</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">uip</span> <span class="id" title="var">A</span> <span class="id" title="var">B</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">b'</span> <span class="id" title="var">eqpair</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">eqa</span> := <a class="idref" href="UniMath.Foundations.PartA.html#base_paths"><span class="id" title="lemma">base_paths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">eqpair</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">eqb</span> : <a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <span class="id" title="var">_</span> <span class="id" title="var">eqa</span> <span class="id" title="var">b</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">b'</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#fiber_paths"><span class="id" title="definition">fiber_paths</span></a> <span class="id" title="var">eqpair</span>). }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">eqa_idpath</span> : <span class="id" title="var">eqa</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <span class="id" title="var">uip</span>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">symmetry</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <span class="id" title="var">eqb</span>). }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="p:24" class="idref" href="#p:24"><span class="id" title="binder"><span id="p:25" class="id">p</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <span class="id" title="var">B</span> <a class="idref" href="UniMath.MoreFoundations.NoInjectivePairing.html#p:24"><span class="id" title="variable">p</span></a> <span class="id" title="var">b</span>) <span class="id" title="var">eqa_idpath</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

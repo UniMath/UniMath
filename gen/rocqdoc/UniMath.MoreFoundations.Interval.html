@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.MoreFoundations.Interval</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.MoreFoundations.Interval</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3735"></a><h1 class="section">A construction of the interval using propositional truncation</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.NullHomotopies.html#"><span class="id" title="library">UniMath.MoreFoundations.NullHomotopies</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="interval" class="idref" href="#interval"><span class="id" title="definition">interval</span></a> := <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="left" class="idref" href="#left"><span class="id" title="definition">left</span></a> := <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a> : <a class="idref" href="UniMath.MoreFoundations.Interval.html#interval"><span class="id" title="definition">interval</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="right" class="idref" href="#right"><span class="id" title="definition">right</span></a> := <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> : <a class="idref" href="UniMath.MoreFoundations.Interval.html#interval"><span class="id" title="definition">interval</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="interval_path" class="idref" href="#interval_path"><span class="id" title="definition">interval_path</span></a> : <a class="idref" href="UniMath.MoreFoundations.Interval.html#left"><span class="id" title="definition">left</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#right"><span class="id" title="definition">right</span></a> := <a class="idref" href="UniMath.MoreFoundations.Notations.html#squash_path"><span class="id" title="lemma">squash_path</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="interval_map" class="idref" href="#interval_map"><span class="id" title="definition">interval_map</span></a> {<a id="Y:1" class="idref" href="#Y:1"><span class="id" title="binder">Y</span></a>} {<a id="y:2" class="idref" href="#y:2"><span class="id" title="binder">y</span></a> <a id="y':3" class="idref" href="#y':3"><span class="id" title="binder">y'</span></a>:<a class="idref" href="UniMath.MoreFoundations.Interval.html#Y:1"><span class="id" title="variable">Y</span></a>} : <a class="idref" href="UniMath.MoreFoundations.Interval.html#y:2"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#y':3"><span class="id" title="variable">y'</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#interval"><span class="id" title="definition">interval</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#Y:1"><span class="id" title="variable">Y</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">e</span>. <span class="id" title="tactic">set</span> (<span class="id" title="var">f</span> := <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="t:4" class="idref" href="#t:4"><span class="id" title="binder"><span id="t:5" class="id">t</span></span></a>:<a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="keyword">if</span> <a class="idref" href="UniMath.MoreFoundations.Interval.html#t:4"><span class="id" title="variable">t</span></a> <span class="id" title="keyword">then</span> <span class="id" title="var">y</span> <span class="id" title="keyword">else</span> <span class="id" title="var">y'</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.MoreFoundations.NullHomotopies.html#cone_squash_map"><span class="id" title="definition">cone_squash_map</span></a> <span class="id" title="var">f</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>) <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">v</span>. <span class="id" title="tactic">induction</span> <span class="id" title="var">v</span>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">exact</span> <span class="id" title="var">e</span>. }<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">reflexivity</span>. }<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">∏</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="binder, definition"><span id="Y:6" class="id">Y</span></span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">{</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="binder, definition"><span id="y:7" class="id">y</span></span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="binder, definition"><span id="y':8" class="id">y'</span></span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">:</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">Y</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">}</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">(</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="binder, definition"><span id="e:9" class="id">e</span></span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">:</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">y</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">y'</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">),</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">interval_map</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">e</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">left</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">y</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">∏</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="binder, definition"><span id="Y:10" class="id">Y</span></span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">{</span></a><a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="binder, definition"><span id="y:11" class="id">y</span></span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="binder, definition"><span id="y':12" class="id">y'</span></span></a><a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">:</span></a><a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">Y</span></a><a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">}</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">(</span></a><a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="binder, definition"><span id="e:13" class="id">e</span></span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">:</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">y</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">y'</span></a><a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">),</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">interval_map</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">e</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">right</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">y'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3736"></a><h2 class="section">An easy proof of functional extensionality for sections using the interval, which is derived</h2>
+
+       from formal properlties of propositional truncation, but notice that propositional truncation
+       uses functional extensionality for functions, already. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="funextsec2" class="idref" href="#funextsec2"><span class="id" title="definition">funextsec2</span></a> <a id="X:14" class="idref" href="#X:14"><span class="id" title="binder">X</span></a> (<a id="Y:15" class="idref" href="#Y:15"><span class="id" title="binder">Y</span></a>:<a class="idref" href="UniMath.MoreFoundations.Interval.html#X:14"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a><span class="id" title="keyword">Type</span>) (<a id="f:17" class="idref" href="#f:17"><span class="id" title="binder">f</span></a> <a id="g:18" class="idref" href="#g:18"><span class="id" title="binder">g</span></a>:<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:16" class="idref" href="#x:16"><span class="id" title="binder">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.MoreFoundations.Interval.html#Y:15"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#x:16"><span class="id" title="variable">x</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:19" class="idref" href="#x:19"><span class="id" title="binder">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#f:17"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#x:19"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#g:18"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#x:19"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#f:17"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#g:18"><span class="id" title="variable">g</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">e</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="h:20" class="idref" href="#h:20"><span class="id" title="binder"><span id="h:22" class="id">h</span></span></a> <a id="x:21" class="idref" href="#x:21"><span class="id" title="binder"><span id="x:23" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.Interval.html#interval_map"><span class="id" title="definition">interval_map</span></a> (<span class="id" title="var">e</span> <a class="idref" href="UniMath.MoreFoundations.Interval.html#x:21"><span class="id" title="variable">x</span></a>) <a class="idref" href="UniMath.MoreFoundations.Interval.html#h:20"><span class="id" title="variable">h</span></a>) <a class="idref" href="UniMath.MoreFoundations.Interval.html#interval_path"><span class="id" title="definition">interval_path</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

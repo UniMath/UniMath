@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Equivalences.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaf</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sites.html#"><span class="id" title="library">UniMath.CategoryTheory.GrothendieckToposes.Sites</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#"><span class="id" title="library">UniMath.CategoryTheory.GrothendieckToposes.Sheaves</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2498"></a><h1 class="section">1. The terminal sheaf</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="TerminalSheaf" class="idref" href="#TerminalSheaf"><span class="id" title="section">TerminalSheaf</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="TerminalSheaf.C" class="idref" href="#TerminalSheaf.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sites.html#site"><span class="id" title="definition">site</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="terminal_is_sheaf" class="idref" href="#terminal_is_sheaf"><span class="id" title="definition">terminal_is_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#is_sheaf"><span class="id" title="definition">is_sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#TerminalSheaf.C"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Terminal_PreShv"><span class="id" title="lemma">Terminal_PreShv</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#::cat:'PreShv'_x"><span class="id" title="notation">PreShv</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#TerminalSheaf.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">S</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#unique_exists"><span class="id" title="lemma">unique_exists</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrow"><span class="id" title="definition">TerminalArrow</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Terminal_PreShv"><span class="id" title="lemma">Terminal_PreShv</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrowEq"><span class="id" title="lemma">TerminalArrowEq</span></a> (<span class="id" title="var">T</span> := <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Terminal_PreShv"><span class="id" title="lemma">Terminal_PreShv</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#isaset_nat_trans"><span class="id" title="lemma">isaset_nat_trans</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrowUnique"><span class="id" title="lemma">TerminalArrowUnique</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Terminal_PreShv"><span class="id" title="lemma">Terminal_PreShv</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="terminal_sheaf_sheaf" class="idref" href="#terminal_sheaf_sheaf"><span class="id" title="definition">terminal_sheaf_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#sheaf"><span class="id" title="definition">sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#TerminalSheaf.C"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#make_sheaf"><span class="id" title="definition">make_sheaf</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#terminal_is_sheaf"><span class="id" title="definition">terminal_is_sheaf</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="terminal_sheaf_is_terminal" class="idref" href="#terminal_sheaf_is_terminal"><span class="id" title="definition">terminal_sheaf_is_terminal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#isTerminal"><span class="id" title="definition">isTerminal</span></a> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#sheaf_cat"><span class="id" title="definition">sheaf_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#TerminalSheaf.C"><span class="id" title="variable">C</span></a>) <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#terminal_sheaf_sheaf"><span class="id" title="definition">terminal_sheaf_sheaf</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#unique_exists"><span class="id" title="lemma">unique_exists</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrow"><span class="id" title="definition">TerminalArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">t</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrowUnique"><span class="id" title="lemma">TerminalArrowUnique</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="terminal_sheaf" class="idref" href="#terminal_sheaf"><span class="id" title="definition">terminal_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#sheaf_cat"><span class="id" title="definition">sheaf_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#TerminalSheaf.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#make_Terminal"><span class="id" title="definition">make_Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#terminal_sheaf_sheaf"><span class="id" title="definition">terminal_sheaf_sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#terminal_sheaf_is_terminal"><span class="id" title="definition">terminal_sheaf_is_terminal</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.html#TerminalSheaf"><span class="id" title="section">TerminalSheaf</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

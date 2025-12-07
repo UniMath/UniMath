@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab1862"></a><h1 class="section">The univalent category of equational algebras over an equational specification.</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Total</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#"><span class="id" title="library">UniMath.Algebra.Universal.EqAlgebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.Algebras.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Universal_Algebra.Algebras</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FixAnEqSpec" class="idref" href="#FixAnEqSpec"><span class="id" title="section">FixAnEqSpec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="bc8c28dc06fbfcfc5095336b5ebd1467" class="idref" href="#bc8c28dc06fbfcfc5095336b5ebd1467"><span class="id" title="variable">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">sorted_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="eqalg_disp" class="idref" href="#eqalg_disp"><span class="id" title="definition">eqalg_disp</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.Algebras.html#category_algebras"><span class="id" title="definition">category_algebras</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#bc8c28dc06fbfcfc5095336b5ebd1467"><span class="id" title="variable">σ</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#disp_full_sub"><span class="id" title="definition">disp_full_sub</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="A:2" class="idref" href="#A:2"><span class="id" title="binder"><span id="A:3" class="id">A</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#is_eqalgebra"><span class="id" title="definition">is_eqalgebra</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Algebras.html#hSetalgebra_to_algebra"><span class="id" title="definition">hSetalgebra_to_algebra</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#A:2"><span class="id" title="variable">A</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_univalent_eqalg_disp" class="idref" href="#is_univalent_eqalg_disp"><span class="id" title="lemma">is_univalent_eqalg_disp</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#is_univalent_disp"><span class="id" title="definition">is_univalent_disp</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#eqalg_disp"><span class="id" title="definition">eqalg_disp</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.html#disp_full_sub_univalent"><span class="id" title="lemma">disp_full_sub_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">A</span> <span class="id" title="var">isT</span> <span class="id" title="var">isT'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">eq</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">α</span> <span class="id" title="var">p</span> <span class="id" title="var">p'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">A</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="category_eqalgebras" class="idref" href="#category_eqalgebras"><span class="id" title="definition">category_eqalgebras</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#eqalg_disp"><span class="id" title="definition">eqalg_disp</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_univalent_category_eqalgebras" class="idref" href="#is_univalent_category_eqalgebras"><span class="id" title="lemma">is_univalent_category_eqalgebras</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#category_eqalgebras"><span class="id" title="definition">category_eqalgebras</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (@<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#is_univalent_total_category"><span class="id" title="lemma">is_univalent_total_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.Algebras.html#category_algebras"><span class="id" title="definition">category_algebras</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#bc8c28dc06fbfcfc5095336b5ebd1467"><span class="id" title="variable">σ</span></a>) <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#eqalg_disp"><span class="id" title="definition">eqalg_disp</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.Algebras.html#is_univalent_category_algebras"><span class="id" title="lemma">is_univalent_category_algebras</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#bc8c28dc06fbfcfc5095336b5ebd1467"><span class="id" title="variable">σ</span></a>) <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#is_univalent_eqalg_disp"><span class="id" title="lemma">is_univalent_eqalg_disp</span></a>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Universal_Algebra.EqAlgebras.html#FixAnEqSpec"><span class="id" title="section">FixAnEqSpec</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

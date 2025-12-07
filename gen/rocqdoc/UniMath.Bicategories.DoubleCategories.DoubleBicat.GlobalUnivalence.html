@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#"><span class="id" title="library">UniMath.Bicategories.Core.Unitors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#"><span class="id" title="library">UniMath.Bicategories.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.AdjointUnique.html#"><span class="id" title="library">UniMath.Bicategories.Core.AdjointUnique</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.UnderlyingCats.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.DoubleBicat.UnderlyingCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairUnique.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairUnique</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairAdjEquiv.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairAdjEquiv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GregariousEquivalence.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.DoubleBicat.GregariousEquivalence</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">double_bicat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Univalence" class="idref" href="#Univalence"><span class="id" title="section">Univalence</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Univalence.B" class="idref" href="#Univalence.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.html#verity_double_bicat"><span class="id" title="definition">verity_double_bicat</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab939"></a><h1 class="section">1. Horizontally globally univalent Verity double bicategories</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="hor_globally_univalent" class="idref" href="#hor_globally_univalent"><span class="id" title="definition">hor_globally_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2_0"><span class="id" title="definition">is_univalent_2_0</span></a> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.UnderlyingCats.html#hor_bicat_of_verity_double_bicat"><span class="id" title="definition">hor_bicat_of_verity_double_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="isaprop_hor_globally_univalent" class="idref" href="#isaprop_hor_globally_univalent"><span class="id" title="lemma">isaprop_hor_globally_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#hor_globally_univalent"><span class="id" title="definition">hor_globally_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#isaprop_is_univalent_2_0"><span class="id" title="lemma">isaprop_is_univalent_2_0</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+2. Vertically globally univalent Verity double bicategories 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ver_globally_univalent" class="idref" href="#ver_globally_univalent"><span class="id" title="definition">ver_globally_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2_0"><span class="id" title="definition">is_univalent_2_0</span></a> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.UnderlyingCats.html#ver_bicat_of_verity_double_bicat"><span class="id" title="definition">ver_bicat_of_verity_double_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="isaprop_ver_globally_univalent" class="idref" href="#isaprop_ver_globally_univalent"><span class="id" title="lemma">isaprop_ver_globally_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#ver_globally_univalent"><span class="id" title="definition">ver_globally_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#isaprop_is_univalent_2_0"><span class="id" title="lemma">isaprop_is_univalent_2_0</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab940"></a><h1 class="section">3. Globally univalent Verity double bicategories</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="globally_univalent_verity_double_bicat" class="idref" href="#globally_univalent_verity_double_bicat"><span class="id" title="definition">globally_univalent_verity_double_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#hor_globally_univalent"><span class="id" title="definition">hor_globally_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#ver_globally_univalent"><span class="id" title="definition">ver_globally_univalent</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="isaprop_globally_univalent_verity_double_bicat" class="idref" href="#isaprop_globally_univalent_verity_double_bicat"><span class="id" title="lemma">isaprop_globally_univalent_verity_double_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#globally_univalent_verity_double_bicat"><span class="id" title="definition">globally_univalent_verity_double_bicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#isaprop_hor_globally_univalent"><span class="id" title="lemma">isaprop_hor_globally_univalent</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#isaprop_ver_globally_univalent"><span class="id" title="lemma">isaprop_ver_globally_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab941"></a><h1 class="section">4. Gregarious univalent Verity double bicategories</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="gregarious_univalent" class="idref" href="#gregarious_univalent"><span class="id" title="definition">gregarious_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:2" class="idref" href="#x:2"><span class="id" title="binder">x</span></a> <a id="y:3" class="idref" href="#y:3"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#isweq"><span class="id" title="definition">isweq</span></a> (@<a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GregariousEquivalence.html#id_to_gregarious_equivalence"><span class="id" title="definition">id_to_gregarious_equivalence</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#x:2"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#y:3"><span class="id" title="variable">y</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="isaprop_gregarious_univalent" class="idref" href="#isaprop_gregarious_univalent"><span class="id" title="lemma">isaprop_gregarious_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#gregarious_univalent"><span class="id" title="definition">gregarious_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 (<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a> ; <span class="id" title="tactic">intro</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropisweq"><span class="id" title="lemma">isapropisweq</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="univalent_verity_double_bicat" class="idref" href="#univalent_verity_double_bicat"><span class="id" title="definition">univalent_verity_double_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#gregarious_univalent"><span class="id" title="definition">gregarious_univalent</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.html#locally_univalent_verity_double_bicat"><span class="id" title="definition">locally_univalent_verity_double_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="isaprop_univalent_verity_double_bicat" class="idref" href="#isaprop_univalent_verity_double_bicat"><span class="id" title="lemma">isaprop_univalent_verity_double_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#univalent_verity_double_bicat"><span class="id" title="definition">univalent_verity_double_bicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#isaprop_gregarious_univalent"><span class="id" title="lemma">isaprop_gregarious_univalent</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.html#isaprop_locally_univalent_verity_double_bicat"><span class="id" title="lemma">isaprop_locally_univalent_verity_double_bicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab942"></a><h1 class="section">5. Horizontally globally univalent to gregarious univalent</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="hor_globally_univalent_to_gregarious_univalent" class="idref" href="#hor_globally_univalent_to_gregarious_univalent"><span class="id" title="definition">hor_globally_univalent_to_gregarious_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HB_2_1:4" class="idref" href="#HB_2_1:4"><span class="id" title="binder">HB_2_1</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.html#locally_univalent_verity_double_bicat"><span class="id" title="definition">locally_univalent_verity_double_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HB_2_0:5" class="idref" href="#HB_2_0:5"><span class="id" title="binder">HB_2_0</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#hor_globally_univalent"><span class="id" title="definition">hor_globally_univalent</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:6" class="idref" href="#H:6"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.html#vertically_saturated"><span class="id" title="definition">vertically_saturated</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#gregarious_univalent"><span class="id" title="definition">gregarious_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#weqhomot"><span class="id" title="lemma">weqhomot</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#weqfibtototal"><span class="id" title="definition">weqfibtototal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GregariousEquivalence.html#hor_left_adjoint_equivalence_weq_gregarious_equivalence"><span class="id" title="definition">hor_left_adjoint_equivalence_weq_gregarious_equivalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">H</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#53dcbacd2d163123616a0a748cd5ffab"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#make_weq"><span class="id" title="definition">make_weq</span></a> <span class="id" title="var">_</span> (<span class="id" title="var">HB_2_0</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>))%<span class="id" title="var">weq</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="var">HB_2_1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs.html#univalent_2_0_weakly_hor_invariant"><span class="id" title="definition">univalent_2_0_weakly_hor_invariant</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">HB_2_0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.PartB.html#isofhlevelweqf"><span class="id" title="lemma">isofhlevelweqf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GregariousEquivalence.html#is_hor_gregarious_equivalence_weq_is_gregarious_equivalence"><span class="id" title="definition">is_hor_gregarious_equivalence_weq_is_gregarious_equivalence</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GregariousEquivalence.html#isaprop_is_hor_gregarious_equivalence"><span class="id" title="lemma">isaprop_is_hor_gregarious_equivalence</span></a> <span class="id" title="var">H</span>) ; <span class="id" title="tactic">apply</span> <span class="id" title="var">HB_2_1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab943"></a><h1 class="section">6. Equivalence of horizontal global univalence and gregarious univalence</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="gregarious_univalent_to_hor_globally_univalent" class="idref" href="#gregarious_univalent_to_hor_globally_univalent"><span class="id" title="definition">gregarious_univalent_to_hor_globally_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H':7" class="idref" href="#H':7"><span class="id" title="binder">H'</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs.html#weakly_hor_invariant"><span class="id" title="definition">weakly_hor_invariant</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HB_2_1:8" class="idref" href="#HB_2_1:8"><span class="id" title="binder">HB_2_1</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.html#locally_univalent_verity_double_bicat"><span class="id" title="definition">locally_univalent_verity_double_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HB_2_0:9" class="idref" href="#HB_2_0:9"><span class="id" title="binder">HB_2_0</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#gregarious_univalent"><span class="id" title="definition">gregarious_univalent</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:10" class="idref" href="#H:10"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.html#vertically_saturated"><span class="id" title="definition">vertically_saturated</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#hor_globally_univalent"><span class="id" title="definition">hor_globally_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#weqhomot"><span class="id" title="lemma">weqhomot</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#weqfibtototal"><span class="id" title="definition">weqfibtototal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="h:11" class="idref" href="#h:11"><span class="id" title="binder"><span id="h:12" class="id">h</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GregariousEquivalence.html#hor_left_adjoint_equivalence_weq_gregarious_equivalence"><span class="id" title="definition">hor_left_adjoint_equivalence_weq_gregarious_equivalence</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">H</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#h:11"><span class="id" title="variable">h</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#53dcbacd2d163123616a0a748cd5ffab"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#make_weq"><span class="id" title="definition">make_weq</span></a> <span class="id" title="var">_</span> (<span class="id" title="var">HB_2_0</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>))%<span class="id" title="var">weq</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="var">HB_2_1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="var">H'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.AdjointUnique.html#isaprop_left_adjoint_equivalence"><span class="id" title="lemma">isaprop_left_adjoint_equivalence</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">HB_2_1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="hor_globally_univalent_weq_gregarious_univalent" class="idref" href="#hor_globally_univalent_weq_gregarious_univalent"><span class="id" title="definition">hor_globally_univalent_weq_gregarious_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H':13" class="idref" href="#H':13"><span class="id" title="binder">H'</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs.html#weakly_hor_invariant"><span class="id" title="definition">weakly_hor_invariant</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HB_2_1:14" class="idref" href="#HB_2_1:14"><span class="id" title="binder">HB_2_1</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.html#locally_univalent_verity_double_bicat"><span class="id" title="definition">locally_univalent_verity_double_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:15" class="idref" href="#H:15"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.html#vertically_saturated"><span class="id" title="definition">vertically_saturated</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence.B"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#hor_globally_univalent"><span class="id" title="definition">hor_globally_univalent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#gregarious_univalent"><span class="id" title="definition">gregarious_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#weqimplimpl"><span class="id" title="definition">weqimplimpl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="HB_2_0:16" class="idref" href="#HB_2_0:16"><span class="id" title="binder"><span id="HB_2_0:17" class="id">HB_2_0</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#hor_globally_univalent_to_gregarious_univalent"><span class="id" title="definition">hor_globally_univalent_to_gregarious_univalent</span></a> <span class="id" title="var">HB_2_1</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#HB_2_0:16"><span class="id" title="variable">HB_2_0</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="HB_2_0:18" class="idref" href="#HB_2_0:18"><span class="id" title="binder"><span id="HB_2_0:19" class="id">HB_2_0</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#gregarious_univalent_to_hor_globally_univalent"><span class="id" title="definition">gregarious_univalent_to_hor_globally_univalent</span></a> <span class="id" title="var">H'</span> <span class="id" title="var">HB_2_1</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#HB_2_0:18"><span class="id" title="variable">HB_2_0</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#isaprop_hor_globally_univalent"><span class="id" title="lemma">isaprop_hor_globally_univalent</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#isaprop_gregarious_univalent"><span class="id" title="lemma">isaprop_gregarious_univalent</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.html#Univalence"><span class="id" title="section">Univalence</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

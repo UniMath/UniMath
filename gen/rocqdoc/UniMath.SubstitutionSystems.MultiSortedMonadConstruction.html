@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.SubstitutionSystems.MultiSortedMonadConstruction</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.SubstitutionSystems.MultiSortedMonadConstruction</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+This file contains the final step in the formalization of multisorted binding signatures:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Construction of a monad on Set/sort from a multisorted signature
+  (<span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction_alt.html#MultiSortedSigToMonad"><span class="id" title="definition">MultiSortedSigToMonad</span></a></span>)
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+Written by: Anders Mörtberg, 2016. The formalization follows a note
+written by Benedikt Ahrens and Ralph Matthes, and is also inspired by
+discussions with them and Vladimir Voevodsky.
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorAlgebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Chains.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Chains.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#"><span class="id" title="library">UniMath.CategoryTheory.Monads.Monads</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Slice</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#"><span class="id" title="library">UniMath.CategoryTheory.slicecat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#"><span class="id" title="library">UniMath.SubstitutionSystems.Signatures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SubstitutionSystems</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.LiftingInitial_alt.html#"><span class="id" title="library">UniMath.SubstitutionSystems.LiftingInitial_alt</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.html#"><span class="id" title="library">UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#"><span class="id" title="library">UniMath.SubstitutionSystems.Notation</span></a>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">subsys</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#"><span class="id" title="library">UniMath.SubstitutionSystems.BindingSigToMonad</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.MonadsMultiSorted.html#"><span class="id" title="library">UniMath.SubstitutionSystems.MonadsMultiSorted</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#"><span class="id" title="library">UniMath.SubstitutionSystems.MultiSortedBindingSig</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSorted.html#"><span class="id" title="library">UniMath.SubstitutionSystems.MultiSorted</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="1c4ece0ba90889d0c90919c0be32d918" class="idref" href="#1c4ece0ba90889d0c90919c0be32d918"><span class="id" title="notation">&quot;</span></a>C / X" := (<a class="idref" href="UniMath.CategoryTheory.slicecat.html#slicecat_ob"><span class="id" title="definition">slicecat_ob</span></a> <span class="id" title="var">C</span> <span class="id" title="var">X</span>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="1c4ece0ba90889d0c90919c0be32d918" class="idref" href="#1c4ece0ba90889d0c90919c0be32d918"><span class="id" title="notation">&quot;</span></a>C / X" := (<a class="idref" href="UniMath.CategoryTheory.slicecat.html#slice_precat_data"><span class="id" title="definition">slice_precat_data</span></a> <span class="id" title="var">C</span> <span class="id" title="var">X</span>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="1c4ece0ba90889d0c90919c0be32d918" class="idref" href="#1c4ece0ba90889d0c90919c0be32d918"><span class="id" title="notation">&quot;</span></a>C / X" := (<a class="idref" href="UniMath.CategoryTheory.slicecat.html#slice_cat"><span class="id" title="definition">slice_cat</span></a> <span class="id" title="var">C</span> <span class="id" title="var">X</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4128"></a><h1 class="section">Definition of multisorted binding signatures</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="MBindingSig" class="idref" href="#MBindingSig"><span class="id" title="section">MBindingSig</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="MBindingSig.sort" class="idref" href="#MBindingSig.sort"><span class="id" title="variable">sort</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="HSET_over_sort" class="idref" href="#HSET_over_sort"><span class="id" title="definition">HSET_over_sort</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#1c4ece0ba90889d0c90919c0be32d918"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>).<br/>
+<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#has_homsets_slice_precat"><span class="id" title="lemma">has_homsets_slice_precat</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4129"></a><h1 class="section">Construction of a monad from a multisorted signature</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="MBindingSig.monad" class="idref" href="#MBindingSig.monad"><span class="id" title="section">monad</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="MBindingSig.monad.Id_H" class="idref" href="#MBindingSig.monad.Id_H"><span class="id" title="variable">Id_H</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#Id_H"><span class="id" title="definition">Id_H</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#1c4ece0ba90889d0c90919c0be32d918"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinCoproducts_HSET_slice"><span class="id" title="lemma">BinCoproducts_HSET_slice</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="SignatureInitialAlgebraSetSort" class="idref" href="#SignatureInitialAlgebraSetSort"><span class="id" title="definition">SignatureInitialAlgebraSetSort</span></a><br/>
+&nbsp;&nbsp;(<a id="H:2" class="idref" href="#H:2"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#Signature"><span class="id" title="definition">Signature</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#HSET_over_sort"><span class="id" title="definition">HSET_over_sort</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#HSET_over_sort"><span class="id" title="definition">HSET_over_sort</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#HSET_over_sort"><span class="id" title="definition">HSET_over_sort</span></a>) (<a id="Hs:3" class="idref" href="#Hs:3"><span class="id" title="binder">Hs</span></a> : <a class="idref" href="UniMath.CategoryTheory.Chains.Chains.html#is_omega_cocont"><span class="id" title="definition">is_omega_cocont</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#H:2"><span class="id" title="variable">H</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> (<a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#FunctorAlg"><span class="id" title="definition">FunctorAlg</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.monad.Id_H"><span class="id" title="variable">Id_H</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#H:2"><span class="id" title="variable">H</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Chains.Adamek.html#colimAlgInitial"><span class="id" title="definition">colimAlgInitial</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial_functor_precat"><span class="id" title="definition">Initial_functor_precat</span></a>, <a class="idref" href="UniMath.CategoryTheory.slicecat.html#Initial_slice_precat"><span class="id" title="lemma">Initial_slice_precat</span></a>, <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#InitialHSET"><span class="id" title="lemma">InitialHSET</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.LiftingInitial_alt.html#is_omega_cocont_Id_H"><span class="id" title="definition">is_omega_cocont_Id_H</span></a>), <span class="id" title="var">Hs</span>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#ColimsFunctorCategory_of_shape"><span class="id" title="lemma">ColimsFunctorCategory_of_shape</span></a>, <a class="idref" href="UniMath.CategoryTheory.slicecat.html#slice_precat_colims_of_shape"><span class="id" title="lemma">slice_precat_colims_of_shape</span></a>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#ColimsHSET_of_shape"><span class="id" title="lemma">ColimsHSET_of_shape</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="MBindingSig.monad.HSS" class="idref" href="#MBindingSig.monad.HSS"><span class="id" title="variable">HSS</span></a> := @<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#hss_category"><span class="id" title="definition">hss_category</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinCoproducts_HSET_slice"><span class="id" title="lemma">BinCoproducts_HSET_slice</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="MultiSortedSigToHSS" class="idref" href="#MultiSortedSigToHSS"><span class="id" title="definition">MultiSortedSigToHSS</span></a> (<a id="sig:4" class="idref" href="#sig:4"><span class="id" title="binder">sig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSorted.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.monad.HSS"><span class="id" title="variable">HSS</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSorted.html#MultiSortedSigToSignature"><span class="id" title="definition">MultiSortedSigToSignature</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#sig:4"><span class="id" title="variable">sig</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#SignatureToHSS"><span class="id" title="definition">SignatureToHSS</span></a>.<br/>
++ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#Initial_slice_precat"><span class="id" title="lemma">Initial_slice_precat</span></a>, <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#InitialHSET"><span class="id" title="lemma">InitialHSET</span></a>.<br/>
++ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#slice_precat_colims_of_shape"><span class="id" title="lemma">slice_precat_colims_of_shape</span></a>, <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#ColimsHSET_of_shape"><span class="id" title="lemma">ColimsHSET_of_shape</span></a>.<br/>
++ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSorted.html#is_omega_cocont_MultiSortedSigToSignature"><span class="id" title="lemma">is_omega_cocont_MultiSortedSigToSignature</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#slice_precat_colims_of_shape"><span class="id" title="lemma">slice_precat_colims_of_shape</span></a>, <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#ColimsHSET_of_shape"><span class="id" title="lemma">ColimsHSET_of_shape</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="MultiSortedSigToHSSisInitial" class="idref" href="#MultiSortedSigToHSSisInitial"><span class="id" title="definition">MultiSortedSigToHSSisInitial</span></a> (<a id="sig:5" class="idref" href="#sig:5"><span class="id" title="binder">sig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSorted.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#isInitial"><span class="id" title="definition">isInitial</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MultiSortedSigToHSS"><span class="id" title="definition">MultiSortedSigToHSS</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#sig:5"><span class="id" title="variable">sig</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">now</span> <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MultiSortedSigToHSS"><span class="id" title="definition">MultiSortedSigToHSS</span></a>, <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#SignatureToHSS"><span class="id" title="definition">SignatureToHSS</span></a>; <span class="id" title="tactic">destruct</span> <a class="idref" href="UniMath.SubstitutionSystems.LiftingInitial_alt.html#InitialHSS"><span class="id" title="lemma">InitialHSS</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4130"></a><h2 class="section">Function from multisorted binding signatures to monads</h2>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="MultiSortedSigToMonad" class="idref" href="#MultiSortedSigToMonad"><span class="id" title="definition">MultiSortedSigToMonad</span></a> (<a id="sig:6" class="idref" href="#sig:6"><span class="id" title="binder">sig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSorted.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#Monad"><span class="id" title="definition">Monad</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#1c4ece0ba90889d0c90919c0be32d918"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.html#Monad_from_hss"><span class="id" title="definition">Monad_from_hss</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinCoproducts_HSET_slice"><span class="id" title="lemma">BinCoproducts_HSET_slice</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSorted.html#MultiSortedSigToSignature"><span class="id" title="definition">MultiSortedSigToSignature</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a> <span class="id" title="var">sig</span>).<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MultiSortedSigToHSS"><span class="id" title="definition">MultiSortedSigToHSS</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig.monad"><span class="id" title="section">monad</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedMonadConstruction.html#MBindingSig"><span class="id" title="section">MBindingSig</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

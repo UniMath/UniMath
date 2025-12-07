@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.Universal.Examples.Monoid</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.Universal.Examples.Monoid</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab301"></a><h1 class="section">Example on monoids.</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 
+<div class="paragraph"> </div>
+
+This file contains the definition of the signature of monoids and the way to turn
+a monoid (as defined in <span class="inlinecode"><a class="idref" href="UniMath.Algebra.Monoids.html#"><span class="id" title="library">UniMath.Algebra.Monoids</span></a></span>) into an algebra.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Monoids.html#"><span class="id" title="library">UniMath.Algebra.Monoids</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#"><span class="id" title="library">UniMath.Algebra.Universal.EqAlgebras</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">eq</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Signature. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="monoid_signature" class="idref" href="#monoid_signature"><span class="id" title="definition">monoid_signature</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#make_signature_simple_single_sorted"><span class="id" title="definition">make_signature_simple_single_sorted</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">[</span></a>2<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> 0<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="monoid_sort" class="idref" href="#monoid_sort"><span class="id" title="definition">monoid_sort</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Algebra of monoids without equations. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="monoid_algebra" class="idref" href="#monoid_algebra"><span class="id" title="definition">monoid_algebra</span></a> (<a id="M:1" class="idref" href="#M:1"><span class="id" title="binder">M</span></a>: <a class="idref" href="UniMath.Algebra.Monoids2.html#monoid"><span class="id" title="definition">monoid</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#algebra"><span class="id" title="definition">algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#make_algebra_simple_single_sorted'"><span class="id" title="definition">make_algebra_simple_single_sorted'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#M:1"><span class="id" title="variable">M</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">[(</span></a> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Algebra.Monoids2.html#unel"><span class="id" title="definition">unel</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#M:1"><span class="id" title="variable">M</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">)]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="Eqspec" class="idref" href="#Eqspec"><span class="id" title="module">Eqspec</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Free algebra of open terms. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.monoid_varspec" class="idref" href="#Eqspec.monoid_varspec"><span class="id" title="definition">monoid_varspec</span></a> : <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#make_varspec"><span class="id" title="definition">make_varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_sort"><span class="id" title="definition">monoid_sort</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.Mon" class="idref" href="#Eqspec.Mon"><span class="id" title="definition">Mon</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#term"><span class="id" title="definition">term</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_varspec"><span class="id" title="definition">monoid_varspec</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.mul" class="idref" href="#Eqspec.mul"><span class="id" title="definition">mul</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Mon"><span class="id" title="definition">Mon</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Mon"><span class="id" title="definition">Mon</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Mon"><span class="id" title="definition">Mon</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>0: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.id" class="idref" href="#Eqspec.id"><span class="id" title="definition">id</span></a>  : <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Mon"><span class="id" title="definition">Mon</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>1: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.x" class="idref" href="#Eqspec.x"><span class="id" title="definition">x</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Mon"><span class="id" title="definition">Mon</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varterm"><span class="id" title="definition">varterm</span></a> (0: <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_varspec"><span class="id" title="definition">monoid_varspec</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.y" class="idref" href="#Eqspec.y"><span class="id" title="definition">y</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Mon"><span class="id" title="definition">Mon</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varterm"><span class="id" title="definition">varterm</span></a> (1: <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_varspec"><span class="id" title="definition">monoid_varspec</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.z" class="idref" href="#Eqspec.z"><span class="id" title="definition">z</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Mon"><span class="id" title="definition">Mon</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varterm"><span class="id" title="definition">varterm</span></a> (2: <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_varspec"><span class="id" title="definition">monoid_varspec</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.monoid_mul_assoc" class="idref" href="#Eqspec.monoid_mul_assoc"><span class="id" title="definition">monoid_mul_assoc</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.mul"><span class="id" title="definition">mul</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.mul"><span class="id" title="definition">mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.x"><span class="id" title="definition">x</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.y"><span class="id" title="definition">y</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.z"><span class="id" title="definition">z</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#946b9ba0ab2226a57d7bd73cbe21a223"><span class="id" title="notation">==</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.mul"><span class="id" title="definition">mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.x"><span class="id" title="definition">x</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.mul"><span class="id" title="definition">mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.y"><span class="id" title="definition">y</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.z"><span class="id" title="definition">z</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.monoid_mul_lid" class="idref" href="#Eqspec.monoid_mul_lid"><span class="id" title="definition">monoid_mul_lid</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.mul"><span class="id" title="definition">mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.id"><span class="id" title="definition">id</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.x"><span class="id" title="definition">x</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#946b9ba0ab2226a57d7bd73cbe21a223"><span class="id" title="notation">==</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.x"><span class="id" title="definition">x</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.monoid_mul_rid" class="idref" href="#Eqspec.monoid_mul_rid"><span class="id" title="definition">monoid_mul_rid</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.mul"><span class="id" title="definition">mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.x"><span class="id" title="definition">x</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.id"><span class="id" title="definition">id</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#946b9ba0ab2226a57d7bd73cbe21a223"><span class="id" title="notation">==</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.x"><span class="id" title="definition">x</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.monoid_axioms" class="idref" href="#Eqspec.monoid_axioms"><span class="id" title="definition">monoid_axioms</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystem"><span class="id" title="definition">eqsystem</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_varspec"><span class="id" title="definition">monoid_varspec</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> 3 <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#three_rec"><span class="id" title="definition">three_rec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_mul_assoc"><span class="id" title="definition">monoid_mul_assoc</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_mul_lid"><span class="id" title="definition">monoid_mul_lid</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_mul_rid"><span class="id" title="definition">monoid_mul_rid</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.monoid_eqspec" class="idref" href="#Eqspec.monoid_eqspec"><span class="id" title="definition">monoid_eqspec</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>. { <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_signature"><span class="id" title="definition">monoid_signature</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>. { <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_varspec"><span class="id" title="definition">monoid_varspec</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_axioms"><span class="id" title="definition">monoid_axioms</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.monoid_eqalgebra" class="idref" href="#Eqspec.monoid_eqalgebra"><span class="id" title="definition">monoid_eqalgebra</span></a> := <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#eqalgebra"><span class="id" title="definition">eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_eqspec"><span class="id" title="definition">monoid_eqspec</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Every monoid is a monoid eqalgebra. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Eqspec.Make_Monoid_Eqalgebra" class="idref" href="#Eqspec.Make_Monoid_Eqalgebra"><span class="id" title="section">Make_Monoid_Eqalgebra</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Variable</span> <a id="Eqspec.Make_Monoid_Eqalgebra.M" class="idref" href="#Eqspec.Make_Monoid_Eqalgebra.M"><span class="id" title="variable">M</span></a> : <a class="idref" href="UniMath.Algebra.Monoids2.html#monoid"><span class="id" title="definition">monoid</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Eqspec.holds_monoid_mul_lid" class="idref" href="#Eqspec.holds_monoid_mul_lid"><span class="id" title="lemma">holds_monoid_mul_lid</span></a> : <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#holds"><span class="id" title="definition">holds</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_algebra"><span class="id" title="definition">monoid_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Make_Monoid_Eqalgebra.M"><span class="id" title="variable">M</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_mul_lid"><span class="id" title="definition">monoid_mul_lid</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>. <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">α</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> (<a class="idref" href="UniMath.Algebra.Universal.VTerms.html#fromterm"><span class="id" title="definition">fromterm</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Algebras.html#ops"><span class="id" title="definition">ops</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_algebra"><span class="id" title="definition">monoid_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Make_Monoid_Eqalgebra.M"><span class="id" title="variable">M</span></a>)) <span class="id" title="var">α</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.mul"><span class="id" title="definition">mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.id"><span class="id" title="definition">id</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.x"><span class="id" title="definition">x</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">α</span> 0).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<a class="idref" href="UniMath.Algebra.Monoids2.html#unel"><span class="id" title="definition">unel</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Make_Monoid_Eqalgebra.M"><span class="id" title="variable">M</span></a>) (<span class="id" title="var">α</span> 0) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">α</span> 0).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#lunax"><span class="id" title="definition">lunax</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Eqspec.holds_monoid_mul_rid" class="idref" href="#Eqspec.holds_monoid_mul_rid"><span class="id" title="lemma">holds_monoid_mul_rid</span></a> : <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#holds"><span class="id" title="definition">holds</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_algebra"><span class="id" title="definition">monoid_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Make_Monoid_Eqalgebra.M"><span class="id" title="variable">M</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_mul_rid"><span class="id" title="definition">monoid_mul_rid</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<span class="id" title="var">α</span> 0) (<a class="idref" href="UniMath.Algebra.Monoids2.html#unel"><span class="id" title="definition">unel</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Make_Monoid_Eqalgebra.M"><span class="id" title="variable">M</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">α</span> 0).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#runax"><span class="id" title="definition">runax</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Eqspec.holds_monoid_mul_assoc" class="idref" href="#Eqspec.holds_monoid_mul_assoc"><span class="id" title="lemma">holds_monoid_mul_assoc</span></a> : <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#holds"><span class="id" title="definition">holds</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_algebra"><span class="id" title="definition">monoid_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Make_Monoid_Eqalgebra.M"><span class="id" title="variable">M</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_mul_assoc"><span class="id" title="definition">monoid_mul_assoc</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">change</span> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<span class="id" title="var">α</span> 0) (<span class="id" title="var">α</span> 1)) (<span class="id" title="var">α</span> 2) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<span class="id" title="var">α</span> 0) (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> (<span class="id" title="var">α</span> 1) (<span class="id" title="var">α</span> 2))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#assocax"><span class="id" title="definition">assocax</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.is_eqalgebra_monoid" class="idref" href="#Eqspec.is_eqalgebra_monoid"><span class="id" title="definition">is_eqalgebra_monoid</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#is_eqalgebra"><span class="id" title="definition">is_eqalgebra</span></a> (σ := <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_eqspec"><span class="id" title="definition">monoid_eqspec</span></a>) (<a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_algebra"><span class="id" title="definition">monoid_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Make_Monoid_Eqalgebra.M"><span class="id" title="variable">M</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">red</span>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#three_rec_dep"><span class="id" title="definition">three_rec_dep</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.holds_monoid_mul_assoc"><span class="id" title="lemma">holds_monoid_mul_assoc</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.holds_monoid_mul_lid"><span class="id" title="lemma">holds_monoid_mul_lid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.holds_monoid_mul_rid"><span class="id" title="lemma">holds_monoid_mul_rid</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.make_monoid_eqalgebra" class="idref" href="#Eqspec.make_monoid_eqalgebra"><span class="id" title="definition">make_monoid_eqalgebra</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.monoid_eqalgebra"><span class="id" title="definition">monoid_eqalgebra</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#make_eqalgebra"><span class="id" title="definition">make_eqalgebra</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#monoid_algebra"><span class="id" title="definition">monoid_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Make_Monoid_Eqalgebra.M"><span class="id" title="variable">M</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.is_eqalgebra_monoid"><span class="id" title="definition">is_eqalgebra_monoid</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec.Make_Monoid_Eqalgebra"><span class="id" title="section">Make_Monoid_Eqalgebra</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Monoid.html#Eqspec"><span class="id" title="module">Eqspec</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERTerminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERTerminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">hd</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FalsityFormula" class="idref" href="#FalsityFormula"><span class="id" title="section">FalsityFormula</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="FalsityFormula.H" class="idref" href="#FalsityFormula.H"><span class="id" title="variable">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#first_order_hyperdoctrine"><span class="id" title="definition">first_order_hyperdoctrine</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2615"></a><h1 class="section">1. The formula</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="per_subobject_false_laws" class="idref" href="#per_subobject_false_laws"><span class="id" title="lemma">per_subobject_false_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="da7a5918a812e0216f4a54d21f7406c4" class="idref" href="#da7a5918a812e0216f4a54d21f7406c4"><span class="id" title="binder">Γ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.html#partial_setoid"><span class="id" title="definition">partial_setoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#FalsityFormula.H"><span class="id" title="variable">H</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#per_subobject_laws"><span class="id" title="definition">per_subobject_laws</span></a> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#432e7a7ec286f1f9e9a9bedd9c82e4f1"><span class="id" title="notation">⊥</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#::hyperdoctrine:'form'"><span class="id" title="notation">form</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#::hyperdoctrine:'form'"><span class="id" title="notation">Γ</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#forall_intro"><span class="id" title="lemma">forall_intro</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#impl_intro"><span class="id" title="lemma">impl_intro</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#weaken_right"><span class="id" title="lemma">weaken_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#false_elim"><span class="id" title="lemma">false_elim</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">hypersimplify</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#hyperdoctrine_hyp"><span class="id" title="lemma">hyperdoctrine_hyp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">do</span> 2 <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#forall_intro"><span class="id" title="lemma">forall_intro</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#impl_intro"><span class="id" title="lemma">impl_intro</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#weaken_right"><span class="id" title="lemma">weaken_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#false_elim"><span class="id" title="lemma">false_elim</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">hypersimplify</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#hyperdoctrine_hyp"><span class="id" title="lemma">hyperdoctrine_hyp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="per_subobject_false" class="idref" href="#per_subobject_false"><span class="id" title="definition">per_subobject_false</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="55485d85e29df2faa6748490a2d4cd13" class="idref" href="#55485d85e29df2faa6748490a2d4cd13"><span class="id" title="binder">Γ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.html#partial_setoid"><span class="id" title="definition">partial_setoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#FalsityFormula.H"><span class="id" title="variable">H</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#per_subobject"><span class="id" title="definition">per_subobject</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#55485d85e29df2faa6748490a2d4cd13"><span class="id" title="variable">Γ</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#make_per_subobject"><span class="id" title="definition">make_per_subobject</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#432e7a7ec286f1f9e9a9bedd9c82e4f1"><span class="id" title="notation">⊥</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#per_subobject_false_laws"><span class="id" title="lemma">per_subobject_false_laws</span></a> <span class="id" title="var">Γ</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2616"></a><h1 class="section">2. Elimination rule</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="per_subobject_false_elim" class="idref" href="#per_subobject_false_elim"><span class="id" title="lemma">per_subobject_false_elim</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="9cfd66c80bf9988ea8f7104e167ac5cd" class="idref" href="#9cfd66c80bf9988ea8f7104e167ac5cd"><span class="id" title="binder">Γ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.html#partial_setoid"><span class="id" title="definition">partial_setoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#FalsityFormula.H"><span class="id" title="variable">H</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="b22fe073e837927eaf1a55cd742674b8" class="idref" href="#b22fe073e837927eaf1a55cd742674b8"><span class="id" title="binder">φ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#per_subobject"><span class="id" title="definition">per_subobject</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#9cfd66c80bf9988ea8f7104e167ac5cd"><span class="id" title="variable">Γ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#per_subobject_mor_law"><span class="id" title="definition">per_subobject_mor_law</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.html#id_partial_setoid_morphism"><span class="id" title="definition">id_partial_setoid_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#9cfd66c80bf9988ea8f7104e167ac5cd"><span class="id" title="variable">Γ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#per_subobject_false"><span class="id" title="definition">per_subobject_false</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#9cfd66c80bf9988ea8f7104e167ac5cd"><span class="id" title="variable">Γ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#b22fe073e837927eaf1a55cd742674b8"><span class="id" title="variable">φ</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#forall_intro"><span class="id" title="lemma">forall_intro</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#impl_intro"><span class="id" title="lemma">impl_intro</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#weaken_right"><span class="id" title="lemma">weaken_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#false_elim"><span class="id" title="lemma">false_elim</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">hypersimplify</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#hyperdoctrine_hyp"><span class="id" title="lemma">hyperdoctrine_hyp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2617"></a><h1 class="section">3. Stability under substitution</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="per_subobject_false_subst" class="idref" href="#per_subobject_false_subst"><span class="id" title="lemma">per_subobject_false_subst</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="04d2e6b54db4ae2ddf6643d915375488" class="idref" href="#04d2e6b54db4ae2ddf6643d915375488"><span class="id" title="binder">Γ₁</span></a> <a id="535b3b5543fda3d524faef08081fa27f" class="idref" href="#535b3b5543fda3d524faef08081fa27f"><span class="id" title="binder">Γ₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.html#partial_setoid"><span class="id" title="definition">partial_setoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#FalsityFormula.H"><span class="id" title="variable">H</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="s:8" class="idref" href="#s:8"><span class="id" title="binder">s</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.html#partial_setoid_morphism"><span class="id" title="definition">partial_setoid_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#04d2e6b54db4ae2ddf6643d915375488"><span class="id" title="variable">Γ₁</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#535b3b5543fda3d524faef08081fa27f"><span class="id" title="variable">Γ₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#per_subobject_mor_law"><span class="id" title="definition">per_subobject_mor_law</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.html#id_partial_setoid_morphism"><span class="id" title="definition">id_partial_setoid_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#04d2e6b54db4ae2ddf6643d915375488"><span class="id" title="variable">Γ₁</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#per_subobject_subst"><span class="id" title="definition">per_subobject_subst</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#s:8"><span class="id" title="variable">s</span></a> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#per_subobject_false"><span class="id" title="definition">per_subobject_false</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#535b3b5543fda3d524faef08081fa27f"><span class="id" title="variable">Γ₂</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#per_subobject_false"><span class="id" title="definition">per_subobject_false</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#04d2e6b54db4ae2ddf6643d915375488"><span class="id" title="variable">Γ₁</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#forall_intro"><span class="id" title="lemma">forall_intro</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#impl_intro"><span class="id" title="lemma">impl_intro</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#weaken_right"><span class="id" title="lemma">weaken_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#impl_intro"><span class="id" title="lemma">impl_intro</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#hyp_sym"><span class="id" title="lemma">hyp_sym</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#exists_subst"><span class="id" title="lemma">exists_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#exists_elim"><span class="id" title="lemma">exists_elim</span></a> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#weaken_left"><span class="id" title="lemma">weaken_left</span></a> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#hyperdoctrine_hyp"><span class="id" title="lemma">hyperdoctrine_hyp</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#conj_subst"><span class="id" title="lemma">conj_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#hyp_ltrans"><span class="id" title="lemma">hyp_ltrans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#weaken_right"><span class="id" title="lemma">weaken_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#weaken_right"><span class="id" title="lemma">weaken_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">hypersimplify</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#hyperdoctrine_hyp"><span class="id" title="lemma">hyperdoctrine_hyp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2618"></a><h1 class="section">4. The fiberwise initial object</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="fiberwise_initial_per_subobject" class="idref" href="#fiberwise_initial_per_subobject"><span class="id" title="definition">fiberwise_initial_per_subobject</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.html#fiberwise_initial"><span class="id" title="definition">fiberwise_initial</span></a> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#disp_cat_per_subobject_cleaving"><span class="id" title="definition">disp_cat_per_subobject_cleaving</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#FalsityFormula.H"><span class="id" title="variable">H</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.html#make_fiberwise_initial_locally_propositional"><span class="id" title="definition">make_fiberwise_initial_locally_propositional</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#locally_prop_disp_cat_per_subobject"><span class="id" title="lemma">locally_prop_disp_cat_per_subobject</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#per_subobject_false"><span class="id" title="definition">per_subobject_false</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> φ.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#per_subobject_false_elim"><span class="id" title="lemma">per_subobject_false_elim</span></a> φ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ₁</span> <span class="id" title="var">Γ₂</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#per_subobject_false_subst"><span class="id" title="lemma">per_subobject_false_subst</span></a> <span class="id" title="var">s</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#FalsityFormula"><span class="id" title="section">FalsityFormula</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

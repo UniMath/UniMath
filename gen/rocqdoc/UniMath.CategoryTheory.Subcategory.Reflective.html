@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Subcategory.Reflective</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Subcategory.Reflective</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3025"></a><h1 class="section">Reflective subcategories</h1>
+<a id="lab3026"></a><h2 class="section">Contents</h2>
+
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Definition
+
+</li>
+</ul>
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Full</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Def" class="idref" href="#Def"><span class="id" title="section">Def</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Def.C" class="idref" href="#Def.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_reflective" class="idref" href="#is_reflective"><span class="id" title="definition">is_reflective</span></a> (<a id="D:2" class="idref" href="#D:2"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#Def.C"><span class="id" title="variable">C</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#is_right_adjoint"><span class="id" title="definition">is_right_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#sub_precategory_inclusion"><span class="id" title="definition">sub_precategory_inclusion</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#Def.C"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#D:2"><span class="id" title="variable">D</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="reflective_subcategory" class="idref" href="#reflective_subcategory"><span class="id" title="definition">reflective_subcategory</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="D:3" class="idref" href="#D:3"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#Def.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#is_reflective"><span class="id" title="definition">is_reflective</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#D:3"><span class="id" title="variable">D</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="reflective_subcategory_to_hsubtype" class="idref" href="#reflective_subcategory_to_hsubtype"><span class="id" title="definition">reflective_subcategory_to_hsubtype</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="D:4" class="idref" href="#D:4"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory"><span class="id" title="definition">reflective_subcategory</span></a>) : <a class="idref" href="UniMath.Foundations.Sets.html#hsubtype"><span class="id" title="definition">hsubtype</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#Def.C"><span class="id" title="variable">C</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#D:4"><span class="id" title="variable">D</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_hsubtype"><span class="id" title="definition">reflective_subcategory_to_hsubtype</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_hsubtype"><span class="id" title="definition">:</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_hsubtype"><span class="id" title="definition">reflective_subcategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_hsubtype"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_hsubtype"><span class="id" title="definition">hsubtype</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="reflective_subcategory_to_precategory" class="idref" href="#reflective_subcategory_to_precategory"><span class="id" title="definition">reflective_subcategory_to_precategory</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory"><span class="id" title="definition">reflective_subcategory</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">D</span>; <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <span class="id" title="var">D</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_precategory"><span class="id" title="definition">reflective_subcategory_to_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_precategory"><span class="id" title="definition">:</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_precategory"><span class="id" title="definition">reflective_subcategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_precategory"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory_to_precategory"><span class="id" title="definition">precategory</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="localization" class="idref" href="#localization"><span class="id" title="definition">localization</span></a> (<a id="R:5" class="idref" href="#R:5"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory"><span class="id" title="definition">reflective_subcategory</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#Def.C"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#R:5"><span class="id" title="variable">R</span></a>) := <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#left_adjoint"><span class="id" title="definition">left_adjoint</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#R:5"><span class="id" title="variable">R</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#Def"><span class="id" title="section">Def</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory"><span class="id" title="definition">reflective_subcategory</span></a> <span class="id" title="var">_</span> : <span class="id" title="tactic">clear</span> <span class="id" title="var">implicits</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="localization_is_idempotent" class="idref" href="#localization_is_idempotent"><span class="id" title="lemma">localization_is_idempotent</span></a> {<a id="C:6" class="idref" href="#C:6"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="R:7" class="idref" href="#R:7"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#reflective_subcategory"><span class="id" title="definition">reflective_subcategory</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#C:6"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="d:8" class="idref" href="#d:8"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#R:7"><span class="id" title="variable">R</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#localization"><span class="id" title="definition">localization</span></a> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#R:7"><span class="id" title="variable">R</span></a> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#precategory_object_from_sub_precategory_object"><span class="id" title="definition">precategory_object_from_sub_precategory_object</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#d:8"><span class="id" title="variable">d</span></a>)) <a class="idref" href="UniMath.CategoryTheory.Subcategory.Reflective.html#d:8"><span class="id" title="variable">d</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> ((<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#counit_from_left_adjoint"><span class="id" title="definition">counit_from_left_adjoint</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">R</span>))) <span class="id" title="var">d</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (@<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#counit_is_z_iso_if_right_adjoint_is_fully_faithful"><span class="id" title="lemma">counit_is_z_iso_if_right_adjoint_is_fully_faithful</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">C</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#subcategory"><span class="id" title="definition">subcategory</span></a> <span class="id" title="var">C</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_sub_precategory"><span class="id" title="definition">full_sub_precategory</span></a> <span class="id" title="var">R</span>)) <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">R</span>))),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#fully_faithful_sub_precategory_inclusion"><span class="id" title="lemma">fully_faithful_sub_precategory_inclusion</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

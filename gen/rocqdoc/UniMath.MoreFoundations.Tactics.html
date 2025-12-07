@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.MoreFoundations.Tactics</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.MoreFoundations.Tactics</h1>
+
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A version of "easy" specialized for the needs of UniMath.
+This tactic is supposed to be simple and predictable. The goal
+is to use it to finish "trivial" goals 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">easy</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">trivial</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">solve</span><br/>
+&nbsp;&nbsp;&nbsp;[ <span class="id" title="tactic">repeat</span> (<span class="id" title="tactic">solve</span> [<span class="id" title="tactic">trivial</span> | <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>; <span class="id" title="tactic">trivial</span>] || <span class="id" title="tactic">split</span>)<br/>
+&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> | <span class="id" title="var">H</span> : <a class="idref" href="UniMath.Foundations.Preamble.html#1dc2cb66c5ede645202bae131cc6745c"><span class="id" title="notation">∅</span></a> |- <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">induction</span> <span class="id" title="var">H</span> <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> | <span class="id" title="var">H</span> : <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬</span></a> <span class="id" title="var">_</span> |- <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">induction</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">trivial</span> <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> | <span class="id" title="var">H</span> : <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#1dc2cb66c5ede645202bae131cc6745c"><span class="id" title="notation">∅</span></a> |- <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">induction</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">trivial</span> <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> | <span class="id" title="var">H</span> : <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#1dc2cb66c5ede645202bae131cc6745c"><span class="id" title="notation">∅</span></a> |- <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">induction</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">trivial</span> <span class="id" title="keyword">end</span> ].<br/>
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="ForCompat" class="idref" href="#ForCompat"><span class="id" title="module">ForCompat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Ltac</span> <span class="id" title="var">easy_forward_decl</span> := <span class="id" title="tactic">fail</span> "should never be used".<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#ForCompat"><span class="id" title="module">ForCompat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#ForCompat"><span class="id" title="module">ForCompat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="http://rocq-prover.org/doc/V9.1.0/stdlib//Corelib.Init.Ltac.html#"><span class="id" title="module">Init.Ltac</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">easy_forward_decl</span> ::= <span class="id" title="var">easy</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Override the Coq now tactic so that it uses unimath_easy instead 
+</div>
+<div class="code">
+<span class="id" title="keyword">Tactic Notation</span> "now" <span class="id" title="var">tactic</span>(<span class="id" title="var">t</span>) := <span class="id" title="var">t</span>; <span class="id" title="var">easy</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">hSet_induction</span> <span class="id" title="var">f</span> <span class="id" title="var">e</span> := <span class="id" title="tactic">generalize</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#hSet_rect"><span class="id" title="lemma">hSet_rect</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">e</span>; <span class="id" title="tactic">clear</span> <span class="id" title="var">f</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">show_id_type</span> := <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> |- @<a class="idref" href="UniMath.Foundations.Preamble.html#paths"><span class="id" title="inductive">paths</span></a> ?<span class="id" title="var">ID</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">set</span> (<span class="id" title="var">TYPE</span> := <span class="id" title="var">ID</span>); <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">TYPE</span> <span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#"><span class="id" title="library">UniMath.Foundations.UnivalenceAxiom</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="post_cat" class="idref" href="#post_cat"><span class="id" title="definition">post_cat</span></a> {<a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a>} {<a id="x:2" class="idref" href="#x:2"><span class="id" title="binder">x</span></a> <a id="y:3" class="idref" href="#y:3"><span class="id" title="binder">y</span></a> <a id="z:4" class="idref" href="#z:4"><span class="id" title="binder">z</span></a>:<a class="idref" href="UniMath.MoreFoundations.Tactics.html#X:1"><span class="id" title="variable">X</span></a>} {<a id="p:5" class="idref" href="#p:5"><span class="id" title="binder">p</span></a>:<a class="idref" href="UniMath.MoreFoundations.Tactics.html#y:3"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#z:4"><span class="id" title="variable">z</span></a>} : <a class="idref" href="UniMath.MoreFoundations.Tactics.html#x:2"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#y:3"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#x:2"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#z:4"><span class="id" title="variable">z</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">q</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#pathscomp0"><span class="id" title="definition">pathscomp0</span></a> <span class="id" title="var">q</span> <span class="id" title="var">p</span>). <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pre_cat" class="idref" href="#pre_cat"><span class="id" title="definition">pre_cat</span></a> {<a id="X:6" class="idref" href="#X:6"><span class="id" title="binder">X</span></a>} {<a id="x:7" class="idref" href="#x:7"><span class="id" title="binder">x</span></a> <a id="y:8" class="idref" href="#y:8"><span class="id" title="binder">y</span></a> <a id="z:9" class="idref" href="#z:9"><span class="id" title="binder">z</span></a>:<a class="idref" href="UniMath.MoreFoundations.Tactics.html#X:6"><span class="id" title="variable">X</span></a>} {<a id="p:10" class="idref" href="#p:10"><span class="id" title="binder">p</span></a>:<a class="idref" href="UniMath.MoreFoundations.Tactics.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#y:8"><span class="id" title="variable">y</span></a>} : <a class="idref" href="UniMath.MoreFoundations.Tactics.html#y:8"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#z:9"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#z:9"><span class="id" title="variable">z</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">q</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#pathscomp0"><span class="id" title="definition">pathscomp0</span></a> <span class="id" title="var">p</span> <span class="id" title="var">q</span>). <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">maponpaths_pre_post_cat</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#path_assoc"><span class="id" title="definition">path_assoc</span></a>; <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#post_cat"><span class="id" title="definition">post_cat</span></a>); <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Foundations.PartA.html#path_assoc"><span class="id" title="definition">path_assoc</span></a>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#pre_cat"><span class="id" title="definition">pre_cat</span></a>); <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#path_assoc"><span class="id" title="definition">path_assoc</span></a>; <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpathsinv0"><span class="id" title="definition">maponpathsinv0</span></a>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">try</span> <span class="id" title="tactic">reflexivity</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">prop_logic</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">simpl</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> (<span class="id" title="tactic">try</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a>);<span class="id" title="tactic">try</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#isapropishinh"><span class="id" title="lemma">isapropishinh</span></a>);<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a> ;<span class="id" title="tactic">intro</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">try</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropiscontr"><span class="id" title="lemma">isapropiscontr</span></a>); <span class="id" title="tactic">try</span> <span class="id" title="tactic">assumption</span>) <span class="id" title="keyword">using</span> <span class="id" title="var">_L_</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="iscontrweqb'" class="idref" href="#iscontrweqb'"><span class="id" title="lemma">iscontrweqb'</span></a> {<a id="X:11" class="idref" href="#X:11"><span class="id" title="binder">X</span></a> <a id="Y:12" class="idref" href="#Y:12"><span class="id" title="binder">Y</span></a>} (<a id="is:13" class="idref" href="#is:13"><span class="id" title="binder">is</span></a>:<a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#Y:12"><span class="id" title="variable">Y</span></a>) (<a id="w:14" class="idref" href="#w:14"><span class="id" title="binder">w</span></a>:<a class="idref" href="UniMath.MoreFoundations.Tactics.html#X:11"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#Y:12"><span class="id" title="variable">Y</span></a>) : <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#X:11"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#iscontrweqb"><span class="id" title="lemma">iscontrweqb</span></a> (<span class="id" title="var">Y</span>:=<span class="id" title="var">Y</span>)). <span class="id" title="tactic">assumption</span>. <span class="id" title="tactic">assumption</span>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">intermediate_iscontr</span>  <span class="id" title="var">Y'</span> := <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#iscontrweqb"><span class="id" title="lemma">iscontrweqb</span></a> (<span class="id" title="var">Y</span> := <span class="id" title="var">Y'</span>)).<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">intermediate_iscontr'</span> <span class="id" title="var">Y'</span> := <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.MoreFoundations.Tactics.html#iscontrweqb'"><span class="id" title="lemma">iscontrweqb'</span></a> (<span class="id" title="var">Y</span> := <span class="id" title="var">Y'</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">isaprop_goal</span> <span class="id" title="var">x</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">G</span> := <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> |- ?<span class="id" title="var">G</span> =&gt; <span class="id" title="keyword">constr</span>:(<span class="id" title="var">G</span>) <span class="id" title="keyword">end</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">x</span> : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a>(<span class="id" title="var">G</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="isaprop_goal" class="idref" href="#isaprop_goal"><span class="id" title="definition">isaprop_goal</span></a> <a id="X:15" class="idref" href="#X:15"><span class="id" title="binder">X</span></a> (<a id="ig:16" class="idref" href="#ig:16"><span class="id" title="binder">ig</span></a>:<a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#X:15"><span class="id" title="variable">X</span></a>) (<a id="f:17" class="idref" href="#f:17"><span class="id" title="binder">f</span></a>:<a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#X:15"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#X:15"><span class="id" title="variable">X</span></a>) : <a class="idref" href="UniMath.MoreFoundations.Tactics.html#X:15"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <span class="id" title="var">ig</span>). <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">isaset_goal</span> <span class="id" title="var">x</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">G</span> := <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> |- ?<span class="id" title="var">G</span> =&gt; <span class="id" title="keyword">constr</span>:(<span class="id" title="var">G</span>) <span class="id" title="keyword">end</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">x</span> : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a>(<span class="id" title="var">G</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split3</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="tactic">split</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split4</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split3</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split5</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split4</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split6</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split5</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split7</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split6</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split8</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split7</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split9</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split8</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split10</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split9</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split11</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split10</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split12</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split11</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split13</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split12</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split14</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split13</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split15</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split14</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split16</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split15</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split17</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split16</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split18</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split17</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split19</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split18</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split20</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split19</span>].<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">split21</span> := <span class="id" title="tactic">split</span>; [| <span class="id" title="var">split20</span>].<br/>
+</div>
+
+<div class="doc">
+this allows to decompose a goal for <span class="inlinecode"><a class="idref" href="UniMath.Bicategories.Core.Bicat.html#prebicat_laws"><span class="id" title="definition">prebicat_laws</span></a></span> 
+<div class="paragraph"> </div>
+
+ Repeats `t` times and afterwards prints an equivalent `do` statement  
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">repeatc</span> <span class="id" title="var">n</span> <span class="id" title="var">t</span> :=<br/>
+&nbsp;&nbsp;(<span class="id" title="var">t</span>; <span class="id" title="var">repeatc</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">n</span>) <span class="id" title="var">t</span>) || (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">n</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 0 =&gt; <span class="id" title="tactic">idtac</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 1 =&gt; <span class="id" title="tactic">idtac</span> <span class="id" title="var">t</span> "."<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">_</span>) =&gt; <span class="id" title="tactic">idtac</span> "do" <span class="id" title="var">n</span> <span class="id" title="var">t</span> "."<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;).<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "repeatc" <span class="id" title="var">tactic</span>(<span class="id" title="var">t</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">repeatc</span> 0 <span class="id" title="var">t</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

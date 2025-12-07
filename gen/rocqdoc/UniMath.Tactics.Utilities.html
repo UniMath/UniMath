@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Tactics.Utilities</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Tactics.Utilities</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+  Tactic Utilities and Helper Tactics
+
+<div class="paragraph"> </div>
+
+  This file introduces some miscellaneous tactics and tactic parts.
+
+<div class="paragraph"> </div>
+
+  Contents
+  1. Ltac1 utilities
+  2. Ltac2 utilities
+
+<div class="paragraph"> </div>
+
+  Initially written in 2015 by Michael A. Warren
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Propositions.html#"><span class="id" title="library">UniMath.Foundations.Propositions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">Ltac2.Ltac2</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">Ltac2.Control</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4252"></a><h1 class="section">1. Ltac1 utilities</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Default</span> <span class="id" title="keyword">Proof</span> <span class="id" title="var">Mode</span> "Classic".<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> {<span class="id" title="var">_</span> <span class="id" title="var">_</span>} <span class="id" title="var">_</span> <span class="id" title="var">_</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We introduce the notation ap for maponpaths as in KTheory. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Module</span> <span class="id" title="keyword">Export</span> <a id="Notation" class="idref" href="#Notation"><span class="id" title="module">Notation</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="Notation.ap" class="idref" href="#Notation.ap"><span class="id" title="abbreviation">ap</span></a> := <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="7c0550d2c81a6a4a368e4dcbeca8f8ba" class="idref" href="#7c0550d2c81a6a4a368e4dcbeca8f8ba"><span class="id" title="notation">&quot;</span></a>p # x" := (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <span class="id" title="var">_</span> <span class="id" title="var">p</span> <span class="id" title="var">x</span>) (<span class="id" title="tactic">right</span> <span class="id" title="keyword">associativity</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 65) : <span class="id" title="var">transport</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">transport</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="a146118420e3207618d0f98d7e9bf192" class="idref" href="#a146118420e3207618d0f98d7e9bf192"><span class="id" title="notation">&quot;</span></a>{ x : X &amp; P }" := (<a class="idref" href="UniMath.Foundations.Preamble.html#total2"><span class="id" title="record">total2</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:1" class="idref" href="#x:1"><span class="id" title="binder">x</span></a>:<span class="id" title="var">X</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">P</span>)) : <span class="id" title="var">type_scope</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="6515ca07bef67cf6c57d9c029df6811d" class="idref" href="#6515ca07bef67cf6c57d9c029df6811d"><span class="id" title="notation">&quot;</span></a>X ** Y" := (<span class="id" title="var">X</span> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <span class="id" title="var">Y</span>) (<span class="id" title="tactic">right</span> <span class="id" title="keyword">associativity</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80) : <span class="id" title="var">type_scope</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Tactics.Utilities.html#Notation"><span class="id" title="module">Notation</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="neq" class="idref" href="#neq"><span class="id" title="definition">neq</span></a> (<a id="X:2" class="idref" href="#X:2"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) : <a class="idref" href="UniMath.Tactics.Utilities.html#X:2"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Tactics.Utilities.html#X:2"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:3" class="idref" href="#x:3"><span class="id" title="binder">x</span></a> <a id="y:4" class="idref" href="#y:4"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Tactics.Utilities.html#X:2"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#make_hProp"><span class="id" title="definition">make_hProp</span></a> (<a class="idref" href="UniMath.Tactics.Utilities.html#x:3"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#ae852a684c466d31158e6f0f40d3d021"><span class="id" title="notation">!=</span></a> <a class="idref" href="UniMath.Tactics.Utilities.html#y:4"><span class="id" title="variable">y</span></a>) (<a class="idref" href="UniMath.Foundations.PartC.html#isapropneg"><span class="id" title="lemma">isapropneg</span></a> (<a class="idref" href="UniMath.Tactics.Utilities.html#x:3"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Tactics.Utilities.html#y:4"><span class="id" title="variable">y</span></a>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">check_cons</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">h</span> <span class="id" title="var">T</span> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">f</span> <span class="id" title="var">T</span>; <span class="id" title="var">g</span> <span class="id" title="var">T</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">h</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">id_check</span> <span class="id" title="var">T</span> := <span class="id" title="tactic">idtac</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">make_hyp_check</span> <span class="id" title="var">e</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">T0</span> := <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">e</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">f</span> <span class="id" title="var">T</span> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">T</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">T0</span> =&gt; <span class="id" title="tactic">fail</span> 1<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">idtac</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span> <span class="id" title="var">f</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+In some cases we may need to obtain the current left-hand side of a goal equation (it may have
+  been rewritten since initially being passed in via a match clause and a subsequent match on the
+  new state should be performed.  E.g., in matched_rewrite below.
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">get_current_lhs</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- ?<span class="id" title="var">lhs</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">rhs</span> =&gt; <span class="id" title="var">lhs</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">get_current_rhs</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- ?<span class="id" title="var">lhs</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">rhs</span> =&gt; <span class="id" title="var">rhs</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">get_current_lhs_in</span> <span class="id" title="var">H</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">T</span> := <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">T</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| ?<span class="id" title="var">lhs</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">rhs</span> =&gt; <span class="id" title="var">lhs</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">get_current_rhs_in</span> <span class="id" title="var">H</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">T</span> := <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">T</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| ?<span class="id" title="var">lhs</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">rhs</span> =&gt; <span class="id" title="var">rhs</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">matched_rewrite</span> <span class="id" title="var">e</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">e</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| ?<span class="id" title="var">l</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">r</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">lhs</span> := <span class="id" title="var">get_current_lhs</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">lhs</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">context</span> [<span class="id" title="var">l</span>] =&gt; <span class="id" title="tactic">rewrite</span> <span class="id" title="var">e</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">context</span> [<span class="id" title="var">r</span>] =&gt; <span class="id" title="tactic">rewrite</span> &lt;- <span class="id" title="var">e</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4253"></a><h1 class="section">2. Ltac2 utilities</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Default</span> <span class="id" title="keyword">Proof</span> <span class="id" title="var">Mode</span> "Ltac2".<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Executes `f` for all elements of `l`, until it returns something 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="keyword">rec</span> <span class="id" title="var">iterate_until</span><br/>
+&nbsp;&nbsp;(<span class="id" title="var">f</span> : '<span class="id" title="var">a</span> -&gt; '<span class="id" title="var">a</span> <span class="id" title="var">list</span> -&gt; '<span class="id" title="var">b</span> <span class="id" title="var">option</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">l</span> : '<span class="id" title="var">a</span> <span class="id" title="var">list</span>)<br/>
+&nbsp;&nbsp;: '<span class="id" title="var">b</span> <span class="id" title="var">option</span><br/>
+&nbsp;&nbsp;:= <span class="id" title="keyword">match</span> <span class="id" title="var">l</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| []     =&gt; <span class="id" title="var">None</span><br/>
+&nbsp;&nbsp;| <span class="id" title="var">x</span> :: <span class="id" title="var">l</span> =&gt; <span class="id" title="keyword">match</span> <span class="id" title="var">f</span> <span class="id" title="var">x</span> <span class="id" title="var">l</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">Some</span> <span class="id" title="var">y</span> =&gt; <span class="id" title="var">Some</span> <span class="id" title="var">y</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">None</span>   =&gt; <span class="id" title="var">iterate_until</span> <span class="id" title="var">f</span> <span class="id" title="var">l</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Executes `f`, and if it returns a value, recurses with that value 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="keyword">rec</span> <span class="id" title="var">repeat_while</span><br/>
+&nbsp;&nbsp;(<span class="id" title="var">f</span> : '<span class="id" title="var">a</span> -&gt; ('<span class="id" title="var">a</span> <span class="id" title="var">option</span>))<br/>
+&nbsp;&nbsp;(<span class="id" title="var">t</span> : '<span class="id" title="var">a</span>)<br/>
+&nbsp;&nbsp;: <span class="id" title="var">unit</span><br/>
+&nbsp;&nbsp;:=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">f</span> <span class="id" title="var">t</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| <span class="id" title="var">Some</span> <span class="id" title="var">t'</span> =&gt; <span class="id" title="var">repeat_while</span> <span class="id" title="var">f</span> <span class="id" title="var">t'</span><br/>
+&nbsp;&nbsp;| <span class="id" title="var">None</span> =&gt; ()<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Fails with an arbitrary return type, because the `fail` tactic is only of type `unit -&gt; unit` 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="var">failv0</span> () : '<span class="id" title="var">a</span> := <span class="id" title="var">zero</span> (<span class="id" title="var">Tactic_failure</span> <span class="id" title="var">None</span>).<br/>
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="keyword">Notation</span> "failv" := <span class="id" title="var">failv0</span> ().<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Executes a tactic. Returns its result if it succeeds and `None` if not. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="var">try_opt</span> (<span class="id" title="var">f</span> : <span class="id" title="var">unit</span> -&gt; '<span class="id" title="var">a</span>) : '<span class="id" title="var">a</span> <span class="id" title="var">option</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">once_plus</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> () =&gt; <span class="id" title="var">Some</span> (<span class="id" title="var">f</span> ()))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">None</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Notation for defining a value of the pattern type, like `pn:((_ = _) → _)` 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="keyword">Notation</span> "pn:" <span class="id" title="var">p</span>(<span class="id" title="tactic">pattern</span>) : 0 := <span class="id" title="var">p</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Unfolds locally (via `pose` or `set`) defined identifiers, because the current Ltac2 unfold
+  does not allow this yet (April, 2025) 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="var">unfold_local0</span> (<span class="id" title="var">v</span> : (<span class="id" title="var">ident</span> * <span class="id" title="var">Std.occurrences</span>) <span class="id" title="var">list</span>) (<span class="id" title="var">c</span> : <span class="id" title="var">Std.clause</span> <span class="id" title="var">option</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">Std.unfold</span> (<span class="id" title="var">List.map</span> (<span class="id" title="keyword">fun</span> (<span class="id" title="var">a</span>, <span class="id" title="var">b</span>) =&gt; (<span class="id" title="var">Std.VarRef</span> <span class="id" title="var">a</span>, <span class="id" title="var">b</span>)) <span class="id" title="var">v</span>) (<span class="id" title="var">default_on_concl</span> <span class="id" title="var">c</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="keyword">Notation</span> "unfold_local" <span class="id" title="var">v</span>(<span class="id" title="var">list1</span>(<span class="id" title="var">seq</span>(<span class="id" title="var">ident</span>, <span class="id" title="var">occurrences</span>), ",")) <span class="id" title="var">cl</span>(<span class="id" title="var">opt</span>(<span class="id" title="var">clause</span>))<br/>
+&nbsp;&nbsp;:= <span class="id" title="var">unfold_local0</span> <span class="id" title="var">v</span> <span class="id" title="var">cl</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

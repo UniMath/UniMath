@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.RezkCompletions.Construction</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.RezkCompletions.Construction</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Propositions.html#"><span class="id" title="library">UniMath.Foundations.Propositions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Propositions.html#"><span class="id" title="library">UniMath.MoreFoundations.Propositions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.yoneda.html#"><span class="id" title="library">UniMath.CategoryTheory.yoneda</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Full</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Equivalences.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#"><span class="id" title="library">UniMath.CategoryTheory.RezkCompletions.RezkCompletions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2979"></a><h1 class="section">2. The construction of the Rezk completion and the embedding F</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="RezkCompletion" class="idref" href="#RezkCompletion"><span class="id" title="section">RezkCompletion</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="RezkCompletion.A" class="idref" href="#RezkCompletion.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_completion_category" class="idref" href="#Rezk_completion_category"><span class="id" title="definition">Rezk_completion_category</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_img_sub_precategory"><span class="id" title="definition">full_img_sub_precategory</span></a> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#has_homsets_full_img_sub_precategory"><span class="id" title="lemma">has_homsets_full_img_sub_precategory</span></a> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_completion_univalent_category" class="idref" href="#Rezk_completion_univalent_category"><span class="id" title="definition">Rezk_completion_univalent_category</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion_category"><span class="id" title="definition">Rezk_completion_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#is_univalent_full_sub_category"><span class="id" title="lemma">is_univalent_full_sub_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#is_univalent_functor_category"><span class="id" title="lemma">is_univalent_functor_category</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#is_univalent_HSET"><span class="id" title="lemma">is_univalent_HSET</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_eta" class="idref" href="#Rezk_eta"><span class="id" title="definition">Rezk_eta</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion_univalent_category"><span class="id" title="definition">Rezk_completion_univalent_category</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#functor_full_img"><span class="id" title="definition">functor_full_img</span></a> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="Rezk_eta_fully_faithful" class="idref" href="#Rezk_eta_fully_faithful"><span class="id" title="lemma">Rezk_eta_fully_faithful</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#fully_faithful"><span class="id" title="definition">fully_faithful</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta"><span class="id" title="definition">Rezk_eta</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#functor_full_img_fully_faithful_if_fun_is"><span class="id" title="lemma">functor_full_img_fully_faithful_if_fun_is</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda_fully_faithful"><span class="id" title="lemma">yoneda_fully_faithful</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="Rezk_eta_essentially_surjective" class="idref" href="#Rezk_eta_essentially_surjective"><span class="id" title="lemma">Rezk_eta_essentially_surjective</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#essentially_surjective"><span class="id" title="definition">essentially_surjective</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta"><span class="id" title="definition">Rezk_eta</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#functor_full_img_essentially_surjective"><span class="id" title="lemma">functor_full_img_essentially_surjective</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_completion" class="idref" href="#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#rezk_completion"><span class="id" title="definition">rezk_completion</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#make_rezk_completion"><span class="id" title="definition">make_rezk_completion</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion_univalent_category"><span class="id" title="definition">Rezk_completion_univalent_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta"><span class="id" title="definition">Rezk_eta</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta_essentially_surjective"><span class="id" title="lemma">Rezk_eta_essentially_surjective</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta_fully_faithful"><span class="id" title="lemma">Rezk_eta_fully_faithful</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="RezkCompletion.UniversalProperty" class="idref" href="#RezkCompletion.UniversalProperty"><span class="id" title="section">UniversalProperty</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="RezkCompletion.UniversalProperty.C" class="idref" href="#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="RezkCompletion.UniversalProperty.Ccat" class="idref" href="#RezkCompletion.UniversalProperty.Ccat"><span class="id" title="variable">Ccat</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_eta_adj_equiv" class="idref" href="#Rezk_eta_adj_equiv"><span class="id" title="definition">Rezk_eta_adj_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#adj_equivalence_of_cats"><span class="id" title="definition">adj_equivalence_of_cats</span></a> (<a class="idref" href="UniMath.CategoryTheory.whiskering.html#pre_composition_functor"><span class="id" title="definition">pre_composition_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta"><span class="id" title="definition">Rezk_eta</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#rezk_completion_functor_equivalence"><span class="id" title="definition">rezk_completion_functor_equivalence</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.Ccat"><span class="id" title="variable">Ccat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_eta_Universal_Property" class="idref" href="#Rezk_eta_Universal_Property"><span class="id" title="definition">Rezk_eta_Universal_Property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartA.html#isweq"><span class="id" title="definition">isweq</span></a> (<a class="idref" href="UniMath.CategoryTheory.whiskering.html#pre_composition_functor"><span class="id" title="definition">pre_composition_functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta"><span class="id" title="definition">Rezk_eta</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#rezk_completion_universal_property"><span class="id" title="lemma">rezk_completion_universal_property</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.Ccat"><span class="id" title="variable">Ccat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_eta_weq" class="idref" href="#Rezk_eta_weq"><span class="id" title="definition">Rezk_eta_weq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.PartA.html#make_weq"><span class="id" title="definition">make_weq</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta_Universal_Property"><span class="id" title="definition">Rezk_eta_Universal_Property</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_op_adj_equiv" class="idref" href="#Rezk_op_adj_equiv"><span class="id" title="definition">Rezk_op_adj_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#adj_equivalence_of_cats"><span class="id" title="definition">adj_equivalence_of_cats</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.whiskering.html#pre_composition_functor"><span class="id" title="definition">pre_composition_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.opp_precat.html#functor_opp"><span class="id" title="definition">functor_opp</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta"><span class="id" title="definition">Rezk_eta</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#rezk_completion_opp_functor_equivalence"><span class="id" title="definition">rezk_completion_opp_functor_equivalence</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.Ccat"><span class="id" title="variable">Ccat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_op_Universal_Property" class="idref" href="#Rezk_op_Universal_Property"><span class="id" title="definition">Rezk_op_Universal_Property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartA.html#isweq"><span class="id" title="definition">isweq</span></a> (<a class="idref" href="UniMath.CategoryTheory.whiskering.html#pre_composition_functor"><span class="id" title="definition">pre_composition_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.opp_precat.html#functor_opp"><span class="id" title="definition">functor_opp</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta"><span class="id" title="definition">Rezk_eta</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#rezk_completion_opp_universal_property"><span class="id" title="lemma">rezk_completion_opp_universal_property</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.Ccat"><span class="id" title="variable">Ccat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Rezk_opp_weq" class="idref" href="#Rezk_opp_weq"><span class="id" title="definition">Rezk_opp_weq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_completion"><span class="id" title="definition">Rezk_completion</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.A"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.PartA.html#make_weq"><span class="id" title="definition">make_weq</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_op_Universal_Property"><span class="id" title="definition">Rezk_op_Universal_Property</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion.UniversalProperty"><span class="id" title="section">UniversalProperty</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#RezkCompletion"><span class="id" title="section">RezkCompletion</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

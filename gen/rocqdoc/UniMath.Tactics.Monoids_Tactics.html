@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Tactics.Monoids_Tactics</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Tactics.Monoids_Tactics</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+Author: Michael A. Warren. Date: Spring 2015. Description: Some tactics for monoids.
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Monoids.html#"><span class="id" title="library">UniMath.Algebra.Monoids</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Tactics.Utilities.html#"><span class="id" title="library">UniMath.Tactics.Utilities</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">op_strip</span> <span class="id" title="var">f</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">f</span> ?<span class="id" title="var">x</span> ?<span class="id" title="var">y</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">f</span> ?<span class="id" title="var">x</span> ?<span class="id" title="var">z</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Tactics.Utilities.html#Notation.ap"><span class="id" title="abbreviation">ap</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="v:2" class="idref" href="#v:2"><span class="id" title="binder">v</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">f</span> <span class="id" title="var">x</span> <a class="idref" href="UniMath.Tactics.Monoids_Tactics.html#v:2"><span class="id" title="variable">v</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">f</span> ?<span class="id" title="var">y</span> ?<span class="id" title="var">x</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">f</span> ?<span class="id" title="var">z</span> ?<span class="id" title="var">x</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Tactics.Utilities.html#Notation.ap"><span class="id" title="abbreviation">ap</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="v:1" class="idref" href="#v:1"><span class="id" title="binder">v</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">f</span> <a class="idref" href="UniMath.Tactics.Monoids_Tactics.html#v:1"><span class="id" title="variable">v</span></a> <span class="id" title="var">x</span>))<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">assocop_clean</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.Algebra.Monoids2.html#assocax"><span class="id" title="definition">assocax</span></a> <span class="id" title="var">M</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">assocop_clean_in</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span> <span class="id" title="var">t</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.Algebra.Monoids2.html#assocax"><span class="id" title="definition">assocax</span></a> <span class="id" title="var">M</span>) <span class="id" title="tactic">in</span> <span class="id" title="var">t</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">assocop_clean_all</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">assocop_clean</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">H</span> : <span class="id" title="keyword">context</span>[<span class="id" title="var">f</span> ?<span class="id" title="var">x</span> (<span class="id" title="var">f</span> ?<span class="id" title="var">y</span> ?<span class="id" title="var">z</span>)] |- <span class="id" title="var">_</span> =&gt; <span class="id" title="var">assocop_clean_in</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">assocop_trivial</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">try</span> (<span class="id" title="var">assocop_clean_all</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span>; <span class="id" title="var">op_strip</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">assocop_group_in</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span> <span class="id" title="var">x</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">T</span> := <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">x</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">T</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">context</span>[<span class="id" title="var">f</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span>] =&gt; <span class="id" title="tactic">idtac</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">context</span> [<span class="id" title="var">f</span> (<span class="id" title="var">f</span> ?<span class="id" title="var">u</span> <span class="id" title="var">s</span>) <span class="id" title="var">t</span>] =&gt; <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#assocax"><span class="id" title="definition">assocax</span></a> <span class="id" title="var">M</span> <span class="id" title="var">u</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span>) <span class="id" title="tactic">in</span> <span class="id" title="var">x</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">context</span> [<span class="id" title="var">f</span> <span class="id" title="var">s</span> (<span class="id" title="var">f</span> <span class="id" title="var">t</span> ?<span class="id" title="var">u</span>)] =&gt; <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.Algebra.Monoids2.html#assocax"><span class="id" title="definition">assocax</span></a> <span class="id" title="var">M</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span> <span class="id" title="var">u</span>) <span class="id" title="tactic">in</span> <span class="id" title="var">x</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">assocop_group</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="keyword">context</span> [<span class="id" title="var">f</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span>] =&gt; <span class="id" title="tactic">idtac</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="keyword">context</span> [<span class="id" title="var">f</span> (<span class="id" title="var">f</span> ?<span class="id" title="var">u</span> <span class="id" title="var">s</span>) <span class="id" title="var">t</span>] =&gt; <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#assocax"><span class="id" title="definition">assocax</span></a> <span class="id" title="var">M</span> <span class="id" title="var">u</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="keyword">context</span> [<span class="id" title="var">f</span> <span class="id" title="var">s</span> (<span class="id" title="var">f</span> <span class="id" title="var">t</span> ?<span class="id" title="var">u</span>)] =&gt; <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.Algebra.Monoids2.html#assocax"><span class="id" title="definition">assocax</span></a> <span class="id" title="var">M</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span> <span class="id" title="var">u</span>)<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">monoid_clean</span> <span class="id" title="var">M</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#lunax"><span class="id" title="definition">lunax</span></a> <span class="id" title="var">M</span>); <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#runax"><span class="id" title="definition">runax</span></a> <span class="id" title="var">M</span>); <span class="id" title="var">assocop_clean</span> <span class="id" title="var">M</span> (@<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> <span class="id" title="var">M</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">monoid_clean_in</span> <span class="id" title="var">M</span> <span class="id" title="var">t</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#lunax"><span class="id" title="definition">lunax</span></a> <span class="id" title="var">M</span>) <span class="id" title="tactic">in</span> <span class="id" title="var">t</span>; <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#runax"><span class="id" title="definition">runax</span></a> <span class="id" title="var">M</span>) <span class="id" title="tactic">in</span> <span class="id" title="var">t</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="var">assocop_clean_in</span> <span class="id" title="var">M</span> (@<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> <span class="id" title="var">M</span>) <span class="id" title="var">t</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">monoid_clean_all</span> <span class="id" title="var">M</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">monoid_clean</span> <span class="id" title="var">M</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">H</span> : <span class="id" title="var">_</span> |- <span class="id" title="var">_</span> =&gt; <span class="id" title="var">monoid_clean_in</span> <span class="id" title="var">M</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">monoid_declean</span> <span class="id" title="var">M</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#assocax"><span class="id" title="definition">assocax</span></a> <span class="id" title="var">M</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">monoid_op_strip_left</span> <span class="id" title="var">M</span> :=<br/>
+&nbsp;&nbsp;(<span class="id" title="var">monoid_declean</span> <span class="id" title="var">M</span>;<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| |- (@<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> <span class="id" title="var">M</span>) ?<span class="id" title="var">x</span> ?<span class="id" title="var">y</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> (@<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> <span class="id" title="var">M</span>) ?<span class="id" title="var">x</span> ?<span class="id" title="var">z</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Tactics.Utilities.html#Notation.ap"><span class="id" title="abbreviation">ap</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="v:4" class="idref" href="#v:4"><span class="id" title="binder">v</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> (@<a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> <span class="id" title="var">M</span>) <span class="id" title="var">x</span> <a class="idref" href="UniMath.Tactics.Monoids_Tactics.html#v:4"><span class="id" title="variable">v</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| |- (?<span class="id" title="var">x</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#b294152879929cb855a59dae19645b45"><span class="id" title="notation">*</span></a> ?<span class="id" title="var">y</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">x</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#b294152879929cb855a59dae19645b45"><span class="id" title="notation">*</span></a> ?<span class="id" title="var">z</span>)%<span class="id" title="var">multmonoid</span> =&gt; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Tactics.Utilities.html#Notation.ap"><span class="id" title="abbreviation">ap</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="v:3" class="idref" href="#v:3"><span class="id" title="binder">v</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">x</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#b294152879929cb855a59dae19645b45"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.Tactics.Monoids_Tactics.html#v:3"><span class="id" title="variable">v</span></a>))%<span class="id" title="var">multmonoid</span><br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>;<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="var">monoid_clean</span> <span class="id" title="var">M</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Some error handling should be added (e.g., to check that lhs, rhs are of type M; that they are words in M, etc.).
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">monoid_zap_body</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- ?<span class="id" title="var">lhs</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">rhs</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">lhs</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">rhs</span> =&gt; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| (@<a class="idref" href="UniMath.Algebra.Monoids2.html#unel"><span class="id" title="definition">unel</span></a> <span class="id" title="var">M</span>) =&gt; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>; <span class="id" title="var">monoid_zap_body</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; (<span class="id" title="var">monoid_op_strip_left</span> <span class="id" title="var">M</span>; <span class="id" title="var">monoid_zap_body</span> <span class="id" title="var">M</span> <span class="id" title="var">f</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">E</span> : ?<span class="id" title="var">l</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">r</span> |- ?<span class="id" title="var">lhs</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">rhs</span> =&gt; <span class="id" title="var">f</span> <span class="id" title="var">E</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">g</span> := <span class="id" title="var">make_hyp_check</span> <span class="id" title="var">E</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">h</span> := <span class="id" title="var">check_cons</span> <span class="id" title="var">g</span> <span class="id" title="var">f</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">matched_rewrite</span> <span class="id" title="var">E</span>; <span class="id" title="var">monoid_zap_body</span> <span class="id" title="var">M</span> <span class="id" title="var">h</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">monoid_zap</span> <span class="id" title="var">M</span> := <span class="id" title="var">monoid_clean_all</span> <span class="id" title="var">M</span>; <span class="id" title="var">monoid_zap_body</span> <span class="id" title="var">M</span> <span class="id" title="var">id_check</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4228"></a><h1 class="section">TESTS</h1>
+
+</div>
+<div class="code">
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Topology.CategoryTop</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Topology.CategoryTop</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab4254"></a><h1 class="section">Results about Topology</h1>
+ Author: Catherine LELAY. Jan 2016 -  Based on Bourbaky 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Preamble.html#"><span class="id" title="library">UniMath.Foundations.Preamble</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.Topology.Filters.html#"><span class="id" title="library">UniMath.Topology.Filters</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.DivisionRig.html#"><span class="id" title="library">UniMath.Algebra.DivisionRig</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.ConstructiveStructures.html#"><span class="id" title="library">UniMath.Algebra.ConstructiveStructures</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Topology.Topology.html#"><span class="id" title="library">UniMath.Topology.Topology</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4255"></a><h1 class="section">Displayed category of topological spaces</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="top_disp_cat_ob_mor" class="idref" href="#top_disp_cat_ob_mor"><span class="id" title="definition">top_disp_cat_ob_mor</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat_ob_mor"><span class="id" title="definition">disp_cat_ob_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#hset_category"><span class="id" title="definition">hset_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#make_disp_cat_ob_mor"><span class="id" title="definition">make_disp_cat_ob_mor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Topology.Topology.html#isTopologicalSpace"><span class="id" title="definition">isTopologicalSpace</span></a> <span class="id" title="var">X</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">T</span> <span class="id" title="var">U</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (@<a class="idref" href="UniMath.Topology.Topology.html#continuous"><span class="id" title="definition">continuous</span></a> (<span class="id" title="var">X</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><span class="id" title="var">T</span>) (<span class="id" title="var">Y</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><span class="id" title="var">U</span>) <span class="id" title="var">f</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="top_disp_cat_data" class="idref" href="#top_disp_cat_data"><span class="id" title="definition">top_disp_cat_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat_data"><span class="id" title="definition">disp_cat_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#hset_category"><span class="id" title="definition">hset_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Topology.CategoryTop.html#top_disp_cat_ob_mor"><span class="id" title="definition">top_disp_cat_ob_mor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">do</span> 5 <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> *. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Topology.Topology.html#continuous_funcomp"><span class="id" title="lemma">continuous_funcomp</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="top_disp_cat_axioms" class="idref" href="#top_disp_cat_axioms"><span class="id" title="definition">top_disp_cat_axioms</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat_axioms"><span class="id" title="definition">disp_cat_axioms</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#hset_category"><span class="id" title="definition">hset_category</span></a> <a class="idref" href="UniMath.Topology.CategoryTop.html#top_disp_cat_data"><span class="id" title="definition">top_disp_cat_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">do</span> 3 (<span class="id" title="tactic">split</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">try</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#proofirrelevance"><span class="id" title="lemma">proofirrelevance</span></a>, <a class="idref" href="UniMath.Topology.Topology.html#isaprop_continuous"><span class="id" title="lemma">isaprop_continuous</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetaprop"><span class="id" title="lemma">isasetaprop</span></a>, <a class="idref" href="UniMath.Topology.Topology.html#isaprop_continuous"><span class="id" title="lemma">isaprop_continuous</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="disp_top" class="idref" href="#disp_top"><span class="id" title="definition">disp_top</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#hset_category"><span class="id" title="definition">hset_category</span></a> := <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Topology.CategoryTop.html#top_disp_cat_axioms"><span class="id" title="definition">top_disp_cat_axioms</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

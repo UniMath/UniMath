@@ -1,0 +1,351 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Tactics.Simplify</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Tactics.Simplify</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+  A Generic Tactic for Simplification
+
+<div class="paragraph"> </div>
+
+  A tactic which can be instantiated for various theories to perform simplification:
+<ul class="doclist">
+<li> The tactic uses a list of "top level traversals" to split the goal into subgoals.
+
+</li>
+<li> For every subgoal, it uses a list of "traversals" to recursively traverse "suitable" subterms of
+    the subgoals
+
+</li>
+<li> At every step, it uses a list of "rewrites" to see if the current subterm can be rewritten into
+    "something simpler".
+
+</li>
+<li> After a rewrite, an equivalent rewrite statement is printed to the output and the tactic starts
+    from the top of the subgoal again.
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+  The tactic can be used to propagate explicit substitution through a term in an untyped lambda
+  calculus or propagate substitution through a formula in a (first order) hyperdoctrine.
+
+<div class="paragraph"> </div>
+
+  Contents
+  1. Some supporting types and definitions <span class="inlinecode"><span class="id" title="var">t_traversal</span></span> <span class="inlinecode"><span class="id" title="var">t_rewrite</span></span> <span class="inlinecode"><span class="id" title="var">navigation</span></span>
+  2. The traversal tactic <span class="inlinecode"><span class="id" title="var">traverse</span></span>
+  3. The simplification tactic <span class="inlinecode"><span class="id" title="var">simplify</span></span>
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartA.html#"><span class="id" title="library">UniMath.Foundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Tactics.Utilities.html#"><span class="id" title="library">UniMath.Tactics.Utilities</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">Ltac2.Ltac2</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">Ltac2.Control</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">Ltac2.Notations</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4249"></a><h1 class="section">1. Some supporting types and definitions</h1>
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+  A traversal consists of
+<ul class="doclist">
+<li> A tactic that tries to match the goal to some pattern, and if it matches, steps into a subgoal.
+
+</li>
+<li> A pair of strings, describing the left and right hand side of the goal around the subgoal.
+
+</li>
+<li> An optional list of traversals that should be used for the subgoal, instead of the "standard"
+    list of sugboals. This is to keep track of the state of the algorithm, and should be None at the
+    start.
+
+</li>
+</ul>
+  For example:
+    <span class="inlinecode">(<span class="id" title="var">make_traversal</span></span> <span class="inlinecode">(<span class="id" title="keyword">fun</span></span> <span class="inlinecode">()</span> <span class="inlinecode">=&gt;</span> <span class="inlinecode"><span class="id" title="keyword">match</span>!</span> <span class="inlinecode"><span class="id" title="keyword">goal</span></span> <span class="inlinecode"><span class="id" title="keyword">with</span></span> <span class="inlinecode">|</span> <span class="inlinecode">[|-</span> <span class="inlinecode">(?<a class="idref" href="UniMath.SyntheticHomotopyTheory.Coproduct.html#coprod_paths.a"><span class="id" title="variable">a</span></a></span> <span class="inlinecode">∨</span> <span class="inlinecode"><span class="id" title="var">_</span></span> <span class="inlinecode">)</span> <span class="inlinecode">=</span> <span class="inlinecode"><span class="id" title="var">_</span></span> <span class="inlinecode">]</span> <span class="inlinecode">=&gt;</span> <span class="inlinecode">'(<span class="id" title="var">λ</span></span> <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#locally_base.x"><span class="id" title="variable">x</span></a>,</span> <span class="inlinecode">$<a class="idref" href="UniMath.SyntheticHomotopyTheory.Coproduct.html#coprod_paths.a"><span class="id" title="variable">a</span></a></span> <span class="inlinecode">∨</span> <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#locally_base.x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode">)</span> <span class="inlinecode"><span class="id" title="keyword">end</span>)</span> <span class="inlinecode">&quot;<span class="id" title="var">_</span></span> <span class="inlinecode">∨</span> <span class="inlinecode">&quot;</span> <span class="inlinecode">&quot;&quot;)</span>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="keyword">Type</span> <span class="id" title="keyword">rec</span> <span class="id" title="var">t_traversal</span> := {<br/>
+&nbsp;&nbsp;<span class="id" title="var">c</span> : <span class="id" title="var">unit</span> -&gt; <span class="id" title="keyword">constr</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="var">s</span> : (<span class="id" title="var">string</span> * <span class="id" title="var">string</span>);<br/>
+&nbsp;&nbsp;<span class="id" title="var">t</span> : (<span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) <span class="id" title="var">option</span><br/>
+}.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="var">make_traversal</span> (<span class="id" title="var">c</span> : <span class="id" title="var">unit</span> -&gt; <span class="id" title="keyword">constr</span>) (<span class="id" title="var">l</span> : <span class="id" title="var">string</span>) (<span class="id" title="var">r</span> : <span class="id" title="var">string</span>)<br/>
+&nbsp;&nbsp;: <span class="id" title="var">t_traversal</span><br/>
+&nbsp;&nbsp;:= {<span class="id" title="var">c</span> := <span class="id" title="var">c</span>; <span class="id" title="var">s</span> := (<span class="id" title="var">l</span>, <span class="id" title="var">r</span>); <span class="id" title="var">t</span> := <span class="id" title="var">None</span>}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+  A rewrite consists of
+<ul class="doclist">
+<li> A pattern <span class="inlinecode"><a class="idref" href="UniMath.SyntheticHomotopyTheory.Circle2.html#A.p"><span class="id" title="variable">p</span></a></span>, describing the goal <span class="inlinecode"><a class="idref" href="UniMath.SyntheticHomotopyTheory.Circle2.html#A.p"><span class="id" title="variable">p</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode">...</span> where the rewrite activates;
+
+</li>
+<li> A (thunked) term <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.html#hss.TheProperty.t"><span class="id" title="variable">t</span></a></span> of an identity type, describing the rewrite;
+
+</li>
+<li> A string representation of <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.html#hss.TheProperty.t"><span class="id" title="variable">t</span></a></span>.
+
+</li>
+</ul>
+  For example:
+    <span class="inlinecode">(<span class="id" title="var">pn</span>:((<span class="id" title="var">_</span></span> <span class="inlinecode">∨</span> <span class="inlinecode"><span class="id" title="var">_</span>)[<span class="id" title="var">_</span>]),</span> <span class="inlinecode">(<span class="id" title="keyword">fun</span></span> <span class="inlinecode">()</span> <span class="inlinecode">=&gt;</span> <span class="inlinecode">'(<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#disj_subst"><span class="id" title="lemma">disj_subst</span></a></span> <span class="inlinecode"><span class="id" title="var">_</span></span> <span class="inlinecode"><span class="id" title="var">_</span></span> <span class="inlinecode"><span class="id" title="var">_</span>)),</span> <span class="inlinecode">&quot;<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#disj_subst"><span class="id" title="lemma">disj_subst</span></a></span> <span class="inlinecode"><span class="id" title="var">_</span></span> <span class="inlinecode"><span class="id" title="var">_</span></span> <span class="inlinecode"><span class="id" title="var">_</span>&quot;)</span>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="keyword">Type</span> <span class="id" title="var">t_rewrite</span> := (<span class="id" title="tactic">pattern</span> * (<span class="id" title="var">unit</span> -&gt; <span class="id" title="keyword">constr</span>) * <span class="id" title="var">string</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+  While traversing, <span class="inlinecode"><a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#preliminaries.n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">:</span> <span class="inlinecode"><span class="id" title="var">navigation</span></span>, with preinpostfix deconstructed as (pre, in, post), gives the
+  contextual information for printing rewrites <span class="inlinecode"><span class="id" title="var">rew</span></span>:
+    "refine (pre (λ x, " + (join "(" reverse(left)) + " x " + (join ")" right) + ") in (rew) post)"
+  For example: <span class="inlinecode"><a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a></span> <span class="inlinecode">(<span class="id" title="var">λ</span></span> <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#locally_base.x"><span class="id" title="variable">x</span></a>,</span> <span class="inlinecode"><span class="id" title="var">_</span></span> <span class="inlinecode">∧</span> <span class="inlinecode">(<a class="idref" href="UniMath.Topology.Topology.html#locally_base.x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode">~</span> <span class="inlinecode"><span class="id" title="var">_</span>))</span> <span class="inlinecode">(<span class="id" title="var">_</span>)</span> <span class="inlinecode">@</span> <span class="inlinecode"><span class="id" title="var">_</span></span> or <span class="inlinecode"><a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a></span> <span class="inlinecode">(<span class="id" title="var">λ</span></span> <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#locally_base.x"><span class="id" title="variable">x</span></a>,</span> <span class="inlinecode">(<a class="idref" href="UniMath.Topology.Topology.html#locally_base.x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode">∨</span> <span class="inlinecode"><span class="id" title="var">_</span>)</span> <span class="inlinecode">⊢</span> <span class="inlinecode"><span class="id" title="var">_</span>)</span> <span class="inlinecode">(<span class="id" title="var">_</span>)</span> <span class="inlinecode"><span class="id" title="var">_</span></span>.
+  The value <span class="inlinecode"><span class="id" title="var">print</span></span> keeps track of whether we want to print rewrites or not.
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="keyword">Type</span> <span class="id" title="var">navigation</span> := {<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">left</span>: <span class="id" title="var">string</span> <span class="id" title="var">list</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">right</span>: <span class="id" title="var">string</span> <span class="id" title="var">list</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="var">preinpostfix</span>: (<span class="id" title="var">string</span> * <span class="id" title="var">string</span> * <span class="id" title="var">string</span>);<br/>
+&nbsp;&nbsp;<span class="id" title="var">print</span>: <span class="id" title="var">bool</span>;<br/>
+}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Adds a new step on the inside of the navigation 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="var">append_navigation</span><br/>
+&nbsp;&nbsp;(<span class="id" title="var">n</span> : <span class="id" title="var">navigation</span>)<br/>
+&nbsp;&nbsp;((<span class="id" title="var">l</span>, <span class="id" title="var">r</span>) : <span class="id" title="var">string</span> * <span class="id" title="var">string</span>)<br/>
+&nbsp;&nbsp;: <span class="id" title="var">navigation</span><br/>
+&nbsp;&nbsp;:= {<span class="id" title="var">n</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">left</span> := (<span class="id" title="var">l</span> :: <span class="id" title="var">n</span>.(<span class="id" title="tactic">left</span>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">right</span> := (<span class="id" title="var">r</span> :: <span class="id" title="var">n</span>.(<span class="id" title="tactic">right</span>));<br/>
+&nbsp;&nbsp;}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Prints a rewrite with navigation n and identity t (in its string representation) 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="var">print_refine</span> (<span class="id" title="var">n</span> : <span class="id" title="var">navigation</span>) (<span class="id" title="var">t</span> : <span class="id" title="var">string</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">if</span> <span class="id" title="var">n</span>.(<span class="id" title="var">print</span>) <span class="id" title="keyword">then</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> (<span class="id" title="var">prefix</span>, <span class="id" title="var">infix</span>, <span class="id" title="var">postfix</span>) := <span class="id" title="var">n</span>.(<span class="id" title="var">preinpostfix</span>) <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Message.print</span> (<span class="id" title="var">Message.of_string</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">String.concat</span> "" [<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">prefix</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"(λ x, " ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">String.concat</span> "(" (<span class="id" title="var">List.rev</span> (<span class="id" title="var">n</span>.(<span class="id" title="tactic">left</span>))) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"x" ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">String.concat</span> ")" (<span class="id" title="var">n</span>.(<span class="id" title="tactic">right</span>)) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")" ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">infix</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"(" ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">t</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")" ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">postfix</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;))<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">else</span> ().<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4250"></a><h1 class="section">2. The traversal tactic</h1>
+
+<div class="paragraph"> </div>
+
+ Steps into a subterm, described by the traversal <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.html#hss.TheProperty.t"><span class="id" title="variable">t</span></a></span>, of the current goal. In this subterm,
+  execute <span class="inlinecode"><span class="id" title="var">traverse</span></span>, with <span class="inlinecode"><span class="id" title="var">first_traversals</span></span> set to the list <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.html#hss.TheProperty.t"><span class="id" title="variable">t</span></a>.(<a class="idref" href="UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.html#hss.TheProperty.t"><span class="id" title="variable">t</span></a>)</span>.
+  If the result of this is <span class="inlinecode"><span class="id" title="var">Some</span></span> <span class="inlinecode"><a class="idref" href="UniMath.Topology.Topology.html#locally_base.x"><span class="id" title="variable">x</span></a></span> (presumed to be the "remaining traversals" in the subterm),
+  returns the remaining traversals at this level. Else, the combination of <span class="inlinecode"><span class="id" title="var">try_opt</span></span> and
+  <span class="inlinecode"><span class="id" title="var">Option.get_bt</span></span> resets the goal to what it was at the start of the function. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="var">traverse_subterm</span><br/>
+&nbsp;&nbsp;(<span class="id" title="var">traverse</span> : (<span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) <span class="id" title="var">option</span> -&gt; <span class="id" title="var">navigation</span> -&gt; (<span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) <span class="id" title="var">option</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">n</span> : <span class="id" title="var">navigation</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">t</span> : <span class="id" title="var">t_traversal</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">l</span> : <span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>)<br/>
+&nbsp;&nbsp;: (<span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) <span class="id" title="var">option</span><br/>
+&nbsp;&nbsp;:= <span class="id" title="var">try_opt</span> (<span class="id" title="keyword">fun</span> () =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">c</span> := <span class="id" title="var">t</span>.(<span class="id" title="var">c</span>) () <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> '(<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> $<span class="id" title="var">c</span> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">focus</span> 2 2 (<span class="id" title="keyword">fun</span> () =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Option.get_bt</span> (<span class="id" title="var">Option.map</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> (<span class="id" title="var">x</span> : <span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) =&gt; ({<span class="id" title="var">t</span> <span class="id" title="keyword">with</span> <span class="id" title="var">t</span> := <span class="id" title="var">Some</span> <span class="id" title="var">x</span>}) :: <span class="id" title="var">l</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">traverse</span> (<span class="id" title="var">t</span>.(<span class="id" title="var">t</span>)) (<span class="id" title="var">append_navigation</span> <span class="id" title="var">n</span> (<span class="id" title="var">t</span>.(<span class="id" title="var">s</span>)))))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+  At each subterm of the left hand side of the goal, executes <span class="inlinecode"><span class="id" title="var">preorder</span></span>, then recurses, and then
+  executes <span class="inlinecode"><span class="id" title="var">postorder</span></span>. If either preorder or postorder returns true, stops executing and returns
+  the remaining traversals at each level.
+  At this level, uses <span class="inlinecode"><span class="id" title="var">first_traversals</span></span> if it has a value, and else uses <span class="inlinecode"><span class="id" title="var">traversals</span></span>.
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="keyword">rec</span> <span class="id" title="var">traverse</span><br/>
+&nbsp;&nbsp;(<span class="id" title="var">traversals</span> : <span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">preorder</span> :  <span class="id" title="var">navigation</span> -&gt; <span class="id" title="var">bool</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">postorder</span> : <span class="id" title="var">navigation</span> -&gt; <span class="id" title="var">bool</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">first_traversals</span> : (<span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) <span class="id" title="var">option</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">n</span> : <span class="id" title="var">navigation</span>)<br/>
+&nbsp;&nbsp;: (<span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) <span class="id" title="var">option</span><br/>
+&nbsp;&nbsp;:= <span class="id" title="keyword">if</span> <span class="id" title="var">preorder</span> <span class="id" title="var">n</span> <span class="id" title="keyword">then</span> <span class="id" title="var">Some</span> <span class="id" title="var">traversals</span> <span class="id" title="keyword">else</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">iterate_until</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">traverse_subterm</span> (<span class="id" title="var">traverse</span> <span class="id" title="var">traversals</span> <span class="id" title="var">preorder</span> <span class="id" title="var">postorder</span>) <span class="id" title="var">n</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Option.default</span> <span class="id" title="var">traversals</span> <span class="id" title="var">first_traversals</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">Some</span> <span class="id" title="var">x</span> =&gt; <span class="id" title="var">Some</span> <span class="id" title="var">x</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; <span class="id" title="keyword">if</span> <span class="id" title="var">postorder</span> <span class="id" title="var">n</span> <span class="id" title="keyword">then</span> <span class="id" title="var">Some</span> [] <span class="id" title="keyword">else</span> <span class="id" title="var">None</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4251"></a><h1 class="section">3. The simplification tactic</h1>
+
+<div class="paragraph"> </div>
+
+ Tries to rewrite any subterm of the left hand side of the goal, from the top level downwards 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="var">simplify_component</span><br/>
+&nbsp;&nbsp;(<span class="id" title="var">traversals</span> : <span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">rewrites</span> : <span class="id" title="var">t_rewrite</span> <span class="id" title="var">list</span>)<br/>
+&nbsp;&nbsp;: (<span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) <span class="id" title="var">option</span> -&gt; <span class="id" title="var">navigation</span> -&gt; (<span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) <span class="id" title="var">option</span><br/>
+&nbsp;&nbsp;:= <span class="id" title="var">traverse</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">traversals</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> <span class="id" title="var">n</span> =&gt; <span class="id" title="keyword">match</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">iterate_until</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> (<span class="id" title="var">p</span>, <span class="id" title="var">c</span>, <span class="id" title="var">t</span>) <span class="id" title="var">_</span> =&gt; <span class="id" title="var">try_opt</span> (<span class="id" title="keyword">fun</span> () =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span>! <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [ |- $<span class="id" title="tactic">pattern</span>:<span class="id" title="var">p</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">_</span> ] =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">c</span> ());<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">print_refine</span> <span class="id" title="var">n</span> <span class="id" title="var">t</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">rewrites</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">Some</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">true</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">None</span> =&gt; <span class="id" title="var">false</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">false</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+  Uses <span class="inlinecode"><span class="id" title="var">top_traversals</span></span> to get a goals of the form <span class="inlinecode">[<a class="idref" href="UniMath.Bicategories.Objects.CartesianObject.html#EquivalenceCartesian.ToAdj.term"><span class="id" title="variable">term</span></a>]</span> <span class="inlinecode">=</span> <span class="inlinecode"><span class="id" title="var">_</span></span>, and tries to repeatedly rewrite the
+  highest rewritable subterm of the left hand side of those goals.
+
+<div class="paragraph"> </div>
+
+  If <span class="inlinecode"><span class="id" title="var">rewrite_level</span></span> is supplied, the provided rewrites are first filtered, keeping only the
+  rewrites <span class="inlinecode">(<a class="idref" href="UniMath.Folds.folds_isomorphism.html#folds_iso_def.iso_from_folds_from_iso.i"><span class="id" title="variable">i</span></a>,</span> <span class="inlinecode"><a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.CopowerModel.html#CopowerModel.r"><span class="id" title="variable">r</span></a>)</span> where <span class="inlinecode"><a class="idref" href="UniMath.Folds.folds_isomorphism.html#folds_iso_def.iso_from_folds_from_iso.i"><span class="id" title="variable">i</span></a></span> <span class="inlinecode">≤</span> <span class="inlinecode"><span class="id" title="var">rewrite_level</span></span>. The rationale being that rewrites with a higher <span class="inlinecode"><a class="idref" href="UniMath.Folds.folds_isomorphism.html#folds_iso_def.iso_from_folds_from_iso.i"><span class="id" title="variable">i</span></a></span>
+  are more rarely used, or more complex.
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac2</span> <span class="id" title="var">simplify</span><br/>
+&nbsp;&nbsp;(<span class="id" title="var">traversals</span> : <span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">rewrites</span> : (<span class="id" title="var">int</span> * <span class="id" title="var">t_rewrite</span>) <span class="id" title="var">list</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">top_traversals</span> : ((<span class="id" title="var">unit</span> -&gt; <span class="id" title="var">unit</span>) * <span class="id" title="var">navigation</span>) <span class="id" title="var">list</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">rewrite_level</span> : <span class="id" title="var">int</span> <span class="id" title="var">option</span>)<br/>
+&nbsp;&nbsp;: <span class="id" title="var">unit</span><br/>
+&nbsp;&nbsp;:=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">filtered_rewrites</span> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">List.map</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> (<span class="id" title="var">_</span>, <span class="id" title="var">r</span>) =&gt; <span class="id" title="var">r</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">match</span> <span class="id" title="var">rewrite_level</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">None</span> =&gt; <span class="id" title="var">rewrites</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">Some</span> <span class="id" title="var">n</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">List.filter</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> (<span class="id" title="var">i</span>, <span class="id" title="var">_</span>) =&gt; <span class="id" title="var">Int.le</span> <span class="id" title="var">i</span> <span class="id" title="var">n</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">rewrites</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>) <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">List.iter</span> (<span class="id" title="keyword">fun</span> (<span class="id" title="var">m</span>, <span class="id" title="var">n</span>) =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">try</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">m</span> ();<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">focus</span> 2 2 (<span class="id" title="keyword">fun</span> () =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">repeat_while</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> (<span class="id" title="var">l</span> : <span class="id" title="var">t_traversal</span> <span class="id" title="var">list</span>) =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">try_opt</span> (<span class="id" title="keyword">fun</span> () =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> '(<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">focus</span> 2 2 (<span class="id" title="keyword">fun</span> () =&gt; <span class="id" title="var">Option.get_bt</span> (<span class="id" title="var">simplify_component</span> <span class="id" title="var">traversals</span> <span class="id" title="var">filtered_rewrites</span> (<span class="id" title="var">Some</span> <span class="id" title="var">l</span>) <span class="id" title="var">n</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">traversals</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;)<br/>
+&nbsp;&nbsp;) <span class="id" title="var">top_traversals</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

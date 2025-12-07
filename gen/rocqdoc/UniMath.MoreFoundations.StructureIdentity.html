@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.MoreFoundations.StructureIdentity</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.MoreFoundations.StructureIdentity</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3784"></a><h1 class="section">Structure identity</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.MoreFoundations.AlternativeProofs.html#"><span class="id" title="library">UniMath.MoreFoundations.AlternativeProofs</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="StructureIdentity" class="idref" href="#StructureIdentity"><span class="id" title="section">StructureIdentity</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3785"></a><h2 class="section">abstract the proof of Poset_rect for use in multiple situations</h2>
+
+<div class="paragraph"> </div>
+
+ See Section 9.8 of the HoTT book, on "The structure identity principle". 
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">poset</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="StructureIdentity.Base" class="idref" href="#StructureIdentity.Base"><span class="id" title="variable">Base</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}                              <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="StructureIdentity.Data" class="idref" href="#StructureIdentity.Data"><span class="id" title="variable">Data</span></a> : <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Base:1"><span class="id" title="variable">Base</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#Poset"><span class="id" title="definition">Poset</span></a>). 
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Struc" class="idref" href="#Struc"><span class="id" title="definition">Struc</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="b:3" class="idref" href="#b:3"><span class="id" title="binder">b</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#StructureIdentity.Data"><span class="id" title="variable">Data</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#b:3"><span class="id" title="variable">b</span></a>. 
+<br/>
+</div>
+
+<div class="doc">
+for example: Base = hSet, Data = PartialOrder, Struc = Poset 
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="DataEquiv" class="idref" href="#DataEquiv"><span class="id" title="definition">DataEquiv</span></a> (<a id="b:4" class="idref" href="#b:4"><span class="id" title="binder">b</span></a>:<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#StructureIdentity.Base"><span class="id" title="variable">Base</span></a>) (<a id="d:5" class="idref" href="#d:5"><span class="id" title="binder">d</span></a> <a id="d':6" class="idref" href="#d':6"><span class="id" title="binder">d'</span></a>:<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#StructureIdentity.Data"><span class="id" title="variable">Data</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#b:4"><span class="id" title="variable">b</span></a>) := <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#d:5"><span class="id" title="variable">d</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#156869085ecb08dca1253156d7107aee"><span class="id" title="notation">≤</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#d':6"><span class="id" title="variable">d'</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#3668992ecc3e95973d304a75a28051a2"><span class="id" title="notation">∧</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#d':6"><span class="id" title="variable">d'</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#156869085ecb08dca1253156d7107aee"><span class="id" title="notation">≤</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#d:5"><span class="id" title="variable">d</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="StrucEquiv" class="idref" href="#StrucEquiv"><span class="id" title="definition">StrucEquiv</span></a> (<a id="X:7" class="idref" href="#X:7"><span class="id" title="binder">X</span></a> <a id="Y:8" class="idref" href="#Y:8"><span class="id" title="binder">Y</span></a>:<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Struc"><span class="id" title="definition">Struc</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="p:9" class="idref" href="#p:9"><span class="id" title="binder">p</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#X:7"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Y:8"><span class="id" title="variable">Y</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#DataEquiv"><span class="id" title="definition">DataEquiv</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#StructureIdentity.Data"><span class="id" title="variable">Data</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#p:9"><span class="id" title="variable">p</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#X:7"><span class="id" title="variable">X</span></a>)) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Y:8"><span class="id" title="variable">Y</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="7d6d818ac71b368c06feef5487930f89" class="idref" href="#7d6d818ac71b368c06feef5487930f89"><span class="id" title="notation">&quot;</span></a>X ≅ Y" := (<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#StrucEquiv"><span class="id" title="definition">StrucEquiv</span></a> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="Struc_univalence" class="idref" href="#Struc_univalence"><span class="id" title="lemma">Struc_univalence</span></a> (<a id="X:10" class="idref" href="#X:10"><span class="id" title="binder">X</span></a> <a id="Y:11" class="idref" href="#Y:11"><span class="id" title="binder">Y</span></a>:<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Struc"><span class="id" title="definition">Struc</span></a>) : <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#X:10"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Y:11"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#X:10"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#7d6d818ac71b368c06feef5487930f89"><span class="id" title="notation">≅</span></a><a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Y:11"><span class="id" title="variable">Y</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (@<a class="idref" href="UniMath.Foundations.PartA.html#remakeweq"><span class="id" title="lemma">remakeweq</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">intermediate_weq</span> (<span class="id" title="var">X</span><a class="idref" href="UniMath.Foundations.PartA.html#4c8f8909b89324aedbb0dd9c062568ad"><span class="id" title="notation">╝</span></a><span class="id" title="var">Y</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.AlternativeProofs.html#total2_paths_equiv'"><span class="id" title="lemma">total2_paths_equiv'</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#weqfibtototal"><span class="id" title="definition">weqfibtototal</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#weqimplimpl"><span class="id" title="definition">weqimplimpl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">intros</span> <span class="id" title="var">q</span>. <span class="id" title="tactic">split</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">q</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#isrefl_posetRelation"><span class="id" title="lemma">isrefl_posetRelation</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">intros</span> <span class="id" title="var">e</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#isantisymm_posetRelation"><span class="id" title="lemma">isantisymm_posetRelation</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">e</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">e</span>). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a> (<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#StructureIdentity.Data"><span class="id" title="variable">Data</span></a> <span class="id" title="var">_</span>)). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a> (<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#DataEquiv"><span class="id" title="definition">DataEquiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)). } } }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">intros</span> <span class="id" title="var">e</span>. <span class="id" title="tactic">induction</span> <span class="id" title="var">e</span>. <span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>). <span class="id" title="tactic">split</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#isrefl_posetRelation"><span class="id" title="lemma">isrefl_posetRelation</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">try</span> <span class="id" title="tactic">reflexivity</span>. &nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">e</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">induction</span> <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="Equiv_rect" class="idref" href="#Equiv_rect"><span class="id" title="lemma">Equiv_rect</span></a> (<a id="X:12" class="idref" href="#X:12"><span class="id" title="binder">X</span></a> <a id="Y:13" class="idref" href="#Y:13"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Struc"><span class="id" title="definition">Struc</span></a>) (<a id="P:14" class="idref" href="#P:14"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#X:12"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#7d6d818ac71b368c06feef5487930f89"><span class="id" title="notation">≅</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Y:13"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="e:15" class="idref" href="#e:15"><span class="id" title="binder">e</span></a> : <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#X:12"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Y:13"><span class="id" title="variable">Y</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#P:14"><span class="id" title="variable">P</span></a> (<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Struc_univalence"><span class="id" title="lemma">Struc_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#e:15"><span class="id" title="variable">e</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="f:16" class="idref" href="#f:16"><span class="id" title="binder">f</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#P:14"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#f:16"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">ih</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">p</span> := <span class="id" title="var">ih</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> (<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Struc_univalence"><span class="id" title="lemma">Struc_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">h</span> := <a class="idref" href="UniMath.Foundations.PartA.html#homotweqinvweq"><span class="id" title="definition">homotweqinvweq</span></a> (<a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#Struc_univalence"><span class="id" title="lemma">Struc_univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <span class="id" title="var">P</span> <span class="id" title="var">h</span> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.MoreFoundations.StructureIdentity.html#StructureIdentity"><span class="id" title="section">StructureIdentity</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

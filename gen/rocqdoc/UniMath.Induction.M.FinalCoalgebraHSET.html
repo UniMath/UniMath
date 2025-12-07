@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Induction.M.FinalCoalgebraHSET</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Induction.M.FinalCoalgebraHSET</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3706"></a><h2 class="section">A final coalgebra of a polynomial functor defined by sets is a set.</h2>
+
+
+<div class="paragraph"> </div>
+
+    Author : Antoine Fisse (@AextraT), 2025
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#"><span class="id" title="library">UniMath.Induction.FunctorCoalgebras_legacy</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#"><span class="id" title="library">UniMath.Induction.PolynomialFunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.M.Core.html#"><span class="id" title="library">UniMath.Induction.M.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.M.MWithSets.html#"><span class="id" title="library">UniMath.Induction.M.MWithSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.M.Uniqueness.html#"><span class="id" title="library">UniMath.Induction.M.Uniqueness</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.Type.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.Type.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Chains.CoAdamek.html#"><span class="id" title="library">UniMath.CategoryTheory.Chains.CoAdamek</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Chains.Chains.html#"><span class="id" title="library">UniMath.CategoryTheory.Chains.Chains</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#"><span class="id" title="library">UniMath.CategoryTheory.Chains.Cochains</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Chains.OmegaContPolynomialFunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Chains.OmegaContPolynomialFunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCoalgebras.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCoalgebras</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">functions</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="MTypesAreSets" class="idref" href="#MTypesAreSets"><span class="id" title="section">MTypesAreSets</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="MTypesAreSets.A" class="idref" href="#MTypesAreSets.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>} (<a id="MTypesAreSets.B" class="idref" href="#MTypesAreSets.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="F" class="idref" href="#F"><span class="id" title="definition">F</span></a> := <a class="idref" href="UniMath.Induction.M.MWithSets.html#F"><span class="id" title="definition">MWithSets.F</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#MTypesAreSets.B"><span class="id" title="variable">B</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="GetMType_HSET" class="idref" href="#GetMType_HSET"><span class="id" title="lemma">GetMType_HSET</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> (<a class="idref" href="UniMath.CategoryTheory.FunctorCoalgebras.html#CoAlg_category"><span class="id" title="definition">CoAlg_category</span></a> (<a class="idref" href="UniMath.CategoryTheory.Chains.OmegaContPolynomialFunctors.html#F'"><span class="id" title="definition">OmegaContPolynomialFunctors.F'</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#MTypesAreSets.B"><span class="id" title="variable">B</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Chains.CoAdamek.html#limCoAlgTerminal"><span class="id" title="definition">limCoAlgTerminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#TerminalHSET"><span class="id" title="lemma">TerminalHSET</span></a> (<a class="idref" href="UniMath.CategoryTheory.Chains.OmegaContPolynomialFunctors.html#PolyFunctor_omega_cont"><span class="id" title="lemma">PolyFunctor_omega_cont</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#MTypesAreSets.B"><span class="id" title="variable">B</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#LimConeHSET"><span class="id" title="lemma">LimConeHSET</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Chains.Cochains.html#termCochain"><span class="id" title="definition">termCochain</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#TerminalHSET"><span class="id" title="lemma">TerminalHSET</span></a> (<a class="idref" href="UniMath.CategoryTheory.Chains.OmegaContPolynomialFunctors.html#F'"><span class="id" title="definition">OmegaContPolynomialFunctors.F'</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#MTypesAreSets.B"><span class="id" title="variable">B</span></a>)))).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="FinalCoalgAreSets" class="idref" href="#FinalCoalgAreSets"><span class="id" title="lemma">FinalCoalgAreSets</span></a> (<a id="C:3" class="idref" href="#C:3"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.Induction.FunctorCoalgebras_legacy.html#coalgebra"><span class="id" title="definition">coalgebra</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#F"><span class="id" title="definition">F</span></a>) (<a id="C_isfinal:4" class="idref" href="#C_isfinal:4"><span class="id" title="binder">C_isfinal</span></a> : <a class="idref" href="UniMath.Induction.M.Core.html#is_final"><span class="id" title="definition">is_final</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#C:3"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#C:3"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">C1'_t</span> := <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#GetMType_HSET"><span class="id" title="lemma">GetMType_HSET</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">C1'_t</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">C1'_t</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">C1'</span> <span class="id" title="var">C1'_isterm</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">C1</span> := <a class="idref" href="UniMath.Induction.M.MWithSets.html#C0"><span class="id" title="definition">MWithSets.C0</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#MTypesAreSets.B"><span class="id" title="variable">B</span></a> <span class="id" title="var">C1'</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">C1_isfinal</span> := <a class="idref" href="UniMath.Induction.M.MWithSets.html#C0_is_final"><span class="id" title="lemma">C0_is_final</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#MTypesAreSets.B"><span class="id" title="variable">B</span></a> <span class="id" title="var">C1'</span> <span class="id" title="var">C1'_isterm</span> : <a class="idref" href="UniMath.Induction.M.Core.html#is_final"><span class="id" title="definition">is_final</span></a> <span class="id" title="var">C1</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">p</span> := <a class="idref" href="UniMath.Induction.M.Uniqueness.html#M_carriers_eq"><span class="id" title="lemma">M_carriers_eq</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#MTypesAreSets.A"><span class="id" title="variable">A</span></a>) (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="a:5" class="idref" href="#a:5"><span class="id" title="binder"><span id="a:6" class="id">a</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#pr1hSet"><span class="id" title="definition">pr1hSet</span></a> (<a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#MTypesAreSets.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#a:5"><span class="id" title="variable">a</span></a>)) (<span class="id" title="var">C1</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">C1_isfinal</span>) (<span class="id" title="var">C</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">C_isfinal</span>) : <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">C1</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">C1_isaset</span> := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr21'_x"><span class="id" title="notation">pr21</span></a> <span class="id" title="var">C1'</span> : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">C1</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="c:7" class="idref" href="#c:7"><span class="id" title="binder"><span id="c:8" class="id">c</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#c:7"><span class="id" title="variable">c</span></a>) <span class="id" title="var">p</span> <span class="id" title="var">C1_isaset</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Induction.M.FinalCoalgebraHSET.html#MTypesAreSets"><span class="id" title="section">MTypesAreSets</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

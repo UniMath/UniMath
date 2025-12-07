@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.HSET.Slice</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.HSET.Slice</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab1790"></a><h1 class="section">Slices of <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#SortIndexing.HSET"><span class="id" title="section">HSET</span></a></span></h1>
+
+<div class="paragraph"> </div>
+
+<a id="lab1791"></a><h2 class="section">Contents</h2>
+
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Locally cartesian closed structure
+<ul class="doclist">
+<li> Terminal object (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#Terminal_HSET_slice"><span class="id" title="lemma">Terminal_HSET_slice</span></a></span>)
+
+</li>
+<li> Binary products (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinProducts_HSET_slice"><span class="id" title="lemma">BinProducts_HSET_slice</span></a></span>)
+
+</li>
+<li> General indexed products (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#Products_HSET_slice"><span class="id" title="lemma">Products_HSET_slice</span></a></span>)
+
+</li>
+<li> Exponentials (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#Exponentials_HSET_slice"><span class="id" title="lemma">Exponentials_HSET_slice</span></a></span>)
+
+</li>
+</ul>
+
+</li>
+<li> Colimits
+<ul class="doclist">
+<li> Binary coproducts (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinCoproducts_HSET_slice"><span class="id" title="lemma">BinCoproducts_HSET_slice</span></a></span>)
+
+</li>
+</ul>
+
+</li>
+<li> The forgetful functor <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#SortIndexing.HSET"><span class="id" title="section">HSET</span></a>/<a class="idref" href="UniMath.Topology.Topology.html#topologygenerated.X"><span class="id" title="variable">X</span></a></span> <span class="inlinecode">--&gt;</span> <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#SortIndexing.HSET"><span class="id" title="section">HSET</span></a></span> is a left adjoint
+  (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.slicecat.html#is_left_adjoint_slicecat_to_cat"><span class="id" title="lemma">is_left_adjoint_slicecat_to_cat</span></a></span>)
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+Written by: Benedikt Ahrens, Anders Mörtberg
+
+<div class="paragraph"> </div>
+
+October 2015 - January 2016
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Propositions.html#"><span class="id" title="library">UniMath.Foundations.Propositions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#"><span class="id" title="library">UniMath.MoreFoundations.PartA</span></a>. <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.AxiomOfChoice.html#"><span class="id" title="library">UniMath.MoreFoundations.AxiomOfChoice</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.covyoneda.html#"><span class="id" title="library">UniMath.CategoryTheory.covyoneda</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#"><span class="id" title="library">UniMath.CategoryTheory.slicecat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Products</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Limits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Colimits</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1792"></a><h2 class="section">Locally cartesian closed structure</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="set_slicecat" class="idref" href="#set_slicecat"><span class="id" title="section">set_slicecat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="4865fbd7432a540b1c75aab25ec97fb4" class="idref" href="#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">&quot;</span></a>HSET / X" := (<a class="idref" href="UniMath.CategoryTheory.slicecat.html#slice_cat"><span class="id" title="definition">slice_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <span class="id" title="var">X</span>) (<span class="id" title="var">only</span> <span class="id" title="var">parsing</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1793"></a><h3 class="section">Terminal object (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#Terminal_HSET_slice"><span class="id" title="lemma">Terminal_HSET_slice</span></a></span>)</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Terminal_HSET_slice" class="idref" href="#Terminal_HSET_slice"><span class="id" title="lemma">Terminal_HSET_slice</span></a> <a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> (<span class="id" title="var">SET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:1"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#Terminal_slice_precat"><span class="id" title="lemma">Terminal_slice_precat</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1794"></a><h3 class="section">Binary products (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinProducts_HSET_slice"><span class="id" title="lemma">BinProducts_HSET_slice</span></a></span>)</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="BinProducts_HSET_slice" class="idref" href="#BinProducts_HSET_slice"><span class="id" title="lemma">BinProducts_HSET_slice</span></a> <a id="X:2" class="idref" href="#X:2"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> (<span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:2"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#BinProducts_slice_precat"><span class="id" title="definition">BinProducts_slice_precat</span></a>, <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#PullbacksHSET"><span class="id" title="lemma">PullbacksHSET</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1795"></a><h3 class="section">General indexed products (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#Products_HSET_slice"><span class="id" title="lemma">Products_HSET_slice</span></a></span>)</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="set_slicecat.products_set_slice" class="idref" href="#set_slicecat.products_set_slice"><span class="id" title="section">products_set_slice</span></a>.<br/>
+
+<br/>
+
+<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Products in Set/X 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="Products_HSET_slice" class="idref" href="#Products_HSET_slice"><span class="id" title="lemma">Products_HSET_slice</span></a> <a id="I:3" class="idref" href="#I:3"><span class="id" title="binder">I</span></a> <a id="X:4" class="idref" href="#X:4"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Products"><span class="id" title="definition">Products</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#I:3"><span class="id" title="variable">I</span></a> (<span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:4"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">intros</span> <span class="id" title="var">F</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#make_Product"><span class="id" title="definition">make_Product</span></a>.<br/>
++ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder"><span id="x:7" class="id">x</span></span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">X</span><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="i:6" class="idref" href="#i:6"><span class="id" title="binder"><span id="i:8" class="id">i</span></span></a> : <span class="id" title="var">I</span><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#hfiber_hSet"><span class="id" title="definition">hfiber_hSet</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<span class="id" title="var">F</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#i:6"><span class="id" title="variable">i</span></a>)) <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#x:5"><span class="id" title="variable">x</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isaset_total2"><span class="id" title="lemma">isaset_total2</span></a>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>|];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaset"><span class="id" title="lemma">impred_isaset</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
++ <span class="id" title="tactic">intros</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">H</span> <span class="id" title="var">i</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">H</span> <span class="id" title="var">i</span>))).<br/>
++ <span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#unique_exists"><span class="id" title="lemma">unique_exists</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">f</span> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<span class="id" title="var">H</span> <span class="id" title="var">i</span>) <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<span class="id" title="var">H</span> <span class="id" title="var">i</span>)) <span class="id" title="var">x</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> <span class="id" title="var">i</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#eq_mor_slicecat"><span class="id" title="lemma">eq_mor_slicecat</span></a>, <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> <span class="id" title="var">g</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#has_homsets_slice_precat"><span class="id" title="lemma">has_homsets_slice_precat</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span>(<span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">intros</span> [<span class="id" title="var">y1</span> <span class="id" title="var">y2</span>] <span class="id" title="var">Hy</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#eq_mor_slicecat"><span class="id" title="lemma">eq_mor_slicecat</span></a>, <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>; [<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">y2</span>) <span class="id" title="var">x</span>)|];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>; [<span class="id" title="tactic">intros</span> <span class="id" title="var">w</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>|];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">f</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">f</span> <span class="id" title="var">Hf</span>];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#hfiber"><span class="id" title="definition">hfiber</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#transportf_sec_constant"><span class="id" title="lemma">transportf_sec_constant</span></a>, <a class="idref" href="UniMath.Foundations.PartA.html#transportf_total2"><span class="id" title="definition">transportf_total2</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportf_const"><span class="id" title="definition">transportf_const</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> &lt;- <span class="id" title="var">Hy</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#set_slicecat.products_set_slice"><span class="id" title="section">products_set_slice</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1796"></a><h3 class="section">Exponentials (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#Exponentials_HSET_slice"><span class="id" title="lemma">Exponentials_HSET_slice</span></a></span>)</h3>
+
+<div class="paragraph"> </div>
+
+ Direct proof that HSET/X has exponentials using explicit formula in example 2.2 of:
+
+<div class="paragraph"> </div>
+
+    https://ncatlab.org/nlab/show/locally+cartesian+closed+categoryin_category_theory
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="hfiber_fun" class="idref" href="#hfiber_fun"><span class="id" title="definition">hfiber_fun</span></a> (<a id="X:9" class="idref" href="#X:9"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>) (<a id="f:10" class="idref" href="#f:10"><span class="id" title="binder">f</span></a> : <span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:9"><span class="id" title="variable">X</span></a>) : <span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:9"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:9"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">intros</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="x:11" class="idref" href="#x:11"><span class="id" title="binder"><span id="x:12" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.Foundations.Sets.html#hfiber_hSet"><span class="id" title="definition">hfiber_hSet</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">f</span>) <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#x:11"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.Foundations.Sets.html#hfiber_hSet"><span class="id" title="definition">hfiber_hSet</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">g</span>) <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#x:11"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isaset_total2"><span class="id" title="lemma">isaset_total2</span></a>; [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a> | <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#has_homsets_HSET"><span class="id" title="lemma">has_homsets_HSET</span></a> ]).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="hfiber_functor" class="idref" href="#hfiber_functor"><span class="id" title="definition">hfiber_functor</span></a> (<a id="X:13" class="idref" href="#X:13"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>) (<a id="f:14" class="idref" href="#f:14"><span class="id" title="binder">f</span></a> : <span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:13"><span class="id" title="variable">X</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> (<span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:13"><span class="id" title="variable">X</span></a>) (<span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:13"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor"><span class="id" title="definition">make_functor</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#hfiber_fun"><span class="id" title="definition">hfiber_fun</span></a> <span class="id" title="var">_</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">cbn</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">h</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">fx</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">g</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">h</span> <span class="id" title="var">fx</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">abstract</span> (<span class="id" title="var">etrans</span>; [ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">g</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">h</span> <span class="id" title="var">fx</span>)))|];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">h</span> <span class="id" title="var">fx</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.slicecat.html#eq_mor_slicecat"><span class="id" title="lemma">eq_mor_slicecat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>); <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intros</span> [<span class="id" title="var">y</span> <span class="id" title="var">hy</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>; [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> |].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">w</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>; [|<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> <span class="id" title="var">XX</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.slicecat.html#eq_mor_slicecat"><span class="id" title="lemma">eq_mor_slicecat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>); <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intros</span> [<span class="id" title="var">w</span> <span class="id" title="var">hw</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>; [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> |].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">w'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>; [|<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> <span class="id" title="var">XX</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="eta" class="idref" href="#eta"><span class="id" title="definition">eta</span></a> <a id="X:15" class="idref" href="#X:15"><span class="id" title="binder">X</span></a> (<a id="f:16" class="idref" href="#f:16"><span class="id" title="binder">f</span></a> : <span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:15"><span class="id" title="variable">X</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans"><span class="id" title="definition">nat_trans</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> (<span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:15"><span class="id" title="variable">X</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_composite"><span class="id" title="definition">functor_composite</span></a> (<a class="idref" href="UniMath.CategoryTheory.Exponentials.html#constprod_functor1"><span class="id" title="definition">constprod_functor1</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinProducts_HSET_slice"><span class="id" title="lemma">BinProducts_HSET_slice</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:15"><span class="id" title="variable">X</span></a>) <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#f:16"><span class="id" title="variable">f</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#hfiber_functor"><span class="id" title="definition">hfiber_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:15"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#f:16"><span class="id" title="variable">f</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#make_nat_trans"><span class="id" title="definition">make_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">g</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">y</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">g</span> <span class="id" title="var">y</span>); <span class="id" title="tactic">intros</span> <span class="id" title="var">fgy</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">fgy</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><span class="id" title="var">y</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">fgy</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">fgy</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">abstract</span> (<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> [<span class="id" title="var">g</span> <span class="id" title="var">Hg</span>] [<span class="id" title="var">h</span> <span class="id" title="var">Hh</span>] [<span class="id" title="var">w</span> <span class="id" title="var">Hw</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.slicecat.html#eq_mor_slicecat"><span class="id" title="lemma">eq_mor_slicecat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>), <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">x1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#two_arg_paths_f"><span class="id" title="lemma">two_arg_paths_f</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">Hw</span> <span class="id" title="var">x1</span>)), <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>; [<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>|]); <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:17" class="idref" href="#x:17"><span class="id" title="binder"><span id="x:18" class="id">x</span></span></a> : <span class="id" title="var">g</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">Hh</span> (<span class="id" title="var">w</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#x:17"><span class="id" title="variable">x</span></a>)) <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="eps" class="idref" href="#eps"><span class="id" title="definition">eps</span></a> <a id="X:19" class="idref" href="#X:19"><span class="id" title="binder">X</span></a> (<a id="f:20" class="idref" href="#f:20"><span class="id" title="binder">f</span></a> : <span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:19"><span class="id" title="variable">X</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans"><span class="id" title="definition">nat_trans</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_composite"><span class="id" title="definition">functor_composite</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#hfiber_functor"><span class="id" title="definition">hfiber_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:19"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#f:20"><span class="id" title="variable">f</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Exponentials.html#constprod_functor1"><span class="id" title="definition">constprod_functor1</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinProducts_HSET_slice"><span class="id" title="lemma">BinProducts_HSET_slice</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:19"><span class="id" title="variable">X</span></a>) <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#f:20"><span class="id" title="variable">f</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> (<span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:19"><span class="id" title="variable">X</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#make_nat_trans"><span class="id" title="definition">make_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">g</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> ((<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">H</span>))) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">H</span>)<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">H</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">abstract</span> (<span class="id" title="var">cbn</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intros</span> [[<span class="id" title="var">x1</span> [<span class="id" title="var">x2</span> <span class="id" title="var">x3</span>]] <span class="id" title="var">x4</span>]; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> *;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<span class="id" title="var">x3</span> (<span class="id" title="var">x1</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><span class="id" title="var">x4</span>))), <span class="id" title="var">x4</span>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">w</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.slicecat.html#eq_mor_slicecat"><span class="id" title="lemma">eq_mor_slicecat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>), <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">x1</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Exponentials_HSET_slice" class="idref" href="#Exponentials_HSET_slice"><span class="id" title="lemma">Exponentials_HSET_slice</span></a> (<a id="X:21" class="idref" href="#X:21"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#Exponentials"><span class="id" title="definition">Exponentials</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinProducts_HSET_slice"><span class="id" title="lemma">BinProducts_HSET_slice</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:21"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#hfiber_functor"><span class="id" title="definition">hfiber_functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#make_are_adjoints"><span class="id" title="definition">make_are_adjoints</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#eta"><span class="id" title="definition">eta</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#eps"><span class="id" title="definition">eps</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#eq_mor_slicecat"><span class="id" title="lemma">eq_mor_slicecat</span></a>, <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">x1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>; [<span class="id" title="tactic">intro</span> <span class="id" title="var">y</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>|]; <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#eq_mor_slicecat"><span class="id" title="lemma">eq_mor_slicecat</span></a>, <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">x1</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>|]; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intro</span> <span class="id" title="var">z</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1797"></a><h2 class="section">Colimits</h2>
+
+<div class="paragraph"> </div>
+
+<a id="lab1798"></a><h3 class="section">Binary coproducts (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#BinCoproducts_HSET_slice"><span class="id" title="lemma">BinCoproducts_HSET_slice</span></a></span>)</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="BinCoproducts_HSET_slice" class="idref" href="#BinCoproducts_HSET_slice"><span class="id" title="lemma">BinCoproducts_HSET_slice</span></a> <a id="X:22" class="idref" href="#X:22"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> (<span class="id" title="var">HSET</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#4865fbd7432a540b1c75aab25ec97fb4"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:22"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#BinCoproducts_slice_precat"><span class="id" title="lemma">BinCoproducts_slice_precat</span></a>, <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#BinCoproductsHSET"><span class="id" title="lemma">BinCoproductsHSET</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1799"></a><h2 class="section">The forgetful functor <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#SortIndexing.HSET"><span class="id" title="section">HSET</span></a>/<a class="idref" href="UniMath.Topology.Topology.html#topologygenerated.X"><span class="id" title="variable">X</span></a></span> <span class="inlinecode">--&gt;</span> <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#SortIndexing.HSET"><span class="id" title="section">HSET</span></a></span> is a left adjoint</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_left_adjoint_slicecat_to_cat_HSET" class="idref" href="#is_left_adjoint_slicecat_to_cat_HSET"><span class="id" title="lemma">is_left_adjoint_slicecat_to_cat_HSET</span></a> (<a id="X:23" class="idref" href="#X:23"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#is_left_adjoint"><span class="id" title="definition">is_left_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.slicecat.html#slicecat_to_cat"><span class="id" title="definition">slicecat_to_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#X:23"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.slicecat.html#is_left_adjoint_slicecat_to_cat"><span class="id" title="lemma">is_left_adjoint_slicecat_to_cat</span></a>, <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#BinProductsHSET"><span class="id" title="lemma">BinProductsHSET</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Slice.html#set_slicecat"><span class="id" title="section">set_slicecat</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.PosetCat.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.PosetCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Coproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Coproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.BenabouCosmos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.EnrichedRelation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Closed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#"><span class="id" title="library">UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfUnivCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.DoubleCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.SymmetricUnivalent.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.SymmetricUnivalent</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.html#"><span class="id" title="library">UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">double_cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">moncat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="EnrichedRelationDoubleCat" class="idref" href="#EnrichedRelationDoubleCat"><span class="id" title="section">EnrichedRelationDoubleCat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="EnrichedRelationDoubleCat.V" class="idref" href="#EnrichedRelationDoubleCat.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.html#quantale_cosmos"><span class="id" title="definition">quantale_cosmos</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1028"></a><h1 class="section">1. Horizontal identities</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_hor_id_data" class="idref" href="#enriched_rel_double_cat_hor_id_data"><span class="id" title="definition">enriched_rel_double_cat_hor_id_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_id_data"><span class="id" title="definition">hor_id_data</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#enriched_relation_twosided_disp_cat"><span class="id" title="definition">enriched_relation_twosided_disp_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#EnrichedRelationDoubleCat.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_id_data"><span class="id" title="definition">make_hor_id_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#id_enriched_relation"><span class="id" title="definition">id_enriched_relation</span></a> <span class="id" title="var">X</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#id_h_enriched_relation_square"><span class="id" title="definition">id_h_enriched_relation_square</span></a> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_hor_id" class="idref" href="#enriched_rel_double_cat_hor_id"><span class="id" title="definition">enriched_rel_double_cat_hor_id</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_id"><span class="id" title="definition">hor_id</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#enriched_relation_twosided_disp_cat"><span class="id" title="definition">enriched_relation_twosided_disp_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#EnrichedRelationDoubleCat.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_id"><span class="id" title="definition">make_hor_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_id_data"><span class="id" title="definition">enriched_rel_double_cat_hor_id_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">split</span> ; <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1029"></a><h1 class="section">2. Horizontal composition</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_hor_comp_data" class="idref" href="#enriched_rel_double_cat_hor_comp_data"><span class="id" title="definition">enriched_rel_double_cat_hor_comp_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_comp_data"><span class="id" title="definition">hor_comp_data</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#enriched_relation_twosided_disp_cat"><span class="id" title="definition">enriched_relation_twosided_disp_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#EnrichedRelationDoubleCat.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_comp_data"><span class="id" title="definition">make_hor_comp_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">R₁</span> <span class="id" title="var">R₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">R₁</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#ace7b40b24b9c8886aa03617c5658082"><span class="id" title="notation">·</span></a><a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#ace7b40b24b9c8886aa03617c5658082"><span class="id" title="notation">e</span></a> <span class="id" title="var">R₂</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> ? ? ? ? ? ? ? ? ? ? ? ? ? τ <span class="id" title="var">θ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#comp_h_enriched_relation_square"><span class="id" title="definition">comp_h_enriched_relation_square</span></a> τ <span class="id" title="var">θ</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_hor_comp" class="idref" href="#enriched_rel_double_cat_hor_comp"><span class="id" title="definition">enriched_rel_double_cat_hor_comp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#hor_comp"><span class="id" title="definition">hor_comp</span></a> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#enriched_relation_twosided_disp_cat"><span class="id" title="definition">enriched_relation_twosided_disp_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#EnrichedRelationDoubleCat.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_hor_comp"><span class="id" title="definition">make_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_comp_data"><span class="id" title="definition">enriched_rel_double_cat_hor_comp_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">split</span> ; <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1030"></a><h1 class="section">3. Unitors and associators</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_lunitor_data" class="idref" href="#enriched_rel_double_cat_lunitor_data"><span class="id" title="definition">enriched_rel_double_cat_lunitor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_lunitor_data"><span class="id" title="definition">double_lunitor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_id"><span class="id" title="definition">enriched_rel_double_cat_hor_id</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_comp"><span class="id" title="definition">enriched_rel_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">R</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#to_iso_enriched_relation_twosided_disp_cat"><span class="id" title="definition">to_iso_enriched_relation_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#enriched_relation_lunitor"><span class="id" title="lemma">enriched_relation_lunitor</span></a> <span class="id" title="var">R</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#enriched_relation_linvunitor"><span class="id" title="lemma">enriched_relation_linvunitor</span></a> <span class="id" title="var">R</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_lunitor" class="idref" href="#enriched_rel_double_cat_lunitor"><span class="id" title="definition">enriched_rel_double_cat_lunitor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_cat_lunitor"><span class="id" title="definition">double_cat_lunitor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_id"><span class="id" title="definition">enriched_rel_double_cat_hor_id</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_comp"><span class="id" title="definition">enriched_rel_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_double_lunitor"><span class="id" title="definition">make_double_lunitor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_lunitor_data"><span class="id" title="definition">enriched_rel_double_cat_lunitor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_runitor_data" class="idref" href="#enriched_rel_double_cat_runitor_data"><span class="id" title="definition">enriched_rel_double_cat_runitor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_runitor_data"><span class="id" title="definition">double_runitor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_id"><span class="id" title="definition">enriched_rel_double_cat_hor_id</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_comp"><span class="id" title="definition">enriched_rel_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">R</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#to_iso_enriched_relation_twosided_disp_cat"><span class="id" title="definition">to_iso_enriched_relation_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#enriched_relation_runitor"><span class="id" title="lemma">enriched_relation_runitor</span></a> <span class="id" title="var">R</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#enriched_relation_rinvunitor"><span class="id" title="lemma">enriched_relation_rinvunitor</span></a> <span class="id" title="var">R</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_runitor" class="idref" href="#enriched_rel_double_cat_runitor"><span class="id" title="definition">enriched_rel_double_cat_runitor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_cat_runitor"><span class="id" title="definition">double_cat_runitor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_id"><span class="id" title="definition">enriched_rel_double_cat_hor_id</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_comp"><span class="id" title="definition">enriched_rel_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_double_runitor"><span class="id" title="definition">make_double_runitor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_runitor_data"><span class="id" title="definition">enriched_rel_double_cat_runitor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_associator_data" class="idref" href="#enriched_rel_double_cat_associator_data"><span class="id" title="definition">enriched_rel_double_cat_associator_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_associator_data"><span class="id" title="definition">double_associator_data</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_comp"><span class="id" title="definition">enriched_rel_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">W</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">R₁</span> <span class="id" title="var">R₂</span> <span class="id" title="var">R₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#to_iso_enriched_relation_twosided_disp_cat"><span class="id" title="definition">to_iso_enriched_relation_twosided_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#enriched_relation_rassociator"><span class="id" title="lemma">enriched_relation_rassociator</span></a> <span class="id" title="var">R₁</span> <span class="id" title="var">R₂</span> <span class="id" title="var">R₃</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#enriched_relation_lassociator"><span class="id" title="lemma">enriched_relation_lassociator</span></a> <span class="id" title="var">R₁</span> <span class="id" title="var">R₂</span> <span class="id" title="var">R₃</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat_associator" class="idref" href="#enriched_rel_double_cat_associator"><span class="id" title="definition">enriched_rel_double_cat_associator</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#double_cat_associator"><span class="id" title="definition">double_cat_associator</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_comp"><span class="id" title="definition">enriched_rel_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.html#make_double_associator"><span class="id" title="definition">make_double_associator</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_associator_data"><span class="id" title="definition">enriched_rel_double_cat_associator_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1031"></a><h1 class="section">4. The double category of enriched relations</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_double_cat" class="idref" href="#enriched_rel_double_cat"><span class="id" title="definition">enriched_rel_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#double_cat"><span class="id" title="definition">double_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#make_double_cat"><span class="id" title="definition">make_double_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#enriched_relation_twosided_disp_cat"><span class="id" title="definition">enriched_relation_twosided_disp_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#EnrichedRelationDoubleCat.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_id"><span class="id" title="definition">enriched_rel_double_cat_hor_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_hor_comp"><span class="id" title="definition">enriched_rel_double_cat_hor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_lunitor"><span class="id" title="definition">enriched_rel_double_cat_lunitor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_runitor"><span class="id" title="definition">enriched_rel_double_cat_runitor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat_associator"><span class="id" title="definition">enriched_rel_double_cat_associator</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rel_univalent_double_cat" class="idref" href="#enriched_rel_univalent_double_cat"><span class="id" title="definition">enriched_rel_univalent_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#univalent_double_cat"><span class="id" title="definition">univalent_double_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.html#make_univalent_double_cat"><span class="id" title="definition">make_univalent_double_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat"><span class="id" title="definition">enriched_rel_double_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#is_univalent_HSET"><span class="id" title="lemma">is_univalent_HSET</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.html#is_univalent_enriched_relation_twosided_disp_cat"><span class="id" title="lemma">is_univalent_enriched_relation_twosided_disp_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#EnrichedRelationDoubleCat.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="is_flat_enriched_rel_double_cat" class="idref" href="#is_flat_enriched_rel_double_cat"><span class="id" title="lemma">is_flat_enriched_rel_double_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.DoubleCats.html#is_flat_double_cat"><span class="id" title="definition">is_flat_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat"><span class="id" title="definition">enriched_rel_double_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1032"></a><h1 class="section">5. Companion pairs and conjoints</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="all_companions_enriched_rel" class="idref" href="#all_companions_enriched_rel"><span class="id" title="definition">all_companions_enriched_rel</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.html#all_companions_double_cat"><span class="id" title="definition">all_companions_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat"><span class="id" title="definition">enriched_rel_double_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="X:2" class="idref" href="#X:2"><span class="id" title="binder"><span id="X:5" class="id">X</span></span></a> <a id="Y:3" class="idref" href="#Y:3"><span class="id" title="binder"><span id="Y:6" class="id">Y</span></span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) (<a id="f:4" class="idref" href="#f:4"><span class="id" title="binder"><span id="f:7" class="id">f</span></span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#X:2"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#Y:3"><span class="id" title="variable">Y</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#companion_enriched_relation"><span class="id" title="definition">companion_enriched_relation</span></a> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.html#make_double_cat_are_companions'"><span class="id" title="definition">make_double_cat_are_companions'</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#companion_enriched_relation_left"><span class="id" title="lemma">companion_enriched_relation_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#companion_enriched_relation_right"><span class="id" title="lemma">companion_enriched_relation_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="all_conjoints_enriched_rel" class="idref" href="#all_conjoints_enriched_rel"><span class="id" title="definition">all_conjoints_enriched_rel</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.html#all_conjoints_double_cat"><span class="id" title="definition">all_conjoints_double_cat</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#enriched_rel_double_cat"><span class="id" title="definition">enriched_rel_double_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="X:8" class="idref" href="#X:8"><span class="id" title="binder"><span id="X:11" class="id">X</span></span></a> <a id="Y:9" class="idref" href="#Y:9"><span class="id" title="binder"><span id="Y:12" class="id">Y</span></span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) (<a id="f:10" class="idref" href="#f:10"><span class="id" title="binder"><span id="f:13" class="id">f</span></span></a> : <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#X:8"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#Y:9"><span class="id" title="variable">Y</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#conjoint_enriched_relation"><span class="id" title="definition">conjoint_enriched_relation</span></a> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.html#make_double_cat_are_conjoints'"><span class="id" title="definition">make_double_cat_are_conjoints'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#conjoint_enriched_relation_left"><span class="id" title="lemma">conjoint_enriched_relation_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#conjoint_enriched_relation_right"><span class="id" title="lemma">conjoint_enriched_relation_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.html#isaprop_enriched_relation_square"><span class="id" title="lemma">isaprop_enriched_relation_square</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.html#EnrichedRelationDoubleCat"><span class="id" title="section">EnrichedRelationDoubleCat</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

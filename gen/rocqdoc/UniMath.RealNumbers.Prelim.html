@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.RealNumbers.Prelim</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.RealNumbers.Prelim</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab4065"></a><h1 class="section">Additional theorems and definitions</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Preamble.html#"><span class="id" title="library">UniMath.Foundations.Preamble</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.Topology.Prelim.html#"><span class="id" title="library">UniMath.Topology.Prelim</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4066"></a><h2 class="section">for RationalNumbers.v</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#"><span class="id" title="library">UniMath.NumberSystems.RationalNumbers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.Algebra.Archimedean.html#"><span class="id" title="library">UniMath.Algebra.Archimedean</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">hq_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id="c97c79d67910ff4b22b29bf809419411" class="idref" href="#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&quot;</span></a>x &lt;= y" := (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqleh"><span class="id" title="definition">hqleh</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>) : <span class="id" title="var">hq_scope</span>.<br/>
+<span class="id" title="keyword">Notation</span> <a id="ce98e802a3f7555e699bb5c1bcaa8baf" class="idref" href="#ce98e802a3f7555e699bb5c1bcaa8baf"><span class="id" title="notation">&quot;</span></a>x &gt;= y" := (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqgeh"><span class="id" title="definition">hqgeh</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>) : <span class="id" title="var">hq_scope</span>.<br/>
+<span class="id" title="keyword">Notation</span> <a id="::hq_scope:x_'&lt;'_x" class="idref" href="#::hq_scope:x_'&lt;'_x"><span class="id" title="notation">&quot;</span></a>x &lt; y" := (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlth"><span class="id" title="definition">hqlth</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>) : <span class="id" title="var">hq_scope</span>.<br/>
+<span class="id" title="keyword">Notation</span> <a id="::hq_scope:x_'&gt;'_x" class="idref" href="#::hq_scope:x_'&gt;'_x"><span class="id" title="notation">&quot;</span></a>x &gt; y" := (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqgth"><span class="id" title="definition">hqgth</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>) : <span class="id" title="var">hq_scope</span>.<br/>
+<span class="id" title="keyword">Notation</span> <a id="37ef9f60239d96f006335a9250986d3f" class="idref" href="#37ef9f60239d96f006335a9250986d3f"><span class="id" title="notation">&quot;</span></a>/ x" := (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqmultinv"><span class="id" title="definition">hqmultinv</span></a> <span class="id" title="var">x</span>) : <span class="id" title="var">hq_scope</span>.<br/>
+<span class="id" title="keyword">Notation</span> <a id="d4c4731feacd9b5398b4d92fcebe103c" class="idref" href="#d4c4731feacd9b5398b4d92fcebe103c"><span class="id" title="notation">&quot;</span></a>x / y" := (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqdiv"><span class="id" title="definition">hqdiv</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>) : <span class="id" title="var">hq_scope</span>.<br/>
+<span class="id" title="keyword">Notation</span> <a id="::hq_scope:'2'" class="idref" href="#::hq_scope:'2'"><span class="id" title="notation">&quot;</span></a>2" := (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hztohq"><span class="id" title="definition">hztohq</span></a> (<a class="idref" href="UniMath.NumberSystems.Integers.html#nattohz"><span class="id" title="definition">nattohz</span></a> 2)) : <span class="id" title="var">hq_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hzone_neg_hzzero" class="idref" href="#hzone_neg_hzzero"><span class="id" title="lemma">hzone_neg_hzzero</span></a> : <a class="idref" href="UniMath.Foundations.PartA.html#neg"><span class="id" title="definition">neg</span></a> (1%<span class="id" title="var">hz</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 0%<span class="id" title="var">hz</span>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">confirm_not_equal</span> <a class="idref" href="UniMath.NumberSystems.Integers.html#isdeceqhz"><span class="id" title="lemma">isdeceqhz</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="one_intdomnonzerosubmonoid" class="idref" href="#one_intdomnonzerosubmonoid"><span class="id" title="definition">one_intdomnonzerosubmonoid</span></a> : <a class="idref" href="UniMath.Algebra.Domains_and_Fields.html#intdomnonzerosubmonoid"><span class="id" title="definition">intdomnonzerosubmonoid</span></a> <a class="idref" href="UniMath.NumberSystems.Integers.html#hzintdom"><span class="id" title="definition">hzintdom</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> 1%<span class="id" title="var">hz</span> ; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hzone_neg_hzzero"><span class="id" title="lemma">hzone_neg_hzzero</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Opaque</span> <a class="idref" href="UniMath.NumberSystems.Integers.html#hz"><span class="id" title="definition">hz</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hq2eq1plus1" class="idref" href="#hq2eq1plus1"><span class="id" title="lemma">hq2eq1plus1</span></a> : 2 <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 1 <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#a2cbed550fa61dd7c0450ebdb452262f"><span class="id" title="notation">+</span></a> 1.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">confirm_equal</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#isdeceqhq"><span class="id" title="definition">isdeceqhq</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hq2_gt0" class="idref" href="#hq2_gt0"><span class="id" title="lemma">hq2_gt0</span></a> : 2 <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&gt;'_x"><span class="id" title="notation">&gt;</span></a> 0.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">confirm_yes</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqgthdec"><span class="id" title="definition">hqgthdec</span></a> 2 0.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hq1_gt0" class="idref" href="#hq1_gt0"><span class="id" title="lemma">hq1_gt0</span></a> : 1 <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&gt;'_x"><span class="id" title="notation">&gt;</span></a> 0.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">confirm_yes</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqgthdec"><span class="id" title="definition">hqgthdec</span></a> 1 0.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hq1ge0" class="idref" href="#hq1ge0"><span class="id" title="lemma">hq1ge0</span></a> : (0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> 1)%<span class="id" title="var">hq</span>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">confirm_yes</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlehdec"><span class="id" title="definition">hqlehdec</span></a> 0 1.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hqgth_hqneq" class="idref" href="#hqgth_hqneq"><span class="id" title="lemma">hqgth_hqneq</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:1" class="idref" href="#x:1"><span class="id" title="binder">x</span></a> <a id="y:2" class="idref" href="#y:2"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hq"><span class="id" title="definition">hq</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:1"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&gt;'_x"><span class="id" title="notation">&gt;</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#y:2"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqneq"><span class="id" title="definition">hqneq</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:1"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#y:2"><span class="id" title="variable">y</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">Hlt</span> <span class="id" title="var">Heq</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">Heq</span> <span class="id" title="tactic">in</span> <span class="id" title="var">Hlt</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#isirreflhqgth"><span class="id" title="lemma">isirreflhqgth</span></a> <span class="id" title="keyword">with</span> <span class="id" title="var">y</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hqldistr" class="idref" href="#hqldistr"><span class="id" title="lemma">hqldistr</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:3" class="idref" href="#x:3"><span class="id" title="binder">x</span></a> <a id="y:4" class="idref" href="#y:4"><span class="id" title="binder">y</span></a> <a id="z:5" class="idref" href="#z:5"><span class="id" title="binder">z</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:3"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#35cac0ebe7080cd63ba6ea89d3474dfe"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#35cac0ebe7080cd63ba6ea89d3474dfe"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.Prelim.html#y:4"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#a2cbed550fa61dd7c0450ebdb452262f"><span class="id" title="notation">+</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#z:5"><span class="id" title="variable">z</span></a><a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#35cac0ebe7080cd63ba6ea89d3474dfe"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:3"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#35cac0ebe7080cd63ba6ea89d3474dfe"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#y:4"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#a2cbed550fa61dd7c0450ebdb452262f"><span class="id" title="notation">+</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:3"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#35cac0ebe7080cd63ba6ea89d3474dfe"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#z:5"><span class="id" title="variable">z</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringldistr"><span class="id" title="definition">ringldistr</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hqmult2r" class="idref" href="#hqmult2r"><span class="id" title="lemma">hqmult2r</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:6" class="idref" href="#x:6"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hq"><span class="id" title="definition">hq</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:6"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#35cac0ebe7080cd63ba6ea89d3474dfe"><span class="id" title="notation">*</span></a> 2 <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:6"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#a2cbed550fa61dd7c0450ebdb452262f"><span class="id" title="notation">+</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:6"><span class="id" title="variable">x</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hq2eq1plus1"><span class="id" title="lemma">hq2eq1plus1</span></a>, <a class="idref" href="UniMath.RealNumbers.Prelim.html#hqldistr"><span class="id" title="lemma">hqldistr</span></a>, (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqmultr1"><span class="id" title="lemma">hqmultr1</span></a> <span class="id" title="var">x</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hqplusdiv2" class="idref" href="#hqplusdiv2"><span class="id" title="lemma">hqplusdiv2</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:7" class="idref" href="#x:7"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hq"><span class="id" title="definition">hq</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#d4c4731feacd9b5398b4d92fcebe103c"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.Prelim.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#a2cbed550fa61dd7c0450ebdb452262f"><span class="id" title="notation">+</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:7"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.RealNumbers.Prelim.html#d4c4731feacd9b5398b4d92fcebe103c"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#d4c4731feacd9b5398b4d92fcebe103c"><span class="id" title="notation">/</span></a> 2.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqmultrcan"><span class="id" title="lemma">hqmultrcan</span></a> <span class="id" title="keyword">with</span> 2.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hqgth_hqneq"><span class="id" title="lemma">hqgth_hqneq</span></a>, <a class="idref" href="UniMath.RealNumbers.Prelim.html#hq2_gt0"><span class="id" title="lemma">hq2_gt0</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqdiv"><span class="id" title="definition">hqdiv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqmultassoc"><span class="id" title="lemma">hqmultassoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqislinvmultinv"><span class="id" title="lemma">hqislinvmultinv</span></a> 2).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;2: <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hqgth_hqneq"><span class="id" title="lemma">hqgth_hqneq</span></a>, <a class="idref" href="UniMath.RealNumbers.Prelim.html#hq2_gt0"><span class="id" title="lemma">hq2_gt0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqmultr1"><span class="id" title="lemma">hqmultr1</span></a> (<span class="id" title="var">x</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#a2cbed550fa61dd7c0450ebdb452262f"><span class="id" title="notation">+</span></a> <span class="id" title="var">x</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hqmult2r"><span class="id" title="lemma">hqmult2r</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hqlth_between" class="idref" href="#hqlth_between"><span class="id" title="lemma">hqlth_between</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:8" class="idref" href="#x:8"><span class="id" title="binder">x</span></a> <a id="y:9" class="idref" href="#y:9"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hq"><span class="id" title="definition">hq</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:8"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&lt;'_x"><span class="id" title="notation">&lt;</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#y:9"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#total2"><span class="id" title="record">total2</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="z:10" class="idref" href="#z:10"><span class="id" title="binder">z</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.Prelim.html#x:8"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&lt;'_x"><span class="id" title="notation">&lt;</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#z:10"><span class="id" title="variable">z</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.Prelim.html#z:10"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&lt;'_x"><span class="id" title="notation">&lt;</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#y:9"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">H0</span> : <a class="idref" href="UniMath.RealNumbers.Prelim.html#37ef9f60239d96f006335a9250986d3f"><span class="id" title="notation">/</span></a> 2 <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&gt;'_x"><span class="id" title="notation">&gt;</span></a> 0).<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqgthandmultlinv"><span class="id" title="definition">hqgthandmultlinv</span></a> <span class="id" title="keyword">with</span> 2.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hq2_gt0"><span class="id" title="lemma">hq2_gt0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqisrinvmultinv"><span class="id" title="lemma">hqisrinvmultinv</span></a>, <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqmultx0"><span class="id" title="lemma">hqmultx0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hq1_gt0"><span class="id" title="lemma">hq1_gt0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hqgth_hqneq"><span class="id" title="lemma">hqgth_hqneq</span></a>, <a class="idref" href="UniMath.RealNumbers.Prelim.html#hq2_gt0"><span class="id" title="lemma">hq2_gt0</span></a>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">Hlt</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.RealNumbers.Prelim.html#d4c4731feacd9b5398b4d92fcebe103c"><span class="id" title="notation">(</span></a><span class="id" title="var">x</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#a2cbed550fa61dd7c0450ebdb452262f"><span class="id" title="notation">+</span></a> <span class="id" title="var">y</span><a class="idref" href="UniMath.RealNumbers.Prelim.html#d4c4731feacd9b5398b4d92fcebe103c"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#d4c4731feacd9b5398b4d92fcebe103c"><span class="id" title="notation">/</span></a> 2).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">pattern</span> <span class="id" title="var">x</span> <span class="id" title="tactic">at</span> 1.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.RealNumbers.Prelim.html#hqplusdiv2"><span class="id" title="lemma">hqplusdiv2</span></a> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqdiv"><span class="id" title="definition">hqdiv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlthandmultr"><span class="id" title="definition">hqlthandmultr</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.RealNumbers.Prelim.html#37ef9f60239d96f006335a9250986d3f"><span class="id" title="notation">/</span></a> 2)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">H0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlthandplusl"><span class="id" title="definition">hqlthandplusl</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">x</span> <span class="id" title="var">Hlt</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">pattern</span> <span class="id" title="var">y</span> <span class="id" title="tactic">at</span> 2.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.RealNumbers.Prelim.html#hqplusdiv2"><span class="id" title="lemma">hqplusdiv2</span></a> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqdiv"><span class="id" title="definition">hqdiv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlthandmultr"><span class="id" title="definition">hqlthandmultr</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.RealNumbers.Prelim.html#37ef9f60239d96f006335a9250986d3f"><span class="id" title="notation">/</span></a> 2)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">H0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlthandplusr"><span class="id" title="definition">hqlthandplusr</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">y</span> <span class="id" title="var">Hlt</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hq0lehandplus" class="idref" href="#hq0lehandplus"><span class="id" title="lemma">hq0lehandplus</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:11" class="idref" href="#n:11"><span class="id" title="binder">n</span></a> <a id="m:12" class="idref" href="#m:12"><span class="id" title="binder">m</span></a> : <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hq"><span class="id" title="definition">hq</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#n:11"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> 0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#m:12"><span class="id" title="variable">m</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> 0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.RealNumbers.Prelim.html#n:11"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#a2cbed550fa61dd7c0450ebdb452262f"><span class="id" title="notation">+</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#m:12"><span class="id" title="variable">m</span></a><a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span> <span class="id" title="var">Hn</span> <span class="id" title="var">Hm</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#istranshqleh"><span class="id" title="definition">istranshqleh</span></a>, <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlehandplusl"><span class="id" title="definition">hqlehandplusl</span></a>, <span class="id" title="var">Hm</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqplusr0"><span class="id" title="lemma">hqplusr0</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hq0lehandmult" class="idref" href="#hq0lehandmult"><span class="id" title="lemma">hq0lehandmult</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:13" class="idref" href="#n:13"><span class="id" title="binder">n</span></a> <a id="m:14" class="idref" href="#m:14"><span class="id" title="binder">m</span></a> : <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hq"><span class="id" title="definition">hq</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> 0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#n:13"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> 0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#m:14"><span class="id" title="variable">m</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> 0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#n:13"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#35cac0ebe7080cd63ba6ea89d3474dfe"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#m:14"><span class="id" title="variable">m</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqmultgeh0geh0"><span class="id" title="lemma">hqmultgeh0geh0</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hq0leminus" class="idref" href="#hq0leminus"><span class="id" title="lemma">hq0leminus</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="r:15" class="idref" href="#r:15"><span class="id" title="binder">r</span></a> <a id="q:16" class="idref" href="#q:16"><span class="id" title="binder">q</span></a> : <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hq"><span class="id" title="definition">hq</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#r:15"><span class="id" title="variable">r</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#q:16"><span class="id" title="variable">q</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> 0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#q:16"><span class="id" title="variable">q</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#::hq_scope:x_'-'_x"><span class="id" title="notation">-</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#r:15"><span class="id" title="variable">r</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">r</span> <span class="id" title="var">q</span> <span class="id" title="var">Hr</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlehandplusrinv"><span class="id" title="definition">hqlehandplusrinv</span></a> <span class="id" title="keyword">with</span> <span class="id" title="var">r</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqminus"><span class="id" title="definition">hqminus</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqplusassoc"><span class="id" title="lemma">hqplusassoc</span></a>, <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlminus"><span class="id" title="lemma">hqlminus</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqplusl0"><span class="id" title="lemma">hqplusl0</span></a>, <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqplusr0"><span class="id" title="lemma">hqplusr0</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hqinv_gt0" class="idref" href="#hqinv_gt0"><span class="id" title="lemma">hqinv_gt0</span></a> (<a id="x:17" class="idref" href="#x:17"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hq"><span class="id" title="definition">hq</span></a>) : 0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&lt;'_x"><span class="id" title="notation">&lt;</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:17"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> 0 <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&lt;'_x"><span class="id" title="notation">&lt;</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#37ef9f60239d96f006335a9250986d3f"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#x:17"><span class="id" title="variable">x</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqlth"><span class="id" title="definition">hqlth</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Hx</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqgthandmultlinv"><span class="id" title="definition">hqgthandmultlinv</span></a> <span class="id" title="keyword">with</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">Hx</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqmultx0"><span class="id" title="lemma">hqmultx0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqisrinvmultinv"><span class="id" title="lemma">hqisrinvmultinv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hq1_gt0"><span class="id" title="lemma">hq1_gt0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.RealNumbers.Prelim.html#hqgth_hqneq"><span class="id" title="lemma">hqgth_hqneq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Hx</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hztohqandleh'" class="idref" href="#hztohqandleh'"><span class="id" title="lemma">hztohqandleh'</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:18" class="idref" href="#n:18"><span class="id" title="binder">n</span></a> <a id="m:19" class="idref" href="#m:19"><span class="id" title="binder">m</span></a> : <a class="idref" href="UniMath.NumberSystems.Integers.html#hz"><span class="id" title="definition">hz</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hztohq"><span class="id" title="definition">hztohq</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#n:18"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#c97c79d67910ff4b22b29bf809419411"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hztohq"><span class="id" title="definition">hztohq</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#m:19"><span class="id" title="variable">m</span></a>)%<span class="id" title="var">hq</span> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.NumberSystems.Integers.html#hzleh"><span class="id" title="definition">hzleh</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#n:18"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#m:19"><span class="id" title="variable">m</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span> <span class="id" title="var">Hle</span> <span class="id" title="var">Hlt</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">Hle</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hztohqandgth"><span class="id" title="definition">hztohqandgth</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Hlt</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <a id="hztohqandlth'" class="idref" href="#hztohqandlth'"><span class="id" title="lemma">hztohqandlth'</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:20" class="idref" href="#n:20"><span class="id" title="binder">n</span></a> <a id="m:21" class="idref" href="#m:21"><span class="id" title="binder">m</span></a> : <a class="idref" href="UniMath.NumberSystems.Integers.html#hz"><span class="id" title="definition">hz</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> (<a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hztohq"><span class="id" title="definition">hztohq</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#n:20"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#::hq_scope:x_'&lt;'_x"><span class="id" title="notation">&lt;</span></a> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hztohq"><span class="id" title="definition">hztohq</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#m:21"><span class="id" title="variable">m</span></a>)%<span class="id" title="var">hq</span> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.NumberSystems.Integers.html#hzlth"><span class="id" title="definition">hzlth</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#n:20"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.RealNumbers.Prelim.html#m:21"><span class="id" title="variable">m</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span> <span class="id" title="var">Hlt</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.NumberSystems.Integers.html#neghzgehtolth"><span class="id" title="definition">neghzgehtolth</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">Hle</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hztohqandgeh"><span class="id" title="definition">hztohqandgeh</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">Hle</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hqgehtoneghqlth"><span class="id" title="definition">hqgehtoneghqlth</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">Hle</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hle</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Hlt</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Close</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">hq_scope</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

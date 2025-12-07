@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.OppositeCategory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="IndexedFunctorToCartesianFunctor" class="idref" href="#IndexedFunctorToCartesianFunctor"><span class="id" title="section">IndexedFunctorToCartesianFunctor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="IndexedFunctorToCartesianFunctor.C" class="idref" href="#IndexedFunctorToCartesianFunctor.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="dd589618b2c0ef4b22807ecd4f7f5647" class="idref" href="#dd589618b2c0ef4b22807ecd4f7f5647"><span class="id" title="variable">Φ</span></a> <a id="ba7d15a6bc29e1c6208906a28c820179" class="idref" href="#ba7d15a6bc29e1c6208906a28c820179"><span class="id" title="variable">Ψ</span></a> : <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat"><span class="id" title="definition">indexed_cat</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#a94a1bf0b374183e66549def52723bf4"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#a94a1bf0b374183e66549def52723bf4"><span class="id" title="notation">opp</span></a>)}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="c79dee73968f13963f0ccff0afdcb333" class="idref" href="#c79dee73968f13963f0ccff0afdcb333"><span class="id" title="variable">τ</span></a> : <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#indexed_functor"><span class="id" title="definition">indexed_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#7a2ac54b3c1387e41c565d7f78953187"><span class="id" title="variable">Φ</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#91a303783f1d3c905c7f909713788a8b"><span class="id" title="variable">Ψ</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   1. The displayed functor arising from an indexed functor
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="indexed_functor_to_disp_functor_data" class="idref" href="#indexed_functor_to_disp_functor_data"><span class="id" title="definition">indexed_functor_to_disp_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_data"><span class="id" title="definition">disp_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#IndexedFunctorToCartesianFunctor.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#indexed_cat_to_disp_cat"><span class="id" title="definition">indexed_cat_to_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#dd589618b2c0ef4b22807ecd4f7f5647"><span class="id" title="variable">Φ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#indexed_cat_to_disp_cat"><span class="id" title="definition">indexed_cat_to_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#ba7d15a6bc29e1c6208906a28c820179"><span class="id" title="variable">Ψ</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder"><span id="x:6" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#c79dee73968f13963f0ccff0afdcb333"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#x:5"><span class="id" title="variable">x</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:7" class="idref" href="#x:7"><span class="id" title="binder"><span id="x:13" class="id">x</span></span></a> <a id="y:8" class="idref" href="#y:8"><span class="id" title="binder"><span id="y:14" class="id">y</span></span></a> <a id="xx:9" class="idref" href="#xx:9"><span class="id" title="binder"><span id="xx:15" class="id">xx</span></span></a> <a id="yy:10" class="idref" href="#yy:10"><span class="id" title="binder"><span id="yy:16" class="id">yy</span></span></a> <a id="f:11" class="idref" href="#f:11"><span class="id" title="binder"><span id="f:17" class="id">f</span></span></a> <a id="ff:12" class="idref" href="#ff:12"><span class="id" title="binder"><span id="ff:18" class="id">ff</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#(</span></a><a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#c79dee73968f13963f0ccff0afdcb333"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#x:7"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">ff</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#inv_from_z_iso"><span class="id" title="definition">inv_from_z_iso</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#indexed_functor_natural_z_iso"><span class="id" title="definition">indexed_functor_natural_z_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#c79dee73968f13963f0ccff0afdcb333"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#f:11"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#yy:10"><span class="id" title="variable">yy</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="indexed_functor_to_disp_functor_axioms" class="idref" href="#indexed_functor_to_disp_functor_axioms"><span class="id" title="lemma">indexed_functor_to_disp_functor_axioms</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_axioms"><span class="id" title="definition">disp_functor_axioms</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#indexed_functor_to_disp_functor_data"><span class="id" title="definition">indexed_functor_to_disp_functor_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">xx</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#indexed_functor_id"><span class="id" title="lemma">indexed_functor_id</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#c79dee73968f13963f0ccff0afdcb333"><span class="id" title="variable">τ</span></a> <span class="id" title="var">xx</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_inv_on_left"><span class="id" title="lemma">z_iso_inv_on_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">xx</span> <span class="id" title="var">yy</span> <span class="id" title="var">zz</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">ff</span> <span class="id" title="var">gg</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_inv_on_left"><span class="id" title="lemma">z_iso_inv_on_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_inv_on_right"><span class="id" title="lemma">z_iso_inv_on_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#indexed_functor_comp"><span class="id" title="lemma">indexed_functor_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#c79dee73968f13963f0ccff0afdcb333"><span class="id" title="variable">τ</span></a> <span class="id" title="var">g</span> <span class="id" title="var">f</span> <span class="id" title="var">zz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_ax"><span class="id" title="definition">nat_trans_ax</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#indexed_functor_natural"><span class="id" title="definition">indexed_functor_natural</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#c79dee73968f13963f0ccff0afdcb333"><span class="id" title="variable">τ</span></a> <span class="id" title="var">f</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- !<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_after_z_iso_inv"><span class="id" title="definition">z_iso_after_z_iso_inv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="indexed_functor_to_disp_functor" class="idref" href="#indexed_functor_to_disp_functor"><span class="id" title="definition">indexed_functor_to_disp_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor"><span class="id" title="definition">disp_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#IndexedFunctorToCartesianFunctor.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#indexed_cat_to_disp_cat"><span class="id" title="definition">indexed_cat_to_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#dd589618b2c0ef4b22807ecd4f7f5647"><span class="id" title="variable">Φ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#indexed_cat_to_disp_cat"><span class="id" title="definition">indexed_cat_to_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#ba7d15a6bc29e1c6208906a28c820179"><span class="id" title="variable">Ψ</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#indexed_functor_to_disp_functor_data"><span class="id" title="definition">indexed_functor_to_disp_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#indexed_functor_to_disp_functor_axioms"><span class="id" title="lemma">indexed_functor_to_disp_functor_axioms</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   2. Preservation of cartesian morphisms
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_cartesian_indexed_functor_to_disp_functor" class="idref" href="#is_cartesian_indexed_functor_to_disp_functor"><span class="id" title="definition">is_cartesian_indexed_functor_to_disp_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#is_cartesian_disp_functor"><span class="id" title="definition">is_cartesian_disp_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#indexed_functor_to_disp_functor"><span class="id" title="definition">indexed_functor_to_disp_functor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">xx</span> <span class="id" title="var">yy</span> <span class="id" title="var">ff</span> <span class="id" title="var">Hff</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#is_cartesian_indexed_cat"><span class="id" title="lemma">is_cartesian_indexed_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_z_isomorphism_comp"><span class="id" title="definition">is_z_isomorphism_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_on_is_z_isomorphism"><span class="id" title="definition">functor_on_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#is_cartesian_to_iso_indexed_cat"><span class="id" title="definition">is_cartesian_to_iso_indexed_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#dd589618b2c0ef4b22807ecd4f7f5647"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">ff</span> <span class="id" title="var">Hff</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_z_isomorphism_inv"><span class="id" title="definition">is_z_isomorphism_inv</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="indexed_functor_to_cartesian_disp_functor" class="idref" href="#indexed_functor_to_cartesian_disp_functor"><span class="id" title="definition">indexed_functor_to_cartesian_disp_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_disp_functor"><span class="id" title="definition">cartesian_disp_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#indexed_cat_to_disp_cat"><span class="id" title="definition">indexed_cat_to_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#dd589618b2c0ef4b22807ecd4f7f5647"><span class="id" title="variable">Φ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#indexed_cat_to_disp_cat"><span class="id" title="definition">indexed_cat_to_disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#ba7d15a6bc29e1c6208906a28c820179"><span class="id" title="variable">Ψ</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#indexed_functor_to_disp_functor"><span class="id" title="definition">indexed_functor_to_disp_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#is_cartesian_indexed_functor_to_disp_functor"><span class="id" title="definition">is_cartesian_indexed_functor_to_disp_functor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#IndexedFunctorToCartesianFunctor"><span class="id" title="section">IndexedFunctorToCartesianFunctor</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

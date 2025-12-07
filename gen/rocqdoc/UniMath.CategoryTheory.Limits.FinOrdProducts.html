@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Limits.FinOrdProducts</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Limits.FinOrdProducts</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+A direct definition of finite ordered products by using products 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Propositions.html#"><span class="id" title="library">UniMath.Foundations.Propositions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#"><span class="id" title="library">UniMath.MoreFoundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Products</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Definition of finite ordered products. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="def_FinOrdProducts" class="idref" href="#def_FinOrdProducts"><span class="id" title="section">def_FinOrdProducts</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="def_FinOrdProducts.C" class="idref" href="#def_FinOrdProducts.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="FinOrdProducts" class="idref" href="#FinOrdProducts"><span class="id" title="definition">FinOrdProducts</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="n:3" class="idref" href="#n:3"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) (<a id="a:4" class="idref" href="#a:4"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#n:3"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#def_FinOrdProducts.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Product"><span class="id" title="definition">Product</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#n:3"><span class="id" title="variable">n</span></a>) <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#def_FinOrdProducts.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#a:4"><span class="id" title="variable">a</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="hasFinOrdProducts" class="idref" href="#hasFinOrdProducts"><span class="id" title="definition">hasFinOrdProducts</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="n:5" class="idref" href="#n:5"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) (<a id="a:6" class="idref" href="#a:6"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#n:5"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#def_FinOrdProducts.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Product"><span class="id" title="definition">Product</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#n:5"><span class="id" title="variable">n</span></a>) <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#def_FinOrdProducts.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#a:6"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#def_FinOrdProducts"><span class="id" title="section">def_FinOrdProducts</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Construction of FinOrdProducts from Terminal and BinProducts. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="FinOrdProduct_criteria" class="idref" href="#FinOrdProduct_criteria"><span class="id" title="section">FinOrdProduct_criteria</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="FinOrdProduct_criteria.C" class="idref" href="#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Case n = 0 of the theorem. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="TerminalToProduct" class="idref" href="#TerminalToProduct"><span class="id" title="lemma">TerminalToProduct</span></a> (<a id="T:9" class="idref" href="#T:9"><span class="id" title="binder">T</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a>):<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="a:10" class="idref" href="#a:10"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 0 <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Product"><span class="id" title="definition">Product</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 0) <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#a:10"><span class="id" title="variable">a</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#make_Product"><span class="id" title="definition">make_Product</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">T</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span>(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="x:11" class="idref" href="#x:11"><span class="id" title="binder"><span id="x:12" class="id">x</span></span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> 0 <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqstn0toempty"><span class="id" title="definition">weqstn0toempty</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#x:11"><span class="id" title="variable">x</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#unique_exists"><span class="id" title="lemma">unique_exists</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrow"><span class="id" title="definition">TerminalArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span>(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="x:13" class="idref" href="#x:13"><span class="id" title="binder"><span id="x:14" class="id">x</span></span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> 0 <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqstn0toempty"><span class="id" title="definition">weqstn0toempty</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#x:13"><span class="id" title="variable">x</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrowEq"><span class="id" title="lemma">TerminalArrowEq</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="products_stn_unit" class="idref" href="#products_stn_unit"><span class="id" title="definition">products_stn_unit</span></a> (<a id="n:15" class="idref" href="#n:15"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Products"><span class="id" title="definition">Products</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#n:15"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a>) <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Products"><span class="id" title="definition">Products</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#n:15"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a>) <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">NProds</span> <span class="id" title="var">BinProds</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">N</span> := <span class="id" title="var">NProds</span> (<span class="id" title="var">t</span> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a>)%<span class="id" title="var">functions</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">E</span> := <span class="id" title="var">t</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">B</span> := <span class="id" title="var">BinProds</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#ProductObject"><span class="id" title="definition">ProductObject</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">N</span>) <span class="id" title="var">E</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#make_Product"><span class="id" title="definition">make_Product</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span>(<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductObject"><span class="id" title="definition">BinProductObject</span></a> <span class="id" title="var">_</span> <span class="id" title="var">B</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#coprod_rect"><span class="id" title="definition">coprod_rect</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span> <span class="id" title="var">k</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span>(<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1"><span class="id" title="definition">BinProductPr1</span></a> <span class="id" title="var">_</span> <span class="id" title="var">B</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#ProductPr"><span class="id" title="definition">ProductPr</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">N</span> <span class="id" title="var">k</span><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#unit_rect"><span class="id" title="definition">unit_rect</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span>(<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2"><span class="id" title="definition">BinProductPr2</span></a> <span class="id" title="var">_</span> <span class="id" title="var">B</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Q</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#unique_exists"><span class="id" title="lemma">unique_exists</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrow"><span class="id" title="definition">BinProductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#ProductArrow"><span class="id" title="definition">ProductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span>(<span class="id" title="var">q</span> <a class="idref" href="UniMath.Foundations.PartA.html#ee6bc9672427de4b2df79d899182f2a1"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a>)%<span class="id" title="var">functions</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span>(<span class="id" title="var">q</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#coprod_rect"><span class="id" title="definition">coprod_rect</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">k</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. { <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. { <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1Commutes"><span class="id" title="lemma">BinProductPr1Commutes</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#ProductPrCommutes"><span class="id" title="lemma">ProductPrCommutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#unit_rect"><span class="id" title="definition">unit_rect</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2Commutes"><span class="id" title="lemma">BinProductPr2Commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span>(<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred_isaprop"><span class="id" title="lemma">impred_isaprop</span></a>; <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">fcommutes</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrowUnique"><span class="id" title="lemma">BinProductArrowUnique</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#ProductArrowUnique"><span class="id" title="lemma">ProductArrowUnique</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">k</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. { <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span>(<span class="id" title="var">fcommutes</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> <span class="id" title="var">k</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span>(<span class="id" title="var">fcommutes</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="products_stn_Sn" class="idref" href="#products_stn_Sn"><span class="id" title="definition">products_stn_Sn</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="n:16" class="idref" href="#n:16"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="stnprods:17" class="idref" href="#stnprods:17"><span class="id" title="binder">stnprods</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Products"><span class="id" title="definition">Products</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#n:16"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a>) <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Products"><span class="id" title="definition">Products</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#n:16"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a>) <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span>(<span class="id" title="var">w</span> := (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqdnicoprod"><span class="id" title="definition">weqdnicoprod</span></a> <span class="id" title="var">n</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#lastelement"><span class="id" title="definition">lastelement</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span>(<span class="id" title="var">q</span> := <a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> (<a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#univalence"><span class="id" title="definition">univalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <span class="id" title="var">w</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span>(<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> (<span class="id" title="keyword">fun</span> <a id="X:18" class="idref" href="#X:18"><span class="id" title="binder"><span id="X:19" class="id">X</span></span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> =&gt; <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Products"><span class="id" title="definition">Products</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#X:18"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a>) <span class="id" title="var">q</span> <span class="id" title="var">stnprods</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Finite ordered products from terminal and binary products 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="FinOrdProducts_from_Terminal_and_BinProducts" class="idref" href="#FinOrdProducts_from_Terminal_and_BinProducts"><span class="id" title="lemma">FinOrdProducts_from_Terminal_and_BinProducts</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProducts"><span class="id" title="definition">FinOrdProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">T</span> <span class="id" title="var">BinProds</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">IHn</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span>(<a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#TerminalToProduct"><span class="id" title="lemma">TerminalToProduct</span></a> <span class="id" title="var">T</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#products_stn_Sn"><span class="id" title="definition">products_stn_Sn</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#products_stn_unit"><span class="id" title="definition">products_stn_unit</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Limits.FinOrdProducts.html#FinOrdProduct_criteria"><span class="id" title="section">FinOrdProduct_criteria</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.coslicecat</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.coslicecat</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab1526"></a><h1 class="section">Coslice categories</h1>
+
+
+<div class="paragraph"> </div>
+
+Author: Langston Barrett (@siddharthist), March 2018
+
+<div class="paragraph"> </div>
+
+<a id="lab1527"></a><h2 class="section">Contents:</h2>
+
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Definition of coslice categories, x/C
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartA.html#"><span class="id" title="library">UniMath.Foundations.PartA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+for second construction: 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Total</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1528"></a><h1 class="section">Definition of coslice categories</h1>
+
+<div class="paragraph"> </div>
+
+ Given a category C and x : obj C. The coslice category x/C is given by:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> obj x/C: pairs (a,f) where f : x --&gt; a
+
+</li>
+<li> morphisms (a,f) --&gt; (b,g): morphism h : a --&gt; b with
+<pre>
+       x
+       | \
+       |  \
+     f |   \  g
+       v    \
+       a --&gt; b
+          h
+</pre>
+    where f · h = g
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="coslice_cat_def" class="idref" href="#coslice_cat_def"><span class="id" title="section">coslice_cat_def</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="coslice_cat_def.C" class="idref" href="#coslice_cat_def.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>) (<a id="coslice_cat_def.x" class="idref" href="#coslice_cat_def.x"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#C:1"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Accessor functions 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="coslicecat_ob" class="idref" href="#coslicecat_ob"><span class="id" title="definition">coslicecat_ob</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="a:3" class="idref" href="#a:3"><span class="id" title="binder">a</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.x"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.CategoryTheory.coslicecat.html#a:3"><span class="id" title="variable">a</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslicecat_mor" class="idref" href="#coslicecat_mor"><span class="id" title="definition">coslicecat_mor</span></a> (<a id="f:4" class="idref" href="#f:4"><span class="id" title="binder">f</span></a> <a id="g:5" class="idref" href="#g:5"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob"><span class="id" title="definition">coslicecat_ob</span></a>) := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="h:6" class="idref" href="#h:6"><span class="id" title="binder">h</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:4"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#h:6"><span class="id" title="variable">h</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#g:5"><span class="id" title="variable">g</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslicecat_ob_object" class="idref" href="#coslicecat_ob_object"><span class="id" title="definition">coslicecat_ob_object</span></a> (<a id="f:7" class="idref" href="#f:7"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob"><span class="id" title="definition">coslicecat_ob</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:7"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslicecat_ob_morphism" class="idref" href="#coslicecat_ob_morphism"><span class="id" title="definition">coslicecat_ob_morphism</span></a> (<a id="f:8" class="idref" href="#f:8"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob"><span class="id" title="definition">coslicecat_ob</span></a>) : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.x"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob_object"><span class="id" title="definition">coslicecat_ob_object</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:8"><span class="id" title="variable">f</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:8"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslicecat_mor_morphism" class="idref" href="#coslicecat_mor_morphism"><span class="id" title="definition">coslicecat_mor_morphism</span></a> {<a id="f:9" class="idref" href="#f:9"><span class="id" title="binder">f</span></a> <a id="g:10" class="idref" href="#g:10"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob"><span class="id" title="definition">coslicecat_ob</span></a>} (<a id="h:11" class="idref" href="#h:11"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_mor"><span class="id" title="definition">coslicecat_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:9"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#g:10"><span class="id" title="variable">g</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob_object"><span class="id" title="definition">coslicecat_ob_object</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:9"><span class="id" title="variable">f</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob_object"><span class="id" title="definition">coslicecat_ob_object</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#g:10"><span class="id" title="variable">g</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#h:11"><span class="id" title="variable">h</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslicecat_mor_comm" class="idref" href="#coslicecat_mor_comm"><span class="id" title="definition">coslicecat_mor_comm</span></a> {<a id="f:12" class="idref" href="#f:12"><span class="id" title="binder">f</span></a> <a id="g:13" class="idref" href="#g:13"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob"><span class="id" title="definition">coslicecat_ob</span></a>} (<a id="h:14" class="idref" href="#h:14"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_mor"><span class="id" title="definition">coslicecat_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:12"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#g:13"><span class="id" title="variable">g</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob_morphism"><span class="id" title="definition">coslicecat_ob_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:12"><span class="id" title="variable">f</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_mor_morphism"><span class="id" title="definition">coslicecat_mor_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#h:14"><span class="id" title="variable">h</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob_morphism"><span class="id" title="definition">coslicecat_ob_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#g:13"><span class="id" title="variable">g</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#h:14"><span class="id" title="variable">h</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Definitions 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="coslice_precat_ob_mor" class="idref" href="#coslice_precat_ob_mor"><span class="id" title="definition">coslice_precat_ob_mor</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_ob_mor"><span class="id" title="definition">precategory_ob_mor</span></a> :=<br/>
+&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_ob"><span class="id" title="definition">coslicecat_ob</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_mor"><span class="id" title="definition">coslicecat_mor</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="id_coslice_precat" class="idref" href="#id_coslice_precat"><span class="id" title="definition">id_coslice_precat</span></a> (<a id="c:15" class="idref" href="#c:15"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_precat_ob_mor"><span class="id" title="definition">coslice_precat_ob_mor</span></a>) : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#c:15"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#c:15"><span class="id" title="variable">c</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#c:15"><span class="id" title="variable">c</span></a>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="comp_coslice_precat" class="idref" href="#comp_coslice_precat"><span class="id" title="definition">comp_coslice_precat</span></a> {<a id="a:16" class="idref" href="#a:16"><span class="id" title="binder">a</span></a> <a id="b:17" class="idref" href="#b:17"><span class="id" title="binder">b</span></a> <a id="c:18" class="idref" href="#c:18"><span class="id" title="binder">c</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_precat_ob_mor"><span class="id" title="definition">coslice_precat_ob_mor</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:19" class="idref" href="#f:19"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#a:16"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#b:17"><span class="id" title="variable">b</span></a>) (<a id="g:20" class="idref" href="#g:20"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#b:17"><span class="id" title="variable">b</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#c:18"><span class="id" title="variable">c</span></a>) : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#a:16"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#c:18"><span class="id" title="variable">c</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_mor_morphism"><span class="id" title="definition">coslicecat_mor_morphism</span></a> <span class="id" title="var">f</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_mor_morphism"><span class="id" title="definition">coslicecat_mor_morphism</span></a> <span class="id" title="var">g</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="f:21" class="idref" href="#f:21"><span class="id" title="binder"><span id="f:22" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:21"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_mor_comm"><span class="id" title="definition">coslicecat_mor_comm</span></a> <span class="id" title="var">f</span>) <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslicecat_mor_comm"><span class="id" title="definition">coslicecat_mor_comm</span></a> <span class="id" title="var">g</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslice_precat_data" class="idref" href="#coslice_precat_data"><span class="id" title="definition">coslice_precat_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_data"><span class="id" title="definition">precategory_data</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_data"><span class="id" title="definition">make_precategory_data</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#id_coslice_precat"><span class="id" title="definition">id_coslice_precat</span></a> (@<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#comp_coslice_precat"><span class="id" title="definition">comp_coslice_precat</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_precategory_coslice_precat_data" class="idref" href="#is_precategory_coslice_precat_data"><span class="id" title="lemma">is_precategory_coslice_precat_data</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#is_precategory"><span class="id" title="definition">is_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_precat_data"><span class="id" title="definition">coslice_precat_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_is_precategory"><span class="id" title="definition">make_is_precategory</span></a>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#comp_coslice_precat"><span class="id" title="definition">comp_coslice_precat</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePairEquality"><span class="id" title="definition">subtypePairEquality</span></a>.<br/>
+&nbsp;&nbsp;* <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;* <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;* <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;* <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+that the previous Lemma is defined was done on purpose in 2018 - is it still appropriate? 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslice_precat" class="idref" href="#coslice_precat"><span class="id" title="definition">coslice_precat</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a> :=<br/>
+&nbsp;&nbsp;(<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.CategoryTheory.coslicecat.html#is_precategory_coslice_precat_data"><span class="id" title="lemma">is_precategory_coslice_precat_data</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="has_homsets_coslice_precat" class="idref" href="#has_homsets_coslice_precat"><span class="id" title="lemma">has_homsets_coslice_precat</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#has_homsets"><span class="id" title="definition">has_homsets</span></a> (<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_precat"><span class="id" title="definition">coslice_precat</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">a</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">a</span> <span class="id" title="var">f</span>]; <span class="id" title="tactic">induction</span> <span class="id" title="var">b</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">b</span> <span class="id" title="var">g</span>]; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartB.html#isofhleveltotal2"><span class="id" title="lemma">isofhleveltotal2</span></a> 2); [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a> | <span class="id" title="tactic">intro</span> <span class="id" title="var">h</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetaprop"><span class="id" title="lemma">isasetaprop</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def.C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslice_cat" class="idref" href="#coslice_cat"><span class="id" title="definition">coslice_cat</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_category"><span class="id" title="definition">make_category</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#has_homsets_coslice_precat"><span class="id" title="lemma">has_homsets_coslice_precat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_def"><span class="id" title="section">coslice_cat_def</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="coslice_cat_displayed" class="idref" href="#coslice_cat_displayed"><span class="id" title="section">coslice_cat_displayed</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="coslice_cat_displayed.C" class="idref" href="#coslice_cat_displayed.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>) (<a id="coslice_cat_displayed.x" class="idref" href="#coslice_cat_displayed.x"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#C:23"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslice_cat_disp_ob_mor" class="idref" href="#coslice_cat_disp_ob_mor"><span class="id" title="definition">coslice_cat_disp_ob_mor</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat_ob_mor"><span class="id" title="definition">disp_cat_ob_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_displayed.C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#make_disp_cat_ob_mor"><span class="id" title="definition">make_disp_cat_ob_mor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_displayed.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <span class="id" title="var">a</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span>. <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <span class="id" title="var">h</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">g</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="coslice_cat_disp_id_comp" class="idref" href="#coslice_cat_disp_id_comp"><span class="id" title="lemma">coslice_cat_disp_id_comp</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat_id_comp"><span class="id" title="definition">disp_cat_id_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_displayed.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_disp_ob_mor"><span class="id" title="definition">coslice_cat_disp_ob_mor</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a1</span> <span class="id" title="var">a2</span> <span class="id" title="var">a3</span> <span class="id" title="var">h</span> <span class="id" title="var">h'</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">f3</span> <span class="id" title="var">Hyph</span> <span class="id" title="var">Hyph'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#cancel_postcomposition"><span class="id" title="lemma">cancel_postcomposition</span></a>, <span class="id" title="var">Hyph</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Hyph'</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslice_cat_disp_data" class="idref" href="#coslice_cat_disp_data"><span class="id" title="definition">coslice_cat_disp_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat_data"><span class="id" title="definition">disp_cat_data</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_displayed.C"><span class="id" title="variable">C</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_disp_ob_mor"><span class="id" title="definition">coslice_cat_disp_ob_mor</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_disp_id_comp"><span class="id" title="lemma">coslice_cat_disp_id_comp</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="coslice_cat_disp_locally_prop" class="idref" href="#coslice_cat_disp_locally_prop"><span class="id" title="lemma">coslice_cat_disp_locally_prop</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#locally_propositional"><span class="id" title="definition">locally_propositional</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_disp_data"><span class="id" title="definition">coslice_cat_disp_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_displayed.C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslice_cat_disp" class="idref" href="#coslice_cat_disp"><span class="id" title="definition">coslice_cat_disp</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#disp_cat"><span class="id" title="definition">disp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_displayed.C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#make_disp_cat_locally_prop"><span class="id" title="definition">make_disp_cat_locally_prop</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_disp_data"><span class="id" title="definition">coslice_cat_disp_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_disp_locally_prop"><span class="id" title="lemma">coslice_cat_disp_locally_prop</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="coslice_cat_total" class="idref" href="#coslice_cat_total"><span class="id" title="definition">coslice_cat_total</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_disp"><span class="id" title="definition">coslice_cat_disp</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_displayed"><span class="id" title="section">coslice_cat_displayed</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab1529"></a><h2 class="section">Isos in coslice categories</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Isos" class="idref" href="#Isos"><span class="id" title="section">Isos</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="6b5473e20c84f0e6d924a5bc3980618b" class="idref" href="#6b5473e20c84f0e6d924a5bc3980618b"><span class="id" title="notation">&quot;</span></a>x / C" := (<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_total"><span class="id" title="definition">coslice_cat_total</span></a> <span class="id" title="var">C</span> <span class="id" title="var">x</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Isos.C" class="idref" href="#Isos.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Isos.x" class="idref" href="#Isos.x"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="eq_z_iso_coslicecat" class="idref" href="#eq_z_iso_coslicecat"><span class="id" title="lemma">eq_z_iso_coslicecat</span></a> (<a id="af:27" class="idref" href="#af:27"><span class="id" title="binder">af</span></a> <a id="bg:28" class="idref" href="#bg:28"><span class="id" title="binder">bg</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#6b5473e20c84f0e6d924a5bc3980618b"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.C"><span class="id" title="variable">C</span></a>) (<a id="f:29" class="idref" href="#f:29"><span class="id" title="binder">f</span></a> <a id="g:30" class="idref" href="#g:30"><span class="id" title="binder">g</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#af:27"><span class="id" title="variable">af</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#bg:28"><span class="id" title="variable">bg</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:29"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#g:30"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#f:29"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#g:30"><span class="id" title="variable">g</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">f</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">f</span> <span class="id" title="var">fP</span>]; <span class="id" title="tactic">induction</span> <span class="id" title="var">g</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">g</span> <span class="id" title="var">gP</span>]; <span class="id" title="tactic">intro</span> <span class="id" title="var">eq</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.PartB.html#subtypePairEquality"><span class="id" title="definition">subtypePairEquality</span></a> <span class="id" title="var">_</span> <span class="id" title="var">eq</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#isaprop_is_z_isomorphism"><span class="id" title="lemma">isaprop_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+It suffices that the underlying morphism is an iso to get an iso in
+      the coslice category 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="z_iso_to_coslice_precat_z_iso" class="idref" href="#z_iso_to_coslice_precat_z_iso"><span class="id" title="lemma">z_iso_to_coslice_precat_z_iso</span></a> (<a id="af:31" class="idref" href="#af:31"><span class="id" title="binder">af</span></a> <a id="bg:32" class="idref" href="#bg:32"><span class="id" title="binder">bg</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#6b5473e20c84f0e6d924a5bc3980618b"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.C"><span class="id" title="variable">C</span></a>) (<a id="h:33" class="idref" href="#h:33"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#af:31"><span class="id" title="variable">af</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#bg:32"><span class="id" title="variable">bg</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="isoh:34" class="idref" href="#isoh:34"><span class="id" title="binder">isoh</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_z_isomorphism"><span class="id" title="definition">is_z_isomorphism</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#h:33"><span class="id" title="variable">h</span></a>)) : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_z_isomorphism"><span class="id" title="definition">is_z_isomorphism</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#h:33"><span class="id" title="variable">h</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">isoh</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">hinv</span> [<span class="id" title="var">h1</span> <span class="id" title="var">h2</span>]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">hinv</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;- <span class="id" title="var">h1</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">h1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">h2</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+An iso in the coslice category gives an iso in the base category 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="coslice_precat_z_iso_to_z_iso" class="idref" href="#coslice_precat_z_iso_to_z_iso"><span class="id" title="lemma">coslice_precat_z_iso_to_z_iso</span></a>  (<a id="af:35" class="idref" href="#af:35"><span class="id" title="binder">af</span></a> <a id="bg:36" class="idref" href="#bg:36"><span class="id" title="binder">bg</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#6b5473e20c84f0e6d924a5bc3980618b"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.C"><span class="id" title="variable">C</span></a>) (<a id="h:37" class="idref" href="#h:37"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#af:35"><span class="id" title="variable">af</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#bg:36"><span class="id" title="variable">bg</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:38" class="idref" href="#p:38"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_z_isomorphism"><span class="id" title="definition">is_z_isomorphism</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#h:37"><span class="id" title="variable">h</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_z_isomorphism"><span class="id" title="definition">is_z_isomorphism</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#h:37"><span class="id" title="variable">h</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">hinv</span> [<span class="id" title="var">h1</span> <span class="id" title="var">h2</span>]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">hinv</span>); <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">h1</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">h2</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="weq_z_iso" class="idref" href="#weq_z_iso"><span class="id" title="lemma">weq_z_iso</span></a> (<a id="af:39" class="idref" href="#af:39"><span class="id" title="binder">af</span></a> <a id="bg:40" class="idref" href="#bg:40"><span class="id" title="binder">bg</span></a> : <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#6b5473e20c84f0e6d924a5bc3980618b"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.C"><span class="id" title="variable">C</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#af:39"><span class="id" title="variable">af</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#bg:40"><span class="id" title="variable">bg</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="h:41" class="idref" href="#h:41"><span class="id" title="binder">h</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#af:39"><span class="id" title="variable">af</span></a>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#bg:40"><span class="id" title="variable">bg</span></a>)<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#af:39"><span class="id" title="variable">af</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#h:41"><span class="id" title="variable">h</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#bg:40"><span class="id" title="variable">bg</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#weqcomp"><span class="id" title="definition">weqcomp</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#weqtotal2asstor"><span class="id" title="lemma">weqtotal2asstor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#invweq"><span class="id" title="definition">invweq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#weqcomp"><span class="id" title="definition">weqcomp</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#weqtotal2asstor"><span class="id" title="lemma">weqtotal2asstor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#weqfibtototal"><span class="id" title="definition">weqfibtototal</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">h</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#weqcomp"><span class="id" title="definition">weqcomp</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#weqdirprodcomm"><span class="id" title="definition">weqdirprodcomm</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#weqfibtototal"><span class="id" title="definition">weqfibtototal</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#weqimplimpl"><span class="id" title="definition">weqimplimpl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">hp</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#z_iso_to_coslice_precat_z_iso"><span class="id" title="lemma">z_iso_to_coslice_precat_z_iso</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">hp</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_precat_z_iso_to_z_iso"><span class="id" title="lemma">coslice_precat_z_iso_to_z_iso</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">hp</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#isaprop_is_z_isomorphism"><span class="id" title="lemma">isaprop_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#isaprop_is_z_isomorphism"><span class="id" title="lemma">isaprop_is_z_isomorphism</span></a>(<span class="id" title="var">C</span>:= <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#6b5473e20c84f0e6d924a5bc3980618b"><span class="id" title="notation">/</span></a> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos.C"><span class="id" title="variable">C</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#Isos"><span class="id" title="section">Isos</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

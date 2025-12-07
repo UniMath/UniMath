@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.ComprehensionCat.SetGroupoidModel</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.ComprehensionCat.SetGroupoidModel</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Setcategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Setcategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.CategoryOfSetGroupoids.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.CategoryOfSetGroupoids</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#"><span class="id" title="library">UniMath.CategoryTheory.Groupoids</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.CategoryOfSetGroupoidsLimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Examples.CategoryOfSetGroupoidsLimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidsIsoFib.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidsIsoFib</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidComprehension.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidComprehension</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.BicatOfCompCat</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab493"></a><h1 class="section">1. The univalent comprehension category of setgroupoids</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="setgroupoid_cat_with_terminal_disp_cat" class="idref" href="#setgroupoid_cat_with_terminal_disp_cat"><span class="id" title="definition">setgroupoid_cat_with_terminal_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#cat_with_terminal_disp_cat"><span class="id" title="definition">cat_with_terminal_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#make_cat_with_terminal_disp_cat"><span class="id" title="definition">make_cat_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.CategoryOfSetGroupoids.html#univalent_cat_of_setgroupoid"><span class="id" title="definition">univalent_cat_of_setgroupoid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.CategoryOfSetGroupoidsLimits.html#terminal_obj_setgroupoid"><span class="id" title="definition">terminal_obj_setgroupoid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidsIsoFib.html#univalent_disp_cat_isofib"><span class="id" title="definition">univalent_disp_cat_isofib</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="setgroupoid_cat_with_terminal_cleaving" class="idref" href="#setgroupoid_cat_with_terminal_cleaving"><span class="id" title="definition">setgroupoid_cat_with_terminal_cleaving</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#cat_with_terminal_cleaving"><span class="id" title="definition">cat_with_terminal_cleaving</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#make_cat_with_terminal_cleaving"><span class="id" title="definition">make_cat_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.SetGroupoidModel.html#setgroupoid_cat_with_terminal_disp_cat"><span class="id" title="definition">setgroupoid_cat_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidsIsoFib.html#cleaving_disp_cat_isofib"><span class="id" title="definition">cleaving_disp_cat_isofib</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="setgroupoid_comprehension_functor" class="idref" href="#setgroupoid_comprehension_functor"><span class="id" title="definition">setgroupoid_comprehension_functor</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#comprehension_functor"><span class="id" title="definition">comprehension_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.SetGroupoidModel.html#setgroupoid_cat_with_terminal_cleaving"><span class="id" title="definition">setgroupoid_cat_with_terminal_cleaving</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#make_comprehension_functor"><span class="id" title="definition">make_comprehension_functor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidComprehension.html#disp_cat_isofib_comprehension"><span class="id" title="definition">disp_cat_isofib_comprehension</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidComprehension.html#disp_cat_isofib_comprehension_cartesian"><span class="id" title="definition">disp_cat_isofib_comprehension_cartesian</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="setgroupoid_comp_cat" class="idref" href="#setgroupoid_comp_cat"><span class="id" title="definition">setgroupoid_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#comp_cat"><span class="id" title="definition">comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#make_comp_cat"><span class="id" title="definition">make_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.SetGroupoidModel.html#setgroupoid_cat_with_terminal_cleaving"><span class="id" title="definition">setgroupoid_cat_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.SetGroupoidModel.html#setgroupoid_comprehension_functor"><span class="id" title="definition">setgroupoid_comprehension_functor</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab494"></a><h1 class="section">2. The univalent comprehension category of setgroupoids with split isofibrations</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="setgroupoid_cat_split_with_terminal_disp_cat" class="idref" href="#setgroupoid_cat_split_with_terminal_disp_cat"><span class="id" title="definition">setgroupoid_cat_split_with_terminal_disp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#cat_with_terminal_disp_cat"><span class="id" title="definition">cat_with_terminal_disp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#make_cat_with_terminal_disp_cat"><span class="id" title="definition">make_cat_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.CategoryOfSetGroupoids.html#univalent_cat_of_setgroupoid"><span class="id" title="definition">univalent_cat_of_setgroupoid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Examples.CategoryOfSetGroupoidsLimits.html#terminal_obj_setgroupoid"><span class="id" title="definition">terminal_obj_setgroupoid</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidsIsoFib.html#univalent_disp_cat_split_isofib"><span class="id" title="definition">univalent_disp_cat_split_isofib</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="setgroupoid_cat_split_with_terminal_cleaving" class="idref" href="#setgroupoid_cat_split_with_terminal_cleaving"><span class="id" title="definition">setgroupoid_cat_split_with_terminal_cleaving</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#cat_with_terminal_cleaving"><span class="id" title="definition">cat_with_terminal_cleaving</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#make_cat_with_terminal_cleaving"><span class="id" title="definition">make_cat_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.SetGroupoidModel.html#setgroupoid_cat_split_with_terminal_disp_cat"><span class="id" title="definition">setgroupoid_cat_split_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidsIsoFib.html#cleaving_disp_cat_split_isofib"><span class="id" title="definition">cleaving_disp_cat_split_isofib</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="setgroupoid_split_comprehension_functor" class="idref" href="#setgroupoid_split_comprehension_functor"><span class="id" title="definition">setgroupoid_split_comprehension_functor</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#comprehension_functor"><span class="id" title="definition">comprehension_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.SetGroupoidModel.html#setgroupoid_cat_split_with_terminal_cleaving"><span class="id" title="definition">setgroupoid_cat_split_with_terminal_cleaving</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#make_comprehension_functor"><span class="id" title="definition">make_comprehension_functor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidComprehension.html#disp_cat_split_isofib_comprehension"><span class="id" title="definition">disp_cat_split_isofib_comprehension</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidComprehension.html#disp_cat_split_isofib_comprehension_cartesian"><span class="id" title="definition">disp_cat_split_isofib_comprehension_cartesian</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="setgroupoid_comp_cat_split" class="idref" href="#setgroupoid_comp_cat_split"><span class="id" title="definition">setgroupoid_comp_cat_split</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#comp_cat"><span class="id" title="definition">comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#make_comp_cat"><span class="id" title="definition">make_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.SetGroupoidModel.html#setgroupoid_cat_split_with_terminal_cleaving"><span class="id" title="definition">setgroupoid_cat_split_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.SetGroupoidModel.html#setgroupoid_split_comprehension_functor"><span class="id" title="definition">setgroupoid_split_comprehension_functor</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.OppositeCategory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Full</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Enrichment</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.FullyFaithful.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.FullyFaithful</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.OppositeEnriched.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Examples.OppositeEnriched</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Examples.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.Yoneda.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Examples.Yoneda</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.YonedaLemma.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.YonedaLemma</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Closed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Products</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">moncat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="EnrichedRezkCompletion" class="idref" href="#EnrichedRezkCompletion"><span class="id" title="section">EnrichedRezkCompletion</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="EnrichedRezkCompletion.V" class="idref" href="#EnrichedRezkCompletion.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="EnrichedRezkCompletion.C" class="idref" href="#EnrichedRezkCompletion.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="EnrichedRezkCompletion.E" class="idref" href="#EnrichedRezkCompletion.E"><span class="id" title="variable">E</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#enrichment"><span class="id" title="definition">enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#C:2"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#V:1"><span class="id" title="variable">V</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="EnrichedRezkCompletion.EqV" class="idref" href="#EnrichedRezkCompletion.EqV"><span class="id" title="variable">EqV</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#Equalizers"><span class="id" title="definition">Equalizers</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#V:1"><span class="id" title="variable">V</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="EnrichedRezkCompletion.PV" class="idref" href="#EnrichedRezkCompletion.PV"><span class="id" title="variable">PV</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Products"><span class="id" title="definition">Products</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#C:2"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#V:1"><span class="id" title="variable">V</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="EnrichedRezkCompletion.PV'" class="idref" href="#EnrichedRezkCompletion.PV'"><span class="id" title="variable">PV'</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#Products"><span class="id" title="definition">Products</span></a> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#C:2"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#C:2"><span class="id" title="variable">C</span></a>) <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#V:1"><span class="id" title="variable">V</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="EnrichedRezkCompletion.HV" class="idref" href="#EnrichedRezkCompletion.HV"><span class="id" title="variable">HV</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#V:1"><span class="id" title="variable">V</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2431"></a><h1 class="section">1. The Rezk completion and its enrichment</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rezk_completion" class="idref" href="#enriched_rezk_completion"><span class="id" title="definition">enriched_rezk_completion</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#make_univalent_category"><span class="id" title="definition">make_univalent_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#full_img_sub_precategory"><span class="id" title="definition">full_img_sub_precategory</span></a> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.Yoneda.html#enriched_yoneda_functor"><span class="id" title="definition">enriched_yoneda_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.E"><span class="id" title="variable">E</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#is_univalent_full_sub_category"><span class="id" title="lemma">is_univalent_full_sub_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.FunctorCategory.html#is_univalent_enriched_functor_cat"><span class="id" title="definition">is_univalent_enriched_functor_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.HV"><span class="id" title="variable">HV</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rezk_completion_enrichment" class="idref" href="#enriched_rezk_completion_enrichment"><span class="id" title="definition">enriched_rezk_completion_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#enrichment"><span class="id" title="definition">enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion"><span class="id" title="definition">enriched_rezk_completion</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.V"><span class="id" title="variable">V</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_enrichment"><span class="id" title="definition">image_enrichment</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.FunctorCategory.html#enriched_presheaf_enrichment"><span class="id" title="definition">enriched_presheaf_enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.E"><span class="id" title="variable">E</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.EqV"><span class="id" title="variable">EqV</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.PV"><span class="id" title="variable">PV</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.PV'"><span class="id" title="variable">PV'</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2432"></a><h1 class="section">2. The weak equivalence</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rezk_completion_map" class="idref" href="#enriched_rezk_completion_map"><span class="id" title="definition">enriched_rezk_completion_map</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion"><span class="id" title="definition">enriched_rezk_completion</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#functor_full_img"><span class="id" title="definition">functor_full_img</span></a> <span class="id" title="var">_</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rezk_completion_map_enrichment" class="idref" href="#enriched_rezk_completion_map_enrichment"><span class="id" title="definition">enriched_rezk_completion_map_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_enrichment"><span class="id" title="definition">functor_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion_map"><span class="id" title="definition">enriched_rezk_completion_map</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.E"><span class="id" title="variable">E</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion_enrichment"><span class="id" title="definition">enriched_rezk_completion_enrichment</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_proj_enrichment"><span class="id" title="definition">image_proj_enrichment</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.Yoneda.html#enriched_yoneda_enrichment"><span class="id" title="definition">enriched_yoneda_enrichment</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="is_essentially_surjective_enriched_rezk_completion_map" class="idref" href="#is_essentially_surjective_enriched_rezk_completion_map"><span class="id" title="lemma">is_essentially_surjective_enriched_rezk_completion_map</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#essentially_surjective"><span class="id" title="definition">essentially_surjective</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion_map"><span class="id" title="definition">enriched_rezk_completion_map</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Full.html#functor_full_img_essentially_surjective"><span class="id" title="lemma">functor_full_img_essentially_surjective</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="is_fully_faithful_enriched_rezk_completion_map" class="idref" href="#is_fully_faithful_enriched_rezk_completion_map"><span class="id" title="lemma">is_fully_faithful_enriched_rezk_completion_map</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#fully_faithful_enriched_functor"><span class="id" title="definition">fully_faithful_enriched_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion_map_enrichment"><span class="id" title="definition">enriched_rezk_completion_map_enrichment</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.FullyFaithful.html#fully_faithful_enriched_factorization_precomp"><span class="id" title="lemma">fully_faithful_enriched_factorization_precomp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.Yoneda.html#enriched_yoneda_enrichment"><span class="id" title="definition">enriched_yoneda_enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.E"><span class="id" title="variable">E</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.EqV"><span class="id" title="variable">EqV</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.PV"><span class="id" title="variable">PV</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.PV'"><span class="id" title="variable">PV'</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion_map_enrichment"><span class="id" title="definition">enriched_rezk_completion_map_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_factorization_enriched_commutes_inv"><span class="id" title="definition">image_factorization_enriched_commutes_inv</span></a> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.YonedaLemma.html#fully_faithful_enriched_yoneda"><span class="id" title="lemma">fully_faithful_enriched_yoneda</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.html#image_incl_enrichment_fully_faithful"><span class="id" title="definition">image_incl_enrichment_fully_faithful</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="enriched_weak_equivalence_enriched_rezk_completion_map" class="idref" href="#enriched_weak_equivalence_enriched_rezk_completion_map"><span class="id" title="lemma">enriched_weak_equivalence_enriched_rezk_completion_map</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#enriched_weak_equivalence"><span class="id" title="definition">enriched_weak_equivalence</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion_map_enrichment"><span class="id" title="definition">enriched_rezk_completion_map_enrichment</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#is_essentially_surjective_enriched_rezk_completion_map"><span class="id" title="lemma">is_essentially_surjective_enriched_rezk_completion_map</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#is_fully_faithful_enriched_rezk_completion_map"><span class="id" title="lemma">is_fully_faithful_enriched_rezk_completion_map</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2433"></a><h1 class="section">3. Bundled version</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="enriched_rezk_completion_bundled" class="idref" href="#enriched_rezk_completion_bundled"><span class="id" title="definition">enriched_rezk_completion_bundled</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="RC:8" class="idref" href="#RC:8"><span class="id" title="binder">RC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="ERC:9" class="idref" href="#ERC:9"><span class="id" title="binder">ERC</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#enrichment"><span class="id" title="definition">enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#RC:8"><span class="id" title="variable">RC</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.V"><span class="id" title="variable">V</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:10" class="idref" href="#F:10"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#RC:8"><span class="id" title="variable">RC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="EF:11" class="idref" href="#EF:11"><span class="id" title="binder">EF</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#functor_enrichment"><span class="id" title="definition">functor_enrichment</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#F:10"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion.E"><span class="id" title="variable">E</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#ERC:9"><span class="id" title="variable">ERC</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#enriched_weak_equivalence"><span class="id" title="definition">enriched_weak_equivalence</span></a> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EF:11"><span class="id" title="variable">EF</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion"><span class="id" title="definition">enriched_rezk_completion</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion_enrichment"><span class="id" title="definition">enriched_rezk_completion_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion_map"><span class="id" title="definition">enriched_rezk_completion_map</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_rezk_completion_map_enrichment"><span class="id" title="definition">enriched_rezk_completion_map_enrichment</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#enriched_weak_equivalence_enriched_rezk_completion_map"><span class="id" title="lemma">enriched_weak_equivalence_enriched_rezk_completion_map</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.RezkCompletion.EnrichedRezkCompletion.html#EnrichedRezkCompletion"><span class="id" title="section">EnrichedRezkCompletion</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

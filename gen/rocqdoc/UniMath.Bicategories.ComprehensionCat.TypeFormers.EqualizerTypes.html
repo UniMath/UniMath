@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#Notations"><span class="id" title="module">DispBicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispUnivalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.BicatOfCompCat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab579"></a><h1 class="section">1. The displayed bicategory of equalizer types</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="disp_bicat_of_equalizer_type" class="idref" href="#disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_bicat_of_equalizer_type</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#bicat_cat_with_terminal_cleaving"><span class="id" title="definition">bicat_cat_with_terminal_cleaving</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_subbicat"><span class="id" title="definition">disp_subbicat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="C:1" class="idref" href="#C:1"><span class="id" title="binder"><span id="C:2" class="id">C</span></span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#cat_with_terminal_cleaving"><span class="id" title="definition">cat_with_terminal_cleaving</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.html#fiberwise_equalizers"><span class="id" title="definition">fiberwise_equalizers</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#cleaving_of_types"><span class="id" title="definition">cleaving_of_types</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#C:1"><span class="id" title="variable">C</span></a>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="b2d8592180c922f2169090977ff2d515" class="idref" href="#b2d8592180c922f2169090977ff2d515"><span class="id" title="binder"><span id="422fa54cfa58f613edff23e882af5e79" class="id">C₁</span></span></a> <a id="c49d9ab8623990e6dc8065c23347922b" class="idref" href="#c49d9ab8623990e6dc8065c23347922b"><span class="id" title="binder"><span id="fac20af712cc0c8374543dcdfdb71a00" class="id">C₂</span></span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#cat_with_terminal_cleaving"><span class="id" title="definition">cat_with_terminal_cleaving</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="33ee1825ae067487d04a57f69e8196b7" class="idref" href="#33ee1825ae067487d04a57f69e8196b7"><span class="id" title="binder"><span id="c2dcd69324eb6f40b1ffaad3a9fe10a1" class="id">T₁</span></span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.html#fiberwise_equalizers"><span class="id" title="definition">fiberwise_equalizers</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#cleaving_of_types"><span class="id" title="definition">cleaving_of_types</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#b2d8592180c922f2169090977ff2d515"><span class="id" title="variable">C₁</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="2a9c685b61157894ec687834dcefd1a2" class="idref" href="#2a9c685b61157894ec687834dcefd1a2"><span class="id" title="binder"><span id="bc06b9c6533d065d5c2de6407c127aa8" class="id">T₂</span></span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.html#fiberwise_equalizers"><span class="id" title="definition">fiberwise_equalizers</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#cleaving_of_types"><span class="id" title="definition">cleaving_of_types</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#c49d9ab8623990e6dc8065c23347922b"><span class="id" title="variable">C₂</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:7" class="idref" href="#F:7"><span class="id" title="binder"><span id="F:13" class="id">F</span></span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#functor_with_terminal_cleaving"><span class="id" title="definition">functor_with_terminal_cleaving</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#b2d8592180c922f2169090977ff2d515"><span class="id" title="variable">C₁</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#c49d9ab8623990e6dc8065c23347922b"><span class="id" title="variable">C₂</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:8" class="idref" href="#x:8"><span class="id" title="binder"><span id="x:14" class="id">x</span></span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#b2d8592180c922f2169090977ff2d515"><span class="id" title="variable">C₁</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_equalizer"><span class="id" title="definition">preserves_equalizer</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#fiber_functor"><span class="id" title="definition">fiber_functor</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#comp_cat_type_functor"><span class="id" title="definition">comp_cat_type_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#F:7"><span class="id" title="variable">F</span></a>) <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#x:8"><span class="id" title="variable">x</span></a>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> <span class="id" title="var">EC</span> <span class="id" title="var">x</span> <span class="id" title="var">y₁</span> <span class="id" title="var">y₂</span> <span class="id" title="var">e</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">p</span> <span class="id" title="var">Fp</span> <span class="id" title="var">H</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span> <span class="id" title="var">C₃</span> <span class="id" title="var">EC₁</span> <span class="id" title="var">EC₂</span> <span class="id" title="var">EC₃</span> <span class="id" title="var">F</span> <span class="id" title="var">G</span> <span class="id" title="var">HF</span> <span class="id" title="var">HG</span> <span class="id" title="var">x</span> <span class="id" title="var">y₁</span> <span class="id" title="var">y₂</span> <span class="id" title="var">e</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">p</span> <span class="id" title="var">Fp</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#isEqualizer_eq"><span class="id" title="definition">isEqualizer_eq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#composition_preserves_equalizer"><span class="id" title="definition">composition_preserves_equalizer</span></a> (<span class="id" title="var">HF</span> <span class="id" title="var">x</span>) (<span class="id" title="var">HG</span> <span class="id" title="var">_</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">H</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_postwhisker"><span class="id" title="lemma">mor_disp_transportf_postwhisker</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_transportf"><span class="id" title="lemma">disp_functor_transportf</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_postwhisker"><span class="id" title="lemma">mor_disp_transportf_postwhisker</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_comp_var"><span class="id" title="definition">disp_functor_comp_var</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_transportf"><span class="id" title="lemma">disp_functor_transportf</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#transportb"><span class="id" title="definition">transportb</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> <span class="id" title="var">_</span>)) <span class="id" title="var">p</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">p'</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">p'</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Foundations.PartA.html#transportbfinv"><span class="id" title="definition">transportbfinv</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p'</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">p'</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_transportf"><span class="id" title="lemma">disp_functor_transportf</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_transportf"><span class="id" title="lemma">disp_functor_transportf</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_transportf"><span class="id" title="lemma">disp_functor_transportf</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab580"></a><h1 class="section">2. The univalence of this displayed bicategory</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="univalent_2_1_disp_bicat_of_equalizer_type" class="idref" href="#univalent_2_1_disp_bicat_of_equalizer_type"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#disp_univalent_2_1"><span class="id" title="definition">disp_univalent_2_1</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_bicat_of_equalizer_type</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_subbicat_univalent_2_1"><span class="id" title="definition">disp_subbicat_univalent_2_1</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span> <span class="id" title="var">T₁</span> <span class="id" title="var">T₂</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a> ; <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#isaprop_preserves_equalizer"><span class="id" title="definition">isaprop_preserves_equalizer</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="univalent_2_0_disp_bicat_of_equalizer_type" class="idref" href="#univalent_2_0_disp_bicat_of_equalizer_type"><span class="id" title="definition">univalent_2_0_disp_bicat_of_equalizer_type</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#disp_univalent_2_0"><span class="id" title="definition">disp_univalent_2_0</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_bicat_of_equalizer_type</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_subbicat_univalent_2_0"><span class="id" title="definition">disp_subbicat_univalent_2_0</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#is_univalent_2_bicat_cat_with_terminal_cleaving"><span class="id" title="lemma">is_univalent_2_bicat_cat_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">C</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.html#isaprop_fiberwise_equalizers"><span class="id" title="lemma">isaprop_fiberwise_equalizers</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span> <span class="id" title="var">T₁</span> <span class="id" title="var">T₂</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a> ; <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#isaprop_preserves_equalizer"><span class="id" title="definition">isaprop_preserves_equalizer</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="univalent_2_disp_bicat_of_equalizer_type" class="idref" href="#univalent_2_disp_bicat_of_equalizer_type"><span class="id" title="definition">univalent_2_disp_bicat_of_equalizer_type</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#disp_univalent_2"><span class="id" title="definition">disp_univalent_2</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_bicat_of_equalizer_type</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_0_disp_bicat_of_equalizer_type"><span class="id" title="definition">univalent_2_0_disp_bicat_of_equalizer_type</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_1_disp_bicat_of_equalizer_type"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="disp_2cells_isaprop_disp_bicat_of_equalizer_type" class="idref" href="#disp_2cells_isaprop_disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_2cells_isaprop_disp_bicat_of_equalizer_type</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_isaprop"><span class="id" title="definition">disp_2cells_isaprop</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_bicat_of_equalizer_type</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_2cells_isaprop_subbicat"><span class="id" title="definition">disp_2cells_isaprop_subbicat</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="disp_locally_groupoid_disp_bicat_of_equalizer_type" class="idref" href="#disp_locally_groupoid_disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_locally_groupoid_disp_bicat_of_equalizer_type</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_locally_groupoid"><span class="id" title="definition">disp_locally_groupoid</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_bicat_of_equalizer_type</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_locally_groupoid_subbicat"><span class="id" title="definition">disp_locally_groupoid_subbicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#is_univalent_2_bicat_cat_with_terminal_cleaving"><span class="id" title="lemma">is_univalent_2_bicat_cat_with_terminal_cleaving</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab581"></a><h1 class="section">3. Equalizer types for comprehension categories</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="disp_bicat_of_equalizer_type_comp_cat" class="idref" href="#disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#bicat_comp_cat"><span class="id" title="definition">bicat_comp_cat</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#lift_disp_bicat"><span class="id" title="definition">lift_disp_bicat</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_bicat_of_equalizer_type</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="univalent_2_1_disp_bicat_of_equalizer_type_comp_cat" class="idref" href="#univalent_2_1_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#disp_univalent_2_1"><span class="id" title="definition">disp_univalent_2_1</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#disp_univalent_2_1_lift_disp_bicat"><span class="id" title="lemma">disp_univalent_2_1_lift_disp_bicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_1_disp_bicat_of_equalizer_type"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="univalent_2_0_disp_bicat_of_equalizer_type_comp_cat" class="idref" href="#univalent_2_0_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">univalent_2_0_disp_bicat_of_equalizer_type_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#disp_univalent_2_0"><span class="id" title="definition">disp_univalent_2_0</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#disp_univalent_2_0_lift_disp_bicat"><span class="id" title="lemma">disp_univalent_2_0_lift_disp_bicat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_0_disp_bicat_of_equalizer_type"><span class="id" title="definition">univalent_2_0_disp_bicat_of_equalizer_type</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_1_disp_bicat_of_equalizer_type"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#is_univalent_2_1_bicat_cat_with_terminal_cleaving"><span class="id" title="lemma">is_univalent_2_1_bicat_cat_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#disp_univalent_2_1_disp_bicat_comp_cat"><span class="id" title="lemma">disp_univalent_2_1_disp_bicat_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="univalent_2_disp_bicat_of_equalizer_type_comp_cat" class="idref" href="#univalent_2_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">univalent_2_disp_bicat_of_equalizer_type_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#disp_univalent_2"><span class="id" title="definition">disp_univalent_2</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_0_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">univalent_2_0_disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_1_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="disp_2cells_isaprop_disp_bicat_of_equalizer_type_comp_cat" class="idref" href="#disp_2cells_isaprop_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_2cells_isaprop_disp_bicat_of_equalizer_type_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_isaprop"><span class="id" title="definition">disp_2cells_isaprop</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#disp_2cells_isaprop_lift_disp_bicat"><span class="id" title="definition">disp_2cells_isaprop_lift_disp_bicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_2cells_isaprop_disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_2cells_isaprop_disp_bicat_of_equalizer_type</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="disp_locally_groupoid_disp_bicat_of_equalizer_type_comp_cat" class="idref" href="#disp_locally_groupoid_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_locally_groupoid_disp_bicat_of_equalizer_type_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_locally_groupoid"><span class="id" title="definition">disp_locally_groupoid</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#disp_locally_groupoid_lift_disp_bicat"><span class="id" title="definition">disp_locally_groupoid_lift_disp_bicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_locally_groupoid_disp_bicat_of_equalizer_type"><span class="id" title="definition">disp_locally_groupoid_disp_bicat_of_equalizer_type</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab582"></a><h1 class="section">4. Equalizer types for full comprehension categories</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="disp_bicat_of_equalizer_type_full_comp_cat" class="idref" href="#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#bicat_full_comp_cat"><span class="id" title="definition">bicat_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#lift_disp_bicat"><span class="id" title="definition">lift_disp_bicat</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat" class="idref" href="#univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#disp_univalent_2_1"><span class="id" title="definition">disp_univalent_2_1</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#disp_univalent_2_1_lift_disp_bicat"><span class="id" title="lemma">disp_univalent_2_1_lift_disp_bicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_1_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="univalent_2_0_disp_bicat_of_equalizer_type_full_comp_cat" class="idref" href="#univalent_2_0_disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">univalent_2_0_disp_bicat_of_equalizer_type_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#disp_univalent_2_0"><span class="id" title="definition">disp_univalent_2_0</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#disp_univalent_2_0_lift_disp_bicat"><span class="id" title="lemma">disp_univalent_2_0_lift_disp_bicat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_0_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">univalent_2_0_disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_1_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#is_univalent_2_1_bicat_comp_cat"><span class="id" title="lemma">is_univalent_2_1_bicat_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#disp_univalent_2_1_disp_bicat_full_comp_cat"><span class="id" title="lemma">disp_univalent_2_1_disp_bicat_full_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="univalent_2_disp_bicat_of_equalizer_type_full_comp_cat" class="idref" href="#univalent_2_disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">univalent_2_disp_bicat_of_equalizer_type_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispUnivalence.html#disp_univalent_2"><span class="id" title="definition">disp_univalent_2</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_0_disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">univalent_2_0_disp_bicat_of_equalizer_type_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="disp_2cells_isaprop_disp_bicat_of_equalizer_type_full_comp_cat" class="idref" href="#disp_2cells_isaprop_disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_2cells_isaprop_disp_bicat_of_equalizer_type_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_isaprop"><span class="id" title="definition">disp_2cells_isaprop</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#disp_2cells_isaprop_lift_disp_bicat"><span class="id" title="definition">disp_2cells_isaprop_lift_disp_bicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_2cells_isaprop_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_2cells_isaprop_disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="disp_locally_groupoid_disp_bicat_of_equalizer_type_full_comp_cat" class="idref" href="#disp_locally_groupoid_disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_locally_groupoid_disp_bicat_of_equalizer_type_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_locally_groupoid"><span class="id" title="definition">disp_locally_groupoid</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#disp_locally_groupoid_lift_disp_bicat"><span class="id" title="definition">disp_locally_groupoid_lift_disp_bicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_locally_groupoid_disp_bicat_of_equalizer_type_comp_cat"><span class="id" title="definition">disp_locally_groupoid_disp_bicat_of_equalizer_type_comp_cat</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab583"></a><h1 class="section">5. Adjoint equivalences</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat_help" class="idref" href="#disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat_help"><span class="id" title="definition">disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat_help</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="cfcd51ff8ac82ae85ecd2fbf7a8cbcdc" class="idref" href="#cfcd51ff8ac82ae85ecd2fbf7a8cbcdc"><span class="id" title="binder">C₁</span></a> <a id="757f7f73ad0f954df3aca8c0fb45d86f" class="idref" href="#757f7f73ad0f954df3aca8c0fb45d86f"><span class="id" title="binder">C₂</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#full_comp_cat"><span class="id" title="definition">full_comp_cat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:17" class="idref" href="#F:17"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#adjoint_equivalence"><span class="id" title="definition">adjoint_equivalence</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#cfcd51ff8ac82ae85ecd2fbf7a8cbcdc"><span class="id" title="variable">C₁</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#757f7f73ad0f954df3aca8c0fb45d86f"><span class="id" title="variable">C₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="42c9cb961ac03577c5d4601b226f0f53" class="idref" href="#42c9cb961ac03577c5d4601b226f0f53"><span class="id" title="binder">T₁</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#cfcd51ff8ac82ae85ecd2fbf7a8cbcdc"><span class="id" title="variable">C₁</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="3e79e767d1c774151e35946a34d48eda" class="idref" href="#3e79e767d1c774151e35946a34d48eda"><span class="id" title="binder">T₂</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#757f7f73ad0f954df3aca8c0fb45d86f"><span class="id" title="variable">C₂</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FF:20" class="idref" href="#FF:20"><span class="id" title="binder">FF</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#42c9cb961ac03577c5d4601b226f0f53"><span class="id" title="variable">T₁</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#fedee33800776c247e193e7d19a683d6"><span class="id" title="notation">--&gt;[</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#F:17"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#fedee33800776c247e193e7d19a683d6"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#3e79e767d1c774151e35946a34d48eda"><span class="id" title="variable">T₂</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispAdjunctions.html#disp_left_adjoint_equivalence"><span class="id" title="definition">disp_left_adjoint_equivalence</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#F:17"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#FF:20"><span class="id" title="variable">FF</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span> <span class="id" title="var">F</span> <span class="id" title="var">T₁</span> <span class="id" title="var">T₂</span> <span class="id" title="var">FF</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#J_2_0"><span class="id" title="definition">J_2_0</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#is_univalent_2_0_bicat_full_comp_cat"><span class="id" title="lemma">is_univalent_2_0_bicat_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> <span class="id" title="var">T₁</span> <span class="id" title="var">T₂</span> <span class="id" title="var">FF</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#to_disp_left_adjoint_equivalence_over_id_lift"><span class="id" title="definition">to_disp_left_adjoint_equivalence_over_id_lift</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.html#to_disp_left_adjoint_equivalence_over_id_lift"><span class="id" title="definition">to_disp_left_adjoint_equivalence_over_id_lift</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_left_adjoint_equivalence_subbicat_alt"><span class="id" title="definition">disp_left_adjoint_equivalence_subbicat_alt</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#is_univalent_2_bicat_cat_with_terminal_cleaving"><span class="id" title="lemma">is_univalent_2_bicat_cat_with_terminal_cleaving</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat" class="idref" href="#disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="63c90babd4216292517d3199174961ba" class="idref" href="#63c90babd4216292517d3199174961ba"><span class="id" title="binder">C₁</span></a> <a id="dc10aecbfc065b95be9d05022f029190" class="idref" href="#dc10aecbfc065b95be9d05022f029190"><span class="id" title="binder">C₂</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#full_comp_cat"><span class="id" title="definition">full_comp_cat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:23" class="idref" href="#F:23"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#full_comp_cat_functor"><span class="id" title="definition">full_comp_cat_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#63c90babd4216292517d3199174961ba"><span class="id" title="variable">C₁</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#dc10aecbfc065b95be9d05022f029190"><span class="id" title="variable">C₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HF:24" class="idref" href="#HF:24"><span class="id" title="binder">HF</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint_equivalence"><span class="id" title="definition">left_adjoint_equivalence</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#F:23"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="7245573d6d22f5562ee7b9857eacaf8d" class="idref" href="#7245573d6d22f5562ee7b9857eacaf8d"><span class="id" title="binder">T₁</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#63c90babd4216292517d3199174961ba"><span class="id" title="variable">C₁</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="ff454f9c1f906e5b09695d19f8bd2aa3" class="idref" href="#ff454f9c1f906e5b09695d19f8bd2aa3"><span class="id" title="binder">T₂</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_bicat_of_equalizer_type_full_comp_cat"><span class="id" title="definition">disp_bicat_of_equalizer_type_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#dc10aecbfc065b95be9d05022f029190"><span class="id" title="variable">C₂</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FF:27" class="idref" href="#FF:27"><span class="id" title="binder">FF</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#7245573d6d22f5562ee7b9857eacaf8d"><span class="id" title="variable">T₁</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#fedee33800776c247e193e7d19a683d6"><span class="id" title="notation">--&gt;[</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#F:23"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#fedee33800776c247e193e7d19a683d6"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#ff454f9c1f906e5b09695d19f8bd2aa3"><span class="id" title="variable">T₂</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispAdjunctions.html#disp_left_adjoint_equivalence"><span class="id" title="definition">disp_left_adjoint_equivalence</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#HF:24"><span class="id" title="variable">HF</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#FF:27"><span class="id" title="variable">FF</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat_help"><span class="id" title="definition">disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat_help</span></a> (<span class="id" title="var">F</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">HF</span>) <span class="id" title="var">FF</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

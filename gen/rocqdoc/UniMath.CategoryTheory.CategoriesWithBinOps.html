@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.CategoriesWithBinOps</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.CategoriesWithBinOps</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab1351"></a><h2 class="section">Precategories such that spaces of morphisms have a binary operation</h2>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Propositions.html#"><span class="id" title="library">UniMath.Foundations.Propositions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#"><span class="id" title="library">UniMath.Algebra.BinaryOperations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.TransportMorphisms.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.TransportMorphisms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#"><span class="id" title="library">UniMath.CategoryTheory.PrecategoryBinProduct</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="def_precategory_with_binops" class="idref" href="#def_precategory_with_binops"><span class="id" title="section">def_precategory_with_binops</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Definition of precategories such that homs are binops. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precategoryWithBinOpsData" class="idref" href="#precategoryWithBinOpsData"><span class="id" title="definition">precategoryWithBinOpsData</span></a> (<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="x:2" class="idref" href="#x:2"><span class="id" title="binder">x</span></a> <a id="y:3" class="idref" href="#y:3"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#binop"><span class="id" title="definition">binop</span></a> (<a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#x:2"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#y:3"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precategoryWithBinOps" class="idref" href="#precategoryWithBinOps"><span class="id" title="definition">precategoryWithBinOps</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="C:4" class="idref" href="#C:4"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOpsData"><span class="id" title="definition">precategoryWithBinOpsData</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#C:4"><span class="id" title="variable">C</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precategoryWithBinOps_precategory" class="idref" href="#precategoryWithBinOps_precategory"><span class="id" title="definition">precategoryWithBinOps_precategory</span></a> (<a id="P:5" class="idref" href="#P:5"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps"><span class="id" title="definition">precategoryWithBinOps</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#P:5"><span class="id" title="variable">P</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps_precategory"><span class="id" title="definition">precategoryWithBinOps_precategory</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps_precategory"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps_precategory"><span class="id" title="definition">precategoryWithBinOps</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps_precategory"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps_precategory"><span class="id" title="definition">category</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="make_precategoryWithBinOps" class="idref" href="#make_precategoryWithBinOps"><span class="id" title="definition">make_precategoryWithBinOps</span></a> (<a id="C:6" class="idref" href="#C:6"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>) (<a id="H:7" class="idref" href="#H:7"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOpsData"><span class="id" title="definition">precategoryWithBinOpsData</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#C:6"><span class="id" title="variable">C</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps"><span class="id" title="definition">precategoryWithBinOps</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#C:6"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#H:7"><span class="id" title="variable">H</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Gives the binop of the homs from x to y. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="to_binop" class="idref" href="#to_binop"><span class="id" title="definition">to_binop</span></a> {<a id="BC:8" class="idref" href="#BC:8"><span class="id" title="binder">BC</span></a> : <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps"><span class="id" title="definition">precategoryWithBinOps</span></a>} (<a id="x:9" class="idref" href="#x:9"><span class="id" title="binder">x</span></a> <a id="y:10" class="idref" href="#y:10"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#BC:8"><span class="id" title="variable">BC</span></a>) : <a class="idref" href="UniMath.Foundations.PartA.html#binop"><span class="id" title="definition">binop</span></a> (<a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#BC:8"><span class="id" title="variable">BC</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#x:9"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#y:10"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>) := (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#BC:8"><span class="id" title="variable">BC</span></a>) <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#x:9"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#y:10"><span class="id" title="variable">y</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#def_precategory_with_binops"><span class="id" title="section">def_precategory_with_binops</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="oppositePrecategoryWithBinOps" class="idref" href="#oppositePrecategoryWithBinOps"><span class="id" title="definition">oppositePrecategoryWithBinOps</span></a> (<a id="M:11" class="idref" href="#M:11"><span class="id" title="binder">M</span></a> : <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps"><span class="id" title="definition">precategoryWithBinOps</span></a>) : <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps"><span class="id" title="definition">precategoryWithBinOps</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#make_precategoryWithBinOps"><span class="id" title="definition">make_precategoryWithBinOps</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.opp_precat.html#op_category"><span class="id" title="definition">op_category</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#M:11"><span class="id" title="variable">M</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="A:12" class="idref" href="#A:12"><span class="id" title="binder">A</span></a> <a id="B:13" class="idref" href="#B:13"><span class="id" title="binder">B</span></a> <a id="f:14" class="idref" href="#f:14"><span class="id" title="binder">f</span></a> <a id="g:15" class="idref" href="#g:15"><span class="id" title="binder">g</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> @<a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#to_binop"><span class="id" title="definition">to_binop</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#M:11"><span class="id" title="variable">M</span></a> (<a class="idref" href="UniMath.CategoryTheory.opp_precat.html#rm_opp_ob"><span class="id" title="definition">rm_opp_ob</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#B:13"><span class="id" title="variable">B</span></a>) (<a class="idref" href="UniMath.CategoryTheory.opp_precat.html#rm_opp_ob"><span class="id" title="definition">rm_opp_ob</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#A:12"><span class="id" title="variable">A</span></a>) (<a class="idref" href="UniMath.CategoryTheory.opp_precat.html#rm_opp_mor"><span class="id" title="definition">rm_opp_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#f:14"><span class="id" title="variable">f</span></a>) (<a class="idref" href="UniMath.CategoryTheory.opp_precat.html#rm_opp_mor"><span class="id" title="definition">rm_opp_mor</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#g:15"><span class="id" title="variable">g</span></a>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="induced_precategoryWithBinOps" class="idref" href="#induced_precategoryWithBinOps"><span class="id" title="definition">induced_precategoryWithBinOps</span></a> (<a id="M:16" class="idref" href="#M:16"><span class="id" title="binder">M</span></a> : <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps"><span class="id" title="definition">precategoryWithBinOps</span></a>) {<a id="X:17" class="idref" href="#X:17"><span class="id" title="binder">X</span></a>:<span class="id" title="keyword">Type</span>} (<a id="j:18" class="idref" href="#j:18"><span class="id" title="binder">j</span></a> : <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#X:17"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#ob"><span class="id" title="definition">ob</span></a> <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#M:16"><span class="id" title="variable">M</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#precategoryWithBinOps"><span class="id" title="definition">precategoryWithBinOps</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.Core.TransportMorphisms.html#induced_category"><span class="id" title="definition">induced_category</span></a> <span class="id" title="var">M</span> <span class="id" title="var">j</span>). <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span>. <span class="id" title="tactic">exact</span> (@<a class="idref" href="UniMath.CategoryTheory.CategoriesWithBinOps.html#to_binop"><span class="id" title="definition">to_binop</span></a> <span class="id" title="var">M</span> (<span class="id" title="var">j</span> <span class="id" title="var">a</span>) (<span class="id" title="var">j</span> <span class="id" title="var">b</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

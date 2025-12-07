@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.SubobjectClassifier.Operations</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.SubobjectClassifier.Operations</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.StrictInitial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.StrictInitial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#"><span class="id" title="library">UniMath.CategoryTheory.Monics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#"><span class="id" title="library">UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.RegularAndExact.RegularCategory</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Operations" class="idref" href="#Operations"><span class="id" title="section">Operations</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Operations.E" class="idref" href="#Operations.E"><span class="id" title="variable">E</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="Operations.T" class="idref" href="#Operations.T"><span class="id" title="variable">T</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#E:1"><span class="id" title="variable">E</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="5a83a5e5158aa1dda919f31ac6b35442" class="idref" href="#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> : <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#subobject_classifier"><span class="id" title="definition">subobject_classifier</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#T:2"><span class="id" title="variable">T</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3027"></a><h1 class="section">1. Falsity</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="Operations.Falsity" class="idref" href="#Operations.Falsity"><span class="id" title="section">Falsity</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Operations.Falsity.I" class="idref" href="#Operations.Falsity.I"><span class="id" title="variable">I</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.StrictInitial.html#strict_initial_object"><span class="id" title="definition">strict_initial_object</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="Monic_from_strict_initial" class="idref" href="#Monic_from_strict_initial"><span class="id" title="definition">Monic_from_strict_initial</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monics.html#Monic"><span class="id" title="definition">Monic</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Falsity.I"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#x:5"><span class="id" title="variable">x</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#make_Monic"><span class="id" title="definition">make_Monic</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialArrow"><span class="id" title="definition">InitialArrow</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Falsity.I"><span class="id" title="variable">I</span></a> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">p</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (@<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialArrowEq"><span class="id" title="lemma">InitialArrowEq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#make_Initial"><span class="id" title="definition">make_Initial</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.StrictInitial.html#is_initial_mor_to_strict_initial"><span class="id" title="lemma">is_initial_mor_to_strict_initial</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Falsity.I"><span class="id" title="variable">I</span></a> <span class="id" title="var">_</span> <span class="id" title="var">f</span>)))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subobject_classifier_false" class="idref" href="#subobject_classifier_false"><span class="id" title="definition">subobject_classifier_false</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.T"><span class="id" title="variable">T</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#characteristic_morphism"><span class="id" title="definition">characteristic_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Falsity.I"><span class="id" title="variable">I</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Monic_from_strict_initial"><span class="id" title="definition">Monic_from_strict_initial</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.T"><span class="id" title="variable">T</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Falsity"><span class="id" title="section">Falsity</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3028"></a><h1 class="section">2. Conjunction</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="Operations.Conjunction" class="idref" href="#Operations.Conjunction"><span class="id" title="section">Conjunction</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Operations.Conjunction.BP" class="idref" href="#Operations.Conjunction.BP"><span class="id" title="variable">BP</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="a2adae18049458cf37ea224fe520ae9a" class="idref" href="#a2adae18049458cf37ea224fe520ae9a"><span class="id" title="variable">φ</span></a> : <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Conjunction.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.T"><span class="id" title="variable">T</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.T"><span class="id" title="variable">T</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Conjunction.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> := <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductOfArrows"><span class="id" title="definition">BinProductOfArrows</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#true"><span class="id" title="definition">true</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>) (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#true"><span class="id" title="definition">true</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="isMonic_subobject_classifier_conj_mor" class="idref" href="#isMonic_subobject_classifier_conj_mor"><span class="id" title="lemma">isMonic_subobject_classifier_conj_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monics.html#isMonic"><span class="id" title="definition">isMonic</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#a2adae18049458cf37ea224fe520ae9a"><span class="id" title="variable">φ</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrowsEq"><span class="id" title="lemma">BinProductArrowsEq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrowEq"><span class="id" title="lemma">TerminalArrowEq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrowEq"><span class="id" title="lemma">TerminalArrowEq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subobject_classifier_conj_monic" class="idref" href="#subobject_classifier_conj_monic"><span class="id" title="definition">subobject_classifier_conj_monic</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monics.html#Monic"><span class="id" title="definition">Monic</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Conjunction.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.T"><span class="id" title="variable">T</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.T"><span class="id" title="variable">T</span></a>) (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Conjunction.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#make_Monic"><span class="id" title="definition">make_Monic</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#a2adae18049458cf37ea224fe520ae9a"><span class="id" title="variable">φ</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#isMonic_subobject_classifier_conj_mor"><span class="id" title="lemma">isMonic_subobject_classifier_conj_mor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subobject_classifier_conj" class="idref" href="#subobject_classifier_conj"><span class="id" title="definition">subobject_classifier_conj</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Conjunction.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#characteristic_morphism"><span class="id" title="definition">characteristic_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Conjunction.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.T"><span class="id" title="variable">T</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.T"><span class="id" title="variable">T</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#subobject_classifier_conj_monic"><span class="id" title="definition">subobject_classifier_conj_monic</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Conjunction"><span class="id" title="section">Conjunction</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3029"></a><h1 class="section">3. Disjunction</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="Operations.Disjunction" class="idref" href="#Operations.Disjunction"><span class="id" title="section">Disjunction</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Operations.Disjunction.HC" class="idref" href="#Operations.Disjunction.HC"><span class="id" title="variable">HC</span></a> : <a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularCategory.html#is_regular_category"><span class="id" title="definition">is_regular_category</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Operations.Disjunction.BP" class="idref" href="#Operations.Disjunction.BP"><span class="id" title="variable">BP</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Operations.Disjunction.BC" class="idref" href="#Operations.Disjunction.BC"><span class="id" title="variable">BC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subobject_classifier_disj_mor" class="idref" href="#subobject_classifier_disj_mor"><span class="id" title="definition">subobject_classifier_disj_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Disjunction.BC"><span class="id" title="variable">BC</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Disjunction.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproductArrow"><span class="id" title="definition">BinCoproductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrow"><span class="id" title="definition">BinProductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#const_true"><span class="id" title="definition">const_true</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrow"><span class="id" title="definition">BinProductArrow</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#const_true"><span class="id" title="definition">const_true</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subobject_classifier_disj" class="idref" href="#subobject_classifier_disj"><span class="id" title="definition">subobject_classifier_disj</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Disjunction.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#characteristic_morphism"><span class="id" title="definition">characteristic_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.RegularAndExact.RegularCategory.html#regular_category_im_Monic"><span class="id" title="definition">regular_category_im_Monic</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Disjunction.HC"><span class="id" title="variable">HC</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#subobject_classifier_disj_mor"><span class="id" title="definition">subobject_classifier_disj_mor</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Disjunction"><span class="id" title="section">Disjunction</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3030"></a><h1 class="section">4. Implication</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="Operations.Implication" class="idref" href="#Operations.Implication"><span class="id" title="section">Implication</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Operations.Implication.BP" class="idref" href="#Operations.Implication.BP"><span class="id" title="variable">BP</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Operations.Implication.EE" class="idref" href="#Operations.Implication.EE"><span class="id" title="variable">EE</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#Equalizers"><span class="id" title="definition">Equalizers</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subobject_classifier_impl_ob" class="idref" href="#subobject_classifier_impl_ob"><span class="id" title="definition">subobject_classifier_impl_ob</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#Equalizer"><span class="id" title="definition">Equalizer</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Implication.EE"><span class="id" title="variable">EE</span></a> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Implication.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>) <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#subobject_classifier_conj"><span class="id" title="definition">subobject_classifier_conj</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Implication.BP"><span class="id" title="variable">BP</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1"><span class="id" title="definition">BinProductPr1</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.E"><span class="id" title="variable">E</span></a> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Implication.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subobject_classifier_impl" class="idref" href="#subobject_classifier_impl"><span class="id" title="definition">subobject_classifier_impl</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Implication.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#characteristic_morphism"><span class="id" title="definition">characteristic_morphism</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#5a83a5e5158aa1dda919f31ac6b35442"><span class="id" title="variable">Ω</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#subobject_classifier_impl_ob"><span class="id" title="definition">subobject_classifier_impl_ob</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#EqualizerArrowMonic"><span class="id" title="lemma">EqualizerArrowMonic</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations.Implication"><span class="id" title="section">Implication</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.Operations.html#Operations"><span class="id" title="section">Operations</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

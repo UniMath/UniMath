@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.Lattice.Complement</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.Lattice.Complement</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab3913"></a><h1 class="section">Complements</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Preamble.html#"><span class="id" title="library">UniMath.Foundations.Preamble</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Lattice</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#"><span class="id" title="library">UniMath.OrderTheory.Lattice.Bounded</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Def" class="idref" href="#Def"><span class="id" title="section">Def</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Def.X" class="idref" href="#Def.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>} (<a id="Def.L" class="idref" href="#Def.L"><span class="id" title="variable">L</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_lattice"><span class="id" title="definition">bounded_lattice</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#X:1"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The normal "∧", "∨" notation conflicts with that for <span class="inlinecode"><a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a></span>, whereas
+      "+", "×" conflict with notation for types. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="71d9189efd708e02567bd7d9ae7e38e7" class="idref" href="#71d9189efd708e02567bd7d9ae7e38e7"><span class="id" title="notation">&quot;</span></a>x ≤ y" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lle"><span class="id" title="definition">Lle</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.L"><span class="id" title="variable">L</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="fa053fcee467e7e00d324f8c43bdb468" class="idref" href="#fa053fcee467e7e00d324f8c43bdb468"><span class="id" title="notation">&quot;</span></a>x ⊗ y" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmin"><span class="id" title="definition">Lmin</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.L"><span class="id" title="variable">L</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="db8c07ad7ba1beee6899f0d919330784" class="idref" href="#db8c07ad7ba1beee6899f0d919330784"><span class="id" title="notation">&quot;</span></a>x ⊕ y" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Lattice.html#Lmax"><span class="id" title="definition">Lmax</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.L"><span class="id" title="variable">L</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="3b307056cfa4a72f13d59170001e652f" class="idref" href="#3b307056cfa4a72f13d59170001e652f"><span class="id" title="notation">&quot;</span></a>⊤" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#Ltop"><span class="id" title="definition">Ltop</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.L"><span class="id" title="variable">L</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="83f2b23f227957f535b6313567353334" class="idref" href="#83f2b23f227957f535b6313567353334"><span class="id" title="notation">&quot;</span></a>⊥" := (<a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#Lbot"><span class="id" title="definition">Lbot</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.L"><span class="id" title="variable">L</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="complement" class="idref" href="#complement"><span class="id" title="definition">complement</span></a> (<a id="x:3" class="idref" href="#x:3"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.X"><span class="id" title="variable">X</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="y:4" class="idref" href="#y:4"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#x:3"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#db8c07ad7ba1beee6899f0d919330784"><span class="id" title="notation">⊕</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#y:4"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#3b307056cfa4a72f13d59170001e652f"><span class="id" title="notation">⊤</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#x:3"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#fa053fcee467e7e00d324f8c43bdb468"><span class="id" title="notation">⊗</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#y:4"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#83f2b23f227957f535b6313567353334"><span class="id" title="notation">⊥</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="complement_to_element" class="idref" href="#complement_to_element"><span class="id" title="definition">complement_to_element</span></a> {<a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.X"><span class="id" title="variable">X</span></a>} (<a id="y:6" class="idref" href="#y:6"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#x:5"><span class="id" title="variable">x</span></a>) : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.X"><span class="id" title="variable">X</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#y:6"><span class="id" title="variable">y</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complement_to_element"><span class="id" title="definition">complement_to_element</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complement_to_element"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complement_to_element"><span class="id" title="definition">complement</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complement_to_element"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complement_to_element"><span class="id" title="definition">pr1hSet</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="complement_top_axiom" class="idref" href="#complement_top_axiom"><span class="id" title="definition">complement_top_axiom</span></a> (<a id="x:7" class="idref" href="#x:7"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.X"><span class="id" title="variable">X</span></a>) (<a id="y:8" class="idref" href="#y:8"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#x:7"><span class="id" title="variable">x</span></a>) : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#db8c07ad7ba1beee6899f0d919330784"><span class="id" title="notation">⊕</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#y:8"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#3b307056cfa4a72f13d59170001e652f"><span class="id" title="notation">⊤</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dirprod_pr1"><span class="id" title="definition">dirprod_pr1</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#y:8"><span class="id" title="variable">y</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="complement_bottom_axiom" class="idref" href="#complement_bottom_axiom"><span class="id" title="definition">complement_bottom_axiom</span></a> (<a id="x:9" class="idref" href="#x:9"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.X"><span class="id" title="variable">X</span></a>) (<a id="y:10" class="idref" href="#y:10"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#x:9"><span class="id" title="variable">x</span></a>) : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#x:9"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#fa053fcee467e7e00d324f8c43bdb468"><span class="id" title="notation">⊗</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#y:10"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#83f2b23f227957f535b6313567353334"><span class="id" title="notation">⊥</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#dirprod_pr2"><span class="id" title="definition">dirprod_pr2</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#y:10"><span class="id" title="variable">y</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+This is <i>not</i> a proposition: complements need not be unique. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="complemented_structure" class="idref" href="#complemented_structure"><span class="id" title="definition">complemented_structure</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:11" class="idref" href="#x:11"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#x:11"><span class="id" title="variable">x</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.Lattice.Complement.html#Def"><span class="id" title="section">Def</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

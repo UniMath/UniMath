@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.GrothendieckToposes.Toposes</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.GrothendieckToposes.Toposes</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Equivalences.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Subcategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Subcategory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.CategoryEquality.html#"><span class="id" title="library">UniMath.CategoryTheory.CategoryEquality</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.catiso.html#"><span class="id" title="library">UniMath.CategoryTheory.catiso</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#"><span class="id" title="library">UniMath.CategoryTheory.GrothendieckToposes.Sheaves</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sites.html#"><span class="id" title="library">UniMath.CategoryTheory.GrothendieckToposes.Sites</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2488"></a><h1 class="section">1. The property of being a Grothendieck topos</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Grothendieck_topos_structure" class="idref" href="#Grothendieck_topos_structure"><span class="id" title="definition">Grothendieck_topos_structure</span></a><br/>
+&nbsp;&nbsp;(<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="D:2" class="idref" href="#D:2"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sites.html#site"><span class="id" title="definition">site</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#adj_equiv"><span class="id" title="definition">adj_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:1"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#sheaf_cat"><span class="id" title="definition">sheaf_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#D:2"><span class="id" title="variable">D</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Grothendieck_topos_structure_site" class="idref" href="#Grothendieck_topos_structure_site"><span class="id" title="definition">Grothendieck_topos_structure_site</span></a><br/>
+&nbsp;&nbsp;{<a id="C:3" class="idref" href="#C:3"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;(<a id="G:4" class="idref" href="#G:4"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos_structure"><span class="id" title="definition">Grothendieck_topos_structure</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:3"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sites.html#site"><span class="id" title="definition">site</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#G:4"><span class="id" title="variable">G</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Grothendieck_topos_structure_equiv" class="idref" href="#Grothendieck_topos_structure_equiv"><span class="id" title="definition">Grothendieck_topos_structure_equiv</span></a><br/>
+&nbsp;&nbsp;{<a id="C:5" class="idref" href="#C:5"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;(<a id="G:6" class="idref" href="#G:6"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos_structure"><span class="id" title="definition">Grothendieck_topos_structure</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:5"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#adj_equiv"><span class="id" title="definition">adj_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:5"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#sheaf_cat"><span class="id" title="definition">sheaf_cat</span></a> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos_structure_site"><span class="id" title="definition">Grothendieck_topos_structure_site</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#G:6"><span class="id" title="variable">G</span></a>))<br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#G:6"><span class="id" title="variable">G</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_Grothendieck_topos" class="idref" href="#is_Grothendieck_topos"><span class="id" title="definition">is_Grothendieck_topos</span></a><br/>
+&nbsp;&nbsp;(<a id="C:7" class="idref" href="#C:7"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos_structure"><span class="id" title="definition">Grothendieck_topos_structure</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:7"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9874e57674027e3ad2fc2edf7fb1b219"><span class="id" title="notation">∥</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2489"></a><h1 class="section">2. Grothendieck toposes</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Grothendieck_topos" class="idref" href="#Grothendieck_topos"><span class="id" title="definition">Grothendieck_topos</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Sets.html#carrier"><span class="id" title="definition">carrier</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#is_Grothendieck_topos"><span class="id" title="definition">is_Grothendieck_topos</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_Grothendieck_topos" class="idref" href="#make_Grothendieck_topos"><span class="id" title="definition">make_Grothendieck_topos</span></a><br/>
+&nbsp;&nbsp;(<a id="C:8" class="idref" href="#C:8"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;(<a id="G:9" class="idref" href="#G:9"><span class="id" title="binder">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#is_Grothendieck_topos"><span class="id" title="definition">is_Grothendieck_topos</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:8"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos"><span class="id" title="definition">Grothendieck_topos</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:8"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#G:9"><span class="id" title="variable">G</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a id="Grothendieck_topos_category" class="idref" href="#Grothendieck_topos_category"><span class="id" title="definition">Grothendieck_topos_category</span></a> (<a id="GT:10" class="idref" href="#GT:10"><span class="id" title="binder">GT</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos"><span class="id" title="definition">Grothendieck_topos</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#GT:10"><span class="id" title="variable">GT</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Grothendieck_topos_is_Grothendieck_topos" class="idref" href="#Grothendieck_topos_is_Grothendieck_topos"><span class="id" title="definition">Grothendieck_topos_is_Grothendieck_topos</span></a><br/>
+&nbsp;&nbsp;(<a id="GT:11" class="idref" href="#GT:11"><span class="id" title="binder">GT</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos"><span class="id" title="definition">Grothendieck_topos</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#is_Grothendieck_topos"><span class="id" title="definition">is_Grothendieck_topos</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#GT:11"><span class="id" title="variable">GT</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#GT:11"><span class="id" title="variable">GT</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2490"></a><h1 class="section">3. The recursion and induction principles</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Grothendieck_topos_rect" class="idref" href="#Grothendieck_topos_rect"><span class="id" title="lemma">Grothendieck_topos_rect</span></a><br/>
+&nbsp;&nbsp;(<a id="P:12" class="idref" href="#P:12"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;(<a id="HP:14" class="idref" href="#HP:14"><span class="id" title="binder">HP</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="D:13" class="idref" href="#D:13"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sites.html#site"><span class="id" title="definition">site</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#P:12"><span class="id" title="variable">P</span></a> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#sheaf_cat"><span class="id" title="definition">sheaf_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#D:13"><span class="id" title="variable">D</span></a>))<br/>
+&nbsp;&nbsp;{<a id="C:15" class="idref" href="#C:15"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;(<a id="HU:16" class="idref" href="#HU:16"><span class="id" title="binder">HU</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:15"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;(<a id="HT:17" class="idref" href="#HT:17"><span class="id" title="binder">HT</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos_structure"><span class="id" title="definition">Grothendieck_topos_structure</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:15"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#P:12"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:15"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> <span class="id" title="var">P</span> <span class="id" title="var">_</span> (<span class="id" title="var">HP</span> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos_structure_site"><span class="id" title="definition">Grothendieck_topos_structure_site</span></a> <span class="id" title="var">HT</span>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> (<a class="idref" href="UniMath.CategoryTheory.CategoryEquality.html#catiso_is_path_cat"><span class="id" title="definition">catiso_is_path_cat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.catiso.html#adj_equivalence_of_cats_to_cat_iso"><span class="id" title="definition">adj_equivalence_of_cats_to_cat_iso</span></a> (<a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#adj_equivalence_of_cats_inv"><span class="id" title="definition">adj_equivalence_of_cats_inv</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos_structure_equiv"><span class="id" title="definition">Grothendieck_topos_structure_equiv</span></a> <span class="id" title="var">HT</span>))).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#sheaf_cat_univalent"><span class="id" title="lemma">sheaf_cat_univalent</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="var">HU</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Grothendieck_topos_ind" class="idref" href="#Grothendieck_topos_ind"><span class="id" title="lemma">Grothendieck_topos_ind</span></a><br/>
+&nbsp;&nbsp;(<a id="P:18" class="idref" href="#P:18"><span class="id" title="binder">P</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>)<br/>
+&nbsp;&nbsp;(<a id="HP:20" class="idref" href="#HP:20"><span class="id" title="binder">HP</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="D:19" class="idref" href="#D:19"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sites.html#site"><span class="id" title="definition">site</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#P:18"><span class="id" title="variable">P</span></a> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Sheaves.html#sheaf_cat"><span class="id" title="definition">sheaf_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#D:19"><span class="id" title="variable">D</span></a>))<br/>
+&nbsp;&nbsp;{<a id="C:21" class="idref" href="#C:21"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;(<a id="HU:22" class="idref" href="#HU:22"><span class="id" title="binder">HU</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:21"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;(<a id="HT:23" class="idref" href="#HT:23"><span class="id" title="binder">HT</span></a> : <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#is_Grothendieck_topos"><span class="id" title="definition">is_Grothendieck_topos</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:21"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#P:18"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#C:21"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">HT</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhuniv"><span class="id" title="definition">hinhuniv</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.GrothendieckToposes.Toposes.html#Grothendieck_topos_rect"><span class="id" title="lemma">Grothendieck_topos_rect</span></a> <span class="id" title="var">P</span> <span class="id" title="var">HP</span> <span class="id" title="var">HU</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
