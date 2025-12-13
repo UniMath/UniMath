@@ -5,6 +5,11 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+    types:
+      - ready_for_review
+      - opened
+      - reopened
+      - synchronize
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   schedule:
@@ -41,6 +46,8 @@ jobs:
 
   # Build the current PR/branch with the latest stable release of Coq.
   build-Unimath-ubuntu:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false) }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -117,6 +124,7 @@ jobs:
   # Build UniMath on MacOS using latest stable release of Coq installed with
   # Homebrew (8.18.0 still on March 18, 2024). Build files are cached.
   #build-macos:
+  #  if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false) }}
   #  name: Build on macOS (latest Coq on Homebrew)
 
   #  runs-on: macos-latest
@@ -154,6 +162,8 @@ jobs:
   # (outdated comment:) except for TypeTheory, which is built
   # using the latest stable 8.15 release.
   build-satellites:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false) }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -278,6 +288,7 @@ jobs:
           path: _build/default/UniMath/UniMath.html
 
   #alectryon:
+  #  if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false) }}
   #  name: "Alectryon"
   #  if: github.ref == 'refs/heads/master'
   #  needs: build-Unimath-ubuntu
