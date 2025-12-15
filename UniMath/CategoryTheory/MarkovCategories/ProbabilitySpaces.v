@@ -391,7 +391,7 @@ Section CouplingsToProbabilitySpaces.
   Proof.
     use make_functor. { exact couplings_to_ps_data. }
     split.
-    - (* Identitiy law *)
+    - (* Identity law *)
       intros [x p].
       apply iscompsetquotpr.
       unfold coupling_cond.

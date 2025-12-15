@@ -47,6 +47,15 @@ Local Open Scope cat.
 Local Open Scope moncat.
 Local Open Scope markov.
 
+(* Extract a witness from an equality of equivalence classes *)
+
+Proposition setquotpreq {X : UU} (R : eqrel X) (x x' : X) :
+  (setquotpr R x = setquotpr R x') -> R x x'.
+Proof.
+  use invmap.
+  apply weqpathsinsetquot.
+Qed.
+
 (** 1. Coisometries and Almost-Sure Determinism  *)
 
 Section DaggerLemmas.
@@ -96,15 +105,44 @@ Section DaggerPropositions.
 
   Let dag : dagger PS := prob_space_dagger C.
 
-  Lemma isos_coisometry {x y : PS} (f : z_iso x y) : is_coisometry dag f.
+  Local Lemma isos_coisometry_aux {x y : PS} :
+    ∏ (ff : x --> y) (gg : y --> x)
+    (inv_ffgg : ff · gg = identity _) (inv_ggff : gg · ff = identity _), is_coisometry dag ff.
   Proof.
     destruct x as [x p], y as [y q].
-    unfold is_coisometry, dag, prob_space_dagger.
-    use setquotunivprop'.
-  Admitted.
 
+    use setquotunivprop'. { do 3 (intro; use impred). intro. apply homset_property. }
+    intros [f presf].  
+    use setquotunivprop'. { do 2 (intro; use impred). intro. apply homset_property. }
+    intros [g presg] inv_fg inv_gf.
+    apply iscompsetquotpr.
+    cbn. 
+    pose(ase_fg := setquotpreq _ _ _ inv_fg).
+    cbn in ase_fg.
 
-  
+    do 2 cbn in presf.
+    rewrite <- presf.
+    apply ase_determinism_coisometry.
+    use relpos_coisometry_lemma.
+    - apply conditionals_imply_relative_positivity.
+    - exact g.
+    - apply inverse_to_bayesian_inverse.
+      * apply conditionals_imply_relative_positivity.
+      * exact ase_fg.
+    - pose(ase_gf := setquotpreq _ _ _ inv_gf).
+      cbn in ase_gf.
+      rewrite presf.
+      exact ase_gf.
+  Qed.
+
+  Proposition isos_coisometry {x y : PS} (phi : z_iso x y) : is_coisometry dag phi.
+  Proof.
+    use isos_coisometry_aux.
+    - apply z_iso_inv.
+      exact phi.
+    - apply z_iso_inv_after_z_iso.
+    - apply z_iso_after_z_iso_inv.
+  Qed.  
 
   Proposition isos_unitary {x y : PS} (f : z_iso x y) : is_unitary dag f.
   Proof.

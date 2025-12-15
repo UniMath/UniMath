@@ -103,6 +103,7 @@ Section ImplicationsBetweenAxioms.
     exact det_fg.
   Qed.   
 
+  (* TODO bayesian_inverse *)
   Proposition relpos_coisometry_lemma 
     (C : markov_category) (rp : is_rel_positive C) {a x y : C} (p : a --> x)
     (f : x --> y) (g : y --> x)
@@ -154,6 +155,26 @@ Section ImplicationsBetweenAxioms.
     - exact gf_det_ase.
   Qed. 
 
+  Proposition inverse_to_bayesian_inverse 
+    (C : markov_category) (rp : is_rel_positive C) {a x y : C}
+    (p : a --> x) (f : x --> y) (g : y --> x)
+    : (f · g =_{p} identity x) -> p · ⟨f, identity _⟩ = p · f · ⟨identity _, g⟩.
+  Proof. 
+    intros inv_fg.
+    rewrite <- assoc.
+    apply equal_almost_surely_composition.
+    apply ase_trans with ⟨f, f · g⟩.
+      { apply ase_pairing_r.
+        apply ase_symm.
+        exact inv_fg. }
+    apply ase_symm.
+    apply rel_positivity_r.
+      - exact rp.
+      - apply is_deterministic_ase_stable with (identity _).
+        apply ase_symm. exact inv_fg.
+        apply deterministic_implies_determinstic_ase.
+        apply is_deterministic_identity.
+  Qed.
 
   (* TODO obsolete *)
   (* ase-inverses are ase-deterministic *)
