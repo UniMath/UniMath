@@ -103,7 +103,7 @@ Section ImplicationsBetweenAxioms.
     exact det_fg.
   Qed.   
 
-  (* TODO bayesian_inverse *)
+  (* TODO import bayesian_inverse definition? *)
   Proposition relpos_coisometry_lemma 
     (C : markov_category) (rp : is_rel_positive C) {a x y : C} (p : a --> x)
     (f : x --> y) (g : y --> x)
@@ -177,5 +177,121 @@ Section ImplicationsBetweenAxioms.
   Qed.
   
 End ImplicationsBetweenAxioms.
+
+Lemma rassociator_proj {C : markov_category} (x y z : C) :
+  mon_rassociator x y z · proj1 = identity x #⊗ proj1.
+Proof.
+Admitted.
+
+Lemma rassociator_proj1_tensor {C : markov_category} (x y z : C) :
+  mon_rassociator x y z · proj1 #⊗ identity z = identity x #⊗ proj2.
+Proof.
+Admitted.
+
+Lemma rassociator_proj2_tensor {C : markov_category} (x y z : C) :
+  mon_rassociator x y z · proj2 #⊗ identity z = proj2.
+Proof.
+Admitted.
+
+Lemma copy_ase {C : markov_category} (x : C) : proj1 =_{copy x} proj2.
+Proof.
+Admitted.
+
+Section CausalityImpliesRelPos.
+  Context {C : markov_category}
+          (caus : is_causal C).
+
+  Context {a x y z : C}.
+  Context (p : a --> x)
+          (f : x --> y)
+          (g : y --> z).
+  Context (det_ase : is_deterministic_ase p (f · g)).
+
+  Definition d : x --> z ⊗ z ⊗ y
+    := ⟨f · g, f · ⟨g, identity _⟩⟩ · mon_rassociator _ _ _.
+
+  Proposition d12 : d · proj1 = ⟨f · g, f · g⟩.
+  Proof.
+    unfold d.
+    rewrite assoc', rassociator_proj.
+    rewrite pairing_tensor.
+    rewrite !assoc', pairing_proj1, id_right.
+    reflexivity.
+  Qed.
+
+  Proposition aux1 : p · d · proj1 = p · f · g · copy _.
+  Proof.
+    rewrite !assoc'.
+    apply ase_precomp.
+    rewrite d12.
+    rewrite assoc.
+    apply ase_symm.
+    exact det_ase.
+  Qed.
+
+  Proposition causality_assumption :
+    p · d · proj1 · ⟨proj1, identity _⟩ = p · d · proj1 · ⟨proj2, identity _⟩.
+  Proof.
+    rewrite aux1.
+    rewrite !assoc'.
+    do 3 apply maponpaths.
+    apply equal_almost_surely_l.
+    apply copy_ase.
+  Qed.
+
+  Proposition causality_conclusion :
+          d · ⟨proj1 · ⟨proj1, identity _⟩, identity _⟩
+    =_{p} d · ⟨proj1 · ⟨proj2, identity _⟩, identity _⟩.
+  Proof.
+    apply make_equal_almost_surely_l.
+    apply causality_l. { exact caus. }
+    rewrite !assoc.
+    apply causality_l. { exact caus. }
+    rewrite !assoc.
+    exact causality_assumption.
+  Qed.
+
+  Definition lhs : x --> z ⊗ y := d · ⟨proj1 · ⟨proj1, identity _⟩, identity _⟩ · (proj1 #⊗ proj2).
+  Definition rhs : x --> z ⊗ y := d · ⟨proj1 · ⟨proj2, identity _⟩, identity _⟩ · (proj1 #⊗ proj2).
+
+  Proposition lhs_simpl : lhs = ⟨f · g, f⟩.
+  Proof. 
+    unfold lhs.
+    rewrite assoc'.
+    rewrite pairing_tensor, id_left, assoc'.
+    rewrite pairing_proj1.
+    rewrite <- pairing_tensor_l, assoc.
+    rewrite pairing_proj_id, id_right.
+    unfold d.
+    rewrite assoc', rassociator_proj1_tensor.
+    rewrite pairing_tensor, !assoc'.
+    rewrite pairing_proj2, !id_right.
+    reflexivity.
+  Qed.
+      
+  Proposition rhs_simpl : rhs = f · ⟨g, identity _⟩.
+  Proof. 
+    unfold rhs.
+    rewrite assoc'.
+    rewrite pairing_tensor, id_left, assoc'.
+    rewrite pairing_proj1.
+    rewrite <- pairing_tensor_l, assoc.
+    rewrite pairing_proj_id, id_right.
+    unfold d.
+    rewrite assoc', rassociator_proj2_tensor.
+    rewrite pairing_proj2.
+    reflexivity.
+  Qed.
+
+  Proposition causality_rel_pos_aux :
+    ⟨f · g, f⟩ =_{p} f · ⟨g, identity _⟩.
+  Proof.
+    rewrite <- lhs_simpl, <- rhs_simpl.
+    unfold lhs, rhs.
+    apply ase_postcomp.
+    apply causality_conclusion.
+  Qed.    
+
+End CausalityImpliesRelPos.
 
 #[global] Opaque is_rel_positive.
