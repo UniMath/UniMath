@@ -47,15 +47,6 @@ Local Open Scope cat.
 Local Open Scope moncat.
 Local Open Scope markov.
 
-(* Extract a witness from an equality of equivalence classes *)
-
-Proposition setquotpreq {X : UU} (R : eqrel X) (x x' : X) :
-  (setquotpr R x = setquotpr R x') -> R x x'.
-Proof.
-  use invmap.
-  apply weqpathsinsetquot.
-Qed.
-
 (** 1. Coisometries and Almost-Sure Determinism  *)
 
 Section DaggerLemmas.
@@ -126,7 +117,7 @@ Section DaggerPropositions.
     use relpos_coisometry_lemma.
     - apply conditionals_imply_relative_positivity.
     - exact g.
-    - apply inverse_to_bayesian_inverse.
+    - apply coisometry_to_bayesian_inverse.
       * apply conditionals_imply_relative_positivity.
       * exact ase_fg.
     - pose(ase_gf := setquotpreq _ _ _ inv_gf).
