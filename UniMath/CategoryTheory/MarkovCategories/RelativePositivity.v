@@ -178,25 +178,6 @@ Section ImplicationsBetweenAxioms.
   
 End ImplicationsBetweenAxioms.
 
-Lemma rassociator_proj {C : markov_category} (x y z : C) :
-  mon_rassociator x y z · proj1 = identity x #⊗ proj1.
-Proof.
-Admitted.
-
-Lemma rassociator_proj1_tensor {C : markov_category} (x y z : C) :
-  mon_rassociator x y z · proj1 #⊗ identity z = identity x #⊗ proj2.
-Proof.
-Admitted.
-
-Lemma rassociator_proj2_tensor {C : markov_category} (x y z : C) :
-  mon_rassociator x y z · proj2 #⊗ identity z = proj2.
-Proof.
-Admitted.
-
-Lemma copy_ase {C : markov_category} (x : C) : proj1 =_{copy x} proj2.
-Proof.
-Admitted.
-
 Section CausalityImpliesRelPos.
   Context {C : markov_category}
           (caus : is_causal C).

@@ -496,37 +496,6 @@ Section PairingProperties.
     apply idpath.
   Qed.
 
-  (* Pairing on tensor wires *)
-
-  Proposition pairing_proj_id (x y : C) :
-    ⟨proj1, proj2⟩ = identity (x ⊗ y).
-  Proof.
-  Admitted.
-
-  Proposition pairing_proj_braiding (x y : C) :
-    ⟨proj2, proj1⟩ = sym_mon_braiding C x y.
-  Proof.
-  Admitted.
-
-  Proposition pairing_proj_delete (x y : C) :
-    ⟨proj1, del (x ⊗ y)⟩ · mon_runitor x  = proj1.
-Admitted. (* symmetric *)
-
-  Proposition pairing_proj_tensor
-    {x1 x2 y1 y2 : C}
-    (f : x1 --> y1) (g : x2 --> y2) 
-    : ⟨proj1 · f, proj2 · g⟩ = f #⊗ g.
-  Proof.
-    rewrite <- pairing_tensor.
-    rewrite pairing_proj_id, id_left.
-    reflexivity.
-  Qed.
-
-  Proposition pairing_proj_rassociator {x y z : C} :
-    ⟨⟨proj1, proj2 · proj1⟩, proj2 · proj2⟩ = mon_rassociator x y z.
-  Proof.
-  Admitted.
-
   (* Some helpful cancellation lemmas *)
   
   Proposition pairing_flip {a x1 x2 y z : C} (p : a --> x1) (q : a --> x2) 

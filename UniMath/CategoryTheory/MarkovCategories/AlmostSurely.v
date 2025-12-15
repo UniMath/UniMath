@@ -220,16 +220,31 @@ Section PropertiesAlmostSurely.
 
 End PropertiesAlmostSurely.
 
-Proposition id_ase {C : markov_category} {x y : C} (f g : x --> y) :
-  (f =_{identity x} g) -> f = g.
-Proof.
-  intros ase.
-  rewrite <- (pairing_proj1 f (identity x)), <- (pairing_proj1 g (identity x)).
-  apply maponpaths_2.
-  rewrite <- (id_left ⟨ f, identity x ⟩), <- (id_left ⟨ g, identity x ⟩).
-  apply equal_almost_surely_l.
-  exact ase.
-Qed. 
+Section MiscellaneousLemmas.
+
+  Proposition id_ase {C : markov_category} {x y : C} (f g : x --> y) :
+    (f =_{identity x} g) -> f = g.
+  Proof.
+    intros ase.
+    rewrite <- (pairing_proj1 f (identity x)), <- (pairing_proj1 g (identity x)).
+    apply maponpaths_2.
+    rewrite <- (id_left ⟨ f, identity x ⟩), <- (id_left ⟨ g, identity x ⟩).
+    apply equal_almost_surely_l.
+    exact ase.
+  Qed. 
+
+  Lemma copy_ase {C : markov_category} (x : C) : proj1 =_{copy x} proj2.
+  Proof.
+    apply make_equal_almost_surely_l.
+    apply det_eta; try auto with autodet.
+    - rewrite !assoc', !pairing_proj1.
+      rewrite copy_proj1, copy_proj2.
+      reflexivity.
+    - rewrite !assoc', !pairing_proj2.
+      reflexivity.
+  Qed.
+
+End MiscellaneousLemmas.
 
 (** * 3. Definition of Almost Sure Determinism *)
 

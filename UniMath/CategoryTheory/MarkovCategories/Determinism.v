@@ -15,6 +15,7 @@ and prove various lemmas about composition of deterministic maps.
 Table of Contents
 1. Definition of Determinism
 2. Examples and Properies
+TODO
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -62,6 +63,8 @@ Section DefDeterminism.
 End DefDeterminism.
 
 (** * 2. Examples and Properties *)
+
+Create HintDb autodet.
 
 Section ExamplesAndProperties.
   Context {C : markov_category}.
@@ -332,7 +335,7 @@ Section ExamplesAndProperties.
     apply is_deterministic_mon_runitor.
   Qed.  
 
-  Proposition is_deterministic_mon_lassociator {x y z : C} :
+  Proposition is_deterministic_mon_lassociator (x y z : C) :
     is_deterministic (mon_lassociator x y z).
   Proof.
     unfold is_deterministic.
@@ -359,6 +362,25 @@ Section ExamplesAndProperties.
     apply idpath.
   Qed.
 
+  (* TODO *)
+  Local Definition z_iso_from_mon_lassociator (x y z : C) : z_iso (x ⊗ y ⊗ z) (x ⊗ (y ⊗ z)).
+  Proof.
+    use make_z_iso.
+    - apply mon_lassociator.
+    - apply mon_rassociator.
+    - split.
+      * apply mon_lassociator_rassociator.    
+      * apply mon_rassociator_lassociator.
+  Defined.
+
+  Proposition is_deterministic_mon_rassociator (x y z : C) :
+    is_deterministic (mon_rassociator x y z).
+  Proof.
+    refine (is_deterministic_inverse (z_iso_from_mon_lassociator x y z) _).
+    cbn.
+    apply is_deterministic_mon_lassociator.
+  Qed.
+
   Proposition is_deterministic_pairing {a x y : C} (f : a --> x) (g : a --> y)
     (df : is_deterministic f) (dg : is_deterministic g) : is_deterministic ⟨f, g⟩. 
   Proof.
@@ -368,4 +390,154 @@ Section ExamplesAndProperties.
     - apply is_deterministic_tensor ; assumption.
   Qed.
 
+  Proposition is_deterministic_proj1 (x y : C) : is_deterministic (@proj1 C x y).
+  Proof.
+    unfold proj1.
+    apply is_deterministic_composition.
+    - apply is_deterministic_tensor.
+      * apply is_deterministic_identity.
+      * apply is_deterministic_del.
+    - apply is_deterministic_mon_runitor.
+  Qed.     
+
+  Proposition is_deterministic_proj2 (x y : C) : is_deterministic (@proj2 C x y).
+  Proof.
+    unfold proj2.
+    apply is_deterministic_composition.
+    - apply is_deterministic_tensor.
+      * apply is_deterministic_del.
+      * apply is_deterministic_identity.
+    - apply is_deterministic_mon_lunitor.
+  Qed.
+  
 End ExamplesAndProperties.
+
+#[global] Hint Resolve is_deterministic_identity : autodet.
+#[global] Hint Resolve is_deterministic_composition : autodet.
+#[global] Hint Resolve is_deterministic_del : autodet.
+#[global] Hint Resolve is_deterministic_sym_mon_braiding : autodet.
+#[global] Hint Resolve is_deterministic_copy : autodet.
+
+#[global] Hint Resolve is_deterministic_mon_lassociator : autodet.
+#[global] Hint Resolve is_deterministic_mon_lunitor : autodet.
+#[global] Hint Resolve is_deterministic_mon_linvunitor : autodet.
+
+#[global] Hint Resolve is_deterministic_mon_rassociator : autodet.
+#[global] Hint Resolve is_deterministic_mon_runitor : autodet.
+#[global] Hint Resolve is_deterministic_mon_rinvunitor : autodet.
+
+#[global] Hint Resolve is_deterministic_tensor : autodet.
+#[global] Hint Resolve is_deterministic_pairing : autodet.
+#[global] Hint Resolve is_deterministic_proj1 : autodet.
+#[global] Hint Resolve is_deterministic_proj2 : autodet.
+
+(* A calculus for pairings *)
+Section PairingCalculus.
+  Context {C : markov_category}.
+
+  Proposition pairing_proj_id (x y : C) :
+    ⟨proj1, proj2⟩ = identity (x ⊗ y).
+  Proof.
+    unfold pairing.
+    rewrite <- copy_tensor.
+    unfold proj1, proj2.
+  Admitted.
+
+  Proposition pairing_proj_tensor
+    {x1 x2 y1 y2 : C}
+    (f : x1 --> y1) (g : x2 --> y2) 
+    : ⟨proj1 · f, proj2 · g⟩ = f #⊗ g.
+  Proof.
+    rewrite <- pairing_tensor.
+    rewrite pairing_proj_id, id_left.
+    reflexivity.
+  Qed.
+
+  Proposition pairing_det {x y : C} (f : x --> y) :
+    is_deterministic f -> ⟨f,f⟩ = f · ⟨identity y, identity y⟩.
+  Proof.
+    intros det.
+    rewrite pairing_id.
+    unfold pairing.
+    rewrite det.
+    reflexivity.
+  Qed.
+
+  Proposition pairing_precomp {x y z w : C} 
+    (f : y --> z) (g : y --> w) (h : x --> y) 
+    : is_deterministic h -> ⟨h · f, h · g⟩ = h · ⟨f, g⟩.
+  Proof.
+    intros det.
+    rewrite <- pairing_tensor.
+    unfold pairing.
+    rewrite <- det, assoc.
+    reflexivity.
+  Qed.
+
+  Proposition pairing_eta {x y z : C} (h : x --> y ⊗ z) :
+    is_deterministic h -> h = ⟨h · proj1, h · proj2⟩.
+  Proof.
+    intros det.
+    rewrite pairing_precomp ; [..|assumption].
+    rewrite pairing_proj_id.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
+  Proposition det_eta {x y z : C} (f g : x --> y ⊗ z) 
+    (df : is_deterministic f) (dg : is_deterministic g)
+    : f · proj1 = g · proj1 -> f · proj2 = g · proj2 -> f = g.
+  Proof.
+    intros e1 e2.
+    rewrite (pairing_eta f); [..|assumption].
+    rewrite (pairing_eta g); [..|assumption].
+    rewrite e1, e2.
+    reflexivity.
+  Qed.
+
+  Proposition pairing_proj_braiding (x y : C) :
+    ⟨proj2, proj1⟩ = sym_mon_braiding C x y.
+  Proof.
+    apply det_eta; try auto with autodet.
+    - rewrite pairing_proj1.
+      rewrite sym_mon_braiding_proj1.
+      reflexivity.
+    - rewrite pairing_proj2.
+      rewrite sym_mon_braiding_proj2.
+      reflexivity.
+  Qed. 
+
+  Proposition pairing_proj_rassociator {x y z : C} :
+    ⟨⟨proj1, proj2 · proj1⟩, proj2 · proj2⟩ = mon_rassociator x y z.
+  Proof.
+    do 2 (try apply det_eta; 
+          try auto with autodet;
+          try rewrite pairing_proj1;
+          try rewrite pairing_proj2).
+    - unfold proj1.
+      rewrite !assoc.
+  Admitted.
+
+  Lemma rassociator_proj (x y z : C) :
+    mon_rassociator x y z · proj1 = identity x #⊗ proj1.
+  Proof.
+    rewrite <- pairing_proj_rassociator.
+    rewrite pairing_proj1.
+    apply det_eta; try auto with autodet.
+    - rewrite pairing_proj1.
+      rewrite proj1_tensor.
+      reflexivity.
+    - rewrite pairing_proj2.
+  Admitted. 
+
+  Lemma rassociator_proj1_tensor (x y z : C) :
+    mon_rassociator x y z · proj1 #⊗ identity z = identity x #⊗ proj2.
+  Proof.
+  Admitted.
+
+  Lemma rassociator_proj2_tensor (x y z : C) :
+    mon_rassociator x y z · proj2 #⊗ identity z = proj2.
+  Proof.
+  Admitted.
+  
+End PairingCalculus.
