@@ -507,4 +507,44 @@ Section PairingProperties.
     exact E.
   Qed.
 
+  Lemma cancel_pairing_rassociator {a x1 x2 y z w : C} 
+    (p1 : a --> x1) (f1 : x1 --> y) (g1 : x1 --> z) (h1 : x1 --> w)
+    (p2 : a --> x2) (f2 : x2 --> y) (g2 : x2 --> z) (h2 : x2 --> w)
+    :    p1 · ⟨⟨f1, g1⟩,h1⟩ = p2 · ⟨⟨f2, g2⟩,h2⟩
+      -> p1 · ⟨f1,⟨g1, h1⟩⟩ = p2 · ⟨f2,⟨g2, h2⟩⟩.
+  Proof.
+    intros e.
+    use cancel_z_iso.
+    - exact ((y ⊗ z) ⊗ w).
+    - use make_z_iso.
+      + apply mon_rassociator.
+      + apply mon_lassociator.
+      + split.
+        * apply mon_rassociator_lassociator.
+        * apply mon_lassociator_rassociator.
+    - cbn.
+      rewrite !assoc', !pairing_rassociator.
+      exact e.
+  Qed.
+
+  Lemma cancel_pairing_lassociator {a x1 x2 y z w : C} 
+    (p1 : a --> x1) (f1 : x1 --> y) (g1 : x1 --> z) (h1 : x1 --> w)
+    (p2 : a --> x2) (f2 : x2 --> y) (g2 : x2 --> z) (h2 : x2 --> w)
+    :    p1 · ⟨f1,⟨g1, h1⟩⟩ = p2 · ⟨f2,⟨g2, h2⟩⟩
+      -> p1 · ⟨⟨f1, g1⟩,h1⟩ = p2 · ⟨⟨f2, g2⟩,h2⟩.
+  Proof.
+    intros e.
+    use cancel_z_iso.
+    - exact (y ⊗ (z ⊗ w)).
+    - use make_z_iso.
+      + apply mon_lassociator.
+      + apply mon_rassociator.
+      + split.
+        * apply mon_lassociator_rassociator.
+        * apply mon_rassociator_lassociator.
+    - cbn.
+      rewrite !assoc', !pairing_lassociator.
+      exact e.
+  Qed.
+
 End PairingProperties.

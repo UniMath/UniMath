@@ -74,63 +74,18 @@ Section DaggerLemmas.
     exact det_ase.
   Qed.
 
-  (* Improved statement: If C is relatively positive, then any coisometry is almost surely deterministic.
-  this does not assume any other bayesian inverses to exist ...
-  *)
   Proposition coisometry_ase_deterministic {x y : C} (p : I_{C} --> x) (f : x --> y) :
     (bayesian_inverse p f) · f =_{p·f} identity y -> is_deterministic_ase p f.
   Proof.
-  Abort.
-(*     intros inv_gf.
-    pose (g := bayesian_inverse p f).
-    assert(bayes_inv : p · ⟨f, identity _⟩ = p · f · ⟨identity _, g⟩).
-    { admit. }
-
-    assert(rel_pos_eq : p · ⟨f · ⟨identity _, g⟩ , identity _⟩ 
-    = p · ⟨⟨f, f · g⟩ , identity _⟩).
-    { admit. }
-
-    apply make_equal_almost_surely_l.
-    etrans. {
-      rewrite <- pairing_tensor_l, assoc.
-      rewrite bayes_inv.
-      rewrite <- assoc, pairing_tensor_l, id_left.
-      rewrite <- pairing_id.
+    intros e.
+    use relpos_coisometry_lemma.
+    - apply conditionals_imply_relative_positivity.
+    - exact (bayesian_inverse p f).
+    - rewrite bayesian_inverse_eq_r.
       reflexivity.
-    }
+    - exact e.
+  Qed.
 
-    transitivity (p · f · ⟨ ⟨ identity y, g · f ⟩, g ⟩).
-    { 
-      apply equal_almost_surely_l2.
-      apply ase_pairing_r.
-      apply ase_symm.
-      exact inv_gf. 
-    }
-
-    etrans. {
-      rewrite pairing_split_l, assoc.
-      rewrite <- bayes_inv.
-      rewrite <- assoc, pairing_tensor_l.
-      rewrite <- pairing_tensor_r, assoc.
-      rewrite <- pairing_tensor_l, assoc.
-      rewrite rel_pos_eq.
-      rewrite <- assoc.
-      rewrite pairing_tensor, pairing_tensor.
-      rewrite !id_right.
-      reflexivity.
-    }
-
-    apply equal_almost_surely_l.
-    rewrite <- pairing_eq.
-    eapply ase_trans. 
-    { rewrite <- pairing_tensor_r.
-      apply ase_postcomp.
-      apply ase_pairing_r.
-      exact inv_fg. }
-      
-    rewrite pairing_tensor_r, id_left.
-    apply ase_refl.  *)
-  
 End DaggerLemmas.
 
 Section DaggerPropositions.
