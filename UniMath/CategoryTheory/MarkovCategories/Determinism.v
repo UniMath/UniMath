@@ -15,7 +15,7 @@ and prove various lemmas about composition of deterministic maps.
 Table of Contents
 1. Definition of Determinism
 2. Examples and Properies
-TODO
+TODO explain automation
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
