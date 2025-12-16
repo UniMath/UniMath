@@ -288,7 +288,6 @@ Section Marginals.
     reflexivity.
   Qed.
 
-
   Proposition proj1_tensor {x' x y : C} (f : x' --> x) : (identity y #⊗ f) · proj1 = proj1.
   Proof.
     unfold proj1.
@@ -517,6 +516,7 @@ Section PairingProperties.
       -> p1 · ⟨f1,⟨g1, h1⟩⟩ = p2 · ⟨f2,⟨g2, h2⟩⟩.
   Proof.
     intros e.
+    (* TODO make lemma for this pattern *)
     use cancel_z_iso.
     - exact ((y ⊗ z) ⊗ w).
     - use make_z_iso.

@@ -440,8 +440,24 @@ Section PairingCalculus.
   Proof.
     unfold pairing.
     rewrite <- copy_tensor.
-    unfold proj1, proj2.
-  Admitted.
+    assert(proj_inner_swap : inner_swap _ x x y y · proj1 #⊗ proj2 = proj1 #⊗ proj2).
+    {
+      unfold proj1, proj2.
+      rewrite !tensor_comp_mor.
+      rewrite !assoc.
+      rewrite naturality_inner_swap.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite inner_swap_along_unit.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite assoc', proj_inner_swap.
+    rewrite <- tensor_comp_mor.
+    rewrite copy_proj1, copy_proj2.
+    rewrite tensor_id_id.
+    reflexivity.
+  Qed.
 
   Proposition pairing_proj_tensor
     {x1 x2 y1 y2 : C}
@@ -510,13 +526,21 @@ Section PairingCalculus.
   Proposition pairing_proj_rassociator {x y z : C} :
     ⟨⟨proj1, proj2 · proj1⟩, proj2 · proj2⟩ = mon_rassociator x y z.
   Proof.
-    do 2 (try apply det_eta; 
-          try auto with autodet;
-          try rewrite pairing_proj1;
-          try rewrite pairing_proj2).
-    - unfold proj1.
-      rewrite !assoc.
-  Admitted.
+    use cancel_z_iso.
+    - exact (x ⊗ (y ⊗ z)).
+    - use make_z_iso.
+      + apply mon_lassociator.
+      + apply mon_rassociator.
+      + split.
+        * apply mon_lassociator_rassociator.
+        * apply mon_rassociator_lassociator.
+    - cbn.
+      rewrite mon_rassociator_lassociator, pairing_lassociator.
+      rewrite pairing_precomp; [..|auto with autodet].
+      rewrite pairing_proj_id, id_right.
+      rewrite pairing_proj_id.
+      reflexivity.
+  Qed.
 
   Lemma rassociator_proj (x y z : C) :
     mon_rassociator x y z · proj1 = identity x #⊗ proj1.
@@ -528,16 +552,33 @@ Section PairingCalculus.
       rewrite proj1_tensor.
       reflexivity.
     - rewrite pairing_proj2.
-  Admitted. 
+      rewrite <- pairing_proj_tensor; [..|auto with autodet].
+      rewrite pairing_proj2.
+      reflexivity.
+  Qed.
 
   Lemma rassociator_proj1_tensor (x y z : C) :
     mon_rassociator x y z · proj1 #⊗ identity z = identity x #⊗ proj2.
   Proof.
-  Admitted.
+    rewrite <- pairing_proj_rassociator.
+    rewrite pairing_tensor.
+    rewrite pairing_proj1, id_right.
+    rewrite <- pairing_proj_tensor; [..|auto with autodet].
+    rewrite id_right.
+    reflexivity.
+  Qed.
 
   Lemma rassociator_proj2_tensor (x y z : C) :
     mon_rassociator x y z · proj2 #⊗ identity z = proj2.
   Proof.
-  Admitted.
-  
+    rewrite <- pairing_proj_rassociator.
+    rewrite pairing_tensor.
+    rewrite pairing_proj2, id_right.
+    apply det_eta; try auto with autodet.
+    - rewrite pairing_proj1.
+      reflexivity.
+    - rewrite pairing_proj2.
+      reflexivity.
+  Qed.
+
 End PairingCalculus.
