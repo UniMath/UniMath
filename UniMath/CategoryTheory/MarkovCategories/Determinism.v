@@ -362,17 +362,6 @@ Section ExamplesAndProperties.
     apply idpath.
   Qed.
 
-  (* TODO *)
-  Local Definition z_iso_from_mon_lassociator (x y z : C) : z_iso (x ⊗ y ⊗ z) (x ⊗ (y ⊗ z)).
-  Proof.
-    use make_z_iso.
-    - apply mon_lassociator.
-    - apply mon_rassociator.
-    - split.
-      * apply mon_lassociator_rassociator.    
-      * apply mon_rassociator_lassociator.
-  Defined.
-
   Proposition is_deterministic_mon_rassociator (x y z : C) :
     is_deterministic (mon_rassociator x y z).
   Proof.
@@ -528,14 +517,23 @@ Section PairingCalculus.
   Proof.
     use cancel_z_iso.
     - exact (x ⊗ (y ⊗ z)).
-    - use make_z_iso.
-      + apply mon_lassociator.
-      + apply mon_rassociator.
-      + split.
-        * apply mon_lassociator_rassociator.
-        * apply mon_rassociator_lassociator.
+    - apply z_iso_from_mon_lassociator.
     - cbn.
       rewrite mon_rassociator_lassociator, pairing_lassociator.
+      rewrite pairing_precomp; [..|auto with autodet].
+      rewrite pairing_proj_id, id_right.
+      rewrite pairing_proj_id.
+      reflexivity.
+  Qed.
+
+  Proposition pairing_proj_lassociator {x y z : C} :
+    ⟨proj1 · proj1, ⟨proj1 ·  proj2, proj2⟩⟩ = mon_lassociator x y z.
+  Proof.
+    use cancel_z_iso.
+    - exact ((x ⊗ y) ⊗ z).
+    - apply z_iso_from_mon_rassociator.
+    - cbn.
+      rewrite mon_lassociator_rassociator, pairing_rassociator.
       rewrite pairing_precomp; [..|auto with autodet].
       rewrite pairing_proj_id, id_right.
       rewrite pairing_proj_id.

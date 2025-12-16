@@ -8,7 +8,7 @@ the existence of conditionals.
   - Every Markov category with conditionals is causal, hence
     relatively positive, positive, and all isomorphisms are deterministic
 2. Relative Positivity
-  - relative positivity allows some useful characterizations related to bayesian inversion
+  - relative positivity allows some useful characterizations related to Bayesian inversion
     and the category of probability spaces
 
 References
@@ -26,7 +26,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 Require Import UniMath.CategoryTheory.MarkovCategories.Determinism.
 Require Import UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.
-Require Import UniMath.CategoryTheory.MarkovCategories.RelativePositivity.
 Require Import UniMath.CategoryTheory.MarkovCategories.AlmostSurely.
 Require Import UniMath.CategoryTheory.MarkovCategories.Conditionals.Definition.
 

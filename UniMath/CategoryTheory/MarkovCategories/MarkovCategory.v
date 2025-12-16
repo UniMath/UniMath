@@ -219,12 +219,7 @@ Section MarkovCategoryLaws.
   Proof.
      use cancel_z_iso.
     - apply I_{C}.
-    - use make_z_iso.
-      + apply mon_runitor.
-      + apply mon_rinvunitor.
-      + split.
-        * apply mon_runitor_rinvunitor.
-        * apply mon_rinvunitor_runitor.
+    - apply z_iso_from_mon_runitor.
     - cbn.
       apply markov_category_unit_eq.
   Qed.
@@ -516,15 +511,9 @@ Section PairingProperties.
       -> p1 · ⟨f1,⟨g1, h1⟩⟩ = p2 · ⟨f2,⟨g2, h2⟩⟩.
   Proof.
     intros e.
-    (* TODO make lemma for this pattern *)
     use cancel_z_iso.
     - exact ((y ⊗ z) ⊗ w).
-    - use make_z_iso.
-      + apply mon_rassociator.
-      + apply mon_lassociator.
-      + split.
-        * apply mon_rassociator_lassociator.
-        * apply mon_lassociator_rassociator.
+    - apply z_iso_from_mon_rassociator.
     - cbn.
       rewrite !assoc', !pairing_rassociator.
       exact e.
@@ -539,12 +528,7 @@ Section PairingProperties.
     intros e.
     use cancel_z_iso.
     - exact (y ⊗ (z ⊗ w)).
-    - use make_z_iso.
-      + apply mon_lassociator.
-      + apply mon_rassociator.
-      + split.
-        * apply mon_lassociator_rassociator.
-        * apply mon_rassociator_lassociator.
+    - apply z_iso_from_mon_lassociator.
     - cbn.
       rewrite !assoc', !pairing_lassociator.
       exact e.

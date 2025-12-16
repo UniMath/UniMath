@@ -5,7 +5,7 @@ In this file, we define a series of so-called information flow axioms in Markov 
 Those axioms ensure that a Markov category supports some common probabilistic reasoning principles,  
 which separates them from more exotic Markov categories (e.g. negative probability, fresh name generation, or comonoids).
 
-Because all axioms in this file are derivable in the presence of conditionals (proved in TODO), the axioms can be used
+Because all axioms in this file are derivable in the presence of conditionals (proved in `Conditionals/InformationFlow.v`), the axioms can be used
 as powerful reasoning principles in Markov categories with conditionals. 
 
 1. Definition of the Information Flow Axioms 
