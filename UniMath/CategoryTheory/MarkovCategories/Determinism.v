@@ -15,7 +15,12 @@ and prove various lemmas about composition of deterministic maps.
 Table of Contents
 1. Definition of Determinism
 2. Examples and Properies
-TODO explain automation
+3. Automation
+  - We provide a calculus for working with pairings 
+  - A hint database [autodet] to automatically derive determinism proofs with [auto with autodet]
+  - Tactics [pairing_proj_expand], [pairing_simpl] and [markov_coherence] which simplify
+    or automatically solve some coherence equations by converting them into a form consisting only
+    of pairings and projections.
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -59,6 +64,16 @@ Section DefDeterminism.
 
   Definition deterministic_iso (x y : C) : UU
     := ∑ (f : z_iso x y), is_deterministic f. 
+
+  Coercion deterministic_iso_to_z_iso {x y : C} 
+    (f : deterministic_iso x y) : z_iso x y := pr1 f.
+  
+  Proposition deterministic_iso_to_z_iso_is_deterministic {x y : C}
+    (f : deterministic_iso x y) : is_deterministic f.
+  Proof.
+    destruct f as [z d].
+    exact d.
+  Qed.
 
 End DefDeterminism.
 
@@ -401,6 +416,8 @@ Section ExamplesAndProperties.
   
 End ExamplesAndProperties.
 
+(** * 3. Automation *)
+
 #[global] Hint Resolve is_deterministic_identity : autodet.
 #[global] Hint Resolve is_deterministic_composition : autodet.
 #[global] Hint Resolve is_deterministic_del : autodet.
@@ -420,7 +437,10 @@ End ExamplesAndProperties.
 #[global] Hint Resolve is_deterministic_proj1 : autodet.
 #[global] Hint Resolve is_deterministic_proj2 : autodet.
 
-(* A calculus for pairings *)
+#[global] Hint Resolve deterministic_iso_to_z_iso_is_deterministic : autodet.
+
+(* A calculus for pairings, and some tactics *)
+
 Section PairingCalculus.
   Context {C : markov_category}.
 
@@ -540,43 +560,69 @@ Section PairingCalculus.
       reflexivity.
   Qed.
 
+  (* Some tactic automation for simplifying 
+     some composites of structural maps, i.e.
+     identities, braidings, pairings, 
+     projections, tensors and associators *)
+
+  (* Expand out all all structural maps 
+     in terms of just pairing and projections *)
+  Ltac pairing_proj_expand :=
+    (rewrite <- !pairing_proj_id) ||
+    (rewrite <- !pairing_eq) ||
+    (rewrite <- !pairing_id) ||
+    (rewrite <- !pairing_proj_braiding) ||
+    (rewrite <- !pairing_proj_tensor) ||
+    (rewrite <- !pairing_proj_lassociator) ||
+    (rewrite <- !pairing_proj_rassociator).
+
+  (* Make some basic simplifications *)
+  Ltac pairing_simpl_basic := 
+    (rewrite !pairing_proj1) ||
+    (rewrite !pairing_proj2) ||
+    (rewrite !id_left) ||
+    (rewrite !id_right).
+
+  (* Try repeated simplification, and some
+     shuffling around with associators *)
+  Ltac pairing_simpl := 
+      repeat pairing_simpl_basic;
+      try (rewrite !assoc'; pairing_simpl_basic; repeat pairing_simpl_basic);
+      try (rewrite !assoc; pairing_simpl_basic; repeat pairing_simpl_basic).
+
+  (* This tactic tries to discharge or simplify 
+     an equation between structural maps into tensors by eta-rule.
+     - Expand both sides in terms of pairings and projections
+     - Simplify
+     - apply deterministic eta rule
+     - dischage determinism assumptions using hints
+     - simplify and see if that suffices *)
+  Ltac markov_coherence :=
+    repeat pairing_proj_expand;
+    repeat pairing_simpl;
+    apply det_eta;
+    try auto with autodet; 
+    repeat pairing_simpl;
+    try reflexivity.
+
+  (* Some lemmas that are solved by the tactic *)
+
   Lemma rassociator_proj (x y z : C) :
     mon_rassociator x y z · proj1 = identity x #⊗ proj1.
   Proof.
-    rewrite <- pairing_proj_rassociator.
-    rewrite pairing_proj1.
-    apply det_eta; try auto with autodet.
-    - rewrite pairing_proj1.
-      rewrite proj1_tensor.
-      reflexivity.
-    - rewrite pairing_proj2.
-      rewrite <- pairing_proj_tensor; [..|auto with autodet].
-      rewrite pairing_proj2.
-      reflexivity.
+    markov_coherence. 
   Qed.
 
   Lemma rassociator_proj1_tensor (x y z : C) :
     mon_rassociator x y z · proj1 #⊗ identity z = identity x #⊗ proj2.
   Proof.
-    rewrite <- pairing_proj_rassociator.
-    rewrite pairing_tensor.
-    rewrite pairing_proj1, id_right.
-    rewrite <- pairing_proj_tensor; [..|auto with autodet].
-    rewrite id_right.
-    reflexivity.
+    markov_coherence.
   Qed.
 
   Lemma rassociator_proj2_tensor (x y z : C) :
     mon_rassociator x y z · proj2 #⊗ identity z = proj2.
   Proof.
-    rewrite <- pairing_proj_rassociator.
-    rewrite pairing_tensor.
-    rewrite pairing_proj2, id_right.
-    apply det_eta; try auto with autodet.
-    - rewrite pairing_proj1.
-      reflexivity.
-    - rewrite pairing_proj2.
-      reflexivity.
+    markov_coherence.
   Qed.
 
 End PairingCalculus.
