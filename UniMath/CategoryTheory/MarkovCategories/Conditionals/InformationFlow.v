@@ -152,12 +152,13 @@ Proof.
 Qed.
 
 Section ConditionalsAndRelativePositivity.
+  Context {C : markov_category} 
+          (rp : is_rel_positive C). 
 
+  (* any coisometry is almost surely deterministic *)
   Proposition relpos_coisometry_lemma 
-    (C : markov_category) (rp : is_rel_positive C) {a x y : C} (p : a --> x)
-    (f : x --> y) (g : y --> x)
-(*     (bayes_inv : is_bayesian_inverse ) *)
-    (bayes_inv : p · ⟨f, identity _⟩ = p · f · ⟨identity _, g⟩)
+    {a x y : C} (p : a --> x) (f : x --> y) (g : y --> x)
+    (bayes_inv : is_bayesian_inverse p f g)
     (inv_gf : g · f =_{p · f} identity y)
     : is_deterministic_ase p f.
   Proof.
@@ -173,7 +174,7 @@ Section ConditionalsAndRelativePositivity.
 
     etrans. {
       rewrite <- pairing_tensor_l, assoc.
-      rewrite bayes_inv.
+      rewrite (is_bayesian_inverse_r _ _ _ bayes_inv).
       rewrite <- assoc, pairing_tensor_l.
       rewrite id_left.
       rewrite <- pairing_id.
@@ -186,7 +187,7 @@ Section ConditionalsAndRelativePositivity.
     symmetry.
     etrans. {
       rewrite pairing_split_r, assoc.
-      rewrite bayes_inv.
+      rewrite (is_bayesian_inverse_r _ _ _ bayes_inv).
       rewrite assoc', pairing_tensor_r.
       reflexivity.
     }
@@ -205,12 +206,13 @@ Section ConditionalsAndRelativePositivity.
     - exact gf_det_ase.
   Qed. 
 
-  Proposition coisometry_to_bayesian_inverse 
-    (C : markov_category) (rp : is_rel_positive C) {a x y : C}
-    (p : a --> x) (f : x --> y) (g : y --> x)
-    : (f · g =_{p} identity x) -> p · ⟨f, identity _⟩ = p · f · ⟨identity _, g⟩.
+  (* If f, g are a section-retraction pair, then they are each others's Bayesian inverses *)
+  Proposition splitting_to_bayesian_inverse 
+    {a x y : C} (p : a --> x) (f : x --> y) (g : y --> x)
+    : (f · g =_{p} identity x) -> is_bayesian_inverse p f g.
   Proof. 
     intros inv_fg.
+    apply make_bayesian_inverse_r.
     rewrite <- assoc.
     apply equal_almost_surely_composition.
     apply ase_trans with ⟨f, f · g⟩.

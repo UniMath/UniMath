@@ -81,8 +81,7 @@ Section DaggerLemmas.
     use relpos_coisometry_lemma.
     - apply conditionals_imply_relative_positivity.
     - exact (bayesian_inverse p f).
-    - rewrite bayesian_inverse_eq_r.
-      reflexivity.
+    - apply bayesian_inverse_eq.
     - exact e.
   Qed.
 
@@ -117,7 +116,7 @@ Section DaggerPropositions.
     use relpos_coisometry_lemma.
     - apply conditionals_imply_relative_positivity.
     - exact g.
-    - apply coisometry_to_bayesian_inverse.
+    - apply splitting_to_bayesian_inverse.
       * apply conditionals_imply_relative_positivity.
       * exact ase_fg.
     - pose(ase_gf := setquotpreq _ _ _ inv_gf).

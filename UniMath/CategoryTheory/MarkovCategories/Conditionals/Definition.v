@@ -199,18 +199,32 @@ Notation "p |2" := (conditional_distribution_2 p) : markov.
 Section DefBayesianInverse.
   Context {C : markov_category}.
   
-  Definition is_bayesian_inverse {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) : UU
+  Definition is_bayesian_inverse {a x y : C} (p : a --> x) (f : x --> y) (fi : y --> x) : UU
     := p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
 
   (* Accessors *)
 
-  Proposition is_bayesian_inverse_l {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) 
+  Proposition make_bayesian_inverse_l {a x y : C} (p : a --> x) (f : x --> y) (fi : y --> x) 
+    : p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩ -> is_bayesian_inverse p f fi.
+  Proof.
+    intros bi. exact bi.
+  Qed.
+  
+  Proposition make_bayesian_inverse_r {a x y : C} (p : a --> x) (f : x --> y) (fi : y --> x) 
+    : p · ⟨f, identity x⟩ = (p · f) · ⟨identity y, fi⟩ -> is_bayesian_inverse p f fi.
+  Proof.
+    intros bi. 
+    apply pairing_flip.
+    exact bi.
+  Qed.
+
+  Proposition is_bayesian_inverse_l {a x y : C} (p : a --> x) (f : x --> y) (fi : y --> x) 
     : is_bayesian_inverse p f fi -> p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
   Proof.
     intros bi. exact bi.
   Qed.
 
-  Proposition is_bayesian_inverse_r {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) 
+  Proposition is_bayesian_inverse_r {a x y : C} (p : a --> x) (f : x --> y) (fi : y --> x) 
   : is_bayesian_inverse p f fi -> p · ⟨f, identity x⟩ = (p · f) · ⟨identity y, fi⟩.
   Proof.
     intros bi. 
@@ -220,7 +234,7 @@ Section DefBayesianInverse.
 
   (* Bayesian inverses are almost surely unique *)
   Proposition bayesian_inverse_ase_unique 
-      {x y : C} (p : I_{C} --> x) (f : x --> y) (g1 g2 : y --> x)
+      {a x y : C} (p : a --> x) (f : x --> y) (g1 g2 : y --> x)
       (b1 : is_bayesian_inverse p f g1) (b2 : is_bayesian_inverse p f g2)
     : g1 =_{p · f} g2.
   Proof.
@@ -233,7 +247,7 @@ Section DefBayesianInverse.
 
   (* Useful reformulation that generates an auxiliary equality goal *)
   Lemma bayesian_inverse_ase_unique' 
-    {x y : C} (p : I_{C} --> x) (q : I_{C} --> y) (f : x --> y) (g1 g2 : y --> x)
+    {a x y : C} (p : a --> x) (q : a --> y) (f : x --> y) (g1 g2 : y --> x)
     (e : p · f = q) (b1 : is_bayesian_inverse p f g1) (b2 : is_bayesian_inverse p f g2) 
   : g1 =_{q} g2.
   Proof.
@@ -243,7 +257,7 @@ Section DefBayesianInverse.
 
   (* Being a bayesian inverse is stable under almost sure equality *)
   Proposition is_bayesian_inverse_ase_cong
-    {x y : C} (p : I_{C} --> x) (f1 f2 : x --> y) (g1 g2 : y --> x) 
+    {a x y : C} (p : a --> x) (f1 f2 : x --> y) (g1 g2 : y --> x) 
     (fase : f1 =_{ p } f2) (gase : g1 =_{ p · f1 } g2)
     (b1 : is_bayesian_inverse p f1 g1) 
     : is_bayesian_inverse p f2 g2.
@@ -265,7 +279,7 @@ Section BayesianInverseLaws.
   Context {C : markov_category}.
 
   Proposition is_bayesian_inverse_state_preservation
-      {x y : C} (p : I_{C} --> x) (f : x --> y) (g : y --> x)
+      {a x y : C} (p : a --> x) (f : x --> y) (g : y --> x)
     : is_bayesian_inverse p f g -> p · f · g = p.
   Proof.
     intros e.
@@ -277,7 +291,7 @@ Section BayesianInverseLaws.
     reflexivity. 
   Qed.
 
-  Proposition bayesian_inverse_identity {x : C} (p : I_{C} --> x) :
+  Proposition bayesian_inverse_identity {a x : C} (p : a --> x) :
     is_bayesian_inverse p (identity x) (identity x).
   Proof.
     unfold is_bayesian_inverse.
@@ -286,7 +300,7 @@ Section BayesianInverseLaws.
   Qed.
 
   Proposition bayesian_inverse_idempotent 
-    {x y : C} (p : I_{C} --> x) (f : x --> y) (g : y --> x)
+    {a x y : C} (p : a --> x) (f : x --> y) (g : y --> x)
     : is_bayesian_inverse p f g -> is_bayesian_inverse (p · f) g f.
   Proof.
     intros e.
@@ -307,7 +321,7 @@ Section BayesianInverseLaws.
   Qed.
 
   Proposition bayesian_inverse_comp 
-    {x y z : C} (p : I_{C} --> x) (f : x --> y) (g : y --> z) (fi : y --> x) (gi : z --> y)
+    {a x y z : C} (p : a --> x) (f : x --> y) (g : y --> z) (fi : y --> x) (gi : z --> y)
     (bf : is_bayesian_inverse p f fi) (bg : is_bayesian_inverse (p · f) g gi)
     : is_bayesian_inverse p (f · g) (gi · fi).
   Proof.
