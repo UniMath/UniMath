@@ -786,10 +786,13 @@ MarkovCategories/MarkovCategory.v
 MarkovCategories/Determinism.v
 MarkovCategories/Univalence.v
 MarkovCategories/AlmostSurely.v
-MarkovCategories/Conditionals.v
 MarkovCategories/InformationFlowAxioms.v
+
+MarkovCategories/Conditionals/Definition.v
+MarkovCategories/Conditionals/InformationFlow.v
+MarkovCategories/Conditionals.v
+
 MarkovCategories/State.v
 MarkovCategories/ProbabilitySpaces.v
 MarkovCategories/Couplings.v
-MarkovCategories/RelativePositivity.v
 MarkovCategories/RelativeProduct.v

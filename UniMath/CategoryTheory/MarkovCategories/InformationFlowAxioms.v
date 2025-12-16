@@ -1,24 +1,26 @@
 (*********************************************
 Information Flow Axioms
 
-In this file, we provide definitions for different information flow axioms in Markov categories.
-Those axioms are additional assumptions that ensures a Markov category would behave similar to genuine probabilistic models,
-which separates them from more exotic Markov categories (e.g. negative probability, fresh name generation, comonoids).
+In this file, we define a series of so-called information flow axioms in Markov categories, and derive some consequences.
+Those axioms ensure that a Markov category supports some common probabilistic reasoning principles,  
+which separates them from more exotic Markov categories (e.g. negative probability, fresh name generation, or comonoids).
+
+Because all axioms in this file are derivable in the presence of conditionals (proved in TODO), the axioms can be used
+as powerful reasoning principles in Markov categories with conditionals. 
 
 1. Definition of the Information Flow Axioms 
    - causality ([is_causal])
+   - relative positivity ([is_rel_positive])
    - positivity ([is_positive])
+   - all isomorphisms are deterministic ([all_isos_deterministic])
 2. Accessors
    - each of the above axioms has a left-associated and right-associated version
-   - we provide both, and conversions between them
-   - because we want to avoid a biased choice of one version in the definition of [is_causal] and [is_positive],
-     we chose to make those definitions opaque. Causality and positivity shall be established using the explicit constructors
-     [make_causality_l], [make_causality_r] etc. instead
-3. Consequences of Causality 
+     we provide both, and conversions between them.
+   - we make the internal definitions opaque as to prevent a biased choice. 
+3. Consequences of the Axioms 
    - causality is needed for nontrivial reasoning about almost sure equality
 4. Implications between the Axioms
-   - causality implies positivity
-   - positivity imples all isomorphisms are deterministic
+   - causality => relative positivity => positivity => all isos_deterministic
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics'
@@ -54,20 +56,29 @@ Section InformationFlowAxioms.
                   f · (g · ⟨h1, identity z⟩) = f · (g · ⟨h2, identity z⟩)
               ->  f · ⟨g · ⟨h1, identity z⟩, identity y⟩ = f · ⟨g · ⟨h2, identity z⟩, identity y⟩.
 
-    Proposition isaprop_is_causal
-      : isaprop is_causal.
-    Proof.
-      repeat (use impred ; intro).
-      apply homset_property.
-    Qed.
+    Definition is_rel_positive : UU
+        := ∏ (a x y z : C) (p : a --> x) (f : x --> y) (g : y --> z),
+           is_deterministic_ase p (f · g) 
+           -> f · ⟨identity _, g⟩ =_{p} ⟨f , f · g⟩.
 
     Definition is_positive : UU
         := ∏ (x y z : C) (f : x --> y) (g : y --> z),
            is_deterministic (f · g) 
            -> f · ⟨identity _, g⟩ = ⟨f , f · g⟩.
 
-    Proposition isaprop_is_positive
-      : isaprop is_positive.
+    Proposition isaprop_is_causal : isaprop is_causal.
+    Proof.
+      repeat (use impred ; intro).
+      apply homset_property.
+    Qed.
+    
+    Proposition isaprop_is_rel_positive : isaprop is_rel_positive.
+    Proof.
+      repeat (use impred ; intro).
+      apply isaprop_ase.
+    Qed.
+
+    Proposition isaprop_is_positive : isaprop is_positive.
     Proof.
       repeat (use impred ; intro).
       apply homset_property.
@@ -136,6 +147,8 @@ End SwapLemmas.
 Section Accessors.
     Context (C : markov_category).
 
+    (* Accessors for Causality *)
+
     Proposition causality_l {iscaus : is_causal C} 
                     {x y z w : C} (f : x --> y) (g : y --> z) (h1 h2 : z --> w) :
            f · (g · ⟨h1, identity z⟩) = f · (g · ⟨h2, identity z⟩)
@@ -182,6 +195,47 @@ Section Accessors.
       exact p.
     Qed.
 
+    (* Accessors for relative positivity *)
+  
+    Proposition rel_positivity_r {ispos : is_rel_positive C}
+          {a x y z : C} (p : a --> x) (f : x --> y) (g : y --> z) :
+      is_deterministic_ase p (f · g) -> f · ⟨identity _, g⟩ =_{p} ⟨f , f · g⟩.
+    Proof. apply ispos. Qed.
+
+    Proposition rel_positivity_l {ispos : is_rel_positive C}
+          {a x y z : C} (p : a --> x) (f : x --> y) (g : y --> z) :
+      is_deterministic_ase p (f · g) -> f · ⟨g, identity _⟩ =_{p} ⟨f · g, f⟩.
+    Proof.
+      intros det.
+      apply cancel_braiding_ase.
+      rewrite !assoc', !pairing_sym_mon_braiding.
+      use rel_positivity_r; assumption.
+    Qed.
+
+    Proposition make_rel_positivity_r :
+      (∏ {a x y z : C} (p : a --> x) (f : x --> y) (g : y --> z),
+        is_deterministic_ase p (f · g) -> f · ⟨identity _, g⟩ =_{p} ⟨f , f · g⟩)
+      -> is_rel_positive C.
+    Proof.
+      intros p. exact p.
+    Qed.
+
+    Proposition make_rel_positivity_l :
+      (∏ {a x y z : C} (p : a --> x) (f : x --> y) (g : y --> z),
+        is_deterministic_ase p (f · g) -> f · ⟨g, identity _⟩ =_{p} ⟨f · g, f⟩)
+      -> is_rel_positive C.
+    Proof.
+      intros r. 
+      apply make_rel_positivity_r.
+      intros a x y z p f g d.
+      apply cancel_braiding_ase.
+      rewrite !assoc', !pairing_sym_mon_braiding.
+      apply r.
+      assumption.
+    Qed.
+
+    (* Accessors for positivity *)
+
     Proposition positivity_r {ispos : is_positive C}
           {x y z : C} (f : x --> y) (g : y --> z) :
       is_deterministic(f · g) -> f · ⟨identity _, g⟩ = ⟨f , f · g⟩.
@@ -221,9 +275,9 @@ Section Accessors.
 
 End Accessors.
 
-(** * 3. Consequences of Causality *)
+(** * 3. Consequences of the Axioms *)
 
-Section CausalityProperties.
+Section Consequences.
   Context {C : markov_category} {causality : is_causal C}.
 
   Proposition causal_ase {x y z w : C} (f : x --> y) (g : y --> z) (h1 h2 : z --> w) :
@@ -280,17 +334,140 @@ Section CausalityProperties.
       exact e1.
   Qed.
 
-End CausalityProperties.
+End Consequences.
 
 (** 4. Implications between the Axioms *)
 
+(* Auxiliary lemmas and definitions for the long proof that causality implies relative positivity*)
+Section CausalityImpliesRelPosAux.
+  Context {C : markov_category}
+          (caus : is_causal C).
+
+  Context {a x y z : C}.
+  Context (p : a --> x)
+          (f : x --> y)
+          (g : y --> z).
+  Context (det_ase : is_deterministic_ase p (f · g)).
+
+  Local Definition d : x --> z ⊗ z ⊗ y
+    := ⟨f · g, f · ⟨g, identity _⟩⟩ · mon_rassociator _ _ _.
+
+  Local Proposition d12 : d · proj1 = ⟨f · g, f · g⟩.
+  Proof.
+    unfold d.
+    rewrite assoc', rassociator_proj.
+    rewrite pairing_tensor.
+    rewrite !assoc', pairing_proj1, id_right.
+    reflexivity.
+  Qed.
+
+  Local Proposition aux1 : p · d · proj1 = p · f · g · copy _.
+  Proof.
+    rewrite !assoc'.
+    apply ase_precomp.
+    rewrite d12.
+    rewrite assoc.
+    apply ase_symm.
+    exact det_ase.
+  Qed.
+
+  Local Proposition causality_assumption :
+    p · d · proj1 · ⟨proj1, identity _⟩ = p · d · proj1 · ⟨proj2, identity _⟩.
+  Proof.
+    rewrite aux1.
+    rewrite !assoc'.
+    do 3 apply maponpaths.
+    apply equal_almost_surely_l.
+    apply copy_ase.
+  Qed.
+
+  Local Proposition causality_conclusion :
+          d · ⟨proj1 · ⟨proj1, identity _⟩, identity _⟩
+    =_{p} d · ⟨proj1 · ⟨proj2, identity _⟩, identity _⟩.
+  Proof.
+    apply make_equal_almost_surely_l.
+    apply causality_l. { exact caus. }
+    rewrite !assoc.
+    apply causality_l. { exact caus. }
+    rewrite !assoc.
+    exact causality_assumption.
+  Qed.
+
+  Local Definition lhs : x --> z ⊗ y := d · ⟨proj1 · ⟨proj1, identity _⟩, identity _⟩ · (proj1 #⊗ proj2).
+  Local Definition rhs : x --> z ⊗ y := d · ⟨proj1 · ⟨proj2, identity _⟩, identity _⟩ · (proj1 #⊗ proj2).
+
+  Local Proposition lhs_simpl : lhs = ⟨f · g, f⟩.
+  Proof. 
+    unfold lhs.
+    rewrite assoc'.
+    rewrite pairing_tensor, id_left, assoc'.
+    rewrite pairing_proj1.
+    rewrite <- pairing_tensor_l, assoc.
+    rewrite pairing_proj_id, id_right.
+    unfold d.
+    rewrite assoc', rassociator_proj1_tensor.
+    rewrite pairing_tensor, !assoc'.
+    rewrite pairing_proj2, !id_right.
+    reflexivity.
+  Qed.
+      
+  Local Proposition rhs_simpl : rhs = f · ⟨g, identity _⟩.
+  Proof. 
+    unfold rhs.
+    rewrite assoc'.
+    rewrite pairing_tensor, id_left, assoc'.
+    rewrite pairing_proj1.
+    rewrite <- pairing_tensor_l, assoc.
+    rewrite pairing_proj_id, id_right.
+    unfold d.
+    rewrite assoc', rassociator_proj2_tensor.
+    rewrite pairing_proj2.
+    reflexivity.
+  Qed.
+
+  Local Proposition causality_rel_pos_aux :
+    ⟨f · g, f⟩ =_{p} f · ⟨g, identity _⟩.
+  Proof.
+    rewrite <- lhs_simpl, <- rhs_simpl.
+    unfold lhs, rhs.
+    apply ase_postcomp.
+    apply causality_conclusion.
+  Qed.    
+
+End CausalityImpliesRelPosAux.
+
 Section ImplicationsBetweenAxioms.
+
+  Proposition causal_implies_rel_positive {C : markov_category}
+    : is_causal C -> is_rel_positive C.
+  Proof.
+    intros caus.
+    apply make_rel_positivity_l.
+    intros a x y z p f g ase.
+    apply ase_symm.
+    apply causality_rel_pos_aux; assumption.
+  Qed.
+
+  Proposition rel_positive_implies_positive {C : markov_category}
+    : is_rel_positive C -> is_positive C.
+  Proof.
+    intros rp.
+    apply make_positivity_l.
+    intros x y z f g det_fg.
+    apply id_ase.
+    apply rel_positivity_l. { exact rp. }
+    apply ase_from_eq.
+    exact det_fg.
+  Qed.   
 
   Proposition causal_implies_positive (C : markov_category) :
     is_causal C -> is_positive C.
   Proof.
-  (* TODO Theorem 2.24 in [Fritz&al] *)
-  Abort.
+    intros caus. 
+    apply rel_positive_implies_positive.
+    apply causal_implies_rel_positive.
+    exact caus.
+  Qed.    
 
   Proposition positive_implies_all_isos_deterministic (C : markov_category) :
       is_positive C -> all_isos_deterministic C.
@@ -321,4 +498,4 @@ Section ImplicationsBetweenAxioms.
 
 End ImplicationsBetweenAxioms.
 
-#[global] Opaque is_causal is_positive.
+#[global] Opaque is_causal is_positive is_rel_positive.
