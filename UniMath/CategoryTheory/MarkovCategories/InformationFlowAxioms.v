@@ -19,6 +19,7 @@ as powerful reasoning principles in Markov categories with conditionals.
    - we make the internal definitions opaque as to prevent a biased choice. 
 3. Consequences of the Axioms 
    - causality is needed for nontrivial reasoning about almost sure equality
+   - (relative) positivity implies deterministic marginal independence
 4. Implications between the Axioms
    - causality => relative positivity => positivity => all isos_deterministic
 
@@ -277,7 +278,7 @@ End Accessors.
 
 (** * 3. Consequences of the Axioms *)
 
-Section Consequences.
+Section CausalityConsequences.
   Context {C : markov_category} {causality : is_causal C}.
 
   Proposition causal_ase {x y z w : C} (f : x --> y) (g : y --> z) (h1 h2 : z --> w) :
@@ -334,7 +335,121 @@ Section Consequences.
       exact e1.
   Qed.
 
-End Consequences.
+  Proposition is_deterministic_ase_postcomp_ase
+    {a x y z : C} (p : a --> x) (f : x --> y) (g : y --> z) 
+    : is_deterministic_ase p f -> is_deterministic_ase (p · f) g -> is_deterministic_ase p (f · g).
+  Proof.
+    intros df dg.
+    unfold is_deterministic_ase.
+    apply ase_trans with (f · copy y · g #⊗ g).
+    { 
+      rewrite !assoc'.
+      apply ase_comp.
+      exact dg. 
+    }
+    rewrite !assoc', tensor_comp_mor, !assoc.
+    apply ase_postcomp. 
+    exact df.
+  Qed.    
+
+End CausalityConsequences.
+
+Section PositivityConsequences.
+  Context {C : markov_category}.
+
+  (* Deterministic Marginal Independence: 
+     If a morphism has a deterministic marginal, then it 
+     displays the independence of its marginals. *)
+
+  Proposition deterministic_marginal_independence_ase_1
+    {a x y z : C} (relpos : is_rel_positive C)
+    (p : a --> x) (f : x --> y ⊗ z)
+    (det_f1 : is_deterministic_ase p (f · proj1))
+    : f =_{p} ⟨f · proj1, f · proj2⟩.
+  Proof.
+    apply ase_trans with (f · ⟨proj1, identity _⟩ · (identity _ #⊗ proj2)).
+    { apply ase_from_eq.
+      rewrite assoc', <- pairing_split_r.
+      rewrite pairing_proj_id.
+      rewrite id_right.
+      reflexivity. }
+      
+    apply ase_symm.
+    apply ase_trans with (⟨f · proj1, f⟩ · (identity _ #⊗ proj2)).
+    { apply ase_from_eq.
+      rewrite pairing_tensor.
+      rewrite id_right.
+      reflexivity. }
+    apply ase_symm.
+    apply ase_postcomp.
+    apply rel_positivity_l; assumption.
+  Qed.
+
+  Proposition deterministic_marginal_independence_ase_2
+    {a x y z : C} (relpos : is_rel_positive C)
+    (p : a --> x) (f : x --> y ⊗ z)
+    (det_f2 : is_deterministic_ase p (f · proj2))
+    : f =_{p} ⟨f · proj1, f · proj2⟩.
+  Proof.
+    pose(g := f · sym_mon_braiding _ _ _).
+    assert(replace_f : f = g · sym_mon_braiding _ _ _).
+    { unfold g.
+      rewrite assoc', sym_mon_braiding_inv, id_right.
+      reflexivity. }
+    rewrite replace_f.
+    rewrite !assoc', sym_mon_braiding_proj1, sym_mon_braiding_proj2.
+    apply cancel_braiding_ase.
+    rewrite assoc', sym_mon_braiding_inv, id_right.
+    rewrite pairing_sym_mon_braiding.
+    apply deterministic_marginal_independence_ase_1. { assumption. }
+    rewrite <- sym_mon_braiding_proj2, assoc.
+    rewrite <- replace_f.
+    exact det_f2.
+  Qed.
+
+  Proposition deterministic_marginal_independence_1
+    {x y z : C} (pos : is_positive C)
+    (f : x --> y ⊗ z) (det_f1 : is_deterministic (f · proj1))
+    : f = ⟨f · proj1, f · proj2⟩.
+  Proof.
+    transitivity (f · ⟨proj1, identity _⟩ · (identity _ #⊗ proj2)).
+    { rewrite assoc', <- pairing_split_r.
+      rewrite pairing_proj_id.
+      rewrite id_right.
+      reflexivity. }
+      
+    symmetry.
+    transitivity (⟨f · proj1, f⟩ · (identity _ #⊗ proj2)).
+    { rewrite pairing_tensor.
+      rewrite id_right.
+      reflexivity. }
+    symmetry.
+    apply maponpaths_2.
+    apply positivity_l; assumption.
+  Qed.
+
+  Proposition deterministic_marginal_independence_2
+    {x y z : C} (pos : is_positive C)
+    (f : x --> y ⊗ z) (det_f2 : is_deterministic (f · proj2))
+    : f = ⟨f · proj1, f · proj2⟩.
+  Proof.
+    pose(g := f · sym_mon_braiding _ _ _).
+    assert(replace_f : f = g · sym_mon_braiding _ _ _).
+    { unfold g.
+      rewrite assoc', sym_mon_braiding_inv, id_right.
+      reflexivity. }
+    rewrite replace_f.
+    rewrite !assoc', sym_mon_braiding_proj1, sym_mon_braiding_proj2.
+    apply cancel_braiding.
+    rewrite assoc', sym_mon_braiding_inv, id_right.
+    rewrite pairing_sym_mon_braiding.
+    apply deterministic_marginal_independence_1. { assumption. }
+    rewrite <- sym_mon_braiding_proj2, assoc.
+    rewrite <- replace_f.
+    exact det_f2.
+  Qed.
+
+End PositivityConsequences.
 
 (** 4. Implications between the Axioms *)
 

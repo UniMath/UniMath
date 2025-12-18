@@ -474,6 +474,13 @@ Section BloomCouplingLemmas.
     exact (!bi).
   Qed.     
 
+  Proposition coupling_is_bloom_coupling {x y : C} (γ : I_{C} --> x ⊗ y) :
+    γ = bloom_coupling (γ · proj1) (γ|1).
+  Proof.
+    unfold bloom_coupling.
+    apply conditional_distribution_1_eq.
+  Qed.
+
 End BloomCouplingLemmas.
 
 #[global] Opaque coupling_composition.

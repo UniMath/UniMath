@@ -173,6 +173,8 @@ Section Dilators.
     revert f.
   Abort.
     
+  
+    
   Proposition isaset_dilation {x y : PS} (f : x --> y) : isaset (dilation PS f).
   Proof.
     apply (isofhleveltotal2 2).
@@ -197,24 +199,43 @@ Section CouplingDilators.
   Context {C : markov_category_with_conditionals}.
   Let krn := couplings_dagger_cat C.
 
-  Definition det_to_coisom {x y : C} {p : I_{C} --> x} (f : x --> y): 
-    is_deterministic_ase p f -> coisometry krn (x ,, p) (y,, p · f).
+  Definition bloom {x y : C} (p : I_{C} --> x) (f : x --> y) : 
+      krn ⟦ (x ,, p) , (y,, p · f) ⟧. (* coupling p (p cdot f) *)
   Proof.
-    intros detf.
-    use make_coisometry.
-    - use make_coupling.
-      + apply (bloom_coupling p f).
-      + apply bloom_coupling_dom.
-      + apply bloom_coupling_cod.
-    - unfold is_coisometry.
-      unfold bloom_coupling.
-      apply coupling_ext.
-      cbn.
-      unfold coupling_dagger, identity_coupling.
-      rewrite <- assoc.
-      rewrite pairing_sym_mon_braiding.
-      rewrite coupling_composition_eq_2.
+    use make_coupling.
+    - exact (bloom_coupling p f).
+    - apply bloom_coupling_dom.
+    - apply bloom_coupling_cod.
+  Defined.  
+
+(*   Proposition bloom_dilation {x y z : C} (p : I_{C} --> x) (f : x --> y) (g : x --> z) :
+    ((bloom p f) _ krn ^†) · (bloom p g) =  *)
+
+
+  Proposition bloom_coupling_coiso {x y : C} {p : I_{C} --> x} (f : x --> y) :
+    is_deterministic_ase p f -> is_coisometry krn (bloom p f).
+  Proof.
+
+    intros det_ase.
+    apply coupling_ext.
+    cbn.
+    unfold coupling_dagger.
+    unfold bloom_coupling.
+    rewrite assoc', pairing_sym_mon_braiding.
+    etrans. {
+      rewrite coupling_composition_eq_3.
+      2: rewrite !assoc', pairing_proj1, pairing_proj2; reflexivity.
+      rewrite !assoc', pairing_tensor_l, id_left.
+      reflexivity.
+    }
+
+    Search "ase_pairing".
   Abort.
+
+
+      
+
+
 
         
 
