@@ -560,52 +560,56 @@ Section PairingCalculus.
       reflexivity.
   Qed.
 
-  (* Some tactic automation for simplifying 
-     some composites of structural maps, i.e.
-     identities, braidings, pairings, 
-     projections, tensors and associators *)
+End PairingCalculus.
 
-  (* Expand out all all structural maps 
-     in terms of just pairing and projections *)
-  Ltac pairing_proj_expand :=
-    (rewrite <- !pairing_proj_id) ||
-    (rewrite <- !pairing_eq) ||
-    (rewrite <- !pairing_id) ||
-    (rewrite <- !pairing_proj_braiding) ||
-    (rewrite <- !pairing_proj_tensor) ||
-    (rewrite <- !pairing_proj_lassociator) ||
-    (rewrite <- !pairing_proj_rassociator).
+(* Some tactic automation for simplifying 
+    some composites of structural maps, i.e.
+    identities, braidings, pairings, 
+    projections, tensors and associators *)
 
-  (* Make some basic simplifications *)
-  Ltac pairing_simpl_basic := 
-    (rewrite !pairing_proj1) ||
-    (rewrite !pairing_proj2) ||
-    (rewrite !id_left) ||
-    (rewrite !id_right).
+(* Expand out all all structural maps 
+    in terms of just pairing and projections *)
+Ltac pairing_proj_expand :=
+  (rewrite <- !pairing_proj_id) ||
+  (rewrite <- !pairing_eq) ||
+  (rewrite <- !pairing_id) ||
+  (rewrite <- !pairing_proj_braiding) ||
+  (rewrite <- !pairing_proj_tensor) ||
+  (rewrite <- !pairing_proj_lassociator) ||
+  (rewrite <- !pairing_proj_rassociator).
 
-  (* Try repeated simplification, and some
-     shuffling around with associators *)
-  Ltac pairing_simpl := 
-      repeat pairing_simpl_basic;
-      try (rewrite !assoc'; pairing_simpl_basic; repeat pairing_simpl_basic);
-      try (rewrite !assoc; pairing_simpl_basic; repeat pairing_simpl_basic).
+(* Make some basic simplifications *)
+Ltac pairing_simpl_basic := 
+  (rewrite !pairing_proj1) ||
+  (rewrite !pairing_proj2) ||
+  (rewrite !id_left) ||
+  (rewrite !id_right).
 
-  (* This tactic tries to discharge or simplify 
-     an equation between structural maps into tensors by eta-rule.
-     - Expand both sides in terms of pairings and projections
-     - Simplify
-     - apply deterministic eta rule
-     - dischage determinism assumptions using hints
-     - simplify and see if that suffices *)
-  Ltac markov_coherence :=
-    repeat pairing_proj_expand;
-    repeat pairing_simpl;
-    apply det_eta;
-    try auto with autodet; 
-    repeat pairing_simpl;
-    try reflexivity.
+(* Try repeated simplification, and some
+    shuffling around with associators *)
+Ltac pairing_simpl := 
+    repeat pairing_simpl_basic;
+    try (rewrite !assoc'; pairing_simpl_basic; repeat pairing_simpl_basic);
+    try (rewrite !assoc; pairing_simpl_basic; repeat pairing_simpl_basic).
 
-  (* Some lemmas that are solved by the tactic *)
+(* This tactic tries to discharge or simplify 
+    an equation between structural maps into tensors by eta-rule.
+    - Expand both sides in terms of pairings and projections
+    - Simplify
+    - apply deterministic eta rule
+    - dischage determinism assumptions using hints
+    - simplify and see if that suffices *)
+Ltac markov_coherence :=
+  repeat pairing_proj_expand;
+  repeat pairing_simpl;
+  apply det_eta;
+  try auto with autodet; 
+  repeat pairing_simpl;
+  try reflexivity.
+
+(* Some lemmas that are solved by the tactic *)
+Section Corollaries.
+  Context {C : markov_category}.
 
   Lemma rassociator_proj (x y z : C) :
     mon_rassociator x y z · proj1 = identity x #⊗ proj1.
@@ -625,4 +629,4 @@ Section PairingCalculus.
     markov_coherence.
   Qed.
 
-End PairingCalculus.
+End Corollaries.
