@@ -283,7 +283,7 @@ Section AlmostSurelyDeterministic.
     apply ase_pairing_l. exact ase.
   Qed.
 
-  Proposition is_deterministic_ase_postcomp 
+  Proposition is_deterministic_ase_postcomp
     {a x y z : C} (p : a --> x) (f : x --> y) (g : y --> z) 
     : is_deterministic_ase p f -> is_deterministic g -> is_deterministic_ase p (f · g).
   Proof.

@@ -190,6 +190,11 @@ Section Dilators.
     use setquotuniv.
      
   Defined.*)
+
+  (* Here is the central lemma for dilators *)
+
+(*   Proposition dilator_existence {w x y : C} {r p q} (c : x --> y) (p c = q)
+    (f : w --> x) (g : w --> y)  *)
   
 
 
@@ -199,7 +204,102 @@ Section CouplingDilators.
   Context {C : markov_category_with_conditionals}.
   Let krn := couplings_dagger_cat C.
 
-  Definition bloom {x y : C} (p : I_{C} --> x) (f : x --> y) : 
+  (* Dagger couplings*)
+
+  Definition dilation_coupling {r x y : C} (p : I_{C} --> r) 
+    (f : r --> x) (g : r --> y) : I_{C} --> x ⊗ y := p · ⟨f, g⟩.
+
+  Proposition dilation_coupling_dom
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : dilation_coupling p f g · proj1 = p · f.
+  Proof.
+    unfold dilation_coupling. 
+    rewrite assoc', pairing_proj1.
+    reflexivity.
+  Qed.
+
+  Proposition dilation_coupling_cod
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : dilation_coupling p f g · proj2 = p · g.
+  Proof.
+    unfold dilation_coupling. 
+    rewrite assoc', pairing_proj2.
+    reflexivity.
+  Qed.
+
+  Proposition dilation_coupling_dagger
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : coupling_dagger (dilation_coupling p f g) = dilation_coupling p g f.
+  Proof.
+    unfold dilation_coupling, coupling_dagger.
+    rewrite assoc', pairing_sym_mon_braiding.
+    reflexivity.
+  Qed.
+
+  Proposition dilation_coupling_identity {r : C} (p : I_{C} --> r) :
+    dilation_coupling p (identity r) (identity r) = identity_coupling p.
+  Proof.
+    unfold dilation_coupling, identity_coupling.
+    rewrite pairing_id.
+    reflexivity.
+  Qed.
+
+  Proposition dilation_coupling_inv_l 
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : dilation_coupling p f g = dilation_coupling (p · f) (identity x) (bayesian_inverse p f · g).
+  Proof.
+    unfold dilation_coupling.
+    rewrite <- pairing_tensor_r, assoc.
+    rewrite bayesian_inverse_eq_r.
+    rewrite assoc', pairing_tensor_r, id_left.
+    reflexivity.
+  Qed.
+
+  Proposition dilation_coupling_inv_r
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : dilation_coupling p f g = dilation_coupling (p · g) (bayesian_inverse p g · f) (identity y).
+  Proof.
+    unfold dilation_coupling.
+    rewrite <- pairing_tensor_l, assoc.
+    rewrite bayesian_inverse_eq_l.
+    rewrite assoc', pairing_tensor_l, id_left.
+    reflexivity.
+  Qed.
+
+  Proposition bloom_dilation_composition 
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : coupling_composition (coupling_dagger (bloom_coupling p f)) (bloom_coupling p g) = dilation_coupling p f g.
+  Proof.
+    unfold coupling_dagger.
+    rewrite coupling_composition_eq_2.
+    2: { rewrite assoc'.
+         rewrite sym_mon_braiding_proj2.
+         rewrite !bloom_coupling_dom.
+         reflexivity. }
+    etrans. {
+      assert(e : bloom_coupling p f = p · ⟨ identity _, f ⟩). { reflexivity. }
+      rewrite e.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite assoc, pairing_sym_mon_braiding.
+      rewrite <- pairing_split_r.
+      reflexivity.
+    }
+    unfold dilation_coupling.
+    apply ase_precomp.
+    apply ase_pairing_r.
+    apply bloom_coupling_conditional_1_ase.
+  Qed.   
+     
+
+ (*  Proposition dilation_coupling_as_det  *)
+
+  (* Dilator coupling *)
+(*   Proposition dilator_coupling (gamma : I_{C} --> x ⊗ y)  *)
+
+  (* .......... *)
+
+  Definition bloomc {x y : C} (p : I_{C} --> x) (f : x --> y) : 
       krn ⟦ (x ,, p) , (y,, p · f) ⟧. (* coupling p (p cdot f) *)
   Proof.
     use make_coupling.
@@ -208,44 +308,136 @@ Section CouplingDilators.
     - apply bloom_coupling_cod.
   Defined.  
 
-(*   Proposition bloom_dilation {x y z : C} (p : I_{C} --> x) (f : x --> y) (g : x --> z) :
-    ((bloom p f) _ krn ^†) · (bloom p g) =  *)
-
-
-  Proposition bloom_coupling_coiso {x y : C} {p : I_{C} --> x} (f : x --> y) :
-    is_deterministic_ase p f -> is_coisometry krn (bloom p f).
+  Definition dilationc {r x y : C} (p : I_{C} --> r) 
+    (f : r --> x) (g : r --> y) : krn ⟦ (x ,, p · f) , (y,, p · g) ⟧.
   Proof.
+    use make_coupling.
+    - exact (dilation_coupling p f g).
+    - apply dilation_coupling_dom.
+    - apply dilation_coupling_cod.
+  Defined.
 
-    intros det_ase.
+  Proposition bloom_dilation {x y z : C} (p : I_{C} --> x) (f : x --> y) (g : x --> z) :
+    {bloomc p f}_krn^† · (bloomc p g) = dilationc p f g.
+  Proof.
     apply coupling_ext.
     cbn.
-    unfold coupling_dagger.
-    unfold bloom_coupling.
-    rewrite assoc', pairing_sym_mon_braiding.
-    etrans. {
-      rewrite coupling_composition_eq_3.
-      2: rewrite !assoc', pairing_proj1, pairing_proj2; reflexivity.
-      rewrite !assoc', pairing_tensor_l, id_left.
-      reflexivity.
-    }
+    apply bloom_dilation_composition.
+  Qed.
 
-    Search "ase_pairing".
-  Abort.
+  Proposition bloom_coupling_coiso {x y : C} {p : I_{C} --> x} (f : x --> y) :
+    is_deterministic_ase p f -> is_coisometry krn (bloomc p f).
+  Proof.
+    intros det_ase.
+    apply coupling_ext.
+    rewrite bloom_dilation.
+    cbn.
+    unfold dilation_coupling, identity_coupling.
+    rewrite pairing_eq, assoc'.
+    apply ase_precomp.
+    apply ase_symm.
+    exact det_ase.
+  Qed.
 
+  Definition bloom_coupling_to_coiso {x y : C} {p : I_{C} --> x} (f : x --> y) :
+    is_deterministic_ase p f -> coisometry krn (x ,, p) (y ,, p · f).
+  Proof.
+    intros det_ase.
+    use make_coisometry.
+    - exact (bloomc p f).
+    - abstract (apply bloom_coupling_coiso; assumption).
+  Defined.
 
-      
-
-
-
-        
-
-  Definition coupling_dilation {p q : krn} (γ : p --> q): dilation krn γ.
+  Definition apex {p q : krn} (γ : p --> q) : krn.
   Proof.
     destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
-    simple refine (_ ,, _ ,, _ ,, _).
-    - exact (x ⊗ y ,, γ).
-  - Abort.
-    
+    exact (x ⊗ y ,, γ).
+  Defined.
 
+  Definition pi1 {p q : krn} (γ : p --> q) : coisometry krn (apex γ) p.
+  Proof.
+    destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
+    cbn in *.
+    rewrite <- domγ.
+    apply bloom_coupling_to_coiso.
+    apply deterministic_implies_determinstic_ase.
+    apply is_deterministic_proj1.
+  Defined.
+
+  Definition p1 {p q : krn} (γ : p --> q) : coisometry krn (apex γ) p.
+  Proof.
+    destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
+    use make_coisometry.
+    - use make_coupling.
+      * refine (bloom_coupling γ proj1).
+      * apply bloom_coupling_dom.
+      * abstract (cbn in *; rewrite <- domγ; apply bloom_coupling_cod).
+    - apply coupling_ext.
+      cbn.
+      rewrite bloom_dilation_composition.
+      unfold dilation_coupling, identity_coupling.
+      rewrite pairing_eq.
+      cbn in domγ.
+      rewrite <- domγ.
+      rewrite assoc'.
+      apply ase_precomp.
+      apply ase_symm.
+      apply deterministic_implies_determinstic_ase.
+      apply is_deterministic_proj1.
+  Defined.
+
+  Definition pi2 {p q : krn} (γ : p --> q) : coisometry krn (apex γ) q.
+  Proof.
+    destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
+    cbn in *.
+    rewrite <- codγ.
+    apply bloom_coupling_to_coiso.
+    apply deterministic_implies_determinstic_ase.
+    apply is_deterministic_proj2.
+  Defined.
+
+  Definition p2 {p q : krn} (γ : p --> q) : coisometry krn (apex γ) q.
+  Proof.
+    destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
+    use make_coisometry.
+    - use make_coupling.
+      * refine (bloom_coupling γ proj2).
+      * apply bloom_coupling_dom.
+      * abstract (cbn in *; rewrite <- codγ; apply bloom_coupling_cod).
+    - apply coupling_ext.
+      cbn.
+      rewrite bloom_dilation_composition.
+      unfold dilation_coupling, identity_coupling.
+      rewrite pairing_eq.
+      cbn in codγ.
+      rewrite <- codγ.
+      rewrite assoc'.
+      apply ase_precomp.
+      apply ase_symm.
+      apply deterministic_implies_determinstic_ase.
+      apply is_deterministic_proj2.
+  Defined.
+
+  Proposition dilator_dilation {p q : krn} (γ : p --> q) :
+    {p1 γ}_krn^† · (p2 γ) = γ.
+  Proof.
+    apply coupling_ext.
+    unfold p1, p2.
+    cbn.
+    rewrite bloom_dilation_composition.
+    unfold dilation_coupling.
+    rewrite pairing_proj_id, id_right.
+    reflexivity.
+  Qed.
+
+  Definition coupling_dilator {p q : krn} (γ : p --> q): dilation krn γ.
+  Proof.
+    destruct p as [x p], q as [y q].
+    simple refine (_ ,, _ ,, _ ,, _).
+    - exact (apex γ).
+    - apply p1.
+    - apply p2.
+    - apply dilator_dilation. 
+  Defined.   
 
 End CouplingDilators.

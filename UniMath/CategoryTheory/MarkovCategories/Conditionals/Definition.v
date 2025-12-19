@@ -172,6 +172,32 @@ Section ConditionalDistributions.
     reflexivity.
   Qed.
 
+  Proposition conditional_distribution_1_braiding {x y : C} (p : I_{C} --> x ⊗ y) :
+    (p · sym_mon_braiding _ _ _)|1 =_{p · proj2} p|2.
+  Proof.
+    apply conditional_distribution_2_ase_unique.
+    rewrite <- sym_mon_braiding_proj1.
+    rewrite assoc.
+    apply cancel_braiding.
+    rewrite assoc'.
+    rewrite pairing_sym_mon_braiding.
+    rewrite <- conditional_distribution_1_eq.
+    reflexivity.
+  Qed.
+
+  Proposition conditional_distribution_2_braiding {x y : C} (p : I_{C} --> x ⊗ y) :
+    (p · sym_mon_braiding _ _ _)|2 =_{p · proj1} p|1.
+  Proof.
+    apply conditional_distribution_1_ase_unique.
+    rewrite <- sym_mon_braiding_proj2.
+    rewrite assoc.
+    apply cancel_braiding.
+    rewrite assoc'.
+    rewrite pairing_sym_mon_braiding.
+    rewrite <- conditional_distribution_2_eq.
+    reflexivity.
+  Qed.
+
   (* Convenient helper functions that generates an additional equality goal *)
   Proposition conditional_distribution_1_ase_unique'
       {x y : C} {p : I_{C} --> x ⊗ y} (p1 : I_{C} --> x) (f : x --> y) (e : p · proj1 = p1)
