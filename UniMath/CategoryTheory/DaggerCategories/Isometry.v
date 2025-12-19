@@ -105,6 +105,9 @@ Section CoisometriesDef.
 
 End CoisometriesDef.
 
+Arguments isometry_to_mor {C} {dag} {x y}.
+Arguments coisometry_to_mor {C} {dag} {x y}.
+
 Section IsometryCoisometryProperties.
   Context {C : category} (dag : dagger C).
   Local Notation "f †" := (dag _ _ f).

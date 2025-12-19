@@ -308,6 +308,21 @@ Section CouplingDilators.
     - apply bloom_coupling_cod.
   Defined.  
 
+(*   Definition bloom_ex_t {x y : C} {p q : krn} (f : C ⟦ x , y ⟧) 
+    (dom : state_ob p = x) (cod : state_ob q = y) : UU.
+  Proof.
+    rewrite <- dom, <- cod in f.
+    refine (∏ (pres : (pr2 p) · f = (pr2 q)), krn ⟦ p, q ⟧).
+  Defined.
+
+  Proposition bloom_ex {x y : C} {p q : krn} (f : C ⟦ x , y ⟧) 
+    (dom : state_ob p = x) (cod : state_ob q = y)  : bloom_ex_t f dom cod.
+  Proof.
+    intros pres.
+    use make_coupling.
+    - exact (bloom_coupling (pr2 p) f).  *)
+
+
   Definition dilationc {r x y : C} (p : I_{C} --> r) 
     (f : r --> x) (g : r --> y) : krn ⟦ (x ,, p · f) , (y,, p · g) ⟧.
   Proof.
@@ -348,13 +363,13 @@ Section CouplingDilators.
     - abstract (apply bloom_coupling_coiso; assumption).
   Defined.
 
-  Definition apex {p q : krn} (γ : p --> q) : krn.
+  Definition relprod {p q : krn} (γ : p --> q) : krn.
   Proof.
     destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
     exact (x ⊗ y ,, γ).
   Defined.
 
-  Definition pi1 {p q : krn} (γ : p --> q) : coisometry krn (apex γ) p.
+  Definition pi1 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) p.
   Proof.
     destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
     cbn in *.
@@ -364,7 +379,7 @@ Section CouplingDilators.
     apply is_deterministic_proj1.
   Defined.
 
-  Definition p1 {p q : krn} (γ : p --> q) : coisometry krn (apex γ) p.
+  Definition p1 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) p.
   Proof.
     destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
     use make_coisometry.
@@ -386,7 +401,7 @@ Section CouplingDilators.
       apply is_deterministic_proj1.
   Defined.
 
-  Definition pi2 {p q : krn} (γ : p --> q) : coisometry krn (apex γ) q.
+  Definition pi2 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) q.
   Proof.
     destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
     cbn in *.
@@ -396,7 +411,7 @@ Section CouplingDilators.
     apply is_deterministic_proj2.
   Defined.
 
-  Definition p2 {p q : krn} (γ : p --> q) : coisometry krn (apex γ) q.
+  Definition p2 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) q.
   Proof.
     destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
     use make_coisometry.
@@ -430,14 +445,32 @@ Section CouplingDilators.
     reflexivity.
   Qed.
 
-  Definition coupling_dilator {p q : krn} (γ : p --> q): dilation krn γ.
+  Definition coupling_dilator {p q : krn} (γ : p --> q) : dilation krn γ.
   Proof.
     destruct p as [x p], q as [y q].
     simple refine (_ ,, _ ,, _ ,, _).
-    - exact (apex γ).
+    - exact (relprod γ).
     - apply p1.
     - apply p2.
     - apply dilator_dilation. 
-  Defined.   
+  Defined.
+
+  Proposition coupling_dilator_factorization {p q : krn} (γ : p --> q) (d : dilation krn γ)
+    : dilation_map krn d (coupling_dilator γ).
+  Proof.
+    pose(f := (coupling_to_state (coisometry_to_mor (left d)))|1).
+    pose(g := (coupling_to_state (coisometry_to_mor (right d)))|1).
+    pose(w := apex d).
+    use make_dilation_map. {
+      unfold apex. cbn.
+      use make_coupling.
+      - use bloom_coupling.
+  Abort.
+
+  Proposition coupling_dilator_is_dilator {p q : krn} (γ : p --> q) : 
+    is_dilator krn (coupling_dilator γ).
+  Proof.
+  Abort.
+
 
 End CouplingDilators.

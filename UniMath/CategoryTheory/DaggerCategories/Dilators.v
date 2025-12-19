@@ -30,26 +30,80 @@ Section Dilators.
   Local Notation "f †" := (C _ _ f).
 
   Definition dilation {x y : C} (f : x --> y) :=
-    ∑ p : C, 
-      ∑ (u : coisometry C p x) (v : coisometry C p y),
+    ∑ r : C, 
+      ∑ (u : coisometry C r x) (v : coisometry C r y),
       u † · v = f.
 
-  Definition dilation_map {x y : C} {f : x --> y} (d1 : dilation f) (d2 : dilation f) : UU.
+  Definition make_dilation_from_coisometries {x y r : C}
+    (f : x --> y) (u : coisometry C r x) (v : coisometry C r y) (eq : u † · v = f) : dilation f.
   Proof.
-    destruct d1 as (p & u1 & v1 & e1).
-    destruct d2 as (q & u2 & v2 & e2).
-    exact (∑ h : coisometry C p q, 
-      (h · u2 = u1) × (h · v2 = v1)).
+    exact (r ,, u ,, v ,, eq).
   Defined.
 
-  Proposition dilation_map_eq {x y : C} {f : x --> y} {d e : dilation f} (h1 h2 : dilation_map d e)
+  Definition make_dilation {x y r : C}
+    (f : x --> y) (u : r --> x) (v : r --> y)
+    (iso_u : is_coisometry C u) (iso_v : is_coisometry C v) (eq : u † · v = f) : dilation f.
+  Proof.
+    simple refine (r ,, _ ,, _ ,, _).
+    - use make_coisometry.
+      * exact u.
+      * exact iso_u.
+    - use make_coisometry.
+      * exact v.
+      * exact iso_v.
+    - abstract (exact eq).
+  Defined.
+
+  Definition apex {x y : C} {f : x --> y} (d : dilation f) : C := pr1 d. 
+  Definition left {x y : C} {f : x --> y} (d : dilation f) : coisometry C (apex d) x := pr12 d.
+  Definition right {x y : C} {f : x --> y} (d : dilation f) : coisometry C (apex d) y := pr122 d.
+
+  Proposition dilation_eq {x y : C} {f : x --> y} (d : dilation f) :
+    {left d}_C^† · right d = f.
+  Proof.
+    exact (pr222 d).
+  Qed.
+
+  (* Map of dilations *)
+
+  Definition dilation_map {x y : C} {f : x --> y} (d : dilation f) (e : dilation f) : UU
+    := ∑ h : coisometry C (apex d) (apex e), 
+        (h · left e = left d) × (h · right e = right d).
+
+  Definition make_dilation_map_from_coisometries
+    {x y : C} {f : x --> y} {d : dilation f} {e : dilation f}
+    (h : coisometry C (apex d) (apex e))
+    (eq_left : h · left e = left d)
+    (eq_right : h · right e = right d)
+    : dilation_map d e.
+  Proof.
+    exact (h ,, eq_left ,, eq_right).
+  Defined.
+
+  Definition make_dilation_map 
+      {x y : C} {f : x --> y} {d : dilation f} {e : dilation f}
+      (h : apex d --> apex e)
+      (coiso_h : is_coisometry C h)
+      (eq_left : h · left e = left d)
+      (eq_right : h · right e = right d)
+      : dilation_map d e.
+  Proof.
+    use make_dilation_map_from_coisometries.
+    - use make_coisometry.
+      * exact h.
+      * exact coiso_h.
+    - exact eq_left.
+    - exact eq_right.
+  Defined.     
+
+  Proposition dilation_map_ext {x y : C} {f : x --> y} {d e : dilation f} (h1 h2 : dilation_map d e)
     : pr1 h1 = pr1 h2 -> h1 = h2.
   Proof.
     intros p.
     use subtypePath.
     { intro. use isapropdirprod; use homset_property. }
     exact p.
-  Qed.    
+  Qed.
 
   Definition is_dilator {x y : C} {f : x --> y} (e : dilation f) : UU
     := ∏ d : dilation f, iscontr (dilation_map d e).
@@ -109,20 +163,24 @@ Section Dilators.
       reflexivity.
     }
 
-    unfold dilation_map.
-    cbn.
-    rewrite eq2.
-    use make_iscontr.
-    - exists (v ,, vco).
+    use make_iscontr. {
+      exists (v ,, vco).
       rewrite !id_right.
-      split ; reflexivity.
-    - intros [h2 [P Q]].
-      use subtypePath.
-      { intro. use isapropdirprod; use homset_property. }
-      apply coisometry_eq.
-      cbn.
-      rewrite <- (id_right (pr1 h2)).
-      exact P.
+      split.
+      - rewrite eq2. reflexivity.
+      - reflexivity. }
+    
+    intros [h2 [P Q]].
+    use dilation_map_ext.
+    apply coisometry_eq.
+    cbn.
+    rewrite <- eq2.
+    rewrite <- (id_right (pr1 h2)).
+    exact P.
   Qed.  
        
 End Dilators.
+
+Arguments apex {C} {x y} {f}.
+Arguments left {C} {x y} {f}.
+Arguments right {C} {x y} {f}.
