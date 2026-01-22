@@ -337,10 +337,10 @@ Proof.
   intro t0. induction t0.
 Defined.
 
-Definition iscontrsecoverempty2 {X : UU} (P : X -> UU) (is : neg X) :
+Definition iscontrsecoverempty2 {X : UU} (P : X -> UU) (isc : neg X) :
   iscontr (∏ x, P x).
 Proof.
-  intros. set (w := weqtoempty is). set (w' := weqonsecbase P (invweq w)).
+  intros. set (w := weqtoempty isc). set (w' := weqonsecbase P (invweq w)).
   apply (iscontrweqb w' (iscontrsecoverempty _)).
 Defined.
 
@@ -380,9 +380,9 @@ Proof.
   intro x. induction x.
 Defined.
 
-Theorem iscontrfunfromempty2 (X : UU) {Y : UU} (is : neg Y) : iscontr (Y -> X).
+Theorem iscontrfunfromempty2 (X : UU) {Y : UU} (isc : neg Y) : iscontr (Y -> X).
 Proof.
-  intros. set (w := weqtoempty is). set (w' := weqbfun X (invweq w)).
+  intros. set (w := weqtoempty isc). set (w' := weqbfun X (invweq w)).
   apply (iscontrweqb w' (iscontrfunfromempty X)).
 Defined.
 
@@ -433,10 +433,10 @@ Proof.
 Defined.
 
 
-Definition weqsecovercontr {X : UU} (P : X -> UU) (is : iscontr X) :
-  (∏ x, P x) ≃ (P (pr1 is)).
+Definition weqsecovercontr {X : UU} (P : X -> UU) (isc : iscontr X) :
+  (∏ x, P x) ≃ (P (pr1 isc)).
 Proof.
-  intros. set (w1 := weqonsecbase P (wequnittocontr is)).
+  intros. set (w1 := weqonsecbase P (wequnittocontr isc)).
   apply (weqcomp w1 (weqsecoverunit _)).
 Defined.
 
@@ -472,8 +472,8 @@ Defined.
 
 Definition weqfunfromunit (X : UU) : (unit -> X) ≃ X := weqsecoverunit _.
 
-Definition weqfunfromcontr {X : UU} (Y : UU) (is : iscontr X) : (X -> Y) ≃ Y
-  := weqsecovercontr _ is.
+Definition weqfunfromcontr {X : UU} (Y : UU) (isc : iscontr X) : (X -> Y) ≃ Y
+  := weqsecovercontr _ isc.
 
 (** *** Functions from [ total2 ] *)
 
@@ -495,10 +495,10 @@ Proof.
   revert T P. induction n as [ | n IHn ].
   - intros T P X. apply (funcontr P X).
   - intros T P X. unfold isofhlevel in X. unfold isofhlevel. intros x x'.
-    assert (is : ∏ t : T, isofhlevel n (x t = x' t))
+    assert (isc : ∏ t : T, isofhlevel n (x t = x' t))
       by (intro; apply (X t (x t) (x' t))).
     assert (is2 : isofhlevel n (∏ t : T, x t = x' t))
-      by apply (IHn _ (λ t0 : T, x t0 = x' t0) is).
+      by apply (IHn _ (λ t0 : T, x t0 = x' t0) isc).
     set (u := toforallpaths P x x').
     assert (is3: isweq u) by apply isweqtoforallpaths.
     set (v:= invmap (make_weq u is3)).
@@ -536,10 +536,10 @@ Proof.
 Defined.
 
 
-Corollary impredfun (n : nat) (X Y : UU) (is : isofhlevel n Y) :
+Corollary impredfun (n : nat) (X Y : UU) (isc : isofhlevel n Y) :
   isofhlevel n (X -> Y).
 Proof.
-  intros. apply (impred n (λ x , Y) (λ x, is)).
+  intros. apply (impred n (λ x , Y) (λ x, isc)).
 Defined.
 
 Theorem impredtech1 (n : nat) (X Y : UU) :
@@ -571,9 +571,9 @@ Proof.
   intro x. induction (f x). apply idpath.
 Defined.
 
-Theorem iscontrfuntocontr (X : UU) {Y : UU} (is : iscontr Y) : iscontr (X -> Y).
+Theorem iscontrfuntocontr (X : UU) {Y : UU} (isc : iscontr Y) : iscontr (X -> Y).
 Proof.
-  set (w := weqcontrtounit is). set (w' := weqffun X w).
+  set (w := weqcontrtounit isc). set (w' := weqffun X w).
   apply (iscontrweqb w' (iscontrfuntounit X)).
 Defined.
 
@@ -586,14 +586,14 @@ Defined.
 
 (** *** Functions to an empty type (generalization of [ isapropneg ]) *)
 
-Theorem isapropneg2 (X : UU) {Y : UU} (is : neg Y) : isaprop (X -> Y).
+Theorem isapropneg2 (X : UU) {Y : UU} (isc : neg Y) : isaprop (X -> Y).
 Proof.
-  intros. apply impred. intro. apply (isapropifnegtrue is).
+  intros. apply impred. intro. apply (isapropifnegtrue isc).
 Defined.
 
 (** ** Theorems saying that  [ iscontr T ], [ isweq f ] etc. are of h-level 1 *)
 
-Theorem iscontriscontr {X : UU} (is : iscontr X) : iscontr (iscontr X).
+Theorem iscontriscontr {X : UU} (isc : iscontr X) : iscontr (iscontr X).
 Proof.
   assert (is0 : ∏ (x x' : X), x = x')
          by (apply proofirrelevancecontr; assumption).
@@ -619,9 +619,9 @@ Defined.
 Theorem isapropiscontr (T : UU) : isaprop (iscontr T).
 Proof.
   intros. unfold isaprop. unfold isofhlevel.
-  intros x x'. assert (is : iscontr(iscontr T)).
+  intros x x'. assert (isc : iscontr(iscontr T)).
   apply iscontriscontr. apply x.
-  assert (is2 : isaprop (iscontr T)) by apply (isapropifcontr is).
+  assert (is2 : isaprop (iscontr T)) by apply (isapropifcontr isc).
   apply (is2 x x').
 Defined.
 
@@ -635,14 +635,14 @@ Defined.
 Theorem isapropisisolated (X : UU) (x : X) : isaprop (isisolated X x).
 (* uses funextemptyAxiom *)
 Proof.
-  intros. apply isofhlevelsn. intro is. apply impred. intro x'.
-  apply (isapropdec _ (isaproppathsfromisolated X x is x')).
+  intros. apply isofhlevelsn. intro isc. apply impred. intro x'.
+  apply (isapropdec _ (isaproppathsfromisolated X x isc x')).
 Defined.
 
 Theorem isapropisdeceq (X : UU) : isaprop (isdeceq X).
 (* uses funextemptyAxiom *)
 Proof.
-  apply (isofhlevelsn 0). intro is. unfold isdeceq. apply impred.
+  apply (isofhlevelsn 0). intro isc. unfold isdeceq. apply impred.
   intro x. apply (isapropisisolated X x).
 Defined.
 
@@ -818,56 +818,56 @@ Defined.
 (** *** Weak equivalences to and from types of h-level (S n) *)
 
 Theorem isofhlevelsnweqtohlevelsn (n : nat) (X Y : UU)
-        (is : isofhlevel (S n) Y) : isofhlevel (S n) (X ≃ Y).
+        (isc : isofhlevel (S n) Y) : isofhlevel (S n) (X ≃ Y).
 Proof.
   intros.
   apply (isofhlevelsninclb n _ (isinclpr1weq _ _)).
-  apply impred. intro. exact is.
+  apply impred. intro. exact isc.
 Defined.
 
 Theorem isofhlevelsnweqfromhlevelsn (n : nat) (X Y : UU)
-        (is : isofhlevel (S n) Y) : isofhlevel (S n) (Y ≃ X).
+        (isc : isofhlevel (S n) Y) : isofhlevel (S n) (Y ≃ X).
 Proof.
   intros.
   apply (isofhlevelweqf (S n) (weqinvweq X Y)).
   apply isofhlevelsnweqtohlevelsn.
-  exact is.
+  exact isc.
 Defined.
 
 (** *** Weak equivalences to and from contractible types *)
 
-Theorem isapropweqtocontr (X : UU) {Y : UU} (is : iscontr Y) : isaprop (X ≃ Y).
+Theorem isapropweqtocontr (X : UU) {Y : UU} (isc : iscontr Y) : isaprop (X ≃ Y).
 Proof.
-  intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifcontr is)).
+  intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifcontr isc)).
 Defined.
 
-Theorem isapropweqfromcontr (X : UU) {Y : UU} (is : iscontr Y) : isaprop (Y ≃ X).
+Theorem isapropweqfromcontr (X : UU) {Y : UU} (isc : iscontr Y) : isaprop (Y ≃ X).
 Proof.
-  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifcontr is)).
+  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifcontr isc)).
 Defined.
 
 (** *** Weak equivalences to and from propositions *)
 
-Theorem isapropweqtoprop (X  Y : UU) (is : isaprop Y) : isaprop (X ≃ Y).
+Theorem isapropweqtoprop (X  Y : UU) (isc : isaprop Y) : isaprop (X ≃ Y).
 Proof.
-  intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ is).
+  intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ isc).
 Defined.
 
-Theorem isapropweqfromprop (X Y : UU) (is : isaprop Y) : isaprop (Y ≃ X).
+Theorem isapropweqfromprop (X Y : UU) (isc : isaprop Y) : isaprop (Y ≃ X).
 Proof.
-  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ is).
+  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ isc).
 Defined.
 
 (** *** Weak equivalences to and from sets *)
 
-Theorem isasetweqtoset (X  Y : UU) (is : isaset Y) : isaset (X ≃ Y).
+Theorem isasetweqtoset (X  Y : UU) (isc : isaset Y) : isaset (X ≃ Y).
 Proof.
-  intros. apply (isofhlevelsnweqtohlevelsn 1 _ _ is).
+  intros. apply (isofhlevelsnweqtohlevelsn 1 _ _ isc).
 Defined.
 
-Theorem isasetweqfromset (X Y : UU) (is : isaset Y) : isaset (Y ≃ X).
+Theorem isasetweqfromset (X Y : UU) (isc : isaset Y) : isaset (Y ≃ X).
 Proof.
-  intros. apply (isofhlevelsnweqfromhlevelsn 1 X _ is).
+  intros. apply (isofhlevelsnweqfromhlevelsn 1 X _ isc).
 Defined.
 
 (** *** Weak equivalences to an empty type *)
@@ -877,9 +877,9 @@ Proof.
   intro. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropempty)).
 Defined.
 
-Theorem isapropweqtoempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (X ≃ Y).
+Theorem isapropweqtoempty2 (X : UU) {Y : UU} (isc : neg Y) : isaprop (X ≃ Y).
 Proof.
-  intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifnegtrue is)).
+  intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifnegtrue isc)).
 Defined.
 
 (** *** Weak equivalences from an empty type *)
@@ -889,9 +889,9 @@ Proof.
   intro. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropempty)).
 Defined.
 
-Theorem isapropweqfromempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (Y ≃ X).
+Theorem isapropweqfromempty2 (X : UU) {Y : UU} (isc : neg Y) : isaprop (Y ≃ X).
 Proof.
-  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifnegtrue is)).
+  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifnegtrue isc)).
 Defined.
 
 (** *** Weak equivalences to and from [ unit ] *)
@@ -908,7 +908,7 @@ Defined.
 
 (** ** Weak auto-equivalences of a type with an isolated point *)
 
-Definition cutonweq {T : UU} t (is : isisolated T t) (w : T ≃ T) :
+Definition cutonweq {T : UU} t (isc : isisolated T t) (w : T ≃ T) :
   isolated T × (compl T t ≃ compl T t).
 Proof.
   intros. split.
@@ -921,54 +921,54 @@ Proof.
 Defined.
 
 Definition invcutonweq {T : UU} (t : T)
-           (is : isisolated T t)
+           (isc : isisolated T t)
            (t'w : isolated T × (compl T t ≃ compl T t)) : T ≃ T
-  := weqcomp (weqrecomplf t t is is (pr2 t'w))
-             (weqtranspos t (pr1 (pr1 t'w)) is (pr2 (pr1 t'w))).
+  := weqcomp (weqrecomplf t t isc isc (pr2 t'w))
+             (weqtranspos t (pr1 (pr1 t'w)) isc (pr2 (pr1 t'w))).
 
 Lemma pathsinvcuntonweqoft {T : UU} (t : T)
-      (is : isisolated T t)
+      (isc : isisolated T t)
       (t'w : isolated T × (compl T t ≃ compl T t)) :
-  invcutonweq t is t'w t = pr1 (pr1 t'w).
+  invcutonweq t isc t'w t = pr1 (pr1 t'w).
 Proof.
   intros. unfold invcutonweq. simpl. unfold recompl. unfold coprodf.
   unfold invmap. simpl. unfold invrecompl.
-  induction (is t) as [ ett | nett ].
+  induction (isc t) as [ ett | nett ].
   - apply pathsfuntransposoft1.
   - induction (nett (idpath _)).
 Defined.
 
-Definition weqcutonweq (T : UU) (t : T) (is : isisolated T t) :
+Definition weqcutonweq (T : UU) (t : T) (isc : isisolated T t) :
   (T ≃ T) ≃ isolated T × (compl T t ≃ compl T t).
 Proof.
   intros.
-  set (f := cutonweq t is). set (g := invcutonweq t is).
+  set (f := cutonweq t isc). set (g := invcutonweq t isc).
   apply (weq_iso f g).
   - intro w. Set Printing Coercions. idtac.
     apply (invmaponpathsincl _ (isinclpr1weq _ _)).
     apply funextfun; intro t'. simpl.
     unfold invmap; simpl. unfold coprodf, invrecompl.
-    induction (is t') as [ ett' | nett' ].
+    induction (isc t') as [ ett' | nett' ].
     + simpl. rewrite (pathsinv0 ett'). apply pathsfuntransposoft1.
     + unfold funtranspos0; simpl.
-      induction (is (w t)) as [ etwt | netwt ].
-      * induction (is (w t')) as [ etwt' | netwt' ].
+      induction (isc (w t)) as [ etwt | netwt ].
+      * induction (isc (w t')) as [ etwt' | netwt' ].
         -- induction (negf (invmaponpathsincl w (isofhlevelfweq 1 w) t t') nett'
                            (pathscomp0 (pathsinv0 etwt) etwt')).
         -- simpl. assert (newtt'' := netwt'). rewrite etwt in netwt'.
-           apply (pathsfuntransposofnet1t2 t (w t) is _ (w t') newtt'' netwt').
-      * simpl. induction (is (w t')) as [ etwt' | netwt' ].
+           apply (pathsfuntransposofnet1t2 t (w t) isc _ (w t') newtt'' netwt').
+      * simpl. induction (isc (w t')) as [ etwt' | netwt' ].
         -- simpl. rewrite (pathsinv0 etwt').
-           apply (pathsfuntransposoft2 t (w t) is _).
+           apply (pathsfuntransposoft2 t (w t) isc _).
         -- simpl.
            assert (ne : neg (w t = w t'))
              by apply (negf (invmaponpathsweq w _ _) nett').
-           apply (pathsfuntransposofnet1t2 t (w t) is _ (w t') netwt' ne).
+           apply (pathsfuntransposofnet1t2 t (w t) isc _ (w t') netwt' ne).
   - intro xw. induction xw as [ x w ]. induction x as [ t' is' ].
     simpl in w. apply pathsdirprod.
     + apply (invmaponpathsincl _ (isinclpr1isolated _)).
       simpl. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
-      induction (is t) as [ ett | nett ].
+      induction (isc t) as [ ett | nett ].
       * apply pathsfuntransposoft1.
       * induction (nett (idpath _)).
     + simpl.
@@ -976,13 +976,13 @@ Proof.
       intro x. induction x as [ x netx ].
       unfold g, invcutonweq; simpl.
       set (int := funtranspos
-                    (t,, is) (t',, is')
+                    (t,, isc) (t',, is')
                     (recompl T t (coprodf w (λ x0 :unit, x0)
-                                          (invmap (weqrecompl T t is) t)))).
+                                          (invmap (weqrecompl T t isc) t)))).
       assert (eee : int = t').
       {
         unfold int. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
-        induction (is t) as [ ett | nett ].
+        induction (isc t) as [ ett | nett ].
         - apply pathsfuntransposoft1.
         - induction (nett (idpath _)).
       }
@@ -992,8 +992,8 @@ Proof.
       }
       apply (ishomotinclrecomplf _ _ isint (funtranspos0 _ _ _) _ _).
       simpl.
-      change (recomplf int t isint (funtranspos0 int t is))
-      with (funtranspos (int,, isint) (t,, is)).
+      change (recomplf int t isint (funtranspos0 int t isc))
+      with (funtranspos (int,, isint) (t,, isc)).
       assert (ee : (int,, isint) = (t',, is')).
       {
         apply (invmaponpathsincl _ (isinclpr1isolated _) _ _).
@@ -1001,12 +1001,12 @@ Proof.
       }
       rewrite ee.
       set (e := homottranspost2t1t1t2
-                  t t' is is'
+                  t t' isc is'
                   (recompl T t (coprodf w (λ x0 : unit, x0)
-                                        (invmap (weqrecompl T t is) x)))).
+                                        (invmap (weqrecompl T t isc) x)))).
       simpl in e.
       rewrite e. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
-      induction (is x) as [ etx | netx' ].
+      induction (isc x) as [ etx | netx' ].
       * induction (netx etx).
       * apply (maponpaths (@pr1 _ _)). apply (maponpaths w).
         apply (invmaponpathsincl _ (isinclpr1compl _ _) _ _).
@@ -1046,10 +1046,10 @@ Proof.
 assert (paths (pr1 (p (s u))) (pr1  u)). unfold p. unfold xtodnegimage.
 unfold s. unfold locsplitsec. simpl. induction u. set (lst := ls t).
 induction lst.  simpl. apply (pr2  x0). induction (x y).
-assert (is : isofhlevelf (S O) (dnegimageincl f)).
+assert (isc : isofhlevelf (S O) (dnegimageincl f)).
 apply (isofhlevelfpr1 (S O) (λ y : Y, isapropdneg (hfiber f y))).
 assert (isw: isweq (maponpaths (dnegimageincl f) (p (s u)) u)).
-apply (isofhlevelfonpaths O  _ is).
+apply (isofhlevelfonpaths O  _ isc).
 apply (invmap  _ isw X0).
 Defined.
 

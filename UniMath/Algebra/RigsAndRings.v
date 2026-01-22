@@ -82,8 +82,8 @@ Local Open Scope logic.
 
 Definition rig : UU := ∑ (X : setwith2binop), isrigops (@op1 X) (@op2 X).
 
-Definition make_rig {X : setwith2binop} (is : isrigops (@op1 X) (@op2 X)) : rig :=
-  X ,, is.
+Definition make_rig {X : setwith2binop} (isc : isrigops (@op1 X) (@op2 X)) : rig :=
+  X ,, isc.
 
 Definition pr1rig : rig → setwith2binop :=
   @pr1 _ (λ X : setwith2binop, isrigops (@op1 X) (@op2 X)).
@@ -184,7 +184,7 @@ Proof.
   - intros x. use isasetaprop. use isapropisrigfun.
 Qed.
 
-Definition rigfunconstr {X Y : rig} {f : X → Y} (is : isrigfun f) : rigfun X Y := f ,, is.
+Definition rigfunconstr {X Y : rig} {f : X → Y} (isc : isrigfun f) : rigfun X Y := f ,, isc.
 
 Definition pr1rigfun (X Y : rig) : rigfun X Y → (X → Y) := @pr1 _ _.
 Coercion pr1rigfun : rigfun >-> Funclass.
@@ -216,7 +216,7 @@ Qed.
 
 Definition rigiso (X Y : rig) : UU := ∑ (f : X ≃ Y), isrigfun f.
 
-Definition make_rigiso {X Y : rig} (f : X ≃ Y) (is : isrigfun f) : rigiso X Y := f ,, is.
+Definition make_rigiso {X Y : rig} (f : X ≃ Y) (isc : isrigfun f) : rigiso X Y := f ,, isc.
 
 Definition pr1rigiso (X Y : rig) : rigiso X Y → X ≃ Y := @pr1 _ _.
 Coercion pr1rigiso : rigiso >-> weq.
@@ -540,8 +540,8 @@ Local Close Scope rig.
 
 Definition commrig : UU := ∑ (X : setwith2binop), iscommrigops (@op1 X) (@op2 X).
 
-Definition make_commrig (X : setwith2binop) (is : iscommrigops (@op1 X) (@op2 X)) : commrig :=
-  X ,, is.
+Definition make_commrig (X : setwith2binop) (isc : iscommrigops (@op1 X) (@op2 X)) : commrig :=
+  X ,, isc.
 
 Definition commrigconstr {X : hSet} (opp1 opp2 : binop X)
            (ax11 : ismonoidop opp1) (ax12 : iscomm opp1)
@@ -716,8 +716,8 @@ Local Close Scope rig.
 
 Definition ring : UU := ∑ (X : setwith2binop), isringops (@op1 X) (@op2 X).
 
-Definition make_ring {X : setwith2binop} (is : isringops (@op1 X) (@op2 X)) : ring :=
-  X ,, is.
+Definition make_ring {X : setwith2binop} (isc : isringops (@op1 X) (@op2 X)) : ring :=
+  X ,, isc.
 
 Definition pr1ring : ring → setwith2binop :=
   @pr1 _ (λ X : setwith2binop, isringops (@op1 X) (@op2 X)).
@@ -811,7 +811,7 @@ Proof.
      apply isapropisrigfun.
 Defined.
 
-Definition ringfunconstr {X Y : ring} {f : X → Y} (is : isringfun f) : ringfun X Y := rigfunconstr is.
+Definition ringfunconstr {X Y : ring} {f : X → Y} (isc : isringfun f) : ringfun X Y := rigfunconstr isc.
 Identity Coercion id_ringfun : ringfun >-> rigfun.
 
 Definition ringaddfun {X Y : ring} (f : ringfun X Y) : monoidfun X Y := make_monoidfun (pr1 (pr2 f)).
@@ -821,7 +821,7 @@ Definition ringmultfun {X Y : ring} (f : ringfun X Y) :
 
 Definition ringiso (X Y : ring) := rigiso X Y.
 
-Definition make_ringiso {X Y : ring} (f : X ≃ Y) (is : isringfun f) : ringiso X Y := f ,, is.
+Definition make_ringiso {X Y : ring} (f : X ≃ Y) (isc : isringfun f) : ringiso X Y := f ,, isc.
 Identity Coercion id_ringiso : ringiso >-> rigiso.
 
 Definition isringfuninvmap {X Y : ring} (f : ringiso X Y) : isringfun (invmap f) := isrigfuninvmap f.
@@ -1021,28 +1021,28 @@ Definition ringinvmaponpathsminus (X : ring) {a b : X} : -a = -b → a = b := gr
 (** **** Relations compatible with the additive structure on rings *)
 
 Definition ringfromgt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
-           {x : X} (is : R x 0) : R 0 (- x) := grfromgtunel X is0 is.
+           {x : X} (isc : R x 0) : R 0 (- x) := grfromgtunel X is0 isc.
 
 Definition ringtogt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R) {x : X}
-           (is : R 0 (- x)) : R x 0 := grtogtunel X is0 is.
+           (isc : R 0 (- x)) : R x 0 := grtogtunel X is0 isc.
 
 Definition ringfromlt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R) {x : X}
-           (is : R 0 x) : R (- x) 0 := grfromltunel X is0 is.
+           (isc : R 0 x) : R (- x) 0 := grfromltunel X is0 isc.
 
 Definition ringtolt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R) {x : X}
-           (is : R (- x) 0) : R 0 x := grtoltunel X is0 is.
+           (isc : R (- x) 0) : R 0 x := grtoltunel X is0 isc.
 
 
 (** **** Relations compatible with the multiplicative structure on rings *)
 
 Definition isringmultgt (X : ring) (R : hrel X) : UU := ∏ a b, R a 0 → R b 0 → R (a * b) 0.
 
-Lemma ringmultgt0lt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R) (is : isringmultgt X R) {x y : X}
+Lemma ringmultgt0lt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R) (isc : isringmultgt X R) {x y : X}
       (isx : R x 0) (isy : R 0 y) : R 0 (x * y).
 Proof.
   intros.
   set (isy' := grfromltunel X is0 isy).
-  assert (r := is _ _ isx isy').
+  assert (r := isc _ _ isx isy').
   change (pr1 (R (x * (- y)) 0)) in r.
   rewrite (ringrmultminus X _ _) in r.
   assert (r' := grfromgtunel X is0 r).
@@ -1051,12 +1051,12 @@ Proof.
   apply r'.
 Qed.
 
-Lemma ringmultlt0gt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R) (is : isringmultgt X R) {x y : X}
+Lemma ringmultlt0gt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R) (isc : isringmultgt X R) {x y : X}
       (isx : R 0 x) (isy : R y 0) : R 0 (x * y).
 Proof.
   intros.
   set (isx' := grfromltunel X is0 isx).
-  assert (r := is _ _ isx' isy).
+  assert (r := isc _ _ isx' isy).
   change (pr1 (R ((- x) * y) 0)) in r.
   rewrite (ringlmultminus X _ _) in r.
   assert (r' := grfromgtunel X is0 r).
@@ -1065,25 +1065,25 @@ Proof.
   apply r'.
 Qed.
 
-Lemma ringmultlt0lt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R) (is : isringmultgt X R) {x y : X}
+Lemma ringmultlt0lt0 (X : ring) {R : hrel X} (is0 : @isbinophrel X R) (isc : isringmultgt X R) {x y : X}
       (isx : R 0 x) (isy : R 0 y) : R (x * y) 0.
 Proof.
   intros.
   set (rx := ringfromlt0 _ is0 isx).
   assert (ry := ringfromlt0 _ is0 isy).
-  assert (int := is _ _ rx ry).
+  assert (int := isc _ _ rx ry).
   rewrite (ringmultminusminus X _ _) in int.
   apply int.
 Qed.
 
 Lemma isringmultgttoislringmultgt (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
-      (is : isringmultgt X R) : ∏ a b c : X, R c 0 → R a b → R (c * a) (c * b).
+      (isc : isringmultgt X R) : ∏ a b c : X, R c 0 → R a b → R (c * a) (c * b).
 Proof.
   intros a b c rc0 rab.
   set (rab':= (pr2 is0) _ _ (- b) rab). clearbody rab'.
   change (pr1 (R (a - b) (b - b))) in rab'.
   rewrite (ringrinvax1 X b) in rab'.
-  set (r' := is _ _ rc0 rab'). clearbody r'.
+  set (r' := isc _ _ rc0 rab'). clearbody r'.
   set (r'' := (pr2 is0) _ _ (c * b) r').  clearbody r''.
   change (pr1 (R (c * (a - b) + c * b) (0 + c * b))) in r''.
   rewrite (ringlunax1 X _) in r''.
@@ -1095,21 +1095,21 @@ Proof.
 Qed.
 
 Lemma islringmultgttoisringmultgt (X : ring) {R : hrel X}
-      (is : ∏ a b c : X, R c 0 → R a b → R (c * a) (c * b)) : isringmultgt X R.
+      (isc : ∏ a b c : X, R c 0 → R a b → R (c * a) (c * b)) : isringmultgt X R.
 Proof.
   intros. intros a b ra rb.
-  set (int := is b 0 a ra rb). clearbody int. rewrite (ringmultx0 X _) in int.
+  set (int := isc b 0 a ra rb). clearbody int. rewrite (ringmultx0 X _) in int.
   apply int.
 Qed.
 
 Lemma isringmultgttoisrringmultgt (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
-      (is : isringmultgt X R) : ∏ a b c : X, R c 0 → R a b → R (a * c) (b * c).
+      (isc : isringmultgt X R) : ∏ a b c : X, R c 0 → R a b → R (a * c) (b * c).
 Proof.
   intros a b c rc0 rab.
   set (rab' := (pr2 is0) _ _ (- b) rab). clearbody rab'.
   change (pr1 (R (a - b) (b - b))) in rab'.
   rewrite (ringrinvax1 X b) in rab'.
-  set (r' := is _ _ rab' rc0). clearbody r'.
+  set (r' := isc _ _ rab' rc0). clearbody r'.
   set (r'' :=  (pr2 is0) _ _ (b * c) r'). clearbody r''.
   change (pr1 (R ((a - b) * c + b * c) (0 + b * c))) in r''.
   rewrite (ringlunax1 X _) in r''.
@@ -1139,7 +1139,7 @@ Proof.
 Defined.
 
 Lemma isringmultgttoisrigmultgt (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
-      (is : isringmultgt X R) : isrigmultgt X R.
+      (isc : isringmultgt X R) : isrigmultgt X R.
 Proof.
   intros. set (rer := abmonoidrer X). simpl in rer.
   intros a b c d rab rcd.
@@ -1155,7 +1155,7 @@ Proof.
     apply ((pr2 is0) _ _ (- d)).
     apply rcd.
   }
-  set (int := is _ _ intab intcd). rewrite (ringrdistr X _ _ _) in int.
+  set (int := isc _ _ intab intcd). rewrite (ringrdistr X _ _ _) in int.
   rewrite (ringldistr X _ _ _) in int. rewrite (ringldistr X _ _ _) in int.
   set (int' := (pr2 is0) _ _ (a * d + b * c) int). clearbody int'.
   simpl in int'.
@@ -1175,9 +1175,9 @@ Proof.
   apply int'.
 Qed.
 
-Lemma isrigmultgttoisringmultgt (X : ring) {R : hrel X} (is : isrigmultgt X R) : isringmultgt X R.
+Lemma isrigmultgttoisringmultgt (X : ring) {R : hrel X} (isc : isrigmultgt X R) : isringmultgt X R.
 Proof.
-  intros. intros a b ra0 rb0. set (is' := is _ _ _ _ ra0 rb0). simpl in is'.
+  intros. intros a b ra0 rb0. set (is' := isc _ _ _ _ ra0 rb0). simpl in is'.
   fold (pr1ring) in is'. rewrite 2? (ringmult0x X _) in is'.
   rewrite (ringmultx0 X _) in is'. rewrite 2? (ringrunax1 X _) in is'.
   exact is'.
@@ -1191,7 +1191,7 @@ Definition isinvringmultgt (X : ring) (R : hrel X) : UU :=
   (∏ a b, R (a * b) 0 → R b 0 → R a 0).
 
 Lemma isinvringmultgttoislinvringmultgt (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
-      (is : isinvringmultgt X R) : ∏ a b c : X, R c 0 → R (c * a) (c * b) → R a b.
+      (isc : isinvringmultgt X R) : ∏ a b c : X, R c 0 → R (c * a) (c * b) → R a b.
 Proof.
   intros a b c rc0 r.
   set (rab':= (pr2 is0) _ _ (c * - b) r).
@@ -1200,7 +1200,7 @@ Proof.
   rewrite <- (ringldistr X _ _ c) in rab'.
   rewrite <- (ringldistr X _ _ c) in rab'.
   rewrite (ringrinvax1 X b) in rab'. rewrite (ringmultx0 X _) in rab'.
-  set (r' := (pr1 is) _ _ rab' rc0). clearbody r'.
+  set (r' := (pr1 isc) _ _ rab' rc0). clearbody r'.
   set (r'' := (pr2 is0) _ _ b r'). clearbody r''.
   change (pr1 (R (a - b + b) (0 + b))) in r''.
   rewrite (ringlunax1 X _) in r''. rewrite (ringassoc1 X a _ _) in r''.
@@ -1209,7 +1209,7 @@ Proof.
 Qed.
 
 Lemma isinvringmultgttoisrinvringmultgt (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
-      (is : isinvringmultgt X R) : ∏ a b c : X, R c 0 → R (a * c) (b * c) → R a b.
+      (isc : isinvringmultgt X R) : ∏ a b c : X, R c 0 → R (a * c) (b * c) → R a b.
 Proof.
   intros a b c rc0 r.
   set (rab':= (pr2 is0) _ _ (- b * c) r). clearbody rab'.
@@ -1218,7 +1218,7 @@ Proof.
   rewrite <- (ringrdistr X _ _ c) in rab'.
   rewrite (ringrinvax1 X b) in rab'.
   rewrite (ringmult0x X _) in rab'.
-  set (r' := (pr2 is) _ _ rab' rc0).
+  set (r' := (pr2 isc) _ _ rab' rc0).
   clearbody r'. set (r'' := (pr2 is0) _ _ b r').
   clearbody r''. change (pr1 (R (a - b + b) (0 + b))) in r''.
   rewrite (ringlunax1 X _) in r''. rewrite (ringassoc1 X a _ _) in r''.
@@ -1251,7 +1251,7 @@ Proof.
 Defined.
 
 Lemma isinvringmultgttoisinvrigmultgt (X : ring) {R : hrel X}
-      (is0 : @isbinophrel X R) (is : isinvringmultgt X R) : isinvrigmultgt X R.
+      (is0 : @isbinophrel X R) (isc : isinvringmultgt X R) : isinvrigmultgt X R.
 Proof.
   intros. set (rer := abmonoidrer X). simpl in rer. split.
   - intros a b c d r rab.
@@ -1275,7 +1275,7 @@ Proof.
     rewrite <- (ringrdistr X _ _ _) in r'.
     set (rab' := (pr2 is0) _ _ (- b) rab). clearbody rab'.
     simpl in rab'. rewrite (ringrinvax1 X b) in rab'.
-    set (rcd' := (pr1 is) _ _ r' rab').
+    set (rcd' := (pr1 isc) _ _ r' rab').
     set (rcd'' := (pr2 is0) _ _ d rcd'). simpl in rcd''.
     rewrite (ringassoc1 _ _ _) in rcd''. rewrite (ringlinvax1 X _) in rcd''.
     rewrite (ringlunax1 X _) in rcd''. rewrite (ringrunax1 X _) in rcd''.
@@ -1301,7 +1301,7 @@ Proof.
     rewrite <- (ringrdistr X _ _ _) in r'.
     set (rcd' := (pr2 is0) _ _ (- d) rcd). clearbody rcd'. simpl in rcd'.
     rewrite (ringrinvax1 X d) in rcd'.
-    set (rab' := (pr2 is) _ _ r' rcd').
+    set (rab' := (pr2 isc) _ _ r' rcd').
     set (rab'' := (pr2 is0) _ _ b rab'). simpl in rab''.
     rewrite (ringassoc1 _ _ _) in rab''.
     rewrite (ringlinvax1 X _) in rab''.
@@ -1738,11 +1738,11 @@ Definition isincltoringdiff (X : rig) (iscanc : ∏ x : X, @isrcancelable X (@op
 
 (** **** Relations similar to "greater" or "greater or equal" on the ring associated with a rig *)
 
-Definition rigtoringrel (X : rig) {R : hrel X} (is : @isbinophrel (rigaddabmonoid X) R) :
-  hrel (rigtoring X) := abgrdiffrel (rigaddabmonoid X) is.
+Definition rigtoringrel (X : rig) {R : hrel X} (isc : @isbinophrel (rigaddabmonoid X) R) :
+  hrel (rigtoring X) := abgrdiffrel (rigaddabmonoid X) isc.
 
 Lemma isringrigtoringmultgt (X : rig) {R : hrel X} (is0 : @isbinophrel (rigaddabmonoid X) R)
-      (is : isrigmultgt X R) : isringmultgt (rigtoring X) (rigtoringrel X is0).
+      (isc : isrigmultgt X R) : isringmultgt (rigtoring X) (rigtoringrel X is0).
 Proof.
   intros.
   set (assoc := rigassoc1 X). set (comm := rigcomm1 X).
@@ -1798,16 +1798,16 @@ Proof.
   rewrite (rigrunax1 X _) in r1. rewrite (riglunax1 X _) in r1.
   rewrite (rigrunax1 X _) in r2. rewrite (riglunax1 X _) in r2.
   rewrite (comm c1 a1).
-  apply (is _ _ _ _ r2 r1).
+  apply (isc _ _ _ _ r2 r1).
 Qed.
 
-Definition isdecrigtoringrel (X : rig) {R : hrel X} (is : @isbinophrel (rigaddabmonoid X) R)
+Definition isdecrigtoringrel (X : rig) {R : hrel X} (isc : @isbinophrel (rigaddabmonoid X) R)
            (is' : @isinvbinophrel (rigaddabmonoid X) R) (isd : isdecrel R) :
-  isdecrel (rigtoringrel X is).
-Proof. intros. apply (isdecabgrdiffrel (rigaddabmonoid X) is is' isd). Defined.
+  isdecrel (rigtoringrel X isc).
+Proof. intros. apply (isdecabgrdiffrel (rigaddabmonoid X) isc is' isd). Defined.
 
 Lemma isinvringrigtoringmultgt (X : rig) {R : hrel X} (is0 : @isbinophrel (rigaddabmonoid X) R)
-      (is1 : @isinvbinophrel (rigaddabmonoid X) R) (is : isinvrigmultgt X R) :
+      (is1 : @isinvbinophrel (rigaddabmonoid X) R) (isc : isinvrigmultgt X R) :
   isinvringmultgt (rigtoring X) (rigtoringrel X is0).
 Proof.
   intros. split.
@@ -1839,7 +1839,7 @@ Proof.
     rewrite (riglunax1 X _) in r1. rewrite (rigrunax1 X _) in r1.
     set (r1' := (pr2 is1) _ _ c1 r1). exists 0.
     rewrite (rigrunax1 X _). rewrite (rigrunax1 X _).
-    apply ((pr1 is) _ _ _ _ r2' r1').
+    apply ((pr1 isc) _ _ _ _ r2' r1').
 
   - assert (int : ∏ a b, isaprop (rigtoringrel X is0 (a * b) ringunel1 →
                                   rigtoringrel X is0 b ringunel1 →
@@ -1870,7 +1870,7 @@ Proof.
     rewrite (riglunax1 X _) in r1. rewrite (rigrunax1 X _) in r1.
     set (r1' := (pr2 is1) _ _ c1 r1). exists 0.
     rewrite (rigrunax1 X _). rewrite (rigrunax1 X _).
-    apply ((pr2 is) _ _ _ _ r2' r1').
+    apply ((pr2 isc) _ _ _ _ r2' r1').
 Qed.
 
 
@@ -1893,9 +1893,9 @@ Definition iscommring (X : setwith2binop) : UU := iscommringops (@op1 X) (@op2 X
 
 Definition commring : UU := ∑ (X : setwith2binop), iscommringops (@op1 X) (@op2 X).
 
-Definition make_commring (X : setwith2binop) (is : iscommringops (@op1 X) (@op2 X)) :
+Definition make_commring (X : setwith2binop) (isc : iscommringops (@op1 X) (@op2 X)) :
   ∑ X0 : setwith2binop, iscommringops op1 op2 :=
-  X ,, is.
+  X ,, isc.
 
 Definition commringconstr {X : hSet} (opp1 opp2 : binop X)
            (ax11 : isgrop opp1) (ax12 : iscomm opp1)
@@ -2542,7 +2542,7 @@ Definition isincltocommringfrac (X : commring) (S : @submonoid (ringmultabmonoid
   isincl (tocommringfrac X S) := isinclprcommringfrac X S iscanc (unel S).
 
 Lemma isdeceqcommringfrac (X : commring) (S : @submonoid (ringmultabmonoid X))
-      (iscanc : ∏ a : S, isrcancelable (@op2 X) (pr1carrier _ a)) (is : isdeceq X) :
+      (iscanc : ∏ a : S, isrcancelable (@op2 X) (pr1carrier _ a)) (isc : isdeceq X) :
   isdeceq (commringfrac X S).
 Proof.
   intros. apply (isdeceqsetquot (eqrelcommringfrac X S)). intros xa xa'.
@@ -2550,7 +2550,7 @@ Proof.
   apply isdecpropif. unfold isaprop. simpl.
   set (int := setproperty X (pr1 xa * pr1 (pr2 xa')) (pr1 xa' * pr1 (pr2 xa))).
   simpl in int. apply int. unfold hrelcommringfrac0.
-  simpl. apply (is _ _).
+  simpl. apply (isc _ _).
 Defined.
 
 
