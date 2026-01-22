@@ -18,55 +18,55 @@ Definition abmonoid_to_absemigr (M : abmonoid) : isabsemigrop (@op M) :=
   make_dirprod (@assocax M) (@commax M).
 
 Definition absemigr_perm021 :
-  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ X : hSet, ∏ opp : binop X, ∏ isc : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n0 n2) n1 :=
-  λ X opp is n0 n1 n2,
+  λ X opp isc n0 n1 n2,
     pathscomp0
       (pathscomp0
-         ((pr1 is) n0 n1 n2)
-         (maponpaths (λ z, opp n0 z) ((pr2 is) n1 n2)))
-      (pathsinv0 ((pr1 is) n0 n2 n1)).
+         ((pr1 isc) n0 n1 n2)
+         (maponpaths (λ z, opp n0 z) ((pr2 isc) n1 n2)))
+      (pathsinv0 ((pr1 isc) n0 n2 n1)).
 
 Definition abmonoid_perm021 :=
   λ M : abmonoid, absemigr_perm021 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm102 :
-  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ X : hSet, ∏ opp : binop X, ∏ isc : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n1 n0) n2 :=
-  λ X opp is n0 n1 n2, maponpaths (λ z, opp z n2) ((pr2 is) n0 n1).
+  λ X opp isc n0 n1 n2, maponpaths (λ z, opp z n2) ((pr2 isc) n0 n1).
 
 Definition abmonoid_perm102 :=
   λ M : abmonoid, absemigr_perm102 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm120 :
-  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ X : hSet, ∏ opp : binop X, ∏ isc : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n2 n0) n1 :=
-  λ X opp is n0 n1 n2,
-    pathscomp0 ((pr2 is) (opp n0 n1) n2) (pathsinv0 ((pr1 is) n2 n0 n1)).
+  λ X opp isc n0 n1 n2,
+    pathscomp0 ((pr2 isc) (opp n0 n1) n2) (pathsinv0 ((pr1 isc) n2 n0 n1)).
 
 Definition abmonoid_perm120 :=
   λ M : abmonoid, absemigr_perm120 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm201 :
-  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ X : hSet, ∏ opp : binop X, ∏ isc : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n1 n2) n0 :=
-  λ X opp is n0 n1 n2,
-    pathscomp0 ((pr1 is) n0 n1 n2) ((pr2 is) n0 (opp n1 n2)).
+  λ X opp isc n0 n1 n2,
+    pathscomp0 ((pr1 isc) n0 n1 n2) ((pr2 isc) n0 (opp n1 n2)).
 
 Definition abmonoid_perm201 :=
   λ M : abmonoid, absemigr_perm201 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm210 :
-  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ X : hSet, ∏ opp : binop X, ∏ isc : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n2 n1) n0 :=
-  λ X opp is n0 n1 n2,
-    pathscomp0 (absemigr_perm102 X opp is n0 n1 n2)
-               (absemigr_perm120 X opp is n1 n0 n2).
+  λ X opp isc n0 n1 n2,
+    pathscomp0 (absemigr_perm102 X opp isc n0 n1 n2)
+               (absemigr_perm120 X opp isc n1 n0 n2).
 
 Definition abmonoid_perm210 :=
   λ M : abmonoid, absemigr_perm210 M (@op M) (abmonoid_to_absemigr M).
@@ -76,46 +76,46 @@ Definition abmonoid_perm210 :=
 (** We employ the following naming conventions.  By default a tactics given pertain only to equations and operate by default on the left-hand side of equations.  Those that operate on both left- and right-hand sides of the goal are suffixed with [_goal].  Tactics that operate on the left-hand side of equations occurring as hypotheses are suffixed with [_in].  Those that operate on both left- and right-hand sides of equations occurring as hypotheses are suffixed with [_both_in].  Those that opexrate on all sides of goals and hypotheses are suffixed with [_all].*)
 
 (** TODO: More general version.*)
-Ltac absemigr_ternary_perm X opp is s t u :=
+Ltac absemigr_ternary_perm X opp isc s t u :=
   let f := eval hnf in opp in
       match goal with
         | |- ?lhs = ?rhs =>
           match lhs with
             | context[f (f t s) u] =>
-              rewrite (absemigr_perm102 X f is t s u); idtac
+              rewrite (absemigr_perm102 X f isc t s u); idtac
             | context[f (f t u) s] =>
-              rewrite (absemigr_perm120 X f is t u s); idtac
+              rewrite (absemigr_perm120 X f isc t u s); idtac
             | context[f (f u s) t] =>
-              rewrite (absemigr_perm201 X f is u s t); idtac
+              rewrite (absemigr_perm201 X f isc u s t); idtac
             | context[f (f u t) s] =>
-              rewrite (absemigr_perm210 X f is u t s); idtac
+              rewrite (absemigr_perm210 X f isc u t s); idtac
             | context[f (f s u) t] =>
-              rewrite (absemigr_perm021 X f is s u t); idtac
+              rewrite (absemigr_perm021 X f isc s u t); idtac
             | context[f (f (f ?x t) s) u] =>
-              rewrite (pr1 is x t s); rewrite (pr1 is x (f t s) u);
-              rewrite (absemigr_perm102 X f is t s u);
-              rewrite <- (pr1 is x (f s t) u);
-              rewrite <- (pr1 is x s t); idtac
+              rewrite (pr1 isc x t s); rewrite (pr1 isc x (f t s) u);
+              rewrite (absemigr_perm102 X f isc t s u);
+              rewrite <- (pr1 isc x (f s t) u);
+              rewrite <- (pr1 isc x s t); idtac
             | context[f (f (f ?x t) u) s] =>
-              rewrite (pr1 is x t u); rewrite (pr1 is x (f t u) s);
-              rewrite (absemigr_perm120 X f is t u s);
-              rewrite <- (pr1 is x (f s t) u);
-              rewrite <- (pr1 is x s t); idtac
+              rewrite (pr1 isc x t u); rewrite (pr1 isc x (f t u) s);
+              rewrite (absemigr_perm120 X f isc t u s);
+              rewrite <- (pr1 isc x (f s t) u);
+              rewrite <- (pr1 isc x s t); idtac
             | context[f (f (f ?x u) s) t] =>
-              rewrite (pr1 is x u s); rewrite (pr1 is x (f u s) t);
-              rewrite (absemigr_perm201 X f is u s t);
-              rewrite <- (pr1 is x (f s t) u);
-              rewrite <- (pr1 is x s t); idtac
+              rewrite (pr1 isc x u s); rewrite (pr1 isc x (f u s) t);
+              rewrite (absemigr_perm201 X f isc u s t);
+              rewrite <- (pr1 isc x (f s t) u);
+              rewrite <- (pr1 isc x s t); idtac
             | context[f (f (f ?x u) t) s] =>
-              rewrite (pr1 is x u t); rewrite (pr1 is x (f u t) s);
-              rewrite (absemigr_perm210 X f is u t s);
-              rewrite <- (pr1 is x (f s t) u);
-              rewrite <- (pr1 is x s t); idtac
+              rewrite (pr1 isc x u t); rewrite (pr1 isc x (f u t) s);
+              rewrite (absemigr_perm210 X f isc u t s);
+              rewrite <- (pr1 isc x (f s t) u);
+              rewrite <- (pr1 isc x s t); idtac
             | context[f (f (f ?x s) u) t] =>
-              rewrite (pr1 is x s u); rewrite (pr1 is x (f s u) t);
-              rewrite (absemigr_perm021 X f is s u t);
-              rewrite <- (pr1 is x (f s t) u);
-              rewrite <- (pr1 is x s t); idtac
+              rewrite (pr1 isc x s u); rewrite (pr1 isc x (f s u) t);
+              rewrite (absemigr_perm021 X f isc s u t);
+              rewrite <- (pr1 isc x (f s t) u);
+              rewrite <- (pr1 isc x s t); idtac
           end
       end.
 
@@ -315,12 +315,12 @@ Section Tests.
 
   Hypothesis x y z u v w : M.
 
-  Lemma test_abmonoid_zap_1 (is : w = v): x + (y + w) = x + (v + y).
+  Lemma test_abmonoid_zap_1 (isc : w = v): x + (y + w) = x + (v + y).
   Proof.
     intros. abmonoid_zap M.
   Qed.
 
-  Lemma test_abmonoid_zap_2 (is : w = v):  x + (y + w) = v + (x + y).
+  Lemma test_abmonoid_zap_2 (isc : w = v):  x + (y + w) = v + (x + y).
   Proof.
     intros. abmonoid_zap M.
   Qed.

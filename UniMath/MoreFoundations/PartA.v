@@ -580,7 +580,7 @@ Defined.
 Definition pair_path_props {X} {P:X->Type} {x y:X} {p:P x} {q:P y} :
   x = y -> (∏ z, isaprop (P z)) -> x,,p = y,,q.
 Proof.
-  intros e is. now apply subtypePairEquality.
+  intros e isc. now apply subtypePairEquality.
 Abort.
 
 Local Open Scope transport.
@@ -881,7 +881,7 @@ Defined.
 
 Goal ∏ (X:Type) (x y:X) (p q:x = y), isaset X -> p = q.
 Proof.
-  intros * is. apply is.
+  intros * isc. apply isc.
 Defined.
 
 Definition funset X (Y:hSet) : hSet

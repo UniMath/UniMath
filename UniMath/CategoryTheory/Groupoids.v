@@ -45,8 +45,8 @@ Defined.
 Definition pregroupoid : UU := ∑ C : category, is_pregroupoid C.
 
 (** Constructors, accessors, and coersions *)
-Definition make_pregroupoid (C : category) (is : is_pregroupoid C) : pregroupoid :=
-  (C,, is).
+Definition make_pregroupoid (C : category) (isc : is_pregroupoid C) : pregroupoid :=
+  (C,, isc).
 Definition pregroupoid_to_precategory : pregroupoid -> category := pr1.
 Definition pregroupoid_is_pregroupoid :
   ∏ gpd : pregroupoid, is_pregroupoid (pr1 gpd) := pr2.
@@ -56,7 +56,7 @@ Coercion pregroupoid_to_precategory : pregroupoid >-> category.
 Definition groupoid : UU := ∑ C : category, is_pregroupoid C.
 
 (** Constructors, accessors, and coersions *)
-Definition make_groupoid (C : category) (is : is_pregroupoid C) : groupoid := (C,, is).
+Definition make_groupoid (C : category) (isc : is_pregroupoid C) : groupoid := (C,, isc).
 Definition groupoid_to_category : groupoid -> category := pr1.
 Definition groupoid_is_pregroupoid :
   ∏ gpd : groupoid, is_pregroupoid (pr1 gpd) := pr2.
@@ -68,8 +68,8 @@ Coercion groupoid_to_pregroupoid : groupoid >-> pregroupoid.
 Definition univalent_groupoid : UU := ∑ C : univalent_category, is_pregroupoid C.
 
 (** Constructors, accessors, and coersions *)
-Definition make_univalent_groupoid (C : univalent_category) (is : is_pregroupoid C) :
-  univalent_groupoid := (C,, is).
+Definition make_univalent_groupoid (C : univalent_category) (isc : is_pregroupoid C) :
+  univalent_groupoid := (C,, isc).
 Definition univalent_groupoid_to_univalent_category :
   univalent_groupoid -> univalent_category := pr1.
 Coercion univalent_groupoid_to_univalent_category :

@@ -186,27 +186,27 @@ Defined.
 
 (* .... or use transport explicitly: *)
 
-Definition iscontr_adjointness X (is:iscontr X) (x:X) : pr1 (isapropifcontr is x x) = idpath x.
+Definition iscontr_adjointness X (isc:iscontr X) (x:X) : pr1 (isapropifcontr isc x x) = idpath x.
 (* we call this adjointness, because if [unit] had η-reduction, then adjointness of
    the weq [unit ≃ X] would give it to us, in the case where x is [pr1 is] *)
 Proof. intros. now apply isasetifcontr. Defined.
 
-Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∏ x:X, P x.
-Proof. intros. exact (transportf P (pr1 (isapropifcontr is x0 x)) p0). Defined.
+Definition iscontr_rect X (isc : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∏ x:X, P x.
+Proof. intros. exact (transportf P (pr1 (isapropifcontr isc x0 x)) p0). Defined.
 
-Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X ->UU) (p : P x) :
-  iscontr_rect X is x P p x = p.
+Definition iscontr_rect_compute X (isc : iscontr X) (x : X) (P : X ->UU) (p : P x) :
+  iscontr_rect X isc x P p x = p.
 Proof. intros. unfold iscontr_rect. now rewrite iscontr_adjointness. Defined.
 
 Corollary weqsecovercontr':     (* reprove weqsecovercontr, move upstream *)
-  ∏ (X:UU) (P:X->UU) (is:iscontr X), (∏ x:X, P x) ≃ P (pr1 is).
+  ∏ (X:UU) (P:X->UU) (isc:iscontr X), (∏ x:X, P x) ≃ P (pr1 isc).
 Proof.
   intros.
-  set (x0 := pr1 is).
+  set (x0 := pr1 isc).
   set (secs := ∏ x : X, P x).
   set (fib  := P x0).
   set (destr := (λ f, f x0) : secs->fib).
-  set (constr:= iscontr_rect X is x0 P : fib->secs).
+  set (constr:= iscontr_rect X isc x0 P : fib->secs).
   exists destr.
   apply (isweq_iso destr constr).
   - intros f. apply funextsec; intros x.

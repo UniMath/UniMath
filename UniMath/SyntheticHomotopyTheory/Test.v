@@ -41,10 +41,10 @@ Section A.
   Goal ∏ {X : UU} (P Q : X -> Type) (f : ∏ x, P x ≃ Q x) (x:X) (q:Q x), invmap (weqfibtototal _ _ f) (x,,q) = (x,,invmap (f x) q).
     reflexivity. Qed.
 
-  Goal ∏ {X Y : Type} (w : X ≃ Y) (is : iscontr Y), iscontrpr1 (iscontrweqb w is) = invmap w (iscontrpr1 is).
+  Goal ∏ {X Y : Type} (w : X ≃ Y) (isc : iscontr Y), iscontrpr1 (iscontrweqb w isc) = invmap w (iscontrpr1 isc).
     reflexivity. Qed.
 
-  Goal ∏ {X Y : Type} (w : X ≃ Y) (is : iscontr X), iscontrpr1 (iscontrweqf w is) = w (iscontrpr1 is).
+  Goal ∏ {X Y : Type} (w : X ≃ Y) (isc : iscontr X), iscontrpr1 (iscontrweqf w isc) = w (iscontrpr1 isc).
     reflexivity. Qed.
 
   Goal ∏ (X:Type) (i : isConnected X) (P:X->hProp) (x0:X) (p:P x0), @predicateOnConnectedType X i P x0 p x0 = p.

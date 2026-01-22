@@ -45,12 +45,12 @@ Section Tests.
 
   Hypothesis x y z u v w : G.
 
-  Lemma test_gr_prezap_1 (is : w = v): x * (y * w) = x * (y * v).
+  Lemma test_gr_prezap_1 (isc : w = v): x * (y * w) = x * (y * v).
   Proof.
     intros. gr_prezap G.
   Qed.
 
-  Lemma test_gr_prezap_2 (is : w = v):  x * (y * w) = (x * y) * v.
+  Lemma test_gr_prezap_2 (isc : w = v):  x * (y * w) = (x * y) * v.
   Proof.
     intros. gr_prezap G.
   Qed.

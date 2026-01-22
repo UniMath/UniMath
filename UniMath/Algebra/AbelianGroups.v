@@ -31,10 +31,10 @@ Local Open Scope addmonoid.
 
 Definition abgr : UU := abelian_group_category.
 
-Definition make_abgr (X : setwithbinop) (is : isabgrop (@op X)) : abgr :=
-  X ,, is.
+Definition make_abgr (X : setwithbinop) (isc : isabgrop (@op X)) : abgr :=
+  X ,, isc.
 
-Definition abgrconstr (X : abmonoid) (inv0 : X → X) (is : isinv (@op X) 0 inv0) : abgr.
+Definition abgrconstr (X : abmonoid) (inv0 : X → X) (isc : isinv (@op X) 0 inv0) : abgr.
 Proof.
   use make_abgr.
   - exact X.
@@ -42,7 +42,7 @@ Proof.
     + use make_isgrop.
       * apply (make_ismonoidop (assocax X)).
         exact (make_isunital (unel X) (unax X)).
-      * exact (make_invstruct inv0 is).
+      * exact (make_invstruct inv0 isc).
     + exact (commax X).
 Defined.
 
@@ -512,12 +512,12 @@ Defined.
 Definition isincltoabgrdiff (X : abmonoid) (iscanc : ∏ x : X, isrcancelable (@op X) x) :
   isincl (toabgrdiff X) := isinclprabgrdiff X iscanc 0.
 
-Lemma isdeceqabgrdiff (X : abmonoid) (iscanc : ∏ x : X, isrcancelable (@op X) x) (is : isdeceq X) :
+Lemma isdeceqabgrdiff (X : abmonoid) (iscanc : ∏ x : X, isrcancelable (@op X) x) (isc : isdeceq X) :
   isdeceq (abgrdiff X).
 Proof.
   intros.
   apply (isdeceqweqf (invweq (weqabgrdiff X))).
-  apply (isdeceqabmonoidfrac X (totalsubmonoid X) (λ a : totalsubmonoid X, iscanc (pr1 a)) is).
+  apply (isdeceqabmonoidfrac X (totalsubmonoid X) (λ a : totalsubmonoid X, iscanc (pr1 a)) isc).
 Defined.
 
 
@@ -538,28 +538,28 @@ Proof.
   intro t2. set (x0 := pr1 t2). exists (x0 ,, tt). apply (pr2 t2).
 Defined.
 
-Lemma iscomprelabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
+Lemma iscomprelabgrdiffrelint (X : abmonoid) {L : hrel X} (isc : isbinophrel L) :
   iscomprelrel (eqrelabgrdiff X) (abgrdiffrelint X L).
 Proof.
   apply (iscomprelrellogeqf1 _ (logeqhrelsabgrdiff X)).
   apply (iscomprelrellogeqf2 _ (logeqabgrdiffrelints X L)).
   intros x x' x0 x0' r r0.
   apply (iscomprelabmonoidfracrelint
-           _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is)  _ _ _ _ r r0).
+           _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)  _ _ _ _ r r0).
 Qed.
 
-Definition abgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) :=
-  quotrel (iscomprelabgrdiffrelint X is).
+Definition abgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) :=
+  quotrel (iscomprelabgrdiffrelint X isc).
 
-Definition abgrdiffrel' (X : abmonoid) {L : hrel X} (is : isbinophrel L) : hrel (abgrdiff X) :=
-  λ x x', abmonoidfracrel X (totalsubmonoid X) (isbinoptoispartbinop _ _ is)
+Definition abgrdiffrel' (X : abmonoid) {L : hrel X} (isc : isbinophrel L) : hrel (abgrdiff X) :=
+  λ x x', abmonoidfracrel X (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
                            (weqabgrdiff X x) (weqabgrdiff X x').
 
-Definition logeqabgrdiffrels (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
-  hrellogeq (abgrdiffrel' X is) (abgrdiffrel X is).
+Definition logeqabgrdiffrels (X : abmonoid) {L : hrel X} (isc : isbinophrel L) :
+  hrellogeq (abgrdiffrel' X isc) (abgrdiffrel X isc).
 Proof.
   intros x1 x2. split.
-  - assert (int : ∏ x x', isaprop (abgrdiffrel' X is x x' → abgrdiffrel X is x x')).
+  - assert (int : ∏ x x', isaprop (abgrdiffrel' X isc x x' → abgrdiffrel X isc x x')).
     {
       intros x x'.
       apply impred. intro.
@@ -570,7 +570,7 @@ Proof.
     intros x x'.
     change ((abgrdiffrelint' X L x x') → (abgrdiffrelint _ L x x')).
     apply (pr1 (logeqabgrdiffrelints X L x x')).
-  - assert (int : ∏ x x', isaprop (abgrdiffrel X is x x' → abgrdiffrel' X is x x')).
+  - assert (int : ∏ x x', isaprop (abgrdiffrel X isc x x' → abgrdiffrel' X isc x x')).
     intros x x'.
     apply impred. intro.
     apply (pr2 _).
@@ -581,146 +581,146 @@ Proof.
     apply (pr2 (logeqabgrdiffrelints X L x x')).
 Defined.
 
-Lemma istransabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : istrans L) :
+Lemma istransabgrdiffrelint (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : istrans L) :
   istrans (abgrdiffrelint X L).
 Proof.
   apply (istranslogeqf (logeqabgrdiffrelints X L)).
   intros a b c rab rbc.
   apply (istransabmonoidfracrelint
-           _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is)  isl _ _ _ rab rbc).
+           _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)  isl _ _ _ rab rbc).
 Qed.
 
-Lemma istransabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : istrans L) :
-  istrans (abgrdiffrel X is).
+Lemma istransabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : istrans L) :
+  istrans (abgrdiffrel X isc).
 Proof.
   refine (istransquotrel _ _). apply istransabgrdiffrelint.
-  - apply is.
+  - apply isc.
   - apply isl.
 Defined.
 
-Lemma issymmabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : issymm L) :
+Lemma issymmabgrdiffrelint (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : issymm L) :
   issymm (abgrdiffrelint X L).
 Proof.
   apply (issymmlogeqf (logeqabgrdiffrelints X L)).
   intros a b rab.
-  apply (issymmabmonoidfracrelint _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is) isl _ _ rab).
+  apply (issymmabmonoidfracrelint _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc) isl _ _ rab).
 Qed.
 
-Lemma issymmabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : issymm L) :
-  issymm (abgrdiffrel X is).
+Lemma issymmabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : issymm L) :
+  issymm (abgrdiffrel X isc).
 Proof.
   refine (issymmquotrel _ _). apply issymmabgrdiffrelint.
-  - apply is.
+  - apply isc.
   - apply isl.
 Defined.
 
-Lemma isreflabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : isrefl L) :
+Lemma isreflabgrdiffrelint (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : isrefl L) :
   isrefl (abgrdiffrelint X L).
 Proof.
   intro xa. unfold abgrdiffrelint. simpl.
   apply hinhpr. exists (unel X). apply (isl _).
 Defined.
 
-Lemma isreflabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : isrefl L) :
-  isrefl (abgrdiffrel X is).
+Lemma isreflabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : isrefl L) :
+  isrefl (abgrdiffrel X isc).
 Proof.
   refine (isreflquotrel _ _). apply isreflabgrdiffrelint.
-  - apply is.
+  - apply isc.
   - apply isl.
 Defined.
 
-Lemma ispoabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : ispreorder L) :
+Lemma ispoabgrdiffrelint (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : ispreorder L) :
   ispreorder (abgrdiffrelint X L).
 Proof.
-  exists (istransabgrdiffrelint X is (pr1 isl)).
-  apply (isreflabgrdiffrelint X is (pr2 isl)).
+  exists (istransabgrdiffrelint X isc (pr1 isl)).
+  apply (isreflabgrdiffrelint X isc (pr2 isl)).
 Defined.
 
-Lemma ispoabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : ispreorder L) :
-  ispreorder (abgrdiffrel X is).
+Lemma ispoabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : ispreorder L) :
+  ispreorder (abgrdiffrel X isc).
 Proof.
   refine (ispoquotrel _ _). apply ispoabgrdiffrelint.
-  - apply is.
+  - apply isc.
   - apply isl.
 Defined.
 
-Lemma iseqrelabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : iseqrel L) :
+Lemma iseqrelabgrdiffrelint (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : iseqrel L) :
   iseqrel (abgrdiffrelint X L).
 Proof.
-  exists (ispoabgrdiffrelint X is (pr1 isl)).
-  apply (issymmabgrdiffrelint X is (pr2 isl)).
+  exists (ispoabgrdiffrelint X isc (pr1 isl)).
+  apply (issymmabgrdiffrelint X isc (pr2 isl)).
 Defined.
 
-Lemma iseqrelabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : iseqrel L) :
-  iseqrel (abgrdiffrel X is).
+Lemma iseqrelabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : iseqrel L) :
+  iseqrel (abgrdiffrel X isc).
 Proof.
   refine (iseqrelquotrel _ _). apply iseqrelabgrdiffrelint.
-  - apply is.
+  - apply isc.
   - apply isl.
 Defined.
 
-Lemma isantisymmnegabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L)
-      (isl : isantisymmneg L) : isantisymmneg (abgrdiffrel X is).
+Lemma isantisymmnegabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L)
+      (isl : isantisymmneg L) : isantisymmneg (abgrdiffrel X isc).
 Proof.
-  apply (isantisymmneglogeqf (logeqabgrdiffrels X is)).
+  apply (isantisymmneglogeqf (logeqabgrdiffrels X isc)).
   intros a b rab rba.
-  set (int := isantisymmnegabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is)
+  set (int := isantisymmnegabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
                                            isl (weqabgrdiff X a) (weqabgrdiff X b) rab rba).
   apply (invmaponpathsweq _ _ _ int).
 Defined.
 
-Lemma isantisymmabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : isantisymm L) :
-  isantisymm (abgrdiffrel X is).
+Lemma isantisymmabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : isantisymm L) :
+  isantisymm (abgrdiffrel X isc).
 Proof.
-  apply (isantisymmlogeqf (logeqabgrdiffrels X is)).
+  apply (isantisymmlogeqf (logeqabgrdiffrels X isc)).
   intros a b rab rba.
-  set (int := isantisymmabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is)
+  set (int := isantisymmabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
                                         isl (weqabgrdiff X a) (weqabgrdiff X b) rab rba).
   apply (invmaponpathsweq _ _ _ int).
 Qed.
 
-Lemma isirreflabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : isirrefl L) :
-  isirrefl (abgrdiffrel X is).
+Lemma isirreflabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : isirrefl L) :
+  isirrefl (abgrdiffrel X isc).
 Proof.
-  apply (isirrefllogeqf (logeqabgrdiffrels X is)).
+  apply (isirrefllogeqf (logeqabgrdiffrels X isc)).
   intros a raa.
-  apply (isirreflabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is)
+  apply (isirreflabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
                                  isl (weqabgrdiff X a) raa).
 Qed.
 
-Lemma isasymmabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : isasymm L) :
-  isasymm (abgrdiffrel X is).
+Lemma isasymmabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : isasymm L) :
+  isasymm (abgrdiffrel X isc).
 Proof.
-  apply (isasymmlogeqf (logeqabgrdiffrels X is)).
+  apply (isasymmlogeqf (logeqabgrdiffrels X isc)).
   intros a b rab rba.
-  apply (isasymmabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is)
+  apply (isasymmabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
                                 isl (weqabgrdiff X a) (weqabgrdiff X b) rab rba).
 Qed.
 
-Lemma iscoasymmabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : iscoasymm L) :
-  iscoasymm (abgrdiffrel X is).
+Lemma iscoasymmabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : iscoasymm L) :
+  iscoasymm (abgrdiffrel X isc).
 Proof.
-  apply (iscoasymmlogeqf (logeqabgrdiffrels X is)).
+  apply (iscoasymmlogeqf (logeqabgrdiffrels X isc)).
   intros a b rab.
-  apply (iscoasymmabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is)
+  apply (iscoasymmabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
                                   isl (weqabgrdiff X a) (weqabgrdiff X b) rab).
 Qed.
 
-Lemma istotalabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : istotal L) :
-  istotal (abgrdiffrel X is).
+Lemma istotalabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : istotal L) :
+  istotal (abgrdiffrel X isc).
 Proof.
-  apply (istotallogeqf (logeqabgrdiffrels X is)).
+  apply (istotallogeqf (logeqabgrdiffrels X isc)).
   intros a b.
-  apply (istotalabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is)
+  apply (istotalabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
                                 isl (weqabgrdiff X a) (weqabgrdiff X b)).
 Qed.
 
-Lemma iscotransabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : iscotrans L) :
-  iscotrans (abgrdiffrel X is).
+Lemma iscotransabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) (isl : iscotrans L) :
+  iscotrans (abgrdiffrel X isc).
 Proof.
-  apply (iscotranslogeqf (logeqabgrdiffrels X is)).
+  apply (iscotranslogeqf (logeqabgrdiffrels X isc)).
   intros a b c.
-  apply (iscotransabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is)
+  apply (iscotransabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
                                   isl (weqabgrdiff X a) (weqabgrdiff X b) (weqabgrdiff X c)).
 Qed.
 
@@ -739,8 +739,8 @@ Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X)
            (Hgt : isbinophrel gt) : StrongOrder (abgrdiff X) :=
   abgrdiffrel X Hgt,, isStrongOrder_abgrdiff gt Hgt (pr2 gt).
 
-Lemma abgrdiffrelimpl (X : abmonoid) {L L' : hrel X} (is : isbinophrel L) (is' : isbinophrel L')
-      (impl : ∏ x x', L x x' → L' x x') (x x' : abgrdiff X) (ql : abgrdiffrel X is x x') :
+Lemma abgrdiffrelimpl (X : abmonoid) {L L' : hrel X} (isc : isbinophrel L) (is' : isbinophrel L')
+      (impl : ∏ x x', L x x' → L' x x') (x x' : abgrdiff X) (ql : abgrdiffrel X isc x x') :
   abgrdiffrel X is' x x'.
 Proof.
   generalize ql. refine (quotrelimpl _ _ _ _ _).
@@ -748,9 +748,9 @@ Proof.
   apply (impl _ _ (pr2 t2)).
 Qed.
 
-Lemma abgrdiffrellogeq (X : abmonoid) {L L' : hrel X} (is : isbinophrel L) (is' : isbinophrel L')
+Lemma abgrdiffrellogeq (X : abmonoid) {L L' : hrel X} (isc : isbinophrel L) (is' : isbinophrel L')
       (lg : ∏ x x', L x x' <-> L' x x') (x x' : abgrdiff X) :
-  (abgrdiffrel X is x x') <-> (abgrdiffrel X is' x x').
+  (abgrdiffrel X isc x x') <-> (abgrdiffrel X is' x x').
 Proof.
   refine (quotrellogeq _ _ _ _ _). intros x0 x0'. split.
   - simpl. apply hinhfun. intro t2. exists (pr1 t2).
@@ -759,28 +759,28 @@ Proof.
     apply (pr2 (lg _ _) (pr2 t2)).
 Qed.
 
-Lemma isbinopabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
+Lemma isbinopabgrdiffrelint (X : abmonoid) {L : hrel X} (isc : isbinophrel L) :
   @isbinophrel (setwithbinopdirprod X X) (abgrdiffrelint X L).
 Proof.
   apply (isbinophrellogeqf (logeqabgrdiffrelints X L)). split.
   - intros a b c lab.
-    apply (pr1 (ispartbinopabmonoidfracrelint _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is))
+    apply (pr1 (ispartbinopabmonoidfracrelint _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc))
                (abgrdiffphi X a) (abgrdiffphi X b) (abgrdiffphi X c) tt lab).
   - intros a b c lab.
-    apply (pr2 (ispartbinopabmonoidfracrelint _ (totalsubmonoid X) (isbinoptoispartbinop _ _ is))
+    apply (pr2 (ispartbinopabmonoidfracrelint _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc))
                (abgrdiffphi X a) (abgrdiffphi X b) (abgrdiffphi X c) tt lab).
 Qed.
 
-Lemma isbinopabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
-  @isbinophrel (abgrdiff X) (abgrdiffrel X is).
+Lemma isbinopabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L) :
+  @isbinophrel (abgrdiff X) (abgrdiffrel X isc).
 Proof.
   intros.
-  apply (isbinopquotrel (binopeqrelabgrdiff X) (iscomprelabgrdiffrelint X is)).
-  apply (isbinopabgrdiffrelint X is).
+  apply (isbinopquotrel (binopeqrelabgrdiff X) (iscomprelabgrdiffrelint X isc)).
+  apply (isbinopabgrdiffrelint X isc).
 Defined.
 
 Definition isdecabgrdiffrelint (X : abmonoid) {L : hrel X}
-           (is : isinvbinophrel L) (isl : isdecrel L) : isdecrel (abgrdiffrelint X L).
+           (isc : isinvbinophrel L) (isl : isdecrel L) : isdecrel (abgrdiffrelint X L).
 Proof.
   intros xa1 xa2.
   set (x1 := pr1 xa1). set (a1 := pr2 xa1).
@@ -791,11 +791,11 @@ Proof.
     rewrite (runax X _). rewrite (runax X _). apply l.
   - apply ii2. generalize nl. clear nl. apply negf. unfold abgrdiffrelint.
     simpl. apply (@hinhuniv _ (make_hProp _ (pr2 (L _ _)))).
-    intro t2l. induction t2l as [ c0a l ]. simpl. apply ((pr2 is) _ _ c0a l).
+    intro t2l. induction t2l as [ c0a l ]. simpl. apply ((pr2 isc) _ _ c0a l).
 Defined.
 
-Definition isdecabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L)
-           (isi : isinvbinophrel L) (isl : isdecrel L) : isdecrel (abgrdiffrel X is).
+Definition isdecabgrdiffrel (X : abmonoid) {L : hrel X} (isc : isbinophrel L)
+           (isi : isinvbinophrel L) (isl : isdecrel L) : isdecrel (abgrdiffrel X isc).
 Proof.
   refine (isdecquotrel _ _). apply isdecabgrdiffrelint.
   - apply isi.
@@ -805,14 +805,14 @@ Defined.
 
 (** * 11. Relations and the canonical homomorphism to [abgrdiff] *)
 
-Lemma iscomptoabgrdiff (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
-  iscomprelrelfun L (abgrdiffrel X is) (toabgrdiff X).
+Lemma iscomptoabgrdiff (X : abmonoid) {L : hrel X} (isc : isbinophrel L) :
+  iscomprelrelfun L (abgrdiffrel X isc) (toabgrdiff X).
 Proof.
   unfold iscomprelrelfun.
   intros x x' l.
   change (abgrdiffrelint X L (x ,, 0) (x' ,, 0)).
   simpl. apply (hinhpr). exists (unel X).
-  apply ((pr2 is) _ _ 0). apply ((pr2 is) _ _ 0).
+  apply ((pr2 isc) _ _ 0). apply ((pr2 isc) _ _ 0).
   apply l.
 Qed.
 

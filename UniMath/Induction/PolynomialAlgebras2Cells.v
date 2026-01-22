@@ -412,10 +412,10 @@ Definition immisalghomotopy {X : UU} {s_X : P X → X} {Y : UU} {s_Y : P Y → Y
   : isalgmaphomotopy f sigma_f g sigma_g alpha
     → homotcomp (funhomot s_X alpha) (sigma_g) = (homotcomp (sigma_f) (homotfun (P_2_h alpha) s_Y)).
 Proof.
-  intro is.
+  intro isc.
   apply funextsec.
   intro c.
-  apply (is c).
+  apply (isc c).
 Defined.
 
 (* We show that if we have an algebra map homotopy we can construct an algebra 2-cell
@@ -430,8 +430,8 @@ Definition alghomotopytoalg2cell {X : UU} {s_X : P X → X} {Y : UU} {s_Y : P Y 
        isalg2cell (tpair (is_algebra_mor P (X ,, s_X) (tpair _ Y s_Y)) f (funextfun _ _ sigma_f))
                   (g ,, (funextfun _ _ sigma_g)) (funextfun f g alpha).
 Proof.
-  intro is.
-  set (s_alpha := immisalghomotopy f sigma_f g sigma_g alpha is).
+  intro isc.
+  set (s_alpha := immisalghomotopy f sigma_f g sigma_g alpha isc).
   set (XX := X ,, s_X : algebra_ob P).
   set (YY := Y ,, s_Y : algebra_ob P).
   set (sigma_f_sharp := (funextfun (s_X ;; f) (# P f ;; s_Y) sigma_f)).

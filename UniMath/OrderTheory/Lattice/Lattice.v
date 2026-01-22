@@ -68,7 +68,7 @@ Definition lattice (X : hSet) :=
   ∑ min max : binop X, islatticeop min max.
 
 Definition make_lattice {X : hSet} {min max : binop X} : islatticeop min max → lattice X :=
-  λ (is : islatticeop min max), min,, max ,, is.
+  λ (isc : islatticeop min max), min,, max ,, isc.
 
 Definition Lmin {X : hSet} (lat : lattice X) : binop X := pr1 lat.
 Definition Lmax {X : hSet} (lat : lattice X) : binop X := pr1 (pr2 lat).

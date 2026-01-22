@@ -1908,7 +1908,7 @@ Definition isacommringapartdec ( R : acommring ) :=
   isapartdec ( pr1 ( pr2 R ) ).
 
 Lemma leadingcoefficientapartdec ( R : aintdom ) ( a : fpscommring R )
-  ( is : isacommringapartdec R ) ( p : a 0%nat # 0 ) :
+  ( isc : isacommringapartdec R ) ( p : a 0%nat # 0 ) :
   forall n : nat, forall b : fpscommring R, ( b n # 0 ) ->
       acommringapartrel ( acommringfps R ) ( a * b ) 0.
 Proof.
@@ -1920,7 +1920,7 @@ Proof.
     change ( ( a * b ) 0%nat ) with ( ( a 0%nat ) * ( b 0%nat ) ).
     apply R; assumption.
   - intros b q.
-    destruct ( is ( b 0%nat ) 0 ) as [ left | right ].
+    destruct ( isc ( b 0%nat ) 0 ) as [ left | right ].
     + intros P s.
       apply s.
       split with 0%nat.
@@ -1941,7 +1941,7 @@ Proof.
       assumption.
 Defined.
 
-Lemma apartdecintdom0 ( R : aintdom ) ( is : isacommringapartdec R ) :
+Lemma apartdecintdom0 ( R : aintdom ) ( isc : isacommringapartdec R ) :
   forall n : nat, forall a b : fpscommring R, ( a n # 0 ) ->
       acommringapartrel ( acommringfps R ) b 0 ->
       acommringapartrel ( acommringfps R ) ( a * b ) 0.
@@ -1952,14 +1952,14 @@ Proof.
     use (hinhuniv _ q).
     intros k.
     destruct k as [ k k0 ].
-    apply ( leadingcoefficientapartdec R a is p k ).
+    apply ( leadingcoefficientapartdec R a isc p k ).
     assumption.
   - intros a b p q.
-    destruct ( is ( a 0%nat ) 0 ) as [ left | right ].
+    destruct ( isc ( a 0%nat ) 0 ) as [ left | right ].
     + use (hinhuniv _ q).
       intros k.
       destruct k as [ k k0 ].
-      apply ( leadingcoefficientapartdec R a is left k ).
+      apply ( leadingcoefficientapartdec R a isc left k ).
       assumption.
     + assert ( acommringapartrel ( acommringfps R ) ( ( fpsshift a ) * b ) 0 ) as i.
       { apply IHn.
@@ -1981,9 +1981,9 @@ Proof.
 Defined.
 
 Theorem apartdectoisaintdomfps ( R : aintdom )
-  ( is : isacommringapartdec R ) : aintdom.
+  ( isc : isacommringapartdec R ) : aintdom.
 Proof.
-  revert is.
+  revert isc.
   split with ( acommringfps R ).
   split.
   - intros P s.
@@ -1996,7 +1996,7 @@ Proof.
     use (hinhuniv _ p).
     intro n.
     destruct n as [ n n0 ].
-    apply ( apartdecintdom0 R is n); assumption.
+    apply ( apartdecintdom0 R isc n); assumption.
 Defined.
 
 Close Scope ring_scope.
