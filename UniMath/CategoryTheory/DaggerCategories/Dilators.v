@@ -24,25 +24,24 @@ Require Import UniMath.CategoryTheory.DaggerCategories.Isometry.
 
 Local Open Scope cat.
 
-(** * 1. Definition of dilatins and dilators *)
-Section Dilators.
+(** * 1. Definition of dilations *)
+Section Dilations.
   Context (C : dagger_category).
-  Local Notation "f †" := (C _ _ f).
 
   Definition dilation {x y : C} (f : x --> y) :=
     ∑ r : C, 
       ∑ (u : coisometry C r x) (v : coisometry C r y),
-      u † · v = f.
+      {u}_C^† · v = f.
 
   Definition make_dilation_from_coisometries {x y r : C}
-    (f : x --> y) (u : coisometry C r x) (v : coisometry C r y) (eq : u † · v = f) : dilation f.
+    (f : x --> y) (u : coisometry C r x) (v : coisometry C r y) (eq : {u}_C^† · v = f) : dilation f.
   Proof.
     exact (r ,, u ,, v ,, eq).
   Defined.
 
   Definition make_dilation {x y r : C}
     (f : x --> y) (u : r --> x) (v : r --> y)
-    (iso_u : is_coisometry C u) (iso_v : is_coisometry C v) (eq : u † · v = f) : dilation f.
+    (iso_u : is_coisometry C u) (iso_v : is_coisometry C v) (eq : {u}_C^† · v = f) : dilation f.
   Proof.
     simple refine (r ,, _ ,, _ ,, _).
     - use make_coisometry.
@@ -54,38 +53,50 @@ Section Dilators.
     - abstract (exact eq).
   Defined.
 
-  Definition apex {x y : C} {f : x --> y} (d : dilation f) : C := pr1 d. 
-  Definition left {x y : C} {f : x --> y} (d : dilation f) : coisometry C (apex d) x := pr12 d.
-  Definition right {x y : C} {f : x --> y} (d : dilation f) : coisometry C (apex d) y := pr122 d.
+  Coercion apex {x y : C} {f : x --> y} (d : dilation f) : C := pr1 d. 
+  Definition left_leg {x y : C} {f : x --> y} (d : dilation f) : coisometry C (apex d) x := pr12 d.
+  Definition right_leg {x y : C} {f : x --> y} (d : dilation f) : coisometry C (apex d) y := pr122 d.
 
   Proposition dilation_eq {x y : C} {f : x --> y} (d : dilation f) :
-    {left d}_C^† · right d = f.
+    {left_leg d}_C^† · right_leg d = f.
   Proof.
     exact (pr222 d).
   Qed.
 
+End Dilations.
+
+Arguments apex {C} {x y} {f}.
+Arguments left_leg {C} {x y} {f}.
+Arguments right_leg {C} {x y} {f}.
+
+Section DilationMaps.
+  Context (C : dagger_category).
+
   (* Map of dilations *)
 
-  Definition dilation_map {x y : C} {f : x --> y} (d : dilation f) (e : dilation f) : UU
+  Definition dilation_map {x y : C} {f : x --> y} (d : dilation C f) (e : dilation C f) : UU
     := ∑ h : coisometry C (apex d) (apex e), 
-        (h · left e = left d) × (h · right e = right d).
+        (h · left_leg e = left_leg d) × (h · right_leg e = right_leg d).
+
+  Coercion dilation_map_to_coisom {x y : C} {f : x --> y} {d e : dilation C f} (h : dilation_map d e)
+    : coisometry C d e := pr1 h.
 
   Definition make_dilation_map_from_coisometries
-    {x y : C} {f : x --> y} {d : dilation f} {e : dilation f}
-    (h : coisometry C (apex d) (apex e))
-    (eq_left : h · left e = left d)
-    (eq_right : h · right e = right d)
+    {x y : C} {f : x --> y} {d : dilation C f} {e : dilation C f}
+    (h : coisometry C d e)
+    (eq_left : h · left_leg e = left_leg d)
+    (eq_right : h · right_leg e = right_leg d)
     : dilation_map d e.
   Proof.
     exact (h ,, eq_left ,, eq_right).
   Defined.
 
   Definition make_dilation_map 
-      {x y : C} {f : x --> y} {d : dilation f} {e : dilation f}
-      (h : apex d --> apex e)
+      {x y : C} {f : x --> y} {d : dilation C f} {e : dilation C f}
+      (h : d --> e)
       (coiso_h : is_coisometry C h)
-      (eq_left : h · left e = left d)
-      (eq_right : h · right e = right d)
+      (eq_left : h · left_leg e = left_leg d)
+      (eq_right : h · right_leg e = right_leg d)
       : dilation_map d e.
   Proof.
     use make_dilation_map_from_coisometries.
@@ -96,7 +107,7 @@ Section Dilators.
     - exact eq_right.
   Defined.     
 
-  Proposition dilation_map_ext {x y : C} {f : x --> y} {d e : dilation f} (h1 h2 : dilation_map d e)
+  Proposition dilation_map_ext {x y : C} {f : x --> y} {d e : dilation C f} (h1 h2 : dilation_map d e)
     : pr1 h1 = pr1 h2 -> h1 = h2.
   Proof.
     intros p.
@@ -105,10 +116,15 @@ Section Dilators.
     exact p.
   Qed.
 
-  Definition is_dilator {x y : C} {f : x --> y} (e : dilation f) : UU
-    := ∏ d : dilation f, iscontr (dilation_map d e).
+End DilationMaps.
 
-  Lemma isaprop_is_dilator {x y : C} {f : x --> y} {d : dilation f} 
+Section Dilators.
+  Context (C : dagger_category).
+
+  Definition is_dilator {x y : C} {f : x --> y} (e : dilation C f) : UU
+    := ∏ d : dilation C f, iscontr (dilation_map C d e).
+
+  Lemma isaprop_is_dilator {x y : C} {f : x --> y} {d : dilation C f} 
     : isaprop (is_dilator d).
   Proof.
     apply impred.
@@ -117,7 +133,7 @@ Section Dilators.
   Qed.
 
   Definition dilator {x y : C} (f : x --> y) : UU
-    := ∑ d : dilation f, is_dilator d.
+    := ∑ d : dilation C f, is_dilator d.
 
   Definition with_dilators : UU :=
     ∏ (x y : C) (f : x --> y), dilator f.
@@ -127,7 +143,7 @@ Section Dilators.
 
   (* Example: dilations of the identity *)
 
-  Definition dilation_id_id (x : C) : dilation (identity x).
+  Definition dilation_id_id (x : C) : dilation C (identity x).
   Proof.
     refine (x ,, coisometry_id C x ,, coisometry_id C x ,, _).
     cbn.
@@ -180,7 +196,3 @@ Section Dilators.
   Qed.  
        
 End Dilators.
-
-Arguments apex {C} {x y} {f}.
-Arguments left {C} {x y} {f}.
-Arguments right {C} {x y} {f}.

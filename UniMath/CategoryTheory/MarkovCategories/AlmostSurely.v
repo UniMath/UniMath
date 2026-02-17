@@ -295,6 +295,23 @@ Section AlmostSurelyDeterministic.
     exact df.
   Qed.    
 
+  Proposition is_deterministic_ase_tensor 
+    {a1 x1 y1 a2 x2 y2 : C} {p1 : a1 --> x1} {f1 : x1 --> y1}
+    {p2 : a2 --> x2} {f2 : x2 --> y2} 
+    : is_deterministic_ase p1 f1 -> is_deterministic_ase p2 f2 
+      -> is_deterministic_ase (p1 #⊗ p2) (f1 #⊗ f2).
+  Proof.
+    intros d1 d2.
+    unfold is_deterministic_ase.
+  Admitted.
+
+  Proposition is_deterministic_ase_pairing
+    {a x y z : C} {p : a --> x} {f : x --> y} {g : x --> z} 
+    : is_deterministic_ase p f -> is_deterministic_ase p g 
+      -> is_deterministic_ase p ⟨f,g⟩.
+  Proof.
+  Admitted. 
+
 End AlmostSurelyDeterministic.
 
 #[global] Opaque equal_almost_surely.
