@@ -78,7 +78,8 @@ Section DilationMaps.
     := ∑ h : coisometry C (apex d) (apex e), 
         (h · left_leg e = left_leg d) × (h · right_leg e = right_leg d).
 
-  Coercion dilation_map_to_coisom {x y : C} {f : x --> y} {d e : dilation C f} (h : dilation_map d e)
+  Coercion dilation_map_to_coisom 
+      {x y : C} {f : x --> y} {d e : dilation C f} (h : dilation_map d e)
     : coisometry C d e := pr1 h.
 
   Definition make_dilation_map_from_coisometries
@@ -105,7 +106,23 @@ Section DilationMaps.
       * exact coiso_h.
     - exact eq_left.
     - exact eq_right.
-  Defined.     
+  Defined.
+
+  (* Accessors *)
+
+  Proposition dilation_map_eq_left 
+      {x y : C} {f : x --> y} {d : dilation C f} {e : dilation C f} (h : dilation_map d e)
+    : h · left_leg e = left_leg d.
+  Proof.
+    exact (pr12 h).
+  Qed.
+
+  Proposition dilation_map_eq_right 
+      {x y : C} {f : x --> y} {d : dilation C f} {e : dilation C f} (h : dilation_map d e)
+    : h · right_leg e = right_leg d.
+  Proof.
+    exact (pr22 h).
+  Qed. 
 
   Proposition dilation_map_ext {x y : C} {f : x --> y} {d e : dilation C f} (h1 h2 : dilation_map d e)
     : pr1 h1 = pr1 h2 -> h1 = h2.

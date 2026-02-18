@@ -520,6 +520,64 @@ Section CouplingDilators.
     - apply relprod_dilation_eq. 
   Defined.
 
+  (* Proposition projections_jointly_monic
+    {p q d : krn} (γ : p --> q)
+    (σ τ : coisometry krn d (relprod γ)) 
+    (l : σ · pi1 γ = τ · pi1 γ)
+    (r : σ · pi2 γ = τ · pi2 γ)
+    : σ = τ. *)
+  
+  Section Monicity.
+    Context {p q d : state C} (γ : coupling p q)
+    (σ τ : coisometry krn d (relprod γ)) 
+    (l : σ · pi1 γ = τ · pi1 γ)
+    (r : σ · pi2 γ = τ · pi2 γ).
+
+    Let s := coupling_cond σ.
+    Let t := coupling_cond τ.
+
+    Proposition eqo : bloom_coupling d (s · proj1) = coupling_to_state (σ · pi1 γ). 
+  Proof. Admitted.
+
+    Proposition eqe : s · proj1 =_{d} coupling_cond (σ · pi1 γ).
+  Proof. Admitted.
+
+    Proposition det_marginal : is_deterministic_ase (state_dist d) (s · proj1).
+    Proof.
+      use det_ase_from_coiso.
+      - exact (σ · pi1 γ).
+      - rewrite (krn_is_bloom σ).
+        unfold pi1.
+        cbn.
+        etrans. {
+          apply maponpaths.
+          apply maponpaths_2.
+          assert(foo : pr1 γ = (state_dist d) · s). { 
+            pose(c := coupling_cod (coisometry_to_mor σ)).
+            rewrite (krn_is_bloom σ) in c.
+            cbn in c.
+            etrans. { symmetry. exact c. }
+            rewrite bloom_coupling_cod.
+            reflexivity.
+          }
+          exact foo.
+        }
+        rewrite bloom_coupling_composition.
+        reflexivity.
+      - apply is_coisometry_comp.
+        * apply coisometry_property.
+        * apply coisometry_property.  
+    Qed.
+    
+    Proposition foo : s =_{state_dist d} ⟨s · proj1, s · proj2⟩.
+    Proof.
+      apply deterministic_marginal_independence_ase_1.
+      - apply conditionals_imply_relative_positivity.
+      - exact det_marginal.
+    Qed. 
+
+  End Monicity.
+
   Section Terminal.
     Context {p q : krn}
             (γ : p --> q)
@@ -652,7 +710,140 @@ Section CouplingDilators.
       - exact h_coisometry.
       - apply h_left.
       - apply h_right.
-    Defined.
+    Defined.     
+
+    (* Uniqueness *)
+
+    (* Given any other dilation map d *)
+    Context (other : dilation_map krn d (relprod_dilation γ)).
+
+    Let σ_coupling := coisometry_to_mor other.
+    Let σ := coupling_to_state σ_coupling.
+    Let s : w --> x ⊗ y := coupling_cond σ_coupling.
+    (* We claim that s = h *)
+
+    Proposition σ_pi1 : other · pi1 γ = left_coupling.
+    Proof.
+      apply dilation_map_eq_left.
+    Qed.
+    
+    Proposition σ_pi2 : other · pi2 γ = right_coupling.
+    Proof.
+      apply dilation_map_eq_right.
+    Qed.
+
+    Proposition σ_is_bloom : σ = bloom_coupling r s.
+    Proof.
+      rewrite (coupling_is_bloom_coupling σ).
+      apply maponpaths_2.
+      apply coupling_dom.
+    Qed. 
+
+    Proposition rs : r · s = coupling_to_state γ.
+    Proof.
+      rewrite <- bloom_coupling_cod.
+      rewrite <- σ_is_bloom.
+      apply coupling_cod.
+    Qed.
+
+    Proposition s1 : bloom_coupling r (s · proj1) = coupling_to_state left_coupling.
+    Proof.
+      rewrite <- σ_pi1.
+      cbn. 
+      symmetry.
+      etrans. {
+        apply maponpaths_2.
+        assert(tmp : coupling_to_state (coisometry_to_mor (dilation_map_to_coisom krn other)) = σ).
+        { reflexivity. }
+        exact tmp.
+      }
+      rewrite σ_is_bloom.
+      etrans. {
+        apply maponpaths.
+        apply maponpaths_2.
+        exact (!rs).
+      }
+      rewrite bloom_coupling_composition.
+      reflexivity.
+    Qed.
+
+    Proposition s2 : bloom_coupling r (s · proj2) = coupling_to_state right_coupling.
+    Proof.
+      rewrite <- σ_pi2.
+      cbn. 
+      symmetry.
+      etrans. {
+        apply maponpaths_2.
+        assert(tmp : coupling_to_state (coisometry_to_mor (dilation_map_to_coisom krn other)) = σ).
+        { reflexivity. }
+        exact tmp.
+      }
+      rewrite σ_is_bloom.
+      etrans. {
+        apply maponpaths.
+        apply maponpaths_2.
+        exact (!rs).
+      }
+      rewrite bloom_coupling_composition.
+      reflexivity.
+    Qed.
+
+    Proposition s1_ase_f : (s · proj1) =_{r} f.
+    Proof.
+      apply make_ase_from_bloom_coupling.
+      rewrite s1.
+      etrans. { apply coupling_is_bloom_coupling. }
+      apply maponpaths_2.
+      apply coupling_dom.
+    Qed.
+
+    Proposition s2_ase_g : (s · proj2) =_{r} g.
+    Proof.
+      apply make_ase_from_bloom_coupling.
+      rewrite s2.
+      etrans. { apply coupling_is_bloom_coupling. }
+      apply maponpaths_2.
+      apply coupling_dom.
+    Qed.
+
+    Proposition s_ase : s =_{r} ⟨f,g⟩.
+    Proof.
+      (* by relative positivity, s is the pairing of its marginals *)
+      apply ase_trans with (⟨s · proj1, s · proj2⟩). {
+        use deterministic_marginal_independence_ase_1.
+        - apply conditionals_imply_relative_positivity.
+        - apply is_deterministic_ase_stable with f.
+          * apply ase_symm; exact s1_ase_f.
+          * exact f_det.   
+      }
+      (* but those marginals are f ... *)
+      apply ase_trans with (⟨f, s · proj2⟩). {
+        apply ase_pairing_l.
+        exact s1_ase_f.
+      }
+      (* ... and g respectively *)
+      apply ase_pairing_r.
+      exact s2_ase_g.
+    Qed.     
+
+    Proposition uniqueness : σ = coupling_to_state h.
+    Proof.
+      rewrite σ_is_bloom.
+      cbn.
+      apply bloom_coupling_eq_from_ase. 
+      exact s_ase.
+    Qed.
+
+    Proposition relprod_dilation_factorization_uniqueness
+      : other = relprod_dilation_factorization.
+    Proof.
+      apply dilation_map_ext.
+      apply coisometry_eq.
+      apply coupling_ext.
+      cbn.
+      transitivity σ. { reflexivity. }
+      apply uniqueness.
+    Qed.
     
   End Terminal.
 
@@ -662,7 +853,7 @@ Section CouplingDilators.
     intros d.
     use make_iscontr.
     - apply relprod_dilation_factorization.
-    - admit.
-  Admitted.
+    - apply relprod_dilation_factorization_uniqueness. 
+  Qed.
 
 End CouplingDilators.

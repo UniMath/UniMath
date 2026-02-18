@@ -92,6 +92,30 @@ Proof.
   exact (pr22 γ).
 Defined.
 
+Section IdentityCouplingDefinition.
+  Context {C : markov_category}.
+  
+  Definition identity_coupling {x : C} (p : I_{C} --> x) : I_{C} --> x ⊗ x := p · copy x.
+
+  Proposition identity_coupling_dom {x : C} (p : I_{C} --> x) : identity_coupling p · proj1 = p.
+  Proof.
+    unfold identity_coupling.
+    rewrite <- assoc.
+    rewrite copy_proj1.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
+  Proposition identity_coupling_cod {x : C} (p : I_{C} --> x) : identity_coupling p · proj2 = p.
+  Proof.
+    unfold identity_coupling.
+    rewrite <- assoc.
+    rewrite copy_proj2.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+End IdentityCouplingDefinition.
+
 (** * 3. Definitions and Lemmas about Couplings *)
 
 (** * 3.1 Coupling Composition *)
@@ -171,26 +195,6 @@ Section CouplingCompositionLemmas.
     rewrite coupling_composition_eq_3 ; [ | assumption ].
     rewrite assoc'.
     rewrite proj2_tensor.
-    reflexivity.
-  Qed.
-    
-  Definition identity_coupling {x : C} (p : I_{C} --> x) : I_{C} --> x ⊗ x := p · copy x.
-
-  Proposition identity_coupling_dom {x : C} (p : I_{C} --> x) : identity_coupling p · proj1 = p.
-  Proof.
-    unfold identity_coupling.
-    rewrite <- assoc.
-    rewrite copy_proj1.
-    rewrite id_right.
-    reflexivity.
-  Qed.
-
-  Proposition identity_coupling_cod {x : C} (p : I_{C} --> x) : identity_coupling p · proj2 = p.
-  Proof.
-    unfold identity_coupling.
-    rewrite <- assoc.
-    rewrite copy_proj2.
-    rewrite id_right.
     reflexivity.
   Qed.
 
@@ -299,8 +303,8 @@ End CouplingCompositionLemmas.
 
 (** * 3.2 Dagger *)
 
-Section CouplingDaggerLemmas.
-  Context {C : markov_category_with_conditionals}.
+Section CouplingDaggerDefinition.
+  Context {C : markov_category}.
 
   Definition coupling_dagger {x y : C} 
           (γ : I_{C} --> x ⊗ y) : I_{C} --> y ⊗ x := γ · sym_mon_braiding _ _ _.
@@ -338,6 +342,11 @@ Section CouplingDaggerLemmas.
     rewrite assoc', copy_comm.
     reflexivity.
   Qed.
+
+End CouplingDaggerDefinition.
+
+Section CouplingDaggerLemmas.
+  Context {C : markov_category_with_conditionals}.
 
   Proposition dagger_coupling_composition {x y z : C} 
           (β : I_{C} --> x ⊗ y) (γ : I_{C} --> y ⊗ z)
@@ -377,8 +386,8 @@ End CouplingDaggerLemmas.
 
 (** * 3.3 Blooms *)
 
-Section BloomCouplingLemmas.
-  Context {C : markov_category_with_conditionals}.
+Section BloomCouplingDefinitions.
+  Context {C : markov_category}.
 
   Definition bloom_coupling {x y : C} (p : I_{C} --> x) (f : x --> y) : I_{C} --> x ⊗ y
     := p · ⟨identity _, f⟩.
@@ -406,6 +415,29 @@ Section BloomCouplingLemmas.
     rewrite pairing_id.
     reflexivity.
   Qed.
+  
+  Proposition make_ase_from_bloom_coupling 
+    {x y : C} {p : I_{C} --> x} {f g : x --> y} 
+    (e : bloom_coupling p f = bloom_coupling p g)
+    : f =_{p} g.
+  Proof.
+    apply make_equal_almost_surely_r.
+    exact e.
+  Qed.
+
+  Proposition bloom_coupling_eq_from_ase
+    {x y : C} {p : I_{C} --> x} {f g : x --> y} (ase : f =_{p} g)
+    : bloom_coupling p f = bloom_coupling p g.
+  Proof.
+    unfold bloom_coupling.
+    apply equal_almost_surely_r.
+    exact ase.
+  Qed.
+
+End BloomCouplingDefinitions.
+
+Section BloomCouplingLemmas.
+  Context {C : markov_category_with_conditionals}.
 
   Proposition bloom_coupling_conditional_1_ase {x y : C} (p : I_{C} --> x) (f : x --> y) :
     (bloom_coupling p f)|1 =_{p} f.
@@ -439,8 +471,8 @@ Section BloomCouplingLemmas.
     reflexivity.
   Qed.
       
-  Proposition bloom_coupling_composition {x y z : C}
-            (p : I_{C} --> x) (f : x --> y) (g : y --> z) 
+  Proposition bloom_coupling_composition 
+        {x y z : C} (p : I_{C} --> x) (f : x --> y) (g : y --> z) 
     :   coupling_composition (bloom_coupling p f) (bloom_coupling (p · f) g)
       = bloom_coupling p (f · g).
   Proof.
