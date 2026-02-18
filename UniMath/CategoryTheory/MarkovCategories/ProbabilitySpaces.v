@@ -354,8 +354,16 @@ Section CouplingsToProbabilitySpaces.
   Definition coupling_cond {p q : couplings C} (γ : p --> q) : (pr1 p) --> (pr1 q)
     := ((coupling_to_state γ) |1).
 
-  Lemma coupling_cond_state_preservation {p q : couplings C} (γ : p --> q) 
-    : (pr2 p) · (coupling_cond γ) = (pr2 q).
+  Proposition coupling_is_bloom_cond {p q : state C} (γ : coupling p q) :
+    coupling_to_state γ = bloom_coupling p (coupling_cond γ).
+  Proof.    
+    rewrite (coupling_is_bloom_coupling (coupling_to_state γ)).
+    rewrite coupling_dom.
+    reflexivity.
+  Qed.
+
+  Proposition coupling_cond_state_preservation {p q : couplings C} (γ : p --> q) 
+    : (state_dist p) · coupling_cond γ = state_dist q.
   Proof.
     destruct p as [x p], q as [y q], γ as [γ [dom cod]].
     unfold coupling_cond.

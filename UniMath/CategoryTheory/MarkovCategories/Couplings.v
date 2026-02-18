@@ -12,6 +12,7 @@ Table of Contents
    3.1 Coupling Composition
    3.2 Dagger
    3.3 Blooms
+   3.4 Dilations
 4. Definition of the Category of Couplings [coupling C]
 5. Definition of the Dagger Structure on the Category of Couplings
 6. Univalence and Dagger Univalence for Couplings 
@@ -301,6 +302,8 @@ Section CouplingCompositionLemmas.
 
 End CouplingCompositionLemmas.
 
+#[global] Opaque coupling_composition.
+
 (** * 3.2 Dagger *)
 
 Section CouplingDaggerDefinition.
@@ -515,7 +518,102 @@ Section BloomCouplingLemmas.
 
 End BloomCouplingLemmas.
 
-#[global] Opaque coupling_composition.
+(** * 3.4 Dilation couplings *)
+
+Section DilationCouplingsDefinition.
+  Context {C : markov_category}.
+
+  Definition dilation_coupling {r x y : C} (p : I_{C} --> r) 
+    (f : r --> x) (g : r --> y) : I_{C} --> x ⊗ y := p · ⟨f, g⟩.
+
+  Proposition dilation_coupling_dom
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : dilation_coupling p f g · proj1 = p · f.
+  Proof.
+    unfold dilation_coupling. 
+    rewrite assoc', pairing_proj1.
+    reflexivity.
+  Qed.
+
+  Proposition dilation_coupling_cod
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : dilation_coupling p f g · proj2 = p · g.
+  Proof.
+    unfold dilation_coupling. 
+    rewrite assoc', pairing_proj2.
+    reflexivity.
+  Qed.
+
+  Proposition dilation_coupling_dagger
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : coupling_dagger (dilation_coupling p f g) = dilation_coupling p g f.
+  Proof.
+    unfold dilation_coupling, coupling_dagger.
+    rewrite assoc', pairing_sym_mon_braiding.
+    reflexivity.
+  Qed.
+
+  Proposition dilation_coupling_identity {r : C} (p : I_{C} --> r) :
+    dilation_coupling p (identity r) (identity r) = identity_coupling p.
+  Proof.
+    unfold dilation_coupling, identity_coupling.
+    rewrite pairing_id.
+    reflexivity.
+  Qed.
+
+End DilationCouplingsDefinition.
+
+Section DilationsCouplingsLemmas.
+  Context {C : markov_category_with_conditionals}.
+
+  Proposition dilation_coupling_inv_l 
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : dilation_coupling p f g = dilation_coupling (p · f) (identity x) (bayesian_inverse p f · g).
+  Proof.
+    unfold dilation_coupling.
+    rewrite <- pairing_tensor_r, assoc.
+    rewrite bayesian_inverse_eq_r.
+    rewrite assoc', pairing_tensor_r, id_left.
+    reflexivity.
+  Qed.
+
+  Proposition dilation_coupling_inv_r
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : dilation_coupling p f g = dilation_coupling (p · g) (bayesian_inverse p g · f) (identity y).
+  Proof.
+    unfold dilation_coupling.
+    rewrite <- pairing_tensor_l, assoc.
+    rewrite bayesian_inverse_eq_l.
+    rewrite assoc', pairing_tensor_l, id_left.
+    reflexivity.
+  Qed.
+
+  Proposition bloom_dilation_composition 
+    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
+    : coupling_composition (coupling_dagger (bloom_coupling p f)) (bloom_coupling p g) = dilation_coupling p f g.
+  Proof.
+    unfold coupling_dagger.
+    rewrite coupling_composition_eq_2.
+    2: { rewrite assoc'.
+         rewrite sym_mon_braiding_proj2.
+         rewrite !bloom_coupling_dom.
+         reflexivity. }
+    etrans. {
+      assert(e : bloom_coupling p f = p · ⟨ identity _, f ⟩). { reflexivity. }
+      rewrite e.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite assoc, pairing_sym_mon_braiding.
+      rewrite <- pairing_split_r.
+      reflexivity.
+    }
+    unfold dilation_coupling.
+    apply ase_precomp.
+    apply ase_pairing_r.
+    apply bloom_coupling_conditional_1_ase.
+  Qed.
+
+End DilationsCouplingsLemmas.
 
 (** * 4. Definition of the Category of Couplings [coupling C] *)
 

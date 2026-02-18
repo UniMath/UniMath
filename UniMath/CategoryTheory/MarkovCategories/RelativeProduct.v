@@ -8,8 +8,9 @@ The core results are
 * the relative product construction on probability spaces has the universal property of a dilator
 
 Table of Contents
-1. Coisometries and Almost-Sure Determinism 
-2. Relative product and Dilators
+1. Results relating Coisometries and Almost-Sure Determinism 
+2. Relative Product and Dilators in Couplings [couplings C]
+3. Relative Product and Dilators in Probability Spaces [prob_space C]
 
 References
 - Noé Ensarguet and Paolo Perrone - 'Categorical probability spaces, ergodic decompositions, and transitions to equilibrium'
@@ -46,7 +47,7 @@ Local Open Scope cat.
 Local Open Scope moncat.
 Local Open Scope markov.
 
-(** 1. Coisometries and Almost-Sure Determinism  *)
+(** * 1. Results relating Coisometries and Almost-Sure Determinism *)
 
 Section DaggerLemmas.
   Context {C : markov_category_with_conditionals}.
@@ -141,228 +142,15 @@ Section DaggerPropositions.
 
 End DaggerPropositions.
 
-(** * 2. Relative product and Dilators *)
+(** * 2. Relative Product and Dilators in Couplings [couplings C] *)
 
-Section Dilators.
-  Context {C : markov_category_with_conditionals}.
-  Let PS := prob_space_dagger_cat C.
+(* Some lemmas about coisometries in couplings *)
 
-  Definition hProj {X : UU} (i : isaset X) (x : make_hSet X i) : X.
-  Proof.
-    exact x.
-  Defined.
-
-  Definition bloom_space {p q : PS} (f : p --> q) : PS.
-  Proof.
-    destruct p as [x p], q as [y q].
-    refine (x ⊗ y ,, _).
-    use hProj. { apply homset_property. } 
-    revert f.
-    use setquotuniv.
-    - intros [f e].
-      exact (bloom_coupling p f).
-    - intros [f e] [g h] ase.
-      unfold bloom_coupling.
-      apply equal_almost_surely_r.
-      exact ase.
-  Defined.
-
-  Definition bloom_space_proj1 {p q : PS} (f : p --> q) : (bloom_space f) --> p.
-  Proof.
-    use hProj. { apply homset_property. } 
-    revert f.
-  Abort.
-    
-  
-    
-  Proposition isaset_dilation {x y : PS} (f : x --> y) : isaset (dilation PS f).
-  Proof.
-    apply (isofhleveltotal2 2).
-  Abort.
-    
-
-  Definition bloom_dilation {p q : PS} (f : p --> q) : dilation PS f.
-  Proof.
-  Abort. (*
-    destruct p as [x p], q as [y q].
-    use hProj. {  } 
-    revert f.
-    use setquotuniv.
-     
-  Defined.*)
-
-  (* Here is the central lemma for dilators *)
-
-(*   Proposition dilator_existence {w x y : C} {r p q} (c : x --> y) (p c = q)
-    (f : w --> x) (g : w --> y)  *)
-  
-
-
-End Dilators.
-
-Section CouplingDilators.
+Section CouplingCoisometries.
   Context {C : markov_category_with_conditionals}.
   Let krn := couplings_dagger_cat C.
 
-  (* Dagger couplings*)
-
-  Definition dilation_coupling {r x y : C} (p : I_{C} --> r) 
-    (f : r --> x) (g : r --> y) : I_{C} --> x ⊗ y := p · ⟨f, g⟩.
-
-  Proposition dilation_coupling_dom
-    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
-    : dilation_coupling p f g · proj1 = p · f.
-  Proof.
-    unfold dilation_coupling. 
-    rewrite assoc', pairing_proj1.
-    reflexivity.
-  Qed.
-
-  Proposition dilation_coupling_cod
-    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
-    : dilation_coupling p f g · proj2 = p · g.
-  Proof.
-    unfold dilation_coupling. 
-    rewrite assoc', pairing_proj2.
-    reflexivity.
-  Qed.
-
-  Proposition dilation_coupling_dagger
-    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
-    : coupling_dagger (dilation_coupling p f g) = dilation_coupling p g f.
-  Proof.
-    unfold dilation_coupling, coupling_dagger.
-    rewrite assoc', pairing_sym_mon_braiding.
-    reflexivity.
-  Qed.
-
-  Proposition dilation_coupling_identity {r : C} (p : I_{C} --> r) :
-    dilation_coupling p (identity r) (identity r) = identity_coupling p.
-  Proof.
-    unfold dilation_coupling, identity_coupling.
-    rewrite pairing_id.
-    reflexivity.
-  Qed.
-
-  Proposition dilation_coupling_inv_l 
-    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
-    : dilation_coupling p f g = dilation_coupling (p · f) (identity x) (bayesian_inverse p f · g).
-  Proof.
-    unfold dilation_coupling.
-    rewrite <- pairing_tensor_r, assoc.
-    rewrite bayesian_inverse_eq_r.
-    rewrite assoc', pairing_tensor_r, id_left.
-    reflexivity.
-  Qed.
-
-  Proposition dilation_coupling_inv_r
-    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
-    : dilation_coupling p f g = dilation_coupling (p · g) (bayesian_inverse p g · f) (identity y).
-  Proof.
-    unfold dilation_coupling.
-    rewrite <- pairing_tensor_l, assoc.
-    rewrite bayesian_inverse_eq_l.
-    rewrite assoc', pairing_tensor_l, id_left.
-    reflexivity.
-  Qed.
-
-  Proposition bloom_dilation_composition 
-    {r x y : C} (p : I_{C} --> r) (f : r --> x) (g : r --> y)
-    : coupling_composition (coupling_dagger (bloom_coupling p f)) (bloom_coupling p g) = dilation_coupling p f g.
-  Proof.
-    unfold coupling_dagger.
-    rewrite coupling_composition_eq_2.
-    2: { rewrite assoc'.
-         rewrite sym_mon_braiding_proj2.
-         rewrite !bloom_coupling_dom.
-         reflexivity. }
-    etrans. {
-      assert(e : bloom_coupling p f = p · ⟨ identity _, f ⟩). { reflexivity. }
-      rewrite e.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite assoc, pairing_sym_mon_braiding.
-      rewrite <- pairing_split_r.
-      reflexivity.
-    }
-    unfold dilation_coupling.
-    apply ase_precomp.
-    apply ase_pairing_r.
-    apply bloom_coupling_conditional_1_ase.
-  Qed.
-
-  (* ............................................ *)
-
-  (* Definition bloomc {x y : C} (p : I_{C} --> x) (f : x --> y) : 
-      krn ⟦ (x ,, p) , (y,, p · f) ⟧. (* coupling p (p cdot f) *)
-  Proof.
-    use make_coupling.
-    - exact (bloom_coupling p f).
-    - apply bloom_coupling_dom.
-    - apply bloom_coupling_cod.
-  Defined.  
-
-  Definition dilationc {r x y : C} (p : I_{C} --> r) 
-    (f : r --> x) (g : r --> y) : krn ⟦ (x ,, p · f) , (y,, p · g) ⟧.
-  Proof.
-    use make_coupling.
-    - exact (dilation_coupling p f g).
-    - apply dilation_coupling_dom.
-    - apply dilation_coupling_cod.
-  Defined.
-
-  Proposition bloom_dilation {x y z : C} (p : I_{C} --> x) (f : x --> y) (g : x --> z) :
-    {bloomc p f}_krn^† · (bloomc p g) = dilationc p f g.
-  Proof.
-    apply coupling_ext.
-    cbn.
-    apply bloom_dilation_composition.
-  Qed. *)
-
-  (* Proposition bloom_coupling_coiso {x y : C} {p : I_{C} --> x} (f : x --> y) :
-    is_deterministic_ase p f -> is_coisometry krn (bloomc p f).
-  Proof.
-    intros det_ase.
-    apply coupling_ext.
-    rewrite bloom_dilation.
-    cbn.
-    unfold dilation_coupling, identity_coupling.
-    rewrite pairing_eq, assoc'.
-    apply ase_precomp.
-    apply ase_symm.
-    exact det_ase.
-  Qed. *)
-
-  (* Definition bloom_coupling_to_coiso {x y : C} {p : I_{C} --> x} (f : x --> y) :
-    is_deterministic_ase p f -> coisometry krn (x ,, p) (y ,, p · f).
-  Proof.
-    intros det_ase.
-    use make_coisometry.
-    - exact (bloomc p f).
-    - abstract (apply bloom_coupling_coiso; assumption).
-  Defined. *)
-  
-  Definition bloom_krn {p q : krn} (γ : p --> q) : p --> q.
-  Proof.
-    use make_coupling.
-    - exact (bloom_coupling (state_dist p) (coupling_cond γ)).
-    - abstract (rewrite bloom_coupling_dom; reflexivity).
-    - abstract (rewrite bloom_coupling_cod; apply coupling_cond_state_preservation).
-  Defined.
-
-  Proposition krn_is_bloom {p q : krn} (γ : p --> q) : γ = bloom_krn γ.
-  Proof.
-    destruct p as [x pp].
-    destruct γ as [g [domγ codγ]].
-    apply coupling_ext.
-    cbn.
-    unfold bloom_coupling, coupling_cond.
-    cbn in *.
-    rewrite <- domγ.
-    apply conditional_distribution_1_eq.
-  Qed.
-
-  Proposition bloom_coupling_coiso {p q : state C} {γ : coupling p q}
+ Proposition bloom_coupling_coiso {p q : state C} {γ : coupling p q}
     (f : state_ob p --> state_ob q)
     (e : coupling_to_state γ = bloom_coupling p f)
     (det_ase : is_deterministic_ase p f)
@@ -428,7 +216,14 @@ Section CouplingDilators.
       * exact f.
       * reflexivity.
       * exact det_ase.
-  Defined.    
+  Defined.
+
+End CouplingCoisometries.
+
+(* Relative products and dilators in couplings *)
+Section CouplingDilators.
+  Context {C : markov_category_with_conditionals}.
+  Let krn := couplings_dagger_cat C.
 
   Definition relprod {p q : krn} (γ : p --> q) : krn.
   Proof.
@@ -436,7 +231,7 @@ Section CouplingDilators.
     exact (x ⊗ y ,, γ).
   Defined.
 
-  Definition pi1 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) p.
+  Definition p1 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) p.
   Proof.
     use coisometry_krn_from_bloom.
     - exact proj1.
@@ -445,7 +240,7 @@ Section CouplingDilators.
       apply is_deterministic_proj1.
   Defined.
   
-  Definition pi2 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) q.
+  Definition p2 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) q.
   Proof.
     use coisometry_krn_from_bloom.
     - exact proj2.
@@ -454,55 +249,11 @@ Section CouplingDilators.
       apply is_deterministic_proj2.
   Defined.
 
-  (* Definition p1 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) p.
-  Proof.
-    destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
-    use make_coisometry.
-    - use make_coupling.
-      * refine (bloom_coupling γ proj1).
-      * apply bloom_coupling_dom.
-      * abstract (cbn in *; rewrite <- domγ; apply bloom_coupling_cod).
-    - apply coupling_ext.
-      cbn.
-      rewrite bloom_dilation_composition.
-      unfold dilation_coupling, identity_coupling.
-      rewrite pairing_eq.
-      cbn in domγ.
-      rewrite <- domγ.
-      rewrite assoc'.
-      apply ase_precomp.
-      apply ase_symm.
-      apply deterministic_implies_determinstic_ase.
-      apply is_deterministic_proj1.
-  Defined.
-
-  Definition p2 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) q.
-  Proof.
-    destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
-    use make_coisometry.
-    - use make_coupling.
-      * refine (bloom_coupling γ proj2).
-      * apply bloom_coupling_dom.
-      * abstract (cbn in *; rewrite <- codγ; apply bloom_coupling_cod).
-    - apply coupling_ext.
-      cbn.
-      rewrite bloom_dilation_composition.
-      unfold dilation_coupling, identity_coupling.
-      rewrite pairing_eq.
-      cbn in codγ.
-      rewrite <- codγ.
-      rewrite assoc'.
-      apply ase_precomp.
-      apply ase_symm.
-      apply deterministic_implies_determinstic_ase.
-      apply is_deterministic_proj2.
-  Defined. *)
-
   Proposition relprod_dilation_eq {p q : krn} (γ : p --> q) :
-    {pi1 γ}_krn^† · (pi2 γ) = γ.
+    {p1 γ}_krn^† · (p2 γ) = γ.
   Proof.
     apply coupling_ext.
-    unfold pi1, pi2.
+    unfold p1, p2.
     cbn.
     rewrite bloom_dilation_composition.
     unfold dilation_coupling.
@@ -515,69 +266,12 @@ Section CouplingDilators.
     destruct p as [x p], q as [y q].
     simple refine (_ ,, _ ,, _ ,, _).
     - exact (relprod γ).
-    - apply pi1.
-    - apply pi2.
+    - apply p1.
+    - apply p2.
     - apply relprod_dilation_eq. 
   Defined.
 
-  (* Proposition projections_jointly_monic
-    {p q d : krn} (γ : p --> q)
-    (σ τ : coisometry krn d (relprod γ)) 
-    (l : σ · pi1 γ = τ · pi1 γ)
-    (r : σ · pi2 γ = τ · pi2 γ)
-    : σ = τ. *)
-  
-  Section Monicity.
-    Context {p q d : state C} (γ : coupling p q)
-    (σ τ : coisometry krn d (relprod γ)) 
-    (l : σ · pi1 γ = τ · pi1 γ)
-    (r : σ · pi2 γ = τ · pi2 γ).
-
-    Let s := coupling_cond σ.
-    Let t := coupling_cond τ.
-
-    Proposition eqo : bloom_coupling d (s · proj1) = coupling_to_state (σ · pi1 γ). 
-  Proof. Admitted.
-
-    Proposition eqe : s · proj1 =_{d} coupling_cond (σ · pi1 γ).
-  Proof. Admitted.
-
-    Proposition det_marginal : is_deterministic_ase (state_dist d) (s · proj1).
-    Proof.
-      use det_ase_from_coiso.
-      - exact (σ · pi1 γ).
-      - rewrite (krn_is_bloom σ).
-        unfold pi1.
-        cbn.
-        etrans. {
-          apply maponpaths.
-          apply maponpaths_2.
-          assert(foo : pr1 γ = (state_dist d) · s). { 
-            pose(c := coupling_cod (coisometry_to_mor σ)).
-            rewrite (krn_is_bloom σ) in c.
-            cbn in c.
-            etrans. { symmetry. exact c. }
-            rewrite bloom_coupling_cod.
-            reflexivity.
-          }
-          exact foo.
-        }
-        rewrite bloom_coupling_composition.
-        reflexivity.
-      - apply is_coisometry_comp.
-        * apply coisometry_property.
-        * apply coisometry_property.  
-    Qed.
-    
-    Proposition foo : s =_{state_dist d} ⟨s · proj1, s · proj2⟩.
-    Proof.
-      apply deterministic_marginal_independence_ase_1.
-      - apply conditionals_imply_relative_positivity.
-      - exact det_marginal.
-    Qed. 
-
-  End Monicity.
-
+  (* Show that [relprod_dilation] is a dilator, i.e. a terminal dilation *)
   Section Terminal.
     Context {p q : krn}
             (γ : p --> q)
@@ -597,12 +291,12 @@ Section CouplingDilators.
     Let f : w --> x := coupling_cond left_coupling.
     Let g : w --> y := coupling_cond right_coupling.
 
-    Proposition d_dil : r · ⟨f,g⟩ = coupling_to_state γ.
+    Lemma d_dil : r · ⟨f,g⟩ = coupling_to_state γ.
     Proof.
       rewrite <- (dilation_eq _ d).
       cbn.
 
-      (* `rewrite` fails so we need to do rewriting manually *)
+      (* `rewrite` fails here, so we need to do rewriting manually *)
       symmetry.
       etrans. {
         apply maponpaths_2.
@@ -626,7 +320,8 @@ Section CouplingDilators.
       rewrite bloom_dilation_composition.
       reflexivity.
     Qed.
-      
+    
+    (** Existence: Construct the required mediating map [h] *)
 
     Definition h : krn ⟦ d, relprod_dilation γ ⟧.
     Proof.
@@ -640,7 +335,7 @@ Section CouplingDilators.
     Proof.
       use det_ase_from_coiso.
       - exact left_coupling.
-      - rewrite (krn_is_bloom left_coupling); reflexivity.
+      - apply coupling_is_bloom_cond.     
       - apply coisometry_property.
     Qed.   
 
@@ -648,7 +343,7 @@ Section CouplingDilators.
     Proof.
       use det_ase_from_coiso.
       - exact right_coupling.
-      - rewrite (krn_is_bloom right_coupling); reflexivity.
+      - apply coupling_is_bloom_cond.
       - apply coisometry_property.
     Qed.  
 
@@ -712,22 +407,21 @@ Section CouplingDilators.
       - apply h_right.
     Defined.     
 
-    (* Uniqueness *)
+    (** Uniqueness: Show that any other dilation map is equal to the one constructed *)
 
-    (* Given any other dilation map d *)
     Context (other : dilation_map krn d (relprod_dilation γ)).
 
-    Let σ_coupling := coisometry_to_mor other.
-    Let σ := coupling_to_state σ_coupling.
-    Let s : w --> x ⊗ y := coupling_cond σ_coupling.
+    Let σ := coupling_to_state (coisometry_to_mor other).
+    Let s : w --> x ⊗ y := coupling_cond other.
+
     (* We claim that s = h *)
 
-    Proposition σ_pi1 : other · pi1 γ = left_coupling.
+    Proposition σ_pi1 : other · p1 γ = left_coupling.
     Proof.
       apply dilation_map_eq_left.
     Qed.
     
-    Proposition σ_pi2 : other · pi2 γ = right_coupling.
+    Proposition σ_pi2 : other · p2 γ = right_coupling.
     Proof.
       apply dilation_map_eq_right.
     Qed.
@@ -856,4 +550,63 @@ Section CouplingDilators.
     - apply relprod_dilation_factorization_uniqueness. 
   Qed.
 
+  Definition coupling_dilator {p q : krn} (γ : p --> q) : dilator krn γ.
+  Proof.
+    exists (relprod_dilation γ).
+    apply coupling_dilator_is_dilator.
+  Defined.
+
+  Definition couplings_have_dilators : with_dilators krn.
+  Proof.
+    intros p q γ.
+    exact (coupling_dilator γ).
+  Defined.
+
 End CouplingDilators.
+
+
+(** * 3. Relative Product and Dilators in Probability Spaces [prob_space C] *)
+
+Section Dilators.
+  Context {C : markov_category_with_conditionals}.
+  Let PS := prob_space_dagger_cat C.
+
+  (* Transfer the dilators from couplings to probability spaces *)
+  Definition ps_have_dilators : with_dilators PS.
+  Proof.
+    unfold PS.
+    rewrite <- couplings_equals_ps_dagger.
+    apply couplings_have_dilators.
+  Defined.
+
+  (* TODO: be more explicit here. 
+    e.g. manually construct the bloom dilation and 
+    show that it fixed by the equivalence *)
+  
+    Definition hProj {X : UU} (i : isaset X) (x : make_hSet X i) : X.
+  Proof.
+    exact x.
+  Defined.
+
+  Definition bloom_space {p q : PS} (f : p --> q) : PS.
+  Proof.
+    destruct p as [x p], q as [y q].
+    refine (x ⊗ y ,, _).
+    use hProj. { apply homset_property. } 
+    revert f.
+    use setquotuniv.
+    - intros [f e].
+      exact (bloom_coupling p f).
+    - intros [f e] [g h] ase.
+      unfold bloom_coupling.
+      apply equal_almost_surely_r.
+      exact ase.
+  Defined.
+
+  Definition bloom_space_proj1 {p q : PS} (f : p --> q) : (bloom_space f) --> p.
+  Proof.
+    use hProj. { apply homset_property. } 
+    revert f.
+  Abort.
+
+End Dilators.
