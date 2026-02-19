@@ -224,12 +224,6 @@ Section MarkovCategoryLaws.
     reflexivity.
   Qed.
 
-  Proposition copy_copy (x : C)
-    : copy x · copy (x ⊗ x) = copy x · copy x #⊗ copy x.
-  Proof.
-    rewrite <- copy_tensor.
-  Admitted.
-
   Proposition copy_I_mon_rinvunitor :
     copy (I_{C}) = mon_rinvunitor (I_{C}).
   Proof.
@@ -517,18 +511,6 @@ Section PairingProperties.
     rewrite <- copy_tensor.
     rewrite tensor_comp_mor, !assoc'.
     rewrite naturality_inner_swap.
-    reflexivity.
-  Qed.
-
-  Proposition copy_pairing 
-      {x y z : C}
-      {f : x ⊗ x --> y} {g : x ⊗ x --> z}
-    : copy x · ⟨f,g⟩ = ⟨copy x · f, copy x · g⟩.
-  Proof.
-    unfold pairing.
-    rewrite tensor_comp_mor, !assoc.
-    apply maponpaths_2.
-    rewrite copy_copy.
     reflexivity.
   Qed.
 

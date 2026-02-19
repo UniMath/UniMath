@@ -547,7 +547,7 @@ Section PairingCalculus.
   Qed.
 
   Proposition pairing_proj_lassociator {x y z : C} :
-    ⟨proj1 · proj1, ⟨proj1 ·  proj2, proj2⟩⟩ = mon_lassociator x y z.
+    ⟨proj1 · proj1, ⟨proj1 · proj2, proj2⟩⟩ = mon_lassociator x y z.
   Proof.
     use cancel_z_iso.
     - exact ((x ⊗ y) ⊗ z).
@@ -611,6 +611,19 @@ Ltac markov_coherence :=
 Section Corollaries.
   Context {C : markov_category}.
 
+  (* Proposition pairing_inner_swap {x y z w : C} : 
+    ⟨ ⟨ proj1 · proj1 , proj2 · proj1 ⟩ , ⟨ proj1 · proj2, proj2 · proj2 ⟩ ⟩ 
+    = inner_swap _ x y z w.
+  Proof.
+    Locate inner_swap.
+    unfold inner_swap.
+    rewrite tensor_mor_left, tensor_mor_right.
+    markov_coherence; [auto 10 with autodet|..].
+    - markov_coherence; [auto 10 with autodet|..].
+      rewrite !assoc.
+      pairing_simpl. *)
+    
+
   Lemma rassociator_proj (x y z : C) :
     mon_rassociator x y z · proj1 = identity x #⊗ proj1.
   Proof.
@@ -627,6 +640,24 @@ Section Corollaries.
     mon_rassociator x y z · proj2 #⊗ identity z = proj2.
   Proof.
     markov_coherence.
+  Qed.
+
+  Proposition copy_copy (x : C)
+    : copy x · copy (x ⊗ x) = copy x · copy x #⊗ copy x.
+  Proof.
+    markov_coherence; markov_coherence.
+  Qed.
+  
+  Proposition copy_pairing 
+      {x y z : C}
+      {f : x ⊗ x --> y} {g : x ⊗ x --> z}
+    : copy x · ⟨f,g⟩ = ⟨copy x · f, copy x · g⟩.
+  Proof.
+    unfold pairing.
+    rewrite tensor_comp_mor, !assoc.
+    apply maponpaths_2.
+    rewrite copy_copy.
+    reflexivity.
   Qed.
 
 End Corollaries.
