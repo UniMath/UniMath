@@ -15,12 +15,13 @@ and prove various lemmas about composition of deterministic maps.
 Table of Contents
 1. Definition of Determinism
 2. Examples and Properies
-3. Automation
-  - We provide a calculus for working with pairings 
-  - A hint database [autodet] to automatically derive determinism proofs with [auto with autodet]
-  - Tactics [pairing_proj_expand], [pairing_simpl] and [markov_coherence] which simplify
+3. Automation: We provide
+  - 3.1 A hint database [autodet] which can automatically derive determinism proofs for some morphisms using [auto with autodet]
+  - 3.2 A set of lemmas which enables a calculus for working with pairings [⟨ ... ⟩] similar to cartesian categories 
+  - 3.3 Tactics [pairing_proj_expand], [pairing_simpl] and [markov_coherence] which simplify
     or automatically solve some coherence equations by converting them into a form consisting only
-    of pairings and projections.
+    of pairings and projections, and then applies the lemmas. 
+    TODO: The automation could be vastly improved (and even made complete for some class of morphisms).
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -418,6 +419,11 @@ End ExamplesAndProperties.
 
 (** * 3. Automation *)
 
+(** * 3.1 autodet *)
+
+(* We can automatically derive that some morphisms are deterministic by 
+   composing various primitive determinism statements *)
+
 #[global] Hint Resolve is_deterministic_identity : autodet.
 #[global] Hint Resolve is_deterministic_composition : autodet.
 #[global] Hint Resolve is_deterministic_del : autodet.
@@ -439,12 +445,19 @@ End ExamplesAndProperties.
 
 #[global] Hint Resolve deterministic_iso_to_z_iso_is_deterministic : autodet.
 
-(* A calculus for pairings, and some tactics *)
+(** * 3.2. A calculus for pairings *)
+
+(* By rewriting all (deterministic) structural maps into explicit pairing form, 
+   we can reason equationally about such composites.
+   
+   Eta-expansion for deterministic maps says that two such maps are equal if and only if 
+   their marginals are equal, which lets us reduce equations further 
+*)
 
 Section PairingCalculus.
   Context {C : markov_category}.
 
-  Proposition pairing_proj_id (x y : C) :
+  Lemma pairing_proj_id (x y : C) :
     ⟨proj1, proj2⟩ = identity (x ⊗ y).
   Proof.
     unfold pairing.
@@ -468,7 +481,7 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
-  Proposition pairing_proj_tensor
+  Lemma pairing_proj_tensor
     {x1 x2 y1 y2 : C}
     (f : x1 --> y1) (g : x2 --> y2) 
     : ⟨proj1 · f, proj2 · g⟩ = f #⊗ g.
@@ -478,7 +491,7 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
-  Proposition pairing_det {x y : C} (f : x --> y) :
+  Lemma pairing_det {x y : C} (f : x --> y) :
     is_deterministic f -> ⟨f,f⟩ = f · ⟨identity y, identity y⟩.
   Proof.
     intros det.
@@ -488,7 +501,7 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
-  Proposition pairing_precomp {x y z w : C} 
+  Lemma pairing_precomp {x y z w : C} 
     (f : y --> z) (g : y --> w) (h : x --> y) 
     : is_deterministic h -> ⟨h · f, h · g⟩ = h · ⟨f, g⟩.
   Proof.
@@ -499,7 +512,7 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
-  Proposition pairing_eta {x y z : C} (h : x --> y ⊗ z) :
+  Lemma pairing_eta {x y z : C} (h : x --> y ⊗ z) :
     is_deterministic h -> h = ⟨h · proj1, h · proj2⟩.
   Proof.
     intros det.
@@ -509,7 +522,7 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
-  Proposition det_eta {x y z : C} (f g : x --> y ⊗ z) 
+  Lemma det_eta {x y z : C} (f g : x --> y ⊗ z) 
     (df : is_deterministic f) (dg : is_deterministic g)
     : f · proj1 = g · proj1 -> f · proj2 = g · proj2 -> f = g.
   Proof.
@@ -520,7 +533,7 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
-  Proposition pairing_proj_braiding (x y : C) :
+  Lemma pairing_proj_braiding (x y : C) :
     ⟨proj2, proj1⟩ = sym_mon_braiding C x y.
   Proof.
     apply det_eta; try auto with autodet.
@@ -532,7 +545,7 @@ Section PairingCalculus.
       reflexivity.
   Qed. 
 
-  Proposition pairing_proj_rassociator {x y z : C} :
+  Lemma pairing_proj_rassociator {x y z : C} :
     ⟨⟨proj1, proj2 · proj1⟩, proj2 · proj2⟩ = mon_rassociator x y z.
   Proof.
     use cancel_z_iso.
@@ -546,7 +559,7 @@ Section PairingCalculus.
       reflexivity.
   Qed.
 
-  Proposition pairing_proj_lassociator {x y z : C} :
+  Lemma pairing_proj_lassociator {x y z : C} :
     ⟨proj1 · proj1, ⟨proj1 · proj2, proj2⟩⟩ = mon_lassociator x y z.
   Proof.
     use cancel_z_iso.
@@ -561,6 +574,8 @@ Section PairingCalculus.
   Qed.
 
 End PairingCalculus.
+
+(** * 3.3 Tactics *)
 
 (* Some tactic automation for simplifying 
     some composites of structural maps, i.e.
@@ -611,19 +626,6 @@ Ltac markov_coherence :=
 Section Corollaries.
   Context {C : markov_category}.
 
-  (* Proposition pairing_inner_swap {x y z w : C} : 
-    ⟨ ⟨ proj1 · proj1 , proj2 · proj1 ⟩ , ⟨ proj1 · proj2, proj2 · proj2 ⟩ ⟩ 
-    = inner_swap _ x y z w.
-  Proof.
-    Locate inner_swap.
-    unfold inner_swap.
-    rewrite tensor_mor_left, tensor_mor_right.
-    markov_coherence; [auto 10 with autodet|..].
-    - markov_coherence; [auto 10 with autodet|..].
-      rewrite !assoc.
-      pairing_simpl. *)
-    
-
   Lemma rassociator_proj (x y z : C) :
     mon_rassociator x y z · proj1 = identity x #⊗ proj1.
   Proof.
@@ -658,6 +660,85 @@ Section Corollaries.
     apply maponpaths_2.
     rewrite copy_copy.
     reflexivity.
+  Qed.
+
+  (* This is a nice test case: 
+     If [markov_coherence] was better, it should solve this goal automatically. *)
+  Proposition pairing_inner_swap {x y z w : C} : 
+    ⟨ ⟨ proj1 · proj1 , proj2 · proj1 ⟩ , ⟨ proj1 · proj2, proj2 · proj2 ⟩ ⟩ 
+    = inner_swap _ x y z w.
+  Proof.
+    unfold inner_swap.
+    rewrite tensor_mor_left, tensor_mor_right.
+    markov_coherence; [try auto 10 with autodet|..]. 
+    - markov_coherence; [try auto 10 with autodet|..].
+      rewrite !assoc.
+      symmetry. etrans. {
+        apply maponpaths_2.
+        rewrite !assoc'.
+        pairing_simpl.
+        reflexivity.
+      }
+      pairing_simpl.
+      rewrite !assoc.
+      etrans. {
+        apply maponpaths_2.
+        rewrite !assoc'.
+        pairing_simpl.
+        rewrite !assoc.
+        apply maponpaths_2.
+        pairing_simpl.
+        reflexivity.
+      }
+      pairing_simpl.
+      reflexivity.
+    - markov_coherence; [try auto 10 with autodet|..].
+      * rewrite !assoc.
+        refine (!_).
+        etrans. {
+          do 2 apply maponpaths_2.
+          rewrite !assoc'.
+          pairing_simpl.
+          reflexivity.
+        }
+        etrans. {
+          apply maponpaths_2.
+          rewrite !assoc'.
+          pairing_simpl.
+          reflexivity.
+        }
+        pairing_simpl.
+        rewrite !assoc.
+        etrans. {
+          apply maponpaths_2.
+          rewrite !assoc'.
+          pairing_simpl.
+          reflexivity.
+        }
+        rewrite !assoc.
+        pairing_simpl.
+        etrans. {
+          rewrite !assoc.
+          apply maponpaths_2.
+          pairing_simpl.
+          reflexivity.
+        }
+        pairing_simpl.
+        reflexivity.
+      * symmetry.
+        etrans. {
+          rewrite !assoc.
+          do 2 apply maponpaths_2.
+          pairing_simpl.
+          reflexivity. 
+        }
+        etrans. {
+          apply maponpaths_2.
+          pairing_simpl.
+          reflexivity.
+        }
+        pairing_simpl.
+        reflexivity.
   Qed.
 
 End Corollaries.
