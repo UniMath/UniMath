@@ -241,7 +241,7 @@ End ProbabilitySpacesDagger.
 
 (** * 3. Defining an Isomorphism of Dagger Categories between Probability Spaces and Couplings *)
 
-(** * 3.1 Defining the Dagger Functor from Probability Spaces to Couplings *)
+(** ** 3.1 Defining the Dagger Functor from Probability Spaces to Couplings *)
 
 Section ProbabilitySpacesToCouplings.
   Context {C : markov_category_with_conditionals}.
@@ -341,7 +341,7 @@ Section ProbabilitySpacesToCouplings.
 End ProbabilitySpacesToCouplings.
 
 
-(** * 3.2 Defining the Dagger Functor from Couplings to Probability Spaces *)
+(** ** 3.2 Defining the Dagger Functor from Couplings to Probability Spaces *)
 
 Section CouplingsToProbabilitySpaces.
   Context {C : markov_category_with_conditionals}.
@@ -465,7 +465,7 @@ Section CouplingsToProbabilitySpaces.
 
 End CouplingsToProbabilitySpaces.
 
-(** * 3.3 Proof that the Functors are Inverses *)
+(** ** 3.3 Proof that the Functors are Inverses *)
 
 Section EquivalenceProof.
   Context {C : markov_category_with_conditionals}.
@@ -502,7 +502,7 @@ Section EquivalenceProof.
     - reflexivity.
   Qed. 
 
-  (** * 3.4 Deriving the equality [couplings = prob_space] *)
+  (** ** 3.4 Deriving the equality [couplings = prob_space] *)
 
   Proposition couplings_to_ps_fully_faithful : fully_faithful (@couplings_to_ps C).
   Proof.

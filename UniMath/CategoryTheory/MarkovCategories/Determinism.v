@@ -10,18 +10,22 @@ The determinism condition expresses that the following are equivalent: running a
 versus running it once and copying (sharing) the result.
 
 We give proofs of determinism of all relevant structure morphisms of the Markov category C,
-and prove various lemmas about composition of deterministic maps.
+and prove various lemmas about composition of deterministic maps. These lemmas unlock some mild automation:
+Using a hint database [autodet], we can solve some goals of the form [is_deterministic] automatically using.
+
+By converting all structural morphisms into explicit pairing form [⟨...⟩], we can use a calculus in the style of 
+cartesian categories to reason about equalities of structural morphisms in a simpler and semi-automatic form.
+
+We lastly give some tactics [pairing_proj_expand], [pairing_simpl] and [markov_coherence] which solve some coherence
+equations automatically. TODO The automation could be vastly improved (and even made complete for some class of morphisms).
 
 Table of Contents
 1. Definition of Determinism
 2. Examples and Properies
 3. Automation: We provide
-  - 3.1 A hint database [autodet] which can automatically derive determinism proofs for some morphisms using [auto with autodet]
-  - 3.2 A set of lemmas which enables a calculus for working with pairings [⟨ ... ⟩] similar to cartesian categories 
-  - 3.3 Tactics [pairing_proj_expand], [pairing_simpl] and [markov_coherence] which simplify
-    or automatically solve some coherence equations by converting them into a form consisting only
-    of pairings and projections, and then applies the lemmas. 
-    TODO: The automation could be vastly improved (and even made complete for some class of morphisms).
+  - 3.1 A Hint Database [autodet]
+  - 3.2 Lemmas for a Calculus of Pairings
+  - 3.3 Coherence Tactics
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -419,7 +423,7 @@ End ExamplesAndProperties.
 
 (** * 3. Automation *)
 
-(** * 3.1 autodet *)
+(** ** 3.1 A Hint Database [autodet] *)
 
 (* We can automatically derive that some morphisms are deterministic by 
    composing various primitive determinism statements *)
@@ -445,7 +449,7 @@ End ExamplesAndProperties.
 
 #[global] Hint Resolve deterministic_iso_to_z_iso_is_deterministic : autodet.
 
-(** * 3.2. A calculus for pairings *)
+(** ** 3.2 Lemmas for a Calculus of Pairings *)
 
 (* By rewriting all (deterministic) structural maps into explicit pairing form, 
    we can reason equationally about such composites.
@@ -575,7 +579,7 @@ Section PairingCalculus.
 
 End PairingCalculus.
 
-(** * 3.3 Tactics *)
+(** ** 3.3 Coherence Tactics *)
 
 (* Some tactic automation for simplifying 
     some composites of structural maps, i.e.

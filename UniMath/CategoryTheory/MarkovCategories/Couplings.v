@@ -119,7 +119,7 @@ End IdentityCouplingDefinition.
 
 (** * 3. Definitions and Lemmas about Couplings *)
 
-(** * 3.1 Coupling Composition *)
+(** ** 3.1 Coupling Composition *)
 
 Section CouplingCompositionLemmas.
   Context {C : markov_category_with_conditionals}.
@@ -304,7 +304,7 @@ End CouplingCompositionLemmas.
 
 #[global] Opaque coupling_composition.
 
-(** * 3.2 Dagger *)
+(** ** 3.2 Dagger *)
 
 Section CouplingDaggerDefinition.
   Context {C : markov_category}.
@@ -387,7 +387,7 @@ Section CouplingDaggerLemmas.
 
 End CouplingDaggerLemmas.
 
-(** * 3.3 Blooms *)
+(** ** 3.3 Blooms *)
 
 Section BloomCouplingDefinitions.
   Context {C : markov_category}.
@@ -518,7 +518,7 @@ Section BloomCouplingLemmas.
 
 End BloomCouplingLemmas.
 
-(** * 3.4 Dilation couplings *)
+(** ** 3.4 Dilation couplings *)
 
 Section DilationCouplingsDefinition.
   Context {C : markov_category}.

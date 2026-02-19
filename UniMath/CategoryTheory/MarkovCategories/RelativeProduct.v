@@ -7,8 +7,8 @@ As these categories are dagger equivalent, it suffices to develop the theory for
 we choose couplings as working with probability spaces involves quotients.
 
 The core results are 
-* almost surely deterministic maps can be identified with coisometries
-* the relative product construction on probability spaces has the universal property of a dilator
+* almost surely deterministic maps can be identified with coisometries in these dagger categories
+* the relative product construction [relprod] on probability spaces has the universal property of a dilator
 
 Table of Contents
 1. Results relating Coisometries and Almost-Sure Determinism 
