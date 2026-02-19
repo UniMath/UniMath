@@ -668,7 +668,7 @@ Section Corollaries.
 
   (* This is a nice test case: 
      If [markov_coherence] was better, it should solve this goal automatically. *)
-  Proposition pairing_inner_swap {x y z w : C} : 
+  Proposition inner_swap_proj {x y z w : C} : 
     ⟨ ⟨ proj1 · proj1 , proj2 · proj1 ⟩ , ⟨ proj1 · proj2, proj2 · proj2 ⟩ ⟩ 
     = inner_swap _ x y z w.
   Proof.
