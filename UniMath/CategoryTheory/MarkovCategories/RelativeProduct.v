@@ -1,10 +1,13 @@
 (*********************************************
 Relative Product
 
-In this file, we develop dagger-categorical results about the category [prob_space C] of probability spaces.
+In this file, we develop dagger-categorical results about the 
+dagger categories [prob_space C] of probability spaces and [couplings C] of couplings.
+As these categories are dagger equivalent, it suffices to develop the theory for one of them;
+we choose couplings as working with probability spaces involves quotients.
 
 The core results are 
-* almost surely deterministic maps can be identified with coisometries in [prob_space]
+* almost surely deterministic maps can be identified with coisometries
 * the relative product construction on probability spaces has the universal property of a dilator
 
 Table of Contents
@@ -13,7 +16,9 @@ Table of Contents
 3. Relative Product and Dilators in Probability Spaces [prob_space C]
 
 References
-- Noé Ensarguet and Paolo Perrone - 'Categorical probability spaces, ergodic decompositions, and transitions to equilibrium'
+- Matthew Di Meglio, Chris Heunen, Jean-Simon Pacaud Lemay, Paolo Perrone, Dario Stein:
+  'Dagger categories of relations: the equivalence of dilatory dagger categories
+                                   and epi-regular independence categories'
 **********************************************)
 
 Require Import UniMath.Foundations.All.
@@ -201,7 +206,7 @@ Section CouplingCoisometries.
     reflexivity.
   Qed.  
   
-  Definition coisometry_krn_from_bloom {p q : state C}
+  Definition make_bloom_coisometry {p q : state C}
     (f : state_ob p --> state_ob q)
     (e : p · f = q)
     (det_ase : is_deterministic_ase p f)
@@ -233,7 +238,7 @@ Section CouplingDilators.
 
   Definition p1 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) p.
   Proof.
-    use coisometry_krn_from_bloom.
+    use make_bloom_coisometry.
     - exact proj1.
     - apply coupling_dom.
     - apply deterministic_implies_determinstic_ase.
@@ -242,7 +247,7 @@ Section CouplingDilators.
   
   Definition p2 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) q.
   Proof.
-    use coisometry_krn_from_bloom.
+    use make_bloom_coisometry.
     - exact proj2.
     - apply coupling_cod.
     - apply deterministic_implies_determinstic_ase.
@@ -291,7 +296,7 @@ Section CouplingDilators.
     Let f : w --> x := coupling_cond left_coupling.
     Let g : w --> y := coupling_cond right_coupling.
 
-    Lemma d_dil : r · ⟨f,g⟩ = coupling_to_state γ.
+    Local Lemma d_dil : r · ⟨f,g⟩ = coupling_to_state γ.
     Proof.
       rewrite <- (dilation_eq _ d).
       cbn.
@@ -331,7 +336,7 @@ Section CouplingDilators.
       - abstract (rewrite bloom_coupling_cod; exact d_dil).
     Defined.       
     
-    Proposition f_det : is_deterministic_ase r f.
+    Local Lemma f_det : is_deterministic_ase r f.
     Proof.
       use det_ase_from_coiso.
       - exact left_coupling.
@@ -339,7 +344,7 @@ Section CouplingDilators.
       - apply coisometry_property.
     Qed.   
 
-    Proposition g_det : is_deterministic_ase r g.
+    Local Lemma g_det : is_deterministic_ase r g.
     Proof.
       use det_ase_from_coiso.
       - exact right_coupling.
@@ -416,31 +421,31 @@ Section CouplingDilators.
 
     (* We claim that s = h *)
 
-    Proposition σ_pi1 : other · p1 γ = left_coupling.
+    Local Lemma σ_pi1 : other · p1 γ = left_coupling.
     Proof.
       apply dilation_map_eq_left.
     Qed.
     
-    Proposition σ_pi2 : other · p2 γ = right_coupling.
+    Local Lemma σ_pi2 : other · p2 γ = right_coupling.
     Proof.
       apply dilation_map_eq_right.
     Qed.
 
-    Proposition σ_is_bloom : σ = bloom_coupling r s.
+    Local Lemma σ_is_bloom : σ = bloom_coupling r s.
     Proof.
       rewrite (coupling_is_bloom_coupling σ).
       apply maponpaths_2.
       apply coupling_dom.
     Qed. 
 
-    Proposition rs : r · s = coupling_to_state γ.
+    Local Lemma rs : r · s = coupling_to_state γ.
     Proof.
       rewrite <- bloom_coupling_cod.
       rewrite <- σ_is_bloom.
       apply coupling_cod.
     Qed.
 
-    Proposition s1 : bloom_coupling r (s · proj1) = coupling_to_state left_coupling.
+    Local Lemma s1 : bloom_coupling r (s · proj1) = coupling_to_state left_coupling.
     Proof.
       rewrite <- σ_pi1.
       cbn. 
@@ -461,7 +466,7 @@ Section CouplingDilators.
       reflexivity.
     Qed.
 
-    Proposition s2 : bloom_coupling r (s · proj2) = coupling_to_state right_coupling.
+    Local Lemma s2 : bloom_coupling r (s · proj2) = coupling_to_state right_coupling.
     Proof.
       rewrite <- σ_pi2.
       cbn. 
@@ -482,7 +487,7 @@ Section CouplingDilators.
       reflexivity.
     Qed.
 
-    Proposition s1_ase_f : (s · proj1) =_{r} f.
+    Local Lemma s1_ase_f : (s · proj1) =_{r} f.
     Proof.
       apply make_ase_from_bloom_coupling.
       rewrite s1.
@@ -491,7 +496,7 @@ Section CouplingDilators.
       apply coupling_dom.
     Qed.
 
-    Proposition s2_ase_g : (s · proj2) =_{r} g.
+    Local Lemma s2_ase_g : (s · proj2) =_{r} g.
     Proof.
       apply make_ase_from_bloom_coupling.
       rewrite s2.
@@ -500,7 +505,7 @@ Section CouplingDilators.
       apply coupling_dom.
     Qed.
 
-    Proposition s_ase : s =_{r} ⟨f,g⟩.
+    Local Lemma s_ase : s =_{r} ⟨f,g⟩.
     Proof.
       (* by relative positivity, s is the pairing of its marginals *)
       apply ase_trans with (⟨s · proj1, s · proj2⟩). {
@@ -532,7 +537,7 @@ Section CouplingDilators.
       : other = relprod_dilation_factorization.
     Proof.
       apply dilation_map_ext.
-      apply coisometry_eq.
+      apply coisometry_ext.
       apply coupling_ext.
       cbn.
       transitivity σ. { reflexivity. }
@@ -583,7 +588,7 @@ Section Dilators.
     e.g. manually construct the bloom dilation and 
     show that it fixed by the equivalence *)
   
-    Definition hProj {X : UU} (i : isaset X) (x : make_hSet X i) : X.
+  Definition hProj {X : UU} (i : isaset X) (x : make_hSet X i) : X.
   Proof.
     exact x.
   Defined.
@@ -607,6 +612,7 @@ Section Dilators.
   Proof.
     use hProj. { apply homset_property. } 
     revert f.
+    (* TODO *)
   Abort.
 
 End Dilators.

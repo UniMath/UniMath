@@ -51,7 +51,7 @@ Section IsometriesDef.
     - intro ; apply isasetaprop ; apply isaprop_is_isometry.
   Qed.
 
-  Lemma isometry_eq {x y : C} (f g : isometry x y) :
+  Lemma isometry_ext {x y : C} (f g : isometry x y) :
     pr1 f = pr1 g -> f = g.
   Proof.
     use subtypePath.
@@ -95,7 +95,7 @@ Section CoisometriesDef.
     - intro ; apply isasetaprop ; apply isaprop_is_coisometry.
   Qed.
 
-  Lemma coisometry_eq {x y : C} (f g : coisometry x y) :
+  Lemma coisometry_ext {x y : C} (f g : coisometry x y) :
     pr1 f = pr1 g -> f = g.
   Proof.
     use subtypePath.

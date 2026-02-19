@@ -9,10 +9,16 @@ allegories and regular categories.
 In this file, we develop the basic theory of dilations and dilators.
 
 Table of Contents
-1. Definition of dilatins and dilators
+1. Definition of Dilations
+2. Maps of Dilations
+3. Definition of Dilators
+4. Some Lemmas about Dilators
 
 
-- Matthew Di Meglio - 'R*-categories: The Hilbert-space analogue of abelian categories'
+- Matthew Di Meglio: 'R*-categories: The Hilbert-space analogue of abelian categories'
+- Matthew Di Meglio, Chris Heunen, Jean-Simon Pacaud Lemay, Paolo Perrone, Dario Stein:
+  'Dagger categories of relations: the equivalence of dilatory dagger categories
+                                   and epi-regular independence categories'
 **********************************************)
 
 Require Import UniMath.Foundations.All.
@@ -24,7 +30,8 @@ Require Import UniMath.CategoryTheory.DaggerCategories.Isometry.
 
 Local Open Scope cat.
 
-(** * 1. Definition of dilations *)
+(** * 1. Definition of Dilations *)
+
 Section Dilations.
   Context (C : dagger_category).
 
@@ -69,10 +76,10 @@ Arguments apex {C} {x y} {f}.
 Arguments left_leg {C} {x y} {f}.
 Arguments right_leg {C} {x y} {f}.
 
+(** * 2. Maps of Dilations *)
+
 Section DilationMaps.
   Context (C : dagger_category).
-
-  (* Map of dilations *)
 
   Definition dilation_map {x y : C} {f : x --> y} (d : dilation C f) (e : dilation C f) : UU
     := ∑ h : coisometry C (apex d) (apex e), 
@@ -135,8 +142,12 @@ Section DilationMaps.
 
 End DilationMaps.
 
+(** * 3. Definition of Dilators *)
+
 Section Dilators.
   Context (C : dagger_category).
+
+  (* A dilator is a terminal dilation *)
 
   Definition is_dilator {x y : C} {f : x --> y} (e : dilation C f) : UU
     := ∏ d : dilation C f, iscontr (dilation_map C d e).
@@ -158,7 +169,14 @@ Section Dilators.
   Definition has_dilators : UU :=
     ∏ (x y : C) (f : x --> y), ∥dilator f∥.
 
-  (* Example: dilations of the identity *)
+End Dilators.
+
+(** * 4. Some Lemmas about Dilators *)
+
+Section DilatorLemmas.
+  Context (C : dagger_category).
+
+  (* Example: the identity span is a dilation of the identity *)
 
   Definition dilation_id_id (x : C) : dilation C (identity x).
   Proof.
@@ -168,8 +186,8 @@ Section Dilators.
     reflexivity.
   Defined.
 
-  (* If C has dilators, then [dilation_id_id] is one as well *)
-  Lemma dilator_id_id (x : C) (dil : with_dilators) : is_dilator (dilation_id_id x).
+  (* If C has dilators, then [dilation_id_id] is a dilator *)
+  Lemma dilator_id_id (x : C) (dil : with_dilators C) : is_dilator C (dilation_id_id x).
   Proof.
     intros d.
 
@@ -205,11 +223,11 @@ Section Dilators.
     
     intros [h2 [P Q]].
     use dilation_map_ext.
-    apply coisometry_eq.
+    apply coisometry_ext.
     cbn.
     rewrite <- eq2.
     rewrite <- (id_right (pr1 h2)).
     exact P.
   Qed.  
        
-End Dilators.
+End DilatorLemmas.
