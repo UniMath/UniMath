@@ -32,6 +32,7 @@ Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
 Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 Require Import UniMath.CategoryTheory.MarkovCategories.Determinism.
@@ -218,11 +219,21 @@ Section PropertiesAlmostSurely.
     exact ase.
   Qed.
 
+  Proposition ase_pairing {y z : C} (f1 f2 : x --> y) (g1 g2 : x --> z) :
+    f1 =_{p} f2 -> g1 =_{p} g2 -> ⟨f1, g1⟩ =_{p} ⟨f2, g2⟩.
+  Proof.
+    intros ase_f ase_g.
+    apply ase_trans with (⟨f2, g1⟩).
+    { apply ase_pairing_l; exact ase_f. }
+    apply ase_pairing_r; exact ase_g.
+  Qed.
+
 End PropertiesAlmostSurely.
 
 Section MiscellaneousLemmas.
+  Context {C : markov_category}.
 
-  Proposition id_ase {C : markov_category} {x y : C} (f g : x --> y) :
+  Proposition id_ase {x y : C} (f g : x --> y) :
     (f =_{identity x} g) -> f = g.
   Proof.
     intros ase.
@@ -233,7 +244,7 @@ Section MiscellaneousLemmas.
     exact ase.
   Qed. 
 
-  Lemma copy_ase {C : markov_category} (x : C) : proj1 =_{copy x} proj2.
+  Lemma copy_ase (x : C) : proj1 =_{copy x} proj2.
   Proof.
     apply make_equal_almost_surely_l.
     apply det_eta; try auto with autodet.
@@ -244,7 +255,40 @@ Section MiscellaneousLemmas.
       reflexivity.
   Qed.
 
+  Proposition ase_tensor_split {a1 a2 x1 x2 y1 y2 : C} 
+    {p1 : a1 --> x1} {p2 : a2 --> x2}
+    {f1 : x1 --> y1} {f2 : x2 --> y2}
+    {g1 : x1 --> y1} {g2 : x2 --> y2}
+    : f1 =_{p1} g1 -> f2 =_{p2} g2 -> (f1 #⊗ f2) =_{p1 #⊗ p2} (g1 #⊗ g2).
+  Proof.
+    intros ase1 ase2.
+    apply make_equal_almost_surely_r.
+    rewrite <- !tensor_id_id.
+    rewrite <- !pairing_inner_swap, !assoc.
+    apply maponpaths_2.
+    rewrite <- !tensor_comp_mor.
+    apply maponpaths_12.
+    - apply equal_almost_surely_r; exact ase1.
+    - apply equal_almost_surely_r; exact ase2.
+  Qed.
+
+  Proposition cancel_z_iso_ase {a x y z : C}
+      {p : a --> x} {f1 f2 : x --> y} (g : z_iso y z)
+    : f1 · g =_{p} f2 · g -> f1 =_{p} f2.
+  Proof.
+    intros ase.
+    assert(e1 : f1 = f1 · g · inv_from_z_iso g).
+    { rewrite assoc', z_iso_inv_after_z_iso, id_right. reflexivity. }
+    assert(e2 : f2 = f2 · g · inv_from_z_iso g).
+    { rewrite assoc', z_iso_inv_after_z_iso, id_right. reflexivity. }
+    rewrite e1, e2.
+    apply ase_postcomp.
+    exact ase.
+  Qed.
+
 End MiscellaneousLemmas.
+
+#[global] Opaque equal_almost_surely.
 
 (** * 3. Definition of Almost Sure Determinism *)
 
@@ -276,11 +320,7 @@ Section AlmostSurelyDeterministic.
     { apply df.  }
 
     do 2 rewrite <- pairing_eq.
-
-    apply ase_trans with (⟨ f, g ⟩).
-    { apply ase_pairing_r. exact ase. }
-
-    apply ase_pairing_l. exact ase.
+    apply ase_pairing; exact ase.
   Qed.
 
   Proposition is_deterministic_ase_postcomp
@@ -296,22 +336,54 @@ Section AlmostSurelyDeterministic.
   Qed.    
 
   Proposition is_deterministic_ase_tensor 
-    {a1 x1 y1 a2 x2 y2 : C} {p1 : a1 --> x1} {f1 : x1 --> y1}
-    {p2 : a2 --> x2} {f2 : x2 --> y2} 
-    : is_deterministic_ase p1 f1 -> is_deterministic_ase p2 f2 
+      {a1 x1 y1 a2 x2 y2 : C} {p1 : a1 --> x1} {f1 : x1 --> y1}
+      {p2 : a2 --> x2} {f2 : x2 --> y2} 
+    :    is_deterministic_ase p1 f1 -> is_deterministic_ase p2 f2 
       -> is_deterministic_ase (p1 #⊗ p2) (f1 #⊗ f2).
   Proof.
     intros d1 d2.
     unfold is_deterministic_ase.
-  Admitted.
+    use cancel_z_iso_ase.
+    - exact ((y1 ⊗ y1) ⊗ (y2 ⊗ y2)).
+    - exists (inner_swap _ _ _ _ _); apply inner_swap_is_z_isomorphism.
+    - apply ase_trans with ((f1 · copy y1) #⊗ (f2 · copy y2)). {
+        rewrite assoc', copy_tensor'.
+        rewrite <- tensor_comp_mor.
+        apply ase_refl.
+      }
+
+      rewrite assoc', <- naturality_inner_swap.
+      rewrite assoc, copy_tensor'.
+      rewrite <- tensor_comp_mor.
+
+      apply ase_tensor_split.
+      * exact d1.
+      * exact d2.
+  Qed.   
 
   Proposition is_deterministic_ase_pairing
-    {a x y z : C} {p : a --> x} {f : x --> y} {g : x --> z} 
-    : is_deterministic_ase p f -> is_deterministic_ase p g 
+      {a x y z : C} {p : a --> x} {f : x --> y} {g : x --> z} 
+    :    is_deterministic_ase p f -> is_deterministic_ase p g 
       -> is_deterministic_ase p ⟨f,g⟩.
   Proof.
-  Admitted. 
+    intros d1 d2.
+    unfold is_deterministic_ase.
+    use cancel_z_iso_ase.
+    - exact (y ⊗ y ⊗ (z ⊗ z)).
+    - exists (inner_swap _ _ _ _ _); apply inner_swap_is_z_isomorphism.
+    - apply ase_trans with (⟨f · copy y, g · copy z⟩). {
+        apply ase_from_eq.
+        rewrite assoc', copy_tensor'.
+        rewrite pairing_tensor.
+        reflexivity.
+      }
+      cbn.
+      rewrite assoc'.
+      rewrite pairing_inner_swap.
+      rewrite copy_pairing.
+      apply ase_pairing.
+      * exact d1.
+      * exact d2.
+  Qed.
 
 End AlmostSurelyDeterministic.
-
-#[global] Opaque equal_almost_surely.

@@ -214,6 +214,22 @@ Section MarkovCategoryLaws.
     exact (pr22 (pr222 C) x y).
   Defined.
 
+  Proposition copy_tensor' (x y : C)
+    : copy (x ⊗ y) · inner_swap _ _ _ _ _
+      = copy x #⊗ copy y.
+  Proof.
+    rewrite <- copy_tensor, assoc'.
+    rewrite inner_swap_inv.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
+  Proposition copy_copy (x : C)
+    : copy x · copy (x ⊗ x) = copy x · copy x #⊗ copy x.
+  Proof.
+    rewrite <- copy_tensor.
+  Admitted.
+
   Proposition copy_I_mon_rinvunitor :
     copy (I_{C}) = mon_rinvunitor (I_{C}).
   Proof.
@@ -422,9 +438,9 @@ Section PairingProperties.
     reflexivity.
   Qed.
 
-   Proposition pairing_proj2 {a x y : C} (f : a --> x) (g : a --> y) :
+  Proposition pairing_proj2 {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · proj2 = g.
-   Proof.
+  Proof.
     unfold proj2.
     rewrite assoc.
     rewrite pairing_tensor.
@@ -443,7 +459,7 @@ Section PairingProperties.
       rewrite id_left.
       reflexivity. }
     reflexivity.
-   Qed.
+  Qed.
 
   Proposition pairing_sym_mon_braiding {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · sym_mon_braiding _ _ _ = ⟨g,f⟩.
@@ -488,6 +504,32 @@ Section PairingProperties.
     rewrite mon_lassociator_rassociator.
     rewrite id_right.
     apply idpath.
+  Qed.
+
+  Proposition pairing_inner_swap 
+      {x1 x2 y1 y2 z1 z2 : C}
+      {f1 : x1 --> y1} {g1 : x1 --> z1}
+      {f2 : x2 --> y2} {g2 : x2 --> z2}
+    : (⟨ f1, g1 ⟩ #⊗ ⟨ f2, g2 ⟩ ) · inner_swap _ _ _ _ _
+      = ⟨ f1 #⊗ f2, g1 #⊗ g2⟩.
+  Proof.
+    unfold pairing.
+    rewrite <- copy_tensor.
+    rewrite tensor_comp_mor, !assoc'.
+    rewrite naturality_inner_swap.
+    reflexivity.
+  Qed.
+
+  Proposition copy_pairing 
+      {x y z : C}
+      {f : x ⊗ x --> y} {g : x ⊗ x --> z}
+    : copy x · ⟨f,g⟩ = ⟨copy x · f, copy x · g⟩.
+  Proof.
+    unfold pairing.
+    rewrite tensor_comp_mor, !assoc.
+    apply maponpaths_2.
+    rewrite copy_copy.
+    reflexivity.
   Qed.
 
   (* Some helpful cancellation lemmas *)
