@@ -1,5 +1,4 @@
 Require Import UniMath.Foundations.All.
-Require Import UniMath.CategoryTheory.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.Core.Categories.
