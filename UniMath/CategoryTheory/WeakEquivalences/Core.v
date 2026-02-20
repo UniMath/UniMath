@@ -1,14 +1,19 @@
 (**
 
-Section ``WeakEquivalences'' contains:
-   1. the definition of a weak equivalence (i.e., essentially surjective and fully faithful);
-   2. together with accessors;
-   3. a proof that ``is a weak equivalence'' is a proposition;
-   4. a proof that every identity functor (resp. the composite of weak equivalences) is a weak equivalence
+   The basics of weak equivalences
 
-Section ``WeakEquivalenceInducesIsoOnUnivalentFunctorCategories'' contains a proof for the statement:
-Let H : C → D be a weak equivalence (between not-necesssarily univalent categories) and E a univalent category.
-Then, the functor (H · -) : [D, E] → [C, E] is an isomorphism of (univalent) categories; and hence an isomorphism.
+   Contents.
+   1. Section ``WeakEquivalences'' contains:
+      - the definition of a weak equivalence (i.e., essentially surjective and fully faithful);
+      - together with accessors;
+      - a proof that ``is a weak equivalence'' is a proposition;
+      - a proof that every identity functor (resp. the composite of weak equivalences) is a weak equivalence
+
+   2. Section ``WeakEquivalenceInducesIsoOnUnivalentFunctorCategories'' contains a proof for the statement:
+   Let H : C → D be a weak equivalence (between not-necesssarily univalent categories) and E a univalent category.
+   Then, the functor (H · -) : [D, E] → [C, E] is an isomorphism of (univalent) categories; and hence an isomorphism.
+
+   3. Section ``WeakAndAdjointEquivalences'' contains relations between weak and adjoint equivalences
 
  *)
 
@@ -18,6 +23,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
 
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.catiso.
@@ -109,3 +117,29 @@ Section WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.
   Defined.
 
 End WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.
+
+Section WeakAndAdjointEquivalences.
+
+  Context {A B : category} {F : A ⟶ B}.
+
+  Lemma rad_equivalence_of_cats''
+    (A_univ : is_univalent A)
+    (F_weq : is_weak_equiv F)
+    : adj_equivalence_of_cats F.
+  Proof.
+    apply rad_equivalence_of_cats.
+    - exact A_univ.
+    - apply F_weq.
+    - apply F_weq.
+  Defined.
+
+  Lemma weak_equiv_from_equiv
+    (Fe : adj_equivalence_of_cats F)
+    : is_weak_equiv F.
+  Proof.
+    split.
+    - apply functor_from_equivalence_is_essentially_surjective, Fe.
+    - apply fully_faithful_from_equivalence, Fe.
+  Qed.
+
+End WeakAndAdjointEquivalences.

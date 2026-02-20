@@ -1,5 +1,8 @@
+Require Export UniMath.Combinatorics.StandardFiniteSets.
 Require Export UniMath.Combinatorics.Lists.
-Require Export UniMath.Combinatorics.FiniteSequences.
+Require Export UniMath.Combinatorics.FVectors.
+Require Export UniMath.Combinatorics.FMatrices.
+Require Export UniMath.Combinatorics.FLists.
 Require Export UniMath.Algebra.RigsAndRings.
 Require Export UniMath.Foundations.UnivalenceAxiom.
 
@@ -68,7 +71,7 @@ Section BinaryOperations.
     ∏ n (m:stn n → nat) (x : ∏ i (j:stn (m i)), X), iterop_fun (StandardFiniteSets.flatten' x) = iterop_fun_fun x.
 
   Definition isAssociative_seq :=
-    ∏ (x : Sequence (Sequence X)), iterop_seq (FiniteSequences.flatten x) = iterop_seq_seq x.
+    ∏ (x : Sequence (Sequence X)), iterop_seq (FLists.flatten x) = iterop_seq_seq x.
 
   Local Open Scope stn.
 

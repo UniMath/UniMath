@@ -77,7 +77,7 @@ Section WeakEquivLiftsExponentialPreservation.
     (F_pE : preserves_exponential_objects P₁ P₃ F_pP).
 
   Let H_pP : preserves_binproduct H
-      := weak_equiv_lifts_preserves_binproducts C₂ C₃ α G_weq F_pP.
+      := weak_equiv_lifts_preserves_binproducts α G_weq F_pP.
   Let G_pP : preserves_binproduct G
       := weak_equiv_preserves_binproducts G_weq.
 
@@ -398,7 +398,7 @@ Lemma weak_equiv_lifts_preserves_exponentials'
   (G_weq : is_weak_equiv G)
   {F_pP : preserves_binproduct F}
   (F_pE : preserves_exponentials E₁ E₃ F_pP)
-  : preserves_exponentials E₂ E₃ (weak_equiv_lifts_preserves_binproducts C₂ C₃ α G_weq F_pP).
+  : preserves_exponentials E₂ E₃ (weak_equiv_lifts_preserves_binproducts α G_weq F_pP).
 Proof.
   use weak_equiv_lifts_preserves_exponentials.
   { exact P₁. }

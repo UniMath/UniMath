@@ -26,8 +26,7 @@ Local Open Scope cat.
 
 Section LiftAlongWeakEquivalencePreservesEqualizers.
 
-  Context {C1 : category}
-    (C2 C3 : univalent_category)
+  Context {C1 C2 C3 : category}
     {F : C1 ⟶ C3}
     {G : C1 ⟶ C2}
     {H : C2 ⟶ C3}

@@ -18,12 +18,8 @@ Rewrite by: Ralph Matthes, 2023, defining the category of monads through a displ
 
 ************************************************************)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -279,13 +275,22 @@ End pointfree.
 Definition Monad_Mor {C : category} (T T' : Monad C) : UU
   := category_Monad C ⟦T, T'⟧.
 
-Coercion nat_trans_from_monad_mor {C : category} (T T' : Monad C) (s : Monad_Mor T T')
-  : T ⟹ T' := pr1 s.
-
 Definition Monad_Mor_laws {C : category} {T T' : Monad C} (α : T ⟹ T')
   : UU :=
   (∏ a : C, μ T a · α a = α (T a) · #T' (α a) · μ T' a) ×
     (∏ a : C, η T a · α a = η T' a).
+
+Coercion nat_trans_from_monad_mor {C : category} (T T' : Monad C) (s : Monad_Mor T T')
+  : T ⟹ T' := pr1 s.
+
+Coercion nat_trans_from_monad_mor_laws {C : category} (T T' : Monad C) (s : Monad_Mor T T')
+  : Monad_Mor_laws s := pr2 s.
+
+Proposition isaprop_Monad_Mor_laws {C : category} {T T' : Monad C} (α : T ⟹ T')
+  : isaprop (Monad_Mor_laws α).
+Proof.
+  use isapropdirprod ; use impred ; intro ; apply homset_property.
+Qed.
 
 Definition Monad_Mor_η {C : category} {T T' : Monad C} (α : Monad_Mor T T')
   : ∏ a : C, η T a · α a = η T' a.
@@ -297,6 +302,65 @@ Definition Monad_Mor_μ {C : category} {T T' : Monad C} (α : Monad_Mor T T')
   : ∏ a : C, μ T a · α a = α (T a) · #T' (α a) · μ T' a.
 Proof.
   exact (pr12 α).
+Qed.
+
+Proposition identity_Monad_Mor_laws
+            {C : category}
+            (T : Monad C)
+  : Monad_Mor_laws (nat_trans_id T).
+Proof.
+  split.
+  - intro x ; cbn.
+    rewrite functor_id.
+    rewrite !id_left, id_right.
+    apply idpath.
+  - intro x ; cbn.
+    rewrite id_right.
+    apply idpath.
+Qed.
+
+Proposition composition_Monad_Mor_laws
+            {C : category}
+            {T T' T'' : Monad C}
+            {α : T ⟹ T'}
+            {β : T' ⟹ T''}
+            (Hα : Monad_Mor_laws α)
+            (Hβ : Monad_Mor_laws β)
+  : Monad_Mor_laws (nat_trans_comp _ _ _ α β).
+Proof.
+  split.
+  - intro x ; cbn.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply Hα.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      apply Hβ.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply (nat_trans_ax β).
+    }
+    rewrite !assoc'.
+    rewrite functor_comp.
+    apply idpath.
+  - intro x ; cbn.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply Hα.
+    }
+    apply Hβ.
 Qed.
 
 Definition Monad_Mor_equiv {C : category}

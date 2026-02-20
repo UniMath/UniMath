@@ -161,7 +161,7 @@ Section RightUniversalArrow.
     Proof.
       simple refine (R ,, ε ,, _) ; cbn.
       intros x y.
-      use rad_equivalence_of_cats.
+      simple refine (rad_equivalence_of_cats _ _ _ (right_universal_arrow_functor x y ε) _ _).
       - apply is_univ_hom.
         exact HB₁.
       - use full_and_faithful_implies_fully_faithful.
@@ -319,7 +319,7 @@ Section LeftUniversalArrow.
     Proof.
       simple refine (L ,, η ,, _) ; cbn.
       intros x y.
-      use rad_equivalence_of_cats.
+      simple refine (rad_equivalence_of_cats _ _ _ (left_universal_arrow_functor x y η) _ _).
       - apply is_univ_hom.
         exact HB₂.
       - use full_and_faithful_implies_fully_faithful.

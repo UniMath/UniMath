@@ -226,6 +226,7 @@ CategoryEquality.v
 Core/PosetCat.v
 
 WeakEquivalences/Core.v
+WeakEquivalences/TwoOutOfThree.v
 WeakEquivalences/Opp.v
 WeakEquivalences/Terminal.v
 WeakEquivalences/Initial.v
@@ -254,6 +255,7 @@ WeakEquivalences/Regular.v
 WeakEquivalences/Exact.v
 WeakEquivalences/Preservation/NNO.v
 WeakEquivalences/PNNO.v
+WeakEquivalences/Slice.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 
@@ -398,6 +400,7 @@ Chains/CoAdamek.v
 Chains/OmegaCocontFunctors.v
 OppositeCategory/LimitsAsColimits.v
 Chains/OmegaContFunctors.v
+Chains/OmegaContPolynomialFunctors.v
 Chains/All.v
 Inductives/Lists.v
 Inductives/Trees.v
@@ -754,6 +757,7 @@ Monoidal/RezkCompletion/MonoidalRezkCompletion.v
 # Dagger categories
 DaggerCategories/Categories.v
 DaggerCategories/Unitary.v
+DaggerCategories/Isometry.v
 DaggerCategories/Univalence.v
 DaggerCategories/Functors.v
 DaggerCategories/Transformations.v
@@ -773,6 +777,14 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+ModelCategories/Retract.v
+ModelCategories/MorphismClass.v
+ModelCategories/WFS.v
+ModelCategories/WeakEquivalences.v
+ModelCategories/ModelCategories.v
+ModelCategories/NWFS.v
+ModelCategories/NWFSisWFS.v
 
 MarkovCategories/MarkovCategory.v
 MarkovCategories/Determinism.v

@@ -61,7 +61,7 @@ Section CategoriesWithPullbacksAndPreservationUpToIsoHasRezkCompletions.
     - intros C1 C2 C3 F G H α ? ? ? Gw.
       intros [t Fpb].
       exists tt.
-      use (weak_equiv_lifts_preserves_pullbacks C2 C3 α Gw Fpb).
+      use (weak_equiv_lifts_preserves_pullbacks α Gw Fpb).
   Defined.
 
   Corollary disp_bicat_have_pullbacks_has_Rezk_completions
@@ -122,7 +122,7 @@ Section CategoriesWithChosenPullbacksAndPreservationUpToIsoHasRezkCompletions.
     - intros C1 C2 C3 F G H α P1 P2 P3 Gw.
       intros [t F_pp].
       exists tt.
-      exact (weak_equiv_lifts_preserves_pullbacks C2 C3 α Gw F_pp).
+      exact (weak_equiv_lifts_preserves_pullbacks α Gw F_pp).
   Defined.
 
   Corollary disp_bicat_pullbacks_has_Rezk_completions

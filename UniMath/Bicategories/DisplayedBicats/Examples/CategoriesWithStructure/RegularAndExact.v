@@ -71,7 +71,7 @@ Section ExactCategories.
   Lemma disp_2cells_iscontr_exact'
     : disp_2cells_iscontr disp_bicat_exact'.
   Proof.
-    intro ; intros ; apply iscontrunit.
+    apply disp_2cells_iscontr_fullsubbicat.
   Qed.
 
   Definition disp_bicat_exact

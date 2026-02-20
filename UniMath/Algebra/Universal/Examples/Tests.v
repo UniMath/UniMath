@@ -16,7 +16,7 @@ Local Open Scope list.
 
 Section SortedTypes.
 
-  Local Definition A : sUU bool := bool_ind _ nat unit.
+  Local Definition A : sUU bool := bool_rec _ nat unit.
 
   Goal A⋆ (cons true (cons false (cons true nil))) = (nat × unit × nat × unit).
   Proof. apply idpath. Defined.

@@ -11,6 +11,7 @@
  3. Standard objects and morphisms in the codomain
  4. Calculations for codomain fiber
  5. The fiber of terminal objects
+ 6. Builders for isomorphisms
 
  **************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -532,3 +533,47 @@ Section CodomainFiber.
       := adjointification cod_fib_terminal_equivalence.
   End FibTerminal.
 End CodomainFiber.
+
+(** * 6. Isomorphisms builders in the slice category *)
+Section IsoInSlice.
+
+  Context {C : category} (z : C) (a b : C / z).
+
+  Lemma make_is_z_iso_in_slice {f : C/z⟦a, b⟧}
+    (i : is_z_isomorphism (dom_mor f))
+    : is_z_isomorphism f.
+  Proof.
+    use make_is_z_isomorphism.
+    - use tpair.
+      + exact (inv_from_z_iso (_,, i)).
+      + abstract (
+            simpl;
+            refine (_ @ ! id_right _);
+            rewrite (! id_right _ @ ! pr2 f);
+            rewrite assoc;
+            rewrite z_iso_after_z_iso_inv;
+            apply id_left).
+    - abstract (
+          split ; use eq_mor_cod_fib;
+          [ etrans;
+            [ apply transportf_cod_disp
+            | exact (z_iso_inv_after_z_iso (_ ,, i)) ]
+          | etrans ;
+            [ apply transportf_cod_disp
+            | exact (z_iso_after_z_iso_inv (_ ,, i)) ]
+          ]).
+  Defined.
+
+  Lemma make_z_iso_in_slice
+    (i : z_iso (cod_dom a) (cod_dom b))
+    (pf : i · cod_mor b = cod_mor a)
+    : z_iso a b.
+  Proof.
+    use make_z_iso'.
+    - exists i.
+      abstract (exact (pf @ ! id_right _)).
+    - use make_is_z_iso_in_slice.
+      apply i.
+  Defined.
+
+End IsoInSlice.

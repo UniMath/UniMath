@@ -38,11 +38,11 @@ Local Open Scope cat.
 
 (** * Sloppy equivalence of categories *)
 
-Definition forms_equivalence {A B : category} (X : adjunction_data A B)
+Definition forms_equivalence {A B : precategory} (X : adjunction_data A B)
            (η := adjunit X) (ε := adjcounit X) : UU
   := (∏ a, is_z_isomorphism (η a)) × (∏ b, is_z_isomorphism (ε b)).
 
-Definition make_forms_equivalence {A B : category}
+Definition make_forms_equivalence {A B : precategory}
            (adjData : adjunction_data A B)
            (η := adjunit adjData)
            (ε := adjcounit adjData)
@@ -50,25 +50,25 @@ Definition make_forms_equivalence {A B : category}
            (ε_iso : ∏(b : B), is_z_isomorphism (ε b)) : forms_equivalence adjData
     := (η_iso ,, ε_iso).
 
-Definition equivalence_of_cats (A B : category) : UU
+Definition equivalence_of_cats (A B : precategory) : UU
   := ∑ (X : adjunction_data A B), forms_equivalence X.
 
 Coercion adjunction_data_from_equivalence_of_cats {A B}
          (X : equivalence_of_cats A B) : adjunction_data A B := pr1 X.
 
-Definition make_equivalence_of_cats {A B : category}
+Definition make_equivalence_of_cats {A B : precategory}
            (adjData : adjunction_data A B)
            (eqvProp : forms_equivalence adjData) : equivalence_of_cats A B
   := (adjData ,, eqvProp).
 
-Definition adjunitiso {A B : category} (X : equivalence_of_cats A B)
+Definition adjunitiso {A B : precategory} (X : equivalence_of_cats A B)
            (a : A) : z_iso a (right_functor X (left_functor X a)).
 Proof.
   exists (adjunit X a).
   exact (pr1 (pr2 X) a).
 Defined.
 
-Definition adjcounitiso {A B : category} (X : equivalence_of_cats A B)
+Definition adjcounitiso {A B : precategory} (X : equivalence_of_cats A B)
            (b : B) : z_iso (left_functor X (right_functor X b)) b.
 Proof.
  exists (adjcounit X b).
@@ -77,14 +77,14 @@ Defined.
 
 (** * Equivalence of (pre)categories *)
 
-Definition adj_equivalence_of_cats {A B : category} (F : functor A B) : UU :=
+Definition adj_equivalence_of_cats {A B : precategory} (F : functor A B) : UU :=
    ∑ (H : is_left_adjoint F), forms_equivalence H.
 
-Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
+Definition adj_from_equiv (D1 D2 : precategory) (F : functor D1 D2):
     adj_equivalence_of_cats F → is_left_adjoint F := λ x, pr1 x.
 Coercion adj_from_equiv : adj_equivalence_of_cats >-> is_left_adjoint.
 
-Definition make_adj_equivalence_of_cats {A B : category} (F : functor A B)
+Definition make_adj_equivalence_of_cats {A B : precategory} (F : functor A B)
            (G : functor B A) η ε
            (H1 : form_adjunction F G η ε)
            (H2 : forms_equivalence ((F,,G,,η,,ε)))
@@ -97,7 +97,7 @@ Defined.
 
 Section MakeAdjEquivalenceOfCats'.
 
-  Context {A B : category}.
+  Context {A B : precategory}.
   Context (F : functor A B).
   Context (G : functor B A).
   Context (η : functor_identity B ⟹ G ∙ F).
@@ -205,7 +205,7 @@ Section MakeAdjEquivalenceOfCats'.
 End MakeAdjEquivalenceOfCats'.
 
 Definition adj_equivalence_from_right_adjoint
-  {A B : category}
+  {A B : precategory}
   (F : functor A B)
   (H1 : is_right_adjoint F)
   (H2 : ∏ a, is_z_isomorphism ((unit_from_right_adjoint H1) a))
@@ -220,7 +220,7 @@ Definition adj_equivalence_from_right_adjoint
     H2
     H3.
 
-Definition adj_equivalence_inv {A B : category}
+Definition adj_equivalence_inv {A B : precategory}
   {F : functor A B} (HF : adj_equivalence_of_cats F) : functor B A :=
     right_adjoint HF.
 
@@ -280,7 +280,7 @@ End Accessors.
 
 Section Inverse.
 
-  Context {A B : category}.
+  Context {A B : precategory}.
   Context (F : functor A B).
   Context (H : adj_equivalence_of_cats F).
 

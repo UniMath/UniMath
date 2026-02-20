@@ -2025,3 +2025,55 @@ Lemma stn_ord_bij {n : nat} (f : ⟦ n ⟧ ≃ ⟦ n ⟧) :
 Proof.
   apply (stn_ord_inj (weqtoincl f)).
 Defined.
+
+(* Functions with domain in Standard finite sets. *)
+Definition fun_stnsn_to_stnn {X : UU} {n : nat} (f : stn (S n) → X) : stn n → X := f ∘ dni_lastelement.
+
+Definition stnfun_singleton_complement {X : UU} {n : nat} (f : stn (S n) → X) : 
+      ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement) → stn n → 
+      (singleton_complement (f lastelement)).
+Proof.
+  intros X0 X1.
+  exists (fun_stnsn_to_stnn f X1).
+  intros contra. apply X0.
+  eexists. apply contra.
+Defined.
+
+Lemma isdeceq_isdecsurj {X : UU} {n : nat} (f : ⟦ n ⟧ → X ) (y : X) : 
+    isdeceq X → decidable (hfiber f y).
+Proof.
+  generalize dependent X.
+  induction n; intros X f x deceqX.
+  - right. intros contra. eapply weqstn0toempty, pr1, contra.
+  - set (g := fun_stnsn_to_stnn f). specialize IHn with (f := g) (y := x).
+    set (H := IHn deceqX).
+    induction H.
+    + left. induction a as [p eq]. induction p as [m lth].
+      apply tpair with (pr1 := (m ,, (natlthtolths _ _ lth))), eq.
+    + induction (deceqX (f (lastelement)) x); [left | right].
+      * apply (tpair _ lastelement). assumption.
+      * intros H. induction H as [p eq]. induction p as [m lth]. 
+        induction (natlehchoice _ _ (natlthsntoleh _ _ lth)).
+        -- apply b. apply tpair with (pr1 := (m ,, a)).
+           induction eq. unfold g, fun_stnsn_to_stnn, make_stn. unfold funcomp.
+           apply maponpaths, stn_eq, idpath.
+        -- apply b0. unfold lastelement. induction b1, eq.
+           apply maponpaths, stn_eq, idpath.
+Qed.
+
+Lemma surj_fun_stnsn_to_stnn {X : UU} {n : nat} (f : ⟦ S n ⟧ → X) : isdeceq X → issurjective f → 
+      hfiber (fun_stnsn_to_stnn f) (f lastelement) → issurjective (fun_stnsn_to_stnn f).
+Proof.
+  intros deceqX surj x. induction x as [x eq].
+  intros y'.
+  induction (deceqX (f lastelement) y').
+  - induction a. apply hinhpr, tpair with (pr1 := x), eq.
+  - apply (squash_to_prop (surj y')); try apply propproperty.
+    intros m. induction m as [m eq']; induction m as [m lth]. apply hinhpr.
+    induction (natlehchoice _ _ (natlthsntoleh _ _ lth)).
+    + apply tpair with (pr1 := m ,, a).
+      unfold fun_stnsn_to_stnn, make_stn, funcomp.
+      induction eq'. apply maponpaths, stn_eq, idpath.
+    + induction eq', b0. apply fromempty, b. 
+      apply maponpaths, stn_eq, idpath.
+Qed.

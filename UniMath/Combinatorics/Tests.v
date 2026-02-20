@@ -2,7 +2,6 @@ Require Import UniMath.Foundations.Preamble.
 Require UniMath.Combinatorics.Lists.
 Require UniMath.Combinatorics.StandardFiniteSets.
 Require UniMath.Combinatorics.FiniteSets.
-Require UniMath.Combinatorics.FiniteSequences.
 Require UniMath.Combinatorics.FiniteSets.
 Require UniMath.OrderTheory.OrderedSets.OrderedSets.
 Require UniMath.Combinatorics.StandardFiniteSets.
@@ -344,8 +343,6 @@ Section Test_fin.
 End Test_fin.
 
 Section Test_seq.
-
-  Import UniMath.Combinatorics.FiniteSequences.
 
   Local Open Scope stn.
 

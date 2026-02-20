@@ -59,7 +59,7 @@ Section CategoriesWithEqualizersAndPreservationUpToIsoHasRezkCompletions.
     - intros C ?.
       refine (tt ,, weak_equiv_preserves_equalizers (η_weak_equiv C)).
     - intros C1 C2 C3 F G H α E₁ E₂ E₃ Gw [t Feq].
-      exact (tt ,, weak_equiv_lifts_preserves_equalizers C2 C3 α Gw Feq).
+      exact (tt ,, weak_equiv_lifts_preserves_equalizers α Gw Feq).
   Defined.
 
   Corollary disp_bicat_have_equalizers_has_Rezk_completions
@@ -118,7 +118,7 @@ Section CategoriesWithChosenEqualizersAndPreservationUpToIsoHasRezkCompletions.
     - intros C1 C2 C3 F G H α E1 E2 E3 Gw.
       intros [t F_pe].
       exists tt.
-      exact (weak_equiv_lifts_preserves_equalizers C2 C3 α Gw F_pe).
+      exact (weak_equiv_lifts_preserves_equalizers α Gw F_pe).
   Defined.
 
   Corollary disp_bicat_equalizers_has_Rezk_completions

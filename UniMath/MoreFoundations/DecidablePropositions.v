@@ -456,6 +456,39 @@ Definition natneq_DecidableProposition : DecidableRelation nat :=
 
 End DecidablePropositions.
 
+Section DecidableEquality.
+
+Lemma isdeceq_subtype {X : UU} (P : hsubtype X) : 
+  isdeceq X → isdeceq P.
+Proof.
+  intros deceqX predP. apply isdeceq_total2.
+  + apply deceqX.
+  + intros x. apply isdeceqifisaprop, propproperty.
+Qed.
+
+  Definition singleton_complement {X : UU} (y : X) : hsubtype X := λ x, make_hProp (x != y) (isapropneg (x = y)).
+
+  Lemma weq_singleton_complement_unit {X : UU} (y : X) : isdeceq X → carrier (singleton_complement y) ⨿ unit ≃ X.
+  Proof.
+    intros deceqx.
+    use weq_iso.
+    - intros [[x neq] | tt]; [apply x | apply y].
+    - intros x. induction (deceqx x y); [right; apply tt | left].
+      apply tpair with (pr1 := x), b. 
+    - intros [[x neq] | tt].
+      + induction (deceqx x y).
+        * apply fromempty. induction neq. assumption.
+        * cbn. apply maponpaths, subtypePath_prop, idpath. 
+      + induction (deceqx y y).
+        * induction tt. apply idpath.
+        * apply fromempty, b, idpath.
+    - intros x; cbn beta.
+      induction (deceqx x y); cbn beta;
+      try induction a; apply idpath.
+  Qed.
+
+End DecidableEquality.
+
 Declare Scope decidable_nat.
 Notation " x < y " := (natlth_DecidableProposition x y) (at level 70, no associativity) :
                         decidable_nat.

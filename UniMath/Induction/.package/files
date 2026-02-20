@@ -1,9 +1,11 @@
 FunctorAlgebras_legacy.v
 FunctorCoalgebras_legacy.v
+FunctorCoalgebras_legacy_alt_UU.v
 
 PolynomialFunctors.v
 PolynomialAlgebras2Cells.v
 ImpredicativeInductiveSets.v
+SetBasedPolynomialFunctors.v
 M/Core.v
 M/Limits.v
 M/Uniqueness.v
@@ -15,3 +17,7 @@ W/Naturals.v
 W/Uniqueness.v
 M/Chains.v
 M/ComputationalM.v
+M/MWithSets.v
+M/FinalCoalgebraHSET.v
+M/ComputationalMWithSets.v
+M/BinaryBooleanMTrees.v

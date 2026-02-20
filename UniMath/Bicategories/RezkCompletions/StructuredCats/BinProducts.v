@@ -95,7 +95,7 @@ Section CategoriesWithBinProductsAdmitRezkCompletions.
     - intros C1 C2 C3 F G H α C1_prod C2_prod C3_prod Gw.
       intros [t Fprod].
       exists tt.
-      exact (weak_equiv_lifts_preserves_binproducts C2 C3 α Gw Fprod).
+      exact (weak_equiv_lifts_preserves_binproducts α Gw Fprod).
   Defined.
 
   Corollary disp_bicat_have_binproducts_has_Rezk_completions
@@ -156,7 +156,7 @@ Section CategoriesWithChosenBinProductsAndPreservationUpToIsoHasRezkCompletions.
     - intros C1 C2 C3 F G H α C1_prod C2_prod C3_prod Gw.
       intros [t Fprod].
       exists tt.
-      exact (weak_equiv_lifts_preserves_binproducts C2 C3 α Gw Fprod).
+      exact (weak_equiv_lifts_preserves_binproducts α Gw Fprod).
   Defined.
 
   Corollary disp_bicat_binproducts_has_Rezk_completions
