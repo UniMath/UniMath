@@ -60,6 +60,39 @@ Definition fam_mor : fam_ob -> fam_ob -> UU
   := λ f1 f2, ∑ (f : fam_base f1 -> fam_base f2),
     (∏ (x : fam_base f1), fam_el x -> fam_el (f x)).
 
+Definition fam_mor_eq' {f1 f2 : fam_ob} (g h : fam_mor f1 f2) (p : pr1 g = pr1 h)
+  (q : transportf (λ f : fam_base f1 → fam_base f2,
+             ∏ x : fam_base f1, fam_el (f:=f1) x → fam_el (f:=f2) (f x)) p (pr2 g)
+       = pr2 h)
+  : g = h
+  := (total2_paths_f p q).
+
+Definition transport_pr2_eq
+  {a b : fam_ob}
+  (f : fam_mor a b)
+  (p : (λ x : fam_base a, pr1 f x) = pr1 f)
+  : transportf (λ f : fam_base a → fam_base b,
+          ∏ x : fam_base a, fam_el x → fam_el (f x)) p
+      (λ (x : fam_base a) (y : fam_el x), pr2 f x y) = pr2 f.
+Proof.
+  apply funextsec ; intro x.
+  apply funextfun ; intro y.
+  set (E := transport_functions
+              (Z:= λ (x2 : fam_base a) (y : fam_base b), fam_el x2 → fam_el  y) p
+              (λ x1 : fam_base a, pr2 f x1) x).
+  etrans.
+  {
+    exact (maponpaths (λ h : fam_el x → fam_el (pr1 f x), h y) E).
+  }
+  set (q := toforallpaths (λ _ : fam_base a, fam_base b) (λ x1 : fam_base a, pr1 f x1) (pr1 f) p x).
+  etrans.
+  {
+    exact (maponpaths (λ h : fam_el x → fam_el (pr1 f x), h y)
+             (transportf_set (λ y : fam_base b, fam_el x → fam_el y) q (pr2 f x) (pr2 (fam_base b)))).
+  }
+  apply idpath.
+Defined.
+
 Definition fam_id (f : fam_ob) : fam_mor f f.
 Proof.
   use tpair.
@@ -80,108 +113,9 @@ Definition fam_data : precategory_data := make_precategory_data (make_precategor
 
 Definition is_precategory_fam : is_precategory fam_data.
 Proof.
-  do 2 split ; intros;  use total2_paths_f.
-  1, 3, 5, 7: apply funextfun; intro x; cbn; apply idpath.
-  all: cbn ; do 2 (apply funextsec; intro).
-  - set (p := funextfun (λ x1 : fam_base a, pr1 f x1) (pr1 f)
-                (λ x1 : fam_base a, idpath (pr1 f x1))).
-    set (E := transport_functions (X := fam_base a) (Y := λ _ : fam_base a, fam_base b)
-                (Z := λ (x2 : fam_base a) (y : fam_base b), fam_el x2 → fam_el y)
-                (f := (λ x1 : fam_base a, pr1 f x1))
-                (f' := pr1 f)
-                p (λ x1 : fam_base a, pr2 f x1) x).
-    set (E0 := maponpaths (λ h : fam_el x → fam_el (pr1 f x), h x0) E).
-    cbn in E0.
-    etrans. { exact E0. }
-    set (q := toforallpaths (λ _ : fam_base a, fam_base b)
-                (λ x1 : fam_base a, pr1 f x1) (pr1 f) p x).
-    etrans.
-    {
-      exact (maponpaths (λ h : fam_el x → fam_el (pr1 f x), h x0)
-               (transportf_set (A := fam_base b)
-                  (λ y : fam_base b, fam_el x → fam_el y) q (pr2 f x) (pr2 (fam_base b)))).
-    }
-    apply idpath.
-    - set (p := funextfun (pr1 (f · identity b)) (pr1 f)
-                (λ x1 : fam_base a, idpath (pr1 f x1))).
-
-    set (E := transport_functions (X := fam_base a) (Y := λ _ : fam_base a, fam_base b)
-                (Z := λ (x2 : fam_base a) (y : fam_base b), fam_el x2 → fam_el y)
-                (f := pr1 (f · identity b))
-                (f' := pr1 f)
-                p (λ x1 : fam_base a, pr2 (f · identity b) x1) x).
-
-    set (E0 := maponpaths (λ h : fam_el x → fam_el (pr1 f x), h x0) E).
-    cbn in E0.
-    etrans. { exact E0. }
-
-    set (q := toforallpaths (λ _ : fam_base a, fam_base b)
-                (pr1 (f · identity b)) (pr1 f) p x).
-    etrans.
-    {
-      exact (maponpaths (λ h : fam_el x → fam_el (pr1 f x), h x0)
-               (transportf_set (A := fam_base b)
-                  (λ y : fam_base b, fam_el x → fam_el y) q (pr2 (f · identity b) x)
-                  (pr2 (fam_base b)))).
-    }
-    cbn.
-    apply idpath.
-    - set (p :=
-      funextfun (pr1 (f · (g · h))) (pr1 (f · g · h))
-        (λ x1 : fam_base a, idpath (pr1 h (pr1 g (pr1 f x1))))).
-
-    set (E := transport_functions (X := fam_base a) (Y := λ _ : fam_base a, fam_base d)
-                (Z := λ (x2 : fam_base a) (y : fam_base d), fam_el x2 → fam_el y)
-                (f := pr1 (f · (g · h)))
-                (f' := pr1 (f · g · h))
-                p (λ x1 : fam_base a, pr2 (f · (g · h)) x1) x).
-
-    set (E0 := maponpaths (λ hh0 : fam_el x → fam_el (pr1 (f · g · h) x), hh0 x0) E).
-    cbn in E0.
-    etrans. { exact E0. }
-
-    set (q := toforallpaths (λ _ : fam_base a, fam_base d)
-                (pr1 (f · (g · h))) (pr1 (f · g · h)) p x).
-
-    etrans.
-    {
-      exact (maponpaths (λ hh0 : fam_el x → fam_el (pr1 (f · g · h) x), hh0 x0)
-               (transportf_set (A := fam_base d)
-                  (λ y : fam_base d, fam_el x → fam_el y)
-                  q (pr2 (f · (g · h)) x)
-                  (pr2 (fam_base d)))).
-    }
-    cbn.
-    apply idpath.
-    - set (p :=
-      funextfun (pr1 (f · g · h)) (pr1 (f · (g · h)))
-        (λ x1 : fam_base a, idpath (pr1 h (pr1 g (pr1 f x1))))).
-
-    set (E := transport_functions (X := fam_base a) (Y := λ _ : fam_base a, fam_base d)
-                (Z := λ (x2 : fam_base a) (y : fam_base d), fam_el x2 → fam_el y)
-                (f := pr1 (f · g · h))
-                (f' := pr1 (f · (g · h)))
-                p (λ x1 : fam_base a, pr2 (f · g · h) x1) x).
-
-    set (E0 := maponpaths (λ hh0 : fam_el x → fam_el (pr1 (f · (g · h)) x), hh0 x0) E).
-    cbn in E0.
-    etrans. { exact E0. }
-
-    set (q := toforallpaths (λ _ : fam_base a, fam_base d)
-                (pr1 (f · g · h)) (pr1 (f · (g · h))) p x).
-
-    etrans.
-    {
-      exact (maponpaths (λ hh0 : fam_el x → fam_el (pr1 (f · (g · h)) x), hh0 x0)
-               (transportf_set (A := fam_base d)
-                  (λ y : fam_base d, fam_el x → fam_el y)
-                  q (pr2 (f · g · h) x)
-                  (pr2 (fam_base d)))).
-    }
-    cbn.
-    apply idpath.
+  do 2 split ; intros;  use fam_mor_eq'; try (apply transport_pr2_eq);
+    apply funextfun; intro; cbn; apply idpath.
 Defined.
-
 
 Definition fam_precategory : precategory := make_precategory fam_data is_precategory_fam.
 
