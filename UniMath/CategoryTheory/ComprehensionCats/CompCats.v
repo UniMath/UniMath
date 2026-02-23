@@ -63,7 +63,7 @@ Coercion comp_cat_to_ctx (C : comp_cat)
   := pr1 C.
 
 Definition comp_cat_morphisms (C: comp_cat)
-  : ob (pr1 C) -> ob (pr1 C) -> UU
+  : C -> C -> UU
                     := pr2(pr1 (pr1 (pr1 (pr1 C)))).
 
 Definition disp_cat_of_types

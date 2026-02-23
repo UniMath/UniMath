@@ -17,7 +17,7 @@
   We also define the universe being closed type formers similar to Van der Weide.
 
   References
-  - "The Internal Language of Univalent Categories" by Van der Weide
+  - "The Internal Languages of Univalent Categories" by Van der Weide
   - "Principles of Dependent Type Theory" by Angiuli and Gratzer
 
   Contents
