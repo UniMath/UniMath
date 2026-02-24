@@ -790,9 +790,3 @@ MarkovCategories/InformationFlowAxioms.v
 MarkovCategories/State.v
 MarkovCategories/ProbabilitySpaces.v
 MarkovCategories/Couplings.v
-
-CategoriesWithFamilies/CatsWithFams.v
-ComprehensionCats/CompCats.v
-ComprehensionCats/CompCatTypeFormers.v
-ComprehensionCats/CompCatUniverse.v
-ComprehensionCats/CwfFromCompCatWithUniv.v
