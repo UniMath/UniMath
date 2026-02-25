@@ -160,13 +160,11 @@ Section Sigma_For_Comp_Cat.
     apply id_left.
   Qed.
 
-
 End Sigma_For_Comp_Cat.
 
 
 (** Pi-types for comprehension categories  *)
 
-Open Scope comp_cat.
 
 Section Pi_For_Comp_Cat.
 
@@ -258,7 +256,6 @@ End Pi_For_Comp_Cat.
 
 (** Unit types for comprehension categories  *)
 
-Open Scope comp_cat.
 
 Section Unit_For_Comp_Cat.
 
