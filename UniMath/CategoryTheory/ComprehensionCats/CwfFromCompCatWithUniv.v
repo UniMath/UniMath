@@ -120,8 +120,7 @@ Section Construction.
   Definition cwf_context_from_comp_cat_with_u : category :=
     (cwf_context_precategory_from_comp_cat_with_u ,, is_category_context_from_comp_cat_with_u).
 
-  (* TODO: break this up.  *)
-  Definition cwf_terminal_from_comp_cat_with_u : Terminal (cwf_context_from_comp_cat_with_u).
+   Definition cwf_terminal_from_comp_cat_with_u : Terminal (cwf_context_from_comp_cat_with_u).
   Proof.
     (* The terminal context is given by the code of the unit in the universe *)
     set (unit_code := pr1 UnitU []).
@@ -204,6 +203,22 @@ Section Construction.
         exact pr1eq.
 Defined.
 
+Section Terminal_from_comp_cat_with_u.
+
+  Let unit_code := pr1 UnitU [].
+  Let U := comp_cat_U C.
+  Let el := comp_cat_El C.
+  Let unit_el_iso := pr12 UnitU.
+  Let unit_iso := pr122 (pr222 Unit).
+  Let unit := (pr1 Unit).
+  Let tt := (pr12 Unit).
+  Let tm_unit_code := term_unit_code C Unit UnitU [].
+
+  (* TODO: break it up *)
+
+End Terminal_from_comp_cat_with_u.
+
+
   Definition cwf_ty_from_comp_cat_with_u :  cwf_context_from_comp_cat_with_u → hSet.
   Proof.
     (* types in Γ are tm empty.(el Γ) U*)
@@ -252,30 +267,6 @@ Defined.
              ([] & comp_cat_El C [] Γ) (pr1 f) A : _ --> _).
   Defined.
 
-
-  (* This is for the term functorialities *)
-Proposition cwf_from_comp_cat_transport_lemma
-              {Γ : cwf_context_from_comp_cat_with_u}
-              {A B : cwf_ty_from_comp_cat_with_u Γ}
-              (p : A = B)
-              (t : cwf_tm_from_comp_cat_with_u Γ A)
-    : UU.
-  Proof.
-    (* Check comp_cat_El. *)
-    (* simple refine (transportf *)
-    (*                       (cwf_tm_from_comp_cat_with_u Γ) *)
-    (*                       p *)
-    (*                       t *)
-    (*         = *)
-    (*           t ↑ _ ). *)
-    (* (* TODO: needs A = B -> (el A -> el B)  because el A and el B are iso in the fiber category via path induction *) *)
-    (* simpl. *)
-
-
-    (* transportf (λ A0 : cwf_ty_from_comp_cat_with_u Γ, cwf_tm_from_comp_cat_with_u Γ A0) *)
-    Admitted.
-
-
   Definition cwf_id_ty_from_comp_cat_with_u :   ∏ (Γ : cwf_context_from_comp_cat_with_u) (A : cwf_ty_from_comp_cat_with_u Γ),
       cwf_subst_ty_from_comp_cat_with_u Γ Γ (identity Γ) A = A.
   Proof.
@@ -290,12 +281,17 @@ Proposition cwf_from_comp_cat_transport_lemma
     assert (p : ⌈ comp_cat_subst_ty_id_iso (weakened_from_empty (comp_cat_U C) ([] & comp_cat_El C [] Γ)) ⌉
                   · ⌈ sub_comp_cat_univ_iso (comp_cat_U C) (pr1 (identity Γ)) ⌉ = identity _).
     {
-      (* this is just a matter of applying one of the things niels refactored: id-left or right *)
-      admit.
+      refine (_ @ comp_cat_id_left_subst_ty _ _).
+      rewrite assoc'.
+      apply cancel_precomposition.
+      unfold sub_comp_cat_univ_iso.
+      apply cancel_precomposition.
+      do 2 apply maponpaths.
+      apply homset_property.
     }
     rewrite (comp_cat_coerce_eq p).
     apply comp_cat_id_coerce_tm.
-  Admitted.
+  Defined.
 
   Definition cwf_comp_ty_from_comp_cat_with_u :
     ∏ (Γ Δ Θ : cwf_context_from_comp_cat_with_u) (g : cwf_context_from_comp_cat_with_u ⟦ Θ, Δ ⟧)
@@ -305,44 +301,93 @@ Proposition cwf_from_comp_cat_transport_lemma
   Proof.
     intros.
     unfold cwf_subst_ty_from_comp_cat_with_u.
-  etrans.
-  {
-    apply maponpaths.
-    apply comp_cat_subst_tm_comp.
-  }
-  rewrite comp_cat_comp_coerce_tm.
-  rewrite comp_cat_subst_coerce_tm.
-  rewrite comp_cat_comp_coerce_tm.
-  eapply comp_cat_coerce_eq.
-  unfold "⌈ _ ⌉".
-  unfold comp_cat_subst_ty_comp_iso.
-  unfold sub_comp_cat_univ_iso.
-  refine (!_).
-  etrans.
-  {
-    admit.
-    (* exact (assoc'_subst_ty *)
-    (*          (C := pr1 C) *)
-    (*          (s₁ := TerminalArrow [] ([] & comp_cat_El C [] Θ)) *)
-    (*          (s₂ := pr1 g) *)
-    (*          (s₃ := pr1 f) *)
-    (*          (A := weakened_from_empty (comp_cat_U C) ([] & comp_cat_El C [] Γ))). *)
-  }
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_subst_tm_comp.
+    }
+    rewrite comp_cat_comp_coerce_tm.
+    rewrite comp_cat_subst_coerce_tm.
+    rewrite comp_cat_comp_coerce_tm.
+    eapply comp_cat_coerce_eq.
+    unfold sub_comp_cat_univ_iso.
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (λ z, z · _) (comp_cat_assoc_subst_ty _ _ _ _) @ _).
+    rewrite !assoc'.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      unfold "⌈ _ ⌉".
+      refine (!_).
+      apply comp_cat_reindex_coercion_comp_witness.
+    }
+    refine ( _ @ assoc _ _ _ ).
+    apply cancel_precomposition.
+  (*  coerce_comp_subst_ty
+Proposition coerce_comp_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ Γ₃ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ s₂' : Γ₂ --> Γ₃)
+            (p : s₂' = s₂)
+            (A : ty Γ₃)
+  : coerce_subst_ty s₁ (eq_subst_ty _ p) · comp_subst_ty _ s₂ A
+    =
+    comp_subst_ty _ _ A · eq_subst_ty _ (maponpaths (λ z, _ · z) p).
+Proof.
+  induction p.
+  refine (_ @ id_left _ @ !(id_right _)).
+  apply maponpaths_2.
+  apply id_coerce_subst_ty.
+Qed.
 
-  (* repeat (rewrite eq_subst_ty_concat || rewrite eq_subst_ty_idpath || rewrite eq_subst_ty_eq). *)
-  (* apply maponpaths. *)
-  (* apply TerminalArrowEq. *)
-
+   *)
   Admitted.
 
+  (* This is a transport for the term functorialities *)
+  Proposition cwf_from_comp_cat_transport_lemma
+              {Γ : cwf_context_from_comp_cat_with_u}
+              {A B : cwf_ty_from_comp_cat_with_u Γ}
+              (p : A = B)
+              (t : cwf_tm_from_comp_cat_with_u Γ A)
+    : transportf (cwf_tm_from_comp_cat_with_u Γ) p t
+      = t ↑ (comp_cat_univ_eq_ty_el_map _ p).
+  Proof.
+    induction p.
+    cbn.
+    unfold "↑".
+    use comp_cat_tm_eq.
+    - cbn.
+      unfold comp_cat_comp_mor.
+      rewrite comprehension_functor_mor_id.
+      rewrite id_right.
+      apply idpath.
+  Qed.
+
   Definition cwf_id_tm_from_comp_cat_with_u :
-  ∏ (Γ : cwf_context_from_comp_cat_with_u) (A : cwf_ty_from_comp_cat_with_u Γ) (t : cwf_tm_from_comp_cat_with_u Γ A),
-  transportf (λ A0 : cwf_ty_from_comp_cat_with_u Γ, cwf_tm_from_comp_cat_with_u Γ A0) (cwf_id_ty_from_comp_cat_with_u Γ A)
-    (cwf_subst_tm_from_comp_cat_with_u Γ Γ (identity Γ) A t) =
-    t.
+    ∏ (Γ : cwf_context_from_comp_cat_with_u)
+      (A : cwf_ty_from_comp_cat_with_u Γ)
+      (t : cwf_tm_from_comp_cat_with_u Γ A),
+      transportf (λ A0 : cwf_ty_from_comp_cat_with_u Γ,
+            cwf_tm_from_comp_cat_with_u Γ A0) (cwf_id_ty_from_comp_cat_with_u Γ A)
+        (cwf_subst_tm_from_comp_cat_with_u Γ Γ (identity Γ) A t) =
+        t.
   Proof.
     intros.
     unfold cwf_subst_tm_from_comp_cat_with_u.
+    rewrite cwf_from_comp_cat_transport_lemma.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply (comp_cat_subst_tm_id).
+    }
+    do 2 rewrite comp_cat_comp_coerce_tm.
+    refine (_ @ comp_cat_id_coerce_tm t).
+    apply comp_cat_coerce_eq.
+  (* WE need a fucking coherence of universe isomorphisms.
+  comp_cat_coherenet_el_map
+  of niels.
+   *)
   Admitted.
 
   Definition cwf_comp_tm_from_comp_cat_with_u :
@@ -356,7 +401,7 @@ Proposition cwf_from_comp_cat_transport_lemma
         cwf_subst_tm_from_comp_cat_with_u Δ Θ g
           (cwf_subst_ty_from_comp_cat_with_u Γ Δ f A)
           (cwf_subst_tm_from_comp_cat_with_u Γ Δ f A t).
-Proof.
+  Proof.
 Admitted.
 
   Definition  cwf_ctx_ext_from_comp_cat_with_u : cwf_ctx_ext

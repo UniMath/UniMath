@@ -132,12 +132,17 @@ Definition comp_cat_El_iso (C : comp_cat_with_universe) :
       ((comp_cat_El _) _ (t [[ s ]]tm ↑ ⌈sub_comp_cat_univ_iso (comp_cat_U _) s⌉))
   := pr2 (pr212 C).
 
-Close Scope comp_cat.
-
+Definition comp_cat_univ_eq_ty_el_map
+  (C : comp_cat_with_universe)
+  {Γ : C} {a b : comp_cat_tm Γ (weakened_from_empty (comp_cat_U C) _)}
+  (p : a = b)
+  : (comp_cat_El C _ a) -->[identity _] (comp_cat_El C _ b).
+Proof.
+  induction p.
+  apply id_disp.
+Defined.
 
 (**  Universe Being Closed under Sigma-Types  *)
-
-Open Scope comp_cat.
 
 Section Universe_Sigma_Closure.
 
@@ -199,11 +204,8 @@ Section Universe_Sigma_Closure.
 
 End Universe_Sigma_Closure.
 
-Close Scope comp_cat.
 
 (**  Universe Being Closed under Unit Types  *)
-
-Open Scope comp_cat.
 
 Section Universe_Unit_Closure.
 
@@ -306,12 +308,7 @@ End Unit_Code_Unique_Term.
 
 End Universe_Unit_Closure.
 
-Close Scope comp_cat.
-
-
 (**  Universe Being Closed under Pi Types  *)
-
-Open Scope comp_cat.
 
 Section Universe_Pi_Closure.
 

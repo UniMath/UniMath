@@ -546,6 +546,109 @@ Proof.
 Defined.
 
 
+Definition comp_cat_reindex_coercion_comp
+  {C : comp_cat}
+  {Γ Δ Θ : C} (s₁ : Δ --> Γ)(s₂ : Θ --> Δ)
+  {A B: comp_cat_ty Γ}
+  (f : A <: B )
+  : comp_cat_reindex_coercion s₂ (comp_cat_reindex_coercion s₁ f)
+    = ⌈comp_cat_subst_ty_comp_iso _ _ _⌉ ·
+        comp_cat_reindex_coercion (s₂ · s₁) f
+        ·⌈comp_cat_subst_ty_comp_iso _ _ _⌉⁻¹ .
+Proof.
+  unfold comp_cat_reindex_coercion.
+  cbn.
+  unfold transportb.
+  repeat rewrite transport_f_f.
+  eapply (cartesian_factorisation_unique).
+  - exact (pr2 (pr2 (cleaving_of_types C Δ Θ s₂ (B [[ s₁ ]])))).
+  - etrans.
+    {
+      exact (cartesian_factorisation_commutes _ (identity Θ) _).
+    }
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite transport_f_f.
+    unfold fiber_functor_from_cleaving_comp_inv.
+    rewrite assoc_disp_var.
+    rewrite cartesian_factorisation_commutes.
+    apply (cartesian_factorisation_unique (cleaving_of_types C Γ Δ s₁ B)).
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !assoc_disp_var.
+    rewrite !transport_f_f.
+    rewrite !cartesian_factorisation_commutes.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    rewrite cartesian_factorisation_commutes.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    rewrite !assoc_disp.
+    unfold transportb.
+    rewrite !transport_f_f.
+    rewrite cartesian_factorisation_commutes.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !transport_f_f.
+    apply  maponpaths_2.
+    apply homset_property.
+Qed.
+
+Definition comp_cat_reindex_coercion_comp'
+  {C : comp_cat}
+  {Γ Δ Θ : C} (s₁ : Δ --> Γ)(s₂ : Θ --> Δ)
+  {A B: comp_cat_ty Γ}
+  (f : A <: B )
+  : ⌈comp_cat_subst_ty_comp_iso _ _ _⌉⁻¹
+      · comp_cat_reindex_coercion s₂ (comp_cat_reindex_coercion s₁ f)
+      · ⌈comp_cat_subst_ty_comp_iso _ _ _⌉
+    = comp_cat_reindex_coercion (s₂ · s₁) f.
+Proof.
+  rewrite (comp_cat_reindex_coercion_comp (s₁) (s₂) (f)).
+  repeat rewrite assoc.
+  repeat rewrite assoc'.
+  etrans.
+  {
+    do 3 apply maponpaths.
+    apply (z_iso_after_z_iso_inv ).
+  }
+  rewrite assoc.
+  rewrite id_right.
+  etrans.
+  { apply cancel_postcomposition.
+    apply (z_iso_after_z_iso_inv ).
+  }
+  rewrite (id_left).
+  apply idpath.
+Qed.
+
+Definition comp_cat_reindex_coercion_comp_witness
+  {C : comp_cat}
+  {Γ Δ : C} (s : Δ --> Γ)
+  {A B D: comp_cat_ty Γ}
+  (f : A <: B ) (g : B <: D)
+  : comp_cat_reindex_coercion s (f · g)
+    =  comp_cat_reindex_coercion s f · comp_cat_reindex_coercion s g.
+Proof.
+  unfold comp_cat_reindex_coercion.
+   unfold comp_cat_reindex_coercion.
+  cbn.
+  unfold transportb.
+  repeat rewrite transport_f_f.
+  apply (cartesian_factorisation_unique (cleaving_of_types C Γ Δ s D)).
+  rewrite (cartesian_factorisation_commutes).
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite assoc_disp_var.
+    rewrite cartesian_factorisation_commutes.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    rewrite !assoc_disp.
+    unfold transportb.
+    rewrite !transport_f_f.
+    rewrite !cartesian_factorisation_commutes.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !transport_f_f.
+    apply  maponpaths_2.
+    apply homset_property.
+Qed.
+
 (** Lemmas for coercing terms  *)
 
 Lemma coerce_tm_after_inv
@@ -734,9 +837,6 @@ Proof.
     apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A₁ s)).
 Qed.
 
-Check comp_cat_reindex_coercion.
-
-
 Proposition comp_cat_id_right_subst_ty
   {C : comp_cat}
   {Γ₁ Γ₂ : C}
@@ -748,9 +848,13 @@ Proposition comp_cat_id_right_subst_ty
     =
     identity _.
 Proof.
-  (* This is awaiting a refactoring by Niels *)
-  (* exact (!(indexed_cat_lunitor (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _)). *)
-Admitted.
+  refine (_ @ !(disp_cat_cleaving_id_left (cleaving_of_types C) s A)).
+  do 2 apply maponpaths_2.
+  unfold comp_cat_reindex_coercion.
+  simpl.
+  rewrite transport_f_f.
+  apply idpath.
+Qed.
 
 Proposition comp_cat_id_left_subst_ty
   {C : comp_cat}
@@ -761,11 +865,10 @@ Proposition comp_cat_id_left_subst_ty
     · ⌈ comp_cat_subst_ty_comp_iso A s (identity _) ⌉
     · ⌈ comp_cat_subst_ty_iso A (id_left s) ⌉
     =
-    identity _.
-  (* This is awaiting a refactoring by Niels *)
-  (* exact (!(indexed_cat_runitor (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _)). *)
-Admitted.
-
+      identity _.
+Proof.
+  apply (!(disp_cat_cleaving_id_right (cleaving_of_types C) s A)).
+Qed.
 
 Proposition comp_cat_assoc'_subst_ty
   {C : comp_cat}
@@ -781,9 +884,12 @@ Proposition comp_cat_assoc'_subst_ty
         (⌈ comp_cat_subst_ty_comp_iso A s₃ s₂ ⌉)
         · ⌈ comp_cat_subst_ty_comp_iso A (s₂ · s₃) s₁ ⌉.
 Proof.
-  (* exact (indexed_cat_lassociator (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _ _ _). *)
-  (* This is awaiting a refactoring by Niels *)
-Admitted.
+  refine (!_).
+  unfold comp_cat_reindex_coercion.
+  refine (_ @ !disp_cat_cleaving_assoc (cleaving_of_types C) _ _ _ _).
+  - rewrite transport_f_f.
+    apply idpath.
+  Qed.
 
 
 Proposition comp_cat_assoc_subst_ty
@@ -810,12 +916,18 @@ Proof.
   set (F := fiber_category (disp_cat_of_types C) Γ₁).
   change (identity _  = ⌈ idtoiso (C:=F) (comp_cat_subst_ty_eq A (assoc' s₁ s₂ s₃)) ⌉ · ⌈ idtoiso (C:=F) (comp_cat_subst_ty_eq A (assoc  s₁ s₂ s₃)) ⌉).
    etrans.
-  2: { refine (! _).
-       (* exact (maponpaths pr1 (idtoiso_concat _ _ _ _ (comp_cat_subst_ty_eq A (assoc' s₁ s₂ s₃))) (comp_cat_subst_ty_eq A (assoc s₁ s₂ s₃))). *)
-  admit.
-  }
-
-  Admitted.
+   2: { apply pr1_idtoiso_concat. }
+   Check comp_cat_subst_ty_eq.
+   etrans.
+   2: {
+     do 2 apply maponpaths.
+     unfold comp_cat_subst_ty_eq.
+     rewrite <- (maponpathscomp0 (λ t : C ⟦ Γ₁, Γ₄ ⟧, A [[t]])).
+     rewrite p.
+     apply idpath.
+   }
+   apply idpath.
+Qed.
 
 (** Pullbacks composed with isos  *)
 
