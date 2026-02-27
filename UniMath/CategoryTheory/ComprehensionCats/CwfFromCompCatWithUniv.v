@@ -612,6 +612,7 @@ Qed.
     (* Then use commutativitiy of the upper squares of the chain of the pullbacks.  *)
   Admitted.
 
+
   (* Uniqueness *)
   Local Lemma unique
     :  ∏ (u' : cwf_data_from_comp_cat_with_u ⟦ Δ, cwf_extended_con Γ A ⟧),
@@ -649,22 +650,79 @@ Qed.
     }
     rewrite assoc.
     apply maponpaths_2.
-
     fold proj.
-    (*
-
-    This is needed
-Proposition eq_sub_to_extension
-            {C : comp_cat}
-            {Γ Δ : C}
-            {A : ty Γ}
-            {s₁ s₂ : Δ --> Γ & A}
-            (p : s₁ · π _ = s₂ · π _)
-            (q : transport_term_sub_eq p (sub_to_extension_tm s₁)
-                 =
-                 sub_to_extension_tm s₂)
-  : s₁ = s₂.
-     *)
+    use comp_cat_eq_sub_to_extension.
+    - rewrite !assoc'.
+      use comp_cat_eq_sub_to_extension.
+      + etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        rewrite assoc'.
+        apply maponpaths.
+        apply comp_cat_sigma_proj_1_law.
+        }
+        etrans.
+        { apply maponpaths.
+          apply comp_cat_comp_mor_law.
+        }
+        rewrite assoc.
+        rewrite comp_cat_ext_subst_commute.
+        etrans.
+        2 :
+          {
+          rewrite assoc4.
+          refine (!_).
+          apply maponpaths_2.
+          apply maponpaths.
+          rewrite assoc.
+          apply maponpaths_2.
+          apply (comp_cat_comp_mor_law (⌈ comp_cat_El_iso C Δ' Γ' (pr1 s) A ⌉⁻¹)).
+        }
+        rewrite !assoc'.
+        etrans.
+        2 :
+          {  rewrite assoc.
+             etrans.
+             2 : { apply cancel_postcomposition.
+                   refine (pr2 (transportf_subst_tm_on_s p' (cwf_qA_subst u')) @ _).
+                   exact (!(pr2 (transportf_subst_tm_on_s p' (cwf_qA_subst u')))).
+             }
+             apply TerminalArrowEq.
+        }
+        apply TerminalArrowEq.
+      + apply comp_cat_tm_eq.
+        apply (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+        --
+          (* TODO: Opaqueness of the proof of commutativity of pullback arrow is in a bad condition. *)
+          unfold transport_term_sub_eq.
+          etrans.
+          {
+            apply PullbackArrow_PullbackPr1.
+          }
+          etrans.
+          { apply
+              (PullbackArrow_PullbackPr1 (comp_cat_pullback (El [] Γ) _)).
+          }
+          rewrite q'.
+          rewrite comp_cat_ext_subst_commute.
+          etrans.
+          2 :
+            {
+            apply maponpaths.
+            rewrite !assoc.
+            rewrite comp_cat_comp_mor_law.
+            apply idpath.
+          }
+          repeat rewrite assoc.
+          etrans.
+          2:
+            {
+            apply maponpaths_2.
+            refine (!_).
+            apply (pr2 t).
+          }
+          rewrite id_left.
+          (* something with p' *)
 
   Admitted.
 

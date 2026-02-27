@@ -1091,3 +1091,71 @@ Proof.
     rewrite p';
     apply (PullbackArrow_PullbackPr2 PB')).
 Defined.
+
+
+(* Find a place to put this: *)
+
+Section eq_sub_to_extension.
+
+Definition sub_to_extension_tm
+           {C : comp_cat}
+           {Γ Δ : C}
+           {A : comp_cat_ty Γ}
+           (s : Δ --> Γ & A)
+  : comp_cat_tm Δ (A [[ s · π A ]]).
+Proof.
+  use make_comp_cat_tm.
+  - use (PullbackArrow (comp_cat_pullback A (s · π A))).
+    + exact s.
+    + exact (identity Δ).
+    + abstract (rewrite id_left; apply idpath).
+  - abstract (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A (s · π A)))).
+Defined.
+
+Definition transport_term_sub_eq
+           {C : comp_cat}
+           {Γ Δ : C}
+           {A : comp_cat_ty Γ}
+           {s₁ s₂ : Δ --> Γ}
+           (p : s₁ = s₂)
+           (t : comp_cat_tm Δ (A [[ s₁ ]]))
+  : comp_cat_tm Δ (A [[ s₂ ]]).
+Proof.
+  use make_comp_cat_tm.
+  - use (PullbackArrow (comp_cat_pullback A s₂)).
+    + exact (t · comp_cat_ext_subst _ _ s₁ A).
+    + exact (identity Δ).
+    + abstract (
+        induction p;
+        rewrite id_left;
+        rewrite assoc';
+        refine (maponpaths (λ z, _ · z) (comp_cat_ext_subst_commute _ _ s₁ A) @ _);
+        rewrite assoc;
+        refine (maponpaths (λ z, z · _) (pr2 t) @ _);
+        apply id_left).
+  - abstract (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s₂))).
+Defined.
+
+Proposition comp_cat_eq_sub_to_extension
+            {C : comp_cat}
+            {Γ Δ : C}
+            {A : comp_cat_ty Γ}
+            {s₁ s₂ : Δ --> Γ & A}
+            (p : s₁ · π A = s₂ · π A)
+            (q : transport_term_sub_eq p (sub_to_extension_tm s₁)
+                 =
+                 sub_to_extension_tm s₂)
+  : s₁ = s₂.
+Proof.
+  pose (maponpaths (λ z, pr1 z · PullbackPr1 (comp_cat_pullback A (s₂ · π A))) q) as q'.
+  simpl in q'.
+  rewrite !PullbackArrow_PullbackPr1 in q'.
+  refine (_ @ q').
+  enough (s₁ = sub_to_extension_tm s₁ · comp_cat_ext_subst _ _ (s₁ · π A) A) as H.
+  { exact H. }
+  clear p q q' s₂.
+  refine (!_).
+  apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A (s₁ · π A))).
+Qed.
+
+End eq_sub_to_extension.
