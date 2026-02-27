@@ -115,7 +115,13 @@ Section Construction.
 
   Definition is_category_context_from_comp_cat_with_u : has_homsets cwf_context_precategory_from_comp_cat_with_u.
   Proof.
-    Admitted.
+    intros Γ Γ'.
+    use isaset_total2.
+    - apply homset_property.
+    - intro.
+      apply isasetaprop.
+      apply (homset_property C).
+  Qed.
 
   Definition cwf_context_from_comp_cat_with_u : category :=
     (cwf_context_precategory_from_comp_cat_with_u ,, is_category_context_from_comp_cat_with_u).
@@ -571,7 +577,38 @@ Qed.
   Local Definition uterm
       : u₁ · π (comp_cat_El C [] (cwf_extended_con Γ A)) = π (comp_cat_El C [] Δ).
   Proof.
-    Admitted.
+    unfold u₁.
+    refine (assoc' _ _ _ @ _).
+    rewrite !assoc'.
+    rewrite comp_cat_comp_mor_law.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      apply (pr122 Sigma).
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply comp_cat_ext_subst_commute.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite comp_cat_comp_mor_law.
+      apply idpath.
+    }
+    rewrite !assoc.
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      apply t.
+    }
+    rewrite id_left.
+    apply s.
+  Qed.
 
   Local Definition u
     :   cwf_data_from_comp_cat_with_u ⟦ Δ, cwf_extended_con Γ A ⟧
@@ -614,6 +651,47 @@ Qed.
 
 
   (* Uniqueness *)
+  Section Uniqueness.
+    Context (u' : Δ --> cwf_extended_con Γ A)
+            (p' : u' · pA = s)
+            (q' : transportf_subst_tm_on_s p' (cwf_qA_subst u') = t).
+
+    Local Lemma uniqueness_lemma_pi
+      : pr1 u'
+        · comp_cat_comp_mor (⌈ pr12 SigmaU [] Γ A ⌉)
+        · pr1 (pr222 Sigma) [] (comp_cat_El C [] Γ) (comp_cat_El C ([] & comp_cat_El C [] Γ) A)
+        · π _
+        =
+        pr1 (transportf_subst_tm_on_s p' (cwf_qA_subst u'))
+        · comp_cat_comp_mor (⌈ comp_cat_El_iso C Δ' Γ' (pr1 s) A ⌉⁻¹)
+        · comp_cat_ext_subst Γ' Δ' (pr1 s) (El Γ' A)
+        · π _.
+    Proof.
+      do 2 refine (assoc' _ _ _ @ _).
+      rewrite !assoc'.
+      refine (!_).
+      rewrite comp_cat_ext_subst_commute.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite assoc.
+        apply maponpaths_2.
+        apply comp_cat_comp_mor_law.
+      }
+      rewrite !assoc.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (transportf_subst_tm_on_s p' (cwf_qA_subst u')).
+      }
+      rewrite id_left.
+      rewrite <- p'.
+      cbn.
+      rewrite !assoc'.
+      apply idpath.
+    Qed.
+  End Uniqueness.
+
   Local Lemma unique
     :  ∏ (u' : cwf_data_from_comp_cat_with_u ⟦ Δ, cwf_extended_con Γ A ⟧),
       (∑ p' : (u' · pA = s),
@@ -625,7 +703,6 @@ Qed.
     cbn. unfold u₁.
     rewrite <- q'.
     rewrite !assoc.
-
     refine (!(id_right _) @ _).
     etrans.
     {
@@ -651,78 +728,37 @@ Qed.
     rewrite assoc.
     apply maponpaths_2.
     fold proj.
+
+    induction p', q'.
+    cbn.
+    unfold cwf_qA_subst.
+    (*
+      the key step should lie in calculating `transportf_subst_tm_on_s (idpath (u' · pA)) (cwf_qA_subst u')`
+      due to the inductions in the lines before, this entails to simplifying `cwf_qA_subst u'`
+      concretely, one needs to express the following functions from CwFs into the language of comprehension categories
+      - cwf_subst_tm_comp
+      - cwf_projection
+      - cwf_subst_tm
+      - cwf_variable
+      by simplifying each of these, it should be possible to simplify the goal, in such a way that one is able to make progress with the computations
+     *)
+    Print cwf_qA_subst.
+
+
     use comp_cat_eq_sub_to_extension.
-    - rewrite !assoc'.
-      use comp_cat_eq_sub_to_extension.
-      + etrans. {
-        rewrite assoc'.
-        apply maponpaths.
-        rewrite assoc'.
-        apply maponpaths.
-        apply comp_cat_sigma_proj_1_law.
-        }
-        etrans.
-        { apply maponpaths.
-          apply comp_cat_comp_mor_law.
-        }
-        rewrite assoc.
-        rewrite comp_cat_ext_subst_commute.
-        etrans.
-        2 :
-          {
-          rewrite assoc4.
-          refine (!_).
-          apply maponpaths_2.
-          apply maponpaths.
-          rewrite assoc.
-          apply maponpaths_2.
-          apply (comp_cat_comp_mor_law (⌈ comp_cat_El_iso C Δ' Γ' (pr1 s) A ⌉⁻¹)).
-        }
-        rewrite !assoc'.
-        etrans.
-        2 :
-          {  rewrite assoc.
-             etrans.
-             2 : { apply cancel_postcomposition.
-                   refine (pr2 (transportf_subst_tm_on_s p' (cwf_qA_subst u')) @ _).
-                   exact (!(pr2 (transportf_subst_tm_on_s p' (cwf_qA_subst u')))).
-             }
-             apply TerminalArrowEq.
-        }
-        apply TerminalArrowEq.
-      + apply comp_cat_tm_eq.
-        apply (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
-        --
-          (* TODO: Opaqueness of the proof of commutativity of pullback arrow is in a bad condition. *)
-          unfold transport_term_sub_eq.
-          etrans.
-          {
-            apply PullbackArrow_PullbackPr1.
-          }
-          etrans.
-          { apply
-              (PullbackArrow_PullbackPr1 (comp_cat_pullback (El [] Γ) _)).
-          }
-          rewrite q'.
-          rewrite comp_cat_ext_subst_commute.
-          etrans.
-          2 :
-            {
-            apply maponpaths.
-            rewrite !assoc.
-            rewrite comp_cat_comp_mor_law.
-            apply idpath.
-          }
-          repeat rewrite assoc.
-          etrans.
-          2:
-            {
-            apply maponpaths_2.
-            refine (!_).
-            apply (pr2 t).
-          }
-          rewrite id_left.
-          (* something with p' *)
+    - apply uniqueness_lemma_pi.
+    - use comp_cat_tm_eq ; simpl.
+      refine (!_).
+      apply (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))) ;
+        [ | apply PullbackArrow_PullbackPr2 ].
+      rewrite PullbackArrow_PullbackPr1.
+      refine (!_).
+      etrans.
+      {
+        apply (PullbackArrow_PullbackPr1 (comp_cat_pullback _ _)).
+      }
+      refine (!_).
+      induction p', q'.
 
   Admitted.
 
