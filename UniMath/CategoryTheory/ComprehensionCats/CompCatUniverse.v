@@ -97,7 +97,8 @@ We say C has a universe if we have :
   such that i commutes with i_id and i_comp.
  *)
 
-Definition comp_cat_universe_data (C : comp_cat_with_terminal) : UU
+
+Definition comp_cat_universe_data (C: comp_cat_with_terminal) : UU
   := ∑ (U : comp_cat_ty []),
     ∑ (el : ∏ (Γ : C), comp_cat_tm Γ (weakened_from_empty U _) -> comp_cat_ty Γ),
       (∏ (Γ Δ : C) (s : Γ --> Δ) (t : comp_cat_tm Δ (weakened_from_empty U _)),
@@ -105,10 +106,119 @@ Definition comp_cat_universe_data (C : comp_cat_with_terminal) : UU
               ((el _ t) [[ s ]])
               (el _ (t [[ s ]]tm ↑ ⌈sub_comp_cat_univ_iso U s⌉))).
 
-(* This will probably not be needed in the mapping to CwFs. *)
-Definition comp_cat_universe_coherent {C : comp_cat_with_terminal} (universe : comp_cat_universe_data C) : UU.
+Definition comp_cat_el_map {C: comp_cat_with_terminal} (universe: comp_cat_universe_data C)
+  {Γ : C} {a b : comp_cat_tm Γ (weakened_from_empty (pr1 universe) _)}
+  (p : a = b)
+  : let el := pr12 universe in
+    (el _ a) -->[identity _] (el _ b).
 Proof.
-  Admitted.
+  induction p.
+  apply id_disp.
+Defined.
+
+Section universe_coherence.
+  Context (C : comp_cat_with_terminal)
+    (universe : comp_cat_universe_data C).
+
+  Let U := pr1 universe.
+  Let el := pr12 universe.
+  Let i := pr22 universe.
+
+  Local Lemma elmaplemma {Γ : C}
+    {t : comp_cat_tm Γ (weakened_from_empty U Γ)} :
+    t [[identity Γ ]]tm
+      ↑ ⌈ sub_comp_cat_univ_iso (pr1 universe) (identity Γ)⌉ = t.
+  Proof.
+    rewrite comp_cat_subst_tm_id.
+    rewrite comp_cat_comp_coerce_tm.
+    unfold sub_comp_cat_univ_iso.
+    rewrite <- comp_cat_id_coerce_tm.
+    apply comp_cat_coerce_eq.
+    refine (_ @ comp_cat_id_left_subst_ty _ _).
+    rewrite assoc'.
+    cbn.
+    do 6 apply maponpaths.
+    apply homset_property.
+  Qed.
+
+  Definition comp_cat_universe_coherent_id
+    : UU
+    := ∏ (Γ : C)
+         (t : comp_cat_tm Γ (weakened_from_empty U _)),
+      @identity (fiber_category _ _) (el _ t ) =
+        comp_cat_subst_ty_id_iso _
+          · i _ _ (identity Γ) t
+          · comp_cat_el_map _ elmaplemma.
+
+  Local Lemma elmaplemmacomp
+    {Γ Δ Θ : C}
+    {s₁ : Γ --> Δ} {s₂ : Θ --> Γ}
+    {t : comp_cat_tm Δ (weakened_from_empty U _)} :
+    t [[ s₂ · s₁ ]]tm ↑ ⌈ sub_comp_cat_univ_iso U (s₂ · s₁) ⌉
+    = (t [[ s₁ ]]tm ↑ ⌈ sub_comp_cat_univ_iso U s₁ ⌉)
+        [[ s₂ ]]tm ↑ ⌈ sub_comp_cat_univ_iso U s₂ ⌉.
+  Proof.
+    rewrite comp_cat_subst_coerce_tm.
+    rewrite comp_cat_comp_coerce_tm.
+    Admitted.
+  (*   rewrite <- comp_cat_subst_tm_comp. *)
+  (*   apply comp_cat_coerce_eq. *)
+  (*   unfold sub_comp_cat_univ_iso. *)
+  (*   rewrite assoc. *)
+  (*   etrans. *)
+  (*   { apply maponpaths_2. *)
+  (*     apply comp_cat_assoc_subst_ty. } *)
+  (*   rewrite !assoc'. *)
+  (*   apply maponpaths. *)
+  (*   etrans. *)
+  (*   2: { apply maponpaths_2. *)
+  (*        apply comp_cat_reindex_coercion_comp_witness. } *)
+  (*   rewrite !assoc'. *)
+  (*   apply maponpaths. *)
+  (*   etrans. *)
+  (*   { apply comp_cat_subst_ty_iso_comp. } *)
+  (*   etrans. *)
+  (*   2: { apply !comp_cat_subst_ty_iso_comp. } *)
+  (*   do 2 apply maponpaths. *)
+  (*   apply homset_property. *)
+  (* Qed. *)
+
+  Definition comp_cat_universe_coherent_comp : UU.
+  Proof.
+    refine (
+      ∏ (Γ Δ Θ : C) (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
+        (t : comp_cat_tm Δ (weakened_from_empty U _)),
+      comp_cat_reindex_iso s₂ (i _ _ s₁ t)
+        · (i _ _ s₂ _)
+        =
+          comp_cat_subst_ty_comp_iso (el _ t) s₁ s₂
+            · (i _ _ (s₂ · s₁) t)
+            · comp_cat_el_map _ elmaplemmacomp).
+  Defined.
+
+  (* Definition comp_cat_universe_coherent_comp : UU. *)
+  (* Proof. *)
+
+  (* refine ( *)
+  (*   ∏ (Γ Δ Θ : C) (s₁ : Γ --> Δ) (s₂ : Θ --> Γ) *)
+  (*     (t : comp_cat_tm Δ (weakened_from_empty U _)), *)
+  (*   comp_cat_reindex_iso s₂ (i _ _ s₁ _) *)
+  (*     · *)
+  (*     (i _ _ s₂ _) *)
+  (*     = *)
+  (*       comp_cat_subst_ty_comp_iso (el _ t) s₁ s₂ *)
+  (*         · (i _ _ (s₂ · s₁) t) *)
+  (*         · _ ). *)
+  (* Admitted. *)
+
+End universe_coherence.
+
+Definition comp_cat_universe_coherent
+  {C : comp_cat_with_terminal}
+  (universe : comp_cat_universe_data C) : UU
+  := comp_cat_universe_coherent_id _ universe
+     ×
+     comp_cat_universe_coherent_comp _ universe.
 
 Definition comp_cat_universe (C : comp_cat_with_terminal) : UU
   := ∑ (universe : comp_cat_universe_data C), comp_cat_universe_coherent universe.
@@ -136,11 +246,8 @@ Definition comp_cat_univ_eq_ty_el_map
   (C : comp_cat_with_universe)
   {Γ : C} {a b : comp_cat_tm Γ (weakened_from_empty (comp_cat_U C) _)}
   (p : a = b)
-  : (comp_cat_El C _ a) -->[identity _] (comp_cat_El C _ b).
-Proof.
-  induction p.
-  apply id_disp.
-Defined.
+  : (comp_cat_El C _ a) -->[identity _] (comp_cat_El C _ b)
+  := (comp_cat_el_map (pr12 C) p).
 
 (**  Universe Being Closed under Sigma-Types  *)
 

@@ -130,6 +130,14 @@ Proof.
   exact p.
 Qed.
 
+Definition comp_cat_tm_isaset {C : comp_cat} {Γ : C} {A : comp_cat_ty Γ}
+  : isaset (comp_cat_tm Γ A).
+Proof.
+  apply isaset_total2.
+  - apply homset_property.
+  - intro t. apply isasetaprop. apply homset_property.
+Qed.
+
 Definition cleaving_of_types (C : comp_cat)
   : cleaving (disp_cat_of_types C)
   := pr1 (pr22 C).
@@ -354,17 +362,6 @@ Defined.
 
 Notation "t ↑ f" := (coerce_comp_cat_tm f t) (at level 29, left associativity).
 
-Definition comp_cat_tm_isaset : ∏ (C : comp_cat) (Γ : pr1 C) (A : comp_cat_ty Γ),
-    isaset (comp_cat_tm Γ A).
-Proof.
-  intros.
-  use isaset_total2.
-  - apply homset_property.
-  - intros.
-    apply isasetaprop.
-    apply homset_property.
-Qed.
-
 Definition comp_cat_reindex_coercion {C : comp_cat} {Γ Δ : C} (s : Δ --> Γ) {A B : comp_cat_ty Γ} (f : A <: B)
   : A [[ s ]] <: B [[ s ]].
 Proof.
@@ -432,6 +429,22 @@ Definition comp_cat_subst_ty_iso {C : comp_cat} {Γ Δ : C} (A : comp_cat_ty Δ)
 Proof.
   refine (idtoiso _).
   exact (comp_cat_subst_ty_eq A p).
+Defined.
+
+Definition comp_cat_subst_ty_iso_comp {C : comp_cat} {Γ Δ : C} (A : comp_cat_ty Δ)
+  {s s' s'': Γ --> Δ} {p : s = s'} {p' : s' = s''}
+  : comp_cat_subst_ty_iso A p · comp_cat_subst_ty_iso _ p' = comp_cat_subst_ty_iso _ (p @ p').
+Proof.
+  unfold comp_cat_subst_ty_iso.
+  unfold comp_cat_subst_ty_eq.
+  refine (!_).
+  etrans.
+  2 : {
+    apply pr1_idtoiso_concat.
+  }
+  do 2 apply maponpaths.
+  induction p, p'.
+  apply idpath.
 Defined.
 
 Definition comp_cat_subst_ty_id_iso {C : comp_cat}
@@ -546,6 +559,40 @@ Proof.
 Defined.
 
 
+Lemma comp_cat_reindex_coercion_iso_eq {C : comp_cat} {Γ Δ : C} (s : Δ --> Γ)
+  {A B : comp_cat_ty Γ}
+  (i : @z_iso (fiber_category (disp_cat_of_types C) Γ) A B)
+  : comp_cat_reindex_coercion s ( ⌈ i ⌉ ) = ⌈ comp_cat_reindex_iso s i⌉ .
+Proof.
+   set (cl := cleaving_of_types C).
+   set (liftB := cl _ _ s B).
+   set (HffB := cartesian_lift_is_cartesian _ _ liftB).
+   apply (cartesian_factorisation_unique HffB).
+   unfold cartesian_factorisation_commutes.
+   etrans.
+   { apply (cartesian_factorisation_commutes HffB). }
+   unfold fiber_functor_from_cleaving.
+   cbn.
+   rewrite transport_f_f.
+   refine (_ @ cartesian_factorisation_commutes HffB _ _ ).
+    etrans.
+    2: {
+    apply maponpaths_2.
+    etrans.
+    2: { apply maponpaths.
+         apply (cartesian_factorisation_commutes (cartesian_lift_is_cartesian _ _ liftB)).
+    }
+    refine (!_).
+    do 2 rewrite (cartesian_factorisation_commutes liftB).
+    apply idpath.
+    }
+    rewrite cartesian_factorisation_commutes.
+    apply idpath.
+Qed.
+
+
+(* Lemmas about how coercing interacts with the isos and the reindexing *)
+
 Definition comp_cat_reindex_coercion_comp
   {C : comp_cat}
   {Γ Δ Θ : C} (s₁ : Δ --> Γ)(s₂ : Θ --> Δ)
@@ -628,26 +675,68 @@ Definition comp_cat_reindex_coercion_comp_witness
     =  comp_cat_reindex_coercion s f · comp_cat_reindex_coercion s g.
 Proof.
   unfold comp_cat_reindex_coercion.
-   unfold comp_cat_reindex_coercion.
+  unfold comp_cat_reindex_coercion.
   cbn.
   unfold transportb.
   repeat rewrite transport_f_f.
   apply (cartesian_factorisation_unique (cleaving_of_types C Γ Δ s D)).
   rewrite (cartesian_factorisation_commutes).
-    rewrite !mor_disp_transportf_postwhisker.
-    rewrite assoc_disp_var.
-    rewrite cartesian_factorisation_commutes.
-    rewrite !mor_disp_transportf_prewhisker.
-    rewrite !transport_f_f.
-    rewrite !assoc_disp.
-    unfold transportb.
-    rewrite !transport_f_f.
-    rewrite !cartesian_factorisation_commutes.
-    rewrite !mor_disp_transportf_postwhisker.
-    rewrite !transport_f_f.
-    apply  maponpaths_2.
-    apply homset_property.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite assoc_disp_var.
+  rewrite cartesian_factorisation_commutes.
+  rewrite !mor_disp_transportf_prewhisker.
+  rewrite !transport_f_f.
+  rewrite !assoc_disp.
+  unfold transportb.
+  rewrite !transport_f_f.
+  rewrite !cartesian_factorisation_commutes.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !transport_f_f.
+  apply  maponpaths_2.
+  apply homset_property.
 Qed.
+
+Local Arguments transportf {_ _ _ _ _} _.
+
+Proposition comp_cat_reindex_coercion_subst_ty_iso
+  {C : comp_cat}
+  {Γ₁ Γ₂ Γ₃ : C}
+  (s₁ : Γ₁ --> Γ₂)
+  (s₂ s₂' : Γ₂ --> Γ₃)
+  (p : s₂' = s₂)
+  (A : comp_cat_ty Γ₃)
+  : comp_cat_reindex_coercion s₁ (⌈comp_cat_subst_ty_iso A p⌉)
+    · ⌈comp_cat_subst_ty_comp_iso A s₂ s₁⌉
+    =
+    ⌈comp_cat_subst_ty_comp_iso A s₂' s₁⌉
+    · ⌈comp_cat_subst_ty_iso A (maponpaths (λ z, s₁ · z) p)⌉.
+Proof.
+  induction p.
+  cbn.
+  apply maponpaths.
+  unfold comp_cat_reindex_coercion.
+  rewrite !transport_f_f.
+  unfold transportb.
+  rewrite !id_right_disp.
+  unfold transportb.
+  rewrite !transport_f_f.
+  use (cartesian_factorisation_unique (cleaving_of_types C Γ₃ Γ₁ (s₁ · s₂') A) ).
+  rewrite assoc_disp_var.
+  rewrite !cartesian_factorisation_commutes.
+  rewrite !mor_disp_transportf_prewhisker.
+  rewrite !transport_f_f.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !cartesian_factorisation_commutes.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite !transport_f_f.
+  rewrite !cartesian_factorisation_commutes.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
 
 (** Lemmas for coercing terms  *)
 

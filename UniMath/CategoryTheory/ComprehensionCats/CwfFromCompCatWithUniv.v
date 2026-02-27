@@ -120,90 +120,13 @@ Section Construction.
   Definition cwf_context_from_comp_cat_with_u : category :=
     (cwf_context_precategory_from_comp_cat_with_u ,, is_category_context_from_comp_cat_with_u).
 
-   Definition cwf_terminal_from_comp_cat_with_u : Terminal (cwf_context_from_comp_cat_with_u).
-  Proof.
-    (* The terminal context is given by the code of the unit in the universe *)
-    set (unit_code := pr1 UnitU []).
-    set (U := comp_cat_U C).
-    set (el := comp_cat_El C).
-    set (unit_el_iso := pr12 UnitU).
-    set (unit_iso := pr122 (pr222 Unit)).
-    set (unit := (pr1 Unit)).
-    set (tt := (pr12 Unit)).
 
-    use tpair.
-    - exact (unit_code).
-    - intro Γ.
-      set (tm_unit_code := term_unit_code C Unit UnitU []).
-      use tpair.
-      + (* The terminal map is given by precomposing pi with the unique term of the unit code *)
-        use tpair.
-        *  exact (π (el _ Γ) · tm_unit_code).
-        * (* proof that it is a section *)
-          abstract (
-              cbn;
-              rewrite <- (assoc4 _ _ _ _ _ _ (π (el [] Γ)) _ _ (π (comp_cat_El C [] unit_code)));
-              repeat rewrite <- assoc;
-              rewrite comp_cat_comp_mor_law;
-              rewrite <- id_right;
-              apply cancel_precomposition;
-              exact (pr2 ((pr12 Unit) []))
-                    ).
-      + (* Uniqueness using the universal property of the pullback that is given by pulling back
-            π (el unit_code) along π (el Γ) precomposed with an isomorphism
-           and uniqueness of tt *)
-        cbn; intro s;
-          use subtypePath; [unfold isPredicate; intros; apply (homset_property C) |cbn ].
-        set (u := π (el [] Γ) · ((pr12 Unit) [] · comp_cat_comp_mor (⌈ (pr12 UnitU) [] ⌉⁻¹))).
-        assert (i' : @z_iso
-                      (fiber_category _ _ )
-                      (unit ([] & (el _ Γ))) ((el _ unit_code) [[ π (el _ Γ) ]] )).
-        {
-          refine (z_iso_comp _ (z_iso_inv (comp_cat_reindex_iso _ (unit_el_iso _)))).
-          exact (z_iso_inv (unit_iso _ _ _)).
-        }
-        assert (p : ∏ {Γ Δ : C} (A : comp_cat_ty Δ) (s : Γ --> Δ),
-                   PullbackObject (comp_cat_pullback A s)
-                   = Γ & (A [[ s ]]) ) by (intros; apply idpath).
-        set (i := transportf _ (p _ _ _ _) (comp_cat_comp_iso i')).
-        set (PB := comp_cat_pullback_compose_iso (π (el [] Γ)) i).
-        assert (p_u : identity ([] & el [] Γ) · u · π (el [] unit_code) = π (el [] Γ)).
-        {
-          rewrite <- assoc; rewrite id_left.
-          unfold u.
-          rewrite <- assoc4.
-          repeat rewrite <- assoc.
-          rewrite comp_cat_comp_mor_law.
-          rewrite <- id_right.
-          apply cancel_precomposition.
-          exact (pr2 (tt [])).
-        }
-        assert (p_s :  identity ([] & el [] Γ) · s · π (el [] unit_code) = π (el [] Γ))
-          by (rewrite <- assoc; rewrite id_left; exact (pr2 s)).
-        set (univ_u := comp_cat_univ_pullback_compose_iso (π (el [] Γ)) i' (identity _) u p_u).
-        set (univ_s := comp_cat_univ_pullback_compose_iso (π (el [] Γ)) i' (identity _) s p_s).
-        assert (unit_code_term_eq' : (univ_s) = (univ_u)).
-        {
-          set (unique := pr12 (pr222 Unit)).
-          etrans.
-          exact (unique _ univ_s).
-          exact (!(unique _ univ_u)).
-        }
-        set (H := maponpaths pr1 unit_code_term_eq').
-        cbn in H.
-        unfold isPullback_z_iso_mor in H.
-        apply (post_comp_with_z_iso_is_inj (z_iso_inv (comp_cat_comp_iso i'))) in H.
-        set (PB0 := make_Pullback
-                      (PullbackSqrCommutes (comp_cat_pullback (el [] unit_code) (π (el [] Γ))))
-                      (comp_cat_is_pullback (el [] unit_code) (π (el [] Γ)))).
-        set (pr1eq := maponpaths (fun t => t · PullbackPr1 PB0) H).
-        cbn in pr1eq.
-        repeat rewrite (PullbackArrow_PullbackPr1 PB0) in pr1eq.
-        repeat rewrite id_left in pr1eq.
-        exact pr1eq.
-Defined.
+  Section Terminal_from_comp_cat_with_u.
 
-Section Terminal_from_comp_cat_with_u.
+    (* The terminal context is the code of unit in the comprehension category.
+       We prove uniqueness of the terminal maps  using the universal property of the pullback
+       that is given by pulling back π (el unit_code) along π (el Γ) precomposed with an isomorphism
+       and uniqueness of tt *)
 
   Let unit_code := pr1 UnitU [].
   Let U := comp_cat_U C.
@@ -214,10 +137,103 @@ Section Terminal_from_comp_cat_with_u.
   Let tt := (pr12 Unit).
   Let tm_unit_code := term_unit_code C Unit UnitU [].
 
-  (* TODO: break it up *)
+  Definition terminal_context : context_from_comp_cat_with_u := unit_code.
+
+  Definition terminal_morphism (Γ : context_from_comp_cat_with_u)
+    : ([] & (comp_cat_El _ _ Γ)) --> ([] & (comp_cat_El _ _ unit_code))
+    := π (el _ Γ) · tm_unit_code.
+
+  Lemma terminal_morphism_is_section (Γ : context_from_comp_cat_with_u)
+    : terminal_morphism Γ · (π (el _ unit_code)) = (π (el _ Γ)).
+  Proof.
+    cbn.
+    unfold terminal_morphism.
+    rewrite <- assoc.
+    etrans.
+    {
+      apply maponpaths.
+      apply (pr2 tm_unit_code).
+    }
+    apply id_right.
+  Qed.
+
+  Definition terminal_sub (Γ : context_from_comp_cat_with_u)
+    : substitution_from_comp_cat_with_u Γ unit_code
+    := (terminal_morphism Γ ,, terminal_morphism_is_section Γ).
+
+  (* The iso witnessing that the unit fiber is isomorphic to the reindexed El of unit_code *)
+  Definition terminal_fiber_iso (Γ : context_from_comp_cat_with_u)
+    : @z_iso (fiber_category _ _)
+        (unit ([] & (el _ Γ)))
+        ((el _ unit_code) [[ π (el _ Γ) ]])
+    := z_iso_comp
+         (z_iso_inv (unit_iso _ _ _))
+         (z_iso_inv (comp_cat_reindex_iso _ (unit_el_iso _))).
+
+  (* The transported composite iso used in the pullback universal property *)
+  Definition terminal_comp_iso (Γ : context_from_comp_cat_with_u) :=
+    let i' := terminal_fiber_iso Γ in
+    let p : ∏ {Γ Δ : C} (A : comp_cat_ty Δ) (s : Γ --> Δ),
+              PullbackObject (comp_cat_pullback A s) = Γ & (A [[ s ]])
+          := fun _ _ _ _ => idpath _ in
+    transportf _ (p _ _ _ _) (comp_cat_comp_iso i').
+
+  Lemma terminal_u_section_eq (Γ : context_from_comp_cat_with_u) :
+    let i' := terminal_fiber_iso Γ in
+    let u := π (el [] Γ) · ((pr12 Unit) [] · comp_cat_comp_mor (⌈ (pr12 UnitU) [] ⌉⁻¹)) in
+    identity ([] & el [] Γ) · u · π (el [] unit_code) = π (el [] Γ).
+  Proof.
+    cbn.
+    rewrite <- assoc; rewrite id_left.
+    rewrite <- assoc4.
+    repeat rewrite <- assoc.
+    rewrite comp_cat_comp_mor_law.
+    rewrite <- id_right.
+    apply cancel_precomposition.
+    exact (pr2 (tt [])).
+  Qed.
+
+  Lemma terminal_uniqueness (Γ : context_from_comp_cat_with_u)
+    (s : substitution_from_comp_cat_with_u Γ unit_code)
+    : s = terminal_sub Γ.
+  Proof.
+    use subtypePath; [unfold isPredicate; intros; apply (homset_property C) | cbn].
+    set (i' := terminal_fiber_iso Γ).
+    set (u := π (el [] Γ) · ((pr12 Unit) [] · comp_cat_comp_mor (⌈ (pr12 UnitU) [] ⌉⁻¹))).
+    set (p := (fun _ _ _ _ => (idpath _) ): ∏ {Γ Δ : C} (A : comp_cat_ty Δ) (s : Γ --> Δ),
+               PullbackObject (comp_cat_pullback A s) = Γ & (A [[ s ]])).
+    set (i := transportf _ (p _ _ _ _) (comp_cat_comp_iso i')).
+    set (p_u := terminal_u_section_eq Γ).
+    assert (p_s : identity ([] & el [] Γ) · s · π (el [] unit_code) = π (el [] Γ))
+      by (rewrite <- assoc; rewrite id_left; exact (pr2 s)).
+    set (univ_u := comp_cat_univ_pullback_compose_iso (π (el [] Γ)) i' (identity _) u p_u).
+    set (univ_s := comp_cat_univ_pullback_compose_iso (π (el [] Γ)) i' (identity _) s p_s).
+    assert (unit_code_term_eq' : univ_s = univ_u).
+    { set (unique := pr12 (pr222 Unit)).
+      etrans. exact (unique _ univ_s). exact (!(unique _ univ_u)). }
+    set (H := maponpaths pr1 unit_code_term_eq').
+    cbn in H.
+    unfold isPullback_z_iso_mor in H.
+    apply (post_comp_with_z_iso_is_inj (z_iso_inv (comp_cat_comp_iso i'))) in H.
+    set (PB0 := make_Pullback
+                  (PullbackSqrCommutes (comp_cat_pullback (el [] unit_code) (π (el [] Γ))))
+                  (comp_cat_is_pullback (el [] unit_code) (π (el [] Γ)))).
+    set (pr1eq := maponpaths (fun t => t · PullbackPr1 PB0) H).
+    cbn in pr1eq.
+    repeat rewrite (PullbackArrow_PullbackPr1 PB0) in pr1eq.
+    repeat rewrite id_left in pr1eq.
+    exact pr1eq.
+  Qed.
 
 End Terminal_from_comp_cat_with_u.
 
+Definition cwf_terminal_from_comp_cat_with_u : Terminal cwf_context_from_comp_cat_with_u.
+Proof.
+  use tpair.
+  - exact terminal_context.
+  - intro Γ.
+    exact (terminal_sub Γ ,, terminal_uniqueness Γ).
+Defined.
 
   Definition cwf_ty_from_comp_cat_with_u :  cwf_context_from_comp_cat_with_u → hSet.
   Proof.
@@ -291,7 +307,7 @@ End Terminal_from_comp_cat_with_u.
     }
     rewrite (comp_cat_coerce_eq p).
     apply comp_cat_id_coerce_tm.
-  Defined.
+    Qed.
 
   Definition cwf_comp_ty_from_comp_cat_with_u :
     ∏ (Γ Δ Θ : cwf_context_from_comp_cat_with_u) (g : cwf_context_from_comp_cat_with_u ⟦ Θ, Δ ⟧)
@@ -323,26 +339,28 @@ End Terminal_from_comp_cat_with_u.
     }
     refine ( _ @ assoc _ _ _ ).
     apply cancel_precomposition.
-  (*  coerce_comp_subst_ty
-Proposition coerce_comp_subst_ty
-            {C : comp_cat}
-            {Γ₁ Γ₂ Γ₃ : C}
-            (s₁ : Γ₁ --> Γ₂)
-            (s₂ s₂' : Γ₂ --> Γ₃)
-            (p : s₂' = s₂)
-            (A : ty Γ₃)
-  : coerce_subst_ty s₁ (eq_subst_ty _ p) · comp_subst_ty _ s₂ A
-    =
-    comp_subst_ty _ _ A · eq_subst_ty _ (maponpaths (λ z, _ · z) p).
-Proof.
-  induction p.
-  refine (_ @ id_left _ @ !(id_right _)).
-  apply maponpaths_2.
-  apply id_coerce_subst_ty.
+    unfold "⌈ _ ⌉".
+    refine (_ @ assoc' _ _ _).
+    etrans.
+    2 : {
+      apply maponpaths_2.
+      refine (!_).
+      apply (comp_cat_reindex_coercion_subst_ty_iso (pr1 g) _ _ ).
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    etrans.
+    {
+      apply  comp_cat_subst_ty_iso_comp.
+    }
+    etrans.
+    2: {
+      refine (!_).
+      apply  comp_cat_subst_ty_iso_comp.
+    }
+    do 2 apply maponpaths.
+    apply homset_property.
 Qed.
-
-   *)
-  Admitted.
 
   (* This is a transport for the term functorialities *)
   Proposition cwf_from_comp_cat_transport_lemma
@@ -384,11 +402,14 @@ Qed.
     do 2 rewrite comp_cat_comp_coerce_tm.
     refine (_ @ comp_cat_id_coerce_tm t).
     apply comp_cat_coerce_eq.
-  (* WE need a fucking coherence of universe isomorphisms.
-  comp_cat_coherenet_el_map
-  of niels.
-   *)
-  Admitted.
+    set (coherence_id := (pr122 C) _ A).
+    refine (_ @ !coherence_id).
+    unfold comp_cat_univ_eq_ty_el_map.
+    unfold "⌈ _ ⌉".
+    rewrite assoc.
+    do 2 apply maponpaths.
+    apply comp_cat_tm_isaset.
+  Qed.
 
   Definition cwf_comp_tm_from_comp_cat_with_u :
     ∏ (Γ Δ Θ : cwf_context_from_comp_cat_with_u)
@@ -402,7 +423,29 @@ Qed.
           (cwf_subst_ty_from_comp_cat_with_u Γ Δ f A)
           (cwf_subst_tm_from_comp_cat_with_u Γ Δ f A t).
   Proof.
-Admitted.
+    intros.
+    unfold cwf_subst_tm_from_comp_cat_with_u.
+    rewrite cwf_from_comp_cat_transport_lemma.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply comp_cat_subst_tm_comp.
+    }
+    do 2 rewrite comp_cat_comp_coerce_tm.
+    rewrite comp_cat_subst_coerce_tm.
+    rewrite comp_cat_comp_coerce_tm.
+    apply comp_cat_coerce_eq.
+    set (coherence_comp := (pr222 C) _ _ _ (pr1 f) (pr1 g) A).
+    refine (_ @ !coherence_comp @ _).
+    unfold comp_cat_univ_eq_ty_el_map.
+    rewrite !assoc'.
+    do 3 apply maponpaths.
+    apply comp_cat_tm_isaset.
+    unfold cwf_subst_ty_from_comp_cat_with_u.
+    apply maponpaths_2.
+    refine (!_).
+    apply (comp_cat_reindex_coercion_iso_eq (pr1 g)).
+  Qed.
 
   Definition  cwf_ctx_ext_from_comp_cat_with_u : cwf_ctx_ext
     (make_cwf_ty_term_subst cwf_ty_from_comp_cat_with_u cwf_tm_from_comp_cat_with_u cwf_subst_ty_from_comp_cat_with_u cwf_subst_tm_from_comp_cat_with_u
