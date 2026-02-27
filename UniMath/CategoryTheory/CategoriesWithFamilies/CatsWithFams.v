@@ -67,6 +67,34 @@ Definition fam_mor_eq' {f1 f2 : fam_ob} (g h : fam_mor f1 f2) (p : pr1 g = pr1 h
   : g = h
   := (total2_paths_f p q).
 
+Definition fam_mor_eq
+  {f1 f2 : fam_ob}
+  (g h : fam_mor f1 f2)
+  (p : ∏ (x : fam_base f1), pr1 g x = pr1 h x)
+  (q : ∏ (x : fam_base f1) (y : fam_el x),
+       transportf fam_el (p x) (pr2 g x y)
+       =
+       pr2 h x y)
+  : g = h.
+Proof.
+  use fam_mor_eq'.
+  - use funextsec.
+    exact p.
+  - use funextsec ; intro x.
+    use funextfun ; intro y.
+    refine (_ @ q x y).
+    pose (E := transport_functions
+                 (Z:= λ x2 y, fam_el x2 → fam_el y)
+                 (funextsec _ _ _ p)).
+    etrans.
+    {
+      exact (maponpaths (λ h : fam_el x → fam_el _, h y) (E _ _)).
+    }
+    rewrite toforallpaths_funextsec.
+    rewrite transportf_sec_constant.
+    apply idpath.
+Qed.
+
 Definition transport_pr2_eq
   {a b : fam_ob}
   (f : fam_mor a b)
@@ -93,6 +121,29 @@ Proof.
   apply idpath.
 Defined.
 
+Proposition fam_mor_eq_pr1
+            {a b : fam_ob}
+            {f f' : fam_mor a b}
+            (p : f = f')
+            (x : fam_base a)
+  : pr1 f x = pr1 f' x.
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+Proposition fam_mor_eq_pr2
+            {a b : fam_ob}
+            {f f' : fam_mor a b}
+            (p : f = f')
+            (x : fam_base a)
+            (y : fam_el x)
+  : transportf fam_el (fam_mor_eq_pr1 p x) (pr2 f x y) = pr2 f' x y.
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
 Definition fam_id (f : fam_ob) : fam_mor f f.
 Proof.
   use tpair.
@@ -113,8 +164,7 @@ Definition fam_data : precategory_data := make_precategory_data (make_precategor
 
 Definition is_precategory_fam : is_precategory fam_data.
 Proof.
-  do 2 split ; intros;  use fam_mor_eq'; try (apply transport_pr2_eq);
-    apply funextfun; intro; cbn; apply idpath.
+  do 2 split ; intros ; apply idpath.
 Defined.
 
 Definition fam_precategory : precategory := make_precategory fam_data is_precategory_fam.
@@ -138,24 +188,6 @@ Definition make_fam (X : hSet) (Y : X → hSet) : ob Fam := X ,, Y.
 
 Definition make_fam_mor {X X' : hSet} {Y : X → hSet} {Y' : X' → hSet} (f : X → X') (g : ∏ x : X, Y x → Y' (f x))
   : make_fam X Y --> make_fam X' Y' := (f ,, g).
-
-(* in practice we use the pointwise equality of functions, not equality of functions
- so p should be pointwise equality in a lemma here.
- This will make fun_ext not appear in the functoriality proof below.
- *)
-Definition fam_mor_eq {X X' : hSet} {Y : X → hSet} {Y' : X' → hSet}
-  {f f' : X → X'}
-  {g  : ∏ x : X, Y x → Y' (f x)}
-  {g' : ∏ x : X, Y x → Y' (f' x)}
-  (p : f = f')
-  (q : ∏ x (y : Y x), transportf (λ h : X → X', Y' (h x)) p (g x y) = g' x y)
-  : make_fam_mor f g = make_fam_mor f' g'.
-Proof.
-  induction p.
-  apply maponpaths.
-  repeat (apply funextsec;intro).
-  apply q.
-Qed.
 
 
 (** CwF *)
@@ -212,42 +244,19 @@ Proof.
     split.
     + (* identity *)
       intro Γ.
-      use fam_mor_eq.
-      * cbn.
-        apply funextfun; intro A.
+      use fam_mor_eq ; cbn.
+      * intro A.
         apply ty_subst_id.
-      * cbn.
-        intros A t.
-        change (transportf (λ x0 : ty Γ → ty Γ, tm Γ (x0 A))
-                  (funextsec (λ _ : ty Γ, ty Γ) (ty_subst Γ Γ (identity Γ))
-                     (λ x : ty Γ, x) (λ A0 : ty Γ, ty_subst_id Γ A0))
-                  (tm_subst Γ Γ (identity Γ) A t) = t).
-        eapply pathscomp0.
-        -- exact (transportf_funextfun (λ B : ty Γ, tm Γ B) (ty_subst Γ Γ (identity Γ))
-                    (λ x : ty Γ, x) (λ A0 : ty Γ, ty_subst_id Γ A0) (A) (tm_subst Γ Γ (identity Γ) A t)).
-        -- exact (tm_subst_id Γ A t).
+      * intros A t.
+        apply tm_subst_id.
     + (* composition *)
       cbn.
       intro; intros.
-      cbn.
-      use fam_mor_eq.
-      * cbn.
-        apply funextfun; intro x.
-        exact (ty_subst_comp a b c g f x).
-      * cbn.
-        intros A t.
-        change (transportf (λ h : ty a → ty c, tm c (h A))
-                  (funextsec (λ _ : ty a, ty c) (ty_subst a c (f · g))
-                     (λ x : ty a, ty_subst b c g (ty_subst a b f x))
-                     (λ x : ty a, ty_subst_comp a b c g f x))
-                  (tm_subst a c (f · g) A t)
-                = tm_subst b c g (ty_subst a b f A) (tm_subst a b f A t)).
-        eapply pathscomp0.
-        -- exact (transportf_funextfun (λ B : ty c, tm c B) (ty_subst a c (f · g))
-                    (λ x : ty a, ty_subst b c g (ty_subst a b f x))
-                    (λ x : ty a, ty_subst_comp a b c g f x)
-                    (A) (tm_subst a c (f · g) A t)).
-        -- exact (tm_subst_comp a b c g f A t).
+      use fam_mor_eq ; cbn.
+      * intros.
+        apply ty_subst_comp.
+      * intros.
+        apply tm_subst_comp.
 Defined.
 
 Definition cwf_exted_con {C : category} {T : cwf_ty_term_subst C} (Γ : C) (A : cwf_ty T Γ) : UU
@@ -309,10 +318,55 @@ Proof.
   apply idpath.
 Qed.
 
+Definition cwf_subst_tm_eq' {C : category} {Γ Δ : C} {T : cwf_ty_term_subst C}
+  {A : cwf_ty T Δ} (t : cwf_tm T A) {s s' : Γ --> Δ} (p : s = s')
+  : transportf (cwf_tm T) (maponpaths (λ z, _ [[ z ]]) p) (t [[ s ]]tm) = t [[ s' ]]tm.
+Proof.
+  induction p.
+  cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_cwf_subst_tm
+  {C : cwf_data}
+  {Γ Δ : C}
+  {A A' : cwf_ty (cwf_t C) Δ}
+  (p : A = A')
+  (s : Γ --> Δ)
+  (t : cwf_tm (cwf_t C) A)
+  : (transportf (cwf_tm (cwf_t C)) p t) [[ s ]]tm
+    =
+    transportf (cwf_tm (cwf_t C)) (maponpaths (λ z, z [[ s ]]) p) (t [[ s ]]tm).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
 Definition transportf_subst_tm_on_s {C : cwf_data} {Γ Δ : C}
   {A : cwf_ty (cwf_t C) Γ} {s s' : Δ --> Γ} (p : s = s')
   (t : cwf_tm (cwf_t C) (A [[ s ]])) : cwf_tm (cwf_t C) (A [[ s' ]])
   := transportf (fun s0 : Δ --> Γ => cwf_tm (cwf_t C) (A [[ s0 ]])) p t.
+
+(*******************************************************************************************
+ *******************************************************************************************
+ *******************************************************************************************
+
+ The following might be a more suitable definition for `transportf_subst_tm_on_s`
+
+ *******************************************************************************************
+ *******************************************************************************************
+ *******************************************************************************************)
+Lemma transportf_subst_tm_on_s_eq
+      {C : cwf_data} {Γ Δ : C}
+      {A : cwf_ty (cwf_t C) Γ} {s s' : Δ --> Γ} (p : s = s')
+      (t : cwf_tm (cwf_t C) (A [[ s ]]))
+  : transportf_subst_tm_on_s p t
+    =
+    transportf (cwf_tm (cwf_t C)) (maponpaths (λ z, A [[ z ]]) p) t.
+Proof.
+  induction p.
+  apply idpath.
+Qed.
 
 Definition cwf_subst_ty_comp {C : cwf_data} {Γ Γ' Δ : C}
   (A : cwf_ty (cwf_t C) Γ) (s : Γ' --> Γ) (u : Δ --> Γ')
@@ -333,13 +387,61 @@ Definition cwf_subst_tm_comp {C : cwf_data} {Γ Γ' Δ : C} (A : cwf_ty (cwf_t C
   := transportf (fun B : cwf_ty (cwf_t C) Δ => cwf_tm (cwf_t C) B)
        (cwf_subst_ty_comp A s u) t.
 
-Definition cwf_subst_ty_id {C : cwf_data} {Γ : C} (A : cwf_ty (cwf_t C) Γ) : A [[ identity Γ ]] = A.
+Definition cwf_subst_ty_id {C : cwf_data} {Γ : C} (A : cwf_ty (cwf_t C) Γ)
+  : A [[ identity Γ ]] = A.
 Proof.
   unfold cwf_subst_ty.
   set (id := functor_id (cwf_t C) Γ).
-  set (id_base := maponpaths pr1 id).
-  exact (toforallpaths _ _ _ id_base A).
+  exact (fam_mor_eq_pr1 id A).
 Defined.
+
+Proposition cwf_subst_tm_on_id
+            {C : cwf_data}
+            {Γ : C}
+            {A : cwf_ty (cwf_t C) Γ}
+            (t : cwf_tm (cwf_t C) A)
+  : t [[ identity _ ]]tm
+    =
+    transportf (cwf_tm (cwf_t C)) (!(cwf_subst_ty_id A)) t.
+Proof.
+  set (id := functor_id (cwf_t C) Γ).
+  pose proof (fam_mor_eq_pr2 id A t) as p.
+  cbn in p.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    exact (!p).
+  }
+  rewrite transport_f_f.
+  apply (transportf_set fam_el).
+  apply setproperty.
+Qed.
+
+Proposition cwf_subst_tm_on_comp
+            {C : cwf_data}
+            {Γ₁ Γ₂ Γ₃ : C}
+            {A : cwf_ty (cwf_t C) Γ₃}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (t : cwf_tm (cwf_t C) A)
+  : t [[ s₁ · s₂ ]]tm
+    =
+    transportf (cwf_tm (cwf_t C)) (cwf_subst_ty_comp _ _ _) (t [[ s₂ ]]tm [[ s₁ ]]tm).
+Proof.
+  set (id := functor_comp (cwf_t C) s₂ s₁).
+  pose proof (fam_mor_eq_pr2 id A t) as p.
+  cbn in p.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    exact (!p).
+  }
+  rewrite transport_f_f.
+  apply (transportf_set fam_el).
+  apply setproperty.
+Qed.
 
 Definition cwf_subst_tm_id {C : cwf_data} {Γ : C} {A : cwf_ty (cwf_t C) Γ}
   (a : cwf_tm (cwf_t C) A) : cwf_tm (cwf_t C) (A [[ identity Γ ]])
@@ -380,6 +482,125 @@ Definition cwf_pair_q {C : cwf} {Γ Δ : C} {A : cwf_ty _ Γ} (s : Δ --> Γ) (t
   : transportf_subst_tm_on_s (cwf_pair_p s t) (cwf_qA_subst ( ⟨⟨ s , t ⟩⟩ )) = t
   := pr2 (pr2 (pr1 (pr2 C Γ Δ A s t))).
 
+Proposition cwf_pair_q_subst_eq
+  {C : cwf} {Γ Δ : C} {A : cwf_ty _ Γ} (s : Δ --> Γ) (t : cwf_tm (cwf_t C) (A[[s]]))
+  : A [[s]] = (A [[p_ A]]) [[⟨⟨ s , t ⟩⟩]].
+Proof.
+  rewrite cwf_subst_ty_comp.
+  rewrite cwf_pair_p.
+  apply idpath.
+Qed.
+
+Proposition cwf_pair_q_subst
+  {C : cwf} {Γ Δ : C} {A : cwf_ty _ Γ} (s : Δ --> Γ) (t : cwf_tm (cwf_t C) (A[[s]]))
+  : (q_ A) [[ ⟨⟨ s , t ⟩⟩ ]]tm
+    =
+    transportf (cwf_tm (cwf_t C)) (cwf_pair_q_subst_eq s t) t.
+Proof.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    exact (!(cwf_pair_q s t)).
+  }
+  etrans.
+  {
+    apply maponpaths.
+    apply transportf_subst_tm_on_s_eq.
+  }
+  rewrite transport_f_f.
+  unfold cwf_qA_subst, cwf_subst_tm_comp.
+  rewrite transport_f_f.
+  use (transportf_set (cwf_tm (cwf_t C))).
+  apply setproperty.
+Qed.
+
+Proposition cwf_pair_q_subst'
+  {C : cwf} {Γ Δ : C} {A : cwf_ty _ Γ} (s : Δ --> Γ) (t : cwf_tm (cwf_t C) (A[[s]]))
+  : t
+    =
+    transportb (cwf_tm (cwf_t C)) (cwf_pair_q_subst_eq s t) (q_ A [[ ⟨⟨ s , t ⟩⟩ ]]tm).
+Proof.
+  rewrite cwf_pair_q_subst.
+  rewrite transportbfinv.
+  apply idpath.
+Qed.
+
+Proposition cwf_subst_pair_eq_subst
+  {C : cwf}
+  {Γ Δ : C}
+  {A : cwf_ty (cwf_t (pr1 C)) Γ}
+  {s s' : Δ --> Γ}
+  (p : s = s')
+  (t : cwf_tm (cwf_t (pr1 C)) (A [[ s ]]))
+  : ⟨⟨ s , t ⟩⟩ = ⟨⟨ s' , transportf_subst_tm_on_s p t ⟩⟩.
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Proposition cwf_pair_unique
+            {C : cwf}
+            {Γ Δ : C}
+            {A : cwf_ty (cwf_t C) Γ}
+            (s : Δ --> Γ)
+            (t : cwf_tm (cwf_t C) (A [[ s ]]))
+            {u₁ u₂ : Δ --> Γ & A}
+            (p₁ : u₁ · p_ A = s)
+            (p₂ : u₂ · p_ A = s)
+            (q₁ : transportf_subst_tm_on_s p₁ (cwf_qA_subst u₁) = t)
+            (q₂ : transportf_subst_tm_on_s p₂ (cwf_qA_subst u₂) = t)
+  : u₁ = u₂.
+Proof.
+  exact (maponpaths
+           pr1
+           (proofirrelevance
+              _
+              (isapropifcontr (pr2 C Γ Δ A s t))
+              (u₁ ,, p₁ ,, q₁)
+              (u₂ ,, p₂ ,, q₂))).
+Qed.
+
+Proposition cwf_subst_pair_precomp
+            {C : cwf}
+            {Γ₁ Γ₂ Γ₃ : C}
+            {A : cwf_ty (cwf_t C) Γ₃}
+            (s : Γ₁ --> Γ₂)
+            (s' : Γ₂ --> Γ₃)
+            (t : cwf_tm (cwf_t C) (A [[ s' ]]))
+  : s · ⟨⟨ s' , t ⟩⟩
+    =
+    ⟨⟨ s · s' , transportf (cwf_tm (cwf_t C)) (cwf_subst_ty_comp _ _ _) (t [[ s ]]tm) ⟩⟩.
+Proof.
+  use (cwf_pair_unique
+         (s · s')
+         (transportf (cwf_tm (cwf_t C)) (cwf_subst_ty_comp _ _ _) (t [[ s ]]tm))).
+  - abstract
+      (rewrite !assoc' ;
+       apply maponpaths ;
+       apply cwf_pair_p).
+  - apply cwf_pair_p.
+  - unfold cwf_qA_subst, cwf_subst_tm_comp.
+    rewrite transportf_subst_tm_on_s_eq.
+    rewrite transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      apply cwf_subst_tm_on_comp.
+    }
+    rewrite transport_f_f.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply cwf_pair_q_subst.
+    }
+    rewrite transportf_cwf_subst_tm.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply setproperty.
+  - apply cwf_pair_q.
+Qed.
+
 (* s.A *)
 Definition cwf_lift
   {C : cwf} {Γ Δ : pr1 C}
@@ -400,72 +621,130 @@ Proof.
   set (Δ := Γ & A).
   set (uu := ⟨⟨ identity Δ , cwf_subst_tm_id (q_ A) ⟩⟩ · cwf_lift (p_ A) A : Δ --> (Γ & A)).
   set (ctr := pr2 C Γ Δ A (p_ A) (q_ A)).
-      admit.
-  (* refine (maponpaths pr1 (pr2 contr ( (pairid · lift) ,, _ ))). *)
-Admitted.
+  unfold cwf_lift.
+  use (cwf_pair_unique (p_ A) (q_ A)).
+  - abstract
+      (rewrite !assoc' ;
+       etrans ; [ apply maponpaths ; apply cwf_pair_p | ] ;
+       rewrite !assoc ;
+       etrans ; [ apply maponpaths_2 ; apply cwf_pair_p | ] ;
+       apply id_left).
+  - apply id_left.
+  - unfold cwf_qA_subst, cwf_subst_tm_comp.
+    rewrite transportf_subst_tm_on_s_eq.
+    rewrite transport_f_f.
+    refine (_ @ !(cwf_pair_q_subst' _ _)).
+    use (transportf_transpose_left (P := cwf_tm (cwf_t C))).
+    rewrite transport_b_b.
+    simple refine (!(cwf_subst_tm_eq' (s := ⟨⟨ p_ A, q_ A ⟩⟩) _ _) @ _).
+    2: unfold transportb ; apply maponpaths_2 ; apply setproperty.
+    refine (!_).
+    etrans.
+    {
+      apply cwf_subst_pair_precomp.
+    }
+    etrans.
+    {
+      use cwf_subst_pair_eq_subst.
+      {
+        exact (p_ A).
+      }
+      abstract
+        (rewrite !assoc ;
+         etrans ; [ apply maponpaths_2 ; apply cwf_pair_p | ] ;
+         apply id_left).
+    }
+    apply maponpaths.
+    rewrite transportf_subst_tm_on_s_eq.
+    rewrite transportf_cwf_subst_tm.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      apply cwf_pair_q_subst.
+    }
+    rewrite transport_f_f.
+    unfold cwf_subst_tm_id.
+    rewrite transport_f_f.
+    use (transportf_set (cwf_tm (cwf_t C))).
+    apply setproperty.
+  - unfold cwf_qA_subst, cwf_subst_tm_comp.
+    rewrite transportf_subst_tm_on_s_eq.
+    rewrite transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      apply cwf_subst_tm_on_id.
+    }
+    rewrite transport_f_f.
+    use (transportf_set (cwf_tm (cwf_t C))).
+    apply setproperty.
+Qed.
 
 Lemma cwf_pair_subst_comm {C : cwf} {Γ Δ : pr1 C} (s : Δ --> Γ) (A : cwf_ty (cwf_t (pr1 C)) Γ)
   (a : cwf_tm (cwf_t (pr1 C)) A) :
   s · ⟨⟨ identity Γ , cwf_subst_tm_id a ⟩⟩ =
     ⟨⟨ identity Δ , cwf_subst_tm_id (a [[ s ]]tm) ⟩⟩ · cwf_lift s A.
 Proof.
-  set (u := ⟨⟨ s , (a [[ s ]]tm) ⟩⟩).
-  set (contr := pr2 C Γ Δ A s (a [[ s ]]tm)).
-
-  assert (Hl : s · ⟨⟨ identity Γ , cwf_subst_tm_id a ⟩⟩ = u).
-  {
-    refine (maponpaths pr1 (pr2 contr ( (s · ⟨⟨ identity Γ , cwf_subst_tm_id a ⟩⟩) ,, _))).
-    use tpair.
-    - assert (H : ⟨⟨ identity Γ, cwf_subst_tm_id a ⟩⟩ · p_ A = identity _) by apply (cwf_pair_p (identity Γ) (cwf_subst_tm_id a)).
-      rewrite assoc'.
-      eapply pathscomp0.
-      + apply maponpaths.
-        exact H.
-      + apply id_right.
-    - cbn.
-      set (pairid := ⟨⟨ identity Γ, cwf_subst_tm_id a ⟩⟩).
-      assert (Hp : (s · pairid) · p_ A = s).
-      {
-        rewrite assoc'.
-        eapply pathscomp0.
-        - apply cancel_precomposition.
-          exact (cwf_pair_p (identity Γ) (cwf_subst_tm_id a)).
-        - apply id_right.
-      }
-      set (bigterm := internal_paths_rew_r (pr1 C ⟦ Δ, Γ ⟧) ((s · pairid) · p_ A) (s · (pairid · p_ A))
-                        (λ p : pr1 C ⟦ Δ, Γ ⟧, p = s)
-                        (maponpaths (compose s) (cwf_pair_p (identity Γ) (cwf_subst_tm_id a)) @ id_right s)
-                        (assoc' s pairid (p_ A))).
-      assert (p : bigterm = Hp) by (apply proofirrelevance ; apply homset_property).
-      eapply pathscomp0.
-      +  exact (maponpaths (λ r, transportf_subst_tm_on_s r (cwf_qA_subst (s · pairid))) p).
-      +  set (qpair := maponpaths (λ z, z [[ s ]]tm) (cwf_pair_q (identity Γ) (cwf_subst_tm_id a))).
-         cbn in qpair.
-         (* using cwf_pair_q *)
-         admit.
-  }
-
-  assert (Hr : ⟨⟨ identity Δ , cwf_subst_tm_id (a [[ s ]]tm) ⟩⟩ · cwf_lift s A = u).
-  {
-    refine (maponpaths pr1 (pr2 contr ( (⟨⟨ identity Δ , cwf_subst_tm_id (a [[ s ]]tm) ⟩⟩ · cwf_lift s A) ,, _))).
-    use tpair.
-    - unfold cwf_lift.
-      rewrite assoc'.
-      assert (H  : (⟨⟨ p_ (A [[s]]) · s, cwf_subst_tm_comp A s (p_ (A [[s]])) (q_ (A [[s]])) ⟩⟩ · p_ A) = p_ (A [[s]]) · s) by
-        apply (cwf_pair_p).
-      eapply pathscomp0.
-      + exact (maponpaths (λ k, ⟨⟨ identity Δ, cwf_subst_tm_id (a [[ s ]]tm) ⟩⟩ · k) H).
-      + rewrite assoc.
-        eapply pathscomp0.
-        * apply cancel_postcomposition.
-          exact ((cwf_pair_p (identity Δ) (cwf_subst_tm_id (a [[ s ]]tm)))).
-        * apply id_left.
-    - cbn.
-      admit.
-  }
-  rewrite Hl.
-  exact (!Hr).
-Admitted.
+  use (cwf_pair_unique s (a [[ s ]]tm)).
+  - abstract
+      (rewrite assoc' ;
+       etrans ; [ apply maponpaths ; apply cwf_pair_p | ] ;
+       apply id_right).
+  - abstract
+      (unfold cwf_lift ;
+       rewrite !assoc' ;
+       etrans ; [ apply maponpaths ; apply cwf_pair_p | ] ;
+       rewrite assoc ;
+       etrans ; [ apply maponpaths_2 ; apply cwf_pair_p | ] ;
+       apply id_left).
+  - rewrite transportf_subst_tm_on_s_eq.
+    unfold cwf_qA_subst, cwf_subst_tm_comp.
+    rewrite transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      apply cwf_subst_tm_on_comp.
+    }
+    rewrite transport_f_f.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply cwf_pair_q_subst.
+    }
+    unfold cwf_subst_tm_id.
+    rewrite !transportf_cwf_subst_tm.
+    rewrite !transport_f_f.
+    use (transportf_set (cwf_tm (cwf_t C))).
+    apply setproperty.
+  - rewrite transportf_subst_tm_on_s_eq.
+    unfold cwf_qA_subst, cwf_subst_tm_comp.
+    rewrite transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      apply cwf_subst_tm_on_comp.
+    }
+    rewrite transport_f_f.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply cwf_pair_q_subst.
+    }
+    unfold cwf_subst_tm_comp.
+    rewrite !transportf_cwf_subst_tm.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      apply cwf_pair_q_subst.
+    }
+    rewrite transport_f_f.
+    unfold cwf_subst_tm_id.
+    rewrite transport_f_f.
+    use (transportf_set (cwf_tm (cwf_t C))).
+    apply setproperty.
+Qed.
 
 Lemma cwf_pair_subst_ty_comm {C : cwf} {Γ Δ : pr1 C} (s : Δ --> Γ) (A : cwf_ty (cwf_t (pr1 C)) Γ)
   (B : cwf_ty (cwf_t (pr1 C)) (Γ & A)) (a : cwf_tm (cwf_t (pr1 C)) A)
