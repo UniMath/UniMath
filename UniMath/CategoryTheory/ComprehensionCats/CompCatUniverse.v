@@ -160,28 +160,52 @@ Section universe_coherence.
   Proof.
     rewrite comp_cat_subst_coerce_tm.
     rewrite comp_cat_comp_coerce_tm.
-    Admitted.
-  (*   rewrite <- comp_cat_subst_tm_comp. *)
-  (*   apply comp_cat_coerce_eq. *)
-  (*   unfold sub_comp_cat_univ_iso. *)
-  (*   rewrite assoc. *)
-  (*   etrans. *)
-  (*   { apply maponpaths_2. *)
-  (*     apply comp_cat_assoc_subst_ty. } *)
-  (*   rewrite !assoc'. *)
-  (*   apply maponpaths. *)
-  (*   etrans. *)
-  (*   2: { apply maponpaths_2. *)
-  (*        apply comp_cat_reindex_coercion_comp_witness. } *)
-  (*   rewrite !assoc'. *)
-  (*   apply maponpaths. *)
-  (*   etrans. *)
-  (*   { apply comp_cat_subst_ty_iso_comp. } *)
-  (*   etrans. *)
-  (*   2: { apply !comp_cat_subst_ty_iso_comp. } *)
-  (*   do 2 apply maponpaths. *)
-  (*   apply homset_property. *)
-  (* Qed. *)
+    etrans.
+    { apply maponpaths.
+      apply comp_cat_subst_tm_comp. }
+    rewrite comp_cat_comp_coerce_tm.
+    apply comp_cat_coerce_eq.
+    unfold " ⌈ _ ⌉".
+    unfold sub_comp_cat_univ_iso.
+    refine ( assoc _ _ _ @ _).
+    etrans.
+    { apply maponpaths_2.
+      apply (comp_cat_assoc_subst_ty _ _ _ U). }
+    etrans.
+    2: {
+      apply maponpaths_2.
+      refine (!_).
+      refine (_ @  comp_cat_reindex_coercion_comp_witness _ _ _).
+      apply maponpaths.
+      apply idpath.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_subst_ty_iso_comp. }
+    etrans.
+    2 : {
+      apply (assoc' _ (comp_cat_subst_ty_comp_iso U (TerminalArrow [] Γ) s₂) _ ).
+    }
+    etrans.
+    2: {
+      apply maponpaths_2.
+      refine (!_).
+      apply (comp_cat_reindex_coercion_subst_ty_iso _ _ _ _ U).
+    }
+    etrans.
+    2:
+      {
+      rewrite assoc'.
+      apply maponpaths.
+      refine (!_).
+      apply comp_cat_subst_ty_iso_comp.
+    }
+    do 3 apply maponpaths.
+    apply homset_property.
+  Qed.
 
   Definition comp_cat_universe_coherent_comp : UU.
   Proof.
@@ -196,20 +220,6 @@ Section universe_coherence.
             · comp_cat_el_map _ elmaplemmacomp).
   Defined.
 
-  (* Definition comp_cat_universe_coherent_comp : UU. *)
-  (* Proof. *)
-
-  (* refine ( *)
-  (*   ∏ (Γ Δ Θ : C) (s₁ : Γ --> Δ) (s₂ : Θ --> Γ) *)
-  (*     (t : comp_cat_tm Δ (weakened_from_empty U _)), *)
-  (*   comp_cat_reindex_iso s₂ (i _ _ s₁ _) *)
-  (*     · *)
-  (*     (i _ _ s₂ _) *)
-  (*     = *)
-  (*       comp_cat_subst_ty_comp_iso (el _ t) s₁ s₂ *)
-  (*         · (i _ _ (s₂ · s₁) t) *)
-  (*         · _ ). *)
-  (* Admitted. *)
 
 End universe_coherence.
 
