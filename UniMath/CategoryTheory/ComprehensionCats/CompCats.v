@@ -106,23 +106,23 @@ Definition comp_cat_proj
 Notation "'π'" := (comp_cat_proj _) : comp_cat.
 
 Definition comp_cat_tm {C : comp_cat}
-                       (Γ : C) (A : comp_cat_ty Γ)
+                       {Γ : C} (A : comp_cat_ty Γ)
   : UU
   := ∑ (t : Γ --> Γ & A), t · π A = identity Γ.
 
 Coercion comp_cat_tm_to_section {C : comp_cat}
                        {Γ : C} {A : comp_cat_ty Γ}
-                       (t : comp_cat_tm Γ A)
+                       (t : comp_cat_tm A)
   : Γ --> Γ & A
   := pr1 t.
 
 Definition make_comp_cat_tm {C : comp_cat} {Γ : C}
            {A : comp_cat_ty Γ} (t : Γ --> Γ & A) (p : t · π A = identity Γ)
-  : comp_cat_tm Γ A
+  : comp_cat_tm A
   := t ,, p.
 
 Lemma comp_cat_tm_eq {C : comp_cat} {Γ : C} {A : comp_cat_ty Γ}
-  (t1 t2 : comp_cat_tm Γ A) (p : (pr1 t1 : _ ) = pr1 t2)
+  (t1 t2 : comp_cat_tm A) (p : (pr1 t1 : _ ) = pr1 t2)
   : t1 = t2.
 Proof.
   use subtypePath.
@@ -131,7 +131,7 @@ Proof.
 Qed.
 
 Definition comp_cat_tm_isaset {C : comp_cat} {Γ : C} {A : comp_cat_ty Γ}
-  : isaset (comp_cat_tm Γ A).
+  : isaset (comp_cat_tm A).
 Proof.
   apply isaset_total2.
   - apply homset_property.
@@ -259,7 +259,7 @@ Proof.
   set (lift := cleaving_of_types C _ _ s A).
   set (iscartesian := cartesian_lift_is_cartesian _ _ lift).
   exact (cartesian_isPullback_in_cod_disp _ (mapstocartesian _ _ _ _ _ lift iscartesian)).
-Defined.
+Qed.
 
 Definition comp_cat_pullback {C : comp_cat} {Γ₁ Γ₂ : C}
            (A : comp_cat_ty Γ₁) (s : Γ₂ --> Γ₁)
@@ -270,7 +270,7 @@ Definition comp_cat_pullback {C : comp_cat} {Γ₁ Γ₂ : C}
 Definition comp_cat_univ_pullback {C : comp_cat} {Γ Δ Ω : C} {A : comp_cat_ty Δ}
   (s : Γ --> Δ) (s' : Γ --> Ω)(s'' : Ω --> Δ & A)
   (p : s' · s'' · (π A) = s)
-  : comp_cat_tm _ (A [[ s ]]).
+  : comp_cat_tm (A [[ s ]]).
 Proof.
   use make_comp_cat_tm.
   - use (PullbackArrow (comp_cat_pullback A s)).
@@ -287,8 +287,8 @@ Defined.
  where the outer square projections are identity and s · t
  So this is a special case of the previous function *)
 Definition comp_cat_subst_tm {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Δ}
-                     (s : Γ --> Δ) (t : comp_cat_tm Δ A)
-  : comp_cat_tm Γ (A [[ s ]]).
+                     (s : Γ --> Δ) (t : comp_cat_tm A)
+  : comp_cat_tm (A [[ s ]]).
 Proof.
   apply (@comp_cat_univ_pullback _ _ _ Δ _ _ s t).
   set (th  := pr2 t : (t · (π A) = identity Δ)).
@@ -328,26 +328,24 @@ Lemma comp_cat_comp_mor_comp {C : comp_cat} {Γ : C} {A B D : comp_cat_ty Γ}
   : comp_cat_comp_mor (transportf (mor_disp A D) (id_right (identity Γ)) (f ;; g))
     = comp_cat_comp_mor f · comp_cat_comp_mor g.
 Proof.
-  set (CC := comp_cat_comprehension C).
+  set (χ := comprehension (comp_cat_comprehension C)).
   etrans.
   {
-   exact (maponpaths pr1 (disp_functor_transportf (functor_identity C)
-                             (comprehension CC) _ _ (identity Γ · identity Γ)
+   exact (maponpaths pr1 (disp_functor_transportf (functor_identity C) χ _ _ (identity Γ · identity Γ)
                              (identity Γ) (id_right (identity Γ)) A D (f ;; g))).
   }
   induction (id_right (identity Γ)).
   etrans.
   {
-    exact (maponpaths pr1 (disp_functor_comp (comprehension CC) f g)).
+    exact (maponpaths pr1 (disp_functor_comp χ f g)).
   }
   apply idpath.
 Qed.
 
-
 (** Morphisms in Fibers as Coercions*)
 
 Definition coerce_comp_cat_tm {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
-           (f : A <: B) (t : comp_cat_tm Γ A) : comp_cat_tm Γ B.
+           (f : A <: B) (t : comp_cat_tm A) : comp_cat_tm B.
 Proof.
   use make_comp_cat_tm.
   - exact (t · comp_cat_comp_mor f).
@@ -381,18 +379,15 @@ Definition comp_cat_reindex_iso
   {Γ Δ : C} (s : Δ --> Γ)
   {A B : comp_cat_ty Γ}
   (i : @z_iso (fiber_category (disp_cat_of_types C) Γ) A B)
-  : @z_iso (fiber_category (disp_cat_of_types C) Δ) (A [[ s ]]) (B [[ s ]]).
-Proof.
-  refine (functor_on_z_iso
-            (fiber_functor_from_cleaving (disp_cat_of_types C) (cleaving_of_types C) s)
-            i).
-Defined.
+  : @z_iso (fiber_category (disp_cat_of_types C) Δ) (A [[ s ]]) (B [[ s ]])
+  := (functor_on_z_iso
+            (fiber_functor_from_cleaving _ _ s) i).
 
 (**  Comprehension of Cartesian Lifts *)
 
 (* gives s.A *)
 Definition comp_cat_ext_subst {C : comp_cat} :
-  ∏ (Γ Δ : C) (s : Δ --> Γ) (A : comp_cat_ty Γ), (Δ & (A [[ s ]])) --> (Γ & A).
+  ∏ {Γ Δ : C} (s : Δ --> Γ) (A : comp_cat_ty Γ), (Δ & (A [[ s ]])) --> (Γ & A).
 Proof.
    intros Γ Δ s A.
    exact (comprehension_functor_mor (comp_cat_comprehension C) s
@@ -400,8 +395,8 @@ Proof.
 Defined.
 
 Lemma comp_cat_ext_subst_commute {C : comp_cat}
-  : ∏ (Γ Δ : C) (s : Δ --> Γ) (A : comp_cat_ty Γ),
-    comp_cat_ext_subst _ _ s A · (π _) = (π _) · s.
+  : ∏ {Γ Δ : C} (s : Δ --> Γ) (A : comp_cat_ty Γ),
+    comp_cat_ext_subst s A · (π _) = (π _) · s.
 Proof.
   intros Γ Δ s A.
   exact (comprehension_functor_mor_comm (comp_cat_comprehension C) s
@@ -409,8 +404,8 @@ Proof.
 Qed.
 
 Lemma comp_cat_ext_subst_term_commute {C : comp_cat} {Γ Δ : C}
-  (s : Γ --> Δ) (A : comp_cat_ty Δ) (t : comp_cat_tm Δ A)
-  : (t [[ s ]]tm) · comp_cat_ext_subst Δ Γ s A = s · t.
+  (s : Γ --> Δ) (A : comp_cat_ty Δ) (t : comp_cat_tm A)
+  : (t [[ s ]]tm) · comp_cat_ext_subst s A = s · t.
 Proof.
   exact (PullbackArrow_PullbackPr1 (comp_cat_pullback A s) Γ (s · t) (identity Γ) _).
 Qed.
@@ -445,7 +440,7 @@ Proof.
   do 2 apply maponpaths.
   induction p, p'.
   apply idpath.
-Defined.
+Qed.
 
 Definition comp_cat_subst_ty_id_iso {C : comp_cat}
   : ∏ {Γ : C} (A : comp_cat_ty Γ),
@@ -472,8 +467,8 @@ Definition comp_cat_subst_ty_eq_comp_iso
            {C : comp_cat}
            {Δ Γ1 Γ2 Θ : C}
            (A : comp_cat_ty Δ)
-           (s1 : Γ1 --> Δ) (s2 : Θ --> Γ1)
-           (s3 : Γ2 --> Δ) (s4 : Θ --> Γ2)
+           {s1 : Γ1 --> Δ} {s2 : Θ --> Γ1}
+           {s3 : Γ2 --> Δ} {s4 : Θ --> Γ2}
            (p : (s2 · s1) = (s4 · s3))
   : @z_iso (fiber_category _ _) ((A [[ s1 ]]) [[ s2 ]]) ((A [[ s3 ]]) [[ s4 ]]).
 Proof.
@@ -505,10 +500,10 @@ Notation "⌈ i ⌉⁻¹" := (coe_inv_from_z_iso i) (at level 10).
 Lemma comp_cat_comp_mor_z_iso_after_z_iso_inv
   {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
   (i : z_iso (C := fiber_category _ _) A B)
-  : comp_cat_comp_mor (C:=C) (Γ:=Γ) (⌈ i ⌉⁻¹) · comp_cat_comp_mor (C:=C) (Γ:=Γ) (⌈ i ⌉)
+  : comp_cat_comp_mor (⌈ i ⌉⁻¹) · comp_cat_comp_mor (⌈ i ⌉)
     = identity (Γ & B).
 Proof.
-  rewrite <- (comp_cat_comp_mor_comp (C:=C) (Γ:=Γ) (⌈ i ⌉⁻¹) (⌈ i ⌉)).
+  rewrite <- (comp_cat_comp_mor_comp (⌈ i ⌉⁻¹) (⌈ i ⌉)).
   eapply pathscomp0.
   - apply maponpaths. exact (z_iso_after_z_iso_inv i).
   - apply comp_cat_comp_mor_id.
@@ -517,10 +512,10 @@ Qed.
 Lemma comp_cat_comp_mor_z_iso_inv_after_z_iso
   {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
   (i : z_iso (C := fiber_category _ _) A B)
-  : comp_cat_comp_mor (C:=C) (Γ:=Γ) (⌈ i ⌉) · comp_cat_comp_mor (C:=C) (Γ:=Γ) (⌈ i ⌉⁻¹)
+  : comp_cat_comp_mor (⌈ i ⌉) · comp_cat_comp_mor (⌈ i ⌉⁻¹)
     = identity (Γ & A).
 Proof.
-  rewrite <- (comp_cat_comp_mor_comp (C:=C) (Γ:=Γ) (⌈ i ⌉) (⌈ i ⌉⁻¹)).
+  rewrite <- (comp_cat_comp_mor_comp (⌈ i ⌉) (⌈ i ⌉⁻¹)).
   unfold coe_from_z_iso.
   unfold coe_inv_from_z_iso.
   eapply pathscomp0.
@@ -528,36 +523,17 @@ Proof.
   - apply comp_cat_comp_mor_id.
 Qed.
 
-Definition comp_cat_comp_iso  {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
+Definition comp_cat_comp_iso {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
   (i : @z_iso (fiber_category _ _) A B)
   : z_iso (Γ & A) (Γ & B).
 Proof.
   use make_z_iso.
   - exact (comp_cat_comp_mor ( ⌈ i ⌉ )).
   - exact (comp_cat_comp_mor ( ⌈ i ⌉⁻¹ )).
-  - split.
-    + etrans.
-      {
-        refine (! (comp_cat_comp_mor_comp (⌈ i ⌉) (⌈ i ⌉⁻¹))).
-      }
-      etrans.
-      {
-        apply maponpaths.
-        exact (z_iso_inv_after_z_iso i).
-      }
-      exact comp_cat_comp_mor_id.
-    + etrans.
-      {
-        refine (! (comp_cat_comp_mor_comp (⌈ i ⌉⁻¹) (⌈ i ⌉))).
-      }
-      etrans.
-      {
-        apply maponpaths.
-        exact (z_iso_after_z_iso_inv i).
-      }
-      exact comp_cat_comp_mor_id.
+  - abstract (split ;
+      [apply comp_cat_comp_mor_z_iso_inv_after_z_iso |
+        apply comp_cat_comp_mor_z_iso_after_z_iso_inv]).
 Defined.
-
 
 Lemma comp_cat_reindex_coercion_iso_eq {C : comp_cat} {Γ Δ : C} (s : Δ --> Γ)
   {A B : comp_cat_ty Γ}
@@ -701,8 +677,8 @@ Local Arguments transportf {_ _ _ _ _} _.
 Proposition comp_cat_reindex_coercion_subst_ty_iso
   {C : comp_cat}
   {Γ₁ Γ₂ Γ₃ : C}
-  (s₁ : Γ₁ --> Γ₂)
-  (s₂ s₂' : Γ₂ --> Γ₃)
+  {s₁ : Γ₁ --> Γ₂}
+  {s₂ s₂' : Γ₂ --> Γ₃}
   (p : s₂' = s₂)
   (A : comp_cat_ty Γ₃)
   : comp_cat_reindex_coercion s₁ (⌈comp_cat_subst_ty_iso A p⌉)
@@ -743,7 +719,7 @@ Qed.
 Lemma coerce_tm_after_inv
   {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
   (i : z_iso (C := fiber_category _ _) A B)
-  (t : comp_cat_tm Γ B)
+  (t : comp_cat_tm B)
   : (t ↑ ⌈ i ⌉⁻¹) ↑ ⌈ i ⌉ = t.
 Proof.
   apply comp_cat_tm_eq.
@@ -757,7 +733,7 @@ Qed.
 Lemma coerce_tm_inv_after
   {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
   (i : z_iso (C := fiber_category _ _) A B)
-  (t : comp_cat_tm Γ A)
+  (t : comp_cat_tm A)
   : (t ↑ ⌈ i ⌉) ↑ ⌈ i ⌉⁻¹ = t.
 Proof.
   apply comp_cat_tm_eq.
@@ -768,7 +744,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition comp_cat_subst_tm_id {C : comp_cat} {Γ : C} {A : comp_cat_ty Γ} (t : comp_cat_tm Γ A) :
+Definition comp_cat_subst_tm_id {C : comp_cat} {Γ : C} {A : comp_cat_ty Γ} (t : comp_cat_tm A) :
   t [[ identity _ ]]tm = t ↑ ⌈comp_cat_subst_ty_id_iso _⌉.
 Proof.
   use comp_cat_tm_eq ; cbn.
@@ -805,7 +781,7 @@ Proof.
 Qed.
 
 Definition comp_cat_subst_tm_comp {C : comp_cat} {Γ Δ Θ : C} {A : comp_cat_ty Γ}
-  (f : Δ --> Γ) (g : Θ --> Δ) (t : comp_cat_tm Γ A)
+  (f : Δ --> Γ) (g : Θ --> Δ) (t : comp_cat_tm A)
   : t [[ g · f ]]tm = ((t [[ f ]]tm) [[ g ]]tm) ↑ ⌈ comp_cat_subst_ty_comp_iso A f g ⌉.
 Proof.
   use comp_cat_tm_eq ; cbn.
@@ -848,7 +824,7 @@ Proof.
 Qed.
 
 Proposition comp_cat_comp_coerce_tm {C : comp_cat} {Γ : C} {A₁ A₂ A₃ : comp_cat_ty Γ}
-  (f : A₁ <: A₂) (g : A₂ <: A₃) (t : comp_cat_tm Γ A₁)
+  (f : A₁ <: A₂) (g : A₂ <: A₃) (t : comp_cat_tm A₁)
   : t ↑ f ↑ g = t ↑ (f · g).
 Proof.
   use comp_cat_tm_eq ; cbn.
@@ -858,7 +834,7 @@ Proof.
   apply comp_cat_comp_mor_comp.
 Qed.
 
-Proposition comp_cat_id_coerce_tm {C : comp_cat} {Γ : C} {A : comp_cat_ty Γ} (t : comp_cat_tm Γ A)
+Proposition comp_cat_id_coerce_tm {C : comp_cat} {Γ : C} {A : comp_cat_ty Γ} (t : comp_cat_tm A)
   : t ↑ id_disp _ = t.
 Proof.
   use comp_cat_tm_eq ; cbn.
@@ -868,7 +844,7 @@ Proof.
 Qed.
 
 Proposition comp_cat_coerce_eq {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
-  {t : comp_cat_tm Γ A} { f f' : A <: B}
+  {t : comp_cat_tm A} { f f' : A <: B}
   (p : f = f')
   : t ↑ f = t ↑ f'.
 Proof.
@@ -884,7 +860,7 @@ Proposition comp_cat_subst_coerce_tm
             {A₁ A₂ : comp_cat_ty Γ₂}
             (s : Γ₁ --> Γ₂)
             (f : A₁ <: A₂)
-            (t : comp_cat_tm Γ₂ A₁)
+            (t : comp_cat_tm A₁)
   : (t ↑ f) [[ s ]]tm
     =
     t [[ s ]]tm ↑ comp_cat_reindex_coercion s f.
@@ -1065,12 +1041,12 @@ Defined.
 Definition comp_cat_univ_pullback_compose_iso
   {C : comp_cat} {Γ Δ Ω : C}
   {A : comp_cat_ty Δ}
-  (s : Γ --> Δ)
+  {s : Γ --> Δ}
   {A' : comp_cat_ty Γ}
   (i : @z_iso (fiber_category _ _) A' (A [[ s ]]))
-  (s' : Γ --> Ω) (s'' : Ω --> Δ & A)
+  {s' : Γ --> Ω} {s'' : Ω --> Δ & A}
   (p : s' · s'' · (π A) = s)
-  : comp_cat_tm _ A'.
+  : comp_cat_tm A'.
 Proof.
   set (PB' := comp_cat_pullback_compose_iso s (comp_cat_comp_iso i)).
   set (PB := comp_cat_pullback A s).
@@ -1102,7 +1078,7 @@ Definition sub_to_extension_tm
            {Γ Δ : C}
            {A : comp_cat_ty Γ}
            (s : Δ --> Γ & A)
-  : comp_cat_tm Δ (A [[ s · π A ]]).
+  : comp_cat_tm (A [[ s · π A ]]).
 Proof.
   use make_comp_cat_tm.
   - use (PullbackArrow (comp_cat_pullback A (s · π A))).
@@ -1118,18 +1094,18 @@ Definition transport_term_sub_eq
            {A : comp_cat_ty Γ}
            {s₁ s₂ : Δ --> Γ}
            (p : s₁ = s₂)
-           (t : comp_cat_tm Δ (A [[ s₁ ]]))
-  : comp_cat_tm Δ (A [[ s₂ ]]).
+           (t : comp_cat_tm (A [[ s₁ ]]))
+  : comp_cat_tm (A [[ s₂ ]]).
 Proof.
   use make_comp_cat_tm.
   - use (PullbackArrow (comp_cat_pullback A s₂)).
-    + exact (t · comp_cat_ext_subst _ _ s₁ A).
+    + exact (t · comp_cat_ext_subst s₁ A).
     + exact (identity Δ).
     + abstract (
         induction p;
         rewrite id_left;
         rewrite assoc';
-        refine (maponpaths (λ z, _ · z) (comp_cat_ext_subst_commute _ _ s₁ A) @ _);
+        refine (maponpaths (λ z, _ · z) (comp_cat_ext_subst_commute s₁ A) @ _);
         rewrite assoc;
         refine (maponpaths (λ z, z · _) (pr2 t) @ _);
         apply id_left).
@@ -1151,7 +1127,7 @@ Proof.
   simpl in q'.
   rewrite !PullbackArrow_PullbackPr1 in q'.
   refine (_ @ q').
-  enough (s₁ = sub_to_extension_tm s₁ · comp_cat_ext_subst _ _ (s₁ · π A) A) as H.
+  enough (s₁ = sub_to_extension_tm s₁ · comp_cat_ext_subst (s₁ · π A) A) as H.
   { exact H. }
   clear p q q' s₂.
   refine (!_).

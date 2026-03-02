@@ -99,7 +99,7 @@ Section Sigma_For_Comp_Cat.
       z_iso (C := fiber_category _ _)
         ((Σty Γ A B) [[ s ]])
         (Σty Δ (A [[ s ]])
-           (B [[ comp_cat_ext_subst _ _ s A ]])).
+           (B [[ comp_cat_ext_subst s A ]])).
 
   (* 5. Stability of pair under substitution*)
   Definition sigma_sub_pair_law
@@ -109,14 +109,13 @@ Section Sigma_For_Comp_Cat.
     ∏ (Γ Δ : C) (s : Δ --> Γ)
       (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ & A)),
 
-      let sA  := comp_cat_ext_subst Γ Δ s A in
-      let sAB := comp_cat_ext_subst (Γ & A) (Δ & (A [[ s ]]))
-                 sA B in
+      let sA  := comp_cat_ext_subst s A in
+      let sAB := comp_cat_ext_subst sA B in
       let i := σiso Γ Δ s A B in
       (pair Δ (A [[ s ]]) (B [[ sA ]]) ·
          comp_cat_comp_mor (C:=C) (Γ:=Δ)
            (inv_from_z_iso i : _ -->[ identity _ ] _)·
-         comp_cat_ext_subst (C:=C) Γ Δ s (Σty Γ A B) = sAB · pair Γ A B).
+         comp_cat_ext_subst s (Σty Γ A B) = sAB · pair Γ A B).
 
   Definition comp_cat_sigma : UU :=
     ∑ (Σty : sigma_form),
@@ -182,16 +181,16 @@ Section Pi_For_Comp_Cat.
   Definition pi_lam_data
              (Πty : pi_form) : UU :=
     ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ & A)),
-      comp_cat_tm ((Γ & A)) B ->
-      comp_cat_tm Γ (Πty Γ A B).
+      comp_cat_tm B ->
+      comp_cat_tm (Πty Γ A B).
 
   (* 3. Elimination rule for pi: application *)
   (*    Γ ⊢ f : Π(A,B)  =>  Γ.A ⊢ app(f) : B *)
   Definition pi_app_data
              (Πty : pi_form) : UU :=
     ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ & A)),
-      comp_cat_tm Γ (Πty Γ A B) ->
-      comp_cat_tm (Γ & A) B.
+      comp_cat_tm (Πty Γ A B) ->
+      comp_cat_tm B.
 
   (* β rule: app (λ b) ≡ b *)
   Definition pi_beta_law
@@ -199,7 +198,7 @@ Section Pi_For_Comp_Cat.
              (lam : pi_lam_data Πty)
              (app : pi_app_data Πty) : UU :=
     ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ & A))
-      (b : comp_cat_tm (Γ & A) B),
+      (b : comp_cat_tm B),
       app Γ A B (lam Γ A B b) = b.
 
   (* η rule: λ (app f) ≡ f *)
@@ -208,7 +207,7 @@ Section Pi_For_Comp_Cat.
              (lam : pi_lam_data Πty)
              (app : pi_app_data Πty) : UU :=
     ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ & A))
-      (f : comp_cat_tm Γ (Πty Γ A B)),
+      (f : comp_cat_tm (Πty Γ A B)),
       lam Γ A B (app Γ A B f) = f.
 
   (* 4. Stability of Pi under substitution  *)
@@ -220,7 +219,7 @@ Section Pi_For_Comp_Cat.
       z_iso (C := fiber_category _ _)
         ((Πty Γ A B) [[ s ]])
         (Πty Δ (A [[ s ]])
-           (B [[ comp_cat_ext_subst _ _ s A ]])).
+           (B [[ comp_cat_ext_subst s A ]])).
 
   (* 5. Stability of lambda under substitution *)
   Definition pi_sub_lam
@@ -229,8 +228,8 @@ Section Pi_For_Comp_Cat.
              (πiso : pi_sub_iso Πty) : UU :=
     ∏ (Γ Δ : C) (s : Δ --> Γ)
       (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ & A))
-      (b : comp_cat_tm (Γ & A) B),
-      let sA := comp_cat_ext_subst Γ Δ s A in
+      (b : comp_cat_tm B),
+      let sA := comp_cat_ext_subst s A in
       let i  := πiso Γ Δ s A B in
       (lam Δ (A [[ s ]]) (B [[ sA ]]) (b [[ sA ]]tm)) ↑ (inv_from_z_iso i) = (lam Γ A B b) [[ s ]]tm.
 
@@ -268,7 +267,7 @@ Section Unit_For_Comp_Cat.
   (* 2. Introduction rule for unit: Γ ⊢ tt : 1 *)
   Definition unit_intro_data
              (One : unit_form) : UU :=
-    ∏ (Γ : C), comp_cat_tm Γ (One Γ).
+    ∏ (Γ : C), comp_cat_tm (One Γ).
 
   (* 3. Elimination rule for unit: *)
   Definition unit_elim_data
@@ -276,8 +275,8 @@ Section Unit_For_Comp_Cat.
              (tt : unit_intro_data One) : UU :=
     ∏ (Γ : C)
       (Cty : comp_cat_ty (Γ & (One Γ)))
-      (c   : comp_cat_tm Γ (Cty [[ tt Γ ]])),
-      comp_cat_tm (Γ & (One Γ)) Cty.
+      (c   : comp_cat_tm (Cty [[ tt Γ ]])),
+      comp_cat_tm Cty.
 
   (* 4. Computation rule: *)
   Definition unit_comp_law
@@ -286,13 +285,13 @@ Section Unit_For_Comp_Cat.
              (ind : unit_elim_data One tt) : UU :=
     ∏ (Γ : C)
       (Cty : comp_cat_ty (Γ & (One Γ)))
-      (c   : comp_cat_tm Γ (Cty [[ tt Γ ]])),
+      (c   : comp_cat_tm (Cty [[ tt Γ ]])),
       (ind Γ Cty c) [[ tt Γ ]]tm = c.
 
   (* 5. uniqueness *)
   Definition unit_uniqueness
     (One : unit_form) (tt : unit_intro_data One) : UU
-    := ∏ (Γ : C) (u : comp_cat_tm Γ (One Γ)), u = tt Γ.
+    := ∏ (Γ : C) (u : comp_cat_tm (One Γ)), u = tt Γ.
 
   (* Stability under reindexing *)
   Definition unit_sub_iso
@@ -311,11 +310,11 @@ Section Unit_For_Comp_Cat.
   (* Helper lemma for the next definition to do some isomorphism bureaucracy*)
   Lemma unit_tt_ext_path
       (One : ∏ Γ : C, comp_cat_ty Γ)
-      (tt  : ∏ Γ : C, comp_cat_tm Γ (One Γ))
+      (tt  : ∏ Γ : C, comp_cat_tm (One Γ))
       (uiso : unit_sub_iso One)
       (usubtt : unit_sub_tt One tt uiso)
       {Γ Δ : C} (s : Γ --> Δ)
-    : s · tt Δ = tt Γ · (comp_cat_comp_mor ( ⌈uiso Γ Δ s⌉⁻¹)) · comp_cat_ext_subst Δ Γ s (One Δ).
+    : s · tt Δ = tt Γ · (comp_cat_comp_mor ( ⌈uiso Γ Δ s⌉⁻¹)) · comp_cat_ext_subst s (One Δ).
   Proof.
     rewrite <- (comp_cat_ext_subst_term_commute s (One Δ) (tt Δ)).
     apply cancel_postcomposition.
@@ -335,10 +334,10 @@ Section Unit_For_Comp_Cat.
              (usubtt : unit_sub_tt One tt uiso) : UU :=
     ∏ (Γ Δ : C) (s : Γ --> Δ)
       (C : comp_cat_ty (Δ & (One Δ)))
-      (d   : comp_cat_tm Δ (C [[ tt Δ ]])),
-      let s1 := comp_cat_comp_mor ( ⌈uiso Γ Δ s⌉⁻¹) · comp_cat_ext_subst Δ Γ s (One Δ) in
+      (d   : comp_cat_tm (C [[ tt Δ ]])),
+      let s1 := comp_cat_comp_mor ( ⌈uiso Γ Δ s⌉⁻¹) · comp_cat_ext_subst s (One Δ) in
       let p := pathscomp0 (unit_tt_ext_path One tt uiso usubtt s) (! assoc (tt Γ) _ _) in
-      let icompiso := comp_cat_subst_ty_eq_comp_iso C (tt Δ) (s) (s1) (tt Γ) (p) in
+      let icompiso := comp_cat_subst_ty_eq_comp_iso C p in
       (ind Δ C d) [[ s1 ]]tm = ind Γ (C [[ s1 ]]) (d [[ s ]]tm ↑ ⌈icompiso⌉).
 
   Definition comp_cat_unit : UU :=

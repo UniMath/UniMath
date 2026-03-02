@@ -44,18 +44,20 @@ Require Import UniMath.CategoryTheory.ComprehensionCats.CompCatTypeFormers.
 Require Import UniMath.CategoryTheory.ComprehensionCats.CompCatUniverse.
 Require Import UniMath.CategoryTheory.CategoriesWithFamilies.CatsWithFams.
 
-
 Local Open Scope cat.
 Local Open Scope comp_cat.
 
 Section Construction.
 
-  Context (C : comp_cat_with_universe) (Sigma : comp_cat_sigma C) (SigmaU : comp_cat_universe_closed_sigma C Sigma)
-    (Unit : comp_cat_unit C) (UnitU : comp_cat_universe_closed_unit C Unit).
+  Context (C : comp_cat_with_universe)
+    (Sigma : comp_cat_sigma C)
+    (SigmaU : comp_cat_universe_closed_sigma C Sigma)
+    (Unit : comp_cat_unit C)
+    (UnitU : comp_cat_universe_closed_unit C Unit).
 
   (* the object are terms of type U *)
   Definition context_from_comp_cat_with_u : UU :=
-    (comp_cat_tm [] (weakened_from_empty (comp_cat_U C) _)).
+    (comp_cat_tm (comp_cat_U ([] : C))).
 
   Definition substitution_from_comp_cat_with_u :
     context_from_comp_cat_with_u -> context_from_comp_cat_with_u -> UU.
@@ -63,14 +65,13 @@ Section Construction.
     (* the morphisms from Γ to Δ are context morphisms s : [].el(Γ) to [].el(Δ)
           in the comprehension category such that s ; π_Δ  = π_Γ *)
     intros Γ Δ.
-    set (el := comp_cat_El C).
-    set (U := comp_cat_morphisms _ ([] & (comp_cat_El _ _ Γ)) ([] & (comp_cat_El _ _ Δ))).
-    exact (∑ s : U , s · (π (el _ Δ)) = (π (el _ Γ))).
+    set (U := comp_cat_morphisms _ ([] & (comp_cat_el Γ)) ([] & (comp_cat_el Δ))).
+    exact (∑ s : U , s · (π (comp_cat_el Δ)) = (π (comp_cat_el Γ))).
   Defined.
 
   Coercion morphism_from_substitution_from_comp_cat_with_u {Γ Δ : context_from_comp_cat_with_u}
     {s : substitution_from_comp_cat_with_u Γ Δ}
-    : ([] & (comp_cat_El _  _ Γ)) --> ([] & (comp_cat_El _  _ Δ))
+    : ([] & (comp_cat_el Γ)) --> ([] & (comp_cat_el Δ))
     := pr1 s.
 
   Definition ob_mor_from_comp_cat_with_u :=
@@ -85,7 +86,7 @@ Section Construction.
     - (* identity *)
       intro Γ.
       use tpair.
-      + exact (identity ([] & (comp_cat_El _ _ Γ))).
+      + exact (identity ([] & (comp_cat_el Γ))).
       + abstract (apply id_left).
     - (* composition *)
       intros Γ Δ Θ f g.
@@ -134,9 +135,8 @@ Section Construction.
        that is given by pulling back π (el unit_code) along π (el Γ) precomposed with an isomorphism
        and uniqueness of tt *)
 
-  Let unit_code := pr1 UnitU [].
-  Let U := comp_cat_U C.
-  Let el := comp_cat_El C.
+    Let unit_code := comp_cat_unit_code _ _ UnitU.
+    Let unit_code_w := (comp_cat_unit_code_weakened C Unit UnitU []).
   Let unit_el_iso := pr12 UnitU.
   Let unit_iso := pr122 (pr222 Unit).
   Let unit := (pr1 Unit).
@@ -146,11 +146,11 @@ Section Construction.
   Definition terminal_context : context_from_comp_cat_with_u := unit_code.
 
   Definition terminal_morphism (Γ : context_from_comp_cat_with_u)
-    : ([] & (comp_cat_El _ _ Γ)) --> ([] & (comp_cat_El _ _ unit_code))
-    := π (el _ Γ) · tm_unit_code.
+    : ([] & (comp_cat_el Γ)) --> ([] & comp_cat_el unit_code_w )
+    := π (comp_cat_el Γ) · tm_unit_code.
 
   Lemma terminal_morphism_is_section (Γ : context_from_comp_cat_with_u)
-    : terminal_morphism Γ · (π (el _ unit_code)) = (π (el _ Γ)).
+    : terminal_morphism Γ · (π (comp_cat_el unit_code_w)) = (π (comp_cat_el Γ)).
   Proof.
     cbn.
     unfold terminal_morphism.
@@ -164,17 +164,17 @@ Section Construction.
   Qed.
 
   Definition terminal_sub (Γ : context_from_comp_cat_with_u)
-    : substitution_from_comp_cat_with_u Γ unit_code
+    : substitution_from_comp_cat_with_u Γ unit_code_w
     := (terminal_morphism Γ ,, terminal_morphism_is_section Γ).
 
   (* The iso witnessing that the unit fiber is isomorphic to the reindexed El of unit_code *)
   Definition terminal_fiber_iso (Γ : context_from_comp_cat_with_u)
     : @z_iso (fiber_category _ _)
-        (unit ([] & (el _ Γ)))
-        ((el _ unit_code) [[ π (el _ Γ) ]])
+        (unit ([] & (comp_cat_el Γ)))
+        ((comp_cat_el unit_code) [[ π (comp_cat_el Γ) ]])
     := z_iso_comp
          (z_iso_inv (unit_iso _ _ _))
-         (z_iso_inv (comp_cat_reindex_iso _ (unit_el_iso _))).
+         (z_iso_inv (comp_cat_reindex_iso _ unit_el_iso)).
 
   (* The transported composite iso used in the pullback universal property *)
   Definition terminal_comp_iso (Γ : context_from_comp_cat_with_u) :=
@@ -186,8 +186,8 @@ Section Construction.
 
   Lemma terminal_u_section_eq (Γ : context_from_comp_cat_with_u) :
     let i' := terminal_fiber_iso Γ in
-    let u := π (el [] Γ) · ((pr12 Unit) [] · comp_cat_comp_mor (⌈ (pr12 UnitU) [] ⌉⁻¹)) in
-    identity ([] & el [] Γ) · u · π (el [] unit_code) = π (el [] Γ).
+    let u := π (comp_cat_el Γ) · ((pr12 Unit) [] · comp_cat_comp_mor (⌈ (comp_cat_unit_el_iso _ _ UnitU) ⌉⁻¹)) in
+    identity ([] & comp_cat_el Γ) · u · π (comp_cat_el unit_code) = π (comp_cat_el Γ).
   Proof.
     cbn.
     rewrite <- assoc; rewrite id_left.
@@ -200,20 +200,20 @@ Section Construction.
   Qed.
 
   Lemma terminal_uniqueness (Γ : context_from_comp_cat_with_u)
-    (s : substitution_from_comp_cat_with_u Γ unit_code)
+    (s : substitution_from_comp_cat_with_u Γ unit_code_w)
     : s = terminal_sub Γ.
   Proof.
     use subtypePath; [unfold isPredicate; intros; apply (homset_property C) | cbn].
     set (i' := terminal_fiber_iso Γ).
-    set (u := π (el [] Γ) · ((pr12 Unit) [] · comp_cat_comp_mor (⌈ (pr12 UnitU) [] ⌉⁻¹))).
+    set (u := π (comp_cat_el Γ) · ((pr12 Unit) [] · comp_cat_comp_mor (⌈ (comp_cat_unit_el_iso _ _ UnitU) ⌉⁻¹))).
     set (p := (fun _ _ _ _ => (idpath _) ): ∏ {Γ Δ : C} (A : comp_cat_ty Δ) (s : Γ --> Δ),
                PullbackObject (comp_cat_pullback A s) = Γ & (A [[ s ]])).
     set (i := transportf _ (p _ _ _ _) (comp_cat_comp_iso i')).
     set (p_u := terminal_u_section_eq Γ).
-    assert (p_s : identity ([] & el [] Γ) · s · π (el [] unit_code) = π (el [] Γ))
+    assert (p_s : identity ([] & comp_cat_el Γ) · s · π (comp_cat_el unit_code_w) = π (comp_cat_el Γ))
       by (rewrite <- assoc; rewrite id_left; exact (pr2 s)).
-    set (univ_u := comp_cat_univ_pullback_compose_iso (π (el [] Γ)) i' (identity _) u p_u).
-    set (univ_s := comp_cat_univ_pullback_compose_iso (π (el [] Γ)) i' (identity _) s p_s).
+    set (univ_u := comp_cat_univ_pullback_compose_iso i' p_u).
+    set (univ_s := @comp_cat_univ_pullback_compose_iso _ _ _ _ _ (π (comp_cat_el Γ)) _ i' (identity _) s p_s).
     assert (unit_code_term_eq' : univ_s = univ_u).
     { set (unique := pr12 (pr222 Unit)).
       etrans. exact (unique _ univ_s). exact (!(unique _ univ_u)). }
@@ -285,7 +285,7 @@ Defined.
   refine ( (t [[ (pr1 f) ]]tm) ↑ _ ).
   (* now we need a coercion along the universe substitution iso:
      (El A)[f]  ≃  El(A[f])  *)
-  exact (pr2 (pr212 C) ([] & comp_cat_El C [] Δ)
+  exact (comp_cat_El_iso _ ([] & comp_cat_El C [] Δ)
              ([] & comp_cat_El C [] Γ) (pr1 f) A : _ --> _).
   Defined.
 
@@ -453,17 +453,34 @@ Qed.
     apply (comp_cat_reindex_coercion_iso_eq (pr1 g)).
   Qed.
 
-  Definition  cwf_ctx_ext_from_comp_cat_with_u : cwf_ctx_ext
-    (make_cwf_ty_term_subst cwf_ty_from_comp_cat_with_u cwf_tm_from_comp_cat_with_u cwf_subst_ty_from_comp_cat_with_u cwf_subst_tm_from_comp_cat_with_u
-       cwf_id_ty_from_comp_cat_with_u cwf_comp_ty_from_comp_cat_with_u cwf_id_tm_from_comp_cat_with_u cwf_comp_tm_from_comp_cat_with_u).
+  Section extended_context.
+
+    Let Con := cwf_context_from_comp_cat_with_u.
+    Let T :=
+          (make_cwf_ty_term_subst
+             cwf_ty_from_comp_cat_with_u cwf_tm_from_comp_cat_with_u
+             cwf_subst_ty_from_comp_cat_with_u cwf_subst_tm_from_comp_cat_with_u
+             cwf_id_ty_from_comp_cat_with_u cwf_comp_ty_from_comp_cat_with_u
+             cwf_id_tm_from_comp_cat_with_u cwf_comp_tm_from_comp_cat_with_u).
+
+    Context (Γ : Con).
+    Context (A : cwf_ty T Γ).
+
+    Local Definition ext_con : Con := (pr1 SigmaU _ Γ A).
+
+    Local Definition proj : ext_con --> Γ :=
+        (comp_cat_comp_mor (⌈ (comp_cat_sigma_iso C Γ A) ⌉)) · (comp_cat_sigma_proj_1 _ Sigma (comp_cat_El _ _ Γ) (comp_cat_El _ _ A)).
+
+
+  Definition  cwf_ctx_ext_from_comp_cat_with_u : cwf_ctx_ext cwf.
   Proof.
     (* This requires having sigma types and the universe being closed by them. *)
     intros Γ A.
     use tpair.
     - (* the extended context Γ.A is the sigma type Σ(Γ,A) in the comprehension category  *)
-      exact (pr1 SigmaU _ Γ A).
+
     - set (iso := (pr1 (pr2 SigmaU) _ Γ A)).
-      set (el := comp_cat_El C).
+      set (el := ).
       set (ctxextproj := (comp_cat_comp_mor (⌈ iso ⌉)) · (comp_cat_sigma_proj_1 _ Sigma (el _ Γ) (el _ A))).
       use tpair.
       + (* the projection Γ.A -> Γ is the composition of χ_0(i_Σ(Γ,A)) with χ_0(π_1)
@@ -477,6 +494,7 @@ Qed.
           rewrite comp_cat_comp_mor_law.
           apply idpath.
       + (* The term q  *)
+
         set (sigmaproj := pr1 (pr222 Sigma)).
         set (i := comp_cat_El_iso C ([] & comp_cat_El C [] (pr1 SigmaU [] Γ A))
                     ([] & el [] Γ) ctxextproj A).
@@ -713,7 +731,7 @@ Qed.
     rewrite assoc.
     apply maponpaths_2.
 
-    set (pair := (pr12 Sigma)).
+    set (pair := (pr12 Sigma) [] ).
     set (proj := pr1 (pr222 Sigma)).
     set (eta := pr1 (pr22 (pr222 Sigma))).
     set (univ_iso := (pr12 SigmaU)).
@@ -732,6 +750,55 @@ Qed.
     induction p', q'.
     cbn.
     unfold cwf_qA_subst.
+    unfold comp_cat_sigma_proj_1.
+    fold proj.
+    fold univ_iso.
+
+    unfold cwf_subst_tm_comp.
+    etrans.
+    2: {
+      do 2 apply maponpaths_2.
+      refine (!_).
+      change (transportf (λ B : cwf_ty (cwf_t cwf_data_from_comp_cat_with_u) Δ,
+                    cwf_tm (cwf_t cwf_data_from_comp_cat_with_u) B)
+                (cwf_subst_ty_comp A (cwf_projection Γ A) u') (cwf_subst_tm u' (cwf_variable Γ A)))
+        with (transportf (λ B : cwf_ty_from_comp_cat_with_u Δ,
+                    cwf_tm_from_comp_cat_with_u Δ B)
+                (cwf_subst_ty_comp A (cwf_projection Γ A) u') (cwf_subst_tm u' (cwf_variable Γ A))).
+      apply idpath.
+    }
+    rewrite cwf_from_comp_cat_transport_lemma.
+    fold proj.
+
+    refine (!_).
+    etrans.
+    { do 2 apply maponpaths_2.
+      do 2 apply maponpaths.
+      cbn -[cwf_variable].
+      unfold  cwf_subst_tm_from_comp_cat_with_u.
+
+    }
+    (* Have q_A in its own definition and have the upper square commuting of the q_A
+       definition as a proposition.  *)
+    cbn.
+
+
+    rewrite (assoc' (pr1 u') _ _).
+
+
+    (* This looks like commuting of the upper square for Pr2
+       of a pullbak.  *)
+
+
+    cbn.
+
+
+
+
+    unfold cwf_extended_con.
+
+    cbn.
+
     (*
       the key step should lie in calculating `transportf_subst_tm_on_s (idpath (u' · pA)) (cwf_qA_subst u')`
       due to the inductions in the lines before, this entails to simplifying `cwf_qA_subst u'`
@@ -745,24 +812,9 @@ Qed.
     Print cwf_qA_subst.
 
 
-    use comp_cat_eq_sub_to_extension.
-    - apply uniqueness_lemma_pi.
-    - use comp_cat_tm_eq ; simpl.
-      refine (!_).
-      apply (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))) ;
-        [ | apply PullbackArrow_PullbackPr2 ].
-      rewrite PullbackArrow_PullbackPr1.
-      refine (!_).
-      etrans.
-      {
-        apply (PullbackArrow_PullbackPr1 (comp_cat_pullback _ _)).
-      }
-      refine (!_).
-      induction p', q'.
-
   Admitted.
 
-  Local Definition assembled_exists_unique
+  Local Definition exists_unique
     : ∃! u' : (cwf_data_from_comp_cat_with_u ⟦ Δ, cwf_extended_con Γ A ⟧),
         ∑ p : (u' · pA = s),
           transportf_subst_tm_on_s p (cwf_qA_subst u') = t.
@@ -787,7 +839,7 @@ Qed.
   : cwf_universal_property cwf_data_from_comp_cat_with_u.
 Proof.
   intros Γ Δ A s t.
-  exact (assembled_exists_unique Γ Δ A s t).
+  exact (exists_unique Γ Δ A s t).
 Defined.
 
   Definition cwf_from_comp_cat_with_u : cwf.
