@@ -1136,3 +1136,174 @@ Proof.
 Qed.
 
 End eq_sub_to_extension.
+
+
+(** Variable Rule *)
+
+Definition comp_cat_var
+           {C : comp_cat}
+           {Γ : C}
+           (A : comp_cat_ty Γ)
+  : comp_cat_tm (A [[ π A ]]).
+Proof.
+  use make_comp_cat_tm.
+  - use (PullbackArrow (comp_cat_pullback _ _)).
+    + apply identity.
+    + apply identity.
+    + abstract
+        (rewrite !id_left ;
+         apply idpath).
+  - abstract
+      (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _))).
+Defined.
+
+Definition comp_cat_var_subst_coerce
+           {C : comp_cat}
+           {Γ Δ : C}
+           {A : comp_cat_ty Γ}
+           (s : Δ --> Γ)
+           (t : comp_cat_tm (A [[ s ]]))
+  : A [[s]] <: (A [[ π A ]]) [[ t · comp_cat_ext_subst s _ ]].
+Proof.
+  refine (⌈comp_cat_subst_ty_iso _ _⌉· ⌈comp_cat_subst_ty_comp_iso _ _ _⌉⁻¹).
+  rewrite assoc'.
+  rewrite comp_cat_ext_subst_commute.
+  rewrite assoc.
+  etrans.
+  2: {
+    refine (!_).
+    apply maponpaths_2.
+    apply (pr2 t).
+  }
+  refine (!_).
+  apply id_left.
+Defined.
+
+(* Lemma cleaving_of_types_eq *)
+(*       {C : comp_cat} *)
+(*       {Γ Δ : C} *)
+(*       {s s' : Δ --> Γ} *)
+(*       (p : s = s') *)
+(*       (A : comp_cat_ty Γ) *)
+(*   : (pr1 (idtoiso *)
+(*             (C := fiber_category _ _) *)
+(*             (maponpaths (λ z, pr1 (cleaving_of_types _ _ _ z _)) p)) *)
+(*     ;; cleaving_of_types C Γ Δ s' A *)
+(*     = *)
+(*     transportf *)
+(*       (λ z, _ -->[ z ] _) *)
+(*       (p @ !(id_left _)) *)
+(*       (cleaving_of_types C Γ Δ s A))%mor_disp. *)
+(* Proof. *)
+(*   induction p ; cbn. *)
+(*   rewrite id_left_disp. *)
+(*   apply idpath. *)
+(* Qed. *)
+
+Proposition comp_cat_var_subst
+            {C : comp_cat}
+            {Γ Δ : C}
+            {A : comp_cat_ty Γ}
+            (s : Δ --> Γ)
+            (t : comp_cat_tm (A [[ s ]]))
+  : comp_cat_var A [[ t · comp_cat_ext_subst s _ ]]tm
+    =
+    t ↑ comp_cat_var_subst_coerce s t.
+Proof.
+  (* use eq_comp_cat_tm. *)
+(*   refine (!_). *)
+(*   use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))). *)
+(*   - cbn -[eq_subst_ty comp_subst_ty compose]. *)
+(*     use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback A (π A)))). *)
+(*     + cbn -[eq_subst_ty comp_subst_ty compose]. *)
+(*       rewrite !assoc'. *)
+(*       refine (!_). *)
+(*       etrans. *)
+(*       { *)
+(*         apply maponpaths. *)
+(*         apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A (π A))). *)
+(*       } *)
+(*       rewrite id_right. *)
+(*       unfold sub_to_extension. *)
+(*       apply maponpaths. *)
+(*       cbn -[eq_subst_ty comp_subst_ty compose]. *)
+(*       refine (!_). *)
+(*       etrans. *)
+(*       { *)
+(*         apply maponpaths. *)
+(*         refine (!_). *)
+(*         apply comprehension_functor_mor_comp. *)
+(*       } *)
+(*       etrans. *)
+(*       { *)
+(*         refine (!_). *)
+(*         apply comprehension_functor_mor_comp. *)
+(*       } *)
+(*       etrans. *)
+(*       { *)
+(*         apply maponpaths. *)
+(*         rewrite assoc_disp. *)
+(*         apply maponpaths. *)
+(*         cbn. *)
+(*         unfold fiber_functor_from_cleaving_comp_inv. *)
+(*         rewrite !mor_disp_transportf_postwhisker. *)
+(*         apply maponpaths. *)
+(*         etrans. *)
+(*         { *)
+(*           apply maponpaths_2. *)
+(*           rewrite assoc_disp_var. *)
+(*           rewrite cartesian_factorisation_commutes. *)
+(*           apply idpath. *)
+(*         } *)
+(*         rewrite mor_disp_transportf_postwhisker. *)
+(*         apply maponpaths. *)
+(*         rewrite assoc_disp_var. *)
+(*         apply maponpaths. *)
+(*         rewrite cartesian_factorisation_commutes. *)
+(*         rewrite mor_disp_transportf_prewhisker. *)
+(*         apply idpath. *)
+(*       } *)
+(*       unfold transportb. *)
+(*       rewrite !comprehension_functor_mor_transportf. *)
+(*       etrans. *)
+(*       { *)
+(*         apply maponpaths. *)
+(*         apply cleaving_of_types_eq. *)
+(*       } *)
+(*       rewrite comprehension_functor_mor_transportf. *)
+(*       apply idpath. *)
+(*     + cbn -[eq_subst_ty comp_subst_ty compose]. *)
+(*       rewrite !assoc'. *)
+(*       etrans. *)
+(*       { *)
+(*         do 2 apply maponpaths. *)
+(*         apply comprehension_functor_mor_comm. *)
+(*       } *)
+(*       etrans. *)
+(*       { *)
+(*         apply maponpaths. *)
+(*         rewrite !assoc. *)
+(*         apply maponpaths_2. *)
+(*         apply comp_cat_comp_mor_comm. *)
+(*       } *)
+(*       rewrite !assoc. *)
+(*       rewrite comp_cat_tm_eq. *)
+(*       rewrite id_left. *)
+(*       refine (!_). *)
+(*       etrans. *)
+(*       { *)
+(*         rewrite !assoc'. *)
+(*         apply maponpaths. *)
+(*         apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A (π A))). *)
+(*       } *)
+(*       apply id_right. *)
+(*   - cbn -[eq_subst_ty comp_subst_ty compose]. *)
+(*     rewrite !assoc'. *)
+(*     etrans. *)
+(*     { *)
+(*       apply maponpaths. *)
+(*       apply comp_cat_comp_mor_comm. *)
+(*     } *)
+(*     apply comp_cat_tm_eq. *)
+  (* Qed. *)
+  Admitted.

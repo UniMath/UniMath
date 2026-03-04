@@ -100,11 +100,10 @@ Definition comp_cat_universe_data (C: comp_cat_with_terminal) : UU
               ((el _ t) [[ s ]])
               (el _ (t [[ s ]]tm ↑ ⌈sub_comp_cat_univ_iso U s⌉))).
 
-Definition comp_cat_el_map {C: comp_cat_with_terminal} (universe: comp_cat_universe_data C)
+Local Definition el_map {C: comp_cat_with_terminal} (universe: comp_cat_universe_data C)
   (Γ : C) {a b : comp_cat_tm (weakened_from_empty (pr1 universe) _)}
   (p : a = b)
-  : let el := pr12 universe in
-    (el Γ a) -->[identity Γ] (el Γ b).
+  : (( pr12 universe) Γ a) -->[identity Γ] (( pr12 universe) Γ b).
 Proof.
   induction p.
   apply id_disp.
@@ -142,7 +141,7 @@ Section universe_coherence.
       @identity (fiber_category _ _) (el _ t ) =
         comp_cat_subst_ty_id_iso _
           · i _ _ (identity Γ) t
-          · comp_cat_el_map _ _ elmaplemma.
+          · el_map _ _ elmaplemma.
 
   Local Lemma elmaplemmacomp
     {Γ Δ Θ : C}
@@ -210,7 +209,7 @@ Section universe_coherence.
         =
           comp_cat_subst_ty_comp_iso (el _ t) s₁ s₂
             · (i _ _ (s₂ · s₁) t)
-            · comp_cat_el_map _ _ elmaplemmacomp.
+            · el_map _ _ elmaplemmacomp.
 
 End universe_coherence.
 
@@ -251,9 +250,7 @@ Definition comp_cat_univ_eq_ty_el_map
   {Γ : C} {a b : comp_cat_tm (comp_cat_U _)}
   (p : a = b)
   : (comp_cat_el a) -->[identity _] (comp_cat_el b)
-  := (comp_cat_el_map (pr12 C) Γ p).
-
-Check sub_comp_cat_univ_iso.
+  := (el_map (pr12 C) Γ p).
 
 Definition comp_cat_univ_sub_iso
   {C : comp_cat_with_universe} {Γ Δ : C} (s : Γ --> Δ)
@@ -262,6 +259,12 @@ Proof.
   apply sub_comp_cat_univ_iso.
 Defined.
 
+Definition comp_cat_el_map {C: comp_cat_with_universe} {Γ : C} {a b : comp_cat_tm (comp_cat_U Γ)}
+  (p : a = b)
+  : (fiber_category _ _) ⟦( comp_cat_el a), (comp_cat_el b)⟧.
+Proof.
+  apply (el_map _ _ p).
+Defined.
 
 (**  Universe Being Closed under Sigma-Types  *)
 
@@ -399,7 +402,7 @@ Section Universe_Unit_Closure.
     Definition comp_cat_unit_code_weakened (UnitU : comp_cat_universe_closed_unit) (Γ : C)
       : comp_cat_tm (comp_cat_U Γ)
       := (comp_cat_unit_code UnitU [[ TerminalArrow (empty_context C) Γ ]]tm)
-           ↑ ⌈sub_comp_cat_univ_iso _ (TerminalArrow (empty_context C) Γ)⌉.
+           ↑ ⌈comp_cat_univ_sub_iso (TerminalArrow (empty_context C) Γ)⌉.
 
     (* el_iso weakened to Γ *)
     Definition comp_cat_unit_el_iso_w (UnitU : comp_cat_universe_closed_unit) (Γ : C) :
@@ -416,7 +419,7 @@ Section Universe_Unit_Closure.
     (*  1_Δ [s] coerced along U-iso = 1_Γ *)
     Proposition comp_cat_unit_subst_law (UnitU : comp_cat_universe_closed_unit) {Γ Δ : C}
       (s : Γ --> Δ) :
-      ((comp_cat_unit_code_weakened UnitU Δ) [[ s ]]tm) ↑ ⌈sub_comp_cat_univ_iso _ s⌉ =
+      ((comp_cat_unit_code_weakened UnitU Δ) [[ s ]]tm) ↑ ⌈comp_cat_univ_sub_iso s⌉ =
         (comp_cat_unit_code_weakened UnitU Γ).
     Proof.
       unfold comp_cat_unit_code_weakened.
@@ -451,6 +454,74 @@ Section Universe_Unit_Closure.
       }
       rewrite comp_cat_comp_coerce_tm.
       apply comp_cat_coerce_eq.
+      set (U := comp_cat_U _).
+      unfold comp_cat_univ_sub_iso.
+      unfold sub_comp_cat_univ_iso.
+      rewrite assoc.
+      assert (H: ⌈ comp_cat_subst_ty_iso U p ⌉=  ⌈ comp_cat_subst_ty_iso U (!p) ⌉⁻¹) by (induction p; apply idpath).
+      rewrite H.
+      unfold "⌈ _ ⌉⁻¹".
+      rewrite assoc'.
+      do 2 use z_iso_inv_on_right.
+
+      (*
+    Proposition comp_coerce_subst_ty
+              {C : comp_cat}
+              {Γ₁ Γ₂ : C}
+              (s : Γ₁ --> Γ₂)
+              {A₁ A₂ A₃ : ty Γ₂}
+              (f : A₁ <: A₂)
+              (g : A₂ <: A₃)
+    : coerce_subst_ty s (f · g)
+      =
+      coerce_subst_ty s f · coerce_subst_ty s g.
+  Proof.
+    apply (functor_comp (fiber_functor_from_cleaving _ (cleaving_of_types C) s)).
+  Qed.
+ *)
+
+    (*
+
+Proposition assoc'_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ Γ₃ Γ₄ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (s₃ : Γ₃ --> Γ₄)
+            (A : ty Γ₄)
+  : comp_subst_ty s₁ s₂ (A [[ s₃ ]])
+    · comp_subst_ty (s₁ · s₂) s₃ A
+    · eq_subst_ty A (assoc' _ _ _)
+    =
+    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A)
+    · comp_subst_ty s₁ (s₂ · s₃) A.
+Proof.
+  exact (indexed_cat_lassociator (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _ _ _).
+Qed.
+
+Proposition assoc_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ Γ₃ Γ₄ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (s₃ : Γ₃ --> Γ₄)
+            (A : ty Γ₄)
+  : comp_subst_ty s₁ s₂ (A [[ s₃ ]])
+    · comp_subst_ty (s₁ · s₂) s₃ A
+    =
+    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A)
+    · comp_subst_ty s₁ (s₂ · s₃) A
+    · eq_subst_ty A (assoc _ _ _).
+Proof.
+  rewrite <- assoc'_subst_ty.
+  refine (!(id_right _) @ _ @ assoc _ _ _).
+  apply maponpaths.
+  rewrite eq_subst_ty_concat.
+  rewrite eq_subst_ty_idpath.
+  apply idpath.
+Qed.
+
+     *)
 
     Admitted.
 
