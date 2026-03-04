@@ -31,15 +31,10 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -83,7 +78,7 @@ Proof.
 
   (* (U[[tΔ]])[[s]]  ≅  U[[s·tΔ]]  ≅  U[[tΓ]] *)
   refine (z_iso_comp (comp_cat_subst_ty_comp_iso U tΔ s) _).
-  exact (comp_cat_subst_ty_iso (C:=C) U p).
+  exact (comp_cat_subst_ty_iso U p).
 Defined.
 
 (**  Comprehension category with a terminal context and universe *)
@@ -258,14 +253,22 @@ Definition comp_cat_univ_eq_ty_el_map
   : (comp_cat_el a) -->[identity _] (comp_cat_el b)
   := (comp_cat_el_map (pr12 C) Γ p).
 
+Check sub_comp_cat_univ_iso.
+
+Definition comp_cat_univ_sub_iso
+  {C : comp_cat_with_universe} {Γ Δ : C} (s : Γ --> Δ)
+  : (z_iso (C := fiber_category _ _) ((comp_cat_U Δ) [[ s ]]) (comp_cat_U Γ)).
+Proof.
+  apply sub_comp_cat_univ_iso.
+Defined.
+
+
 (**  Universe Being Closed under Sigma-Types  *)
 
 Section Universe_Sigma_Closure.
 
   Context (C : comp_cat_with_universe).
   Context (Σ : comp_cat_sigma C).
-
-  Let Σty := pr1 Σ.
 
   (* 1. Sigma code in the universe *)
   (* Γ ⊢ A : U , Γ.el(A) ⊢ B : U  => Γ ⊢ Σ(A,B) : U *)
@@ -282,7 +285,7 @@ Section Universe_Sigma_Closure.
       (A : comp_cat_tm (comp_cat_U _))
       (B : comp_cat_tm (comp_cat_U _)),
       @z_iso (fiber_category _ _) (comp_cat_el (ΣU Γ A B))
-        (Σty Γ (comp_cat_el A) (comp_cat_el B)).
+        ((pr1 Σ) Γ (comp_cat_el A) (comp_cat_el B)).
 
   (* 3. Σ-codes commute with substitution  *)
   (* Σ(A,B)[s] = Σ(A[s],B[s.el(A)])  *)
@@ -316,6 +319,8 @@ Section Universe_Sigma_Closure.
   Coercion comp_cat_with_sigma_to_comp_cat (SigmaU : comp_cat_universe_closed_sigma)
     : univ_sigma_form := pr1 SigmaU.
 
+   (** accessors for sigma codes  *)
+
   Definition comp_cat_sigma_code (SigmaU : comp_cat_universe_closed_sigma)
     {Γ : C} (A : comp_cat_tm (comp_cat_U _))
     (B : comp_cat_tm (comp_cat_U _)) :
@@ -326,7 +331,7 @@ Section Universe_Sigma_Closure.
     {Γ : C} (A : comp_cat_tm (comp_cat_U _))
     (B : comp_cat_tm (comp_cat_U _)):
     @z_iso (fiber_category _ _) (comp_cat_el (comp_cat_sigma_code SigmaU A B))
-      (Σty Γ (comp_cat_el A)
+      ((pr1 Σ) Γ (comp_cat_el A)
          (comp_cat_el B))
       := (pr12 SigmaU) Γ A B.
 
@@ -354,15 +359,14 @@ Section Universe_Unit_Closure.
   Context (C : comp_cat_with_universe).
 
   Context (Unit : comp_cat_unit C).
-  Let One : ∏ Γ : C, comp_cat_ty Γ := pr1 Unit.
-  Let tt  : ∏ Γ : C, comp_cat_tm (One Γ) := pr12 Unit.
+
 
   (* 1) Unit code in the universe  *)
   Definition univ_unit_code : UU := comp_cat_tm (comp_cat_U ([] : C)).
 
   (* 2) el commutes with unit *)
   Definition univ_unit_el_iso (OneU : univ_unit_code) : UU :=
-    @z_iso (fiber_category _ _) (comp_cat_el OneU) (One []).
+    @z_iso (fiber_category _ _) (comp_cat_el OneU) ((pr1 Unit) []).
 
   (* 3) Coherence of the isos  *)
   Definition univ_unit_iso_coh
@@ -379,27 +383,34 @@ Section Universe_Unit_Closure.
   Coercion unit_unit_code_from_comp_cat {UnivU : comp_cat_universe_closed_unit}
     : univ_unit_code := pr1 UnivU.
 
+  (** accessors for pi codes  *)
+
   Definition comp_cat_unit_code (UnitU : comp_cat_universe_closed_unit)
     : comp_cat_tm (comp_cat_U []) := pr1 UnitU.
 
   Definition comp_cat_unit_el_iso (UnitU : comp_cat_universe_closed_unit)
     : @z_iso (fiber_category _ _)
-        (comp_cat_el (comp_cat_unit_code UnitU)) (One [])
+        (comp_cat_el (comp_cat_unit_code UnitU)) ((pr1 Unit) [])
     := (pr12 UnitU).
 
   Section weaken_unit.
 
     (* The code of unit weakened to Γ *)
     Definition comp_cat_unit_code_weakened (UnitU : comp_cat_universe_closed_unit) (Γ : C)
-      : comp_cat_tm (comp_cat_U Γ).
-    Proof.
-      Admitted.
+      : comp_cat_tm (comp_cat_U Γ)
+      := (comp_cat_unit_code UnitU [[ TerminalArrow (empty_context C) Γ ]]tm)
+           ↑ ⌈sub_comp_cat_univ_iso _ (TerminalArrow (empty_context C) Γ)⌉.
 
     (* el_iso weakened to Γ *)
-    Definition comp_cat_unit_el_iso_weakened (UnitU : comp_cat_universe_closed_unit) (Γ : C) :
-      @z_iso (fiber_category _ _) (comp_cat_el (comp_cat_unit_code_weakened UnitU Γ)) (One Γ).
+    Definition comp_cat_unit_el_iso_w (UnitU : comp_cat_universe_closed_unit) (Γ : C) :
+      @z_iso (fiber_category _ _) (comp_cat_el (comp_cat_unit_code_weakened UnitU Γ)) ((pr1 Unit) Γ).
     Proof.
-    Admitted.
+      unfold comp_cat_unit_code_weakened.
+      set (tΓ := TerminalArrow (empty_context C) Γ).
+      refine (z_iso_comp (z_iso_inv (comp_cat_el_iso tΓ (comp_cat_unit_code UnitU))) _).
+      refine (z_iso_comp (comp_cat_reindex_iso tΓ (comp_cat_unit_el_iso UnitU)) _).
+      exact (comp_cat_unit_sub_iso tΓ).
+    Defined.
 
     (* Reindexing commutes with unit codes *)
     (*  1_Δ [s] coerced along U-iso = 1_Γ *)
@@ -408,7 +419,40 @@ Section Universe_Unit_Closure.
       ((comp_cat_unit_code_weakened UnitU Δ) [[ s ]]tm) ↑ ⌈sub_comp_cat_univ_iso _ s⌉ =
         (comp_cat_unit_code_weakened UnitU Γ).
     Proof.
-      Admitted.
+      unfold comp_cat_unit_code_weakened.
+      rewrite comp_cat_subst_coerce_tm.
+      rewrite comp_cat_comp_coerce_tm.
+      etrans.
+      { apply maponpaths.
+        refine (!_).
+        apply comp_cat_id_coerce_tm.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths_2.
+        refine (!_).
+        apply (@z_iso_inv_after_z_iso (fiber_category _ _) _ _ (comp_cat_subst_ty_comp_iso _ _ _)).
+      }
+      do 2 rewrite <- comp_cat_comp_coerce_tm.
+      etrans.
+      { do 3 apply maponpaths.
+        refine (!_).
+        apply (@comp_cat_subst_tm_comp C ).
+      }
+      do 2 rewrite comp_cat_comp_coerce_tm.
+      assert (p :TerminalArrow (empty_context C) Γ =  s · TerminalArrow (empty_context C) Δ )
+        by apply TerminalArrowEq.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply (comp_cat_subst_tm_eq _ p).
+      }
+      rewrite comp_cat_comp_coerce_tm.
+      apply comp_cat_coerce_eq.
+
+    Admitted.
 
   End weaken_unit.
 
@@ -421,12 +465,12 @@ Section Universe_Unit_Closure.
       comp_cat_tm (comp_cat_el (comp_cat_unit_code_weakened UnitU Γ)).
     Proof.
       use tpair.
-      - exact ( (tt Γ) ↑ ( ⌈ (comp_cat_unit_el_iso_weakened UnitU Γ) ⌉⁻¹ ) ).
+      - exact ( (comp_cat_unit_tt Γ) ↑ ( ⌈ (comp_cat_unit_el_iso_w UnitU Γ) ⌉⁻¹ ) ).
       - abstract(
             cbn;
             rewrite <- assoc;
             rewrite comp_cat_comp_mor_law;
-            exact (pr2 (tt Γ))).
+            exact (pr2 (comp_cat_unit_tt Γ))).
     Defined.
 
     Lemma iscontr_tm_of_iso {Γ : C} {A B : comp_cat_ty Γ}
@@ -449,17 +493,16 @@ Section Universe_Unit_Closure.
       (* Uniqueness follows from el(unit_code) being iso to 1 and tt being unique. *)
       intros Γ t.
       unfold term_unit_code.
-      set (unit_unique := pr12 (pr222 Unit)).
-      assert (HOneΓ : iscontr (comp_cat_tm (One Γ))).
+      assert (HOneΓ : iscontr (comp_cat_tm ((pr1 Unit) Γ))).
       {
          use tpair.
-          - exact (tt Γ).
+          - exact ( comp_cat_unit_tt Γ).
           - intro u.
-            exact (unit_unique Γ u).
+            exact (comp_cat_unit_unique u).
       }
       set (HElΓ :=
-        @iscontr_tm_of_iso Γ (One Γ) (comp_cat_el (comp_cat_unit_code_weakened UnitU Γ))
-          HOneΓ (z_iso_inv (comp_cat_unit_el_iso_weakened UnitU Γ))).
+        @iscontr_tm_of_iso Γ ((pr1 Unit) Γ) (comp_cat_el (comp_cat_unit_code_weakened UnitU Γ))
+          HOneΓ (z_iso_inv (comp_cat_unit_el_iso_w UnitU Γ))).
       use subtypePath.
       - unfold isPredicate; intros; apply (homset_property C).
       - cbn.
@@ -480,7 +523,6 @@ Section Universe_Pi_Closure.
   Context (C : comp_cat_with_universe).
 
   Context (Π : comp_cat_pi C).
-  Let Πty := (pr1 Π).
 
   (* 1. Pi code in the universe *)
   (* Γ ⊢ A : U , Γ.el(A) ⊢ B : U  => Γ ⊢ Π(A,B) : U *)
@@ -497,7 +539,7 @@ Section Universe_Pi_Closure.
       (A : comp_cat_tm (comp_cat_U _))
       (B : comp_cat_tm (comp_cat_U _)),
       @z_iso (fiber_category _ _) (comp_cat_el (ΠU Γ A B))
-        (Πty Γ (comp_cat_el A)
+        ((pr1 Π) Γ (comp_cat_el A)
            (comp_cat_el B)).
 
   (* 3. Π-codes commute with substitution  *)
@@ -532,6 +574,8 @@ Section Universe_Pi_Closure.
   Coercion comp_cat_with_pi_to_comp_cat (PiU : comp_cat_universe_closed_pi)
     : univ_pi_form := pr1 PiU.
 
+ (** accessors for pi codes  *)
+
   Definition comp_cat_pi_code (PiU : comp_cat_universe_closed_pi)
     {Γ : C} (A : comp_cat_tm (comp_cat_U _))
     (B : comp_cat_tm (comp_cat_U _)) :
@@ -542,7 +586,7 @@ Section Universe_Pi_Closure.
     {Γ : C} (A : comp_cat_tm (comp_cat_U _))
     (B : comp_cat_tm (comp_cat_U _)):
     @z_iso (fiber_category _ _) (comp_cat_el (comp_cat_pi_code PiU A B))
-      (Πty Γ (comp_cat_el A)
+      ((pr1 Π) Γ (comp_cat_el A)
          (comp_cat_el B))
       := (pr12 PiU) Γ A B.
 

@@ -26,12 +26,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
-Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -566,6 +561,12 @@ Proof.
     apply idpath.
 Qed.
 
+
+Definition comp_cat_subst_tm_eq {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Δ}
+  (t : comp_cat_tm A) { s s' : Γ --> Δ } (p : s = s')
+  : t [[ s ]]tm ↑ (⌈ (comp_cat_subst_ty_iso _ p) ⌉) = t [[ s' ]]tm.
+Proof.
+  Admitted.
 
 (* Lemmas about how coercing interacts with the isos and the reindexing *)
 
