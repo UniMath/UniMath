@@ -459,6 +459,47 @@ Definition make_cwf (data : cwf_data) (p : cwf_universal_property data) := (data
 
 Coercion cwf_from_cwf_data {C : cwf} : cwf_data := pr1 C.
 
+Definition make_cwf_universal_property
+           {C : cwf_data}
+           (ext : ∏ {Γ Δ : C}
+                    {A : cwf_ty Γ}
+                    (s : Δ --> Γ)
+                    (t : cwf_tm (A [[ s ]])),
+                  Δ --> Γ & A)
+           (ext_pr : ∏ {Γ Δ : C}
+                       {A : cwf_ty Γ}
+                       (s : Δ --> Γ)
+                       (t : cwf_tm (A [[ s ]])),
+                     ext s t · p_ A = s)
+           (ext_tm : ∏ {Γ Δ : C}
+                       {A : cwf_ty Γ}
+                       (s : Δ --> Γ)
+                       (t : cwf_tm (A [[ s ]])),
+                     transportf_subst_tm_on_s (ext_pr s t) (cwf_qA_subst (ext s t)) = t)
+           (ext_eta : ∏ (Γ Δ : C)
+                        (A : cwf_ty Γ)
+                        (s : Δ --> Γ & A),
+                      s
+                      =
+                      ext (s · p_ A) (cwf_subst_tm_comp _ _ _ (q_ A [[ s ]]tm)))
+  : cwf_universal_property C.
+Proof.
+  intros Γ Δ A s t.
+  use make_iscontr.
+  - exact (ext Γ Δ A s t ,, ext_pr Γ Δ A s t ,, ext_tm Γ Δ A s t).
+  - abstract
+      (intros (s' & p_s & q_s) ;
+       use subtypePath ;
+       [ intro ;
+         use isaproptotal2 ;
+         [ intro ; apply setproperty
+         | intros ; apply homset_property ]
+       |
+       ] ;
+       refine (ext_eta Γ Δ A s' @ _) ; cbn ;
+       induction p_s, q_s ;
+       apply idpath).
+Defined.
 
 (** Extending substitution with terms and helpful lemmas  *)
 
@@ -594,6 +635,25 @@ Proof.
     apply maponpaths_2.
     apply setproperty.
   - apply cwf_pair_q.
+Qed.
+
+Proposition cwf_pair_eta
+            {C : cwf}
+            {Γ Δ : C}
+            {A : cwf_ty Γ}
+            (s : Δ --> Γ & A)
+  : s
+    =
+    ⟨⟨ s · p_ A , cwf_subst_tm_comp _ _ _ (q_ A [[ s ]]tm) ⟩⟩.
+Proof.
+  use cwf_pair_unique.
+  - exact (s · p_ A).
+  - exact (cwf_qA_subst s).
+  - apply idpath.
+  - apply cwf_pair_p.
+  - apply idpath.
+  - rewrite cwf_pair_q.
+    apply idpath.
 Qed.
 
 (* s.A *)
