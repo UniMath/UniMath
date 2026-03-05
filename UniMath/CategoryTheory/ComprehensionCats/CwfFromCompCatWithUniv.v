@@ -401,9 +401,9 @@ Qed.
              cwf_id_ty_from_comp_cat_with_u cwf_comp_ty_from_comp_cat_with_u
              cwf_id_tm_from_comp_cat_with_u cwf_comp_tm_from_comp_cat_with_u).
 
-    Local Definition ext_con {Γ : Con} (A : cwf_ty T Γ): Con := (pr1 SigmaU _ Γ A).
+    Local Definition ext_con {Γ : Con} (A : cwf_ty_from_ty_term_subst T Γ): Con := (pr1 SigmaU _ Γ A).
 
-    Local Definition proj {Γ : Con} (A : cwf_ty T Γ) : ext_con A --> Γ :=
+    Local Definition proj {Γ : Con} (A : cwf_ty_from_ty_term_subst T Γ) : ext_con A --> Γ :=
         (comp_cat_comp_mor (⌈ (comp_cat_sigma_el_iso _ _ _ Γ A) ⌉)) · (comp_cat_sigma_proj_1 (comp_cat_el Γ) (comp_cat_el A)).
 
     Definition cwf_ctx_ext_from_comp_cat_with_u : cwf_ctx_ext T.
@@ -415,8 +415,7 @@ Qed.
           set (ctxextproj := (comp_cat_comp_mor (⌈ comp_cat_sigma_el_iso _ Sigma SigmaU _ _ ⌉)) · (comp_cat_sigma_proj_1 (comp_cat_el Γ) (comp_cat_el A))).
           use tpair.
           + exact ctxextproj.
-          + (* TODO: Change this part to define qA using variable of the comprehension categories. *)
-            cbn.
+          + cbn.
             simple refine ((comp_cat_var (comp_cat_el A)) [[ _ ]]tm ↑ _).
             2:
              {
@@ -428,9 +427,10 @@ Qed.
             unfold ctxextproj.
             refine (comp_cat_el_iso _ _ · _).
             eapply comp_cat_el_map.
-            unfold comp_cat_sigma_proj_1.
-            rewrite !assoc'.
-            apply idpath.
+            abstract(
+            unfold comp_cat_sigma_proj_1;
+            rewrite !assoc';
+            apply idpath).
       Defined.
 
   End extended_context.
@@ -453,13 +453,30 @@ Qed.
   Defined.
 
   Lemma cwf_from_comp_cat_with_u_transport_tm
-    {cwf : cwf_data_from_comp_cat_with_u}
-    {Γ Δ : cwf}
+    (CC := cwf_data_from_comp_cat_with_u)
+    {Γ Δ : CC}
     {s s' : Γ --> Δ}
     (p : s = s')
-    {A : }
-    (t : cwf_tm_from_comp_cat_with_u A)
-    : UU.
+    {A : cwf_ty Δ}
+    (t : cwf_tm (A [[ s ]])%cwf)
+    : (transportf_subst_tm_on_s p t = t ↑ (comp_cat_el_map ((maponpaths (λ z, A [[ z ]]) p)%cwf))).
+  Proof.
+    induction p.
+    cbn.
+    refine (!_).
+    apply comp_cat_id_coerce_tm.
+  Qed.
+
+  Lemma cwf_from_comp_cat_with_u_comp
+    (CC := cwf_data_from_comp_cat_with_u)
+    {Γ₁ Γ₂ Γ₃ : CC}
+    (s : Γ₁ --> Γ₂)
+    (s' : Γ₂ --> Γ₃)
+    (A : cwf_ty Γ₃)
+    (t : cwf_tm ((A [[s']]) [[s]])%cwf)
+    : cwf_subst_tm_comp A s' s t = t ↑ comp_cat_el_map (cwf_subst_ty_comp A s' s).
+  Proof.
+    Admitted.
 
 
   Section universal_property.
@@ -467,10 +484,9 @@ Qed.
   (* Helper lemma for the universal property proof *)
     Local Lemma qA_subst_helper_lemma
       {Γ Δ : cwf_data_from_comp_cat_with_u}
-      (A : cwf_ty (cwf_t cwf_data_from_comp_cat_with_u) Γ)
+      (A : cwf_ty Γ)
       (s : cwf_data_from_comp_cat_with_u ⟦ Δ, Γ ⟧)
-      (t : cwf_tm (cwf_t cwf_data_from_comp_cat_with_u)
-             (cwf_subst_ty (cwf_t cwf_data_from_comp_cat_with_u) s A))
+      (t : cwf_tm (cwf_subst_ty s A))
       : let Δ' := [] & comp_cat_el Δ in
         let Γ' := [] & comp_cat_el Γ in
       pr1 t
@@ -508,17 +524,16 @@ Qed.
       Qed.
 
    Context (Γ Δ : cwf_data_from_comp_cat_with_u)
-        (A : cwf_ty (cwf_t cwf_data_from_comp_cat_with_u) Γ)
+        (A : cwf_ty Γ)
         (s : cwf_data_from_comp_cat_with_u ⟦ Δ, Γ ⟧)
-        (t : cwf_tm (cwf_t cwf_data_from_comp_cat_with_u)
-               (cwf_subst_ty (cwf_t cwf_data_from_comp_cat_with_u) s A)).
+        (t : cwf_tm (cwf_subst_ty s A)).
 
    Let Δ' := ([] & comp_cat_el Δ).
    Let Γ' := ([] & comp_cat_el Γ).
 
   (* The candidate u that witnesses the universal property *)
   Local Definition u
-       :   comp_cat_morphisms (pr1 C) ([] & comp_cat_el Δ) ([] & comp_cat_el (cwf_extended_con Γ A)).
+       : comp_cat_morphisms (pr1 C) ([] & comp_cat_el Δ) ([] & comp_cat_el (cwf_extended_con Γ A)).
   Proof.
     cbn in t.
     refine (t · _).
@@ -558,20 +573,10 @@ Qed.
     cbn  -[cwf_ctx_ext_from_comp_cat_with_u].
     unfold cwf_subst_tm_from_comp_cat_with_u.
     unfold cwf_subst_ty_from_comp_cat_with_u.
-
-
-    unfold cwf_subst_tm.
-
-    unfold cwf_subst_tm_from_comp_cat_with_u.
-    unfold ext_con.
-    Print transportf_subst_tm_on_s.
-
-   (*
-     make lemma that turns the left hand side into ... ↑ ... in the comp cat world and
-     then use facts about the variable in the comp cats. becuase the variable here should be the same as the variable there.
-   *)
-
-  Admitted.
+    rewrite cwf_from_comp_cat_with_u_transport_tm.
+    rewrite cwf_from_comp_cat_with_u_comp.
+    cbn -[comp_cat_comp_mor comp_cat_subst_ty_comp_iso comp_cat_el_iso comp_cat_el_map fiber_category].
+    Admitted.
 
   Local Lemma unique
     :  ∏ (u' : cwf_data_from_comp_cat_with_u ⟦ Δ, cwf_extended_con Γ A ⟧),
@@ -581,15 +586,85 @@ Qed.
   Proof.
     intros u' [ p' q' ].
     unfold u.
-    rewrite <- q'.
+    (* rewrite <- q'. *)
+    (* rewrite cwf_from_comp_cat_with_u_transport_tm. *)
+    (* unfold cwf_qA_subst. *)
+    (* rewrite cwf_from_comp_cat_with_u_comp. *)
+    (* etrans. *)
+    (* 2: { *)
+    (*   refine (!_). *)
+    (*   apply maponpaths_2. *)
+    (*   do 4 apply maponpaths. *)
+    (*   cbn -[comp_cat_comp_mor comp_cat_subst_ty_comp_iso comp_cat_el_iso comp_cat_el_map fiber_category]. *)
+    (*   apply idpath. *)
+    (* } *)
     rewrite !assoc.
-    refine (!(id_right _) @ _).
     etrans.
-    {
-      apply  maponpaths.
+    { refine (!_).
+      apply id_right. }
+    etrans.
+    { apply maponpaths.
       refine (!_).
       apply (comp_cat_comp_mor_z_iso_inv_after_z_iso ((pr12 SigmaU) [] Γ A)).
     }
+    etrans.
+    { apply (assoc (C:=C)). }
+    apply (cancel_postcomposition (C:=C)).
+    etrans.
+    { refine (!_).
+      apply id_right. }
+    etrans.
+    { apply maponpaths.
+      refine (!_).
+      apply comp_cat_sigma_eta.
+    }
+    etrans.
+    { apply (assoc (C:=C)). }
+    apply (cancel_postcomposition (C:=C)).
+    set (i_sigma_code := (pr12 SigmaU)).
+    use comp_cat_eq_sub_to_extension.
+    - abstract
+        (refine (_ @ p' @ _) ;
+         [ rewrite !assoc' ;
+           apply idpath | ] ;
+         rewrite !assoc' ;
+        rewrite comp_cat_ext_subst_commute ;
+        rewrite !assoc ;
+        refine (!(id_left _) @ _) ;
+        apply maponpaths_2 ;
+        rewrite !assoc' ;
+        rewrite comp_cat_comp_mor_law ;
+        refine (!_) ;
+        apply (pr2 t)).
+    -
+
+      pose (@transportf_subst_tm_on_s).
+      Check (sub_to_extension_tm (pr1 t · comp_cat_comp_mor (⌈ comp_cat_el_iso s A ⌉⁻¹) · comp_cat_ext_subst s (comp_cat_el A))).
+      Check (pr1 t · comp_cat_comp_mor (⌈ comp_cat_el_iso s A ⌉⁻¹) · comp_cat_ext_subst s (comp_cat_el A) · π (comp_cat_el A)).
+      Check (pr1 t).
+      apply comp_cat_tm_eq.
+      rewrite cwf_from_comp_cat_with_u_transport_tm in q'.
+      unfold cwf_qA_subst in q'.
+      rewrite cwf_from_comp_cat_with_u_comp in q'.
+      rewrite comp_cat_comp_coerce_tm in q'.
+      unfold sub_to_extension_tm.
+      cbn -[comp_cat_comp_mor comp_cat_subst_ty_comp_iso comp_cat_el_iso comp_cat_el_map fiber_category] in q'.
+      rewrite <- q'.
+
+        (q_ A)%cwf [[u ]]tm ↑ ⌈ comp_cat_el_iso u (A [[(p_ A)%cwf ]]tm ↑ ⌈ comp_cat_univ_sub_iso (p_ A)%cwf ⌉) ⌉ ↑ comp_cat_el_map (cwf_subst_ty_comp A (p_ A)%cwf u)
+  ↑ comp_cat_el_map (maponpaths (λ z : cwf_data_from_comp_cat_with_u ⟦ Δ, Γ ⟧, (A [[z]])%cwf) eq1) = t
+
+
+      Check sub_to_extension_tm.
+      Search (comp_cat_el_map ?p · comp_cat_el_map ?q).
+
+
+      Check sub_to_extension_tm.
+      Check transport_term_sub_eq.
+
+
+  End SectionName.
+    rewrite !assoc.
   Admitted.
 
 

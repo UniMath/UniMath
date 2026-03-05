@@ -187,6 +187,7 @@ Definition make_fam_mor {X X' : hSet} {Y : X → hSet} {Y' : X' → hSet} (f : X
 (** CwF *)
 
 Declare Scope cwf.
+Delimit Scope cwf with cwf.
 Local Open Scope cwf.
 
 Definition cwf_ty_term_subst (C : category) : UU := functor (C ^opp) Fam.

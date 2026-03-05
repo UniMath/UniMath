@@ -1069,75 +1069,6 @@ Proof.
     apply (PullbackArrow_PullbackPr2 PB')).
 Defined.
 
-
-(* Find a place to put this: *)
-
-Section eq_sub_to_extension.
-
-Definition sub_to_extension_tm
-           {C : comp_cat}
-           {Γ Δ : C}
-           {A : comp_cat_ty Γ}
-           (s : Δ --> Γ & A)
-  : comp_cat_tm (A [[ s · π A ]]).
-Proof.
-  use make_comp_cat_tm.
-  - use (PullbackArrow (comp_cat_pullback A (s · π A))).
-    + exact s.
-    + exact (identity Δ).
-    + abstract (rewrite id_left; apply idpath).
-  - abstract (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A (s · π A)))).
-Defined.
-
-Definition transport_term_sub_eq
-           {C : comp_cat}
-           {Γ Δ : C}
-           {A : comp_cat_ty Γ}
-           {s₁ s₂ : Δ --> Γ}
-           (p : s₁ = s₂)
-           (t : comp_cat_tm (A [[ s₁ ]]))
-  : comp_cat_tm (A [[ s₂ ]]).
-Proof.
-  use make_comp_cat_tm.
-  - use (PullbackArrow (comp_cat_pullback A s₂)).
-    + exact (t · comp_cat_ext_subst s₁ A).
-    + exact (identity Δ).
-    + abstract (
-        induction p;
-        rewrite id_left;
-        rewrite assoc';
-        refine (maponpaths (λ z, _ · z) (comp_cat_ext_subst_commute s₁ A) @ _);
-        rewrite assoc;
-        refine (maponpaths (λ z, z · _) (pr2 t) @ _);
-        apply id_left).
-  - abstract (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s₂))).
-Defined.
-
-Proposition comp_cat_eq_sub_to_extension
-            {C : comp_cat}
-            {Γ Δ : C}
-            {A : comp_cat_ty Γ}
-            {s₁ s₂ : Δ --> Γ & A}
-            (p : s₁ · π A = s₂ · π A)
-            (q : transport_term_sub_eq p (sub_to_extension_tm s₁)
-                 =
-                 sub_to_extension_tm s₂)
-  : s₁ = s₂.
-Proof.
-  pose (maponpaths (λ z, pr1 z · PullbackPr1 (comp_cat_pullback A (s₂ · π A))) q) as q'.
-  simpl in q'.
-  rewrite !PullbackArrow_PullbackPr1 in q'.
-  refine (_ @ q').
-  enough (s₁ = sub_to_extension_tm s₁ · comp_cat_ext_subst (s₁ · π A) A) as H.
-  { exact H. }
-  clear p q q' s₂.
-  refine (!_).
-  apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A (s₁ · π A))).
-Qed.
-
-End eq_sub_to_extension.
-
-
 (** Variable Rule *)
 
 Definition comp_cat_var
@@ -1307,3 +1238,48 @@ Proof.
 (*     apply comp_cat_tm_eq. *)
   (* Qed. *)
   Admitted.
+
+
+(* Find a place to put this: *)
+
+Section eq_sub_to_extension.
+
+Definition sub_to_extension_tm
+           {C : comp_cat}
+           {Γ Δ : C}
+           {A : comp_cat_ty Γ}
+           (s : Δ --> Γ & A)
+  : comp_cat_tm (A [[ s · π A ]])
+  := (((comp_cat_var A ) [[ s  ]]tm) ↑ ⌈comp_cat_subst_ty_comp_iso _ _ _ ⌉ ).
+
+Proposition comp_cat_eq_sub_to_extension
+            {C : comp_cat}
+            {Γ Δ : C}
+            {A : comp_cat_ty Γ}
+            {s₁ s₂ : Δ --> Γ & A}
+            (p : s₁ · π A = s₂ · π A)
+            (q : (sub_to_extension_tm s₁) ↑ ⌈ comp_cat_subst_ty_iso A p ⌉
+                 =
+                 sub_to_extension_tm s₂)
+  : s₁ = s₂.
+Proof.
+  (* pose (maponpaths (λ z, pr1 z · PullbackPr1 (comp_cat_pullback A (s₂ · π A))) q) as q'. *)
+  (* simpl in q'. *)
+  (* rewrite !PullbackArrow_PullbackPr1 in q'. *)
+  (* refine (_ @ q'). *)
+  (* enough (s₁ = sub_to_extension_tm s₁ · comp_cat_ext_subst (s₁ · π A) A) as H. *)
+  (* { cbn in H. refine (H @ _). rewrite assoc'. *)
+  (*   unfold comp_cat_ext_subst. cbn. apply cancel_precomposition. *)
+  (*   refine (_ @ comp_cat_comp_mor_comp _ _). *)
+  (*   Check comp_cat_comp_mor_comp. *)
+  (*   refine (_ @ comp_cat_comp_mor_comp (C := C) _ _ @ _). *)
+  (* } *)
+  (*   clear p q q' s₂. *)
+  (* refine (!_). *)
+  (* apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A (s₁ · π A))). *)
+  Admitted.
+
+(* TODO: there should be a section that has comp_cat_sub_ext  and sub_to_extension_tm and the beta and eta rules for them. The beta and eta are not there now. *)
+
+
+End eq_sub_to_extension.
