@@ -79,6 +79,71 @@ Proof.
   apply assoc.
 Qed.
 
+Proposition right_beck_chevalley_nat_trans_eq_nat_trans
+            {C₁ C₂ C₃ C₄ : category}
+            {F : C₁ ⟶ C₂}
+            {G G' : C₁ ⟶ C₃}
+            {H : C₃ ⟶ C₄}
+            {K K' : C₂ ⟶ C₄}
+            (HF : is_left_adjoint F)
+            (FR := right_adjoint HF)
+            (ε₁ := counit_from_left_adjoint HF)
+            (HH : is_left_adjoint H)
+            (HR := right_adjoint HH)
+            (η₂ := unit_from_left_adjoint HH)
+            (τ : nat_z_iso (G ∙ H) (F ∙ K))
+            (τ' : nat_z_iso (G' ∙ H) (F ∙ K'))
+            (θG : nat_z_iso G G')
+            (θK : nat_z_iso K' K)
+            (pτ : ∏ (z : C₁), τ z = #H (θG _) · τ' _ · θK _)
+            (x : C₂)
+  : right_beck_chevalley_nat_trans HF HH τ x
+    =
+    θG _ · right_beck_chevalley_nat_trans HF HH τ' x · #HR (θK _).
+Proof.
+  assert (right_beck_chevalley_nat_trans HF HH τ x
+          =
+          η₂ (G(FR x)) · #HR(τ(FR x)) · #HR(#K(ε₁ x)))
+    as p.
+  {
+    exact (right_beck_chevalley_nat_trans_ob HF HH τ x).
+  }
+  refine (p @ _) ; clear p.
+  assert (right_beck_chevalley_nat_trans HF HH τ' x
+          =
+          η₂ (G'(FR x)) · #HR(τ'(FR x)) · #HR(#K'(ε₁ x)))
+    as p.
+  {
+    exact (right_beck_chevalley_nat_trans_ob HF HH τ' x).
+  }
+  etrans.
+  {
+    apply maponpaths_2.
+    do 2 apply maponpaths.
+    exact (pτ _).
+  }
+  rewrite !functor_comp.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    apply maponpaths.
+    exact p.
+  }
+  clear p.
+  rewrite !assoc.
+  etrans.
+  {
+    do 3 apply maponpaths_2.
+    apply (nat_trans_ax η₂).
+  }
+  rewrite !assoc'.
+  do 3 apply maponpaths.
+  rewrite <- !functor_comp.
+  apply maponpaths.
+  apply (nat_trans_ax θK).
+Qed.
+
 Section DependentProduct.
   Context {C : category}
           {D : disp_cat C}

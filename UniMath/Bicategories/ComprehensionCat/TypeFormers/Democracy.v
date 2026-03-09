@@ -116,7 +116,7 @@ Proposition transportf_dem
             (s : Γ --> [] & A₁)
   : transportf (λ A, Γ --> [] & A) p s
     =
-    s · comp_cat_comp_mor (idtoiso_disp (idpath _) p).
+    s · comp_cat_comp_mor (idtoiso_disp (idpath _) p : _ -->[ _ ] _).
 Proof.
   induction p ; cbn.
   unfold comp_cat_comp_mor.
@@ -131,7 +131,7 @@ Proposition eq_is_democratic
             (p : ∏ (Γ : C), is_democratic_ty D₁ Γ = is_democratic_ty D₂ Γ)
             (q : ∏ (Γ : C),
                  is_democratic_iso D₁ Γ
-                 · comp_cat_comp_mor (idtoiso_disp (idpath _) (p Γ))
+                 · comp_cat_comp_mor (idtoiso_disp (idpath _) (p Γ)  : _ -->[ _ ] _)
                  =
                  is_democratic_iso D₂ Γ)
   : D₁ = D₂.

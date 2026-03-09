@@ -37,3 +37,7 @@ A paper can belong to more than one category, e.g. if it is mainly in cat. **L**
 1. **[L]** Benedikt Ahrens, Ralph Matthes, Niels van der Weide, and Kobe Wullaert. "Displayed Monoidal Categories for the Semantics of Linear Logic". In Proceedings of the 13th ACM SIGPLAN International Conference on Certified Programs and Proofs, CPP 2024 (2024): 260-273. https://doi.org/10.1145/3636501.3636956
 1. **[L]** van der Weide, Niels, "Univalent Enriched Categories and the Enriched Rezk Completion", FSCD 2024.
 1. **[L]** Hilhorst, Dennis , and Paige North, "Formalizing the algebraic small object argument in UniMath", ITP 2024.
+1. **[L]** van der Leer, A.A., and Wullaert, K., and Ahrens, B. (2025). "Scott’s Representation Theorem and the Univalent Karoubi Envelope", ITP 2025. https://doi.org/10.4230/LIPIcs.ITP.2025.33 , [preprint](https://arxiv.org/abs/2506.22196).
+1. **[L]** Rasekh, N., van der Weide, N., Ahrens, B., and North, P. R. (2025). "Insights From Univalent Foundations: A Case Study Using Double Categories", CSL 2025. https://doi.org/10.4230/LIPIcs.CSL.2025.45 , [preprint](https://arxiv.org/abs/2402.05265).
+1. **[L]** van der Weide, N. (2025), "The internal languages of univalent categories", LICS 2025. https://doi.org/10.1109/LICS65433.2025.00016 , [preprint](https://arxiv.org/abs/2411.06636).
+1. **[L]** van der Weide, N. (2025), "The Formal Theory of Monads, Univalently", Logical Methods in Computer Science, February 19, 2025, Volume 21, Issue 1 - https://doi.org/10.46298/lmcs-21(1:16)2025 , https://lmcs.episciences.org/15263 .

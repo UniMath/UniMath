@@ -10,8 +10,9 @@
  3.2. Internal symmetry
  3.3. Internal transitivity
  3.4. Internal equivalence relations
- 4. Effective internal equivalence relations
- 5. Exact categories
+ 4. The kernel pair is an internal equivalence relation
+ 5. Effective internal equivalence relations
+ 6. Exact categories
 
  ********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -19,6 +20,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.EpiFacts.
 Require Import UniMath.CategoryTheory.RegularAndExact.RegularCategory.
 
 Local Open Scope cat.
@@ -85,6 +87,53 @@ Proposition internal_relation_monic
   : f = g.
 Proof.
   exact (pr222 R w f g p q).
+Qed.
+
+Definition path_internal_relation_help
+           {C : category}
+           {x : C}
+           {r₁ r₂ : internal_relation x}
+           (p : (r₁ : C) = r₂)
+           (qs : internal_relation_src r₁
+                 =
+                 idtoiso p · internal_relation_src r₂)
+           (qt : internal_relation_tar r₁
+                 =
+                 idtoiso p · internal_relation_tar r₂)
+  : r₁ = r₂.
+Proof.
+  induction r₁ as [ r₁ [ s₁ [ t₁ H₁ ]]].
+  induction r₂ as [ r₂ [ s₂ [ t₂ H₂ ]]].
+  cbn in p.
+  induction p.
+  cbn in qs, qt.
+  rewrite id_left in qs, qt.
+  induction qs, qt.
+  do 3 apply maponpaths.
+  do 5 (use funextsec ; intro).
+  apply homset_property.
+Qed.
+
+Definition path_internal_relation
+           {C : category}
+           (HC : is_univalent C)
+           {x : C}
+           {r₁ r₂ : internal_relation x}
+           (p : z_iso r₁ r₂)
+           (qs : internal_relation_src r₁
+                 =
+                 p · internal_relation_src r₂)
+           (qt : internal_relation_tar r₁
+                 =
+                 p · internal_relation_tar r₂)
+  : r₁ = r₂.
+Proof.
+  use path_internal_relation_help.
+  - exact (isotoid C HC p).
+  - rewrite idtoiso_isotoid.
+    exact qs.
+  - rewrite idtoiso_isotoid.
+    exact qt.
 Qed.
 
 (** * 2. The relation on morphisms from an internal relation *)
@@ -654,6 +703,18 @@ Definition internal_iseqrel
   : UU
   := internal_isrefl R × internal_issymm R × internal_istrans R.
 
+Proposition isaprop_internal_iseqrel
+            {C : category}
+            {x : C}
+            (R : internal_relation x)
+  : isaprop (internal_iseqrel R).
+Proof.
+  repeat use isapropdirprod.
+  - apply isaprop_internal_isrefl.
+  - apply isaprop_internal_issymm.
+  - apply isaprop_internal_istrans.
+Qed.
+
 Definition internal_eqrel
            {C : category}
            (x : C)
@@ -724,7 +785,103 @@ Proof.
     + apply (internal_iseqrel_internal_eqrel R).
 Defined.
 
-(** * 4. Effective internal equivalence relations *)
+(** * 4. The kernel pair is an internal equivalence relation *)
+Section KernelPairInternalEqrel.
+  Context {C : category}
+          (PB : Pullbacks C)
+          {x y : C}
+          (f : x --> y).
+
+  Definition kernel_pair_internal_rel
+    : internal_relation x.
+  Proof.
+    use make_internal_relation.
+    - exact (PB _ _ _ f f).
+    - exact (PullbackPr1 _).
+    - exact (PullbackPr2 _).
+    - abstract
+        (intros w g₁ g₂ p q ;
+         exact (MorphismsIntoPullbackEqual (isPullback_Pullback _) _ _ _ p q)).
+  Defined.
+
+  Proposition internal_iseqrel_kernel_pair
+    : internal_iseqrel kernel_pair_internal_rel.
+  Proof.
+    repeat split.
+    - intros w g.
+      simple refine (_ ,, _).
+      + use (PullbackArrow _ _ g g).
+        apply idpath.
+      + split.
+        * apply PullbackArrow_PullbackPr1.
+        * apply PullbackArrow_PullbackPr2.
+    - intros w g₁ g₂ p.
+      simple refine (_ ,, _).
+      + refine (pr1 p · _).
+        use PullbackArrow.
+        * apply PullbackPr2.
+        * apply PullbackPr1.
+        * abstract
+            (refine (!_) ;
+             apply PullbackSqrCommutes).
+      + split ; refine (assoc' _ _ _ @ _).
+        * etrans.
+          {
+            apply maponpaths.
+            apply PullbackArrow_PullbackPr1.
+          }
+          apply p.
+        * etrans.
+          {
+            apply maponpaths.
+            apply PullbackArrow_PullbackPr2.
+          }
+          apply p.
+    - intros w g₁ g₂ g₃ p q.
+      simple refine (_ ,, _).
+      + use PullbackArrow.
+        * exact (pr1 p · PullbackPr1 _).
+        * exact (pr1 q · PullbackPr2 _).
+        * rewrite !assoc'.
+          etrans.
+          {
+            apply maponpaths.
+            exact (PullbackSqrCommutes (PB y x x f f)).
+          }
+          rewrite assoc.
+          etrans.
+          {
+            apply maponpaths_2.
+            exact (pr22 p).
+          }
+          refine (!_).
+          etrans.
+          {
+            apply maponpaths.
+            exact (!(PullbackSqrCommutes (PB y x x f f))).
+          }
+          rewrite assoc.
+          apply maponpaths_2.
+          exact (pr12 q).
+      + split.
+        * cbn.
+          rewrite PullbackArrow_PullbackPr1.
+          apply p.
+        * cbn.
+          rewrite PullbackArrow_PullbackPr2.
+          apply q.
+  Qed.
+
+  Definition kernel_pair_internal_eqrel
+    : internal_eqrel x.
+  Proof.
+    use make_internal_eqrel.
+    - exact kernel_pair_internal_rel.
+    - exact internal_iseqrel_kernel_pair.
+  Defined.
+End KernelPairInternalEqrel.
+
+(** * 5. Effective internal equivalence relations *)
 Definition is_effective
            {C : category}
            {x : C}
@@ -747,7 +904,7 @@ Proof.
     apply univalent_category_is_univalent.
 Qed.
 
-(** * 5. Exact categories *)
+(** * 6. Exact categories *)
 Definition all_internal_eqrel_effective
            (C : category)
   : UU
@@ -768,9 +925,9 @@ Definition is_exact
      ×
      all_internal_eqrel_effective C.
 
-Definition is_exact_to_is_regular
-           {C : category}
-           (H : is_exact C)
+Coercion is_exact_to_is_regular
+         {C : category}
+         (H : is_exact C)
   : is_regular_category C
   := pr1 H.
 
@@ -779,6 +936,24 @@ Definition is_exact_to_all_internal_eqrel_effective
            (H : is_exact C)
   : all_internal_eqrel_effective C
   := pr2 H.
+
+Definition quotient_internal_eqrel
+           {C : category}
+           (H : is_exact C)
+           {x : C}
+           (R : internal_eqrel x)
+  : Coequalizer (internal_relation_src R) (internal_relation_tar R)
+  := pr1 (is_exact_to_all_internal_eqrel_effective H x R).
+
+Proposition is_effective_quotient_internal_eqrel
+            {C : category}
+            (H : is_exact C)
+            {x : C}
+            (R : internal_eqrel x)
+  : isPullback (CoequalizerEqAr (quotient_internal_eqrel H R)).
+Proof.
+  exact (pr2 (is_exact_to_all_internal_eqrel_effective H x R)).
+Defined.
 
 Definition isaprop_is_exact
            (C : univalent_category)

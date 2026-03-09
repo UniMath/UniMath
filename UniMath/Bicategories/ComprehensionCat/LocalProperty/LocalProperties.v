@@ -255,7 +255,7 @@ Section CatPropertyLaws.
   Proposition cat_property_adj_equivalence_of_cats
               {C₁ C₂ : univ_cat_with_finlim}
               (F : functor_finlim C₁ C₂)
-              (HF : adj_equivalence_of_cats (pr1 F))
+              (HF : adj_equivalence_of_cats F)
               (H₁ : P C₁)
               (H₂ : P C₂)
     : cat_property_functor P H₁ H₂ F.
@@ -267,18 +267,14 @@ Section CatPropertyLaws.
 
   Proposition cat_property_adj_equivalence_of_cats'
               {C₁ C₂ : univ_cat_with_finlim}
-              (F : functor_finlim C₁ C₂)
-              (HF : adj_equivalence_of_cats (pr1 F))
+              (F : C₁ ⟶ C₂)
+              (HF : adj_equivalence_of_cats F)
               (H₁ : P C₁)
               (H₂ : P C₂)
-    : cat_property_functor P H₁ H₂ F.
+    : cat_property_functor P H₁ H₂ (make_functor_finlim_adjequiv F HF).
   Proof.
-    exact (@cat_property_adj_equivalence_of_cats
-              _ _
-              F
-              HF
-              H₁
-              H₂).
+    apply cat_property_adj_equivalence_of_cats.
+    exact HF.
   Qed.
 
   Proposition cat_property_ob_adj_equiv_f_help
@@ -592,6 +588,32 @@ Definition fiberwise_cat_property_functor
        P
        (H₁ Γ) (H₂ (F Γ))
        (dfl_full_comp_cat_functor_fiber_functor F Γ).
+
+Proposition identity_fiberwise_cat_property_functor
+            {P : cat_property}
+            {C : dfl_full_comp_cat}
+            (H : fiberwise_cat_property P C)
+  : fiberwise_cat_property_functor (id₁ C) H H.
+Proof.
+  intro x.
+  exact (cat_property_fiber_functor_id' P C x (H x)).
+Qed.
+
+Proposition comp_fiberwise_cat_property_functor
+            {P : cat_property}
+            {C₁ C₂ C₃ : dfl_full_comp_cat}
+            {H₁ : fiberwise_cat_property P C₁}
+            {H₂ : fiberwise_cat_property P C₂}
+            {H₃ : fiberwise_cat_property P C₃}
+            {F : dfl_full_comp_cat_functor C₁ C₂}
+            (HF : fiberwise_cat_property_functor F H₁ H₂)
+            {G : dfl_full_comp_cat_functor C₂ C₃}
+            (HG : fiberwise_cat_property_functor G H₂ H₃)
+  : fiberwise_cat_property_functor (F · G) H₁ H₃.
+Proof.
+  intro x.
+  exact (cat_property_fiber_functor_comp P (HF x) (HG _)).
+Qed.
 
 (** * 3. Local properties *)
 Definition slice_univ_cat_with_finlim
