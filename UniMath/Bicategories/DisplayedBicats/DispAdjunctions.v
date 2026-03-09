@@ -941,3 +941,51 @@ Proof.
             (pr2 (disp_left_equivalence_to_left_adjoint_equivalence Hff))).
   apply (isaprop_left_adjoint_equivalence _ HB).
 Qed.
+
+(** Convenient builders for displayed adjoint equivalences *)
+Definition make_disp_adjequiv_prop_grpd
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD₁ : disp_2cells_isaprop D)
+           (HD₂ : disp_locally_groupoid D)
+           {x y : B}
+           {f : x --> y}
+           (Hf : left_adjoint_equivalence f)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+           (gg : yy -->[ left_adjoint_right_adjoint Hf ] xx)
+           (ηη : id_disp xx ==>[ left_adjoint_unit Hf ] ff ;; gg)
+           (εε : gg ;; ff ==>[ left_adjoint_counit Hf ] id_disp yy)
+  : disp_left_adjoint_equivalence Hf ff.
+Proof.
+  simple refine ((_ ,, _ ,, _) ,, _ ,, _).
+  - exact gg.
+  - exact ηη.
+  - exact εε.
+  - abstract
+      (split ; apply HD₁).
+  - abstract
+      (split ; apply HD₂).
+Defined.
+
+Definition make_disp_adjequiv_contr
+           {B : bicat}
+           {D : disp_bicat B}
+           (HD : disp_2cells_iscontr D)
+           {x y : B}
+           {f : x --> y}
+           (Hf : left_adjoint_equivalence f)
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+           (gg : yy -->[ left_adjoint_right_adjoint Hf ] xx)
+  : disp_left_adjoint_equivalence Hf ff.
+Proof.
+  use make_disp_adjequiv_prop_grpd.
+  - exact (disp_2cells_isaprop_from_disp_2cells_iscontr _ HD).
+  - exact (disp_2cells_isgroupoid_from_disp_2cells_iscontr _ HD).
+  - exact gg.
+  - apply HD.
+  - apply HD.
+Defined.

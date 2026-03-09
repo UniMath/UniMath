@@ -69,7 +69,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBiequivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBuilders.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.DispTransformation.
-Require Import UniMath.Bicategories.DisplayedBicats.DispModification.
+Require Import UniMath.Bicategories.DisplayedBicats.DispPseudoNaturalAdjequiv.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
@@ -226,33 +226,22 @@ Section LocalPropertyBiequiv.
       apply identity_functor_is_adj_equivalence.
   Qed.
 
-  Definition finlim_dfl_comp_cat_unit_local_property_pointwise_adjequiv
-             {C : univ_cat_with_finlim}
-             (HC : disp_bicat_of_univ_cat_with_cat_property P C)
-    : disp_left_adjoint_equivalence
-        (finlim_dfl_comp_cat_unit_pointwise_equiv C)
-        (finlim_dfl_comp_cat_unit_local_property C HC).
-  Proof.
-    use disp_adjoint_equiv_disp_bicat_of_univ_cat_with_cat_property.
-  Qed.
-
-  Definition finlim_dfl_comp_cat_unit_inv_local_property
-    : disp_pstrans
-        (disp_pseudo_id _)
-        (disp_pseudo_comp
-           _ _ _ _ _
-           finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property
-           dfl_comp_cat_to_finlim_disp_psfunctor_local_property)
-        finlim_dfl_comp_cat_unit_inv.
-  Proof.
-    use make_disp_pstrans_inv_contr.
-    - apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
-    - apply finlim_dfl_comp_cat_unit_local_property.
-    - intros.
-      apply finlim_dfl_comp_cat_unit_local_property_pointwise_adjequiv.
-  Qed.
-
   (** * 4. The counit *)
+  Proposition fiberwise_cat_property_functor_counit
+              {C : dfl_full_comp_cat}
+              (H : fiberwise_cat_property P C)
+    : fiberwise_cat_property_functor
+        (finlim_dfl_comp_cat_counit C)
+        H
+        (local_property_in_cod
+           (dfl_full_comp_cat_to_finlim C)
+           (local_property_in_dfl_comp_cat C H)).
+  Proof.
+    intro x ; cbn.
+    use (cat_property_adj_equivalence_of_cats P).
+    exact (fiber_functor_comprehension_adj_equiv C x).
+  Qed.
+
   Definition finlim_dfl_comp_cat_counit_local_property
     : disp_pstrans
         (disp_pseudo_id _)
@@ -265,35 +254,7 @@ Section LocalPropertyBiequiv.
     use make_disp_pstrans_contr.
     - apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - refine (λ C H, tt ,, _).
-      intro x ; cbn.
-      use (cat_property_adj_equivalence_of_cats' P).
-      exact (fiber_functor_comprehension_adj_equiv C x).
-  Qed.
-
-  Definition finlim_dfl_comp_cat_counit_local_property_pointwise_adjequiv
-             {C : dfl_full_comp_cat}
-             (HC : disp_bicat_of_cat_property_dfl_full_comp_cat P C)
-    : disp_left_adjoint_equivalence
-        (finlim_dfl_comp_cat_counit_pointwise_equiv C)
-        (finlim_dfl_comp_cat_counit_local_property C HC).
-  Proof.
-    use disp_adjoint_equiv_disp_bicat_of_cat_property_dfl_full_comp_cat.
-  Qed.
-
-  Definition finlim_dfl_comp_cat_counit_inv_local_property
-    : disp_pstrans
-        (disp_pseudo_comp
-           _ _ _ _ _
-           dfl_comp_cat_to_finlim_disp_psfunctor_local_property
-           finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property)
-        (disp_pseudo_id _)
-        finlim_dfl_comp_cat_counit_inv.
-  Proof.
-    use make_disp_pstrans_inv_contr.
-    - apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
-    - apply finlim_dfl_comp_cat_counit_local_property.
-    - intros.
-      apply finlim_dfl_comp_cat_counit_local_property_pointwise_adjequiv.
+      apply fiberwise_cat_property_functor_counit.
   Qed.
 
   (** * 5. The displayed biequivalence *)
@@ -304,9 +265,15 @@ Section LocalPropertyBiequiv.
         finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property
         dfl_comp_cat_to_finlim_disp_psfunctor_local_property.
   Proof.
-    simple refine (_ ,, _).
+    use make_disp_biequiv_unit_counit_pointwise_adjequiv_alt.
+    - exact is_univalent_2_bicat_of_dfl_full_comp_cat.
+    - exact finlim_dfl_comp_cat_biequivalence_adjoints.
+    - apply disp_2cells_isaprop_disp_bicat_of_cat_property_dfl_full_comp_cat.
+    - apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - exact finlim_dfl_comp_cat_unit_local_property.
-    - exact finlim_dfl_comp_cat_counit_inv_local_property.
+    - exact finlim_dfl_comp_cat_counit_local_property.
+    - intros x xx.
+      use disp_adjoint_equiv_disp_bicat_of_cat_property_dfl_full_comp_cat.
   Defined.
 
   Definition finlim_biequiv_dfl_comp_cat_psfunctor_local_property
@@ -316,16 +283,11 @@ Section LocalPropertyBiequiv.
         finlim_dfl_comp_cat_biequivalence_adjoints
         finlim_dfl_comp_cat_biequivalence_unit_counit_local_property.
   Proof.
-    simple refine (_ ,, _ ,, (_ ,, _) ,, (_ ,, _)).
-    - exact finlim_dfl_comp_cat_unit_inv_local_property.
-    - exact finlim_dfl_comp_cat_counit_local_property.
-    - use make_disp_invmodification_contr.
-      apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
-    - use make_disp_invmodification_contr.
-      apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
-    - use make_disp_invmodification_contr.
-      apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
-    - use make_disp_invmodification_contr.
-      apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
+    use (make_disp_biequiv_pointwise_adjequiv_alt _ _).
+    - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+    - apply disp_2cells_isaprop_disp_bicat_of_univ_cat_with_cat_property.
+    - apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
+    - intros x xx.
+      use disp_adjoint_equiv_disp_bicat_of_univ_cat_with_cat_property.
   Defined.
 End LocalPropertyBiequiv.
