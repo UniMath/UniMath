@@ -8,16 +8,22 @@ various consequences of the existence of conditionals for information flow axiom
 1. Definition of [markov_category_with_conditionals]
 2. Accessors
    - Specialized definitions and lemmas for conditional distributions
-3. Bayesian inverses
-   - Definition of the Bayesian inverse (dagger)
-   - Every Markov category with conditonals comes with a
-     canonical choice of Bayesian inverse
-4. Consequences and derived information flow axioms
+3. Bayesian Inverses
+   - Definition of the Bayesian inverse (dagger) [is_bayesian_inverse]
+   - Accessors
+   - Uniqueness and stability under [equal_almost_surely]
+4. Laws and Properties of Bayesian inverses
+   - dagger laws (identity, idempotence, composition)
+   - almost sure determinism is dagger-coisometry
+5. Construction of [bayesian_inverse]
+   - Every Markov category with conditionals comes with a 
+     canonical choice [bayesian_inverse] of Bayesian inverse
+6. Consequences and Derived Information Flow Axioms
    - Every Markov category with conditionals is causal
    - Every Markov category with conditionals is positive
 
 References
-- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics'
+- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
 **********************************************)
 
 Require Import UniMath.Foundations.All.
@@ -45,7 +51,7 @@ Section DefConditionals.
   Context {C : markov_category}.
 
   Definition is_conditional {a x y : C} (f : a --> x ⊗ y) (k : x ⊗ a --> y) : UU
-    := f = copy a
+    := f = copy a 
            · (f · proj1 · copy x) #⊗ identity a
            · mon_lassociator _ _ _
            · identity x #⊗ k.
@@ -57,7 +63,7 @@ Definition has_conditionals (C : markov_category) : UU :=
    ∑ (k : x ⊗ a --> y), is_conditional f k.
 
 Definition markov_category_with_conditionals : UU :=
-   ∑ (C : markov_category), has_conditionals C.
+   ∑ (C : markov_category), has_conditionals C. 
 
 Coercion markov_cat_with_conditional_to_markov
          (C : markov_category_with_conditionals)
@@ -72,7 +78,7 @@ Section Accessors.
     := pr1 (pr2 C a x y f).
 
   Proposition conditional_eq {a x y : C} (f : a --> x ⊗ y)
-    : f = copy a
+    : f = copy a 
            · (f · proj1 · copy x) #⊗ identity a
            · mon_lassociator _ _ _
            · identity x #⊗ (conditional f).
@@ -81,8 +87,8 @@ Section Accessors.
   Qed.
 End Accessors.
 
-Lemma copy_tensor_x_I_mor_comp {C : markov_category} {x y : C} (f : I_{C} --> x ⊗ x) (g : x ⊗ I_{C} --> y) :
-     ⟨f, identity _⟩ · mon_lassociator _ _ _ · (identity _ #⊗ g)
+Lemma copy_tensor_x_I_mor_comp {C : markov_category} {x y : C} (f : I_{C} --> x ⊗ x) (g : x ⊗ I_{C} --> y) : 
+     ⟨f, identity _⟩ · mon_lassociator _ _ _ · (identity _ #⊗ g) 
    = f · (identity _ #⊗ (mon_rinvunitor _ · g)).
 Proof.
   unfold pairing.
@@ -110,15 +116,15 @@ Section ConditionalDistributions.
     := mon_rinvunitor _ · conditional p.
 
   Definition conditional_distribution_2 {x y : C} (p : I_{C} --> x ⊗ y) : y --> x
-    := conditional_distribution_1 (p · sym_mon_braiding _ _ _).
+    := conditional_distribution_1 (p · sym_mon_braiding _ _ _). 
 
-  Notation "p |1" := (conditional_distribution_1 p) (at level 1, left associativity) : markov.
-  Notation "p |2" := (conditional_distribution_2 p) (at level 1, left associativity) : markov.
-
+  Notation "p |1" := (conditional_distribution_1 p) : markov.
+  Notation "p |2" := (conditional_distribution_2 p) : markov.
+ 
   Proposition conditional_distribution_1_eq {x y : C} (p : I_{C} --> x ⊗ y) :
     p = p · proj1 · ⟨identity x, p|1⟩.
   Proof.
-    unfold conditional_distribution_1.
+    unfold conditional_distribution_1. 
     etrans. { apply (conditional_eq p). }
     rewrite <- pairing_eq.
     rewrite copy_tensor_x_I_mor_comp.
@@ -151,7 +157,7 @@ Section ConditionalDistributions.
     p = p · proj1 · ⟨identity x, f⟩ -> f =_{p · proj1} p|1.
   Proof.
     intros e.
-    unfold equal_almost_surely.
+    apply make_equal_almost_surely_r.
     rewrite <- conditional_distribution_1_eq.
     rewrite <- e.
     reflexivity.
@@ -161,7 +167,7 @@ Section ConditionalDistributions.
     p = p · proj2 · ⟨f, identity y⟩ -> f =_{p · proj2} p|2.
   Proof.
     intros e.
-    unfold equal_almost_surely.
+    apply make_equal_almost_surely_r.
     apply cancel_braiding.
     rewrite !assoc'.
     rewrite !pairing_sym_mon_braiding.
@@ -171,30 +177,167 @@ Section ConditionalDistributions.
     reflexivity.
   Qed.
 
+  (* Convenient helper functions that generates an additional equality goal *)
+  Proposition conditional_distribution_1_ase_unique'
+      {x y : C} {p : I_{C} --> x ⊗ y} (p1 : I_{C} --> x) (f : x --> y) (e : p · proj1 = p1)
+    : p = p1 · ⟨identity x, f⟩ -> f =_{p1} p|1.
+  Proof.
+    rewrite <- e.
+    apply conditional_distribution_1_ase_unique.    
+  Qed.
+
+  Proposition conditional_distribution_2_ase_unique'
+    {x y : C} {p : I_{C} --> x ⊗ y} (p2 : I_{C} --> y) (f : y --> x) (e : p · proj2 = p2)
+  : p = p2 · ⟨f, identity y⟩ -> f =_{p2} p|2.
+  Proof.
+    rewrite <- e.
+    apply conditional_distribution_2_ase_unique.    
+  Qed.
+  
 End ConditionalDistributions.
 
-Notation "p |1" := (conditional_distribution_1 p) (at level 1, left associativity) : markov.
-Notation "p |2" := (conditional_distribution_2 p) (at level 1, left associativity) : markov.
+Notation "p |1" := (conditional_distribution_1 p) : markov.
+Notation "p |2" := (conditional_distribution_2 p) : markov.
 
 (** * 3. Bayesian inverses *)
 
 Section DefBayesianInverse.
   Context {C : markov_category}.
-
+  
   Definition is_bayesian_inverse {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) : UU
     := p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
 
-  Definition bayesian_inverse_ase_unique {x y : C} (p : I_{C} --> x) (f : x --> y) (g1 g2 : y --> x)
-                                         (b1 : is_bayesian_inverse p f g1) (b2 : is_bayesian_inverse p f g2) :
-    g1 =_{p · f} g2.
+  (* Assessors *)
+  Proposition is_bayesian_inverse_l {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) 
+    : is_bayesian_inverse p f fi -> p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
+  Proof.
+    intros bi. exact bi.
+  Qed.
+
+  Proposition is_bayesian_inverse_r {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) 
+  : is_bayesian_inverse p f fi -> p · ⟨f, identity x⟩ = (p · f) · ⟨identity y, fi⟩.
+  Proof.
+    intros bi. 
+    apply pairing_flip.
+    exact bi.
+  Qed.
+
+  (* Bayesian inverses are almost surely unique *)
+  Proposition bayesian_inverse_ase_unique 
+      {x y : C} (p : I_{C} --> x) (f : x --> y) (g1 g2 : y --> x)
+      (b1 : is_bayesian_inverse p f g1) (b2 : is_bayesian_inverse p f g2)
+    : g1 =_{p · f} g2.
   Proof.
     unfold is_bayesian_inverse in *.
+    apply make_equal_almost_surely_r.
     apply pairing_flip.
     rewrite <- b1, <- b2.
     reflexivity.
   Qed.
 
+  (* Useful reformulation that generates an auxiliary equality goal *)
+  Lemma bayesian_inverse_ase_unique' 
+    {x y : C} (p : I_{C} --> x) (q : I_{C} --> y) (f : x --> y) (g1 g2 : y --> x)
+    (e : p · f = q) (b1 : is_bayesian_inverse p f g1) (b2 : is_bayesian_inverse p f g2) 
+  : g1 =_{q} g2.
+  Proof.
+    rewrite <- e.
+    apply bayesian_inverse_ase_unique; assumption.
+  Qed.
+
+  (* Being a bayesian inverse is stable under almost sure equality *)
+  Proposition is_bayesian_inverse_ase_cong
+    {x y : C} (p : I_{C} --> x) (f1 f2 : x --> y) (g1 g2 : y --> x) 
+    (fase : f1 =_{ p } f2) (gase : g1 =_{ p · f1 } g2)
+    (b1 : is_bayesian_inverse p f1 g1) 
+    : is_bayesian_inverse p f2 g2.
+  Proof.
+    unfold is_bayesian_inverse in *.
+    rewrite <- (equal_almost_surely_r _ _ _ fase).
+    rewrite (equal_almost_surely_composition _ _ _ fase) in gase.
+    rewrite <- (equal_almost_surely_l _ _ _ gase).
+    rewrite <- (equal_almost_surely_composition _ _ _ fase).
+    rewrite b1.
+    reflexivity.
+  Qed. 
+    
 End DefBayesianInverse.
+
+(** * 4. Laws and Properties of Bayesian inverses *)
+
+Section BayesianInverseLaws.
+  Context {C : markov_category}.
+
+  Proposition is_bayesian_inverse_state_preservation
+      {x y : C} (p : I_{C} --> x) (f : x --> y) (g : y --> x)
+    : is_bayesian_inverse p f g -> p · f · g = p.
+  Proof.
+    intros e.
+    rewrite <- id_right.
+    rewrite <- (pairing_proj1 (identity x) f).
+    rewrite <- (pairing_proj1 g (identity y)).
+    rewrite !assoc.
+    rewrite e.
+    reflexivity. 
+  Qed.
+
+  Proposition bayesian_inverse_identity {x : C} (p : I_{C} --> x) :
+    is_bayesian_inverse p (identity x) (identity x).
+  Proof.
+    unfold is_bayesian_inverse.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
+  Proposition bayesian_inverse_idempotent 
+    {x y : C} (p : I_{C} --> x) (f : x --> y) (g : y --> x)
+    : is_bayesian_inverse p f g -> is_bayesian_inverse (p · f) g f.
+  Proof.
+    intros e.
+    unfold is_bayesian_inverse in *.
+    assert(e2 : p · f · g = p).
+    {
+      rewrite <- id_right.
+      rewrite <- (pairing_proj1 (identity x) f).
+      rewrite <- (pairing_proj1 g (identity y)).
+      rewrite !assoc.
+      rewrite e.
+      reflexivity. 
+    }
+    rewrite e2.
+    apply pairing_flip.
+    rewrite <- e.
+    reflexivity.
+  Qed.
+
+  Proposition bayesian_inverse_comp 
+    {x y z : C} (p : I_{C} --> x) (f : x --> y) (g : y --> z) (fi : y --> x) (gi : z --> y)
+    (bf : is_bayesian_inverse p f fi) (bg : is_bayesian_inverse (p · f) g gi)
+    : is_bayesian_inverse p (f · g) (gi · fi).
+  Proof.
+    unfold is_bayesian_inverse in *.
+    etrans. { 
+      rewrite <- pairing_tensor_r.
+      rewrite assoc.
+      rewrite bf.
+      rewrite <- assoc.
+      rewrite pairing_tensor_r.
+      rewrite id_left.
+      rewrite pairing_split_l.
+      rewrite assoc.
+      rewrite bg.
+      rewrite <- assoc.
+      rewrite pairing_tensor_l.
+      reflexivity.
+    }
+    rewrite assoc.
+    reflexivity.
+  Qed. 
+     
+End BayesianInverseLaws.
+
+
+(** 5. Construction of [bayesian_inverse] *)
 
 Section ConstructionBayesianInverse.
   Context {C : markov_category_with_conditionals}.
@@ -211,9 +354,9 @@ Section ConstructionBayesianInverse.
     apply pairing_flip.
     pose(phi := p · ⟨ f, identity x ⟩).
     pose(K := conditional_eq phi).
-
+    
     assert(Aux1 : phi · proj1 = p · f).
-    { unfold phi.
+    { unfold phi. 
       rewrite <- assoc.
       rewrite pairing_proj1.
       reflexivity. }
@@ -223,7 +366,7 @@ Section ConstructionBayesianInverse.
     rewrite copy_tensor_x_I_mor_comp in K.
     unfold phi in K.
     rewrite <- assoc in K.
-    etrans.
+    etrans. 
     { rewrite K. reflexivity. }
     reflexivity.
   Qed.
@@ -232,13 +375,13 @@ Section ConstructionBayesianInverse.
     p · f · ⟨bayesian_inverse f, identity _⟩ = p · ⟨identity _, f⟩.
   Proof.
     symmetry.
-    assert(e : is_bayesian_inverse p f (bayesian_inverse f)).
+    assert(e : is_bayesian_inverse p f (bayesian_inverse f)). 
       { apply bayesian_inverse_eq. }
     unfold is_bayesian_inverse in e.
     rewrite <- e.
     reflexivity.
-  Qed.
-
+  Qed. 
+   
   Proposition bayesian_inverse_eq_r {y : C} (f : x --> y) :
     p · f · ⟨identity _, bayesian_inverse f⟩ = p · ⟨f, identity _⟩.
   Proof.
@@ -246,14 +389,22 @@ Section ConstructionBayesianInverse.
     rewrite !assoc', !pairing_sym_mon_braiding, assoc.
     apply bayesian_inverse_eq_l.
   Qed.
-
+    
+  Proposition bayesian_inverse_state_preservation
+      {y : C} (f : x --> y) 
+    : p · f · bayesian_inverse f = p.
+  Proof.
+    apply is_bayesian_inverse_state_preservation.
+    apply bayesian_inverse_eq.
+  Qed.
+  
 End ConstructionBayesianInverse.
 
 #[global] Opaque bayesian_inverse.
 
-(** * 4. Consequences and derived information flow axioms *)
+(** 6. Consequences and derived Information Flow Axioms *)
 
-Section Lemmas.
+Section InformationFlowLemmas.
   Context {C : markov_category_with_conditionals}.
   Context {x y z : C}.
   Context (f : x --> y) (g : y --> z).
@@ -284,7 +435,7 @@ Section Lemmas.
        : psi = ⟨f · g · copy z, identity x⟩
                · mon_lassociator _ _ _
                · identity z #⊗ s.
-  Proof.
+  Proof. 
     unfold s.
     pose(w := conditional_eq psi).
     rewrite psi_1 in w.
@@ -303,7 +454,7 @@ Section Lemmas.
     rewrite <- assoc.
     rewrite proj2_naturality.
     rewrite assoc, assoc.
-
+    
     rewrite pairing_id.
     unfold pairing.
     rewrite <- pairing_eq.
@@ -315,12 +466,12 @@ Section Lemmas.
   (** Lemmas for the positivity proof *)
 
   Local Lemma positivity_conclusion (det_fg : is_deterministic (f · g)) : psi = ⟨f · g , f⟩.
-  Proof.
+  Proof. 
     rewrite psi_disintegrated.
     rewrite det_fg.
     rewrite <- !pairing_eq.
     rewrite <- pairing_rassociator.
-    transitivity (⟨ f · g, ⟨ f · g, identity x ⟩ ⟩
+    transitivity (⟨ f · g, ⟨ f · g, identity x ⟩ ⟩ 
                   · (mon_rassociator z z x · mon_lassociator z z x)
                   · identity z #⊗ s).
     { rewrite assoc. reflexivity. }
@@ -334,8 +485,8 @@ Section Lemmas.
   (** Lemmas for the causality proof *)
 
   Local Lemma causality_rewrite_lemma {w : C} (h : z --> w) :
-      f · ⟨g · ⟨h, identity _⟩, identity _⟩
-    = ⟨ f · (g · ⟨h, identity _⟩) · (identity _ #⊗ copy _) , identity x ⟩
+      f · ⟨g · ⟨h, identity _⟩, identity _⟩ 
+    = ⟨ f · (g · ⟨h, identity _⟩) · (identity _ #⊗ copy _) , identity x ⟩ 
       · (mon_rassociator _ _ _) #⊗ identity x
       · mon_lassociator _ _ _
       · identity _ #⊗ s.
@@ -380,22 +531,22 @@ Section Lemmas.
     rewrite assoc.
     rewrite <- pairing_id.
     rewrite !pairing_tensor.
-    rewrite !id_left, !id_right.
+    rewrite !id_left, !id_right.    
     rewrite pairing_rassociator.
     reflexivity.
   Qed.
-
-  Local Lemma causality_conclusion {w : C} (h1 h2 : z --> w)
+  
+  Local Lemma causality_conclusion {w : C} (h1 h2 : z --> w) 
             (e : f · (g · ⟨h1, identity _⟩) = f · (g · ⟨h2, identity _⟩)) :
-      f · ⟨g · ⟨h1, identity _⟩, identity _⟩
+      f · ⟨g · ⟨h1, identity _⟩, identity _⟩ 
     = f · ⟨g · ⟨h2, identity _⟩, identity _⟩.
   Proof.
     rewrite! causality_rewrite_lemma.
     rewrite e.
     reflexivity.
   Qed.
-
-End Lemmas.
+  
+End InformationFlowLemmas.
 
 Theorem conditionals_imply_positivity {C : markov_category_with_conditionals} : is_positive C.
 Proof.
