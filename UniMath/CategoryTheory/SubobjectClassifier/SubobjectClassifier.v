@@ -198,6 +198,26 @@ Proof.
               (χ₂ ,, p₂ ,, H₂))).
 Qed.
 
+Definition subobject_classifier_map_eq'
+           {C : category}
+           {T : Terminal C}
+           (Ω : subobject_classifier T)
+           {x y : C}
+           (m : Monic C x y)
+           {χ : y --> Ω}
+           (p : m · χ
+                =
+                const_true (subobject_classifier_pullback Ω m) Ω)
+           (H : isPullback p)
+  : χ = characteristic_morphism _ m.
+Proof.
+  simple refine (subobject_classifier_map_eq
+                   _ _ _ _ _
+                   (isPullback_Pullback (subobject_classifier_pullback Ω m))).
+  - exact p.
+  - exact H.
+Qed.
+
 Proposition is_subobject_classifier_eq_ar
             {C : category}
             {T : Terminal C}

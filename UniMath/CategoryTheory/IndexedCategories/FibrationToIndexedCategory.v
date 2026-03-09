@@ -56,7 +56,11 @@ Section FibrationToIndexedCat.
     : indexed_cat_laws cleaving_to_indexed_cat_data.
   Proof.
     repeat split.
-    - intros x y f xx ; cbn.
+    - intros x y f xx.
+      (*
+      cbn -[fiber_functor_from_cleaving fiber_category fiber_functor_from_cleaving_identity fiber_functor_from_cleaving_comp].
+       *)
+      cbn.
       use (cartesian_factorisation_unique (HD _ _ _ _)).
       rewrite !mor_disp_transportf_postwhisker.
       rewrite !transport_f_f.

@@ -36,3 +36,6 @@ Definition state_ob {C : markov_category} (p : state C) : C := pr1 p.
 
 Coercion state_mor {C : markov_category} (p : state C) : I_{C} --> state_ob p
   := pr2 p.
+
+Definition faithful {C : markov_category} {y : C} (p : state C) : UU
+  := ∏ (f g : state_ob p --> y), (f =_{p} g) -> f = g.

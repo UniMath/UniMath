@@ -136,6 +136,8 @@ DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
 DisplayedCats/Codomain/CodRegular.v
 
+RegularAndExact/SliceInternalEqRel.v
+
 DisplayedCats/MonoCodomain/FiberMonoCod.v
 DisplayedCats/MonoCodomain/MonoCodFunctor.v
 DisplayedCats/MonoCodomain/Inclusion.v
@@ -752,6 +754,7 @@ Monoidal/RezkCompletion/MonoidalRezkCompletion.v
 # Dagger categories
 DaggerCategories/Categories.v
 DaggerCategories/Unitary.v
+DaggerCategories/Isometry.v
 DaggerCategories/Univalence.v
 DaggerCategories/Functors.v
 DaggerCategories/Transformations.v
