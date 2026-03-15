@@ -421,6 +421,16 @@ Proof.
   exact (comp_cat_subst_ty_eq A p).
 Defined.
 
+Lemma comp_cat_subst_ty_eq_idpath
+    {C : comp_cat}
+    {Γ Δ : C}
+    (A : comp_cat_ty Δ)
+    (s : Γ --> Δ)
+  : comp_cat_subst_ty_eq A (idpath s) = idpath (A [[ s ]]).
+Proof.
+  apply idpath.
+Qed.
+
 Definition comp_cat_subst_ty_iso_comp {C : comp_cat} {Γ Δ : C} (A : comp_cat_ty Δ)
   {s s' s'': Γ --> Δ} {p : s = s'} {p' : s' = s''}
   : comp_cat_subst_ty_iso A p · comp_cat_subst_ty_iso _ p' = comp_cat_subst_ty_iso _ (p @ p').
@@ -471,6 +481,18 @@ Proof.
   refine (z_iso_comp (comp_cat_subst_ty_iso A p) _).
   exact (z_iso_inv (comp_cat_subst_ty_comp_iso A s3 s4)).
 Defined.
+
+Lemma comp_cat_comp_iso_natural
+    {C : comp_cat} {Γ₁ Γ₂ Γ₃ : C}
+    (A : comp_cat_ty Γ₁) (s₁ : Γ₂ --> Γ₁)
+    {s₂ s₂' : Γ₃ --> Γ₂} (p : s₂ = s₂')
+  : comp_cat_subst_ty_iso (A [[s₁]]) p
+    · comp_cat_subst_ty_comp_iso A s₁ s₂'
+    = comp_cat_subst_ty_comp_iso A s₁ s₂
+    · comp_cat_subst_ty_iso A (maponpaths (fun z => z · s₁) p).
+Proof.
+  induction p.
+  Admitted.
 
 (* Each isomorphism in the fiber gives two coercion witnesses. *)
 Definition coe_from_z_iso
@@ -566,9 +588,19 @@ Definition comp_cat_subst_tm_eq {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Δ}
   (t : comp_cat_tm A) { s s' : Γ --> Δ } (p : s = s')
   : t [[ s ]]tm ↑ (⌈ (comp_cat_subst_ty_iso _ p) ⌉) = t [[ s' ]]tm.
 Proof.
-  Admitted.
+Admitted.
 
 (* Lemmas about how coercing interacts with the isos and the reindexing *)
+
+Lemma comp_cat_reindex_coercion_id {C : comp_cat} {Γ Δ : C}
+    (s : Δ --> Γ) (A : comp_cat_ty Γ)
+  : comp_cat_reindex_coercion s (identity (C := fiber_category _ _) A)
+    = identity _.
+Proof.
+  unfold comp_cat_reindex_coercion.
+  Admitted.
+  (* exact (functor_id (fiber_functor_from_cleaving _ _ s) A). *)
+(* Qed. *)
 
 Definition comp_cat_reindex_coercion_comp
   {C : comp_cat}
@@ -672,8 +704,6 @@ Proof.
   apply  maponpaths_2.
   apply homset_property.
 Qed.
-
-Local Arguments transportf {_ _ _ _ _} _.
 
 Proposition comp_cat_reindex_coercion_subst_ty_iso
   {C : comp_cat}
@@ -823,6 +853,12 @@ Proof.
     }
     apply (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _)).
 Qed.
+
+Definition comp_cat_subst_tm_comp' {C : comp_cat} {Γ Δ Θ : C} {A : comp_cat_ty Γ}
+  (f : Δ --> Γ) (g : Θ --> Δ) (t : comp_cat_tm A)
+  : t [[ g · f ]]tm ↑ ⌈ comp_cat_subst_ty_comp_iso A f g ⌉⁻¹ = ((t [[ f ]]tm) [[ g ]]tm) .
+Proof.
+ Admitted.
 
 Proposition comp_cat_comp_coerce_tm {C : comp_cat} {Γ : C} {A₁ A₂ A₃ : comp_cat_ty Γ}
   (f : A₁ <: A₂) (g : A₂ <: A₃) (t : comp_cat_tm A₁)
@@ -996,7 +1032,6 @@ Proof.
 Qed.
 
 (** Pullbacks composed with isos  *)
-
 
 Definition comp_cat_pullback_compose_iso
   {C : comp_cat} {Γ₁ Γ₂ : C}
@@ -1239,18 +1274,54 @@ Proof.
   (* Qed. *)
   Admitted.
 
+(** * Extension of a Substitution   *)
 
-(* Find a place to put this: *)
+(*
+  This section covers the rules sub-ext, sub-proj, sub-beta and sub-eta from
+   From Semantics to Syntax: A Type Theory for Comprehension Categories
+ *)
 
-Section eq_sub_to_extension.
+Definition comp_cat_extend_subst
+  {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Γ}
+  (s : Δ --> Γ) (t : comp_cat_tm (A [[ s ]]))
+  : Δ --> Γ & A
+  := t · (comp_cat_ext_subst s A).
 
-Definition sub_to_extension_tm
-           {C : comp_cat}
-           {Γ Δ : C}
-           {A : comp_cat_ty Γ}
-           (s : Δ --> Γ & A)
+Definition comp_cat_tm_from_extend_subst
+  {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Γ} (s : Δ --> Γ & A)
   : comp_cat_tm (A [[ s · π A ]])
   := (((comp_cat_var A ) [[ s  ]]tm) ↑ ⌈comp_cat_subst_ty_comp_iso _ _ _ ⌉ ).
+
+Definition comp_cat_extend_subst_beta_1
+  {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Γ}
+  (s : Δ --> Γ) (t : comp_cat_tm (A [[ s ]]))
+  : comp_cat_extend_subst s t · π _ = s.
+Proof.
+  unfold comp_cat_extend_subst.
+  rewrite assoc'.
+  rewrite comp_cat_ext_subst_commute.
+  rewrite assoc.
+  rewrite <- id_left.
+  apply cancel_postcomposition.
+  apply (pr2 t).
+Qed.
+
+Definition comp_cat_extend_subst_beta_2
+  {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Γ}
+  (s : Δ --> Γ) (t : comp_cat_tm (A [[ s ]]))
+  : comp_cat_tm_from_extend_subst (comp_cat_extend_subst s t) = t ↑ ⌈comp_cat_subst_ty_iso _ (!comp_cat_extend_subst_beta_1 _ _)⌉.
+Proof.
+  Admitted.
+
+
+Definition comp_cat_extend_subst_eta
+  {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Γ} (s : Δ --> Γ & A)
+  : comp_cat_extend_subst (s · π _) (comp_cat_tm_from_extend_subst s) = s.
+Proof.
+  unfold comp_cat_extend_subst.
+  unfold comp_cat_tm_from_extend_subst.
+  Admitted.
+
 
 Proposition comp_cat_eq_sub_to_extension
             {C : comp_cat}
@@ -1258,9 +1329,9 @@ Proposition comp_cat_eq_sub_to_extension
             {A : comp_cat_ty Γ}
             {s₁ s₂ : Δ --> Γ & A}
             (p : s₁ · π A = s₂ · π A)
-            (q : (sub_to_extension_tm s₁) ↑ ⌈ comp_cat_subst_ty_iso A p ⌉
+            (q : (comp_cat_tm_from_extend_subst s₁) ↑ ⌈ comp_cat_subst_ty_iso A p ⌉
                  =
-                 sub_to_extension_tm s₂)
+                 comp_cat_tm_from_extend_subst s₂)
   : s₁ = s₂.
 Proof.
   (* pose (maponpaths (λ z, pr1 z · PullbackPr1 (comp_cat_pullback A (s₂ · π A))) q) as q'. *)
@@ -1280,6 +1351,3 @@ Proof.
   Admitted.
 
 (* TODO: there should be a section that has comp_cat_sub_ext  and sub_to_extension_tm and the beta and eta rules for them. The beta and eta are not there now. *)
-
-
-End eq_sub_to_extension.

@@ -459,7 +459,7 @@ Definition make_cwf (data : cwf_data) (p : cwf_universal_property data) := (data
 
 Coercion cwf_from_cwf_data {C : cwf} : cwf_data := pr1 C.
 
-Definition make_cwf_universal_property
+Definition make_cwf_universal_property_β_η
            {C : cwf_data}
            (ext : ∏ {Γ Δ : C}
                     {A : cwf_ty Γ}

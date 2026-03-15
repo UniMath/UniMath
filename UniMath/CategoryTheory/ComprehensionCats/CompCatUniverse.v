@@ -134,7 +134,7 @@ Section universe_coherence.
     apply homset_property.
   Qed.
 
-  Definition comp_cat_universe_coherent_id
+  Local Definition coherent_id
     : UU
     := ∏ (Γ : C)
          (t : comp_cat_tm (weakened_from_empty U _)),
@@ -200,7 +200,7 @@ Section universe_coherence.
     apply homset_property.
   Qed.
 
-  Definition comp_cat_universe_coherent_comp : UU
+  Local Definition coherent_comp : UU
     :=
     ∏ (Γ Δ Θ : C) (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
         (t : comp_cat_tm (weakened_from_empty U _)),
@@ -216,9 +216,7 @@ End universe_coherence.
 Definition comp_cat_universe_coherent
   {C : comp_cat_with_terminal}
   (universe : comp_cat_universe_data C) : UU
-  := comp_cat_universe_coherent_id _ universe
-     ×
-     comp_cat_universe_coherent_comp _ universe.
+  := coherent_id _ universe × coherent_comp _ universe.
 
 Definition comp_cat_universe (C : comp_cat_with_terminal) : UU
   := ∑ (universe : comp_cat_universe_data C), comp_cat_universe_coherent universe.
@@ -245,13 +243,6 @@ Definition comp_cat_el_iso {C : comp_cat_with_universe} {Γ Δ : C} (s : Γ --> 
       (comp_cat_el (t [[ s ]]tm ↑ ⌈sub_comp_cat_univ_iso _ s⌉))
   := (pr2 (pr212 C)) Γ Δ s t.
 
-Definition comp_cat_univ_eq_ty_el_map
-  (C : comp_cat_with_universe)
-  {Γ : C} {a b : comp_cat_tm (comp_cat_U _)}
-  (p : a = b)
-  : (comp_cat_el a) -->[identity _] (comp_cat_el b)
-  := (el_map (pr12 C) Γ p).
-
 Definition comp_cat_univ_sub_iso
   {C : comp_cat_with_universe} {Γ Δ : C} (s : Γ --> Δ)
   : (z_iso (C := fiber_category _ _) ((comp_cat_U Δ) [[ s ]]) (comp_cat_U Γ)).
@@ -266,7 +257,103 @@ Proof.
   apply (el_map _ _ p).
 Defined.
 
-(**  Universe Being Closed under Sigma-Types  *)
+Definition comp_cat_univ_coherent_id
+    {C : comp_cat_with_universe}
+    (Γ : C)
+    (t : comp_cat_tm (comp_cat_U Γ))
+  : @identity (fiber_category _ _) (comp_cat_el t)
+    = comp_cat_subst_ty_id_iso _
+      · comp_cat_el_iso (identity Γ) t
+      · comp_cat_el_map (elmaplemma _ _)
+  := (pr1 (pr22 C)) Γ t.
+
+Definition comp_cat_univ_coherent_comp
+    {C : comp_cat_with_universe}
+    {Γ Δ Θ : C}
+    (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
+    (t : comp_cat_tm (comp_cat_U _))
+  : comp_cat_reindex_iso s₂ (comp_cat_el_iso s₁ t)
+    · comp_cat_el_iso s₂ _
+    = comp_cat_subst_ty_comp_iso (comp_cat_el t) s₁ s₂
+      · comp_cat_el_iso (s₂ · s₁) t
+      · comp_cat_el_map (elmaplemmacomp _ _)
+  := (pr2 (pr22 C)) Γ Δ Θ s₁ s₂ t.
+
+Definition comp_cat_univ_coherent_comp'
+    {C : comp_cat_with_universe}
+    {Γ Δ Θ : C}
+    (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
+    (t : comp_cat_tm (comp_cat_U _))
+  : comp_cat_reindex_coercion s₂ (⌈comp_cat_el_iso s₁ t⌉)
+    · comp_cat_el_iso s₂ _
+    = comp_cat_subst_ty_comp_iso (comp_cat_el t) s₁ s₂
+      · comp_cat_el_iso (s₂ · s₁) t
+      · comp_cat_el_map (elmaplemmacomp _ _).
+Proof.
+  rewrite comp_cat_reindex_coercion_iso_eq.
+  unfold "⌈ _ ⌉".
+  apply (comp_cat_univ_coherent_comp (C:=C)).
+Qed.
+
+(**  lemmas about universe data *)
+
+Lemma comp_cat_el_map_comp
+  {C: comp_cat_with_universe} {Γ : C} {a b c : comp_cat_tm (comp_cat_U Γ)}
+  (p : a = b) (q : b = c)
+  : comp_cat_el_map p · comp_cat_el_map q = comp_cat_el_map (p @ q).
+Proof.
+  induction p , q.
+  cbn.
+Admitted.
+
+Lemma comp_cat_el_iso_natural
+    {C : comp_cat_with_universe} {Γ Δ : C} (s : Δ --> Γ)
+    {t₁ t₂ : comp_cat_tm (comp_cat_U Γ)} (p : t₁ = t₂)
+  : ⌈comp_cat_el_iso s t₁⌉
+    · comp_cat_el_map (maponpaths (fun t => t [[s]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉) p)
+    =
+    comp_cat_reindex_coercion s (comp_cat_el_map p)
+    · ⌈comp_cat_el_iso s t₂⌉.
+Proof.
+  induction p.
+  cbn -[comp_cat_el_iso comp_cat_reindex_coercion comp_cat_univ_sub_iso].
+  unfold transportb.
+  Admitted.
+
+Lemma comp_cat_el_iso_subst_path
+    {C : comp_cat_with_universe} {Γ Δ : C}
+    {s s' : Δ --> Γ} (p : s = s')
+    (t : comp_cat_tm (comp_cat_U Γ))
+  : ⌈comp_cat_el_iso s t⌉
+    · comp_cat_el_map
+        (maponpaths (fun f => t [[ f ]]tm ↑ ⌈comp_cat_univ_sub_iso f⌉) p)
+    =
+    ⌈comp_cat_subst_ty_iso (comp_cat_el t) p⌉
+    · ⌈comp_cat_el_iso s' t⌉.
+Proof.
+  induction p.
+  cbn -[comp_cat_el_iso comp_cat_reindex_coercion comp_cat_univ_sub_iso comp_cat_subst_ty_iso].
+Admitted.
+
+Lemma comp_cat_el_iso_el_map_el_iso_inv
+    {C : comp_cat_with_universe}
+    {Γ Δ : C} (t : comp_cat_tm (comp_cat_U Γ))
+    {s s' : Δ --> Γ} (Hs : s = s')
+    (p : t [[s]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉
+         =
+         t [[s']]tm ↑ ⌈comp_cat_univ_sub_iso s'⌉)
+  : ⌈comp_cat_el_iso s t⌉
+    · comp_cat_el_map p
+    · ⌈comp_cat_el_iso s' t⌉⁻¹
+    = ⌈comp_cat_subst_ty_iso (comp_cat_el t) Hs⌉.
+Proof.
+  induction Hs.
+  assert (Hp : p = idpath _) by apply comp_cat_tm_isaset.
+  induction Hp.
+  cbn.
+  Admitted.
+
+(**  * Universe Being Closed under Sigma-Types  *)
 
 Section Universe_Sigma_Closure.
 

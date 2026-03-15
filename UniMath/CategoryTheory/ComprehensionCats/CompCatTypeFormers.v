@@ -175,6 +175,19 @@ Definition comp_cat_sigma_sub_pair
     = sAB · comp_cat_sigma_pair A B
   := pr2 (pr222 (pr222 Σ)) Γ Δ s A B.
 
+Definition comp_cat_sigma_pair_proj_iso
+  { C : comp_cat} {Σ : comp_cat_sigma C} {Γ : C} (A : comp_cat_ty Γ)
+  (B : comp_cat_ty (Γ & A))
+  :  z_iso (Γ & ((pr1 Σ) _ A B)) ((Γ & A) & B).
+Proof.
+use make_z_iso.
+    - apply comp_cat_sigma_proj.
+    - apply comp_cat_sigma_pair.
+    - use tpair.
+      + apply comp_cat_sigma_eta.
+      + apply comp_cat_sigma_beta.
+Defined.
+
 (** First projection, derived from the eliminator *)
 
 Definition comp_cat_sigma_proj_1
@@ -196,6 +209,13 @@ Proof.
   apply id_left.
 Qed.
 
+Lemma comp_cat_sigma_proj_law
+  {C : comp_cat} {Σ : comp_cat_sigma C}
+   {Γ : C} (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ & A))
+  : comp_cat_sigma_proj A B · π _ · π A = π ((pr1 Σ) Γ A B).
+Proof.
+  apply comp_cat_sigma_proj_1_law.
+Qed.
 
 (** 2. Pi-types for comprehension categories *)
 
