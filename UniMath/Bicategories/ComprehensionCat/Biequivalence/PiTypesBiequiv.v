@@ -73,6 +73,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBuilders.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.DispTransformation.
 Require Import UniMath.Bicategories.DisplayedBicats.DispModification.
+Require Import UniMath.Bicategories.DisplayedBicats.DispPseudoNaturalAdjequiv.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
@@ -396,32 +397,6 @@ Proof.
     apply id_preserves_locally_cartesian_closed'.
 Qed.
 
-Definition finlim_dfl_comp_cat_unit_pi_types_pointwise_adjequiv
-           {C : univ_cat_with_finlim}
-           (HC : disp_bicat_univ_lccc C)
-  : disp_left_adjoint_equivalence
-      (finlim_dfl_comp_cat_unit_pointwise_equiv C)
-      (finlim_dfl_comp_cat_unit_pi_types C HC).
-Proof.
-  use disp_adjoint_equiv_disp_bicat_univ_lccc.
-Qed.
-
-Definition finlim_dfl_comp_cat_unit_inv_pi_types
-  : disp_pstrans
-      (disp_pseudo_id _)
-      (disp_pseudo_comp
-         _ _ _ _ _
-         finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types
-         dfl_comp_cat_to_finlim_disp_psfunctor_pi_types)
-      finlim_dfl_comp_cat_unit_inv.
-Proof.
-  use make_disp_pstrans_inv_contr.
-  - exact disp_2cells_iscontr_univ_lccc.
-  - apply finlim_dfl_comp_cat_unit_pi_types.
-  - intros.
-    apply finlim_dfl_comp_cat_unit_pi_types_pointwise_adjequiv.
-Qed.
-
 (** * 5. The counit *)
 Definition finlim_dfl_comp_cat_counit_pi_types
   : disp_pstrans
@@ -439,32 +414,6 @@ Proof.
              (finlim_dfl_comp_cat_counit_pointwise_equiv C)).
 Qed.
 
-Definition finlim_dfl_comp_cat_counit_pi_types_pointwise_adjequiv
-           {C : dfl_full_comp_cat}
-           (HC : disp_bicat_of_pi_type_dfl_full_comp_cat C)
-  : disp_left_adjoint_equivalence
-      (finlim_dfl_comp_cat_counit_pointwise_equiv C)
-      (finlim_dfl_comp_cat_counit_pi_types C HC).
-Proof.
-  use disp_adjoint_equiv_disp_bicat_of_pi_type_dfl_full_comp_cat.
-Qed.
-
-Definition finlim_dfl_comp_cat_counit_inv_pi_types
-  : disp_pstrans
-      (disp_pseudo_comp
-         _ _ _ _ _
-         dfl_comp_cat_to_finlim_disp_psfunctor_pi_types
-         finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types)
-      (disp_pseudo_id _)
-      finlim_dfl_comp_cat_counit_inv.
-Proof.
-  use make_disp_pstrans_inv_contr.
-  - apply disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
-  - apply finlim_dfl_comp_cat_counit_pi_types.
-  - intros.
-    apply finlim_dfl_comp_cat_counit_pi_types_pointwise_adjequiv.
-Qed.
-
 (** * 6. The displayed biequivalence *)
 Definition finlim_dfl_comp_cat_biequivalence_unit_counit_pi_types
   : is_disp_biequivalence_unit_counit
@@ -473,9 +422,15 @@ Definition finlim_dfl_comp_cat_biequivalence_unit_counit_pi_types
       finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types
       dfl_comp_cat_to_finlim_disp_psfunctor_pi_types.
 Proof.
-  simple refine (_ ,, _).
+  use make_disp_biequiv_unit_counit_pointwise_adjequiv_alt.
+  - exact is_univalent_2_bicat_of_dfl_full_comp_cat.
+  - exact finlim_dfl_comp_cat_biequivalence_adjoints.
+  - exact disp_2cells_isaprop_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - exact disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
   - exact finlim_dfl_comp_cat_unit_pi_types.
-  - exact finlim_dfl_comp_cat_counit_inv_pi_types.
+  - exact finlim_dfl_comp_cat_counit_pi_types.
+  - intros x xx.
+    use disp_adjoint_equiv_disp_bicat_of_pi_type_dfl_full_comp_cat.
 Defined.
 
 Definition finlim_biequiv_dfl_comp_cat_psfunctor_pi_types
@@ -485,15 +440,22 @@ Definition finlim_biequiv_dfl_comp_cat_psfunctor_pi_types
       finlim_dfl_comp_cat_biequivalence_adjoints
       finlim_dfl_comp_cat_biequivalence_unit_counit_pi_types.
 Proof.
-  simple refine (_ ,, _ ,, (_ ,, _) ,, (_ ,, _)).
-  - exact finlim_dfl_comp_cat_unit_inv_pi_types.
-  - exact finlim_dfl_comp_cat_counit_pi_types.
-  - use make_disp_invmodification_contr.
-    exact disp_2cells_iscontr_univ_lccc.
-  - use make_disp_invmodification_contr.
-    exact disp_2cells_iscontr_univ_lccc.
-  - use make_disp_invmodification_contr.
-    exact disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
-  - use make_disp_invmodification_contr.
-    exact disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  use (make_disp_biequiv_pointwise_adjequiv_alt _ _).
+  - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+  - exact disp_2cells_isaprop_univ_lccc.
+  - exact disp_locally_groupoid_univ_lccc.
+  - intros x xx.
+    use disp_adjoint_equiv_disp_bicat_univ_lccc.
 Defined.
+
+Definition lang_lccc
+  : psfunctor bicat_of_univ_lccc bicat_of_pi_type_dfl_full_comp_cat
+  := total_psfunctor
+       _ _ _
+       finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types.
+
+Definition internal_language_lccc
+  : is_biequivalence lang_lccc
+  := total_is_biequivalence
+       _ _ _
+       finlim_biequiv_dfl_comp_cat_psfunctor_pi_types.
