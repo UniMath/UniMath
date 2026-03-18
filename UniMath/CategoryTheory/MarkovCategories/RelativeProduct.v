@@ -226,15 +226,13 @@ Section CouplingCoisometries.
 End CouplingCoisometries.
 
 (* Relative products and dilators in couplings *)
+
 Section CouplingDilators.
   Context {C : markov_category_with_conditionals}.
   Let krn := couplings_dagger_cat C.
 
-  Definition relprod {p q : krn} (γ : p --> q) : krn.
-  Proof.
-    destruct p as [x p], q as [y q], γ as [γ [domγ codγ]].
-    exact (x ⊗ y ,, γ).
-  Defined.
+  Definition relprod {p q : krn} (γ : p --> q) : krn
+    := (state_ob p ⊗ state_ob q ,, coupling_to_state γ).
 
   Definition p1 {p q : krn} (γ : p --> q) : coisometry krn (relprod γ) p.
   Proof.
@@ -268,7 +266,6 @@ Section CouplingDilators.
 
   Definition relprod_dilation {p q : krn} (γ : p --> q) : dilation krn γ.
   Proof.
-    destruct p as [x p], q as [y q].
     simple refine (_ ,, _ ,, _ ,, _).
     - exact (relprod γ).
     - apply p1.

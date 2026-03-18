@@ -42,16 +42,12 @@ Local Open Scope markov.
 
 (** * 1. Definition of [markov_category_with_conditionals] *)
 
-Section DefConditionals.
-  Context {C : markov_category}.
-
-  Definition is_conditional {a x y : C} (f : a --> x ⊗ y) (k : x ⊗ a --> y) : UU
+Definition is_conditional {C : markov_category} {a x y : C} 
+                          (f : a --> x ⊗ y) (k : x ⊗ a --> y) : UU
     := f = copy a 
            · (f · proj1 · copy x) #⊗ identity a
            · mon_lassociator _ _ _
            · identity x #⊗ k.
-
-End DefConditionals.
 
 Definition has_conditionals (C : markov_category) : UU :=
    ∏ (a x y : C) (f : a --> x ⊗ y),

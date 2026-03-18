@@ -1936,15 +1936,8 @@ Section MonoidalCatAccessors.
       * apply mon_rassociator_lassociator.
   Defined.
 
-  Definition z_iso_from_mon_rassociator (x y z : V) : z_iso (x ⊗ (y ⊗ z)) (x ⊗ y ⊗ z).
-  Proof.
-    use make_z_iso.
-    - apply mon_rassociator.
-    - apply mon_lassociator.
-    - split.
-      * apply mon_rassociator_lassociator.    
-      * apply mon_lassociator_rassociator.
-  Defined.
+  Definition z_iso_from_mon_rassociator (x y z : V) : z_iso (x ⊗ (y ⊗ z)) (x ⊗ y ⊗ z)
+    :=  z_iso_inv (z_iso_from_mon_lassociator x y z).
 
   Definition monoidal_left_tensor_data
              (x : V)

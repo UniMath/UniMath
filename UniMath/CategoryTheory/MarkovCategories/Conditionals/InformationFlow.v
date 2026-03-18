@@ -71,18 +71,13 @@ Section ConditionalsImplyCausalityLemmas.
       · mon_lassociator _ _ _
       · identity _ #⊗ s.
   Proof.
-    transitivity (⟨f · g · copy z, identity x⟩
-               · mon_lassociator _ _ _
-               · identity z #⊗ s
-               · ⟨h, identity _⟩ #⊗ identity _).
-    { etrans. {
+    etrans. {
         rewrite <- pairing_tensor_l.
         rewrite assoc.
         assert(aux : f · ⟨ g, identity y ⟩ = psi). { reflexivity. }
         rewrite aux.
         rewrite psi_disintegrated.
         reflexivity. }
-      reflexivity. }
 
     etrans. {
       rewrite assoc'.

@@ -464,10 +464,10 @@ Section CausalityImpliesRelPosAux.
           (g : y --> z).
   Context (det_ase : is_deterministic_ase p (f · g)).
 
-  Local Definition d : x --> z ⊗ z ⊗ y
+  Let d : x --> z ⊗ z ⊗ y
     := ⟨f · g, f · ⟨g, identity _⟩⟩ · mon_rassociator _ _ _.
 
-  Local Proposition d12 : d · proj1 = ⟨f · g, f · g⟩.
+  Local Proposition d_proj1 : d · proj1 = ⟨f · g, f · g⟩.
   Proof.
     unfold d.
     rewrite assoc', rassociator_proj.
@@ -476,20 +476,18 @@ Section CausalityImpliesRelPosAux.
     reflexivity.
   Qed.
 
-  Local Proposition aux1 : p · d · proj1 = p · f · g · copy _.
-  Proof.
-    rewrite !assoc'.
-    apply ase_precomp.
-    rewrite d12.
-    rewrite assoc.
-    apply ase_symm.
-    exact det_ase.
-  Qed.
-
   Local Proposition causality_assumption :
     p · d · proj1 · ⟨proj1, identity _⟩ = p · d · proj1 · ⟨proj2, identity _⟩.
   Proof.
-    rewrite aux1.
+    assert(aux : p · d · proj1 = p · f · g · copy _). {
+      rewrite !assoc'.
+      apply ase_precomp.
+      rewrite d_proj1.
+      rewrite assoc.
+      apply ase_symm.
+      exact det_ase.
+    }
+    rewrite aux.
     rewrite !assoc'.
     do 3 apply maponpaths.
     apply equal_almost_surely_l.
