@@ -214,17 +214,22 @@ Section MarkovCategoryLaws.
     exact (pr22 (pr222 C) x y).
   Defined.
 
+  Proposition copy_tensor' (x y : C)
+    : copy (x ⊗ y) · inner_swap _ _ _ _ _
+      = copy x #⊗ copy y.
+  Proof.
+    rewrite <- copy_tensor, assoc'.
+    rewrite inner_swap_inv.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
   Proposition copy_I_mon_rinvunitor :
     copy (I_{C}) = mon_rinvunitor (I_{C}).
   Proof.
      use cancel_z_iso.
     - apply I_{C}.
-    - use make_z_iso.
-      + apply mon_runitor.
-      + apply mon_rinvunitor.
-      + split.
-        * apply mon_runitor_rinvunitor.
-        * apply mon_rinvunitor_runitor.
+    - apply z_iso_from_mon_runitor.
     - cbn.
       apply markov_category_unit_eq.
   Qed.
@@ -288,7 +293,6 @@ Section Marginals.
     reflexivity.
   Qed.
 
-
   Proposition proj1_tensor {x' x y : C} (f : x' --> x) : (identity y #⊗ f) · proj1 = proj1.
   Proof.
     unfold proj1.
@@ -336,6 +340,7 @@ Section Marginals.
     apply maponpaths.
     apply mon_lunitor_triangle.
   Qed.
+
 End Marginals.
 
 (* We define pairing notation ⟨f,g⟩ *)
@@ -427,9 +432,9 @@ Section PairingProperties.
     reflexivity.
   Qed.
 
-   Proposition pairing_proj2 {a x y : C} (f : a --> x) (g : a --> y) :
+  Proposition pairing_proj2 {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · proj2 = g.
-   Proof.
+  Proof.
     unfold proj2.
     rewrite assoc.
     rewrite pairing_tensor.
@@ -448,7 +453,7 @@ Section PairingProperties.
       rewrite id_left.
       reflexivity. }
     reflexivity.
-   Qed.
+  Qed.
 
   Proposition pairing_sym_mon_braiding {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · sym_mon_braiding _ _ _ = ⟨g,f⟩.
@@ -494,6 +499,22 @@ Section PairingProperties.
     rewrite id_right.
     apply idpath.
   Qed.
+
+  Proposition pairing_inner_swap 
+      {x1 x2 y1 y2 z1 z2 : C}
+      {f1 : x1 --> y1} {g1 : x1 --> z1}
+      {f2 : x2 --> y2} {g2 : x2 --> z2}
+    : (⟨ f1, g1 ⟩ #⊗ ⟨ f2, g2 ⟩ ) · inner_swap _ _ _ _ _
+      = ⟨ f1 #⊗ f2, g1 #⊗ g2⟩.
+  Proof.
+    unfold pairing.
+    rewrite <- copy_tensor.
+    rewrite tensor_comp_mor, !assoc'.
+    rewrite naturality_inner_swap.
+    reflexivity.
+  Qed.
+
+  (* Some helpful cancellation lemmas *)
   
   Proposition pairing_flip {a x1 x2 y z : C} (p : a --> x1) (q : a --> x2) 
         (f1 : x1 --> y) (f2 : x2 --> y)
@@ -505,6 +526,36 @@ Section PairingProperties.
     apply cancel_braiding.
     do 2 rewrite <- assoc, pairing_sym_mon_braiding.
     exact E.
+  Qed.
+
+  Lemma cancel_pairing_rassociator {a x1 x2 y z w : C} 
+    (p1 : a --> x1) (f1 : x1 --> y) (g1 : x1 --> z) (h1 : x1 --> w)
+    (p2 : a --> x2) (f2 : x2 --> y) (g2 : x2 --> z) (h2 : x2 --> w)
+    :    p1 · ⟨⟨f1, g1⟩,h1⟩ = p2 · ⟨⟨f2, g2⟩,h2⟩
+      -> p1 · ⟨f1,⟨g1, h1⟩⟩ = p2 · ⟨f2,⟨g2, h2⟩⟩.
+  Proof.
+    intros e.
+    use cancel_z_iso.
+    - exact ((y ⊗ z) ⊗ w).
+    - apply z_iso_from_mon_rassociator.
+    - cbn.
+      rewrite !assoc', !pairing_rassociator.
+      exact e.
+  Qed.
+
+  Lemma cancel_pairing_lassociator {a x1 x2 y z w : C} 
+    (p1 : a --> x1) (f1 : x1 --> y) (g1 : x1 --> z) (h1 : x1 --> w)
+    (p2 : a --> x2) (f2 : x2 --> y) (g2 : x2 --> z) (h2 : x2 --> w)
+    :    p1 · ⟨f1,⟨g1, h1⟩⟩ = p2 · ⟨f2,⟨g2, h2⟩⟩
+      -> p1 · ⟨⟨f1, g1⟩,h1⟩ = p2 · ⟨⟨f2, g2⟩,h2⟩.
+  Proof.
+    intros e.
+    use cancel_z_iso.
+    - exact (y ⊗ (z ⊗ w)).
+    - apply z_iso_from_mon_lassociator.
+    - cbn.
+      rewrite !assoc', !pairing_lassociator.
+      exact e.
   Qed.
 
 End PairingProperties.
