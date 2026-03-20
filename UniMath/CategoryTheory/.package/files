@@ -136,6 +136,8 @@ DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
 DisplayedCats/Codomain/CodRegular.v
 
+RegularAndExact/SliceInternalEqRel.v
+
 DisplayedCats/MonoCodomain/FiberMonoCod.v
 DisplayedCats/MonoCodomain/MonoCodFunctor.v
 DisplayedCats/MonoCodomain/Inclusion.v
@@ -756,6 +758,7 @@ DaggerCategories/Isometry.v
 DaggerCategories/Univalence.v
 DaggerCategories/Functors.v
 DaggerCategories/Transformations.v
+DaggerCategories/Dilators.v
 
 Monoidal/DaggerMonoidal.v
 
@@ -785,12 +788,14 @@ MarkovCategories/MarkovCategory.v
 MarkovCategories/Determinism.v
 MarkovCategories/Univalence.v
 MarkovCategories/AlmostSurely.v
-MarkovCategories/Conditionals.v
 MarkovCategories/InformationFlowAxioms.v
+MarkovCategories/Conditionals/Definition.v
+MarkovCategories/Conditionals/InformationFlow.v
+MarkovCategories/Conditionals.v
 MarkovCategories/State.v
 MarkovCategories/ProbabilitySpaces.v
 MarkovCategories/Couplings.v
-
+MarkovCategories/RelativeProduct.v
 CategoriesWithFamilies/CatsWithFams.v
 ComprehensionCats/CompCats.v
 ComprehensionCats/CompCatTypeFormers.v

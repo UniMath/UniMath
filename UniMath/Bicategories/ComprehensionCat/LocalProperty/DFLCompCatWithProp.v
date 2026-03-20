@@ -52,12 +52,10 @@ Proof.
              (H₂ : fiberwise_cat_property P C₂)
              (F : dfl_full_comp_cat_functor C₁ C₂),
            fiberwise_cat_property_functor F H₁ H₂).
-  - abstract
-      (intros C H x ;
-       exact (cat_property_fiber_functor_id' P C x (H x))).
-  - abstract
-      (intros C₁ C₂ C₃ H₁ H₂ H₃ F G HF HG x ;
-       exact (cat_property_fiber_functor_comp P (HF x) (HG _))).
+  - intros C H.
+    exact (identity_fiberwise_cat_property_functor H).
+  - intros C₁ C₂ C₃ H₁ H₂ H₃ F G HF HG.
+    exact (comp_fiberwise_cat_property_functor HF HG).
 Defined.
 
 (** * 2. Properties of this displayed bicategory *)

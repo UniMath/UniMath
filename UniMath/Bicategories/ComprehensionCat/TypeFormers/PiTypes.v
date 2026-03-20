@@ -563,14 +563,14 @@ Definition disp_bicat_of_pi_type_dfl_full_comp_cat
   : disp_bicat bicat_of_dfl_full_comp_cat
   := lift_disp_bicat _ disp_bicat_of_pi_type.
 
-Definition univalent_2_1_disp_bicat_of_pi_type_dfl_full_comp_cat
+Proposition univalent_2_1_disp_bicat_of_pi_type_dfl_full_comp_cat
   : disp_univalent_2_1 disp_bicat_of_pi_type_dfl_full_comp_cat.
 Proof.
   use disp_univalent_2_1_lift_disp_bicat.
   exact univalent_2_1_disp_bicat_of_pi_type.
 Qed.
 
-Definition univalent_2_0_disp_bicat_of_pi_type_dfl_full_comp_cat
+Proposition univalent_2_0_disp_bicat_of_pi_type_dfl_full_comp_cat
   : disp_univalent_2_0 disp_bicat_of_pi_type_dfl_full_comp_cat.
 Proof.
   use disp_univalent_2_0_lift_disp_bicat.
@@ -580,7 +580,7 @@ Proof.
   - exact is_univalent_2_1_disp_bicat_of_dfl_full_comp_cat.
 Qed.
 
-Definition univalent_2_disp_bicat_of_pi_type_dfl_full_comp_cat
+Proposition univalent_2_disp_bicat_of_pi_type_dfl_full_comp_cat
   : disp_univalent_2 disp_bicat_of_pi_type_dfl_full_comp_cat.
 Proof.
   split.
@@ -588,25 +588,49 @@ Proof.
   - exact univalent_2_1_disp_bicat_of_pi_type_dfl_full_comp_cat.
 Defined.
 
-Definition disp_2cells_isaprop_disp_bicat_of_pi_type_dfl_full_comp_cat
+Proposition disp_2cells_isaprop_disp_bicat_of_pi_type_dfl_full_comp_cat
   : disp_2cells_isaprop disp_bicat_of_pi_type_dfl_full_comp_cat.
 Proof.
   use disp_2cells_isaprop_lift_disp_bicat.
   exact disp_2cells_isaprop_disp_bicat_of_pi_type.
 Qed.
 
-Definition disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat
+Proposition disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat
   : disp_locally_groupoid disp_bicat_of_pi_type_dfl_full_comp_cat.
 Proof.
   use disp_locally_groupoid_lift_disp_bicat.
   exact disp_locally_groupoid_disp_bicat_of_pi_type.
 Qed.
 
-Definition disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat
+Proposition disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat
   : disp_2cells_iscontr disp_bicat_of_pi_type_dfl_full_comp_cat.
 Proof.
   use disp_2cells_iscontr_lift_disp_bicat.
   exact disp_2cells_iscontr_disp_bicat_of_pi_type.
+Qed.
+
+Definition bicat_of_pi_type_dfl_full_comp_cat
+  : bicat
+  := total_bicat disp_bicat_of_pi_type_dfl_full_comp_cat.
+
+Proposition univalent_2_bicat_of_pi_type_dfl_full_comp_cat
+  : is_univalent_2 bicat_of_pi_type_dfl_full_comp_cat.
+Proof.
+  use total_is_univalent_2.
+  - exact univalent_2_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - exact is_univalent_2_bicat_of_dfl_full_comp_cat.
+Qed.
+
+Proposition univalent_2_0_bicat_of_pi_type_dfl_full_comp_cat
+  : is_univalent_2_0 bicat_of_pi_type_dfl_full_comp_cat.
+Proof.
+  apply univalent_2_bicat_of_pi_type_dfl_full_comp_cat.
+Qed.
+
+Proposition univalent_2_1_bicat_of_pi_type_dfl_full_comp_cat
+  : is_univalent_2_1 bicat_of_pi_type_dfl_full_comp_cat.
+Proof.
+  apply univalent_2_bicat_of_pi_type_dfl_full_comp_cat.
 Qed.
 
 (** * 10. Adjoint equivalences *)

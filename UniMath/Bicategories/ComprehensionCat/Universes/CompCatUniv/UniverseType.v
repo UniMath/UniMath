@@ -389,6 +389,40 @@ Definition comp_cat_univ_el_stable
       (comp_cat_univ_el el (t [[ s ]]tm ↑ (sub_comp_cat_univ s)))
   := pr21 el Γ Δ s t.
 
+Definition comp_cat_univ_el_stable_mor
+           {C : comp_cat_with_ob}
+           (el : comp_cat_univ_type C)
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+           (t : tm Δ (comp_cat_univ Δ))
+  : ((comp_cat_univ_el el t) [[ s ]]
+     <:
+     comp_cat_univ_el el (t [[ s ]]tm ↑ (sub_comp_cat_univ s)))
+  := comp_cat_univ_el_stable el s t : _ --> _.
+
+Definition comp_cat_univ_el_stable_inv
+           {C : comp_cat_with_ob}
+           (el : comp_cat_univ_type C)
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+           (t : tm Δ (comp_cat_univ Δ))
+  : (comp_cat_univ_el el (t [[ s ]]tm ↑ (sub_comp_cat_univ s))
+     <:
+     (comp_cat_univ_el el t) [[ s ]])
+  := inv_from_z_iso (comp_cat_univ_el_stable el s t).
+
+Definition extend_sub_univ
+           {C : comp_cat_with_ob}
+           (el : comp_cat_univ_type C)
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+           (a : tm Δ (comp_cat_univ Δ))
+  : Γ & comp_cat_univ_el el (a [[ s ]]tm ↑ sub_comp_cat_univ s)
+    -->
+    Δ & comp_cat_univ_el el a
+  := comp_cat_comp_mor (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+     · comp_cat_extend_over (comp_cat_univ_el el a) s.
+
 Proposition comp_cat_univ_el_stable_natural
             {C : comp_cat_with_ob}
             (el : comp_cat_univ_type C)
@@ -478,6 +512,41 @@ Proof.
   apply comp_cat_el_map_on_idpath.
 Qed.
 
+Proposition comp_cat_univ_el_stable_id_coh_inv_alt_eq
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ : C}
+            (s : Γ --> Γ)
+            (p : identity _ = s)
+            (t : comp_cat_tm Γ (comp_cat_univ Γ))
+  : t [[ s ]]tm ↑ sub_comp_cat_univ s
+    =
+    t.
+Proof.
+  induction p.
+  exact (!(comp_cat_univ_id_coherence t)).
+Defined.
+
+Proposition comp_cat_univ_el_stable_id_coh_inv_alt
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ : C}
+            (s : Γ --> Γ)
+            (p : identity _ = s)
+            (t : comp_cat_tm Γ (comp_cat_univ Γ))
+  : inv_from_z_iso (comp_cat_univ_el_stable el s t)
+    =
+    comp_cat_el_map_on_eq el (comp_cat_univ_el_stable_id_coh_inv_alt_eq el s p t)
+    · id_subst_ty _
+    · eq_subst_ty _ p.
+Proof.
+  induction p.
+  refine (comp_cat_univ_el_stable_id_coh_inv el t @ _).
+  rewrite eq_subst_ty_idpath.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
 Proposition comp_cat_univ_el_stable_comp_coh
             {C : comp_cat_with_ob}
             (el : comp_cat_univ_type C)
@@ -533,6 +602,46 @@ Proof.
   }
   rewrite <- comp_cat_el_map_on_concat.
   apply comp_cat_el_map_on_idpath.
+Qed.
+
+Proposition transportf_comp_cat_univ_el
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ Δ : C}
+            {t₁ t₂ : tm Γ (comp_cat_univ Γ)}
+            (p : t₁ = t₂)
+            (f : Γ & comp_cat_univ_el el t₁ --> Δ)
+  : transportf
+      (λ z, Γ & comp_cat_univ_el el z --> Δ)
+      p
+      f
+    =
+    comp_cat_comp_mor (comp_cat_el_map_on_eq el (!p)) · f.
+Proof.
+  induction p ; cbn.
+  rewrite comp_cat_comp_mor_id.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
+Proposition transportf_comp_cat_univ_el'
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ Δ : C}
+            {t₁ t₂ : tm Δ (comp_cat_univ Δ)}
+            (p : t₁ = t₂)
+            (f : Γ --> Δ & comp_cat_univ_el el t₁)
+  : transportf
+      (λ z, Γ --> Δ& comp_cat_univ_el el z)
+      p
+      f
+    =
+    f · comp_cat_comp_mor (comp_cat_el_map_on_eq el p).
+Proof.
+  induction p ; cbn.
+  rewrite comp_cat_comp_mor_id.
+  rewrite id_right.
+  apply idpath.
 Qed.
 
 (** * 6. Proving that two universe types are equal *)
@@ -1124,6 +1233,20 @@ Proof.
 Qed.
 
 (** * 8. Preservation of universes by identity and composition *)
+Proposition id_comp_cat_functor_preserves_el_lem
+            {C : comp_cat_with_ob}
+            (el : comp_cat_univ_type C)
+            {Γ : C}
+            (t : tm Γ (comp_cat_univ Γ))
+  : t = comp_cat_functor_tm (id₁ _) t ↑ functor_comp_cat_on_univ (id₁ C) Γ.
+Proof.
+  refine (!_).
+  rewrite id_comp_cat_functor_tm.
+  rewrite id_functor_comp_cat_on_univ.
+  rewrite id_coerce_comp_cat_tm.
+  apply idpath.
+Qed.
+
 Definition id_comp_cat_functor_preserves_el
            {C : comp_cat_with_ob}
            (el : comp_cat_univ_type C)
@@ -1131,12 +1254,7 @@ Definition id_comp_cat_functor_preserves_el
 Proof.
   intros Γ t ; simpl.
   use comp_cat_el_map_on_eq_iso.
-  abstract
-    (refine (!_) ;
-     rewrite id_comp_cat_functor_tm ;
-     rewrite id_functor_comp_cat_on_univ ;
-     rewrite id_coerce_comp_cat_tm ;
-     apply idpath).
+  exact (id_comp_cat_functor_preserves_el_lem el t).
 Defined.
 
 Definition id_comp_cat_functor_ob

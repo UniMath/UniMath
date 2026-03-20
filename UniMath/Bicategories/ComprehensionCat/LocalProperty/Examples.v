@@ -101,6 +101,7 @@ Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
 
 Local Open Scope cat.
+Local Open Scope comp_cat.
 
 (** * 1. Conjunction of local properties *)
 Definition cat_property_data_conj
@@ -520,7 +521,7 @@ Proof.
     + exact (pr1 H₁).
     + exact (pr2 H₁).
     + exact HF.
-Qed.
+Defined.
 
 Definition regular_local_property
   : local_property.
@@ -568,7 +569,7 @@ Proof.
     apply tt.
   - intros.
     apply tt.
-Qed.
+Defined.
 
 Definition all_eqrel_effective_local_property
   : local_property.
@@ -646,7 +647,7 @@ Proof.
     + exact (functor_finlim_preserves_terminal F).
     + exact (functor_finlim_preserves_binproduct F).
     + exact HF.
-Qed.
+Defined.
 
 Definition subobject_classifier_local_property
   : local_property.
@@ -722,7 +723,7 @@ Proof.
     + apply functor_finlim_preserves_terminal.
     + apply functor_finlim_preserves_binproduct.
     + exact HF.
-Qed.
+Defined.
 
 Definition parameterized_NNO_local_property
   : local_property.

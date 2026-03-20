@@ -44,13 +44,38 @@ Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Local Open Scope cat.
 
 (** * 1. Displayed functor between codomain displayed categories *)
+Definition functor_on_cod_fib
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           {y : C₁}
+           (f : C₁/y)
+  : C₂/F y
+  := make_cod_fib_ob (#F (cod_mor f)).
+
+Definition functor_on_cod_fib_mor
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           {y : C₁}
+           {f₁ f₂ : C₁/y}
+           (h : f₁ --> f₂)
+  : functor_on_cod_fib F f₁ --> functor_on_cod_fib F f₂.
+Proof.
+  use make_cod_fib_mor.
+  - exact (#F(dom_mor h)).
+  - abstract
+      (cbn ;
+       rewrite <- functor_comp ;
+       apply maponpaths ;
+       apply (mor_eq h)).
+Defined.
+
 Definition disp_codomain_functor_data
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
   : disp_functor_data F (disp_codomain C₁) (disp_codomain C₂).
 Proof.
   simple refine (_ ,, _).
-  - exact (λ x yf, F (pr1 yf) ,, #F (pr2 yf)).
+  - exact (λ x yf, functor_on_cod_fib F yf).
   - refine (λ x₁ x₂ yf₁ yf₂ g hp, #F (pr1 hp) ,, _).
     abstract
       (cbn ;
@@ -156,6 +181,87 @@ Proof.
   - exact (disp_codomain_functor F).
   - exact (is_cartesian_disp_codomain_functor F HF).
 Defined.
+
+(**
+   Laws for naturality of the fiber functor
+ *)
+Proposition codomain_fiber_functor_natural_nat_z_iso_pr1
+            {C₁ C₂ : category}
+            (PB₁ : Pullbacks C₁)
+            (PB₂ : Pullbacks C₂)
+            (F : C₁ ⟶ C₂)
+            (HF : preserves_pullback F)
+            {x y : C₁}
+            (f : x --> y)
+            (h : C₁/y)
+  : dom_mor
+      (fiber_functor_natural_nat_z_iso
+         (disp_codomain_cleaving PB₁)
+         (disp_codomain_cleaving PB₂)
+         (cartesian_disp_codomain_functor F HF)
+         f
+         h)
+    · PullbackPr1 (functor_preserves_pullback_on_pullback _ HF _ _)
+    =
+    PullbackPr1 _.
+Proof.
+  etrans.
+  {
+    apply (PullbackArrow_PullbackPr1
+             (make_Pullback
+                _
+                (HF _ _ _ _ _ _
+                   _ _
+                   _
+                   _
+                   (cartesian_isPullback_in_cod_disp
+                      (disp_codomain_cleaving PB₁ y x f h)
+                      (disp_codomain_cleaving PB₁ y x f h))))).
+  }
+  exact (transportf_cod_disp
+           C₂
+           _
+           (disp_codomain_cleaving
+              PB₂
+              (F y) (F x) (#F f)
+              (cartesian_disp_codomain_functor F HF y h))).
+Qed.
+
+Proposition codomain_fiber_functor_natural_nat_z_iso_pr2
+            {C₁ C₂ : category}
+            (PB₁ : Pullbacks C₁)
+            (PB₂ : Pullbacks C₂)
+            (F : C₁ ⟶ C₂)
+            (HF : preserves_pullback F)
+            {x y : C₁}
+            (f : x --> y)
+            (h : C₁/y)
+  : dom_mor
+      (fiber_functor_natural_nat_z_iso
+         (disp_codomain_cleaving PB₁)
+         (disp_codomain_cleaving PB₂)
+         (cartesian_disp_codomain_functor F HF)
+         f
+         h)
+    · PullbackPr2 (functor_preserves_pullback_on_pullback _ HF _ _)
+    =
+    PullbackPr2 _.
+Proof.
+  etrans.
+  {
+    apply (PullbackArrow_PullbackPr2
+             (make_Pullback
+                _
+                (HF _ _ _ _ _ _
+                   _ _
+                   _
+                   _
+                   (cartesian_isPullback_in_cod_disp
+                      (disp_codomain_cleaving PB₁ y x f h)
+                      (disp_codomain_cleaving PB₁ y x f h))))).
+  }
+  apply id_right.
+Qed.
 
 (** * 4. Preservation of limits *)
 Proposition preserves_terminal_fiber_disp_codomain_functor

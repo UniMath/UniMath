@@ -440,6 +440,32 @@ Section monic_pb.
 
 End monic_pb.
 
+Definition pullback_pr1_monic
+           {C : category}
+           {a b c : C}
+           (M : Monic _ b a)
+           (g : c --> a)
+           (PB : Pullback g M)
+  : Monic C PB c.
+Proof.
+  use make_Monic.
+  - exact (PullbackPr1 _).
+  - apply MonicPullbackisMonic'.
+Defined.
+
+Definition pullback_pr2_monic
+           {C : category}
+           {a b c : C}
+           (M : Monic _ b a)
+           (g : c --> a)
+           (PB : Pullback M g)
+  : Monic C PB c.
+Proof.
+  use make_Monic.
+  - exact (PullbackPr2 _).
+  - apply MonicPullbackisMonic.
+Defined.
+
 Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .
 Arguments isPullbackGluedSquare [_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _] _ _ [_ _ _] _.
 
@@ -1971,3 +1997,45 @@ Proof.
           rewrite assoc', z_iso_inv_after_z_iso;
           now rewrite id_right]).
 Defined.
+
+(** Monics as pullbacks *)
+Proposition isMonic_to_isPullback
+            {C : category}
+            {x y : C}
+            {m : x --> y}
+            (Hm : isMonic m)
+  : isPullback (idpath (identity _ · m)).
+Proof.
+  intros w h k p.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros ζ₁ ζ₂ ;
+       use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+       refine (!(id_right _) @ _) ;
+       refine (pr12 ζ₁ @ _) ;
+       refine (!_) ;
+       refine (!(id_right _) @ _) ;
+       exact (pr12 ζ₂)).
+  - refine (h ,, _ ,, _).
+    + abstract
+        (apply id_right).
+    + abstract
+        (rewrite id_right ;
+         use Hm ;
+         exact p).
+Defined.
+
+Proposition isPullback_to_isMonic
+            {C : category}
+            {x y : C}
+            {m : x --> y}
+            (Hm : isPullback (idpath (identity _ · m)))
+  : isMonic m.
+Proof.
+  intros w h k p.
+  refine (!(PullbackArrow_PullbackPr1 (make_Pullback _ Hm) _ h k p) @ _).
+  refine (_ @ PullbackArrow_PullbackPr2 (make_Pullback _ Hm) _ h k p).
+  cbn.
+  apply idpath.
+Qed.
