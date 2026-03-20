@@ -37,7 +37,7 @@ Local Open Scope comp_cat.
 Local Open Scope cat.
 
 
-(** 1. Sigma-types for comprehension categories *)
+(** * 1. Sigma-types for comprehension categories *)
 
 (**
   The rules are from Figure 2 of
@@ -217,7 +217,7 @@ Proof.
   apply comp_cat_sigma_proj_1_law.
 Qed.
 
-(** 2. Pi-types for comprehension categories *)
+(** * 2. Pi-types for comprehension categories *)
 
 (*
   The rules are from Figure 1 of
@@ -344,12 +344,12 @@ Definition comp_cat_pi_sub_lam
   := pr2 (pr22 (pr222 Π)) Γ Δ s A B b.
 
 
-(** 3. TODO: Id Types *)
+(** * 3. TODO: Id Types *)
 
 (* Can be done similarly from Figure 3 of "From Semantics to Syntax". *)
 
 
-(** 4. Unit types for comprehension categories *)
+(** * 4. Unit types for comprehension categories *)
 
 Section Unit_For_Comp_Cat.
 

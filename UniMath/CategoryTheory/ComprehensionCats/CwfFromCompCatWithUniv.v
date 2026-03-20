@@ -11,6 +11,13 @@
   - The types in the target CwF are terms of type U in the context [].(el Γ) of the comp cat.
   - Context extension is given by the sigma code of the universe in the comp cat.
 
+  Contents:
+  1. Type and Terms of the CWF
+  2. Terminal Context
+  3. Substitutions
+  4. Functorialities
+  5. Context Extension
+  6. Universal Property
  *)
 
 Require Import UniMath.Foundations.All.
@@ -49,6 +56,8 @@ Section Construction.
     (SigmaU : comp_cat_universe_closed_sigma C Sigma)
     (Unit : comp_cat_unit C)
     (UnitU : comp_cat_universe_closed_unit C Unit).
+
+  (** * Type and Terms of the CWF  *)
 
   (* the object are terms of type U *)
   Definition context_from_comp_cat_with_u : UU :=
@@ -99,6 +108,8 @@ Section Construction.
 
   Definition cwf_context_from_comp_cat_with_u : category :=
     (cwf_context_precategory_from_comp_cat_with_u ,, is_category_context_from_comp_cat_with_u).
+
+  (** *  Terminal Context  *)
 
   Section Terminal_from_comp_cat_with_u.
 
@@ -178,6 +189,8 @@ Proof.
     exact (terminal_morphism Γ ,, terminal_uniqueness Γ).
 Defined.
 
+(** * Substitutions  *)
+
   Definition cwf_ty_from_comp_cat_with_u :  cwf_context_from_comp_cat_with_u → hSet.
   Proof.
     (* types in Γ are tm empty.(el Γ) U*)
@@ -215,6 +228,8 @@ Defined.
     intros Γ Δ f A t.
     exact ( (t [[ f ]]tm) ↑ ⌈comp_cat_el_iso f A⌉ ).
   Defined.
+
+  (** * Functorialities *)
 
   Definition cwf_id_ty_from_comp_cat_with_u :   ∏ (Γ : cwf_context_from_comp_cat_with_u) (A : cwf_ty_from_comp_cat_with_u Γ),
       cwf_subst_ty_from_comp_cat_with_u Γ Γ (identity Γ) A = A.
@@ -380,6 +395,8 @@ Qed.
     apply (comp_cat_reindex_coercion_iso_eq g).
   Qed.
 
+  (** *  Context Extension  *)
+
   Section extended_context.
 
     Let Con := cwf_context_from_comp_cat_with_u.
@@ -440,6 +457,8 @@ Qed.
     - exact cwf_ctx_ext_from_comp_cat_with_u.
   Defined.
 
+  (** Useful lemmas for the universal property  *)
+
   Lemma cwf_from_comp_cat_with_u_transport_tm
     (CC := cwf_data_from_comp_cat_with_u)
     {Γ Δ : CC}
@@ -464,8 +483,9 @@ Qed.
     (t : cwf_tm ((A [[s']]) [[s]])%cwf)
     : cwf_subst_tm_comp A s' s t = t ↑ comp_cat_el_map (cwf_subst_ty_comp A s' s).
   Proof.
-
-  Admitted.
+    unfold cwf_subst_tm_comp.
+    apply cwf_from_comp_cat_transport_lemma.
+  Qed.
 
   Definition cwf_from_comp_cat_with_u_ctx_ext_iso
     {γ: comp_cat_tm (comp_cat_U [])}
@@ -490,6 +510,8 @@ Qed.
     rewrite comp_cat_comp_mor_law.
     apply idpath.
   Defined.
+
+  (** * Universal Property  *)
 
   Section universal_property_beta.
 
@@ -593,24 +615,23 @@ Qed.
       rewrite comp_cat_comp_mor_z_iso_after_z_iso_inv.
       rewrite id_left.
       apply idpath.
-        }
-        etrans.
-        { do 3 apply maponpaths.
-          rewrite assoc.
-          rewrite comp_cat_sigma_beta.
-          apply id_left.
-        }
-        rewrite comp_cat_ext_subst_commute.
-        do 2 rewrite assoc.
-        rewrite assoc4.
-        rewrite comp_cat_comp_mor_law.
-        etrans.
-        { apply maponpaths_2.
-          apply (pr2 t).
-        }
-        apply id_left.
+    }
+    etrans.
+    { do 3 apply maponpaths.
+      rewrite assoc.
+      rewrite comp_cat_sigma_beta.
+      apply id_left.
+    }
+    rewrite comp_cat_ext_subst_commute.
+    do 2 rewrite assoc.
+    rewrite assoc4.
+    rewrite comp_cat_comp_mor_law.
+    etrans.
+    { apply maponpaths_2.
+      apply (pr2 t).
+    }
+    apply id_left.
   Qed.
-
 
   (* Second equation: t = q_A[u] *)
   Local Lemma eq2
@@ -814,74 +835,6 @@ Qed.
 
   End universal_property_beta.
 
-  (* Definition comp_cat_subst_coerce_eq {Γ Δ : C} {A: comp_cat_ty Δ} {B : comp_cat_ty Γ} *)
-  (*   {t : comp_cat_tm A} { s s' : Γ --> Δ} {f f' : A [[ s ]] <: B} *)
-  (*   {g : A [[s']] <: B} *)
-  (*   (p : s = s') (q : f = f') *)
-  (*   (r : ⌈comp_cat_subst_ty_iso _ (!p) ⌉ · f' = g) *)
-  (*   : t [[ s ]]tm ↑ f = t [[ s' ]]tm ↑ g. *)
-  (* Proof. *)
-
-  (* Admitted. *)
-
-  Definition comp_cat_subst_tm_comp'
-               { Γ Δ Θ : C} {A : comp_cat_ty Γ}
-               (f : C ⟦ Δ, Γ ⟧) (g : C ⟦ Θ, Δ ⟧) (t : comp_cat_tm A) :  t [[g · f ]]tm ↑ ⌈ comp_cat_subst_ty_comp_iso A f g ⌉⁻¹ = (t [[f ]]tm) [[g ]]tm.
-  Proof.
-    rewrite comp_cat_subst_tm_comp.
-    apply coerce_tm_inv_after.
-  Qed.
-
-  Definition comp_cat_comp_mor_comp'
-    {Γ : C}
-    {A B D : comp_cat_ty Γ} (f : A <: B) (g : B <: D) :
-    comp_cat_comp_mor (f · g) = comp_cat_comp_mor f · comp_cat_comp_mor g.
-  Proof.
-    exact (comp_cat_comp_mor_comp f g).
-  Qed.
-
-  Definition comp_cat_stable_el_map
-            {Γ Δ : C}
-            (s : Γ --> Δ)
-            {t₁ t₂ : comp_cat_tm (comp_cat_U Δ)}
-            (p : t₁ = t₂)
-            (q : t₁ [[ s ]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉
-                 =
-                 t₂ [[ s ]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉)
-  : ⌈comp_cat_el_iso s t₁⌉ · comp_cat_el_map q
-    =
-      comp_cat_reindex_coercion (C:=C) _ (comp_cat_el_map p) · ⌈comp_cat_el_iso s t₂⌉.
-  Proof.
-    induction p.
-    assert (q = idpath _) as -> by apply comp_cat_tm_isaset.
-    { unfold comp_cat_el_map.
-      cbn -[comp_cat_el_iso comp_cat_univ_sub_iso comp_cat_reindex_coercion].
-
-      admit.
-    }
-    Admitted.
-
-  Definition comp_cat_ext_subst_eq
-    {Γ Δ : C}
-    { s s' : Γ --> Δ}
-    (A : comp_cat_ty Δ)
-    (p : s = s')
-    : comp_cat_ext_subst s A = comp_cat_comp_mor ( ⌈ comp_cat_subst_ty_iso _ p ⌉) · comp_cat_ext_subst s' A.
-  Proof.
-    induction p.
-    change (comp_cat_subst_ty_iso A (idpath s)) with
-      (idtoiso (C := fiber_category _ _) (idpath (A [[s]]))).
-    cbn.
-    etrans.
-    2 :{
-      refine (!_).
-      apply maponpaths_2.
-      apply comp_cat_comp_mor_id.
-    }
-    exact (!id_left _).
-  Qed.
-
-
   Local Definition universal_property_eta
     {Γ Δ : cwf_data_from_comp_cat_with_u}
     {A : cwf_ty Γ} {s : cwf_data_from_comp_cat_with_u ⟦ Δ, (Γ & A)%cwf ⟧}
@@ -915,150 +868,150 @@ Qed.
     set (i_sigma_code := (pr12 SigmaU)).
     etrans.
     2: {  do 2 apply maponpaths_2.
-          apply maponpaths.
-          cbn -[comp_cat_comp_mor comp_cat_subst_ty_comp_iso comp_cat_el_iso comp_cat_el_map fiber_category comp_cat_ext_subst].
-          apply idpath.
-        }
-        unfold cwf_subst_tm_from_comp_cat_with_u.
-        refine (!_).
-        etrans.
-        { do 2 apply maponpaths_2.
-          do 3 apply maponpaths.
-          apply comp_cat_subst_coerce_tm.
-        }
-        rewrite <- comp_cat_subst_tm_comp'.
-        rewrite !comp_cat_comp_coerce_tm.
-        rewrite <- comp_cat_extend_subst_eta.
-        unfold comp_cat_extend_subst.
-        unfold comp_cat_tm_from_extend_subst.
-        refine (!_).
-        etrans.
-        { apply maponpaths.
-          use comp_cat_ext_subst_eq.
-          - exact (s · (p_ A)%cwf).
-          - abstract (rewrite !assoc'; apply idpath).
-        }
-        rewrite !assoc.
-        apply maponpaths_2.
-        unfold "↑".
-        cbn -[comp_cat_comp_mor comp_cat_subst_ty_comp_iso comp_cat_el_iso comp_cat_el_map fiber_category comp_cat_ext_subst comp_cat_reindex_coercion
-                comp_cat_var comp_cat_subst_tm].
-        etrans.
-        { rewrite assoc'.
-          apply maponpaths.
-          refine (!_).
-          apply comp_cat_comp_mor_comp'.
-        }
-        refine (!_).
-        etrans.
-        { rewrite assoc'.
-          apply maponpaths.
-          refine (!_).
-          apply comp_cat_comp_mor_comp'.
-        }
-        etrans.
-        { apply maponpaths_2.
-          apply maponpaths.
-          refine (!_).
-          refine (comp_cat_subst_tm_eq _ _).
-          apply assoc'.
-        }
-        refine (assoc' _ _ _ @ _).
-        apply maponpaths.
-        rewrite <- comp_cat_comp_mor_comp'.
-        apply maponpaths.
-        rewrite comp_cat_reindex_coercion_comp_witness.
-        rewrite comp_cat_reindex_coercion_iso_eq.
-        etrans.
-        {
-          apply maponpaths.
-          rewrite <- assoc4.
-          rewrite !assoc'.
-          do 2 apply maponpaths.
-          rewrite !assoc.
-          do 2 apply maponpaths_2.
-          refine (!_).
-          rewrite comp_cat_reindex_coercion_comp_witness.
-          rewrite assoc'.
-          apply maponpaths.
-          apply (comp_cat_stable_el_map _ _ (maponpaths (fun t => t [[ s ]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉) (cwf_ctx_ext_from_comp_cat_with_u_subproof Γ A))).
-        }
-        set (universe_data := pr12 C).
-        etrans.
-        { do 3 apply maponpaths.
-          do 3 apply maponpaths_2.
-          apply (comp_cat_reindex_coercion_iso_eq (C:=C)).
-        }
-        etrans.
-        { do 3 apply maponpaths.
-          rewrite assoc4.
-          apply maponpaths_2.
-          apply maponpaths.
-          apply assoc'.
-        }
-        etrans.
-        { do 3 apply maponpaths.
-          apply maponpaths_2.
-          rewrite assoc.
-          apply maponpaths.
-          apply comp_cat_el_map_comp.
-        }
-        etrans.
-        { do 3 apply maponpaths.
-          do 2 apply maponpaths_2.
-          apply comp_cat_univ_coherent_comp.
-        }
-        etrans.
-        { do 3 apply maponpaths.
-          apply maponpaths_2.
-          refine (assoc' _ _ _ @ _).
-          apply maponpaths.
-          apply comp_cat_el_map_comp.
-        }
-        assert (H : (s · (comp_cat_comp_mor (⌈ comp_cat_sigma_el_iso C Sigma SigmaU Γ A ⌉) · comp_cat_sigma_proj (comp_cat_el Γ) (comp_cat_el A)
-                            · π (comp_cat_el A))) = (s · (comp_cat_comp_mor (⌈ comp_cat_sigma_el_iso C Sigma SigmaU Γ A ⌉)
-                                                            · comp_cat_sigma_proj_1 (comp_cat_el Γ) (comp_cat_el A))))
-          by (unfold comp_cat_sigma_proj_1; apply maponpaths; rewrite assoc; apply idpath).
-        etrans.
-        { do 3 apply maponpaths.
-          do 2 refine (assoc' _ _ _ @ _).
-          apply maponpaths.
-          refine (assoc _ _ _ @ _).
-          apply (comp_cat_el_iso_el_map_el_iso_inv (C:=C) _ H _).
-        }
-        etrans.
-        { do 2 apply maponpaths.
-          refine (!_).
-          rewrite <- comp_cat_reindex_coercion_iso_eq.
-          rewrite assoc.
-          apply maponpaths_2.
-          apply (comp_cat_assoc'_subst_ty (C:=C)).
-        }
-        etrans.
-        { apply maponpaths.
-          refine (assoc _ _ _ @ _ ).
-          do 2 (apply maponpaths_2; refine (assoc _ _ _ @ _)).
-          refine ( maponpaths_2 _ _ _  @ _).
-          apply z_iso_after_z_iso_inv.
-          apply id_left.
-        }
-        etrans.
-        {
-          apply maponpaths.
-          refine (assoc' _ _ _ @ _).
-          apply maponpaths.
-          apply comp_cat_subst_ty_iso_comp.
-        }
-        rewrite assoc.
-        etrans.
-        { apply maponpaths_2.
-          apply comp_cat_comp_iso_natural.
-        }
-        refine (assoc' _ _ _ @ _).
-        rewrite comp_cat_subst_ty_iso_comp.
-        apply cancel_precomposition.
-        do 2 apply maponpaths.
-        apply homset_property.
+      apply maponpaths.
+      cbn -[comp_cat_comp_mor comp_cat_subst_ty_comp_iso comp_cat_el_iso comp_cat_el_map fiber_category comp_cat_ext_subst].
+      apply idpath.
+    }
+    unfold cwf_subst_tm_from_comp_cat_with_u.
+    refine (!_).
+    etrans.
+    { do 2 apply maponpaths_2.
+      do 3 apply maponpaths.
+      apply comp_cat_subst_coerce_tm.
+    }
+    rewrite <- comp_cat_subst_tm_comp'.
+    rewrite !comp_cat_comp_coerce_tm.
+    rewrite <- comp_cat_extend_subst_eta.
+    unfold comp_cat_extend_subst.
+    unfold comp_cat_tm_from_extend_subst.
+    refine (!_).
+    etrans.
+    { apply maponpaths.
+      use comp_cat_ext_subst_eq.
+      - exact (s · (p_ A)%cwf).
+      - abstract (rewrite !assoc'; apply idpath).
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    unfold "↑".
+    cbn -[comp_cat_comp_mor comp_cat_subst_ty_comp_iso comp_cat_el_iso comp_cat_el_map fiber_category comp_cat_ext_subst comp_cat_reindex_coercion
+            comp_cat_var comp_cat_subst_tm].
+    etrans.
+    { rewrite assoc'.
+      apply maponpaths.
+      refine (!_).
+      apply comp_cat_comp_mor_comp'.
+    }
+    refine (!_).
+    etrans.
+    { rewrite assoc'.
+      apply maponpaths.
+      refine (!_).
+      apply comp_cat_comp_mor_comp'.
+    }
+    etrans.
+    { apply maponpaths_2.
+      apply maponpaths.
+      refine (!_).
+      refine (comp_cat_subst_tm_eq _ _).
+      apply assoc'.
+    }
+    refine (assoc' _ _ _ @ _).
+    apply maponpaths.
+    rewrite <- comp_cat_comp_mor_comp'.
+    apply maponpaths.
+    rewrite comp_cat_reindex_coercion_comp_witness.
+    rewrite comp_cat_reindex_coercion_iso_eq.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite <- assoc4.
+      rewrite !assoc'.
+      do 2 apply maponpaths.
+      rewrite !assoc.
+      do 2 apply maponpaths_2.
+      refine (!_).
+      rewrite comp_cat_reindex_coercion_comp_witness.
+      rewrite assoc'.
+      apply maponpaths.
+      apply (comp_cat_stable_el_map _ _ (maponpaths (fun t => t [[ s ]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉) (cwf_ctx_ext_from_comp_cat_with_u_subproof Γ A))).
+    }
+    set (universe_data := pr12 C).
+    etrans.
+    { do 3 apply maponpaths.
+      do 3 apply maponpaths_2.
+      apply (comp_cat_reindex_coercion_iso_eq (C:=C)).
+    }
+    etrans.
+    { do 3 apply maponpaths.
+      rewrite assoc4.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply assoc'.
+    }
+    etrans.
+    { do 3 apply maponpaths.
+      apply maponpaths_2.
+      rewrite assoc.
+      apply maponpaths.
+      apply comp_cat_el_map_comp.
+    }
+    etrans.
+    { do 3 apply maponpaths.
+      do 2 apply maponpaths_2.
+      apply comp_cat_univ_coherent_comp.
+    }
+    etrans.
+    { do 3 apply maponpaths.
+      apply maponpaths_2.
+      refine (assoc' _ _ _ @ _).
+      apply maponpaths.
+      apply comp_cat_el_map_comp.
+    }
+    assert (H : (s · (comp_cat_comp_mor (⌈ comp_cat_sigma_el_iso C Sigma SigmaU Γ A ⌉) · comp_cat_sigma_proj (comp_cat_el Γ) (comp_cat_el A)
+                        · π (comp_cat_el A))) = (s · (comp_cat_comp_mor (⌈ comp_cat_sigma_el_iso C Sigma SigmaU Γ A ⌉)
+                                                        · comp_cat_sigma_proj_1 (comp_cat_el Γ) (comp_cat_el A))))
+      by (unfold comp_cat_sigma_proj_1; apply maponpaths; rewrite assoc; apply idpath).
+    etrans.
+    { do 3 apply maponpaths.
+      do 2 refine (assoc' _ _ _ @ _).
+      apply maponpaths.
+      refine (assoc _ _ _ @ _).
+      apply (comp_cat_el_iso_el_map_el_iso_inv (C:=C) _ H _).
+    }
+    etrans.
+    { do 2 apply maponpaths.
+      refine (!_).
+      rewrite <- comp_cat_reindex_coercion_iso_eq.
+      rewrite assoc.
+      apply maponpaths_2.
+      apply (comp_cat_assoc'_subst_ty (C:=C)).
+    }
+    etrans.
+    { apply maponpaths.
+      refine (assoc _ _ _ @ _ ).
+      do 2 (apply maponpaths_2; refine (assoc _ _ _ @ _)).
+      refine ( maponpaths_2 _ _ _  @ _).
+      apply z_iso_after_z_iso_inv.
+      apply id_left.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      refine (assoc' _ _ _ @ _).
+      apply maponpaths.
+      apply comp_cat_subst_ty_iso_comp.
+    }
+    rewrite assoc.
+    etrans.
+    { apply maponpaths_2.
+      apply comp_cat_comp_iso_natural.
+    }
+    refine (assoc' _ _ _ @ _).
+    rewrite comp_cat_subst_ty_iso_comp.
+    apply cancel_precomposition.
+    do 2 apply maponpaths.
+    apply homset_property.
   Qed.
 
   Definition cwf_universal_property_from_comp_cat_with_u

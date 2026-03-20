@@ -21,12 +21,11 @@
   - "Principles of Dependent Type Theory" by Angiuli and Gratzer
 
   Contents
-  - Empty Context in Comprehension Categories
-  - Comprehension Category with a Universe
-  - Universes being closed under type formers: Π, Σ, unit, TODO: id
+  1. Empty Context in Comprehension Categories
+  2. Comprehension Category with a Universe
+  3. Universes being closed under type formers:  Σ, unit, Π, TODO: id
 
  *)
-
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -51,7 +50,7 @@ Require Import UniMath.CategoryTheory.ComprehensionCats.CompCatTypeFormers.
 Local Open Scope cat.
 Local Open Scope comp_cat.
 
-(**  Comprehension category with a terminal context  *)
+(** * Comprehension category with a terminal context  *)
 
 Definition comp_cat_with_terminal : UU :=  ∑ (C : comp_cat), Terminal C.
 
@@ -72,8 +71,6 @@ Proof.
   set (T := empty_context C).
   set (tΔ := TerminalArrow T Δ : Δ --> ([] : C)).
   set (tΓ := TerminalArrow T Γ : Γ --> ([] : C)).
-
-  (* using terminal-arrow uniqueness *)
   assert (p : s · tΔ = tΓ) by apply TerminalArrowEq.
 
   (* (U[[tΔ]])[[s]]  ≅  U[[s·tΔ]]  ≅  U[[tΓ]] *)
@@ -81,7 +78,7 @@ Proof.
   exact (comp_cat_subst_ty_iso U p).
 Defined.
 
-(**  Comprehension category with a terminal context and universe *)
+(** *  Comprehension category with a terminal context and universe *)
 
 (*
 Let C be a comprehension category with a terminal empty context [].
@@ -304,7 +301,50 @@ Lemma comp_cat_el_map_comp
 Proof.
   induction p , q.
   cbn.
-Admitted.
+  rewrite id_left_disp.
+  assert (H : id_right (identity Γ) = id_left (identity Γ)) by apply homset_property.
+  etrans.
+  { apply maponpaths_2.
+    apply H.
+  }
+  apply transportfbinv.
+Qed.
+
+Lemma comp_cat_el_map_id
+    {C : comp_cat_with_universe}
+    {Γ : C}
+    (t : comp_cat_tm (comp_cat_U Γ))
+  : comp_cat_el_map (idpath t) = identity (C := fiber_category _ _) (comp_cat_el t).
+Proof.
+  apply idpath.
+Qed.
+
+Definition comp_cat_stable_el_map
+  { C : comp_cat_with_universe}
+  {Γ Δ : C}
+  (s : Γ --> Δ)
+  {t₁ t₂ : comp_cat_tm (comp_cat_U Δ)}
+  (p : t₁ = t₂)
+  (q : t₁ [[ s ]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉
+       = t₂ [[ s ]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉)
+  : ⌈comp_cat_el_iso s t₁⌉ · comp_cat_el_map q =
+      comp_cat_reindex_coercion (C:=C) _ (comp_cat_el_map p) · ⌈comp_cat_el_iso s t₂⌉.
+Proof.
+  induction p.
+  assert (H : q = idpath _) by apply comp_cat_tm_isaset.
+  unfold comp_cat_el_map.
+  etrans.
+  2: { apply maponpaths_2.
+       refine (!_).
+       apply maponpaths.
+       apply comp_cat_el_map_id.}
+  rewrite comp_cat_reindex_coercion_id.
+  rewrite id_left.
+  rewrite H.
+  rewrite <- id_right.
+  apply maponpaths.
+  apply idpath.
+Qed.
 
 Lemma comp_cat_el_iso_natural
     {C : comp_cat_with_universe} {Γ Δ : C} (s : Δ --> Γ)
@@ -316,9 +356,11 @@ Lemma comp_cat_el_iso_natural
     · ⌈comp_cat_el_iso s t₂⌉.
 Proof.
   induction p.
-  cbn -[comp_cat_el_iso comp_cat_reindex_coercion comp_cat_univ_sub_iso].
-  unfold transportb.
-  Admitted.
+  rewrite comp_cat_el_map_id.
+  rewrite comp_cat_reindex_coercion_id.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
 
 Lemma comp_cat_el_iso_subst_path
     {C : comp_cat_with_universe} {Γ Δ : C}
@@ -332,8 +374,11 @@ Lemma comp_cat_el_iso_subst_path
     · ⌈comp_cat_el_iso s' t⌉.
 Proof.
   induction p.
-  cbn -[comp_cat_el_iso comp_cat_reindex_coercion comp_cat_univ_sub_iso comp_cat_subst_ty_iso].
-Admitted.
+  change (comp_cat_subst_ty_iso (comp_cat_el t) (idpath s)) with
+    (idtoiso (C := fiber_category _ _) (idpath (comp_cat_el t [[s]]))).
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
 
 Lemma comp_cat_el_iso_el_map_el_iso_inv
     {C : comp_cat_with_universe}
@@ -349,9 +394,10 @@ Lemma comp_cat_el_iso_el_map_el_iso_inv
 Proof.
   induction Hs.
   assert (Hp : p = idpath _) by apply comp_cat_tm_isaset.
-  induction Hp.
-  cbn.
-  Admitted.
+  rewrite Hp.
+  rewrite id_right.
+  apply z_iso_inv_after_z_iso.
+Qed.
 
 (**  * Universe Being Closed under Sigma-Types  *)
 
@@ -442,7 +488,7 @@ Section Universe_Sigma_Closure.
 End Universe_Sigma_Closure.
 
 
-(**  Universe Being Closed under Unit Types  *)
+(**  * Universe Being Closed under Unit Types  *)
 
 Section Universe_Unit_Closure.
 
@@ -550,67 +596,57 @@ Section Universe_Unit_Closure.
       unfold "⌈ _ ⌉⁻¹".
       rewrite assoc'.
       do 2 use z_iso_inv_on_right.
-
-      (*
-    Proposition comp_coerce_subst_ty
-              {C : comp_cat}
-              {Γ₁ Γ₂ : C}
-              (s : Γ₁ --> Γ₂)
-              {A₁ A₂ A₃ : ty Γ₂}
-              (f : A₁ <: A₂)
-              (g : A₂ <: A₃)
-    : coerce_subst_ty s (f · g)
-      =
-      coerce_subst_ty s f · coerce_subst_ty s g.
-  Proof.
-    apply (functor_comp (fiber_functor_from_cleaving _ (cleaving_of_types C) s)).
-  Qed.
- *)
-
-    (*
-
-Proposition assoc'_subst_ty
-            {C : comp_cat}
-            {Γ₁ Γ₂ Γ₃ Γ₄ : C}
-            (s₁ : Γ₁ --> Γ₂)
-            (s₂ : Γ₂ --> Γ₃)
-            (s₃ : Γ₃ --> Γ₄)
-            (A : ty Γ₄)
-  : comp_subst_ty s₁ s₂ (A [[ s₃ ]])
-    · comp_subst_ty (s₁ · s₂) s₃ A
-    · eq_subst_ty A (assoc' _ _ _)
-    =
-    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A)
-    · comp_subst_ty s₁ (s₂ · s₃) A.
-Proof.
-  exact (indexed_cat_lassociator (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _ _ _).
-Qed.
-
-Proposition assoc_subst_ty
-            {C : comp_cat}
-            {Γ₁ Γ₂ Γ₃ Γ₄ : C}
-            (s₁ : Γ₁ --> Γ₂)
-            (s₂ : Γ₂ --> Γ₃)
-            (s₃ : Γ₃ --> Γ₄)
-            (A : ty Γ₄)
-  : comp_subst_ty s₁ s₂ (A [[ s₃ ]])
-    · comp_subst_ty (s₁ · s₂) s₃ A
-    =
-    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A)
-    · comp_subst_ty s₁ (s₂ · s₃) A
-    · eq_subst_ty A (assoc _ _ _).
-Proof.
-  rewrite <- assoc'_subst_ty.
-  refine (!(id_right _) @ _ @ assoc _ _ _).
-  apply maponpaths.
-  rewrite eq_subst_ty_concat.
-  rewrite eq_subst_ty_idpath.
-  apply idpath.
-Qed.
-
-     *)
-
-    Admitted.
+      rewrite assoc.
+      etrans.
+      { apply maponpaths_2.
+        apply comp_cat_reindex_coercion_comp_witness.
+      }
+      etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        refine (assoc _ _ _ @ _).
+        apply maponpaths_2.
+        apply (comp_cat_reindex_coercion_subst_ty_iso (C:=C)).
+      }
+      rewrite assoc'.
+      etrans.
+      { do 2 apply maponpaths.
+        apply comp_cat_subst_ty_iso_comp.
+      }
+      etrans.
+      2: { refine (!_). refine (assoc _ _ _ @ _). apply idpath.}
+      rewrite assoc'.
+      etrans.
+      { rewrite assoc.
+        apply maponpaths_2.
+        refine (!_).
+        apply (comp_cat_assoc'_subst_ty (C:=C)).
+      }
+      etrans.
+      { do 2 refine (assoc' _ _ _ @ _).
+        do 2 apply maponpaths.
+        apply comp_cat_subst_ty_iso_comp.
+      }
+      rewrite !assoc.
+      etrans.
+      2: {
+        refine (!_).
+        apply maponpaths_2.
+        rewrite assoc'.
+        apply maponpaths.
+        apply comp_cat_comp_iso_natural. }
+      etrans.
+      2: {
+        refine (!_).
+        rewrite !assoc'.
+        do 2 apply maponpaths.
+        apply comp_cat_subst_ty_iso_comp.
+      }
+      rewrite !assoc.
+      apply cancel_precomposition.
+      do 2 apply maponpaths.
+      apply homset_property.
+    Qed.
 
   End weaken_unit.
 
@@ -674,7 +710,7 @@ Qed.
 
 End Universe_Unit_Closure.
 
-(**  Universe Being Closed under Pi Types  *)
+(** *  Universe Being Closed under Pi Types  *)
 
 Section Universe_Pi_Closure.
 

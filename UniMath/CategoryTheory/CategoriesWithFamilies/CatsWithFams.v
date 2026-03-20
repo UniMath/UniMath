@@ -684,8 +684,8 @@ Proof.
        rewrite !assoc ;
        etrans ; [ apply maponpaths_2 ; apply cwf_pair_p | ] ;
        apply id_left).
-  - apply id_left.
-  - unfold cwf_qA_subst, cwf_subst_tm_comp.
+  -  apply id_left.
+  -  unfold cwf_qA_subst, cwf_subst_tm_comp.
     rewrite transportf_subst_tm_on_s_eq.
     rewrite transport_f_f.
     refine (_ @ !(cwf_pair_q_subst' _ _)).
@@ -757,25 +757,17 @@ Proof.
        rewrite assoc ;
        etrans ; [ apply maponpaths_2 ; apply cwf_pair_p | ] ;
        apply id_left).
-  - rewrite transportf_subst_tm_on_s_eq.
-    unfold cwf_qA_subst, cwf_subst_tm_comp.
-    rewrite transport_f_f.
-    etrans.
-    {
-      apply maponpaths.
-      apply cwf_subst_tm_on_comp.
-    }
-    rewrite transport_f_f.
-    etrans.
-    {
-      do 2 apply maponpaths.
-      apply cwf_pair_q_subst.
-    }
-    unfold cwf_subst_tm_id.
-    rewrite !transportf_cwf_subst_tm.
-    rewrite !transport_f_f.
-    use (transportf_set (cwf_tm)).
-    apply setproperty.
+  - abstract (rewrite transportf_subst_tm_on_s_eq;
+    unfold cwf_qA_subst, cwf_subst_tm_comp;
+    rewrite transport_f_f;
+    etrans;[ apply maponpaths; apply cwf_subst_tm_on_comp |];
+    rewrite transport_f_f;
+    etrans;[ do 2 apply maponpaths; apply cwf_pair_q_subst |];
+    unfold cwf_subst_tm_id;
+    rewrite !transportf_cwf_subst_tm;
+    rewrite !transport_f_f;
+    use (transportf_set (cwf_tm));
+    apply setproperty).
   - rewrite transportf_subst_tm_on_s_eq.
     unfold cwf_qA_subst, cwf_subst_tm_comp.
     rewrite transport_f_f.
@@ -793,18 +785,21 @@ Proof.
     unfold cwf_subst_tm_comp.
     rewrite !transportf_cwf_subst_tm.
     rewrite !transport_f_f.
-    Admitted.
-    (* etrans. *)
-    (* { *)
-    (*   do 2 apply maponpaths. *)
-    (*   Check cwf_pair_q_subst s (a [[ s ]]tm). *)
-    (* } *)
-    (* rewrite transport_f_f. *)
-    (* unfold cwf_subst_tm_id. *)
-    (* rewrite transport_f_f. *)
-    (* use (transportf_set (cwf_tm (cwf_t C))). *)
-    (* apply setproperty. *)
-
+    etrans.
+    { apply maponpaths.
+      apply transportf_cwf_subst_tm.
+    }
+    etrans.
+    { do 2 apply maponpaths.
+      apply cwf_pair_q_subst.
+    }
+    rewrite !transport_f_f.
+    unfold cwf_subst_tm_id.
+    rewrite transport_f_f.
+    set (p := (! cwf_subst_ty_id (A [[s]]) @ _ @ _ @ _ @ _ @ _ @ _)).
+    use (transportf_set cwf_tm).
+    exact (pr2 (cwf_ty Δ)).
+Qed.
 
 Lemma cwf_pair_subst_ty_comm {C : cwf} {Γ Δ : C} (s : Δ --> Γ) (A : cwf_ty Γ)
   (B : cwf_ty (Γ & A)) (a : cwf_tm A)
