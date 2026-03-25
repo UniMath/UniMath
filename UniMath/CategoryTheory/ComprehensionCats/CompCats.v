@@ -4,8 +4,10 @@
 
   This file builds on Displayedcats.Comprehensionc and follows a similar line as
   Bicategories.ComprehensionCat.CompCatNotations by considering the internal language
-  of comprehension categories that are not necessarily full or split. Morphisms between
-  types in a fiber are considered as witnesses for coercions between types.
+  of comprehension categories. The comprehension categories in Bicategories.ComprehensionCat.CompCatNotations are
+  assumed to be full but we do not assume fullness here. We also do not assume splitness.
+  Following the rules given in "From Semantics to Syntax: A Type Theory for Comprehension Categories" by Najmaei,
+  Van der Weide, Ahrens, and North, we take morphisms between types in a fiber to be witnesses for coercions between types.
 
   References
   - "From Semantics to Syntax: A Type Theory for Comprehension Categories" by Najmaei,
@@ -1034,7 +1036,9 @@ Proof.
   assert (assoc' s₁ s₂ s₃ @ assoc s₁ s₂ s₃ = idpath _) as p.
   { apply homset_property. }
   set (F := fiber_category (disp_cat_of_types C) Γ₁).
-  change (identity _  = ⌈ idtoiso (C:=F) (comp_cat_subst_ty_eq A (assoc' s₁ s₂ s₃)) ⌉ · ⌈ idtoiso (C:=F) (comp_cat_subst_ty_eq A (assoc  s₁ s₂ s₃)) ⌉).
+  change (identity _  = ⌈ idtoiso (C:=F)
+                          (comp_cat_subst_ty_eq A (assoc' s₁ s₂ s₃)) ⌉
+                          · ⌈ idtoiso (C:=F) (comp_cat_subst_ty_eq A (assoc  s₁ s₂ s₃)) ⌉).
    etrans.
    2: { apply pr1_idtoiso_concat. }
    Check comp_cat_subst_ty_eq.
@@ -1058,6 +1062,7 @@ Proof.
 Qed.
 
 Definition comp_cat_ext_subst_eq
+  {C : comp_cat}
   {Γ Δ : C}
   { s s' : Γ --> Δ}
   (A : comp_cat_ty Δ)

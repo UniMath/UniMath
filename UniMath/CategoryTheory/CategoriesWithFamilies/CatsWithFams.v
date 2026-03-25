@@ -42,7 +42,7 @@ Require Import UniMath.CategoryTheory.Core.Setcategories.
 
 Local Open Scope cat.
 
-(** The category Fam *)
+(** * The category Fam *)
 
 Definition fam_ob : UU := ∑ X : hSet, X -> hSet.
 
