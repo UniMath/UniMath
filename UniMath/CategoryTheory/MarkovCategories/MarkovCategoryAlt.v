@@ -48,12 +48,19 @@ Section Quasicartesian.
           (proj2 : ∏ x y, tensor x y --> y)
           (del : ∏ (x : C), x --> I).
 
+  (* Notation *)
+
   Arguments pairing {x y z}.
   Arguments proj1 {x y}.
   Arguments proj2 {x y}.
 
   Notation "x ⊗ y" := (tensor x y).
   Notation "⟨ f , g ⟩" := (pairing f g).
+
+  Definition det {x y : C} (f : x --> y) := 
+    f · ⟨ identity y , identity y ⟩ = ⟨ f , f ⟩.
+
+  (* Axioms *)
 
   Context (pairing_proj1 : ∏ (x y z : C) (f : x --> y) (g : x --> z),
              ⟨f,g⟩ · proj1 = f)
@@ -62,20 +69,14 @@ Section Quasicartesian.
 
   Context (del_unique : ∏ (x : C) (f : x --> I), f = del x).  
 
-  Definition det {x y : C} (f : x --> y) := 
-    f · ⟨ identity y , identity y ⟩ = ⟨ f , f ⟩.
-
-  Context (det_id : ∏ x, det (identity x))
-          (det_proj1 : ∏ x y, det (@proj1 x y))
+  Context (det_proj1 : ∏ x y, det (@proj1 x y))
           (det_proj2 : ∏ x y, det (@proj2 x y))
           (det_del : ∏ x, det (del x)).
 
-  Context (det_comp : ∏ (x y z : C) (f : x --> y) (g : y --> z),
-             det f -> det g -> det (f · g)).
-  
   Context (det_pairing : ∏ (x y z : C) (f : x --> y) (g : x --> z),
              det f -> det g -> det ⟨f,g⟩ ).
 
+  (* [det_proj] is interdefinable with [pairing_id] *)
   Context (det_proj : ∏ (x y z : C) (f : x --> y ⊗ z),
              det f -> ⟨f · proj1, f · proj2⟩ = f).
 
@@ -84,18 +85,36 @@ Section Quasicartesian.
                            (g1 : x1 --> y1) (g2 : x2 --> y2),
             ⟨f1,f2⟩ · ⟨proj1 · g1, proj2 · g2⟩ = ⟨f1·g1, f2·g2⟩).
 
-  
-  Create HintDb autodet.
-  Hint Resolve det_id : autodet.
-  Hint Resolve det_proj1 : autodet.
-  Hint Resolve det_proj2 : autodet.
-  Hint Resolve det_del : autodet.
-  Hint Resolve det_comp : autodet.
-  Hint Resolve det_pairing : autodet. 
+  Context (pairing_assoc : ∏ (x y z w : C)
+    (f : x --> y) (g : x --> z) (h : x --> w),
+    ⟨ ⟨ f, g ⟩, h ⟩ · ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩
+    = ⟨ f , ⟨ g, h ⟩ ⟩).
 
-  (* Derived definitions *)
+  Context (pairing_swap : ∏ (a x y : C) (f : a --> x) (g : a --> y),
+    ⟨ f , g ⟩ · ⟨ proj2, proj1 ⟩ = ⟨ g , f ⟩).
 
-  Proposition eta_det {x y z : C} (f g : x --> y ⊗ z) :
+  (* Derived axioms *)
+
+  Corollary det_id {x : C} : det (identity x).
+  Proof.
+    unfold det.
+    now rewrite id_left.
+  Qed.
+
+  Corollary det_comp {x y z : C} (f : x --> y) (g : y --> z) :
+    det f -> det g -> det (f · g).
+  Proof.
+    intros df dg. unfold det in *.
+    rewrite assoc', dg.
+    transitivity (f · ⟨ identity y · g, identity y · g⟩). { now rewrite id_left. }
+    rewrite <- pairing_nat, assoc.
+    rewrite df.
+    now rewrite pairing_nat.
+  Qed.
+
+  (* Some lemmas *)
+
+  Lemma eta_det {x y z : C} (f g : x --> y ⊗ z) :
     det f -> det g ->
     (f · proj1 = g · proj1) -> (f · proj2 = g · proj2) -> f = g.
   Proof.
@@ -104,60 +123,19 @@ Section Quasicartesian.
     rewrite e1, e2. reflexivity.
   Qed.
 
-  Proposition eta_I {x : C} (f g : x --> I) : f = g.
+  Lemma eta_I {x : C} (f g : x --> I) : f = g.
   Proof.
     now rewrite (del_unique _ f), (del_unique _ g).
   Qed.
 
-  (* Tensor *)
-  Definition tensor_mor {x1 x2 y1 y2} (f1 : x1 --> y1) (f2 : x2 --> y2) : 
-      x1 ⊗ x2 --> y1 ⊗ y2 := ⟨proj1 · f1, proj2 · f2⟩.
-  
-  Notation "f #⊗ g" := (tensor_mor f g).
-
-  Hint Unfold tensor_mor : autodet.
-
-  Proposition tensor_det {x1 x2 y1 y2} (f1 : x1 --> y1) (f2 : x2 --> y2) :
-    det f1 -> det f2 -> det (f1 #⊗ f2).
-  Proof.
-    intros d1 d2. unfold tensor_mor. auto with autodet.
-  Qed.
-
-  (* Associator *)
-
-
-  (* Lemmas *)
   Lemma pairing_id (x y : C) : identity (x ⊗ y) = ⟨proj1, proj2⟩.
   Proof.
-    apply eta_det; try auto with autodet.
+    apply eta_det.
+    - apply det_id.
+    - apply det_pairing; apply det_proj1 || apply det_proj2.  
     - rewrite id_left, pairing_proj1. reflexivity.
     - rewrite id_left, pairing_proj2. reflexivity.
-  Qed.   
-
-  (* Building a monoidal category *)
-
-  Definition quasicartesian_tensor_data : tensor_data C.
-  Proof. 
-    use make_bifunctor_data.
-    - exact tensor.
-    - intros a b1 b2 g. exact ⟨proj1, proj2 · g⟩.
-    - intros b a1 a2 f. exact ⟨proj1 · f, proj2⟩.
-  Defined.
-
-  Definition quasicartesian_monoidal_data : monoidal_data C.
-  Proof.
-    use make_monoidal_data.
-    - exact quasicartesian_tensor_data.
-    - exact I.
-    - intros x. exact proj2.
-    - intros x. exact ⟨del x, identity x⟩.
-    - intros x. exact proj1.
-    - intros x. exact ⟨identity x, del x⟩.
-    - intros x y z. exact ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩.
-    - intros x y z. cbn. exact ⟨⟨ proj1, proj2 · proj1⟩, proj2 · proj2⟩.
-  Defined.  
-
-    (* Automation *)
+  Qed.
 
   Lemma proj1_inner {a b x y} (f : a --> b) (g : b --> x) (h : b --> y) :
     f · ⟨ g , h ⟩ · proj1 = f · g.
@@ -170,22 +148,37 @@ Section Quasicartesian.
   Proof.
     now rewrite assoc', pairing_proj2.
   Qed.
-  
-  (* Lemma proj1_inner' {b x y z} (g : b --> x) (h : b --> y) (j : x --> z) :
-    ⟨ g , h ⟩ · (proj1 · j) = g · j.
+
+  Lemma pairing_nat_det {x y z w : C} (f : x --> y) (g : y --> z) (h : y --> w) :
+    det f -> ⟨ f · g, f · h ⟩ = f · ⟨ g, h ⟩.
   Proof.
-    rewrite assoc.
-    apply maponpaths_2.
-    now rewrite pairing_proj1.
+    intros df.
+    rewrite <- pairing_nat, <- df, !assoc'.
+    rewrite pairing_nat, !id_left.
+    reflexivity.
   Qed.
 
-  Lemma proj2_inner' {b x y z} (g : b --> x) (h : b --> y) (j : y --> z) :
-    ⟨ g , h ⟩ · (proj2 · j) = h · j.
+  Lemma pairing_nat_l {a x y z : C} (f1 : a --> x) (f2 : a --> y) (g : x --> z) :
+    ⟨ f1 , f2 ⟩ · ⟨ proj1 · g, proj2 ⟩ = ⟨ f1 · g, f2 ⟩.
   Proof.
-    rewrite assoc.
-    apply maponpaths_2.
-    now rewrite pairing_proj2.
-  Qed. *)
+    now rewrite <- (id_right proj2), pairing_nat, id_right.
+  Qed.
+
+  Lemma pairing_nat_r {a x y z : C} (f1 : a --> x) (f2 : a --> y) (g : y --> z) :
+    ⟨ f1 , f2 ⟩ · ⟨ proj1 , proj2 · g ⟩ = ⟨ f1 , f2 · g ⟩.
+  Proof.
+    now rewrite <- (id_right proj1), pairing_nat, id_right.
+  Qed.
+
+  (* Automation *)
+
+  Create HintDb autodet.
+  Hint Resolve det_id : autodet.
+  Hint Resolve det_proj1 : autodet.
+  Hint Resolve det_proj2 : autodet.
+  Hint Resolve det_del : autodet.
+  Hint Resolve det_comp : autodet.
+  Hint Resolve det_pairing : autodet. 
 
   (* Normalize composite terms; right-associate everything *)
   Ltac normalize := repeat (rewrite assoc).
@@ -214,11 +207,7 @@ Section Quasicartesian.
 
   Ltac qcart_coherence := repeat qcart_eta.
 
-  Proposition pentagon : pentagon_identity α_{ quasicartesian_monoidal_data}.
-  Proof.
-    intros x y z w. cbn. 
-    do 3 qcart_eta.
-  Qed.
+  (* More lemmas *)
 
   Lemma proj1_expand {x y z : C} :
     ⟨ proj1 · proj1 , proj1 · proj2 ⟩ = @proj1 (x ⊗ y) z.
@@ -233,21 +222,34 @@ Section Quasicartesian.
   Qed.
 
 
-  Context (pairing_assoc : ∏ (x y z w : C)
-    (f : x --> y) (g : x --> z) (h : x --> w),
-    ⟨ ⟨ f, g ⟩, h ⟩ · ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩
-    = ⟨ f , ⟨ g, h ⟩ ⟩).
+  (* Building a monoidal category *)
 
-  Context (pairing_swap : ∏ (a x y : C) (f : a --> x) (g : a --> y),
-    ⟨ f , g ⟩ · ⟨ proj2, proj1 ⟩ = ⟨ g , f ⟩).
+  Definition quasicartesian_tensor_data : tensor_data C.
+  Proof. 
+    use make_bifunctor_data.
+    - exact tensor.
+    - intros a b1 b2 g. exact ⟨proj1, proj2 · g⟩.
+    - intros b a1 a2 f. exact ⟨proj1 · f, proj2⟩.
+  Defined.
 
-  (* Let's see if this is provable without assuming it *)
-  Proposition pairing_assoc' (x y z w : C)
-    (f : x --> y) (g : x --> z) (h : x --> w) :
-    ⟨ ⟨ f, g ⟩, h ⟩ · ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩
-    = ⟨ f , ⟨ g, h ⟩ ⟩.
+  Definition quasicartesian_monoidal_data : monoidal_data C.
   Proof.
-  Abort.
+    use make_monoidal_data.
+    - exact quasicartesian_tensor_data.
+    - exact I.
+    - intros x. exact proj2.
+    - intros x. exact ⟨del x, identity x⟩.
+    - intros x. exact proj1.
+    - intros x. exact ⟨identity x, del x⟩.
+    - intros x y z. exact ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩.
+    - intros x y z. cbn. exact ⟨⟨ proj1, proj2 · proj1⟩, proj2 · proj2⟩.
+  Defined.  
+
+  Proposition pentagon : pentagon_identity α_{ quasicartesian_monoidal_data}.
+  Proof.
+    intros x y z w. cbn. 
+    do 3 qcart_eta.
+  Qed.
 
   Proposition left_whisker_natural : associator_nat_leftwhisker α_{ quasicartesian_monoidal_data}.
   Proof.
@@ -273,27 +275,6 @@ Section Quasicartesian.
     }
     rewrite pairing_nat, !id_right.
     reflexivity.
-  Qed.
-
-  Lemma pairing_nat_det {x y z w : C} (f : x --> y) (g : y --> z) (h : y --> w) :
-    det f -> ⟨ f · g, f · h ⟩ = f · ⟨ g, h ⟩.
-  Proof.
-    intros df.
-    rewrite <- pairing_nat, <- df, !assoc'.
-    rewrite pairing_nat, !id_left.
-    reflexivity.
-  Qed.
-
-  Lemma pairing_nat_l {a x y z : C} (f1 : a --> x) (f2 : a --> y) (g : x --> z) :
-    ⟨ f1 , f2 ⟩ · ⟨ proj1 · g, proj2 ⟩ = ⟨ f1 · g, f2 ⟩.
-  Proof.
-    now rewrite <- (id_right proj2), pairing_nat, id_right.
-  Qed.
-
-  Lemma pairing_nat_r {a x y z : C} (f1 : a --> x) (f2 : a --> y) (g : y --> z) :
-    ⟨ f1 , f2 ⟩ · ⟨ proj1 , proj2 · g ⟩ = ⟨ f1 , f2 · g ⟩.
-  Proof.
-    now rewrite <- (id_right proj1), pairing_nat, id_right.
   Qed.
 
   Proposition right_whisker_natural : associator_nat_rightwhisker α_{ quasicartesian_monoidal_data}.
