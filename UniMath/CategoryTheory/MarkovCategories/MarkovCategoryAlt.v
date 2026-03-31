@@ -171,7 +171,7 @@ Section Quasicartesian.
     now rewrite assoc', pairing_proj2.
   Qed.
   
-  Lemma proj1_inner' {b x y z} (g : b --> x) (h : b --> y) (j : x --> z) :
+  (* Lemma proj1_inner' {b x y z} (g : b --> x) (h : b --> y) (j : x --> z) :
     ⟨ g , h ⟩ · (proj1 · j) = g · j.
   Proof.
     rewrite assoc.
@@ -185,32 +185,14 @@ Section Quasicartesian.
     rewrite assoc.
     apply maponpaths_2.
     now rewrite pairing_proj2.
-  Qed.
-(* 
-  Ltac qcart_simpl_old :=
-    (apply eta_I) || (
-    repeat (rewrite id_left || rewrite id_right || rewrite pairing_proj1 || rewrite pairing_proj2);
-    try reflexivity).
+  Qed. *)
 
-  Ltac qcart_simpl_shake := 
-    qcart_simpl_old; 
-    (try (rewrite !assoc'; qcart_simpl_old) 
-    ; (try (rewrite !assoc; qcart_simpl_old))).
-
-  Ltac qcart_eta :=
-      apply eta_I || (apply eta_det; try auto 25 with autodet; qcart_simpl_shake). *)
-
-  (* New tactics *)
-
-  (* f = ! is also a redex *)
-  (* Prove lemmas either in left-associated or right-associated normal form *)
-
-  (* Simplify a redex *)
-
+  (* Normalize composite terms; right-associate everything *)
   Ltac normalize := repeat (rewrite assoc).
 
-  Ltac qcart_simpl2 :=
-    normalize ;
+  (* A single reduction step *)
+  Ltac qcart_simpl_step :=
+    normalize ||
        (rewrite id_left 
     || rewrite id_right 
     || rewrite pairing_proj1
@@ -218,51 +200,26 @@ Section Quasicartesian.
     || rewrite proj1_inner
     || rewrite proj2_inner).
 
-  Ltac qcart_simpl := repeat qcart_simpl2.
+  (* Many reduction steps *)
+  Ltac qcart_simpl := repeat qcart_simpl_step.
 
+  (* Simplify and solve trivial goals (reflexivity or unit type) *)
   Ltac qcart_progress :=
        apply eta_I (* solve goals of type x --> I *)
     || (qcart_simpl; try reflexivity). (* try simplifying and solving *)
 
+  (* Eta-expand deterministic morphisms of tensor type, followed by simplification *)
   Ltac qcart_eta :=
-    qcart_progress || (apply eta_det; try auto 30 with autodet; qcart_progress).
+    (try qcart_progress); (apply eta_det; try auto 20 with autodet; try qcart_progress).
 
-
+  Ltac qcart_coherence := repeat qcart_eta.
 
   Proposition pentagon : pentagon_identity α_{ quasicartesian_monoidal_data}.
   Proof.
-  intros x y z w. cbn.
-  qcart_eta.
-  * qcart_simpl.
-  * qcart_eta.
-    + etrans. {
-        rewrite !assoc'.
-        apply maponpaths.
-        rewrite assoc.
-        rewrite pairing_proj2.
-        rewrite assoc.
-        now rewrite pairing_proj1.
-      }
-      rewrite !assoc, pairing_proj1, !assoc'.
-      apply maponpaths.
-      rewrite !assoc, pairing_proj2, pairing_proj1.
-      reflexivity.
-    + qcart_eta.
-      -- etrans. {
-          rewrite !assoc'.
-          apply maponpaths.
-          now rewrite !assoc, pairing_proj2, pairing_proj1.
-          }
-          rewrite !assoc, pairing_proj1, !assoc'.
-          apply maponpaths.
-          now rewrite !assoc, !pairing_proj2.
-      -- etrans. {
-          rewrite !assoc'.
-          apply maponpaths.
-          now rewrite !assoc, pairing_proj2, pairing_proj2.
-          }
-          now rewrite pairing_proj2.
+    intros x y z w. cbn. 
+    do 3 qcart_eta.
   Qed.
+
   Lemma proj1_expand {x y z : C} :
     ⟨ proj1 · proj1 , proj1 · proj2 ⟩ = @proj1 (x ⊗ y) z.
   Proof.
@@ -377,17 +334,17 @@ Section Quasicartesian.
       unfold functoronmorphisms1, functoronmorphisms2; cbn.
       now rewrite pairing_nat_l, pairing_nat_r.
     - (* Left unitor natural *) 
-      intros x y f. cbn. qcart_simpl.
+      intros x y f. cbn. qcart_progress.
     - (* Left unitor iso 1 *)    
       cbn. qcart_eta.
     - (* Left unitor iso 2 *) 
-      cbn. qcart_simpl.
+      cbn. qcart_progress.
     - (* Right unitor natural *)
-      intros x y f. cbn. qcart_simpl.
+      intros x y f. cbn. qcart_progress.
     - (* Right unitor iso 1 *) 
       cbn. qcart_eta.
     - (* Right unitor iso 2 *)
-      cbn. qcart_simpl.
+      cbn. qcart_progress.
     - (* Left whiskering natural *)   
       apply left_whisker_natural.
     - (* Right whiskering natural *)
@@ -431,28 +388,7 @@ Section Quasicartesian.
       now rewrite !pairing_nat_r, pairing_nat, pairing_swap.
     - intros x y z. cbn. 
       unfold swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
-      qcart_eta.
-      * rewrite pairing_swap, !pairing_proj1.
-        rewrite <- pairing_id, id_right.
-        now rewrite pairing_proj1, assoc', pairing_proj1.
-      * qcart_eta.
-        + symmetry.
-          rewrite pairing_swap, pairing_proj1, pairing_proj2.
-          do 2 (rewrite <- pairing_id, id_right).
-          etrans. {
-              apply maponpaths_2.
-              rewrite !assoc', pairing_proj2.
-              rewrite pairing_nat_l.
-              now rewrite !assoc', pairing_proj2.
-          }
-          now rewrite pairing_proj2.
-        + do 2 (rewrite <- pairing_id, id_right).
-          symmetry. etrans. {
-            apply maponpaths_2.
-            rewrite !assoc', pairing_proj2.
-            now rewrite pairing_nat_l, assoc', pairing_proj2.
-          }
-          now rewrite pairing_proj1.
+      do 2 qcart_eta.
   Defined.      
 
   Definition sym : symmetric quasicartesian_monoidal.
@@ -469,8 +405,6 @@ Section Quasicartesian.
 
   (* Markov category -- ez *)
 
-
-
   Definition quasicartesian_markov_data : markov_category_data.
   Proof.
     refine (quasicartesian_sym_monoidal_cat ,, _ ,, _).
@@ -482,28 +416,12 @@ Section Quasicartesian.
   Definition quasicartesian_markov_laws : markov_category_laws quasicartesian_markov_data.
   Proof.
     repeat split; cbn; unfold swap, monoidal_cat_tensor_mor, functoronmorphisms1; cbn.
-    - intros x. 
-      qcart_eta.
-      * rewrite <- pairing_id, id_right.
-        refine(!_). etrans. {
-          apply maponpaths_2.
-          now rewrite !assoc', pairing_proj1, assoc, pairing_proj1, id_left.
-        }
-        now rewrite pairing_proj1.
-      * rewrite <- !pairing_id, !id_right, pairing_proj2, id_left.
-        rewrite det_proj1.
-        rewrite assoc', pairing_nat_l, pairing_proj2.
-        now rewrite <- pairing_id, id_right.
-    - intros x. qcart_simpl_shake.
-    - intros x. qcart_simpl_shake.
+    - intros x. do 2 qcart_eta.
+    - intros x. qcart_eta.
+    - intros x. qcart_eta.
     - intros x. qcart_eta.
     - intros x y. unfold inner_swap. cbn. unfold swap. 
-      qcart_eta; qcart_eta.
-      * etrans. { apply maponpaths_2. now rewrite assoc', pairing_proj1. }
-        qcart_simpl_shake.
-      * repeat (rewrite !assoc'; rewrite !proj2_inner' || rewrite !proj1_inner'; qcart_simpl_shake).
-      * repeat (rewrite !assoc'; rewrite !proj2_inner' || rewrite !proj1_inner'; qcart_simpl_shake).
-      * repeat (rewrite !assoc'; rewrite !proj2_inner' || rewrite !proj1_inner'; qcart_simpl_shake).
+      do 2 qcart_eta. 
   Defined.
   
   Definition quasicartesian_markov : markov_category.
