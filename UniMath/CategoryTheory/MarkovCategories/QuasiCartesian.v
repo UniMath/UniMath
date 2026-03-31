@@ -6,8 +6,8 @@ pairing and projections. We adapt this presentation to give an
 alternative axiomatization of Markov categories. 
 * The advantage is that reasoning about coherence 
   in the new axioms is much simpler and easy to automate.
-* Our presentation becomes implicational because some 
-  η-laws only hold for deterministic morphisms.
+* Our presentation becomes implicational instead of equational
+  because some η-laws only hold for deterministic morphisms.
 
 It also seems related to the equational presentation 
 of the CD calculus, and centrality in Freyd categories
@@ -31,11 +31,6 @@ Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
-(* 
-Declare Scope markov.
-Delimit Scope markov with markov.
-
-Local Open Scope markov. *)
 
 Section Quasicartesian.
   Context (C : category)
@@ -384,7 +379,7 @@ Section Quasicartesian.
     refine (quasicartesian_monoidal_cat ,, sym).
   Defined.
 
-  (* Markov category -- ez *)
+  (* Markov category *)
 
   Definition quasicartesian_markov_data : markov_category_data.
   Proof.
