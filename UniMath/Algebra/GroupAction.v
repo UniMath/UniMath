@@ -98,7 +98,7 @@ Proof.
       apply funextsec; intro x. apply setproperty. }
     destruct p. apply idpath. }
   { intro p. apply isaset_ActionStructure. }
-  { intro is. apply proofirrelevance.
+  { intro isc. apply proofirrelevance.
     apply impred; intros g.
     apply impred; intros x.
     apply setproperty. }

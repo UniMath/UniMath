@@ -105,8 +105,8 @@ Section StandardLimitUP.
   Qed.
 
   (** A weak equivalence expressing the above universal property. *)
-  Definition limit_up_weq {X L} {C : cone d L} {is : is_limit_cone C} :
-    (X → L) ≃ cone d X := make_weq (into_cone_to_cone C) (is X).
+  Definition limit_up_weq {X L} {C : cone d L} {isc : is_limit_cone C} :
+    (X → L) ≃ cone d X := make_weq (into_cone_to_cone C) (isc X).
 
   (** The universal property of a limit.
 

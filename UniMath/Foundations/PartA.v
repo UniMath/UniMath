@@ -1004,16 +1004,16 @@ Definition iscontr_uniqueness {T} (i:iscontr T) (t:T) : t = iscontrpr1 i
   := pr2 i t.
 
 Lemma iscontrretract {X Y : UU} (p : X -> Y) (s : Y -> X)
-      (eps : ∏ y : Y, p (s y) = y) (is : iscontr X) : iscontr Y.
+      (eps : ∏ y : Y, p (s y) = y) (isc : iscontr X) : iscontr Y.
 Proof.
-  intros. set (x := iscontrpr1 is). set (fe := pr2 is). split with (p x).
+  intros. set (x := iscontrpr1 isc). set (fe := pr2 isc). split with (p x).
   intro t. apply (! (eps t) @ maponpaths p (fe (s t))).
 Defined.
 
-Lemma proofirrelevancecontr {X : UU} (is : iscontr X) (x x' : X) : x = x'.
+Lemma proofirrelevancecontr {X : UU} (isc : iscontr X) (x x' : X) : x = x'.
 Proof.
   intros.
-  apply ((pr2 is) x @ !(pr2 is x')).
+  apply ((pr2 isc) x @ !(pr2 isc x')).
 Defined.
 
 Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : ∃! a, B a)
@@ -1251,8 +1251,8 @@ Proof.
   intros. unfold weqccontrhfiber. apply (pr2 (pr2 w y)).
 Defined.
 
-Definition make_weq {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
-  tpair (λ f : X -> Y, isweq f) f is.
+Definition make_weq {X Y : UU} (f : X -> Y) (isc: isweq f) : X ≃ Y :=
+  tpair (λ f : X -> Y, isweq f) f isc.
 
 Definition idweq (X : UU) : X ≃ X :=
   tpair (λ f : X -> X, isweq f) (λ (x : X), x) (idisweq X).
@@ -1265,13 +1265,13 @@ Defined.
 Definition weqtoempty {X : UU} (f : X -> ∅) : X ≃ ∅ :=
   make_weq _ (isweqtoempty f).
 
-Lemma isweqtoempty2 {X Y : UU} (f : X -> Y) (is : ¬ Y) : isweq f.
+Lemma isweqtoempty2 {X Y : UU} (f : X -> Y) (isc : ¬ Y) : isweq f.
 Proof.
-  intros. intro y. induction (is y).
+  intros. intro y. induction (isc y).
 Defined.
 
-Definition weqtoempty2 {X Y : UU} (f : X -> Y) (is : ¬ Y) : X ≃ Y
-  := make_weq _ (isweqtoempty2 f is).
+Definition weqtoempty2 {X Y : UU} (f : X -> Y) (isc : ¬ Y) : X ≃ Y
+  := make_weq _ (isweqtoempty2 f isc).
 
 Definition weqempty {X Y : UU} : ¬X → ¬Y → X≃Y.
 Proof.
@@ -1468,9 +1468,9 @@ Defined.
 
 (** *** Weak equivalences between contractible types (one implication) *)
 
-Lemma iscontrweqb {X Y : UU} (w : X ≃ Y) (is : iscontr Y) : iscontr X.
+Lemma iscontrweqb {X Y : UU} (w : X ≃ Y) (isc : iscontr Y) : iscontr X.
 Proof.
-  intros. apply (iscontrretract (invmap w) w (homotinvweqweq w) is).
+  intros. apply (iscontrretract (invmap w) w (homotinvweqweq w) isc).
 Defined.
 
 (** *** [ unit ] and contractibility *)
@@ -1538,10 +1538,10 @@ Proof.
   apply (iscontrpathsinunit tt tt).
 Defined.
 
-Lemma isweqcontrtounit {T : UU} (is : iscontr T) : isweq (λ (_ : T), tt).
+Lemma isweqcontrtounit {T : UU} (isc : iscontr T) : isweq (λ (_ : T), tt).
 Proof.
   intros. unfold isweq. intro y. induction y.
-  induction is as [c h].
+  induction isc as [c h].
   set (hc := make_hfiber _ c (idpath tt)).
   split with hc.
   intros ha.
@@ -1552,8 +1552,8 @@ Proof.
   apply ifcontrthenunitl0.
 Defined.
 
-Definition weqcontrtounit {T : UU} (is : iscontr T) : T ≃ unit :=
-  make_weq _ (isweqcontrtounit is).
+Definition weqcontrtounit {T : UU} (isc : iscontr T) : T ≃ unit :=
+  make_weq _ (isweqcontrtounit isc).
 
 Theorem iscontrifweqtounit {X : UU} (w : X ≃ unit) : iscontr X.
 Proof.
@@ -1587,14 +1587,14 @@ Defined.
 
 Lemma iscontrhfiberl1 {X Y : UU} (f : X -> Y) (g : Y -> X)
       (efg: ∏ y : Y, f (g y) = y) (x0 : X)
-      (is : iscontr (hfiber (g ∘ f) x0)) : iscontr (hfiber g x0).
+      (isc : iscontr (hfiber (g ∘ f) x0)) : iscontr (hfiber g x0).
 Proof.
   intros.
   set (f1 := hfibersgftog f g x0).
   set (g1 := λ (xe : hfiber g x0), pr1 (constr2 f g efg x0 xe)).
   set (efg1 := λ (xe : hfiber g x0), ! (pr2 (constr2 f g efg x0 xe))).
   apply (iscontrretract f1 g1 efg1).
-  apply is.
+  apply isc.
 Defined.
 
 Definition homothfiber1 {X Y : UU} (f g : X -> Y)
@@ -1637,13 +1637,13 @@ Proof.
 Defined.
 
 Lemma iscontrhfiberl2 {X Y : UU} (f g : X -> Y)
-      (h : f ~ g) (y : Y) (is : iscontr (hfiber f y)) : iscontr (hfiber g y).
+      (h : f ~ g) (y : Y) (isc : iscontr (hfiber f y)) : iscontr (hfiber g y).
 Proof.
   intros.
   set (a := homothfiber1 f g h y).
   set (b := homothfiber2 f g h y).
   set (eab := homothfiberretr f g h y).
-  apply (iscontrretract a b eab is).
+  apply (iscontrretract a b eab isc).
 Defined.
 
 Corollary isweqhomot {X Y : UU} (f1 f2 : X -> Y)
@@ -1816,9 +1816,9 @@ Proof.
   intros. apply idpath.
 Defined.
 
-Corollary iscontrweqf {X Y : UU} (w : X ≃ Y) (is : iscontr X) : iscontr Y.
+Corollary iscontrweqf {X Y : UU} (w : X ≃ Y) (isc : iscontr X) : iscontr Y.
 Proof.
-  intros. apply (iscontrweqb (invweq w) is).
+  intros. apply (iscontrweqb (invweq w) isc).
 Defined.
 
 (** Equality between pairs is equivalent to pairs of equalities
@@ -1852,16 +1852,16 @@ Defined.
 
 (** The standard weak equivalence from [ unit ] to a contractible type *)
 
-Definition wequnittocontr {X : UU} (is : iscontr X) : unit ≃ X.
+Definition wequnittocontr {X : UU} (isc : iscontr X) : unit ≃ X.
 Proof.
   intros.
-  set (f := λ (_ : unit), pr1 is).
+  set (f := λ (_ : unit), pr1 isc).
   set (g := λ (_ : X), tt).
   split with f.
   assert (egf : ∏ t : unit, g (f t) = t).
   { intro. induction t. apply idpath. }
   assert (efg : ∏ x : X, f (g x) = x).
-  { intro. apply (! (pr2 is x)). }
+  { intro. apply (! (pr2 isc x)). }
   apply (isweq_iso _ _ egf efg).
 Defined.
 
@@ -2949,7 +2949,7 @@ definition of [ ezmap ] below. The mapping in another is given by
 
 A complex is called a fibration sequence if [ ezmap ] is a weak equivalence.
 Correspondingly, the structure of a fibration sequence on [ f g z ] is a pair
-[ (ez , is) ] where [ is : isweq (ezmap f g z ez) ]. For a fibration sequence
+[ (ez , isc) ] where [ isc : isweq (ezmap f g z ez) ]. For a fibration sequence
 [ f g z fs ]  where [ fs : fibseqstr f g z ] and any [ y : Y ] there is defined
 a function [ diff1 : (g y) = z -> X ] and a structure of the fibration
 sequence [ fibseqdiff1 ] on the triple [ diff1 g y ]. This new fibration
@@ -3393,8 +3393,8 @@ Defined.
 
 
 Definition weqtotaltofib {X : UU} (P Q : X -> UU) (f : ∏ x : X , P x -> Q x)
-           (is : isweq (totalfun _ _ f)) (x : X) : P x ≃ Q x
-  := make_weq _ (isweqtotaltofib P Q f is x).
+           (isc : isweq (totalfun _ _ f)) (x : X) : P x ≃ Q x
+  := make_weq _ (isweqtotaltofib P Q f isc x).
 
 
 Theorem isweqfibtototal {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x ≃ Q x) :
@@ -3511,7 +3511,7 @@ Proof.
   intro. induction u as [ t x ]. induction x as [ t0 x ]. induction t0.
   simpl in x. simpl. unfold fromint. unfold toint. simpl. apply idpath.
 
-  assert (is : isweq toint). apply (isweq_iso toint fromint fromto tofrom).
+  assert (isc : isweq toint). apply (isweq_iso toint fromint fromto tofrom).
 
   clear tofrom. clear fromto. clear fromint.
   set (h := λ u : total2 (λ x : X, P (f x)), toint ((hffpmap2 f P) u)).
@@ -3528,7 +3528,7 @@ Proof.
            (λ x : X, total2 (λ u : coconusfromt _ (f x), P (pr1 u)))
            (λ x : X, make_weq _ (l1 x))).
 
-  apply (twooutof3a (hffpmap2 f P) toint X0 is).
+  apply (twooutof3a (hffpmap2 f P) toint X0 isc).
 Defined.
 
 (** *** Homotopy fibers of [ fpmap ] *)
@@ -3573,8 +3573,8 @@ Proof.
   intros.
   unfold isweq. intro y. set (h := hfiberfpmap w P y).
   assert (X1 : isweq h). apply isweqhfiberfp.
-  assert (is : iscontr (hfiber w (pr1 y))). apply (pr2 w).
-  apply (iscontrweqb (make_weq h X1) is).
+  assert (isc : iscontr (hfiber w (pr1 y))). apply (pr2 w).
+  apply (iscontrweqb (make_weq h X1) isc).
 Defined.
 
 Definition weqfp_map {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
@@ -3881,10 +3881,10 @@ Lemma isweqhfibersgtof' {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y) (g : Z -> X)
   isweq (hfibersgtof' f f' g g' hf x).
 Proof.
   intros.
-  set (is := pr2 hf).
+  set (isc := pr2 hf).
   set (h := pr1 hf).
   set (a := weqtococonusf g).
-  set (c := make_weq _ is).
+  set (c := make_weq _ isc).
   set (d := weqhfptohfpoverX f f').
   set (b0 := totalfun _ _ (hfibersgtof' f f' g g' h)).
 
@@ -3909,13 +3909,13 @@ Definition weqhfibersgtof' {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
 
 Lemma ishfsqweqhfibersgtof' {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
       (g : Z -> X) (g' : Z -> X') (h : commsqstr g' f' g f)
-      (is : ∏ x : X, isweq (hfibersgtof' f f' g g' h x)) : hfsqstr f f' g g'.
+      (isc : ∏ x : X, isweq (hfibersgtof' f f' g g' h x)) : hfsqstr f f' g g'.
 Proof.
   intros. split with h.
   set (a := weqtococonusf g).
   set (c0 := commsqZtohfp f f' g g' h).
   set (d := weqhfptohfpoverX f f').
-  set (b := weqfibtototal _ _ (λ x : X, make_weq _ (is x))).
+  set (b := weqfibtototal _ _ (λ x : X, make_weq _ (isc x))).
 
   assert (h1 : ∏ z : Z, (d (c0 z)) = (b (a z))).
   intro. simpl. unfold b. unfold a. unfold weqtococonusf. unfold tococonusf.
@@ -3935,10 +3935,10 @@ Lemma isweqhfibersg'tof {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y) (g : Z -> X)
   isweq (hfibersg'tof f f' g g' hf x').
 Proof.
   intros.
-  set (is := pr2 hf).
+  set (isc := pr2 hf).
   set (h := pr1 hf).
   set (a' := weqtococonusf g').
-  set (c' := make_weq _ is).
+  set (c' := make_weq _ isc).
   set (d' := weqhfptohfpoverX' f f').
   set (b0' := totalfun _ _ (hfibersg'tof f f' g g' h)).
 
@@ -3963,14 +3963,14 @@ Definition weqhfibersg'tof {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
 
 Lemma ishfsqweqhfibersg'tof {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
       (g : Z -> X) (g' : Z -> X') (h : commsqstr g' f' g f)
-      (is : ∏ x' : X', isweq (hfibersg'tof f f' g g' h x')) : hfsqstr f f' g g'.
+      (isc : ∏ x' : X', isweq (hfibersg'tof f f' g g' h x')) : hfsqstr f f' g g'.
 Proof.
   intros.
   split with h.
   set (a' := weqtococonusf g').
   set (c0' := commsqZtohfp f f' g g' h).
   set (d' := weqhfptohfpoverX' f f').
-  set (b' := weqfibtototal _ _ (λ x' : X', make_weq _ (is x'))).
+  set (b' := weqfibtototal _ _ (λ x' : X', make_weq _ (isc x'))).
 
   assert (h1 : ∏ z : Z, (d' (c0' z)) = (b' (a' z))).
   intro. simpl. unfold b'. unfold a'. unfold weqtococonusf. unfold tococonusf.
@@ -3990,7 +3990,7 @@ Theorem transposhfpsqstr {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y) (g : Z -> X
         (g' : Z -> X') (hf : hfsqstr f f' g g') : hfsqstr f' f g' g.
 Proof.
   intros.
-  set (is := pr2 hf). set (h := pr1 hf).
+  set (isc := pr2 hf). set (h := pr1 hf).
   set (th := transposcommsqstr f f' g g' h).
   split with th.
   set (w1 := weqhfpcomm f f').
@@ -3998,7 +3998,7 @@ Proof.
                         = (commsqZtohfp f' f g' g th z)).
   intro. unfold commsqZtohfp. simpl. unfold fpmap. unfold totalfun.
   simpl. apply idpath.
-  apply (isweqhomot _ _ h1). apply (twooutof3c _ _ is (pr2 w1)).
+  apply (isweqhomot _ _ h1). apply (twooutof3c _ _ isc (pr2 w1)).
 Defined.
 
 

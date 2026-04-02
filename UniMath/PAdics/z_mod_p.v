@@ -814,7 +814,7 @@ Proof.
   - apply ( hzqrand0ineq p x ).
 Defined.
 
-Lemma hzqrand1eq ( p : hz ) ( is : isaprime p ) : 1 = ( ( p * 0 ) + 1 ).
+Lemma hzqrand1eq ( p : hz ) ( isc : isaprime p ) : 1 = ( ( p * 0 ) + 1 ).
 Proof.
   intros.
   rewrite hzmultx0.
@@ -822,7 +822,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma hzqrand1ineq ( p : hz ) ( is : isaprime p ) :
+Lemma hzqrand1ineq ( p : hz ) ( isc : isaprime p ) :
   hzleh 0 1 × hzlth 1 ( nattohz ( hzabsval p ) ).
 Proof.
   intros.
@@ -830,32 +830,32 @@ Proof.
   - apply hzlthtoleh.
     apply hzlthnsn.
   - rewrite hzabsvalgth0.
-    + apply is.
+    + apply isc.
     + apply ( istranshzgth _ 1 _ ).
-      * apply is.
+      * apply isc.
       * apply ( hzgthsnn 0 ).
 Defined.
 
-Lemma hzqrand1q ( p : hz ) ( is : isaprime p ) :
-  hzquotientmod p ( isaprimetoneq0 is ) 1 = 0.
+Lemma hzqrand1q ( p : hz ) ( isc : isaprime p ) :
+  hzquotientmod p ( isaprimetoneq0 isc ) 1 = 0.
 Proof.
   intros.
   apply pathsinv0.
-  apply ( hzqrtestq p ( isaprimetoneq0 is ) 1 0 1 ).
+  apply ( hzqrtestq p ( isaprimetoneq0 isc ) 1 0 1 ).
   split.
-  - apply ( hzqrand1eq p is ).
-  - apply ( hzqrand1ineq p is ).
+  - apply ( hzqrand1eq p isc ).
+  - apply ( hzqrand1ineq p isc ).
 Defined.
 
-Lemma hzqrand1r ( p : hz ) ( is : isaprime p ) :
-  hzremaindermod p ( isaprimetoneq0 is ) 1 = 1.
+Lemma hzqrand1r ( p : hz ) ( isc : isaprime p ) :
+  hzremaindermod p ( isaprimetoneq0 isc ) 1 = 1.
 Proof.
   intros.
   apply pathsinv0.
-  apply ( hzqrtestr p ( isaprimetoneq0 is ) 1 0 1 ).
+  apply ( hzqrtestr p ( isaprimetoneq0 isc ) 1 0 1 ).
   split.
-  - apply ( hzqrand1eq p is ).
-  - apply ( hzqrand1ineq p is ).
+  - apply ( hzqrand1eq p isc ).
+  - apply ( hzqrand1ineq p isc ).
 Defined.
 
 Lemma hzqrandselfeq ( p : hz ) ( x : hzneq 0 p ) : p = ( p * 1 + 0 ).
@@ -1046,10 +1046,10 @@ Proof.
   - apply hzqrandtimesineq.
 Defined.
 
-Lemma hzqrandremaindereq ( m : hz ) ( is : hzneq 0 m ) ( n : hz ) :
-  hzremaindermod m is n =
-  ( ( m * ( pr1 ( make_dirprod 0 ( hzremaindermod m is n ) ) ) +
-          ( pr2 ( make_dirprod (@ringunel1 hz ) ( hzremaindermod m is n ) ) ) ) ).
+Lemma hzqrandremaindereq ( m : hz ) ( isc : hzneq 0 m ) ( n : hz ) :
+  hzremaindermod m isc n =
+  ( ( m * ( pr1 ( make_dirprod 0 ( hzremaindermod m isc n ) ) ) +
+          ( pr2 ( make_dirprod (@ringunel1 hz ) ( hzremaindermod m isc n ) ) ) ) ).
 Proof.
   intros.
   simpl.
@@ -1058,9 +1058,9 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma hzqrandremainderineq ( m : hz ) ( is : hzneq 0 m ) ( n : hz ) :
-  hzleh ( @ringunel1 hz ) ( hzremaindermod m is n ) ×
-  hzlth ( hzremaindermod m is n ) ( nattohz ( hzabsval m ) ).
+Lemma hzqrandremainderineq ( m : hz ) ( isc : hzneq 0 m ) ( n : hz ) :
+  hzleh ( @ringunel1 hz ) ( hzremaindermod m isc n ) ×
+  hzlth ( hzremaindermod m isc n ) ( nattohz ( hzabsval m ) ).
 Proof.
   intros.
   split.
@@ -1068,22 +1068,22 @@ Proof.
   - apply hzlthremaindermodmod.
 Defined.
 
-Lemma hzremaindermoditerated ( m : hz ) ( is : hzneq 0 m ) ( n : hz ) :
-  hzremaindermod m is ( hzremaindermod m is n ) = ( hzremaindermod m is n ).
+Lemma hzremaindermoditerated ( m : hz ) ( isc : hzneq 0 m ) ( n : hz ) :
+  hzremaindermod m isc ( hzremaindermod m isc n ) = ( hzremaindermod m isc n ).
 Proof.
   intros.
   apply pathsinv0.
-  apply ( hzqrtestr m is ( hzremaindermod m is n ) 0 ( hzremaindermod m is n ) ).
+  apply ( hzqrtestr m isc ( hzremaindermod m isc n ) 0 ( hzremaindermod m isc n ) ).
   split.
   - apply hzqrandremaindereq.
   - apply hzqrandremainderineq.
 Defined.
 
-Lemma hzqrandremainderq ( m : hz ) ( is : hzneq 0 m ) ( n : hz ) :
-  0 = hzquotientmod m is ( hzremaindermod m is n ).
+Lemma hzqrandremainderq ( m : hz ) ( isc : hzneq 0 m ) ( n : hz ) :
+  0 = hzquotientmod m isc ( hzremaindermod m isc n ).
 Proof.
   intros.
-  apply ( hzqrtestq m is ( hzremaindermod m is n ) 0 ( hzremaindermod m is n ) ).
+  apply ( hzqrtestq m isc ( hzremaindermod m isc n ) 0 ( hzremaindermod m isc n ) ).
   split.
   - apply hzqrandremaindereq.
   - apply hzqrandremainderineq.
@@ -1149,7 +1149,7 @@ Proof.
     }
     apply ( total2_paths2_f f0 ).
     assert ( isaprop ( iscommonhzdiv l n m ×
-                       forall x : hz, iscommonhzdiv x n m -> hzleh x l ) ) as is.
+                       forall x : hz, iscommonhzdiv x n m -> hzleh x l ) ) as isc.
     { apply isofhleveldirprod.
       - apply isapropiscommonhzdiv.
       - apply impred.
@@ -1157,7 +1157,7 @@ Proof.
         apply impredfun.
         apply ( hzleh t l ).
     }
-    apply is.
+    apply isc.
   }
   split with f.
   intro g.
@@ -2243,10 +2243,10 @@ Lemma gcdandprime ( p : hz ) ( x : hzneq 0 p ) ( y : isaprime p )
       ( a : hz ) ( q : neg ( hzmod p x a 0 ) ) : gcd p a x = 1.
 Proof.
   intros.
-  assert ( isaprop ( gcd p a x = 1) ) as is
+  assert ( isaprop ( gcd p a x = 1) ) as isc
   by apply isasethz.
   apply ( pr2 y ( gcd p a x )
-              ( pr1 ( gcdiscommondiv p a x ) ) (make_hProp _ is ) ).
+              ( pr1 ( gcdiscommondiv p a x ) ) (make_hProp _ isc ) ).
   intro t.
   destruct t as [ t0 | t1 ].
   - apply t0.

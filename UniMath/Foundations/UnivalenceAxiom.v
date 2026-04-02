@@ -137,9 +137,9 @@ Proof.
       + assert ( egf1 : ∏ a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  a1' = a1 ).
         * intros.
           set ( X' :=  maponpaths pr1 X ).
-          assert ( is : isweq h ).
+          assert ( isc : isweq h ).
           { simpl in h .  apply isweqpr1pr1 . }
-          apply ( invmaponpathsweq ( make_weq h is ) _ _ X' ).
+          apply ( invmaponpathsweq ( make_weq h isc ) _ _ X' ).
         * set ( egf := λ a1 , egf1 _ _ ( egf0 a1 ) ).
           set ( is2 := isweq_iso _ _ egf efg ).
           apply ( isweqtotaltofib _ _ ( λ _, eqweqmap) is2 ( make_dirprod T1 T2 ) ).
@@ -415,12 +415,12 @@ Definition weqfunextsec { T : UU } (P:T -> UU) (f g : ∏ t:T, P t) :
   := invweq (weqtoforallpaths P f g).
 (* Print Assumptions weqfunextsec. (* isweqtoforallpathsAxiom *) *)
 
-Corollary funcontrtwice { X : UU } (P: X-> X -> UU) (is: ∏ (x x':X), iscontr (P x x')) :
+Corollary funcontrtwice { X : UU } (P: X-> X -> UU) (isc: ∏ (x x':X), iscontr (P x x')) :
   iscontr (∏ (x x':X), P x x').
 Proof.
   intros.
   assert (is1: ∏ x:X, iscontr (∏ x':X, P x x')).
-  - intro. apply (funcontr _ (is x)).
+  - intro. apply (funcontr _ (isc x)).
   - apply (funcontr _ is1).
 Defined.
 

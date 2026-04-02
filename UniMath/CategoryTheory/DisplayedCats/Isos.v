@@ -32,9 +32,9 @@ Section Isos.
 
   Definition make_z_iso_disp {C : precategory} {D : disp_cat_data C}
              {x y : C} {f : z_iso x y} {xx : D x} {yy : D y}
-             (ff : xx -->[f] yy) (is : is_z_iso_disp f ff)
+             (ff : xx -->[f] yy) (isc : is_z_iso_disp f ff)
     : z_iso_disp _ _ _
-    := (ff,, is).
+    := (ff,, isc).
 
   Definition mor_disp_from_z_iso {C : precategory} {D : disp_cat_data C}
              {x y : C} {f : z_iso x y}{xx : D x} {yy : D y}
@@ -127,11 +127,11 @@ Section Isos.
   Lemma is_z_iso_disp_transportf {C : category} {D : disp_cat C}
         {x y : C} {f f' : z_iso x y} (e : f = f')
         {xx : D x} {yy} {ff : xx -->[f] yy}
-        (is : is_z_iso_disp _ ff)
+        (isc : is_z_iso_disp _ ff)
     : is_z_iso_disp f' (transportf _ (maponpaths _ e) ff).
   Proof.
     induction e.
-    apply is.
+    apply isc.
   Qed.
 
   Lemma transportf_z_iso_disp {C : category} {D : disp_cat C}
