@@ -425,7 +425,7 @@ Qed.
 Definition comp_cat_subst_ty_eq {C : comp_cat} {Γ Δ : C} (A : comp_cat_ty Δ)
   {s s' : Γ --> Δ} (p : s = s')
   : A [[ s ]] = A [[ s' ]]
-  := (maponpaths (fun t => A [[ t ]]) p).
+  := (maponpaths (λ t, A [[ t ]]) p).
 
 Definition comp_cat_subst_ty_iso {C : comp_cat} {Γ Δ : C} (A : comp_cat_ty Δ)
   {s s' : Γ --> Δ} (p : s = s')
@@ -1285,7 +1285,7 @@ Proof.
         apply comp_cat_comp_mor_law. }
       rewrite !assoc.
       etrans.
-      {do 2 apply maponpaths_2. apply (pr2 t).}
+      { do 2 apply maponpaths_2. apply (pr2 t). }
       rewrite id_left.
       refine (!_).
       etrans.
