@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.Core.Examples.Image</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.Core.Examples.Image</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+Image of a pseudofunctor                                                           
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.StandardCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#"><span class="id" title="library">UniMath.CategoryTheory.PrecategoryBinProduct</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#"><span class="id" title="library">UniMath.Bicategories.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.Adjunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.EquivToAdjequiv.html#"><span class="id" title="library">UniMath.Bicategories.Core.EquivToAdjequiv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.AdjointUnique.html#"><span class="id" title="library">UniMath.Bicategories.Core.AdjointUnique</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.FullSub.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.FullSub</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.PseudoFunctor</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="full_image" class="idref" href="#full_image"><span class="id" title="definition">full_image</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f5f470f7c6f18676a3312be886324893" class="idref" href="#f5f470f7c6f18676a3312be886324893"><span class="id" title="binder">B₁</span></a> <a id="37dc320d0729513e303ef212cc0cb0b4" class="idref" href="#37dc320d0729513e303ef212cc0cb0b4"><span class="id" title="binder">B₂</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:3" class="idref" href="#F:3"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#f5f470f7c6f18676a3312be886324893"><span class="id" title="variable">B₁</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#37dc320d0729513e303ef212cc0cb0b4"><span class="id" title="variable">B₂</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.FullSub.html#fullsubbicat"><span class="id" title="definition">fullsubbicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#37dc320d0729513e303ef212cc0cb0b4"><span class="id" title="variable">B₂</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="y:4" class="idref" href="#y:4"><span class="id" title="binder">y</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">∃</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">(</span></a><a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#f5f470f7c6f18676a3312be886324893"><span class="id" title="variable">B₁</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#F:3"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#x:5"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#y:4"><span class="id" title="variable">y</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_univalent_2_1_full_image" class="idref" href="#is_univalent_2_1_full_image"><span class="id" title="definition">is_univalent_2_1_full_image</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="5c8431dcdfe2fb941669d536c80d24e2" class="idref" href="#5c8431dcdfe2fb941669d536c80d24e2"><span class="id" title="binder">B₁</span></a> <a id="ea5736e799051d47b1f1ff1c6c7f713e" class="idref" href="#ea5736e799051d47b1f1ff1c6c7f713e"><span class="id" title="binder">B₂</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:8" class="idref" href="#F:8"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#5c8431dcdfe2fb941669d536c80d24e2"><span class="id" title="variable">B₁</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#ea5736e799051d47b1f1ff1c6c7f713e"><span class="id" title="variable">B₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="78744686febfb268da712bd476e7d2f1" class="idref" href="#78744686febfb268da712bd476e7d2f1"><span class="id" title="binder">B₂_is_univalent_2_1</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2_1"><span class="id" title="definition">is_univalent_2_1</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#ea5736e799051d47b1f1ff1c6c7f713e"><span class="id" title="variable">B₂</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2_1"><span class="id" title="definition">is_univalent_2_1</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#full_image"><span class="id" title="definition">full_image</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#F:8"><span class="id" title="variable">F</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.FullSub.html#is_univalent_2_1_fullsubbicat"><span class="id" title="definition">is_univalent_2_1_fullsubbicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">B₂_is_univalent_2_1</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_univalent_2_0_full_image" class="idref" href="#is_univalent_2_0_full_image"><span class="id" title="definition">is_univalent_2_0_full_image</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f5df066fd33f600da8689687986c690d" class="idref" href="#f5df066fd33f600da8689687986c690d"><span class="id" title="binder">B₁</span></a> <a id="95e0dbe56158d5a91ffaf04f3b9beef6" class="idref" href="#95e0dbe56158d5a91ffaf04f3b9beef6"><span class="id" title="binder">B₂</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:12" class="idref" href="#F:12"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#f5df066fd33f600da8689687986c690d"><span class="id" title="variable">B₁</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#95e0dbe56158d5a91ffaf04f3b9beef6"><span class="id" title="variable">B₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="63e4e1cd9b60b98aeb6462e2400b9793" class="idref" href="#63e4e1cd9b60b98aeb6462e2400b9793"><span class="id" title="binder">B₂_is_univalent_2</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2"><span class="id" title="definition">is_univalent_2</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#95e0dbe56158d5a91ffaf04f3b9beef6"><span class="id" title="variable">B₂</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2_0"><span class="id" title="definition">is_univalent_2_0</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#full_image"><span class="id" title="definition">full_image</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#F:12"><span class="id" title="variable">F</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.FullSub.html#is_univalent_2_0_fullsubbicat"><span class="id" title="definition">is_univalent_2_0_fullsubbicat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">B₂_is_univalent_2</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#isapropishinh"><span class="id" title="lemma">isapropishinh</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_univalent_2_full_image" class="idref" href="#is_univalent_2_full_image"><span class="id" title="definition">is_univalent_2_full_image</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="ea37405e8fd683b9bbbaa2cd37e2dd48" class="idref" href="#ea37405e8fd683b9bbbaa2cd37e2dd48"><span class="id" title="binder">B₁</span></a> <a id="edb7faac08e7b10051a81838d855f3bf" class="idref" href="#edb7faac08e7b10051a81838d855f3bf"><span class="id" title="binder">B₂</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:16" class="idref" href="#F:16"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#ea37405e8fd683b9bbbaa2cd37e2dd48"><span class="id" title="variable">B₁</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#edb7faac08e7b10051a81838d855f3bf"><span class="id" title="variable">B₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="2676fd0f886e4d01bd2eb217c59a9e24" class="idref" href="#2676fd0f886e4d01bd2eb217c59a9e24"><span class="id" title="binder">B₂_is_univalent_2</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2"><span class="id" title="definition">is_univalent_2</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#edb7faac08e7b10051a81838d855f3bf"><span class="id" title="variable">B₂</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2"><span class="id" title="definition">is_univalent_2</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#full_image"><span class="id" title="definition">full_image</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.Image.html#F:16"><span class="id" title="variable">F</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.FullSub.html#is_univalent_2_fullsubbicat"><span class="id" title="definition">is_univalent_2_fullsubbicat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">B₂_is_univalent_2</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#isapropishinh"><span class="id" title="lemma">isapropishinh</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

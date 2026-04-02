@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Categories.CartesianCubicalSets</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Categories.CartesianCubicalSets</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+****************************************************************************
+
+<div class="paragraph"> </div>
+
+We define the cartesian cubical sets and show that the interval satisfies
+axioms B1, B2 and B3 in:
+
+<div class="paragraph"> </div>
+
+A Survey of Constructive Presheaf Models of Univalence (2018),
+Thierry Coquand
+https://dl.acm.org/doi/abs/10.1145/3242953.3242962
+
+<div class="paragraph"> </div>
+
+Contents:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Cartesian cube category (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category"><span class="id" title="definition">cartesian_cube_category</span></a></span>)
+
+</li>
+<li> Binary products in the cartesian cube category (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category_binproducts"><span class="id" title="definition">cartesian_cube_category_binproducts</span></a></span>)
+
+</li>
+<li> The empty set is a terminal object in the cartesian cube category
+  (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#empty_is_terminal_cartesian_cube_category"><span class="id" title="lemma">empty_is_terminal_cartesian_cube_category</span></a></span>)
+
+</li>
+<li> The interval in cartesian cubical sets has two distinct elements (axiom B1)
+  (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#interval_cartesian_cubical_sets_two_elements"><span class="id" title="lemma">interval_cartesian_cubical_sets_two_elements</span></a></span>)
+
+</li>
+<li> The interval in cartesian cubical sets has decidable equality (axiom B2)
+  (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#interval_cartesian_cubical_sets_dec_eq"><span class="id" title="lemma">interval_cartesian_cubical_sets_dec_eq</span></a></span>)
+
+</li>
+<li> The interval in cartesian cubical sets is tiny (axiom B3)
+  (<span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#interval_cartesian_cubical_sets_is_tiny"><span class="id" title="lemma">interval_cartesian_cubical_sets_is_tiny</span></a></span>)
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+Written by: Elisabeth Bonnevier, 2019
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.FiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.FiniteSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.ExponentiationLeftAdjoint.html#"><span class="id" title="library">UniMath.CategoryTheory.ExponentiationLeftAdjoint</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.yoneda.html#"><span class="id" title="library">UniMath.CategoryTheory.yoneda</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Structures.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Structures</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The cartesian cube category. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cartesian_cube_precategory_ob_mor" class="idref" href="#cartesian_cube_precategory_ob_mor"><span class="id" title="definition">cartesian_cube_precategory_ob_mor</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_ob_mor"><span class="id" title="definition">precategory_ob_mor</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_ob_mor"><span class="id" title="definition">make_precategory_ob_mor</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="m:1" class="idref" href="#m:1"><span class="id" title="binder">m</span></a> <a id="n:2" class="idref" href="#n:2"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#n:2"><span class="id" title="variable">n</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#m:1"><span class="id" title="variable">m</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a>2<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_cube_precategory_data" class="idref" href="#cartesian_cube_precategory_data"><span class="id" title="definition">cartesian_cube_precategory_data</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory_data"><span class="id" title="definition">precategory_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_precategory_ob_mor"><span class="id" title="definition">cartesian_cube_precategory_ob_mor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="i:3" class="idref" href="#i:3"><span class="id" title="binder"><span id="i:4" class="id">i</span></span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a><span class="id" title="var">n</span><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#i:3"><span class="id" title="variable">i</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">l</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<span class="id" title="var">g</span> <span class="id" title="var">i</span>) <span class="id" title="keyword">as</span> [<span class="id" title="var">j1</span> | <span class="id" title="var">j2</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <span class="id" title="var">j1</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <span class="id" title="var">j2</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_cube_precategory" class="idref" href="#cartesian_cube_precategory"><span class="id" title="definition">cartesian_cube_precategory</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_precategory_data"><span class="id" title="definition">cartesian_cube_precategory_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_is_precategory_one_assoc"><span class="id" title="definition">make_is_precategory_one_assoc</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">induction</span> (<span class="id" title="var">f</span> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">k</span> <span class="id" title="var">l</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">induction</span> (<span class="id" title="var">h</span> <span class="id" title="var">i</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_cube_category" class="idref" href="#cartesian_cube_category"><span class="id" title="definition">cartesian_cube_category</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_precategory"><span class="id" title="definition">cartesian_cube_precategory</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.Propositions.html#funspace_isaset"><span class="id" title="lemma">funspace_isaset</span></a>, <a class="idref" href="UniMath.Combinatorics.FiniteSets.html#isfinite_isaset"><span class="id" title="definition">isfinite_isaset</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.FiniteSets.html#isfinitecoprod"><span class="id" title="definition">isfinitecoprod</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.FiniteSets.html#isfinitestn"><span class="id" title="definition">isfinitestn</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Binary products in the cartesian cube category. The product ⟦m⟧ × ⟦n⟧ is the sum ⟦m + n⟧. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cartesian_cube_category_binproducts" class="idref" href="#cartesian_cube_category_binproducts"><span class="id" title="definition">cartesian_cube_category_binproducts</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category"><span class="id" title="definition">cartesian_cube_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#make_BinProduct"><span class="id" title="definition">make_BinProduct</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<span class="id" title="var">m</span> <a class="idref" href="UniMath.Foundations.Preamble.html#0dacc1786c5ba797d47dd85006231633"><span class="id" title="notation">+</span></a> <span class="id" title="var">n</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="i:5" class="idref" href="#i:5"><span class="id" title="binder"><span id="i:6" class="id">i</span></span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a><span class="id" title="var">m</span><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn_left"><span class="id" title="definition">stn_left</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#i:5"><span class="id" title="variable">i</span></a>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="i:7" class="idref" href="#i:7"><span class="id" title="binder"><span id="i:8" class="id">i</span></span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a><span class="id" title="var">n</span><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn_right"><span class="id" title="definition">stn_right</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#i:7"><span class="id" title="variable">i</span></a>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#make_isBinProduct"><span class="id" title="definition">make_isBinProduct</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">l</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#unique_exists"><span class="id" title="lemma">unique_exists</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqfromcoprodofstn_invmap"><span class="id" title="definition">weqfromcoprodofstn_invmap</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">i</span>) <span class="id" title="keyword">as</span> [<span class="id" title="var">x1</span> | <span class="id" title="var">x2</span>];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span class="id" title="tactic">exact</span> (<span class="id" title="var">f</span> <span class="id" title="var">x1</span>) | <span class="id" title="tactic">exact</span> (<span class="id" title="var">g</span> <span class="id" title="var">x2</span>)].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- <span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> :  <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqfromcoprodofstn_invmap"><span class="id" title="definition">weqfromcoprodofstn_invmap</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn_left"><span class="id" title="definition">stn_left</span></a> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">i</span>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqfromcoprodofstn_eq1"><span class="id" title="lemma">weqfromcoprodofstn_eq1</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- <span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqfromcoprodofstn_invmap"><span class="id" title="definition">weqfromcoprodofstn_invmap</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn_right"><span class="id" title="definition">stn_right</span></a> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">i</span>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqfromcoprodofstn_eq1"><span class="id" title="lemma">weqfromcoprodofstn_eq1</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intro</span> <span class="id" title="var">h</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">h</span> [<span class="id" title="var">H1</span> <span class="id" title="var">H2</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">h</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqfromcoprodofstn_eq2"><span class="id" title="lemma">weqfromcoprodofstn_eq2</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">i</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqfromcoprodofstn_invmap"><span class="id" title="definition">weqfromcoprodofstn_invmap</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">i</span>) <span class="id" title="keyword">as</span> [<span class="id" title="var">x1</span> | <span class="id" title="var">x2</span>];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> &lt;- <span class="id" title="var">H1</span> | <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> &lt;- <span class="id" title="var">H2</span>].<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The empty set is terminal in the cartesian cube category. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="empty_is_terminal_cartesian_cube_category" class="idref" href="#empty_is_terminal_cartesian_cube_category"><span class="id" title="lemma">empty_is_terminal_cartesian_cube_category</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category"><span class="id" title="definition">cartesian_cube_category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> 0.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#iscontrfunfromempty2"><span class="id" title="lemma">iscontrfunfromempty2</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqstn0toempty"><span class="id" title="definition">weqstn0toempty</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Close</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Cartesian cubical sets 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cartesian_cubical_sets" class="idref" href="#cartesian_cubical_sets"><span class="id" title="definition">cartesian_cubical_sets</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#::cat:'PreShv'_x"><span class="id" title="notation">PreShv</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category"><span class="id" title="definition">cartesian_cube_category</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="I" class="idref" href="#I"><span class="id" title="definition">I</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cubical_sets"><span class="id" title="definition">cartesian_cubical_sets</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.yoneda.html#yoneda"><span class="id" title="definition">yoneda</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category"><span class="id" title="definition">cartesian_cube_category</span></a> 1.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The interval in cartesian cubical sets has two distinct elements 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="interval_cartesian_cubical_sets_two_elements" class="idref" href="#interval_cartesian_cubical_sets_two_elements"><span class="id" title="lemma">interval_cartesian_cubical_sets_two_elements</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="n:9" class="idref" href="#n:9"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category"><span class="id" title="definition">cartesian_cube_category</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="f:10" class="idref" href="#f:10"><span class="id" title="binder">f</span></a> <a id="g:11" class="idref" href="#g:11"><span class="id" title="binder">g</span></a> : ((<a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#I"><span class="id" title="definition">I</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#n:9"><span class="id" title="variable">n</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#f:10"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#ae852a684c466d31158e6f0f40d3d021"><span class="id" title="notation">!=</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#g:11"><span class="id" title="variable">g</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 1<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> @<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <span class="id" title="var">n</span>) (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 2) (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#make_stn"><span class="id" title="definition">make_stn</span></a> 2 0 (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 1<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> @<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <span class="id" title="var">n</span>) (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 2) (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#make_stn"><span class="id" title="definition">make_stn</span></a> 2 1 (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">e</span> := <span class="id" title="var">p</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#make_stn"><span class="id" title="definition">make_stn</span></a> 1 0 (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#ii2_injectivity"><span class="id" title="lemma">ii2_injectivity</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>) <span class="id" title="tactic">in</span> <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#negpaths0sx"><span class="id" title="lemma">negpaths0sx</span></a> 0 <span class="id" title="var">e</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The interval in cartesian cubical sets has decidable equality 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="interval_cartesian_cubical_sets_dec_eq" class="idref" href="#interval_cartesian_cubical_sets_dec_eq"><span class="id" title="lemma">interval_cartesian_cubical_sets_dec_eq</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="n:12" class="idref" href="#n:12"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category"><span class="id" title="definition">cartesian_cube_category</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isdeceq"><span class="id" title="definition">isdeceq</span></a> ((<a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#I"><span class="id" title="definition">I</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#n:12"><span class="id" title="variable">n</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#isdeceqweqb"><span class="id" title="lemma">isdeceqweqb</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#ea2ff3d561159081cea6fb2e8113cc54"><span class="id" title="notation">(</span></a><span class="id" title="var">n</span><a class="idref" href="UniMath.Foundations.Preamble.html#0dacc1786c5ba797d47dd85006231633"><span class="id" title="notation">+</span></a>2<a class="idref" href="UniMath.Foundations.Preamble.html#ea2ff3d561159081cea6fb2e8113cc54"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#ea2ff3d561159081cea6fb2e8113cc54"><span class="id" title="notation">*</span></a> 1)).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#weqcomp"><span class="id" title="definition">weqcomp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 1<a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> (<span class="id" title="var">n</span><a class="idref" href="UniMath.Foundations.Preamble.html#0dacc1786c5ba797d47dd85006231633"><span class="id" title="notation">+</span></a>2)<a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#weqffun"><span class="id" title="definition">weqffun</span></a>, <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqfromcoprodofstn"><span class="id" title="lemma">weqfromcoprodofstn</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#weqfromfunstntostn"><span class="id" title="lemma">weqfromfunstntostn</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isdeceqstn"><span class="id" title="lemma">isdeceqstn</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_cubical_sets_exponentials" class="idref" href="#cartesian_cubical_sets_exponentials"><span class="id" title="definition">cartesian_cubical_sets_exponentials</span></a> : <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#Exponentials"><span class="id" title="definition">Exponentials</span></a> (@<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#BinProducts_PreShv"><span class="id" title="lemma">BinProducts_PreShv</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category"><span class="id" title="definition">cartesian_cube_category</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Structures.html#Exponentials_functor_HSET"><span class="id" title="lemma">Exponentials_functor_HSET</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="exp_I" class="idref" href="#exp_I"><span class="id" title="definition">exp_I</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cubical_sets"><span class="id" title="definition">cartesian_cubical_sets</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cubical_sets"><span class="id" title="definition">cartesian_cubical_sets</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cubical_sets_exponentials"><span class="id" title="definition">cartesian_cubical_sets_exponentials</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#I"><span class="id" title="definition">I</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The interval in cartesian cubical sets is tiny 
+</div>
+<div class="code">
+<span class="id" title="keyword">Theorem</span> <a id="interval_cartesian_cubical_sets_is_tiny" class="idref" href="#interval_cartesian_cubical_sets_is_tiny"><span class="id" title="lemma">interval_cartesian_cubical_sets_is_tiny</span></a> : <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#is_left_adjoint"><span class="id" title="definition">is_left_adjoint</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#exp_I"><span class="id" title="definition">exp_I</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.ExponentiationLeftAdjoint.html#is_left_adjoint_exp_yoneda"><span class="id" title="lemma">is_left_adjoint_exp_yoneda</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.CartesianCubicalSets.html#cartesian_cube_category_binproducts"><span class="id" title="definition">cartesian_cube_category_binproducts</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Close</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
