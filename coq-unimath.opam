@@ -9,6 +9,7 @@ build: [make "BUILD_COQ=no" "-j%{jobs}%"]
 install: [make "BUILD_COQ=no" "install"]
 depends: [
   "ocaml"
-  "coq" {>= "8.16.1"}
+  "rocq-core" {>= "9.0"}
+  "coq-core"
 ]
 synopsis: "Library of Univalent Mathematics"
