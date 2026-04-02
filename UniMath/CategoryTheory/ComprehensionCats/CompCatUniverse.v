@@ -337,7 +337,7 @@ Proof.
   2: { apply maponpaths_2.
        refine (!_).
        apply maponpaths.
-       apply comp_cat_el_map_id.}
+       apply comp_cat_el_map_id. }
   rewrite comp_cat_reindex_coercion_id.
   rewrite id_left.
   rewrite H.
@@ -614,7 +614,7 @@ Section Universe_Unit_Closure.
         apply comp_cat_subst_ty_iso_comp.
       }
       etrans.
-      2: { refine (!_). refine (assoc _ _ _ @ _). apply idpath.}
+      2: { refine (!_). refine (assoc _ _ _ @ _). apply idpath. }
       rewrite assoc'.
       etrans.
       { rewrite assoc.
