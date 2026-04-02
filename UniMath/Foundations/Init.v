@@ -1,9 +1,9 @@
 (** Initial setup unrelated to Univalent Foundations *)
 
-Require Export Coq.Init.Notations.
+From Corelib Require Export Init.Notations.
 (* get the standard Coq reserved notations *)
 
-From Coq Require Export Ltac.
+From Corelib Require Export Ltac.
 (* get the tactics *)
 
 #[global] Unset Universe Checking.
@@ -29,9 +29,9 @@ Notation "x → y" := (x -> y)
 
 (** Reserved notations *)
 
-Reserved Notation "x :: y" (at level 60, right associativity). (* originally in Coq.Init.Datatypes *)
+Reserved Notation "x :: y" (at level 60, right associativity). (* originally in Corelib.Init.Datatypes *)
 
-Reserved Notation "x ++ y" (at level 60, right associativity). (* originally in Coq.Init.Datatypes *)
+Reserved Notation "x ++ y" (at level 60, right associativity). (* originally in Corelib.Init.Datatypes *)
 
 Reserved Notation "p # x" (right associativity, at level 65).
 
