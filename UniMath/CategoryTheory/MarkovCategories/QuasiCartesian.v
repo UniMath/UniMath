@@ -242,8 +242,7 @@ Section Quasicartesian.
 
   Proposition pentagon : pentagon_identity α_{ quasicartesian_monoidal_data}.
   Proof.
-    intros x y z w. cbn. 
-    do 3 qcart_eta.
+    intros x y z w. cbn. do 3 qcart_eta.
   Qed.
 
   Proposition left_whisker_natural : associator_nat_leftwhisker α_{ quasicartesian_monoidal_data}.
@@ -291,7 +290,6 @@ Section Quasicartesian.
     now rewrite pairing_nat_r, pairing_nat_l, assoc.
   Qed. 
   
-
   Definition quasicartesian_monoidal_laws : monoidal_laws quasicartesian_monoidal_data.
   Proof.
     repeat split.
