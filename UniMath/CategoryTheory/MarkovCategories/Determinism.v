@@ -59,6 +59,8 @@ Section DefDeterminism.
   Definition is_deterministic {x y : C} (f : x --> y) : UU
     := f · copy y = copy x · f #⊗ f.
 
+  (* Accessors *)
+  
   Proposition is_deterministic_eq {x y : C} (f : x --> y) :
     is_deterministic f -> f · copy y = copy x · f #⊗ f.
   Proof.

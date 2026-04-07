@@ -298,6 +298,8 @@ Section AlmostSurelyDeterministic.
   Definition is_deterministic_ase {a x y : C} (p : a --> x) (f : x --> y) : UU
    := f · copy y =_{p} copy x · f #⊗ f.
 
+  (* Accessors *)
+
   Definition make_is_deterministic_ase {a x y : C} (p : a --> x) (f : x --> y) :
     f · copy y =_{p} copy x · f #⊗ f -> is_deterministic_ase p f.
   Proof.
@@ -308,6 +310,12 @@ Section AlmostSurelyDeterministic.
     is_deterministic_ase p f -> f · copy y =_{p} copy x · f #⊗ f.
   Proof.
     intros d. exact d.
+  Qed.
+
+  Proposition isaprop_is_deterministic_ase {a x y : C} (p : a --> x) (f : x --> y) :
+    isaprop (is_deterministic_ase p f).
+  Proof.
+    apply isaprop_ase.
   Qed.
 
 End AlmostSurelyDeterministic. 
