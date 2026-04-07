@@ -51,13 +51,37 @@ Local Open Scope cat.
 Local Open Scope moncat.
 Local Open Scope markov.
 
-(** 1. Definition of Determinism *)
+(** * 1. Definition of Determinism *)
 
 Section DefDeterminism.
   Context {C : markov_category}.
 
   Definition is_deterministic {x y : C} (f : x --> y) : UU
     := f · copy y = copy x · f #⊗ f.
+
+  Proposition is_deterministic_eq {x y : C} (f : x --> y) :
+    is_deterministic f -> f · copy y = copy x · f #⊗ f.
+  Proof.
+    intros d. exact d.
+  Qed.
+
+  Proposition is_deterministic_eq' {x y : C} (f : x --> y) :
+    is_deterministic f -> f · ⟨identity y, identity y⟩ = ⟨f, f⟩.
+  Proof.
+    intros d. rewrite pairing_id. exact d.
+  Qed.
+
+  Proposition make_is_deterministic {x y : C} (f : x --> y) :
+    f · copy y = copy x · f #⊗ f -> is_deterministic f.
+  Proof.
+    intros e. exact e.
+  Qed.
+
+  Proposition make_is_deterministic' {x y : C} (f : x --> y) :
+    f · ⟨identity y, identity y⟩ = ⟨f, f⟩ -> is_deterministic f.
+  Proof.
+    intros e. rewrite pairing_id in e. exact e.
+  Qed.
 
   Proposition isaprop_is_deterministic
               {x y : C}
@@ -82,6 +106,8 @@ Section DefDeterminism.
 
 End DefDeterminism.
 
+#[global] Opaque is_deterministic.
+
 (** * 2. Examples and Properties *)
 
 Create HintDb autodet.
@@ -92,7 +118,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_identity {x : C} : 
     is_deterministic (identity x).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite tensor_id_id, id_left, id_right.
     reflexivity.
   Qed.
@@ -109,7 +135,8 @@ Section ExamplesAndProperties.
     (df : is_deterministic f) (dg : is_deterministic g)
     : is_deterministic (f · g).
   Proof.
-    unfold is_deterministic in *.
+    apply make_is_deterministic.
+    apply is_deterministic_eq in df, dg.
     rewrite tensor_comp_mor.
     rewrite assoc.
     rewrite <- df.
@@ -121,7 +148,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_to_terminal {x : C} (f : x --> I_{C}) :
     is_deterministic f.
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     use cancel_z_iso.
     - apply I_{C}.
     - apply z_iso_from_mon_runitor. 
@@ -138,7 +165,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_sym_mon_braiding (x y : C) :
     is_deterministic (sym_mon_braiding _ x y).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite <- !copy_tensor.
     etrans.
     {
@@ -190,7 +217,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_copy (x : C) :
     is_deterministic (copy x).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite <- copy_tensor.
     etrans.
     {
@@ -247,7 +274,8 @@ Section ExamplesAndProperties.
     (d1 : is_deterministic f1) (d2 : is_deterministic f2)
     : is_deterministic (f1 #⊗ f2).
   Proof.
-    unfold is_deterministic in *.
+    apply make_is_deterministic.
+    apply is_deterministic_eq in d1, d2.
     rewrite <- !copy_tensor.
     etrans.
     {
@@ -266,7 +294,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_mon_lunitor (x : C) :
     is_deterministic (mon_lunitor x).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite <- copy_tensor.
     rewrite <- precompose_inner_swap_with_lunitors_on_right.
     refine (!_).
@@ -296,7 +324,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_mon_runitor (x : C) :
     is_deterministic (mon_runitor x).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite <- copy_tensor.
     rewrite <- precompose_inner_swap_with_lunitors_and_runitor.
     refine (!_).
@@ -327,7 +355,8 @@ Section ExamplesAndProperties.
     (f : z_iso x y) (df : is_deterministic f)
     : is_deterministic (inv_from_z_iso f).
   Proof.
-    unfold is_deterministic in *.
+    apply make_is_deterministic.
+    apply is_deterministic_eq in df.
     use z_iso_inv_on_right.
     rewrite assoc.
     rewrite df.
@@ -358,7 +387,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_mon_lassociator (x y z : C) :
     is_deterministic (mon_lassociator x y z).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     etrans.
     {
       rewrite <- !copy_tensor.

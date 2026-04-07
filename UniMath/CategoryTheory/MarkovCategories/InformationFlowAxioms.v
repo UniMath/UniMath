@@ -586,7 +586,7 @@ Section ImplicationsBetweenAxioms.
       is_positive C -> all_isos_deterministic C.
   Proof.
     intros pos x y f.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     pose (g := inv_from_z_iso f).
 
     transitivity (f · ⟨identity _ , identity _⟩).
