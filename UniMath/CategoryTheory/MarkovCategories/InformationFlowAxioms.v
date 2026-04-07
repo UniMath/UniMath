@@ -340,7 +340,7 @@ Section CausalityConsequences.
     : is_deterministic_ase p f -> is_deterministic_ase (p · f) g -> is_deterministic_ase p (f · g).
   Proof.
     intros df dg.
-    unfold is_deterministic_ase.
+    apply make_is_deterministic_ase.
     apply ase_trans with (f · copy y · g #⊗ g).
     { 
       rewrite !assoc'.
@@ -569,7 +569,9 @@ Section ImplicationsBetweenAxioms.
     intros x y z f g det_fg.
     apply id_ase.
     apply rel_positivity_l. { exact rp. }
+    apply make_is_deterministic_ase.
     apply ase_from_eq.
+    apply is_deterministic_eq.
     exact det_fg.
   Qed.   
 
