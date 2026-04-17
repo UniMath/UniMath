@@ -370,7 +370,7 @@ Section PositivityConsequences.
     apply ase_trans with (f · ⟨proj1, identity _⟩ · (identity _ #⊗ proj2)).
     { apply ase_from_eq.
       rewrite assoc', <- pairing_split_r.
-      rewrite pairing_proj_id.
+      rewrite <- pairing_proj_id.
       rewrite id_right.
       reflexivity. }
       
@@ -414,7 +414,7 @@ Section PositivityConsequences.
   Proof.
     transitivity (f · ⟨proj1, identity _⟩ · (identity _ #⊗ proj2)).
     { rewrite assoc', <- pairing_split_r.
-      rewrite pairing_proj_id.
+      rewrite <- pairing_proj_id.
       rewrite id_right.
       reflexivity. }
       
@@ -516,7 +516,7 @@ Section CausalityImpliesRelPosAux.
     rewrite pairing_tensor, id_left, assoc'.
     rewrite pairing_proj1.
     rewrite <- pairing_tensor_l, assoc.
-    rewrite pairing_proj_id, id_right.
+    rewrite <- pairing_proj_id, id_right.
     unfold d.
     rewrite assoc', rassociator_proj1_tensor.
     rewrite pairing_tensor, !assoc'.
@@ -531,7 +531,7 @@ Section CausalityImpliesRelPosAux.
     rewrite pairing_tensor, id_left, assoc'.
     rewrite pairing_proj1.
     rewrite <- pairing_tensor_l, assoc.
-    rewrite pairing_proj_id, id_right.
+    rewrite <- pairing_proj_id, id_right.
     unfold d.
     rewrite assoc', rassociator_proj2_tensor.
     rewrite pairing_proj2.
