@@ -742,8 +742,6 @@ Ltac markov_step :=
 Ltac markov_simpl :=
   repeat (normalize_assoc; markov_step).
 
-(* Missing: discharge I goals *)
-
 Ltac markov_split :=
   repeat (apply det_eta; try auto 20 with autodet).
 
@@ -816,8 +814,7 @@ Module TacticTests.
     markov_coherence.
   Qed.
 
-
-  (* Pentagonator *)
+  (* Define an equivalent Markov category to [C] using only pairings and projections *)
 
   Definition quasicartesian_tensor_data : tensor_data C.
   Proof. 
@@ -838,22 +835,22 @@ Module TacticTests.
     - intros x. exact ⟨identity x, del x⟩.
     - intros x y z. exact ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩.
     - intros x y z. cbn. exact ⟨⟨ proj1, proj2 · proj1⟩, proj2 · proj2⟩.
-  Defined.  
+  Defined. 
 
   Proposition pentagon : pentagon_identity α_{ quasicartesian_monoidal_data}.
   Proof.
     intros x y z w. cbn. 
-    markov_coherence.
+    markov_coherence. (* Pretty cool *)
   Qed.
 
-  Lemma proj1_expand {x y z : C} :
-    ⟨ proj1 · proj1 , proj1 · proj2 ⟩ = @proj1 C (x ⊗ y) z.
+  Lemma pairing_proj1_tensor {x y z : C} :
+    @proj1 C (x ⊗ y) z = ⟨ proj1 · proj1 , proj1 · proj2 ⟩.
   Proof.
     markov_coherence.
   Qed.
 
-  Lemma proj2_expand {x y z : C} :
-    ⟨ proj2 · proj1 , proj2 · proj2 ⟩ = @proj2 C z (x ⊗ y).
+  Lemma pairing_proj2_tensor {x y z : C} :
+    @proj2 C z (x ⊗ y) = ⟨ proj2 · proj1 , proj2 · proj2 ⟩.
   Proof.
     markov_coherence.
   Qed.
@@ -884,7 +881,7 @@ Proposition left_whisker_natural : associator_nat_leftwhisker α_{ quasicartesia
   Proof.
     intros x y z w f. cbn.
     symmetry. etrans. {
-      rewrite <- proj1_expand.
+      rewrite pairing_proj1_tensor.
       reflexivity.
     }
     rewrite <- pairing_proj_lassociator, pairing_lassociator.
@@ -914,19 +911,19 @@ Proposition left_whisker_natural : associator_nat_leftwhisker α_{ quasicartesia
       rewrite <- pairing_precomp; try auto with autodet.
     }
     rewrite <- pairing_proj_lassociator, pairing_lassociator.
-    (* rewrite pairing_tensor_l. *)
-    admit.
-  Admitted.
+    rewrite pairing_nat_l, !assoc.
+    reflexivity.
+  Qed.
 
   Proposition left_right_whisker_natural : associator_nat_leftrightwhisker α_{ quasicartesian_monoidal_data}.
   Proof.
     intros x y z z2 w. cbn.
-    admit.
-    (* rewrite <- pairing_nat_det with (f:=proj1); try auto with autodet.
-    rewrite pairing_assoc.
-    now rewrite pairing_nat_r, pairing_nat_l, assoc. *)
-  Admitted. 
-  
+    symmetry. etrans. {
+      rewrite <- pairing_precomp with (f:=proj1); try auto with autodet.
+    }
+    rewrite <- pairing_proj_lassociator, pairing_lassociator.
+    now rewrite pairing_nat_r, pairing_nat_l, assoc. 
+  Qed. 
 
   Definition quasicartesian_monoidal_laws : monoidal_laws quasicartesian_monoidal_data.
   Proof.
@@ -937,14 +934,14 @@ Proposition left_whisker_natural : associator_nat_leftwhisker α_{ quasicartesia
       intros x y. cbn. markov_coherence.
     - (* bifunctor_leftcompax *)
       intros x b1 b2 b3 g1 g2. cbn.
-      admit.
+      rewrite pairing_nat_r, assoc. reflexivity.
     - (* bifunctor_rightcompax *)
       intros x a1 a2 a3 f1 f2. cbn.
-      admit.
+      rewrite pairing_nat_l, assoc. reflexivity.
     - (* functoronmorphisms_are_equal *)
       intros a1 a2 b1 b2 f g.  
       unfold functoronmorphisms1, functoronmorphisms2; cbn.
-      admit.
+      rewrite pairing_nat_r, pairing_nat_l. reflexivity.
     - (* Left unitor natural *) 
       intros x y f. cbn. markov_solve.
     - (* Left unitor iso 1 *)    
@@ -971,7 +968,7 @@ Proposition left_whisker_natural : associator_nat_leftwhisker α_{ quasicartesia
       intros x y. cbn. markov_coherence.
     - (* Pentagon identity *) 
       apply pentagon.
-  Admitted.
+  Qed.
 
   Definition quasicartesian_monoidal : monoidal C.
   Proof.
@@ -997,7 +994,6 @@ Proposition left_whisker_natural : associator_nat_leftwhisker α_{ quasicartesia
       markov_coherence.
     - intros x y z w f g. 
       unfold swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
-      (* rewrite pairing_proj_braiding. *)
       rewrite !pairing_nat_r, pairing_nat.
       rewrite <- pairing_proj_braiding.
       rewrite pairing_sym_mon_braiding.
