@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.AlgebraicTheories.FiniteSetSkeleton</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.AlgebraicTheories.FiniteSetSkeleton</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="finite_set_skeleton_precat" class="idref" href="#finite_set_skeleton_precat"><span class="id" title="definition">finite_set_skeleton_precat</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#precategory"><span class="id" title="definition">precategory</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory"><span class="id" title="definition">make_precategory</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_data"><span class="id" title="definition">make_precategory_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_precategory_ob_mor"><span class="id" title="definition">make_precategory_ob_mor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="m:1" class="idref" href="#m:1"><span class="id" title="binder"><span id="m:3" class="id">m</span></span></a> <a id="n:2" class="idref" href="#n:2"><span class="id" title="binder"><span id="n:4" class="id">n</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.AlgebraicTheories.FiniteSetSkeleton.html#m:1"><span class="id" title="variable">m</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.AlgebraicTheories.FiniteSetSkeleton.html#n:2"><span class="id" title="variable">n</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#idfun"><span class="id" title="definition">idfun</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">do</span> 3 <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.PartA.html#funcomp"><span class="id" title="definition">funcomp</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">do</span> 3 <span class="id" title="tactic">split</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="finite_set_skeleton_category" class="idref" href="#finite_set_skeleton_category"><span class="id" title="definition">finite_set_skeleton_category</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#make_category"><span class="id" title="definition">make_category</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.AlgebraicTheories.FiniteSetSkeleton.html#finite_set_skeleton_precat"><span class="id" title="definition">finite_set_skeleton_precat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.Propositions.html#funspace_isaset"><span class="id" title="lemma">funspace_isaset</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
