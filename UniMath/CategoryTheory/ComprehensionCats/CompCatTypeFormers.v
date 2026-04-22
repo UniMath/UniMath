@@ -2,17 +2,19 @@
 
 (*
 
-  Type Formers in Comprehension Categories
+  Type Formers in Comprehension Categories. This file contains sigma, pi and unit types.
 
   This developement follows "From Semantics to Syntax: A Type Theory for Comprehension
   Categories" by Najmaei, Van der Weide, Ahrens, and North
+
+  Identity types can also be added similarly from Figure 3 of "From Semantics to Syntax" but
+  this has not been done yet.
 
   Contents
 
   1. Sigma Types
   2. Pi Types
-  3. TODO: Id Types
-  4. Unit Types
+  3. Unit Types
 
  *)
 
@@ -344,12 +346,7 @@ Definition comp_cat_pi_sub_lam
   := pr2 (pr22 (pr222 Π)) Γ Δ s A B b.
 
 
-(** * 3. TODO: Id Types *)
-
-(* Can be done similarly from Figure 3 of "From Semantics to Syntax". *)
-
-
-(** * 4. Unit types for comprehension categories *)
+(** * 3. Unit types for comprehension categories *)
 
 Section Unit_For_Comp_Cat.
 

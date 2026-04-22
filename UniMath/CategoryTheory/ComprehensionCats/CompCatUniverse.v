@@ -15,6 +15,8 @@
   by Angiuli and Gratzer.
 
   We also define the universe being closed type formers similar to Van der Weide.
+  For closure under type formers, we omit the coherences of the isomorphisms in this
+  formalisation.
 
   References
   - "The Internal Languages of Univalent Categories" by Van der Weide
@@ -23,7 +25,7 @@
   Contents
   1. Empty Context in Comprehension Categories
   2. Comprehension Category with a Universe
-  3. Universes being closed under type formers:  Σ, unit, Π, TODO: id
+  3. Universes being closed under type formers: Σ, unit, Π
 
  *)
 
@@ -438,19 +440,13 @@ Section Universe_Sigma_Closure.
       let BsA := B [[ comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA ]]tm ↑ e' in
       (ΣU Δ A B) [[ s ]]tm ↑ e = ΣU Γ As BsA.
 
-  (* 4. Coherence of the isos  *)
-  Definition univ_sigma_iso_coh
-             (ΣU : univ_sigma_form)
-             (eliso : univ_sigma_el_iso ΣU)
-             (Σsubst : univ_sigma_subst_law ΣU) : UU.
-  Proof.
-  Admitted.
+  (* There is also a rule for coherence of isomorphisms for Σ-codes
+   but we do not define it here. *)
 
   Definition comp_cat_universe_closed_sigma : UU :=
     ∑ (ΣU : univ_sigma_form),
-    ∑ (eliso : univ_sigma_el_iso ΣU),
-    ∑ (Σsubst : univ_sigma_subst_law ΣU),
-      univ_sigma_iso_coh ΣU eliso Σsubst.
+      ∑ (eliso : univ_sigma_el_iso ΣU),
+      univ_sigma_subst_law ΣU.
 
   Coercion comp_cat_with_sigma_to_comp_cat (SigmaU : comp_cat_universe_closed_sigma)
     : univ_sigma_form := pr1 SigmaU.
@@ -483,7 +479,7 @@ Section Universe_Sigma_Closure.
       let BsA := B [[ comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA ]]tm ↑ e' in
       let ΣU := (@comp_cat_sigma_code SigmaU) in
       (ΣU Δ A B) [[ s ]]tm ↑ e = (ΣU Γ As BsA)
-      := (pr1 (pr22 SigmaU)) _ _ s A B.
+      := (pr22 SigmaU) _ _ s A B.
 
 End Universe_Sigma_Closure.
 
@@ -504,17 +500,12 @@ Section Universe_Unit_Closure.
   Definition univ_unit_el_iso (OneU : univ_unit_code) : UU :=
     @z_iso (fiber_category _ _) (comp_cat_el OneU) ((pr1 Unit) []).
 
-  (* 3) Coherence of the isos  *)
-  Definition univ_unit_iso_coh
-             (OneU : univ_unit_code)
-             (eliso : univ_unit_el_iso OneU) : UU.
-  Proof.
-  Admitted.
+  (* There is also a rule for coherence of isomorphisms for Unit codes
+   but we do not define it here. *)
 
   Definition comp_cat_universe_closed_unit : UU :=
     ∑ (OneU : univ_unit_code),
-    ∑ (eliso : univ_unit_el_iso OneU),
-      univ_unit_iso_coh OneU eliso.
+    (univ_unit_el_iso OneU).
 
   Coercion unit_unit_code_from_comp_cat {UnivU : comp_cat_universe_closed_unit}
     : univ_unit_code := pr1 UnivU.
@@ -527,7 +518,7 @@ Section Universe_Unit_Closure.
   Definition comp_cat_unit_el_iso (UnitU : comp_cat_universe_closed_unit)
     : @z_iso (fiber_category _ _)
         (comp_cat_el (comp_cat_unit_code UnitU)) ((pr1 Unit) [])
-    := (pr12 UnitU).
+    := (pr2 UnitU).
 
   Section weaken_unit.
 
@@ -751,19 +742,13 @@ Section Universe_Pi_Closure.
       let BsA := B [[ comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA ]]tm ↑ e' in
       (ΠU Δ A B) [[ s ]]tm ↑ e = ΠU Γ As BsA.
 
-  (* 4. Coherence of the isos  *)
-  Definition univ_pi_iso_coh
-             (ΠU : univ_pi_form)
-             (eliso : univ_pi_el_iso ΠU)
-             (Πsubst : univ_pi_subst_law ΠU) : UU.
-  Proof.
-  Admitted.
+  (* There is also a rule for coherence of isomorphisms for Π-codes
+   but we do not define it here. *)
 
   Definition comp_cat_universe_closed_pi : UU :=
     ∑ (ΠU : univ_pi_form),
-    ∑ (eliso : univ_pi_el_iso ΠU),
-    ∑ (Πsubst : univ_pi_subst_law ΠU),
-      univ_pi_iso_coh ΠU eliso Πsubst.
+      ∑ (eliso : univ_pi_el_iso ΠU),
+      (univ_pi_subst_law ΠU).
 
   Coercion comp_cat_with_pi_to_comp_cat (PiU : comp_cat_universe_closed_pi)
     : univ_pi_form := pr1 PiU.
@@ -796,7 +781,7 @@ Section Universe_Pi_Closure.
       let BsA := B [[ comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA ]]tm ↑ e' in
       let ΣU := (@comp_cat_pi_code PiU) in
       (ΣU Δ A B) [[ s ]]tm ↑ e = (ΣU Γ As BsA)
-      := (pr1 (pr22 PiU)) _ _ s A B.
+      := (pr22 PiU) _ _ s A B.
 
 End Universe_Pi_Closure.
 

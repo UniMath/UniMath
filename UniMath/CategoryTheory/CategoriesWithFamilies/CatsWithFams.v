@@ -847,6 +847,14 @@ Section Unit_For_CwF.
             ∑ us : unit_subst One,
               unit_subst_tt One tt us.
 
+  Definition make_cwf_unit
+    (One : unit_form)
+    (tt : unit_intro One)
+    (uniq : unit_unique One tt)
+    (us : unit_subst One)
+    (us_tt : unit_subst_tt One tt us)
+    : cwf_unit := One ,, tt ,, uniq ,, us ,, us_tt.
+
 End Unit_For_CwF.
 
 (** Accessors for cwf_unit *)
@@ -974,6 +982,18 @@ Section Pi_For_CwF.
               pi_eta Pi lam app Pi_subst
                 × pi_subst_lam Pi lam Pi_subst
                 × pi_subst_app Pi app Pi_subst.
+
+  Definition make_cwf_pi_structure
+    (Pi : pi_form)
+    (lam : pi_lam Pi)
+    (app : pi_app Pi)
+    (beta : pi_beta Pi lam app)
+    (Pi_subst : pi_subst Pi)
+    (eta : pi_eta Pi lam app Pi_subst)
+    (subst_lam : pi_subst_lam Pi lam Pi_subst)
+    (subst_app : pi_subst_app Pi app Pi_subst)
+    : cwf_pi_structure := Pi ,, lam ,, app ,, beta ,, Pi_subst ,, eta ,, subst_lam ,, subst_app.
+
 
 End Pi_For_CwF.
 
@@ -1144,7 +1164,23 @@ Section Sigma_For_CwF.
           ∑ Sig_subst : sigma_subst Sig,
             ∑ pi1_subst : sigma_subst_pi1 Sig pi1 Sig_subst,
               sigma_subst_pi2 Sig pi1 pi2 Sig_subst pi1_subst
-              × sigma_subst_pair Sig pair Sig_subst.
+                × sigma_subst_pair Sig pair Sig_subst.
+
+  Definition make_cwf_sigma_structure
+    (Sig : sigma_form)
+    (pi1 : sigma_pi1 Sig)
+    (pi2 : sigma_pi2 Sig pi1)
+    (pair : sigma_pair Sig)
+    (beta1 : sigma_beta1 Sig pi1 pi2 pair)
+    (beta2 : sigma_beta2 Sig pi1 pi2 pair beta1)
+    (eta : sigma_eta Sig pi1 pi2 pair)
+    (Sig_subst : sigma_subst Sig)
+    (pi1_subst : sigma_subst_pi1 Sig pi1 Sig_subst)
+    (pi2_subst : sigma_subst_pi2 Sig pi1 pi2 Sig_subst pi1_subst)
+    (pair_subst : sigma_subst_pair Sig pair Sig_subst)
+    : cwf_sigma_structure :=
+    Sig ,, pi1 ,, pi2 ,, pair ,,
+      (beta1 ,, beta2 ,, eta) ,, (Sig_subst ,, pi1_subst ,, pi2_subst ,, pair_subst).
 
 End Sigma_For_CwF.
 
