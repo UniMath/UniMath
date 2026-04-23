@@ -2401,7 +2401,7 @@ Defined.
 
 (** Binary coproducts have not been introduced or used earlier except for the
 lines in the Preamble.v that define [ coprod ] and [ ⨿ ] as a notation for
-the inductive type family [ sum ] that is defined in Coq.Init. *)
+the inductive type family [ sum ] that is defined in Corelib.Init. *)
 
 (** *** Distributivity of coproducts and direct products as a weak equivalence *)
 

@@ -43,7 +43,7 @@ For following his instructions using his example, we recommend you save the Coq 
 to profit from the automatic setup mentioned above.
 Note that for Bauer's specific example to work in UniMath, you need to insert the line
 ```
-Require Import Coq.Init.Prelude.
+From Corelib Require Import Prelude.
 ```
 at the beginning of the file, since the setup above does not load this library by default when reading a file.
 
