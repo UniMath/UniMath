@@ -849,8 +849,8 @@ Qed.
 Section filterintersection.
 
 Context {X : UU}.
-Context (is : ((X → hProp) → hProp) → UU).
-Context (FF : (∑ F : ((X → hProp) → hProp), is F) → hProp)
+Context (isc : ((X → hProp) → hProp) → UU).
+Context (FF : (∑ F : ((X → hProp) → hProp), isc F) → hProp)
         (Himp : ∏ F, FF F → isfilter_imply (pr1 F))
         (Htrue : ∏ F, FF F → isfilter_htrue (pr1 F))
         (Hand : ∏ F, FF F → isfilter_and (pr1 F))

@@ -108,8 +108,8 @@ Proof.
   apply (isofhlevelweqb 1 (weqleFtototalwithnat S n m)).
   apply invproofirrelevance. intros x x'.
   set (i := @pr1 _ (λ n0 : nat, (iteration S n0 n) = m)).
-  assert (is : isincl i) by apply (isinclpr1 _ (λ n0 : nat, isasetnat (iteration S n0 n) m)).
-  apply (invmaponpathsincl _  is).
+  assert (isc : isincl i) by apply (isinclpr1 _ (λ n0 : nat, isasetnat (iteration S n0 n) m)).
+  apply (invmaponpathsincl _  isc).
   destruct x as [ n1 e1 ]. destruct x' as [ n2 e2 ]. simpl.
   set (int1 := pathsinv0 (pathsitertoplus n1 n)).
   set (int2 := pathsinv0 (pathsitertoplus n2 n)).

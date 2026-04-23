@@ -512,12 +512,12 @@ Definition isaset_fiber_discrete_fibration {C} (D : discrete_fibration C)
            (c : C) : isaset (D c) := pr2 (pr2 D) c.
 
 (** TODO: move upstream *)
-Lemma pair_inj {A : UU} {B : A -> UU} (is : isaset A) {a : A}
+Lemma pair_inj {A : UU} {B : A -> UU} (isc : isaset A) {a : A}
    {b b' : B a} : (a,,b) = (a,,b') -> b = b'.
 Proof.
   intro H.
   use (invmaponpathsincl _ _ _ _ H).
-  apply isofhlevelffib. intro. apply is.
+  apply isofhlevelffib. intro. apply isc.
 Defined.
 
 Lemma disp_mor_unique_disc_fib C (D : discrete_fibration C)

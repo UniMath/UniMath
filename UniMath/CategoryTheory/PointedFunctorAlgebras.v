@@ -283,8 +283,8 @@ Corollary well_pointed_has_ptd_alg_isaprop (A : C)
 Proof.
   apply invproofirrelevance; red. intros [a ar] [b br].
   apply subtypeInjectivity; simpl. { intros f. apply homset_property. }
-  set (is := (well_pointed_point_is_z_iso_at_algebra (make_ptd_alg F A a ar))).
-  apply (pre_comp_with_z_iso_is_inj is); simpl.
+  set (isc := (well_pointed_point_is_z_iso_at_algebra (make_ptd_alg F A a ar))).
+  apply (pre_comp_with_z_iso_is_inj isc); simpl.
   exact (ar @ ! br).
 Qed.
 
@@ -437,7 +437,7 @@ Definition shift_iter_map_restricts' (A : C) (i : nat)
 (**
   We need F to be well-pointed to prove (F^ω A, shift_iter_map A) forms a pointed
   algebra (this is the only place well-pointedness is used, but many things follow)
-  Dependency chain is:
+  Dependency chain isc:
   F_well_pointed
     => iter_chain_mor_is_point
     => shift_iter_map_forms_ptd_alg

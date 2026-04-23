@@ -72,7 +72,7 @@ Proof.
   apply isdecrelnatgth.
 Defined.
 
-Lemma neghfiberstntonat ( n m : nat ) ( is : natgeh m n ) : ¬ ( hfiber ( stntonat n ) m ).
+Lemma neghfiberstntonat ( n m : nat ) ( isc : natgeh m n ) : ¬ ( hfiber ( stntonat n ) m ).
 Proof.
   intros.
   intro h.
@@ -80,14 +80,14 @@ Proof.
   destruct j as [ j is' ].
   simpl in e.
   rewrite e in is'.
-  apply ( natgehtonegnatlth _ _ is is' ).
+  apply ( natgehtonegnatlth _ _ isc is' ).
 Defined.
 
-Lemma iscontrhfiberstntonat ( n m : nat ) ( is : natlth m n ) :
+Lemma iscontrhfiberstntonat ( n m : nat ) ( isc : natlth m n ) :
   iscontr ( hfiber ( stntonat n ) m ).
 Proof.
   intros.
-  apply ( iscontrhfiberofincl ( stntonat n ) ( isinclstntonat n ) ( make_stn n m is ) ).
+  apply ( iscontrhfiberofincl ( stntonat n ) ( isinclstntonat n ) ( make_stn n m isc ) ).
 Defined.
 
 Local Open Scope stn.
@@ -216,8 +216,8 @@ Proof.
 Defined.
 
 Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : ⟦m⟧ -> ⟦n⟧ :=
-  λ x : ⟦m⟧, match x with tpair _ i is
-                 => make_stn _ i ( natlthlehtrans i m n is isnatleh ) end.
+  λ x : ⟦m⟧, match x with tpair _ i isc
+                 => make_stn _ i ( natlthlehtrans i m n isc isnatleh ) end.
 
 Definition stn_left (m n : nat) : ⟦m⟧ -> ⟦m+n⟧.
 Proof.
@@ -648,10 +648,10 @@ Proof.
   apply isProofIrrelevantUnit.
 Defined.
 
-Lemma isinclfromstn1 { X : UU } ( f : ⟦1⟧ -> X ) ( is : isaset X ) : isincl f.
+Lemma isinclfromstn1 { X : UU } ( f : ⟦1⟧ -> X ) ( isc : isaset X ) : isincl f.
 Proof.
   intros.
-  apply ( isinclbetweensets f ( isasetstn 1 ) is ).
+  apply ( isinclbetweensets f ( isasetstn 1 ) isc ).
   intros x x' e.
   apply ( invmaponpathsweq weqstn1tounit x x' ( idpath tt ) ).
 Defined.
@@ -1414,7 +1414,7 @@ Defined.
 Theorem weqfromprodofstn ( n m : nat ) : ⟦n⟧ × ⟦m⟧ ≃ ⟦n*m⟧.
 Proof.
   intros.
-  induction ( natgthorleh m 0 ) as [ is | i ].
+  induction ( natgthorleh m 0 ) as [ isc | i ].
   - assert ( i1 : ∏ i j : nat, i < n -> j < m -> j + i * m < n * m).
     + intros i j li lj.
       apply (natlthlehtrans ( j + i * m ) ( ( S i ) * m ) ( n * m )).
@@ -1446,11 +1446,11 @@ Proof.
         apply ( pathsdirprod eeis eejs ).
       * intro xnm.
         apply iscontraprop1. apply ( isinf xnm ).
-        set ( e := pathsinv0 ( natdivremrule xnm m ( natgthtoneq _ _ is ) ) ).
+        set ( e := pathsinv0 ( natdivremrule xnm m ( natgthtoneq _ _ isc ) ) ).
         set ( i := natdiv xnm m ).   set ( j := natrem xnm m ).
         destruct xnm as [ xnm lxnm ].
-        set ( li := natlthandmultrinv _ _ _ ( natlehlthtrans _ _ _ ( natlehmultnatdiv xnm m ( natgthtoneq _ _ is ) ) lxnm ) ).
-        set ( lj := lthnatrem xnm m ( natgthtoneq _ _ is ) ).
+        set ( li := natlthandmultrinv _ _ _ ( natlehlthtrans _ _ _ ( natlehmultnatdiv xnm m ( natgthtoneq _ _ isc ) ) lxnm ) ).
+        set ( lj := lthnatrem xnm m ( natgthtoneq _ _ isc ) ).
         split with ( make_dirprod ( make_stn n i li ) ( make_stn m j lj ) ).
         simpl.
         apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ ).  simpl.
@@ -1495,12 +1495,12 @@ Proof.
     destruct ( boolchoice ( fl lastelement ) ) as [ i | ni ].
     + split with ( S x0 ).
       assert ( wi : hfiber fl true ≃ ⟦1⟧ ).
-      { assert ( is : iscontr ( hfiber fl true ) ).
+      { assert ( isc : iscontr ( hfiber fl true ) ).
         { apply iscontraprop1.
           * apply ( isinclfromstn1 fl isasetbool true ).
           * apply ( make_hfiber _ lastelement i ).
         }
-        apply ( weqcontrcontr is iscontrstn1 ).
+        apply ( weqcontrcontr isc iscontrstn1 ).
       }
       apply ( weqcomp ( weqcomp w' ( weqcoprodf wi w0 ) ) ( weqfromcoprodofstn 1 _ ) ).
     + split with x0.
@@ -1517,13 +1517,13 @@ Defined.
 (** *** Weak equivalences between hfibers of functions from [ stn n ] over isolated points and [ stn x ] *)
 
 Theorem weqfromhfiberfromstn { n : nat } { X : UU } ( x : X )
-  ( is : isisolated X x ) ( f : ⟦n⟧ -> X ) :
+  ( isc : isisolated X x ) ( f : ⟦n⟧ -> X ) :
   total2 ( λ x0 : nat, hfiber f x  ≃ (⟦x0⟧) ).
 Proof.
   intros.
-  set ( t := weqfromdecsubsetofstn ( λ i : _, eqbx X x is ( f i ) ) ).
+  set ( t := weqfromdecsubsetofstn ( λ i : _, eqbx X x isc ( f i ) ) ).
   split with ( pr1 t ).
-  apply ( weqcomp ( weqhfibertobhfiber f x is ) ( pr2 t ) ).
+  apply ( weqcomp ( weqhfibertobhfiber f x isc ) ( pr2 t ) ).
 Defined.
 
 

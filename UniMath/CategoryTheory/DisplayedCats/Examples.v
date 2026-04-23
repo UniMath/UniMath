@@ -91,12 +91,12 @@ Definition is_grp_hom {X Y : hSet} (f : X -> Y)
               (f (e GX) = e GY).
 Definition grp_hom_mult {X Y : hSet} {f : X -> Y}
            {GX : grp_structure X} {GY : grp_structure Y}
-           (is : is_grp_hom f GX GY)
-           : ∏ x x', f (mult GX x x') = mult GY (f x) (f x') := pr1 is.
+           (isc : is_grp_hom f GX GY)
+           : ∏ x x', f (mult GX x x') = mult GY (f x) (f x') := pr1 isc.
 Definition grp_hom_e {X Y : hSet} {f : X -> Y}
            {GX : grp_structure X} {GY : grp_structure Y}
-           (is : is_grp_hom f GX GY)
-           : f (e GX) = e GY := pr2 is.
+           (isc : is_grp_hom f GX GY)
+           : f (e GX) = e GY := pr2 isc.
 
 Definition isaprop_is_grp_hom {X Y : hSet} (f : X -> Y)
            (GX : grp_structure X) (GY : grp_structure Y)
