@@ -784,6 +784,7 @@ ModelCategories/ModelCategories.v
 ModelCategories/NWFS.v
 ModelCategories/NWFSisWFS.v
 
+# Markov categories
 MarkovCategories/MarkovCategory.v
 MarkovCategories/Determinism.v
 MarkovCategories/Univalence.v
