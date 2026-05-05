@@ -260,7 +260,7 @@ Section CouplingDilators.
     cbn.
     rewrite bloom_dilation_composition.
     unfold dilation_coupling.
-    rewrite pairing_proj_id, id_right.
+    rewrite <- pairing_proj_id, id_right.
     reflexivity.
   Qed.
 
