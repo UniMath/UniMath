@@ -1,50 +1,62 @@
 (*********************************************
 An Alternative Axiomatization of Markov Categories
 
-Cartesian categories have an equational presentation using 
-pairing and projections. We adapt this presentation to give an
-alternative axiomatization of Markov categories. 
-* The advantage is that reasoning about coherence 
-  in the new axioms is much simpler and easy to automate.
-* Our presentation becomes implicational instead of equational
-  because some η-laws only hold for deterministic morphisms.
+Cartesian categories with chosen products have an equational presentation
+using pairing and projections. This presentation is convenient because
+deciding coherence is easily automated using η-laws and rewriting.
 
-It also seems related to the equational presentation 
-of the CD calculus, and centrality in Freyd categories
+We adapt this style of presentation to give an alternative axiomatization 
+for Markov categories, which we dub "quasicartesian". 
+This has a series of advantages over the traditional axiomatization
+1. The same automation strategy for coherence remains functional, which is a 
+   big improvement over reasoning with the original Markov category axioms. 
+2. The quasicartesian axioms are simpler than the full Markov category axiomatization,
+   which helps in constructing instances. Unlike for cartesian categories where
+   picking a monoidal structure requires a choice, no choice is needed here. 
 
-We call this presentation "quasicartesian".
+The only difference to the cartesian axioms is that η-laws only hold for
+deterministic morphisms, so we need to axiomatize determinism separately. 
+But again, discharging these determinism assumptions is easily automated. 
+
+We show that the two axiomatizations of Markov categories are equivalent
+in QuasiCartesianVsMarkov.v.
+
+Table of Contents
+1. Definition of quasicartesian categories
+2. Accessors
+3. Derived laws
+4. Automation
+5. Further laws
+
 **********************************************)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.Limits.Terminal.
-Require Import UniMath.CategoryTheory.Monoidal.Categories.
-Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
-Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
-Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
-
-Import MonoidalNotations.
 
 Local Open Scope cat.
-Local Open Scope moncat.
 
-(** * 1. Definition of a quasicartesian category *)
+Declare Scope quasicartesian.
+Delimit Scope quasicartesian with quasicartesian.
+
+Local Open Scope quasicartesian.
+
+(** * 1. Definition of quasicartesian categories *)
 
 Definition quasicartesian_data : UU :=
   ∑ (C : category),
-      (∑ (I : C), ∏ (x : C),  x --> I)
+      (∑ (Unit : C), ∏ (x : C), x --> Unit)
       × 
       ∑ (tensor : C -> C -> C),
-      ∑ (pairing : ∏ (x y z : C), (x --> y) -> (x --> z) -> (x --> tensor y z)), 
+        (∏ (x y z : C), (x --> y) -> (x --> z) -> (x --> tensor y z))
+        ×
         (∏ x y, tensor x y --> x)
         × 
         (∏ x y, tensor x y --> y).
 
 Coercion quasicartesian_data_to_cat (Q : quasicartesian_data) : category := pr1 Q.
 
-(** Accessors *)
+(** * 2. Accessors *)
 
 Definition Unit {C : quasicartesian_data} : C := pr112 C.
 
@@ -52,13 +64,13 @@ Definition del {C : quasicartesian_data} (x : C) : x --> Unit := pr212 C x.
 
 Definition tensor {C : quasicartesian_data} (x y : C) : C := pr122 C x y.
 
-Notation "x ⊗ y" := (tensor x y).
+Notation "x ⊗ y" := (tensor x y) : quasicartesian.
 
 Definition pairing {C : quasicartesian_data} {x y z : C} 
                    (f : x --> y) (g : x --> z) : x --> y ⊗ z
            := pr1 (pr222 C) x y z f g.
 
-Notation "⟨ f , g ⟩" := (pairing f g).
+Notation "⟨ f , g ⟩" := (pairing f g) : quasicartesian.
 
 Definition proj1 {C : quasicartesian_data} {x y : C} : x ⊗ y --> x
   := pr12 (pr222 C) x y.
@@ -109,7 +121,7 @@ Definition quasicartesian_category : UU
 Coercion quasicartesian_category_to_data (C : quasicartesian_category) : quasicartesian_data 
   := pr1 C.
 
-Notation "f #⊗ g" := (⟨ proj1 · f, proj2 · g⟩) (at level 31). 
+Notation "f #⊗ g" := (⟨ proj1 · f, proj2 · g⟩) (at level 31) : quasicartesian.
 
 Section QuasicartesianLaws.
   Context {C : quasicartesian_category}.
@@ -180,7 +192,7 @@ Section QuasicartesianLaws.
     exact (pr22 (pr222 (pr222 (pr222 C))) a x y f g).
   Qed.
 
-  (* Derived laws *)
+  (** * 3. Derived laws *)
 
   Proposition det_id {x : C} : det (identity x).
   Proof.
@@ -266,7 +278,7 @@ Section QuasicartesianLaws.
 
 End QuasicartesianLaws.
 
- (* Automation *)
+(** * 4. Automation *)
 
 Create HintDb autodet.
 Hint Resolve det_id : autodet.
@@ -276,48 +288,49 @@ Hint Resolve det_del : autodet.
 Hint Resolve det_comp : autodet.
 Hint Resolve det_pairing : autodet. 
 
-(* Normalize composite terms; right-associate everything *)
+(* Normalize by right-associating everything *)
 Ltac normalize := repeat (rewrite assoc).
 
-(* A single reduction step *)
+(* A single simplification step *)
 Ltac qcart_simpl_step :=
-  normalize ||
-    (rewrite id_left 
-  || rewrite id_right 
-  || rewrite pairing_proj1
-  || rewrite pairing_proj2
-  || rewrite proj1_inner
-  || rewrite proj2_inner).
+     (rewrite id_left)
+  || (rewrite id_right) 
+  || (rewrite pairing_proj1)
+  || (rewrite pairing_proj2)
+  || (rewrite proj1_inner)
+  || (rewrite proj2_inner).
 
-(* Many reduction steps *)
-Ltac qcart_simpl := repeat qcart_simpl_step.
+(* Simplify by repeated steps *)
+Ltac qcart_simpl := repeat (normalize; qcart_simpl_step).
 
-(* Simplify and solve trivial goals (reflexivity or unit type) *)
-Ltac qcart_progress :=
-      apply eta_Unit (* solve goals of type x --> Unit *)
-  || (qcart_simpl; try reflexivity). (* try simplifying and solving *)
+(* Try solving some simple goals at unit or ground type *)
+Ltac qcart_solve :=
+  (try apply eta_Unit) || (qcart_simpl; try reflexivity).
 
-(* Eta-expand deterministic morphisms of tensor type, followed by simplification *)
-Ltac qcart_eta :=
-  (try qcart_progress); (apply eta_det; try auto 20 with autodet; try qcart_progress).
+(* At tensor type, repeatedly split goals using the eta law *)
+Ltac qcart_split :=
+  repeat (apply eta_det; try auto 20 with autodet).
 
-Ltac qcart_coherence := repeat qcart_eta.
+(* Repeatedly split and solve *)
+Ltac qcart_coherence :=
+  qcart_simpl; qcart_split; qcart_solve.
 
-(* Example *)
 
+(** * 5. Further laws *)
+  
 Section MoreLaws.
   Context {C : quasicartesian_category}.
 
   Proposition proj1_expand {x y z : C} :
     @proj1 C (x ⊗ y) z = ⟨ proj1 · proj1 , proj1 · proj2 ⟩.
   Proof.
-    qcart_eta.
+    qcart_coherence.
   Qed.
 
   Lemma proj2_expand {x y z : C} :
     @proj2 C z (x ⊗ y) = ⟨ proj2 · proj1 , proj2 · proj2 ⟩.
   Proof.
-    qcart_eta.
+    qcart_coherence.
   Qed.
 
   Proposition pairing_assoc' {x y z w : C} (f : x --> y) (g : x --> z) (h : x --> w) :
@@ -328,11 +341,12 @@ Section MoreLaws.
     rewrite <- pairing_assoc.
     rewrite assoc'.
     apply maponpaths.
-    do 2 qcart_eta.
+    qcart_coherence.
   Qed.
 
   (* Defining coherence maps *)
 
+  (* TODO do we need this? *)
   Definition lassociator {x y z : C} : (x ⊗ y) ⊗ z --> x ⊗ (y ⊗ z)
     :=  ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩. 
 
@@ -348,6 +362,7 @@ Section MoreLaws.
   Definition swap {x y : C} : x ⊗ y --> y ⊗ x := ⟨ proj2, proj1 ⟩.
 
   (* Example *)
+
   Definition inner_swap {x y z w : C} : (x ⊗ y) ⊗ (z ⊗ w) --> (x ⊗ z) ⊗ (y ⊗ w) 
     := ⟨ proj1 #⊗ proj1, proj2 #⊗ proj2 ⟩.
   
@@ -361,7 +376,7 @@ Section MoreLaws.
     exact swap.
   Defined.
 
-  (* The proof essentially follows the definition of [inner_swap_linear ]*)
+  (* The proof strategy follows the definition of [inner_swap_linear ]*)
   Proposition pairing_inner_swap_linear {a x y z w : C} (f : a --> x) (g : a --> y) (h : a --> z) (i : a --> w) :
     ⟨ ⟨ f, g ⟩, ⟨ h, i ⟩ ⟩ · inner_swap_linear = ⟨ ⟨ f, h ⟩, ⟨ g, i ⟩ ⟩.
   Proof.
@@ -391,7 +406,7 @@ Section MoreLaws.
     assert(e : @inner_swap x y z w = @inner_swap_linear x y z w). {
       unfold inner_swap, inner_swap_linear.
       unfold lassociator, rassociator, swap. 
-      do 2 qcart_eta.
+      qcart_coherence.
     }
     rewrite e.
     apply pairing_inner_swap_linear.
