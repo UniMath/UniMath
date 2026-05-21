@@ -1,6 +1,4 @@
-(*
-
-  Universe in Comprehension Categories
+(** Universe in Comprehension Categories
 
   Let C be a comprehension category with a terminal empty context [].
   We say C has a universe if we have :
@@ -67,7 +65,7 @@ Definition weakened_from_empty {C: comp_cat_with_terminal} (A : comp_cat_ty ([] 
   := A [[ TerminalArrow (empty_context C) Γ ]].
 
 Definition sub_comp_cat_univ_iso {C : comp_cat_with_terminal} {Γ Δ : C}
-           (U : comp_cat_ty []) (s : Γ --> Δ)
+  (U : comp_cat_ty []) (s : Γ --> Δ)
   : z_iso (C := fiber_category _ _) ((weakened_from_empty U _) [[ s ]]) (weakened_from_empty U Γ).
 Proof.
   set (T := empty_context C).
@@ -94,10 +92,10 @@ We say C has a universe if we have :
 Definition comp_cat_universe_data (C: comp_cat_with_terminal) : UU
   := ∑ (U : comp_cat_ty []),
     ∑ (el : ∏ (Γ : C), comp_cat_tm (weakened_from_empty U _) -> comp_cat_ty Γ),
-      (∏ (Γ Δ : C) (s : Γ --> Δ) (t : comp_cat_tm (weakened_from_empty U _)),
-        @z_iso (fiber_category _ _)
-              ((el _ t) [[ s ]])
-              (el _ (t [[ s ]]tm ↑ ⌈sub_comp_cat_univ_iso U s⌉))).
+    (∏ (Γ Δ : C) (s : Γ --> Δ) (t : comp_cat_tm (weakened_from_empty U _)),
+      @z_iso (fiber_category _ _)
+        ((el _ t) [[ s ]])
+        (el _ (t [[ s ]]tm ↑ ⌈sub_comp_cat_univ_iso U s⌉))).
 
 Local Definition el_map {C: comp_cat_with_terminal} (universe: comp_cat_universe_data C)
   (Γ : C) {a b : comp_cat_tm (weakened_from_empty (pr1 universe) _)}
@@ -202,15 +200,15 @@ Section UniverseCoherence.
   Local Definition coherent_comp : UU
     :=
     ∏ (Γ Δ Θ : C) (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
-        (t : comp_cat_tm (weakened_from_empty U _)),
+      (t : comp_cat_tm (weakened_from_empty U _)),
       comp_cat_reindex_iso s₂ (i _ _ s₁ t)
         · (i _ _ s₂ _)
-        =
-          comp_cat_subst_ty_comp_iso (el _ t) s₁ s₂
-            · (i _ _ (s₂ · s₁) t)
-            · el_map _ _ elmaplemmacomp.
+      =
+        comp_cat_subst_ty_comp_iso (el _ t) s₁ s₂
+          · (i _ _ (s₂ · s₁) t)
+          · el_map _ _ elmaplemmacomp.
 
-End universe_coherence.
+End UniverseCoherence.
 
 Definition comp_cat_universe_coherent
   {C : comp_cat_with_terminal}
@@ -257,37 +255,37 @@ Proof.
 Defined.
 
 Definition comp_cat_univ_coherent_id
-    {C : comp_cat_with_universe}
-    (Γ : C)
-    (t : comp_cat_tm (comp_cat_U Γ))
+  {C : comp_cat_with_universe}
+  (Γ : C)
+  (t : comp_cat_tm (comp_cat_U Γ))
   : @identity (fiber_category _ _) (comp_cat_el t)
     = comp_cat_subst_ty_id_iso _
-      · comp_cat_el_iso (identity Γ) t
-      · comp_cat_el_map (elmaplemma _ _)
+        · comp_cat_el_iso (identity Γ) t
+        · comp_cat_el_map (elmaplemma _ _)
   := (pr1 (pr22 C)) Γ t.
 
 Definition comp_cat_univ_coherent_comp
-    {C : comp_cat_with_universe}
-    {Γ Δ Θ : C}
-    (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
-    (t : comp_cat_tm (comp_cat_U _))
+  {C : comp_cat_with_universe}
+  {Γ Δ Θ : C}
+  (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
+  (t : comp_cat_tm (comp_cat_U _))
   : comp_cat_reindex_iso s₂ (comp_cat_el_iso s₁ t)
-    · comp_cat_el_iso s₂ _
+      · comp_cat_el_iso s₂ _
     = comp_cat_subst_ty_comp_iso (comp_cat_el t) s₁ s₂
-      · comp_cat_el_iso (s₂ · s₁) t
-      · comp_cat_el_map (elmaplemmacomp _ _)
+        · comp_cat_el_iso (s₂ · s₁) t
+        · comp_cat_el_map (elmaplemmacomp _ _)
   := (pr2 (pr22 C)) Γ Δ Θ s₁ s₂ t.
 
 Definition comp_cat_univ_coherent_comp'
-    {C : comp_cat_with_universe}
-    {Γ Δ Θ : C}
-    (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
-    (t : comp_cat_tm (comp_cat_U _))
+  {C : comp_cat_with_universe}
+  {Γ Δ Θ : C}
+  (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
+  (t : comp_cat_tm (comp_cat_U _))
   : comp_cat_reindex_coercion s₂ (⌈comp_cat_el_iso s₁ t⌉)
-    · comp_cat_el_iso s₂ _
+      · comp_cat_el_iso s₂ _
     = comp_cat_subst_ty_comp_iso (comp_cat_el t) s₁ s₂
-      · comp_cat_el_iso (s₂ · s₁) t
-      · comp_cat_el_map (elmaplemmacomp _ _).
+        · comp_cat_el_iso (s₂ · s₁) t
+        · comp_cat_el_map (elmaplemmacomp _ _).
 Proof.
   rewrite comp_cat_reindex_coercion_iso_eq.
   unfold "⌈ _ ⌉".
@@ -313,9 +311,9 @@ Proof.
 Qed.
 
 Lemma comp_cat_el_map_id
-    {C : comp_cat_with_universe}
-    {Γ : C}
-    (t : comp_cat_tm (comp_cat_U Γ))
+  {C : comp_cat_with_universe}
+  {Γ : C}
+  (t : comp_cat_tm (comp_cat_U Γ))
   : comp_cat_el_map (idpath t) = identity (C := fiber_category _ _) (comp_cat_el t).
 Proof.
   apply idpath.
@@ -349,13 +347,13 @@ Proof.
 Qed.
 
 Lemma comp_cat_el_iso_natural
-    {C : comp_cat_with_universe} {Γ Δ : C} (s : Δ --> Γ)
-    {t₁ t₂ : comp_cat_tm (comp_cat_U Γ)} (p : t₁ = t₂)
+  {C : comp_cat_with_universe} {Γ Δ : C} (s : Δ --> Γ)
+  {t₁ t₂ : comp_cat_tm (comp_cat_U Γ)} (p : t₁ = t₂)
   : ⌈comp_cat_el_iso s t₁⌉
-    · comp_cat_el_map (maponpaths (fun t => t [[s]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉) p)
+      · comp_cat_el_map (maponpaths (fun t => t [[s]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉) p)
     =
-    comp_cat_reindex_coercion s (comp_cat_el_map p)
-    · ⌈comp_cat_el_iso s t₂⌉.
+      comp_cat_reindex_coercion s (comp_cat_el_map p)
+        · ⌈comp_cat_el_iso s t₂⌉.
 Proof.
   induction p.
   rewrite comp_cat_el_map_id.
@@ -365,15 +363,15 @@ Proof.
 Qed.
 
 Lemma comp_cat_el_iso_subst_path
-    {C : comp_cat_with_universe} {Γ Δ : C}
-    {s s' : Δ --> Γ} (p : s = s')
-    (t : comp_cat_tm (comp_cat_U Γ))
+  {C : comp_cat_with_universe} {Γ Δ : C}
+  {s s' : Δ --> Γ} (p : s = s')
+  (t : comp_cat_tm (comp_cat_U Γ))
   : ⌈comp_cat_el_iso s t⌉
-    · comp_cat_el_map
-        (maponpaths (fun f => t [[ f ]]tm ↑ ⌈comp_cat_univ_sub_iso f⌉) p)
+      · comp_cat_el_map
+      (maponpaths (fun f => t [[ f ]]tm ↑ ⌈comp_cat_univ_sub_iso f⌉) p)
     =
-    ⌈comp_cat_subst_ty_iso (comp_cat_el t) p⌉
-    · ⌈comp_cat_el_iso s' t⌉.
+      ⌈comp_cat_subst_ty_iso (comp_cat_el t) p⌉
+        · ⌈comp_cat_el_iso s' t⌉.
 Proof.
   induction p.
   change (comp_cat_subst_ty_iso (comp_cat_el t) (idpath s)) with
@@ -383,15 +381,15 @@ Proof.
 Qed.
 
 Lemma comp_cat_el_iso_el_map_el_iso_inv
-    {C : comp_cat_with_universe}
-    {Γ Δ : C} (t : comp_cat_tm (comp_cat_U Γ))
-    {s s' : Δ --> Γ} (Hs : s = s')
-    (p : t [[s]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉
-         =
+  {C : comp_cat_with_universe}
+  {Γ Δ : C} (t : comp_cat_tm (comp_cat_U Γ))
+  {s s' : Δ --> Γ} (Hs : s = s')
+  (p : t [[s]]tm ↑ ⌈comp_cat_univ_sub_iso s⌉
+       =
          t [[s']]tm ↑ ⌈comp_cat_univ_sub_iso s'⌉)
   : ⌈comp_cat_el_iso s t⌉
-    · comp_cat_el_map p
-    · ⌈comp_cat_el_iso s' t⌉⁻¹
+      · comp_cat_el_map p
+      · ⌈comp_cat_el_iso s' t⌉⁻¹
     = ⌈comp_cat_subst_ty_iso (comp_cat_el t) Hs⌉.
 Proof.
   induction Hs.
@@ -451,7 +449,7 @@ Section Universe_Sigma_Closure.
   Coercion comp_cat_with_sigma_to_comp_cat (SigmaU : comp_cat_universe_closed_sigma)
     : univ_sigma_form := pr1 SigmaU.
 
-   (** accessors for sigma codes  *)
+  (** accessors for sigma codes  *)
 
   Definition comp_cat_sigma_code (SigmaU : comp_cat_universe_closed_sigma)
     {Γ : C} (A : comp_cat_tm (comp_cat_U _))
@@ -465,21 +463,21 @@ Section Universe_Sigma_Closure.
     @z_iso (fiber_category _ _) (comp_cat_el (comp_cat_sigma_code SigmaU A B))
       ((pr1 Σ) Γ (comp_cat_el A)
          (comp_cat_el B))
-      := (pr12 SigmaU) Γ A B.
+    := (pr12 SigmaU) Γ A B.
 
   Definition comp_cat_sigma_subst (SigmaU : comp_cat_universe_closed_sigma)
     {Γ Δ : C} (s : Γ --> Δ)
     (A : comp_cat_tm (comp_cat_U _))
     (B : comp_cat_tm (comp_cat_U _)) :
-      let e := ⌈sub_comp_cat_univ_iso _ s⌉ in
-      let As := (A [[ s ]]tm) ↑ e in
-      let el_iso := comp_cat_el_iso s A in
-      let sA := comp_cat_ext_subst s (comp_cat_el A) in
-      let e' := ⌈sub_comp_cat_univ_iso _ (comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA)⌉ in
-      let BsA := B [[ comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA ]]tm ↑ e' in
-      let ΣU := (@comp_cat_sigma_code SigmaU) in
-      (ΣU Δ A B) [[ s ]]tm ↑ e = (ΣU Γ As BsA)
-      := (pr22 SigmaU) _ _ s A B.
+    let e := ⌈sub_comp_cat_univ_iso _ s⌉ in
+    let As := (A [[ s ]]tm) ↑ e in
+    let el_iso := comp_cat_el_iso s A in
+    let sA := comp_cat_ext_subst s (comp_cat_el A) in
+    let e' := ⌈sub_comp_cat_univ_iso _ (comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA)⌉ in
+    let BsA := B [[ comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA ]]tm ↑ e' in
+    let ΣU := (@comp_cat_sigma_code SigmaU) in
+    (ΣU Δ A B) [[ s ]]tm ↑ e = (ΣU Γ As BsA)
+    := (pr22 SigmaU) _ _ s A B.
 
 End Universe_Sigma_Closure.
 
@@ -505,7 +503,7 @@ Section Universe_Unit_Closure.
 
   Definition comp_cat_universe_closed_unit : UU :=
     ∑ (OneU : univ_unit_code),
-    (univ_unit_el_iso OneU).
+      (univ_unit_el_iso OneU).
 
   Coercion unit_unit_code_from_comp_cat {UnivU : comp_cat_universe_closed_unit}
     : univ_unit_code := pr1 UnivU.
@@ -680,14 +678,14 @@ Section Universe_Unit_Closure.
       unfold term_unit_code.
       assert (HOneΓ : iscontr (comp_cat_tm ((pr1 Unit) Γ))).
       {
-         use tpair.
-          - exact ( comp_cat_unit_tt Γ).
-          - intro u.
-            exact (comp_cat_unit_unique u).
+        use tpair.
+        - exact ( comp_cat_unit_tt Γ).
+        - intro u.
+          exact (comp_cat_unit_unique u).
       }
       set (HElΓ :=
-        @iscontr_tm_of_iso Γ ((pr1 Unit) Γ) (comp_cat_el (comp_cat_unit_code_weakened UnitU Γ))
-          HOneΓ (z_iso_inv (comp_cat_unit_el_iso_w UnitU Γ))).
+             @iscontr_tm_of_iso Γ ((pr1 Unit) Γ) (comp_cat_el (comp_cat_unit_code_weakened UnitU Γ))
+               HOneΓ (z_iso_inv (comp_cat_unit_el_iso_w UnitU Γ))).
       use subtypePath.
       - unfold isPredicate; intros; apply (homset_property C).
       - cbn.
@@ -753,7 +751,7 @@ Section Universe_Pi_Closure.
   Coercion comp_cat_with_pi_to_comp_cat (PiU : comp_cat_universe_closed_pi)
     : univ_pi_form := pr1 PiU.
 
- (** accessors for pi codes  *)
+  (** accessors for pi codes  *)
 
   Definition comp_cat_pi_code (PiU : comp_cat_universe_closed_pi)
     {Γ : C} (A : comp_cat_tm (comp_cat_U _))
@@ -767,21 +765,21 @@ Section Universe_Pi_Closure.
     @z_iso (fiber_category _ _) (comp_cat_el (comp_cat_pi_code PiU A B))
       ((pr1 Π) Γ (comp_cat_el A)
          (comp_cat_el B))
-      := (pr12 PiU) Γ A B.
+    := (pr12 PiU) Γ A B.
 
   Definition comp_cat_pi_subst (PiU : comp_cat_universe_closed_pi)
     {Γ Δ : C} (s : Γ --> Δ)
     (A : comp_cat_tm (comp_cat_U _))
     (B : comp_cat_tm (comp_cat_U _)) :
-      let e := ⌈sub_comp_cat_univ_iso _ s⌉ in
-      let As := (A [[ s ]]tm) ↑ e in
-      let el_iso := comp_cat_el_iso s A in
-      let sA := comp_cat_ext_subst s (comp_cat_el A) in
-      let e' := ⌈sub_comp_cat_univ_iso _ (comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA)⌉ in
-      let BsA := B [[ comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA ]]tm ↑ e' in
-      let ΣU := (@comp_cat_pi_code PiU) in
-      (ΣU Δ A B) [[ s ]]tm ↑ e = (ΣU Γ As BsA)
-      := (pr22 PiU) _ _ s A B.
+    let e := ⌈sub_comp_cat_univ_iso _ s⌉ in
+    let As := (A [[ s ]]tm) ↑ e in
+    let el_iso := comp_cat_el_iso s A in
+    let sA := comp_cat_ext_subst s (comp_cat_el A) in
+    let e' := ⌈sub_comp_cat_univ_iso _ (comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA)⌉ in
+    let BsA := B [[ comp_cat_comp_mor (⌈el_iso⌉⁻¹) · sA ]]tm ↑ e' in
+    let ΣU := (@comp_cat_pi_code PiU) in
+    (ΣU Δ A B) [[ s ]]tm ↑ e = (ΣU Γ As BsA)
+    := (pr22 PiU) _ _ s A B.
 
 End Universe_Pi_Closure.
 
