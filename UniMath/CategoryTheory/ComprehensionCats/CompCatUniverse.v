@@ -262,7 +262,7 @@ Definition comp_cat_univ_coherent_id
     = comp_cat_subst_ty_id_iso _
         · comp_cat_el_iso (identity Γ) t
         · comp_cat_el_map (elmaplemma _ _)
-  := (pr1 (pr22 C)) Γ t.
+  := (pr122 C) Γ t.
 
 Definition comp_cat_univ_coherent_comp
   {C : comp_cat_with_universe}
@@ -274,7 +274,7 @@ Definition comp_cat_univ_coherent_comp
     = comp_cat_subst_ty_comp_iso (comp_cat_el t) s₁ s₂
         · comp_cat_el_iso (s₂ · s₁) t
         · comp_cat_el_map (elmaplemmacomp _ _)
-  := (pr2 (pr22 C)) Γ Δ Θ s₁ s₂ t.
+  := (pr222 C) Γ Δ Θ s₁ s₂ t.
 
 Definition comp_cat_univ_coherent_comp'
   {C : comp_cat_with_universe}

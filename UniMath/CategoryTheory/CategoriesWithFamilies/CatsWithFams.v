@@ -371,7 +371,7 @@ Definition cwf_subst_ty_comp {C : cwf_data} {Γ Γ' Δ : C}
   : (A [[ s ]]) [[ u ]] = A [[ u · s ]].
 Proof.
   set (T := pr21 (cwf_t C)).
-  set (T_compax := pr2 (pr2 (cwf_t C))).
+  set (T_compax := pr22 (cwf_t C)).
   cbn in *.
   specialize (T_compax Γ Γ' Δ s u).
   apply (maponpaths (fun f => pr1 f A)) in T_compax.
@@ -515,11 +515,11 @@ Notation "⟨⟨ s , t ⟩⟩" := (cwf_subst_pair s t) (at level 30, right assoc
 
 Definition cwf_pair_p {C : cwf} {Γ Δ : C} {A : cwf_ty Γ}
   (s : Δ --> Γ) (t : cwf_tm (A[[s]])) : (⟨⟨ s , t ⟩⟩ · p_ A) = s
-  := (pr1 (pr2 (pr1 (pr2 C Γ Δ A s t)))).
+  := (pr121 (pr2 C Γ Δ A s t)).
 
 Definition cwf_pair_q {C : cwf} {Γ Δ : C} {A : cwf_ty Γ} (s : Δ --> Γ) (t : cwf_tm (A[[s]]))
   : transportf_subst_tm_on_s (cwf_pair_p s t) (cwf_qA_subst ( ⟨⟨ s , t ⟩⟩ )) = t
-  := pr2 (pr2 (pr1 (pr2 C Γ Δ A s t))).
+  := pr221 (pr2 C Γ Δ A s t).
 
 Proposition cwf_pair_q_subst_eq
   {C : cwf} {Γ Δ : C} {A : cwf_ty Γ} (s : Δ --> Γ) (t : cwf_tm (A[[s]]))
@@ -1032,20 +1032,20 @@ Section cwf_pi_accessors.
     {Γ Δ : pr1 C} (s : Δ --> Γ)
     (A : cwf_ty Γ) (B : cwf_ty (Γ & A))
     : ((pr1 π) Γ A B) [[ s ]] = (pr1 π) Δ (A [[ s ]]) (B [[ cwf_lift s A ]])
-    := pr1 (pr2 (pr222 π)) Γ Δ s A B.
+    := pr12 (pr222 π) Γ Δ s A B.
 
   (** Uncurrying using the bundled structure *)
   Definition cwf_pi_uncurry_map {C : cwf} {π : cwf_pi_structure C}
     {Γ : pr1 C} {A : cwf_ty Γ} {B : cwf_ty (Γ & A)}
     (f : cwf_tm ((pr1 π) Γ A B))
     : cwf_tm B
-    := pi_uncurry C (pr1 π) (pr12 π) (pr122 π) (pr1 (pr2 (pr222 π))) A B f.
+    := pi_uncurry C (pr1 π) (pr12 π) (pr122 π) (pr12 (pr222 π)) A B f.
 
   Definition cwf_pi_eta {C : cwf} {π : cwf_pi_structure C}
     {Γ : pr1 C} {A : cwf_ty Γ} {B : cwf_ty (Γ & A)}
     (f : cwf_tm ((pr1 π) Γ A B))
     : cwf_pi_lam_map (cwf_pi_uncurry_map f) = f
-    := pr1 (pr2 (pr2 (pr222 π))) Γ A B f.
+    := pr122 (pr222 π) Γ A B f.
 
   Definition cwf_pi_subst_lam {C : cwf} {π : cwf_pi_structure C}
     {Γ Δ : pr1 C} (s : Δ --> Γ)
@@ -1055,7 +1055,7 @@ Section cwf_pi_accessors.
         transportf (λ X, cwf_tm X)
           (pathsinv0 (cwf_pi_subst_eq s A B))
           (cwf_pi_lam_map (b [[ cwf_lift s A ]]tm))
-    := pr1 (pr2 (pr2 (pr2 (pr222 π)))) Γ Δ s A B b.
+    := pr1 (pr222 (pr222 π)) Γ Δ s A B b.
 
   Definition cwf_pi_subst_app {C : cwf} {π : cwf_pi_structure C}
     {Γ Δ : pr1 C} (s : Δ --> Γ)
@@ -1220,7 +1220,7 @@ Section cwf_sigma_accessors.
     (a : cwf_tm A)
     (b : cwf_tm  (B [[ ⟨⟨ identity Γ, cwf_subst_tm_id a ⟩⟩ ]]))
     : cwf_sigma_pi1_map (cwf_sigma_pair_map a b) = a
-    := pr1 (pr1 (pr2 (pr222 σ))) Γ A B a b.
+    := pr112 (pr222 σ) Γ A B a b.
 
   Definition cwf_sigma_beta2 {C : cwf} {σ : cwf_sigma_structure C}
     {Γ : pr1 C} {A : cwf_ty Γ} {B : cwf_ty (Γ & A)}
@@ -1231,19 +1231,19 @@ Section cwf_sigma_accessors.
            (cwf_sigma_beta1 a b))
         (cwf_sigma_pi2_map (cwf_sigma_pair_map a b))
       = b
-    := pr1 (pr2 (pr1 (pr2 (pr222 σ)))) Γ A B a b.
+    := pr1 (pr212 (pr222 σ)) Γ A B a b.
 
   Definition cwf_sigma_eta {C : cwf} {σ : cwf_sigma_structure C}
     {Γ : pr1 C} {A : cwf_ty Γ} {B : cwf_ty (Γ & A)}
     (p : cwf_tm ((pr1 σ) Γ A B))
     : cwf_sigma_pair_map (cwf_sigma_pi1_map p) (cwf_sigma_pi2_map p) = p
-    := pr2 (pr2 (pr1 (pr2 (pr222 σ)))) Γ A B p.
+    := pr2 (pr212 (pr222 σ)) Γ A B p.
 
   Definition cwf_sigma_subst_eq {C : cwf} {σ : cwf_sigma_structure C}
     {Γ Δ : pr1 C} (s : Δ --> Γ)
     (A : cwf_ty Γ) (B : cwf_ty (Γ & A))
     : ((pr1 σ) Γ A B) [[ s ]] = (pr1 σ) Δ (A [[ s ]]) (B [[ cwf_lift s A ]])
-    := pr1 (pr2 (pr2 (pr222 σ))) Γ Δ s A B.
+    := pr122 (pr222 σ) Γ Δ s A B.
 
   Definition cwf_sigma_subst_pi1 {C : cwf} {σ : cwf_sigma_structure C}
     {Γ Δ : pr1 C} (s : Δ --> Γ)
@@ -1252,7 +1252,7 @@ Section cwf_sigma_accessors.
     : cwf_sigma_pi1_map
         (transportf (λ X, cwf_tm X) (cwf_sigma_subst_eq s A B) (p [[ s ]]tm))
       = cwf_sigma_pi1_map p [[ s ]]tm
-    := pr1 (pr2 (pr2 (pr2 (pr222 σ)))) Γ Δ s A B p.
+    := pr1 (pr222 (pr222 σ)) Γ Δ s A B p.
 
   Definition cwf_sigma_subst_pi2 {C : cwf} {σ : cwf_sigma_structure C}
     {Γ Δ : pr1 C} (s : Δ --> Γ)
@@ -1268,7 +1268,7 @@ Section cwf_sigma_accessors.
            (cwf_pair_subst_ty_comm s A B (cwf_sigma_pi1_map p))
            (cwf_sigma_pi2_map p [[ s ]]tm))
       = cwf_sigma_pi2_map p'
-    := pr1 (pr2 (pr2 (pr2 (pr2 (pr222 σ))))) Γ Δ s A B p.
+    := pr12 (pr222 (pr222 σ)) Γ Δ s A B p.
 
   Definition cwf_sigma_subst_pair {C : cwf} {σ : cwf_sigma_structure C}
     {Γ Δ : pr1 C} (s : Δ --> Γ)
@@ -1283,7 +1283,7 @@ Section cwf_sigma_accessors.
           (transportf (λ X, cwf_tm X)
              (cwf_pair_subst_ty_comm s A B a)
              (b [[ s ]]tm))
-    := pr2 (pr2 (pr2 (pr2 (pr2 (pr222 σ))))) Γ Δ s A B a b.
+    := pr22 (pr222 (pr222 σ)) Γ Δ s A B a b.
 
 End cwf_sigma_accessors.
 

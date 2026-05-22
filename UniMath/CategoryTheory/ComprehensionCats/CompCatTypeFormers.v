@@ -483,7 +483,7 @@ Definition comp_cat_pi_sub_lam
     {Γ Δ : C} (s : Γ --> Δ)
     : comp_cat_unit_tt Δ [[ s ]]tm · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso s⌉) =
         comp_cat_unit_tt Γ
-    := pr1 (pr2 (pr22 (pr222 Unit))) Γ Δ s.
+    := pr1 (pr222 (pr222 Unit)) Γ Δ s.
 
   Lemma comp_cat_unit_tt_ext_path
     {C : comp_cat} {Unit : comp_cat_unit C}
@@ -494,8 +494,8 @@ Definition comp_cat_pi_sub_lam
           · comp_cat_ext_subst s ((pr1 Unit) Δ).
   Proof.
     exact (unit_tt_ext_path C Unit (pr12 Unit)
-             (pr1 (pr22 (pr222 Unit)))
-             (pr1 (pr2 (pr22 (pr222 Unit)))) s).
+             (pr122 (pr222 Unit))
+             (pr1 (pr222 (pr222 Unit))) s).
   Defined.
 
   Definition comp_cat_unit_sub_elim
@@ -510,4 +510,4 @@ Definition comp_cat_pi_sub_lam
       let icompiso := comp_cat_subst_ty_eq_comp_iso Cty p in
       comp_cat_unit_ind Cty d [[ s1 ]]tm =
         comp_cat_unit_ind (Cty [[ s1 ]]) (d [[ s ]]tm ↑ ⌈icompiso⌉)
-    := pr2 (pr2 (pr22 (pr222 Unit))) Γ Δ s Cty d.
+    := pr2 (pr222 (pr222 Unit)) Γ Δ s Cty d.

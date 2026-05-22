@@ -65,17 +65,17 @@ Coercion comp_cat_to_ctx (C : comp_cat)
 
 Definition comp_cat_morphisms (C: comp_cat)
   : C -> C -> UU
-  := pr2(pr1 (pr1 (pr1 (pr1 C)))).
+  := pr211 (pr11 C).
 
 Definition disp_cat_of_types
   (C : comp_cat)
   : disp_cat C
-  := pr1 (pr2 C).
+  := pr12 C.
 
 Definition comp_cat_ty {C : comp_cat}
   (Γ : pr1 C)
   : UU
-  := pr1 (pr2 C) Γ.
+  := (pr12 C) Γ.
 
 Definition comp_cat_coercion
   {C : comp_cat}
@@ -139,7 +139,7 @@ Qed.
 
 Definition cleaving_of_types (C : comp_cat)
   : cleaving (disp_cat_of_types C)
-  := pr1 (pr22 C).
+  := pr122 C.
 
 Definition comp_cat_subst_ty {C : comp_cat} {Γ Δ : C}
   (s : Γ --> Δ) (A : comp_cat_ty Δ)
@@ -635,7 +635,7 @@ Proof.
   unfold transportb.
   repeat rewrite transport_f_f.
   eapply (cartesian_factorisation_unique).
-  - exact (pr2 (pr2 (cleaving_of_types C Δ Θ s₂ (B [[ s₁ ]])))).
+  - exact (pr22 (cleaving_of_types C Δ Θ s₂ (B [[ s₁ ]]))).
   - etrans.
     {
       exact (cartesian_factorisation_commutes _ (identity Θ) _).
