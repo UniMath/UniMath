@@ -1,3 +1,17 @@
+(***************************************************************************
+
+ Modules over a monoid
+
+ In this file, the category of modules MOD R over a given monoid R in some
+ fixed monoidal category C.
+
+ Contents
+ 1. Definitions
+ 2. Two examples of modules
+ 3. Colimits MOD R are inherited from colimits in C
+
+ ***************************************************************************)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -39,6 +53,10 @@ Section Modules.
   Context (R : C) (R_m : monoid m R).
   Definition μ : C⟦R ⊗ R, R⟧ := pr1 (pr1 R_m).
   Definition η : C⟦I, R⟧ := pr2 (pr1 R_m).
+
+  (**
+     1. Definitions
+   *)
 
   Definition module_subst (M : C) : UU := C⟦ M ⊗ R, M ⟧.
 
@@ -123,6 +141,10 @@ Section Modules.
 
   Definition MOD : category := total_category module_disp_cat.
 
+  (**
+     2. Two examples of modules
+   *)
+
   Definition trivial_module : MOD :=
     let l := pr2 (monoid_to_monoid_laws m R_m) in
     R ,, μ ,, pr2 l ,, pr1 l.
@@ -175,9 +197,6 @@ Section Modules.
     split; [use product_module_assoc | use product_module_unit].
   Defined.
 
-  (* There is something weird with Lims_of_shape ... *)
-  (*      (lims_g : Lims_of_shape g C). *)
-
   Definition forgetful_functor_data : functor_data MOD C.
   Proof.
     use make_functor_data.
@@ -192,6 +211,10 @@ Section Modules.
 
   Definition forgetful : MOD ⟶ C
     := make_functor forgetful_functor_data forgetful_is_functor.
+
+  (**
+     3. Colimits MOD R are inherited from colimits in C
+   *)
 
   Section Colimits.
     Context {g : graph}.

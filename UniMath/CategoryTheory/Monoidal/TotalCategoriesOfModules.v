@@ -1,3 +1,13 @@
+(***************************************************************************
+
+ Total categories of modules
+
+ In this file, the total category of modules in some fixed monoidal category C.
+ Objects in such categories are pairs (R, M) where R is a monoid in C and M is
+ a module over R.
+
+ ***************************************************************************)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -96,12 +106,12 @@ Section TotalCategoryOfModules.
     : functor_data (MOD R' R'_m) (MOD R R_m).
   Proof.
     use make_functor_data.
-    + intro M; induction M as [M p].
+    - intro M; induction M as [M p].
       exists M; cbn in *|-*.
       use pullback_functor_funct.
       exact R'.
       all: assumption.
-    + intros [M p] [M' p']; cbn in * |- *. intros [ r r_m ].
+    - intros [M p] [M' p']; cbn in * |- *. intros [ r r_m ].
       exists r.
       unfold is_module_mor.
       cbn; rewrite assoc.
@@ -118,12 +128,12 @@ Section TotalCategoryOfModules.
     : is_functor (pullback_functor_data R R' R_m R'_m f f_m).
   Proof.
     use make_is_functor.
-    + intros [M p].
+    - intros [M p].
       cbn in * |- *.
       use invmap; [|use path_sigma_hprop|].
       use isaprop_is_module_mor.
       trivial.
-    + intros M M' M'' u v.
+    - intros M M' M'' u v.
       cbn in * |- *.
       use invmap; [|use path_sigma_hprop|].
       use isaprop_is_module_mor.
