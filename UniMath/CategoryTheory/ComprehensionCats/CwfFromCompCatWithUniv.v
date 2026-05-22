@@ -546,8 +546,7 @@ Section Construction.
         rewrite assoc.
         unfold "π".
         rewrite assoc4.
-        set (h := comprehension_functor_mor_comm (comp_cat_comprehension C)
-                    (identity Δ') (⌈ comp_cat_el_iso s A ⌉⁻¹)).
+        set (h := comprehension_functor_mor_comm (identity Δ') (⌈ comp_cat_el_iso s A ⌉⁻¹)).
         eapply pathscomp0.
         ++ apply cancel_postcomposition.
            apply cancel_precomposition.

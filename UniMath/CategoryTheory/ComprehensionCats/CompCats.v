@@ -150,83 +150,78 @@ Notation "A '[[' s ']]'" := (comp_cat_subst_ty s A) (at level 20) : comp_cat.
 
 (** * Comprehension Structure and Substitution of Terms*)
 
-Definition comprehension_functor_mor
-  {C : category}
-  (CC : comprehension_cat_structure C)
-  {Γ₁ Γ₂ : C}
-  {A : pr1 CC Γ₁}
-  {B : pr1 CC Γ₂}
-  (s : Γ₂ --> Γ₁)
-  (ff : B -->[ s ] A)
-  : pr1 (comprehension CC _ B) --> pr1 (comprehension CC _ A)
-  := pr1 (♯ (comprehension CC) ff).
-
 Definition comp_cat_comprehension (C : comp_cat)
   : comprehension_cat_structure C
   := pr2 C.
 
+Definition comprehension_functor_mor
+  {C : comp_cat}
+  {Γ₁ Γ₂ : C}
+  {A : comp_cat_ty Γ₁}
+  {B : comp_cat_ty Γ₂}
+  (s : Γ₂ --> Γ₁)
+  (ff : B -->[ s ] A)
+  : comp_cat_ext _ B --> comp_cat_ext _ A
+  := pr1 (♯ (comprehension (comp_cat_comprehension C)) ff).
+
 Definition comprehension_functor_mor_comp
-  {C : category}
-  (CC : comprehension_cat_structure C)
+  {C : comp_cat}
   {Γ₁ Γ₂ Γ₃ : C}
-  {A : pr1 CC Γ₁}
-  {B : pr1 CC Γ₂}
-  {D : pr1 CC Γ₃}
+  {A : comp_cat_ty Γ₁}
+  {B : comp_cat_ty Γ₂}
+  {D : comp_cat_ty Γ₃}
   (s : Γ₂ --> Γ₁)
   (t : Γ₃ --> Γ₂)
   (ff : B -->[ s ] A)
   (gg : D -->[ t ] B)
-  : comprehension_functor_mor CC (t · s) (gg ;; ff)%mor_disp
+  : comprehension_functor_mor (t · s) (gg ;; ff)%mor_disp
     =
-      comprehension_functor_mor CC t gg · comprehension_functor_mor CC s ff.
+      comprehension_functor_mor t gg · comprehension_functor_mor s ff.
 Proof.
-  refine (maponpaths pr1 (disp_functor_comp (comprehension CC) gg ff) @ _).
+  refine (maponpaths pr1 (disp_functor_comp (comprehension (comp_cat_comprehension C)) gg ff) @ _).
   cbn.
   apply idpath.
 Qed.
 
 Proposition comprehension_functor_mor_id
-  {C : category}
-  (CC : comprehension_cat_structure C)
+  {C : comp_cat}
   {Γ : C}
-  {A : pr1 CC Γ}
-  : comprehension_functor_mor CC (identity Γ) (id_disp A) = identity _.
+  {A : comp_cat_ty Γ}
+  : comprehension_functor_mor (identity Γ) (id_disp A) = identity _.
 Proof.
-  refine (maponpaths pr1 (disp_functor_id (comprehension CC) A) @ _).
+  refine (maponpaths pr1 (disp_functor_id (comprehension (comp_cat_comprehension C)) A) @ _).
   cbn.
   apply idpath.
 Qed.
 
 Definition comprehension_functor_mor_comm
-  {C : category}
-  (CC : comprehension_cat_structure C)
+  {C : comp_cat}
   {Γ₁ Γ₂ : C}
-  {A : pr1 CC Γ₁}
-  {B : pr1 CC Γ₂}
+  {A : comp_cat_ty Γ₁}
+  {B : comp_cat_ty Γ₂}
   (s : Γ₂ --> Γ₁)
   (ff : B -->[ s ] A)
-  : comprehension_functor_mor CC s ff · pr2 (comprehension CC _ A)
-    = pr2 (comprehension CC _ B) · s
-  := pr2 (♯ (comprehension CC) ff).
+  : comprehension_functor_mor s ff · pr2 (comprehension (comp_cat_comprehension C) _ A)
+    = pr2 (comprehension (comp_cat_comprehension C) _ B) · s
+  := pr2 (♯ (comprehension (comp_cat_comprehension C)) ff).
 
 Lemma comprehension_functor_mor_transportf
-  {C : category}
-  (CC : comprehension_cat_structure C)
+  {C : comp_cat}
   {Γ₁ Γ₂ : C}
-  {A : pr1 CC Γ₂}
-  {B : pr1 CC Γ₁}
+  {A : comp_cat_ty Γ₂}
+  {B : comp_cat_ty Γ₁}
   {s s' : Γ₁ --> Γ₂}
   (p : s = s')
   (ff : B -->[ s ] A)
-  : comprehension_functor_mor CC s' (transportf (mor_disp B A) p ff)
+  : comprehension_functor_mor s' (transportf (mor_disp B A) p ff)
     =
-      comprehension_functor_mor CC s ff.
+      comprehension_functor_mor s ff.
 Proof.
   unfold comprehension_functor_mor.
   etrans.
   {
     apply maponpaths.
-    exact (disp_functor_transportf (functor_identity C) (comprehension CC) _ _ _ _ p _ _ ff).
+    exact (disp_functor_transportf (functor_identity C) (comprehension (comp_cat_comprehension C)) _ _ _ _ p _ _ ff).
   }
   cbn.
   rewrite transportf_cod_disp.
@@ -247,9 +242,7 @@ Definition comp_cat_is_pullback
   (A : comp_cat_ty Γ₁)
   (s : Γ₂ --> Γ₁)
   : isPullback
-      (comprehension_functor_mor_comm
-         (comp_cat_comprehension C)
-         s
+      (comprehension_functor_mor_comm s
          (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C _ _ s A))).
 Proof.
   set (CC := comp_cat_comprehension C).
@@ -301,7 +294,6 @@ Notation "t '[[' s ']]tm'" := (comp_cat_subst_tm s t) (at level 20) : comp_cat.
 Definition comp_cat_comp_mor {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ} (f : A <: B)
   : Γ & A --> Γ & B
   := comprehension_functor_mor
-       (comp_cat_comprehension C)
        (identity Γ)
        f.
 
@@ -310,7 +302,7 @@ Definition comp_cat_comp_mor_law {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ} 
 Proof.
   etrans.
   {
-    exact (comprehension_functor_mor_comm (comp_cat_comprehension C) (identity Γ) f).
+    exact (comprehension_functor_mor_comm (identity Γ) f).
   }
   rewrite id_right.
   apply idpath.
@@ -360,7 +352,7 @@ Proof.
   - exact (t · comp_cat_comp_mor f).
   - abstract (
         rewrite assoc';
-        set (h := comprehension_functor_mor_comm (comp_cat_comprehension C) (identity Γ) f);
+        set (h := comprehension_functor_mor_comm (identity Γ) f);
         eapply pathscomp0;[apply cancel_precomposition, h|];
         rewrite assoc;
         eapply pathscomp0;[apply cancel_postcomposition, (pr2 t)|];
@@ -399,7 +391,7 @@ Definition comp_cat_ext_subst {C : comp_cat} :
   ∏ {Γ Δ : C} (s : Δ --> Γ) (A : comp_cat_ty Γ), (Δ & (A [[ s ]])) --> (Γ & A).
 Proof.
   intros Γ Δ s A.
-  exact (comprehension_functor_mor (comp_cat_comprehension C) s
+  exact (comprehension_functor_mor s
            (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C _ _ s A))).
 Defined.
 
@@ -408,7 +400,7 @@ Lemma comp_cat_ext_subst_commute {C : comp_cat}
     comp_cat_ext_subst s A · (π _) = (π _) · s.
 Proof.
   intros Γ Δ s A.
-  exact (comprehension_functor_mor_comm (comp_cat_comprehension C) s
+  exact (comprehension_functor_mor_comm  s
            (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C _ _ s A))).
 Qed.
 
@@ -808,10 +800,10 @@ Proof.
     etrans.
     {
       refine (!_).
-      apply comprehension_functor_mor_comp.
+      apply (comprehension_functor_mor_comp).
     }
     rewrite cartesian_factorisation_commutes.
-    refine (_ @ comprehension_functor_mor_id _ ).
+    refine (_ @ comprehension_functor_mor_id ).
     unfold comprehension_functor_mor, transportb.
     rewrite disp_functor_transportf, transportf_cod_disp.
     apply idpath.
@@ -1274,7 +1266,7 @@ Proof.
       etrans.
       { apply maponpaths.
         apply cleaving_of_types_eq. }
-      rewrite comprehension_functor_mor_transportf.
+      rewrite (comprehension_functor_mor_transportf (C:=C)).
       apply idpath.
     + rewrite !assoc'.
       etrans.
@@ -1364,13 +1356,13 @@ Proof.
   { unfold comp_cat_comp_mor, comp_cat_ext_subst.
     etrans.
     { refine (!_).
-      apply (comprehension_functor_mor_comp (comp_cat_comprehension C)). }
+      apply comprehension_functor_mor_comp. }
     etrans.
     { apply maponpaths.
       apply cartesian_factorisation_commutes. }
     unfold transportb.
-    rewrite comprehension_functor_mor_transportf.
-    apply (comprehension_functor_mor_comp (comp_cat_comprehension C)). }
+    rewrite (comprehension_functor_mor_transportf (C:=C)).
+    apply comprehension_functor_mor_comp. }
   etrans.
   { refine (assoc' _ _ _ @ _).
     rewrite H.
