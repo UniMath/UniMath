@@ -269,8 +269,7 @@ Proof.
     + exact (s' · s'').
     + exact (identity Γ).
     + (* (s'·s'')·πA = id·s *)
-      rewrite id_left.
-      exact p.
+      abstract (rewrite id_left; exact p).
   - (* t [[s]] · π(A[[s]]) = id *)
     abstract(apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s))).
 Defined.
@@ -283,10 +282,10 @@ Definition comp_cat_subst_tm {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Δ}
   : comp_cat_tm (A [[ s ]]).
 Proof.
   apply (@comp_cat_univ_pullback _ _ _ Δ _ _ s t).
-  set (th  := pr2 t : (t · (π A) = identity Δ)).
-  rewrite assoc'.
-  rewrite th.
-  apply id_right.
+  abstract ( set (th  := pr2 t : (t · (π A) = identity Δ));
+             rewrite assoc';
+             rewrite th;
+             apply id_right).
 Defined.
 
 Notation "t '[[' s ']]tm'" := (comp_cat_subst_tm s t) (at level 20) : comp_cat.
