@@ -118,6 +118,16 @@ Definition markov_category_laws
       =
       copy (x ⊗ y)).
 
+Proposition isaprop_markov_category_laws 
+            (C : markov_category_data)
+     : isaprop (markov_category_laws C).
+Proof.
+  unfold markov_category_laws.
+  (repeat apply isapropdirprod)
+  ; repeat (apply impred_isaprop; intros)
+  ; try apply homset_property.
+Qed.
+
 Definition markov_category
   : UU
   := ∑ (C : markov_category_data),

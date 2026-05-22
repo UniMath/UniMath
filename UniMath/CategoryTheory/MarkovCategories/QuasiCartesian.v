@@ -114,6 +114,16 @@ Definition quasicartesian_laws (C : quasicartesian_data) : UU :=
   (∏ (a x y : C) (f : a --> x) (g : a --> y),
       ⟨ f , g ⟩ · ⟨ proj2, proj1 ⟩ = ⟨ g , f ⟩).
 
+Proposition isaprop_quasicartesian_laws 
+            (C : quasicartesian_data)
+     : isaprop (quasicartesian_laws C).
+Proof.
+  unfold quasicartesian_laws.
+  (repeat apply isapropdirprod)
+  ; repeat (apply impred_isaprop; intros)
+  ; try apply homset_property.
+Qed.
+
 Definition quasicartesian_category : UU
   := ∑ (C : quasicartesian_data),
      quasicartesian_laws C.

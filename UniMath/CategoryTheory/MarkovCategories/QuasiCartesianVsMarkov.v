@@ -38,7 +38,7 @@ Local Open Scope moncat.
 
 (** * 1. Markov To Quasicartesian *)
 Section MarkovToQuasiCartesian.
-  Context {C : markov_category}.
+  Context (C : markov_category).
 
   Local Open Scope markov.
 
@@ -94,7 +94,7 @@ End MarkovToQuasiCartesian.
 (** * 2. Quasicartesian To Markov *)
 
 Section QuasiCartesianToMarkov.
-  Context {C : quasicartesian_category}.
+  Context (C : quasicartesian_category).
 
   Local Open Scope quasicartesian.
 
@@ -258,7 +258,7 @@ Section QuasiCartesianToMarkov.
 
   (* Markov category *)
 
-  Definition quasicartesian_markov_data : markov_category_data.
+  Definition quasicartesian_to_markov_data : markov_category_data.
   Proof.
     refine (quasicartesian_sym_monoidal_cat ,, _ ,, _).
     - intros x. refine (del x ,, _).
@@ -266,7 +266,7 @@ Section QuasiCartesianToMarkov.
     - intros x. exact ⟨ identity x , identity x ⟩.
   Defined.
 
-  Definition quasicartesian_markov_laws : markov_category_laws quasicartesian_markov_data.
+  Definition quasicartesian_to_markov_laws : markov_category_laws quasicartesian_to_markov_data.
   Proof.
     repeat split; cbn; unfold swap, monoidal_cat_tensor_mor, functoronmorphisms1; cbn.
     - intros x. qcart_coherence.
@@ -279,7 +279,108 @@ Section QuasiCartesianToMarkov.
   
   Definition quasicartesian_to_markov : markov_category.
   Proof.
-    refine (quasicartesian_markov_data ,, quasicartesian_markov_laws).
+    refine (quasicartesian_to_markov_data ,, quasicartesian_to_markov_laws).
   Defined.
 
 End QuasiCartesianToMarkov.
+
+Lemma pair_eta {X : UU} (P : X -> UU) (p : ∑ x, P x) : p = (pr1 p ,, pr2 p).
+Proof.
+  reflexivity.
+Qed.
+
+Section QuasiCartesianToMarkovToQuasiCartesian.
+  Context {C : quasicartesian_category}.
+
+  Local Open Scope quasicartesian.
+
+  Local Lemma markov_pairing_lemma {x y z : C} (f : x --> y) (g : x --> z) : 
+    ⟨ identity x, identity x ⟩ · (⟨ proj1 · f, proj2 ⟩ · ⟨ proj1, proj2 · g ⟩) 
+    = ⟨ f, g ⟩.
+  Proof.
+    rewrite assoc.
+    rewrite pairing_nat_l, pairing_nat_r.
+    rewrite !id_left.
+    reflexivity.
+  Qed.
+
+  Proposition quasicartesian_to_markov_inv_data :
+    markov_to_quasicartesian_data (quasicartesian_to_markov C) = C.
+  Proof.
+    unfold markov_to_quasicartesian_data,
+           quasicartesian_to_markov,
+           quasicartesian_data_to_cat.
+    cbn.
+    
+    do 3 (rewrite pair_eta; refine (maponpaths _ _)).
+    rewrite pair_eta; refine (map_on_two_paths _ _ _).
+    
+    - do 5 (apply funextsec2; intros).
+      assert (aux : pr122 (pr21 C) x x0 x1 x2 x3 = @pairing (pr1 C) x x0 x1 x2 x3). { reflexivity. }
+      refine (_ @ !aux).
+      
+      unfold MarkovCategory.pairing,
+             copy, monoidal_cat_tensor_mor, functoronmorphisms1.
+      cbn.
+      apply markov_pairing_lemma.
+    - rewrite pair_eta.
+      refine (map_on_two_paths _ _ _).
+      all: 
+        do 2 (apply funextsec2; intros);
+        unfold MarkovCategory.proj1, 
+               MarkovCategory.proj2,
+               monoidal_cat_tensor_mor,
+               MarkovCategory.del,
+               functoronmorphisms1;
+        cbn;
+        qcart_simpl;
+        reflexivity. 
+  Qed.
+
+  Proposition quasicartesian_to_markov_inv :
+    markov_to_quasicartesian (quasicartesian_to_markov C) = C.
+  Proof.
+    unfold markov_to_quasicartesian, quasicartesian_to_markov.
+    apply subtypePath.
+    - exact isaprop_quasicartesian_laws.
+    - exact quasicartesian_to_markov_inv_data.
+  Qed.
+
+End QuasiCartesianToMarkovToQuasiCartesian.
+
+Section MarkovToQuasiCartesianToMarkov.
+  Context {C : markov_category}.
+
+  Local Open Scope markov.
+
+  Proposition markov_to_quasicartesian_inv_data :
+    quasicartesian_to_markov_data (markov_to_quasicartesian C) = C.
+  Proof.
+    unfold quasicartesian_to_markov_data,
+           markov_to_quasicartesian.
+    cbn.
+    (* rewrite pair_eta. *)
+    pose(D := C).
+    assert(E : C = D). { reflexivity. }
+
+    destruct C as [[[[C0 [mon monlaws]] sym] [semicart copy]] laws].
+    unfold quasicartesian_sym_monoidal_cat, 
+           quasicartesian_monoidal_cat,
+           quasicartesian_monoidal,
+           quasicartesian_monoidal_data,
+           markov_to_quasicartesian_data.
+    cbn.
+  Admitted.    
+
+  Proposition markov_to_quasicartesian_inv : 
+    quasicartesian_to_markov (markov_to_quasicartesian C) = C.
+  Proof.
+    unfold quasicartesian_to_markov, markov_to_quasicartesian.
+    apply subtypePath.
+    - exact isaprop_markov_category_laws.
+    -
+  Admitted. 
+
+End MarkovToQuasiCartesianToMarkov.
+
+(* isequivalence markov_cat qcart *)
