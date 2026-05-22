@@ -166,10 +166,10 @@ Definition comp_cat_sigma_sub_iso
 Definition comp_cat_sigma_sub_pair
   {C : comp_cat} {Σ : comp_cat_sigma C}
   {Γ Δ : C} (s : Δ --> Γ) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ & A))
-  : let sA  := comp_cat_ext_subst s A in
-    let sAB := comp_cat_ext_subst sA B in
-    let i   := comp_cat_sigma_sub_iso s A B in
-    comp_cat_sigma_pair (A [[ s ]]) (B [[ sA ]]) ·
+  (sA  := comp_cat_ext_subst s A)
+  (sAB := comp_cat_ext_subst sA B)
+  (i := comp_cat_sigma_sub_iso s A B)
+  : comp_cat_sigma_pair (A [[ s ]]) (B [[ sA ]]) ·
       comp_cat_comp_mor (C:=C) (Γ:=Δ) (inv_from_z_iso i : _ -->[ identity _ ] _) ·
       comp_cat_ext_subst s ((pr1 Σ) Γ A B)
     = sAB · comp_cat_sigma_pair A B
@@ -337,177 +337,177 @@ Definition comp_cat_pi_sub_lam
   {C : comp_cat} {Π : comp_cat_pi C}
   {Γ Δ : C} (s : Δ --> Γ) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ & A))
   (b : comp_cat_tm B)
-  : let sA := comp_cat_ext_subst s A in
-    let i  := comp_cat_pi_sub_iso s A B in
-    comp_cat_pi_lam (b [[ sA ]]tm) ↑ inv_from_z_iso i
+  (sA := comp_cat_ext_subst s A)
+  (i  := comp_cat_pi_sub_iso s A B)
+  : comp_cat_pi_lam (b [[ sA ]]tm) ↑ inv_from_z_iso i
     = (comp_cat_pi_lam b) [[ s ]]tm
   := pr2 (pr22 (pr222 Π)) Γ Δ s A B b.
 
 
-  (** * 3. Unit types for comprehension categories *)
+(** * 3. Unit types for comprehension categories *)
 
-  Section Unit_For_Comp_Cat.
+Section Unit_For_Comp_Cat.
 
-    Context (C : comp_cat).
+  Context (C : comp_cat).
 
-    (* Formation: Γ ⊢ 1 type *)
-    Definition unit_form : UU :=
-      ∏ (Γ : C), comp_cat_ty Γ.
+  (* Formation: Γ ⊢ 1 type *)
+  Definition unit_form : UU :=
+    ∏ (Γ : C), comp_cat_ty Γ.
 
-    (* Introduction: Γ ⊢ tt : 1 *)
-    Definition unit_intro_data (One : unit_form) : UU :=
-      ∏ (Γ : C), comp_cat_tm (One Γ).
+  (* Introduction: Γ ⊢ tt : 1 *)
+  Definition unit_intro_data (One : unit_form) : UU :=
+    ∏ (Γ : C), comp_cat_tm (One Γ).
 
-    (* Elimination *)
-    Definition unit_elim_data
-      (One : unit_form)
-      (tt  : unit_intro_data One) : UU :=
-      ∏ (Γ : C)
-        (Cty : comp_cat_ty (Γ & (One Γ)))
-        (c   : comp_cat_tm (Cty [[ tt Γ ]])),
-        comp_cat_tm Cty.
+  (* Elimination *)
+  Definition unit_elim_data
+    (One : unit_form)
+    (tt  : unit_intro_data One) : UU :=
+    ∏ (Γ : C)
+      (Cty : comp_cat_ty (Γ & (One Γ)))
+      (c   : comp_cat_tm (Cty [[ tt Γ ]])),
+      comp_cat_tm Cty.
 
-    (* Computation rule *)
-    Definition unit_comp_law
-      (One : unit_form)
-      (tt  : unit_intro_data One)
-      (ind : unit_elim_data One tt) : UU :=
-      ∏ (Γ : C)
-        (Cty : comp_cat_ty (Γ & (One Γ)))
-        (c   : comp_cat_tm (Cty [[ tt Γ ]])),
-        ind Γ Cty c [[ tt Γ ]]tm = c.
+  (* Computation rule *)
+  Definition unit_comp_law
+    (One : unit_form)
+    (tt  : unit_intro_data One)
+    (ind : unit_elim_data One tt) : UU :=
+    ∏ (Γ : C)
+      (Cty : comp_cat_ty (Γ & (One Γ)))
+      (c   : comp_cat_tm (Cty [[ tt Γ ]])),
+      ind Γ Cty c [[ tt Γ ]]tm = c.
 
-    (* Uniqueness of the introduction term *)
-    Definition unit_uniqueness
-      (One : unit_form)
-      (tt  : unit_intro_data One) : UU :=
-      ∏ (Γ : C) (u : comp_cat_tm (One Γ)), u = tt Γ.
+  (* Uniqueness of the introduction term *)
+  Definition unit_uniqueness
+    (One : unit_form)
+    (tt  : unit_intro_data One) : UU :=
+    ∏ (Γ : C) (u : comp_cat_tm (One Γ)), u = tt Γ.
 
-    (* Stability under reindexing: 1[s] ≃ 1 *)
-    Definition unit_sub_iso (One : unit_form) : UU :=
-      ∏ (Γ Δ : C) (s : Γ --> Δ),
-        z_iso (C := fiber_category _ _) ((One Δ) [[ s ]]) (One Γ).
+  (* Stability under reindexing: 1[s] ≃ 1 *)
+  Definition unit_sub_iso (One : unit_form) : UU :=
+    ∏ (Γ Δ : C) (s : Γ --> Δ),
+      z_iso (C := fiber_category _ _) ((One Δ) [[ s ]]) (One Γ).
 
-    (* Stability of tt under reindexing *)
-    Definition unit_sub_tt
-      (One   : unit_form)
-      (tt    : unit_intro_data One)
-      (uiso  : unit_sub_iso One) : UU :=
-      ∏ (Γ Δ : C) (s : Γ --> Δ),
-        tt Δ [[ s ]]tm · comp_cat_comp_mor (⌈uiso Γ Δ s⌉) = tt Γ.
+  (* Stability of tt under reindexing *)
+  Definition unit_sub_tt
+    (One   : unit_form)
+    (tt    : unit_intro_data One)
+    (uiso  : unit_sub_iso One) : UU :=
+    ∏ (Γ Δ : C) (s : Γ --> Δ),
+      tt Δ [[ s ]]tm · comp_cat_comp_mor (⌈uiso Γ Δ s⌉) = tt Γ.
 
-    (* Helper: tt commutes with extended substitution *)
-    Lemma unit_tt_ext_path
-      (One    : unit_form)
-      (tt     : unit_intro_data One)
-      (uiso   : unit_sub_iso One)
-      (usubtt : unit_sub_tt One tt uiso)
-      {Γ Δ : C} (s : Γ --> Δ)
-      : s · tt Δ =
-          tt Γ · comp_cat_comp_mor (⌈uiso Γ Δ s⌉⁻¹) · comp_cat_ext_subst s (One Δ).
-    Proof.
-      rewrite <- (comp_cat_ext_subst_term_commute s (One Δ) (tt Δ)).
-      apply cancel_postcomposition.
-      rewrite <- (usubtt _ _ s).
-      rewrite assoc'.
-      rewrite (comp_cat_comp_mor_z_iso_inv_after_z_iso (uiso Γ Δ s)).
-      rewrite id_right.
-      apply idpath.
-    Defined.
-
-    (* Stability of the eliminator under reindexing *)
-    Definition unit_sub_elim
-      (One    : unit_form)
-      (tt     : unit_intro_data One)
-      (ind    : unit_elim_data One tt)
-      (uiso   : unit_sub_iso One)
-      (usubtt : unit_sub_tt One tt uiso) : UU :=
-      ∏ (Γ Δ : C) (s : Γ --> Δ)
-        (Cty : comp_cat_ty (Δ & (One Δ)))
-        (d   : comp_cat_tm (Cty [[ tt Δ ]])),
-        let s1       := comp_cat_comp_mor (⌈uiso Γ Δ s⌉⁻¹) · comp_cat_ext_subst s (One Δ) in
-        let p        := pathscomp0 (unit_tt_ext_path One tt uiso usubtt s) (! assoc (tt Γ) _ _) in
-        let icompiso := comp_cat_subst_ty_eq_comp_iso Cty p in
-        ind Δ Cty d [[ s1 ]]tm = ind Γ (Cty [[ s1 ]]) (d [[ s ]]tm ↑ ⌈icompiso⌉).
-
-    Definition comp_cat_unit : UU :=
-      ∑ (One    : unit_form),
-        ∑ (tt     : unit_intro_data One),
-        ∑ (ind    : unit_elim_data One tt),
-        ∑ (comp   : unit_comp_law One tt ind),
-        ∑ (uniq   : unit_uniqueness One tt),
-        ∑ (uiso   : unit_sub_iso One),
-        ∑ (usubtt : unit_sub_tt One tt uiso),
-        unit_sub_elim One tt ind uiso usubtt.
-
-    Coercion unit_ty_from_unit (Unit : comp_cat_unit) : unit_form := pr1 Unit.
-
-  End Unit_For_Comp_Cat.
-
-  (** Accessors for comp_cat_unit *)
-
-  Definition comp_cat_unit_tt
-    {C : comp_cat} {Unit : comp_cat_unit C}
-    (Γ : C)
-    : comp_cat_tm ((pr1 Unit) Γ)
-    := pr12 Unit Γ.
-
-  Definition comp_cat_unit_ind
-    {C : comp_cat} {Unit : comp_cat_unit C}
-    {Γ : C} (Cty : comp_cat_ty (Γ & ((pr1 Unit) Γ)))
-    (c : comp_cat_tm (Cty [[ comp_cat_unit_tt Γ ]]))
-    : comp_cat_tm Cty
-    := pr122 Unit Γ Cty c.
-
-  Definition comp_cat_unit_comp
-    {C : comp_cat} {Unit : comp_cat_unit C}
-    {Γ : C} (Cty : comp_cat_ty (Γ & ((pr1 Unit) Γ)))
-    (c : comp_cat_tm (Cty [[ comp_cat_unit_tt Γ ]]))
-    : comp_cat_unit_ind Cty c [[ comp_cat_unit_tt Γ ]]tm = c
-    := pr1 (pr222 Unit) Γ Cty c.
-
-  Definition comp_cat_unit_unique
-    {C : comp_cat} {Unit : comp_cat_unit C}
-    {Γ : C} (u : comp_cat_tm ((pr1 Unit) Γ))
-    : u = comp_cat_unit_tt Γ
-    := pr12 (pr222 Unit) Γ u.
-
-  Definition comp_cat_unit_sub_iso
-    {C : comp_cat} {Unit : comp_cat_unit C}
+  (* Helper: tt commutes with extended substitution *)
+  Lemma unit_tt_ext_path
+    (One    : unit_form)
+    (tt     : unit_intro_data One)
+    (uiso   : unit_sub_iso One)
+    (usubtt : unit_sub_tt One tt uiso)
     {Γ Δ : C} (s : Γ --> Δ)
-    : z_iso (C := fiber_category _ _) (((pr1 Unit) Δ) [[ s ]]) ((pr1 Unit) Γ)
-    := pr1 (pr22 (pr222 Unit)) Γ Δ s.
-
-  Definition comp_cat_unit_sub_tt
-    {C : comp_cat} {Unit : comp_cat_unit C}
-    {Γ Δ : C} (s : Γ --> Δ)
-    : comp_cat_unit_tt Δ [[ s ]]tm · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso s⌉) =
-        comp_cat_unit_tt Γ
-    := pr1 (pr222 (pr222 Unit)) Γ Δ s.
-
-  Lemma comp_cat_unit_tt_ext_path
-    {C : comp_cat} {Unit : comp_cat_unit C}
-    {Γ Δ : C} (s : Γ --> Δ)
-    : s · comp_cat_unit_tt Δ =
-        comp_cat_unit_tt Γ
-          · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso (Unit := Unit) s⌉⁻¹)
-          · comp_cat_ext_subst s ((pr1 Unit) Δ).
+    : s · tt Δ =
+        tt Γ · comp_cat_comp_mor (⌈uiso Γ Δ s⌉⁻¹) · comp_cat_ext_subst s (One Δ).
   Proof.
-    exact (unit_tt_ext_path C Unit (pr12 Unit)
-             (pr122 (pr222 Unit))
-             (pr1 (pr222 (pr222 Unit))) s).
+    rewrite <- (comp_cat_ext_subst_term_commute s (One Δ) (tt Δ)).
+    apply cancel_postcomposition.
+    rewrite <- (usubtt _ _ s).
+    rewrite assoc'.
+    rewrite (comp_cat_comp_mor_z_iso_inv_after_z_iso (uiso Γ Δ s)).
+    rewrite id_right.
+    apply idpath.
   Defined.
 
-  Definition comp_cat_unit_sub_elim
-    {C : comp_cat} {Unit : comp_cat_unit C}
-    {Γ Δ : C} (s : Γ --> Δ)
-    (Cty : comp_cat_ty (Δ & ((pr1 Unit) Δ)))
-    (d : comp_cat_tm (Cty [[ comp_cat_unit_tt Δ ]]))
-    : let s1       := comp_cat_comp_mor (⌈comp_cat_unit_sub_iso s⌉⁻¹) ·
-                        comp_cat_ext_subst s ((pr1 Unit) Δ) in
-      let p        := pathscomp0 (comp_cat_unit_tt_ext_path s)
-                        (! assoc (comp_cat_unit_tt Γ) _ _) in
+  (* Stability of the eliminator under reindexing *)
+  Definition unit_sub_elim
+    (One    : unit_form)
+    (tt     : unit_intro_data One)
+    (ind    : unit_elim_data One tt)
+    (uiso   : unit_sub_iso One)
+    (usubtt : unit_sub_tt One tt uiso) : UU :=
+    ∏ (Γ Δ : C) (s : Γ --> Δ)
+      (Cty : comp_cat_ty (Δ & (One Δ)))
+      (d   : comp_cat_tm (Cty [[ tt Δ ]])),
+      let s1       := comp_cat_comp_mor (⌈uiso Γ Δ s⌉⁻¹) · comp_cat_ext_subst s (One Δ) in
+      let p        := pathscomp0 (unit_tt_ext_path One tt uiso usubtt s) (! assoc (tt Γ) _ _) in
       let icompiso := comp_cat_subst_ty_eq_comp_iso Cty p in
-      comp_cat_unit_ind Cty d [[ s1 ]]tm =
-        comp_cat_unit_ind (Cty [[ s1 ]]) (d [[ s ]]tm ↑ ⌈icompiso⌉)
-    := pr2 (pr222 (pr222 Unit)) Γ Δ s Cty d.
+      ind Δ Cty d [[ s1 ]]tm = ind Γ (Cty [[ s1 ]]) (d [[ s ]]tm ↑ ⌈icompiso⌉).
+
+  Definition comp_cat_unit : UU :=
+    ∑ (One    : unit_form),
+      ∑ (tt     : unit_intro_data One),
+      ∑ (ind    : unit_elim_data One tt),
+      ∑ (comp   : unit_comp_law One tt ind),
+      ∑ (uniq   : unit_uniqueness One tt),
+      ∑ (uiso   : unit_sub_iso One),
+      ∑ (usubtt : unit_sub_tt One tt uiso),
+      unit_sub_elim One tt ind uiso usubtt.
+
+  Coercion unit_ty_from_unit (Unit : comp_cat_unit) : unit_form := pr1 Unit.
+
+End Unit_For_Comp_Cat.
+
+(** Accessors for comp_cat_unit *)
+
+Definition comp_cat_unit_tt
+  {C : comp_cat} {Unit : comp_cat_unit C}
+  (Γ : C)
+  : comp_cat_tm ((pr1 Unit) Γ)
+  := pr12 Unit Γ.
+
+Definition comp_cat_unit_ind
+  {C : comp_cat} {Unit : comp_cat_unit C}
+  {Γ : C} (Cty : comp_cat_ty (Γ & ((pr1 Unit) Γ)))
+  (c : comp_cat_tm (Cty [[ comp_cat_unit_tt Γ ]]))
+  : comp_cat_tm Cty
+  := pr122 Unit Γ Cty c.
+
+Definition comp_cat_unit_comp
+  {C : comp_cat} {Unit : comp_cat_unit C}
+  {Γ : C} (Cty : comp_cat_ty (Γ & ((pr1 Unit) Γ)))
+  (c : comp_cat_tm (Cty [[ comp_cat_unit_tt Γ ]]))
+  : comp_cat_unit_ind Cty c [[ comp_cat_unit_tt Γ ]]tm = c
+  := pr1 (pr222 Unit) Γ Cty c.
+
+Definition comp_cat_unit_unique
+  {C : comp_cat} {Unit : comp_cat_unit C}
+  {Γ : C} (u : comp_cat_tm ((pr1 Unit) Γ))
+  : u = comp_cat_unit_tt Γ
+  := pr12 (pr222 Unit) Γ u.
+
+Definition comp_cat_unit_sub_iso
+  {C : comp_cat} {Unit : comp_cat_unit C}
+  {Γ Δ : C} (s : Γ --> Δ)
+  : z_iso (C := fiber_category _ _) (((pr1 Unit) Δ) [[ s ]]) ((pr1 Unit) Γ)
+  := pr1 (pr22 (pr222 Unit)) Γ Δ s.
+
+Definition comp_cat_unit_sub_tt
+  {C : comp_cat} {Unit : comp_cat_unit C}
+  {Γ Δ : C} (s : Γ --> Δ)
+  : comp_cat_unit_tt Δ [[ s ]]tm · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso s⌉) =
+      comp_cat_unit_tt Γ
+  := pr1 (pr222 (pr222 Unit)) Γ Δ s.
+
+Lemma comp_cat_unit_tt_ext_path
+  {C : comp_cat} {Unit : comp_cat_unit C}
+  {Γ Δ : C} (s : Γ --> Δ)
+  : s · comp_cat_unit_tt Δ =
+      comp_cat_unit_tt Γ
+        · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso (Unit := Unit) s⌉⁻¹)
+        · comp_cat_ext_subst s ((pr1 Unit) Δ).
+Proof.
+  exact (unit_tt_ext_path C Unit (pr12 Unit)
+           (pr122 (pr222 Unit))
+           (pr1 (pr222 (pr222 Unit))) s).
+Defined.
+
+Definition comp_cat_unit_sub_elim
+  {C : comp_cat} {Unit : comp_cat_unit C}
+  {Γ Δ : C} (s : Γ --> Δ)
+  (Cty : comp_cat_ty (Δ & ((pr1 Unit) Δ)))
+  (d : comp_cat_tm (Cty [[ comp_cat_unit_tt Δ ]]))
+  (s1 := comp_cat_comp_mor (⌈comp_cat_unit_sub_iso s⌉⁻¹)
+           · comp_cat_ext_subst s ((pr1 Unit) Δ))
+  (p := pathscomp0 (comp_cat_unit_tt_ext_path s)
+          (! assoc (comp_cat_unit_tt Γ) _ _))
+  (icompiso := comp_cat_subst_ty_eq_comp_iso Cty p)
+  : comp_cat_unit_ind Cty d [[ s1 ]]tm =
+      comp_cat_unit_ind (Cty [[ s1 ]]) (d [[ s ]]tm ↑ ⌈icompiso⌉)
+  := pr2 (pr222 (pr222 Unit)) Γ Δ s Cty d.

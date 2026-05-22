@@ -106,15 +106,15 @@ Proof.
   apply id_disp.
 Defined.
 
-Section UniverseCoherence.
-  Context (C : comp_cat_with_terminal)
+Section Universe_Coherence.
+  Context {C : comp_cat_with_terminal}
     (universe : comp_cat_universe_data C).
 
   Let U := pr1 universe.
   Let el := pr12 universe.
   Let i := pr22 universe.
 
-  Local Lemma elmaplemma {Γ : C}
+  Lemma elmaplemma {Γ : C}
     {t : comp_cat_tm (weakened_from_empty U Γ)} :
     t [[identity Γ ]]tm
       ↑ ⌈ sub_comp_cat_univ_iso (pr1 universe) (identity Γ)⌉ = t.
@@ -131,7 +131,7 @@ Section UniverseCoherence.
     apply homset_property.
   Qed.
 
-  Local Definition coherent_id
+  Definition coherent_id
     : UU
     := ∏ (Γ : C)
          (t : comp_cat_tm (weakened_from_empty U _)),
@@ -140,7 +140,7 @@ Section UniverseCoherence.
           · i _ _ (identity Γ) t
           · el_map _ _ elmaplemma.
 
-  Local Lemma elmaplemmacomp
+  Lemma elmaplemmacomp
     {Γ Δ Θ : C}
     {s₁ : Γ --> Δ} {s₂ : Θ --> Γ}
     {t : comp_cat_tm (weakened_from_empty U _)} :
@@ -197,23 +197,20 @@ Section UniverseCoherence.
     apply homset_property.
   Qed.
 
-  Local Definition coherent_comp : UU
-    :=
-    ∏ (Γ Δ Θ : C) (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
-      (t : comp_cat_tm (weakened_from_empty U _)),
-      comp_cat_reindex_iso s₂ (i _ _ s₁ t)
-        · (i _ _ s₂ _)
-      =
-        comp_cat_subst_ty_comp_iso (el _ t) s₁ s₂
+  Definition coherent_comp : UU
+    := ∏ (Γ Δ Θ : C) (s₁ : Γ --> Δ) (s₂ : Θ --> Γ)
+         (t : comp_cat_tm (weakened_from_empty U _)),
+      comp_cat_reindex_iso s₂ (i _ _ s₁ t) · (i _ _ s₂ _)
+      = comp_cat_subst_ty_comp_iso (el _ t) s₁ s₂
           · (i _ _ (s₂ · s₁) t)
           · el_map _ _ elmaplemmacomp.
 
-End UniverseCoherence.
+End Universe_Coherence.
 
 Definition comp_cat_universe_coherent
   {C : comp_cat_with_terminal}
   (universe : comp_cat_universe_data C) : UU
-  := coherent_id _ universe × coherent_comp _ universe.
+  := coherent_id universe × coherent_comp universe.
 
 Definition comp_cat_universe (C : comp_cat_with_terminal) : UU
   := ∑ (universe : comp_cat_universe_data C), comp_cat_universe_coherent universe.
@@ -261,7 +258,7 @@ Definition comp_cat_univ_coherent_id
   : @identity (fiber_category _ _) (comp_cat_el t)
     = comp_cat_subst_ty_id_iso _
         · comp_cat_el_iso (identity Γ) t
-        · comp_cat_el_map (elmaplemma _ _)
+        · comp_cat_el_map (elmaplemma _)
   := (pr122 C) Γ t.
 
 Definition comp_cat_univ_coherent_comp
@@ -273,7 +270,7 @@ Definition comp_cat_univ_coherent_comp
       · comp_cat_el_iso s₂ _
     = comp_cat_subst_ty_comp_iso (comp_cat_el t) s₁ s₂
         · comp_cat_el_iso (s₂ · s₁) t
-        · comp_cat_el_map (elmaplemmacomp _ _)
+        · comp_cat_el_map (elmaplemmacomp _)
   := (pr222 C) Γ Δ Θ s₁ s₂ t.
 
 Definition comp_cat_univ_coherent_comp'
@@ -285,7 +282,7 @@ Definition comp_cat_univ_coherent_comp'
       · comp_cat_el_iso s₂ _
     = comp_cat_subst_ty_comp_iso (comp_cat_el t) s₁ s₂
         · comp_cat_el_iso (s₂ · s₁) t
-        · comp_cat_el_map (elmaplemmacomp _ _).
+        · comp_cat_el_map (elmaplemmacomp _ ).
 Proof.
   rewrite comp_cat_reindex_coercion_iso_eq.
   unfold "⌈ _ ⌉".

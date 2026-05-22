@@ -1258,9 +1258,9 @@ Section cwf_sigma_accessors.
     {Γ Δ : pr1 C} (s : Δ --> Γ)
     {A : cwf_ty Γ} {B : cwf_ty (Γ & A)}
     (p : cwf_tm ((pr1 σ) Γ A B))
-    : let T   := cwf_t (pr1 C) in
-      let p'  := transportf (λ X, cwf_tm X) (cwf_sigma_subst_eq s A B) (p [[ s ]]tm) in
-      transportf (λ X, cwf_tm X)
+    (T := cwf_t (pr1 C))
+    (p'  := transportf (λ X, cwf_tm X) (cwf_sigma_subst_eq s A B) (p [[ s ]]tm))
+    : transportf (λ X, cwf_tm X)
         (maponpaths
            (λ x, (B [[ cwf_lift s A ]]) [[ ⟨⟨ identity Δ, cwf_subst_tm_id x ⟩⟩ ]])
            (pathsinv0 (cwf_sigma_subst_pi1 s p)))

@@ -50,7 +50,7 @@ Local Open Scope comp_cat.
 
 Section Construction.
 
-  Context (C : comp_cat_with_universe)
+  Context {C : comp_cat_with_universe}
     (Sigma : comp_cat_sigma C)
     (SigmaU : comp_cat_universe_closed_sigma C Sigma)
     (Unit : comp_cat_unit C)
