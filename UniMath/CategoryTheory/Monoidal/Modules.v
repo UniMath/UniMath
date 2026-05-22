@@ -21,20 +21,20 @@ Local Open Scope cat.
 Local Open Scope moncat.
 
 Section Modules.
-  Context (C : monoidal_cat).
+  Context {C : monoidal_cat}.
 
-  Definition m : monoidal C := monoidal_cat_to_monoidal  C.
-  Definition I : C := monoidal_unit m.
-  Definition lu : leftunitor_data m (monoidal_unit m) := monoidal_leftunitordata m.
-  Definition luinv : leftunitorinv_data m (monoidal_unit m) := monoidal_leftunitorinvdata m.
-  Definition ru : rightunitor_data m (monoidal_unit m) := monoidal_rightunitordata m.
-  Definition ruinv : rightunitorinv_data m (monoidal_unit m) := monoidal_rightunitorinvdata m.
-  Definition α : associator_data m := monoidal_associatordata m.
-  Definition αinv : associatorinv_data m := monoidal_associatorinvdata m.
+  Local Definition m : monoidal C := monoidal_cat_to_monoidal  C.
+  Local Definition I : C := monoidal_unit m.
+  Local Definition lu : leftunitor_data m (monoidal_unit m) := monoidal_leftunitordata m.
+  Local Definition luinv : leftunitorinv_data m (monoidal_unit m) := monoidal_leftunitorinvdata m.
+  Local Definition ru : rightunitor_data m (monoidal_unit m) := monoidal_rightunitordata m.
+  Local Definition ruinv : rightunitorinv_data m (monoidal_unit m) := monoidal_rightunitorinvdata m.
+  Local Definition α : associator_data m := monoidal_associatordata m.
+  Local Definition αinv : associatorinv_data m := monoidal_associatorinvdata m.
 
-  Notation "x ⊗l f" := (x ⊗^{m}_{l} f) (at level 31).
-  Notation "f ⊗r y" := (f ⊗^{m}_{r} y) (at level 31).
-  Notation "f ⊗⊗ g" := (f ⊗^{m} g) (at level 31).
+  Local Notation "x ⊗l f" := (x ⊗^{m}_{l} f) (at level 31).
+  Local Notation "f ⊗r y" := (f ⊗^{m}_{r} y) (at level 31).
+  Local Notation "f ⊗⊗ g" := (f ⊗^{m} g) (at level 31).
 
   Context (R : C) (R_m : monoid m R).
   Definition μ : C⟦R ⊗ R, R⟧ := pr1 (pr1 R_m).

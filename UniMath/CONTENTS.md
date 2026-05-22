@@ -667,6 +667,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/FunctorCategories.v](CategoryTheory/Monoidal/FunctorCategories.v)
    - [Monoidal/Adjunctions.v](CategoryTheory/Monoidal/Adjunctions.v)
    - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)
+   - [Monoidal/Modules.v](CategoryTheory/Monoidal/Modules.v)
+   - [Monoidal/TotalCategoryOfModules.v](CategoryTheory/Monoidal/TotalCategoryOfModules.v)
    - [Monoidal/Displayed/WhiskeredDisplayedBifunctors.v](CategoryTheory/Monoidal/Displayed/WhiskeredDisplayedBifunctors.v)
    - [Monoidal/Displayed/Monoidal.v](CategoryTheory/Monoidal/Displayed/Monoidal.v)
    - [Monoidal/Displayed/TotalMonoidal.v](CategoryTheory/Monoidal/Displayed/TotalMonoidal.v)
