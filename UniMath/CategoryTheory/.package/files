@@ -492,6 +492,7 @@ Monoidal/Functors.v
 Monoidal/FunctorCategories.v
 Monoidal/Adjunctions.v
 Monoidal/CategoriesOfMonoids.v
+Monoidal/Modules.v
 
 Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
 Monoidal/Displayed/Monoidal.v

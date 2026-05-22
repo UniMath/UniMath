@@ -38,6 +38,15 @@ Section colim_def.
 Definition forms_cocone {C : precategory} {g : graph} (d : diagram g C) {c : C} (f : ∏ (v : vertex g), C⟦dob d v, c⟧) : UU
   := ∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u.
 
+Lemma isaprop_forms_cocone {C : category} {g : graph} {d : diagram g C}
+  {c : C} {f : ∏ (v : vertex g), C⟦dob d v, c⟧} 
+  : isaprop (forms_cocone d f).
+Proof.
+  do 3 (use impred; intro).
+  fold isaprop; simpl.
+  use homset_property.
+Qed.
+
 Definition cocone {C : precategory} {g : graph} (d : diagram g C) (c : C) : UU :=
   ∑ (f : ∏ (v : vertex g), C⟦dob d v,c⟧), forms_cocone d f.
 
@@ -667,4 +676,20 @@ Proof.
   refine (maponpaths pr1 p @ _).
   pose (pr2 (pr2 c y (make_cocone (λ v, colimIn c v · f₂) Hf₂)) (f₂ ,, λ _, idpath _)) as q.
   exact (!(maponpaths pr1 q)).
+Qed.
+
+Lemma colimOfArrows_comp {C : precategory} {g : graph} {d1 d2 d3 : diagram g C}
+  (CC1 : ColimCocone d1) (CC2 : ColimCocone d2) (CC3 : ColimCocone d3)
+  (p : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (q : ∏ (u : vertex g), C⟦dob d2 u,dob d3 u⟧)
+  (p_nat : ∏ u v e, dmor d1 e · p v = p u · dmor d2 e)
+  (q_nat : ∏ u v e, dmor d2 e · q v = q u · dmor d3 e)
+  (r : _)
+  : colimOfArrows CC1 CC2 p p_nat · colimOfArrows CC2 CC3 q q_nat 
+  = colimOfArrows CC1 CC3 (λ u, p _ · q _) r.
+Proof.
+  unfold colimOfArrows; use colimArrowUnique; intro u.
+  rewrite assoc, colimArrowCommutes; cbn.
+  do 2 rewrite <- assoc; use maponpaths.
+  now rewrite colimArrowCommutes.
 Qed.
