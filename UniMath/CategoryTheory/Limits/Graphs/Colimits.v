@@ -1,5 +1,5 @@
 
-(** *************************************************
+(****************************************************
 
 Contents:
 
@@ -43,7 +43,6 @@ Lemma isaprop_forms_cocone {C : category} {g : graph} {d : diagram g C}
   : isaprop (forms_cocone d f).
 Proof.
   do 3 (use impred; intro).
-  fold isaprop; simpl.
   use homset_property.
 Qed.
 
@@ -684,9 +683,9 @@ Lemma colimOfArrows_comp {C : precategory} {g : graph} {d1 d2 d3 : diagram g C}
   (q : ∏ (u : vertex g), C⟦dob d2 u,dob d3 u⟧)
   (p_nat : ∏ u v e, dmor d1 e · p v = p u · dmor d2 e)
   (q_nat : ∏ u v e, dmor d2 e · q v = q u · dmor d3 e)
-  (r : _)
+  (pq_nat : ∏ u v e, dmor d1 e · (p v · q v) = p u · q u · dmor d3 e)
   : colimOfArrows CC1 CC2 p p_nat · colimOfArrows CC2 CC3 q q_nat 
-  = colimOfArrows CC1 CC3 (λ u, p _ · q _) r.
+  = colimOfArrows CC1 CC3 (λ u, p u · q u) pq_nat.
 Proof.
   unfold colimOfArrows; use colimArrowUnique; intro u.
   rewrite assoc, colimArrowCommutes; cbn.
