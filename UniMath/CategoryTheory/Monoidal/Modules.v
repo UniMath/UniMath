@@ -91,7 +91,7 @@ Section Modules.
 
   Lemma isaprop_is_module_mor {M M' : C} (p : module M) (p' : module M') (r : C⟦M,M'⟧)
     : isaprop (is_module_mor p p' r).
-  Proof.
+Proof.
     use homset_property.
   Qed.
 
@@ -143,7 +143,6 @@ Section Modules.
   Definition MOD : category := total_category module_disp_cat.
 
   Definition MOD_to_C (M : MOD) : C := pr1 M.
-  Coercion MOD_to_C : ob >-> ob.
 
   (**
      2. Two examples of modules
@@ -529,5 +528,63 @@ Section Modules.
         change (dmor F' e · f v = f u); use colimInCommutes.
     Defined.
 
+    Lemma colim_module_colimArrow_is_module_mor (M : MOD) (cc' : cocone F M)
+      : is_module_mor colim_module (pr2 M)
+        (colimArrow (colims_g F') (pr1 M) (mapcocone forgetful F cc')).
+    Proof.
+      use (colimArrowUnique' ColimCocone_L_R).
+      intro u; cbn; do 2 rewrite assoc.
+      symmetry; etrans; etrans.
+      - use (maponpaths (λ x, x · _)); [shelve|use colim_module_mor].
+      - rewrite <- assoc; use maponpaths; [shelve|use colimArrowCommutes].
+      - symmetry; use (pr2 (coconeIn cc' u)).
+      - symmetry; rewrite <- (bifunctor_rightcomp m).
+        use (maponpaths (λ x, x · _)); use maponpaths.
+        use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
+    Qed.
+
+    Definition colim_module_colimArrow (M : MOD) (cc' : cocone F M) 
+      : MOD⟦(L ,, colim_module) , M⟧.
+    Proof.
+      use tpair; [use colimArrow; now use mapcocone|].
+      use colim_module_colimArrow_is_module_mor.
+    Defined.
+
+    Lemma colim_module_colimArrow_is_cocone_mor (M : MOD) (cc' : cocone F M)
+      : is_cocone_mor colim_module_cocone cc' (colim_module_colimArrow M cc').
+    Proof.
+      intro u; use invmap; [|use path_sigma_hprop|].
+      - use isaprop_is_module_mor.
+      - use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
+    Qed.
+
+    Lemma colim_module_isColimCocone : isColimCocone F (L,, colim_module) colim_module_cocone.
+    Proof.
+      unfold isColimCocone.
+      intros M cc'.
+      use tpair; [use tpair|]; cbn.
+      - now use colim_module_colimArrow.
+      - now use colim_module_colimArrow_is_cocone_mor.
+      - intros [[t H_mor] H_cc].
+        use invmap; [|use path_sigma_hprop|];[|use invmap; [|use path_sigma_hprop|]].
+        + use (isaprop_is_cocone_mor colim_module_cocone).
+        + use isaprop_is_module_mor.
+        + use colimArrowUnique; intro u; cbn; now rewrite <- H_cc.
+    Qed.
+
+    Definition colim_module_ColimCocone : ColimCocone F.
+    Proof.
+      use make_ColimCocone.
+      - exists L; use colim_module.
+      - use colim_module_cocone.
+      - use colim_module_isColimCocone.
+    Defined.
   End Colimits.
+
+  Theorem MOD_inherits_colimits (g : graph) (_ : Colims_of_shape g C)
+    (_ : preserves_colimits_of_shape (rightwhiskering_functor C R) g)
+    : Colims_of_shape g MOD.
+  Proof.
+    now use colim_module_ColimCocone.
+  Defined.
 End Modules.
