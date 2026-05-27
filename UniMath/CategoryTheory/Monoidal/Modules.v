@@ -38,14 +38,12 @@ Local Open Scope moncat.
 Section Modules.
   Context {C : monoidal_cat}.
 
-  Let m : monoidal C := monoidal_cat_to_monoidal  C.
+  Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
+  Local Notation "f ⊗r y" := (f ⊗^{C}_{r} y) (at level 31).
 
-  Local Notation "x ⊗l f" := (x ⊗^{m}_{l} f) (at level 31).
-  Local Notation "f ⊗r y" := (f ⊗^{m}_{r} y) (at level 31).
-
-  Context (R : C) (R_m : monoid m R).
+  Context (R : C) (R_m : monoid C R).
   Definition μ : C⟦R ⊗ R, R⟧ := pr1 (pr1 R_m).
-  Definition η : C⟦I_{m}, R⟧ := pr2 (pr1 R_m).
+  Definition η : C⟦I_{C}, R⟧ := pr2 (pr1 R_m).
 
   (**
      1. Definitions
@@ -58,10 +56,10 @@ Section Modules.
   Coercion module_object : module_subst >-> ob.
 
   Definition module_laws_assoc {M : C} (p : module_subst M) : UU
-    := α^{m}_{M,R,R} · (M ⊗l μ) · p = p ⊗r R · p.
+    := α^{C}_{M,R,R} · (M ⊗l μ) · p = p ⊗r R · p.
 
   Definition module_laws_unit {M : C} (p : module_subst M) : UU
-    := M ⊗l η · p = ru^{m}_{M}. 
+    := M ⊗l η · p = ru^{C}_{M}. 
 
   Definition module_laws {M : C} (p : module_subst M) : UU
     := module_laws_assoc p × module_laws_unit p.
@@ -70,8 +68,8 @@ Section Modules.
 
   Definition make_module
     {M : C} (p : C⟦M ⊗ R, M⟧)
-    (p_unit : M ⊗l η · p = ru^{m}_{M})
-    (p_assoc : α^{m}_{M,R,R} · (M ⊗l μ) · p = p ⊗r R · p)
+    (p_unit : M ⊗l η · p = ru^{C}_{M})
+    (p_assoc : α^{C}_{M,R,R} · (M ⊗l μ) · p = p ⊗r R · p)
     : module M 
     := (p ,, p_assoc ,, p_unit).
 
@@ -98,7 +96,7 @@ Proof.
   Lemma id_is_module_mor (M : C) (p : module M) : is_module_mor p p (identity M).
   Proof.
     unfold is_module_mor.
-    rewrite id_right, (bifunctor_rightid m).
+    rewrite id_right, (bifunctor_rightid C).
     use id_left.
   Qed.
 
@@ -109,7 +107,7 @@ Proof.
     : is_module_mor p p'' (r·r').
   Proof.
     unfold is_module_mor in * |- *.
-    rewrite (bifunctor_rightcomp m), assoc, <- Hr.
+    rewrite (bifunctor_rightcomp C), assoc, <- Hr.
     do 2 rewrite <- assoc.
     now use maponpaths.
   Qed.
@@ -149,34 +147,34 @@ Proof.
    *)
 
   Definition trivial_module : MOD :=
-    let l := pr2 (monoid_to_monoid_laws m R_m) in
+    let l := pr2 (monoid_to_monoid_laws C R_m) in
     R ,, μ ,, pr2 l ,, pr1 l.
 
   Lemma product_module_unit (M D : C) (p : module M) : 
-    module_laws_unit (α^{m}_{D,M,R} · D ⊗l p).
+    module_laws_unit (α^{C}_{D,M,R} · D ⊗l p).
   Proof.
     unfold module_laws_unit.
-    rewrite assoc, <- (monoidal_associatornatleft m).
+    rewrite assoc, <- (monoidal_associatornatleft C).
     etrans.
     - rewrite <- assoc; use maponpaths; [shelve|].
-      rewrite <- (bifunctor_leftcomp m).
+      rewrite <- (bifunctor_leftcomp C).
       use maponpaths; [shelve|].
       use (module_laws_unit_from_module p).
     - use left_whisker_with_runitor.
   Qed.
 
   Lemma product_module_assoc (M D : C) (p : module M) : 
-    module_laws_assoc (α^{m}_{D,M,R} · D ⊗l p).
+    module_laws_assoc (α^{C}_{D,M,R} · D ⊗l p).
   Proof.
     unfold module_laws_assoc; symmetry.
     etrans; etrans. etrans. etrans.
-    - use (maponpaths (λ x, x · (α^{m}_{_,_,_} · D ⊗l p))); [shelve | now rewrite (bifunctor_rightcomp m)].
-    - rewrite <- assoc; use (maponpaths (λ x, α^{m}_{_,_,_} ⊗r R · x)); [shelve|rewrite assoc].
+    - use (maponpaths (λ x, x · (α^{C}_{_,_,_} · D ⊗l p))); [shelve | now rewrite (bifunctor_rightcomp C)].
+    - rewrite <- assoc; use (maponpaths (λ x, α^{C}_{_,_,_} ⊗r R · x)); [shelve|rewrite assoc].
       use (maponpaths (λ x, x · D ⊗l p)); [shelve|].
       symmetry; use monoidal_associatornatleftright.
     - rewrite <- assoc.
       do 2 (use maponpaths; [shelve|]).
-      rewrite <- (bifunctor_leftcomp m).
+      rewrite <- (bifunctor_leftcomp C).
       use maponpaths; [shelve|]; symmetry; use (module_laws_assoc_from_module p).
     - do 2 rewrite bifunctor_leftcomp; do 3 rewrite assoc.
       use (maponpaths (λ x, x · _ · _)); [shelve|].
@@ -192,7 +190,7 @@ Proof.
   Definition product_module (M D : C) (p : module M) : MOD.
   Proof.
     exists (D ⊗ M).
-    exists (α^{m}_{_,_,_} · D ⊗l p).
+    exists (α^{C}_{_,_,_} · D ⊗l p).
     split; [use product_module_assoc | use product_module_unit].
   Defined.
 
@@ -253,28 +251,28 @@ Proof.
       use (colimOfArrowsIn _ _ ColimCocone_L_R _ _ _ v).
     Defined.
 
-    Lemma rw_unit_is_left_adjoint : is_left_adjoint (rightwhiskering_functor m I_{m}).
+    Lemma rw_unit_is_left_adjoint : is_left_adjoint (rightwhiskering_functor C I_{C}).
     Proof.
       exists (functor_identity C); use make_are_adjoints; [| |use make_form_adjunction].
       - eexists; intros A B h; cbn; symmetry; use monoidal_rightunitorinvnat.
       - eexists; intros A B h; cbn; use monoidal_rightunitornat.
       - intro A. cbn; symmetry.
-        transitivity (ruinv^{m}_{A} ⊗r I_{m} · ru^{m}_{A} ⊗r I_{m}); [etrans|]; swap 1 2.
-        + use (bifunctor_rightcomp m). 
+        transitivity (ruinv^{C}_{A} ⊗r I_{C} · ru^{C}_{A} ⊗r I_{C}); [etrans|]; swap 1 2.
+        + use (bifunctor_rightcomp C). 
         + etrans; [symmetry; use tensor_id_id|].
-          now rewrite @tensor_mor_right, (pr2 (monoidal_rightunitorisolaw m A)).
+          now rewrite @tensor_mor_right, (pr2 (monoidal_rightunitorisolaw C A)).
         + use maponpaths.
-          do 2 (symmetry; rewrite <- id_right; rewrite <- (pr1 (monoidal_rightunitorisolaw m A)), assoc).
+          do 2 (symmetry; rewrite <- id_right; rewrite <- (pr1 (monoidal_rightunitorisolaw C A)), assoc).
           now rewrite <- monoidal_rightunitornat.
-      - intro A; cbn; use (pr2 (monoidal_rightunitorisolaw m A)).
+      - intro A; cbn; use (pr2 (monoidal_rightunitorisolaw C A)).
     Qed.
 
     (* Colimit cocone over L ⊗ I *) 
     Definition ColimCocone_L_I := make_ColimCocone _ _ _ (left_adjoint_preserves_colimit _ rw_unit_is_left_adjoint _ _ _ c).
 
-    Lemma colim_rightunitor : ru^{m}_{L} = colimOfArrows ColimCocone_L_I ColimCocone_L (λ _, ru^{m}_{_}) (λ _ _ _, monoidal_rightunitornat _ _ _ _).
+    Lemma colim_rightunitor : ru^{C}_{L} = colimOfArrows ColimCocone_L_I ColimCocone_L (λ _, ru^{C}_{_}) (λ _ _ _, monoidal_rightunitornat _ _ _ _).
     Proof.
-      assert (forms_cocone (mapdiagram (rightwhiskering_functor C I_{m}) F') (λ v, ru^{m}_{dob F' v} · f v)) as H_cc'
+      assert (forms_cocone (mapdiagram (rightwhiskering_functor C I_{C}) F') (λ v, ru^{C}_{dob F' v} · f v)) as H_cc'
       by (
         intros v w e; simpl;
         rewrite assoc, monoidal_rightunitornat, <- assoc;
@@ -282,7 +280,7 @@ Proof.
         use (coconeInCommutes cc)
       ).
       pose (make_cocone _ H_cc') as cc'.
-      assert (∏ (u : vertex g), colimIn ColimCocone_L_I u · ru^{m}_{L} = coconeIn cc' u) as H_unique 
+      assert (∏ (u : vertex g), colimIn ColimCocone_L_I u · ru^{C}_{L} = coconeIn cc' u) as H_unique 
       by (intro; cbn; use monoidal_rightunitornat).
       etrans.
       use (colimArrowUnique _ _ _ _ H_unique).
@@ -292,8 +290,8 @@ Proof.
     Qed.
 
     Local Lemma η_swap : ∏ (u v : vertex g) (e : edge u v),
-       pr1 (dmor F e) ⊗^{ C}_{r} I_{m} · pr1 (dob F v) ⊗^{ m}_{l} η =
-       pr1 (dob F u) ⊗^{ m}_{l} η · pr1 (dmor F e) ⊗^{ C}_{r} R.
+       pr1 (dmor F e) ⊗^{ C}_{r} I_{C} · pr1 (dob F v) ⊗^{ C}_{l} η =
+       pr1 (dob F u) ⊗^{ C}_{l} η · pr1 (dmor F e) ⊗^{ C}_{r} R.
     Proof.
       intros.
       do 2 rewrite tensor_mor_right, @tensor_mor_left;
@@ -302,9 +300,9 @@ Proof.
 
     Lemma colim_unit : L ⊗l η = colimOfArrows ColimCocone_L_I ColimCocone_L_R (λ _, _ ⊗l η) η_swap.
     Proof.
-      assert (forms_cocone (mapdiagram (rightwhiskering_functor C I_{m}) F') (λ v, _ ⊗l η · f v ⊗r _)) as H_cc' by (
+      assert (forms_cocone (mapdiagram (rightwhiskering_functor C I_{C}) F') (λ v, _ ⊗l η · f v ⊗r _)) as H_cc' by (
         intros u v e; cbn; rewrite assoc;
-        change (dmor F' e ⊗r I_{m} · dob F' v ⊗l η · f v ⊗r R = dob F' u ⊗l η · f u ⊗r R); unfold f;
+        change (dmor F' e ⊗r I_{C} · dob F' v ⊗l η · f v ⊗r R = dob F' u ⊗l η · f u ⊗r R); unfold f;
         rewrite <- (colimInCommutes _ _ _ e), !@tensor_mor_right, tensor_comp_id_r, assoc;
         use (maponpaths (λ x, x · _)); rewrite !@tensor_mor_left; use tensor_swap
       ).
@@ -319,13 +317,13 @@ Proof.
       use isaprop_forms_cocone.
     Qed.
 
-    Lemma colim_module_unit : L ⊗l η · p = ru^{m}_{L}.
+    Lemma colim_module_unit : L ⊗l η · p = ru^{C}_{L}.
     Proof.
       rewrite colim_unit, colim_rightunitor.
       unfold p, colim_module_subst; simpl.
       simpl.
       assert (∏ u v (e : edge u v), 
-        dmor F' e ⊗r I_{ m} · (dob F' v ⊗l η · q v) 
+        dmor F' e ⊗r I_{ C} · (dob F' v ⊗l η · q v) 
         = dob F' u ⊗l η · q u · dmor F' e
       ) as H.
       {
@@ -354,7 +352,7 @@ Proof.
         q u ⊗r R · dmor F' e ⊗r R).
     Proof.
       intros.
-      do 2 rewrite <- (bifunctor_rightcomp m).
+      do 2 rewrite <- (bifunctor_rightcomp C).
       use maponpaths.
       use (pr2 (dmor F e)).
     Qed.
@@ -371,7 +369,7 @@ Proof.
       ) as H_cc'.
       {
         intros x y e; cbn.
-        rewrite <- (bifunctor_rightcomp m), assoc.
+        rewrite <- (bifunctor_rightcomp C), assoc.
         use maponpaths.
         etrans.
         - use (maponpaths (λ u, u · f y)); [shelve|].
@@ -385,7 +383,7 @@ Proof.
       assert (∏ u, colimIn ColimCocone_L_R_R u · p ⊗r R = coconeIn cc' u)
       as H_unique.
       {
-        intro u; cbn; rewrite <- (bifunctor_rightcomp m).
+        intro u; cbn; rewrite <- (bifunctor_rightcomp C).
         use maponpaths; use colim_module_mor.
       }
 
@@ -405,8 +403,8 @@ Proof.
 
     Local Lemma lemma_R_R_to_R_nat2 : ∏ u v e,
       (dmor F' e ⊗r R) ⊗r R
-      · (α^{m}_{dob F' v,R,R} · dob F' v ⊗l μ) =
-      α^{m}_{dob F' u,R,R} · dob F' u ⊗l μ
+      · (α^{C}_{dob F' v,R,R} · dob F' v ⊗l μ) =
+      α^{C}_{dob F' u,R,R} · dob F' u ⊗l μ
       · dmor F' e ⊗r R.
     Proof.
       intros; rewrite assoc; etrans.
@@ -418,7 +416,7 @@ Proof.
         use tensor_swap.
     Qed.
 
-    Lemma colim_associator_mult : α^{m}_{L,R,R} · L ⊗l μ = colimOfArrows ColimCocone_L_R_R ColimCocone_L_R _ lemma_R_R_to_R_nat2.
+    Lemma colim_associator_mult : α^{C}_{L,R,R} · L ⊗l μ = colimOfArrows ColimCocone_L_R_R ColimCocone_L_R _ lemma_R_R_to_R_nat2.
     Proof.
       unfold colimOfArrows.
 
@@ -427,14 +425,14 @@ Proof.
           (mapdiagram (rightwhiskering_functor C R)
              (mapdiagram (rightwhiskering_functor C R) F'))
           (λ v : vertex g,
-           α^{m}_{dob F' v,R,R} · dob F' v ⊗^{ m}_{l} μ · f v ⊗^{ m}_{r} R)
+           α^{C}_{dob F' v,R,R} · dob F' v ⊗^{ C}_{l} μ · f v ⊗^{ C}_{r} R)
       ) as H_cc'. {
         intros x y e; cbn; do 2 rewrite assoc.
         etrans; [etrans|]; swap 2 3.
-        - now rewrite <- assoc, <- (monoidal_associatornatright m), <- assoc.
+        - now rewrite <- assoc, <- (monoidal_associatornatright C), <- assoc.
         - do 2 (use maponpaths; [shelve|]); use (colimInCommutes _ _ _ e).
         - rewrite <- assoc; use (maponpaths (λ u, _ · u)).
-          rewrite (bifunctor_rightcomp m).
+          rewrite (bifunctor_rightcomp C).
           do 2 rewrite assoc.
           use (maponpaths (λ u, u · _)).
           do 2 rewrite @tensor_mor_right, @tensor_mor_left.
@@ -443,7 +441,7 @@ Proof.
 
       pose (make_cocone _ H_cc') as cc'.
 
-      assert (∏ u : vertex g, colimIn ColimCocone_L_R_R u · (α^{m}_{_,_,_} · L ⊗^{ m}_{l} μ) = coconeIn cc' u) as H_unique. {
+      assert (∏ u : vertex g, colimIn ColimCocone_L_R_R u · (α^{C}_{_,_,_} · L ⊗^{ C}_{l} μ) = coconeIn cc' u) as H_unique. {
         intro; cbn; rewrite assoc; etrans.
         - use (maponpaths (λ x, x · _)); [shelve|].
           symmetry; use monoidal_associatornatright.
@@ -460,20 +458,20 @@ Proof.
     Qed.
 
 
-    Lemma colim_module_assoc : α^{m}_{L,R,R} · L ⊗l μ · p = p ⊗r R · p.
+    Lemma colim_module_assoc : α^{C}_{L,R,R} · L ⊗l μ · p = p ⊗r R · p.
     Proof.
       rewrite colim_associator_mult, colim_module_subst_tens_r.
       unfold p, colim_module_subst; cbn.
       assert ( ∏ u v e,
-        (dmor F' e ⊗r R) ⊗r R · (α^{m}_{_,_,_} · dob F' v ⊗l μ · q v) =
-        α^{m}_{_,R,R} · dob F' u ⊗l μ · q u · dmor F' e) as H1.
+        (dmor F' e ⊗r R) ⊗r R · (α^{C}_{_,_,_} · dob F' v ⊗l μ · q v) =
+        α^{C}_{_,R,R} · dob F' u ⊗l μ · q u · dmor F' e) as H1.
       {
         intros.
         do 2 rewrite assoc.
         etrans; cycle 1.
         - rewrite <- assoc; use maponpaths; [shelve|].
           use (pr2 (dmor F e)).
-        - rewrite <- (monoidal_associatornatright m).
+        - rewrite <- (monoidal_associatornatright C).
           rewrite assoc; use (maponpaths (λ x, x · _)).
           do 2 rewrite <- assoc; use maponpaths.
           do 2 rewrite  @tensor_mor_left, @tensor_mor_right.
@@ -482,8 +480,8 @@ Proof.
 
       assert (∏ u v e,
          (pr1 (dmor F e) ⊗^{ C}_{r} R) ⊗^{ C}_{r} R
-         · (q v ⊗^{ m}_{r} R · q v) =
-         q u ⊗^{ m}_{r} R · q u · pr1 (dmor F e)
+         · (q v ⊗^{ C}_{r} R · q v) =
+         q u ⊗^{ C}_{r} R · q u · pr1 (dmor F e)
       ) as H2.
       {
         intros; rewrite assoc.
@@ -491,7 +489,7 @@ Proof.
         - rewrite <- assoc. use (maponpaths (λ x, q u ⊗r R · x)); [shelve|].
           use (pr2 (dmor F e)).
         - rewrite assoc. use (maponpaths (λ x, x · _)).
-          do 2 rewrite <- (bifunctor_rightcomp m).
+          do 2 rewrite <- (bifunctor_rightcomp C).
           use maponpaths.
           use (pr2 (dmor F e)).
       }
@@ -538,7 +536,7 @@ Proof.
       - use (maponpaths (λ x, x · _)); [shelve|use colim_module_mor].
       - rewrite <- assoc; use maponpaths; [shelve|use colimArrowCommutes].
       - symmetry; use (pr2 (coconeIn cc' u)).
-      - symmetry; rewrite <- (bifunctor_rightcomp m).
+      - symmetry; rewrite <- (bifunctor_rightcomp C).
         use (maponpaths (λ x, x · _)); use maponpaths.
         use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
     Qed.
