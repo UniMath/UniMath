@@ -227,29 +227,27 @@ Section QuasiCartesianToMarkov.
   Defined.
 
   (* Symmetry *)
-       
-  Definition quasicartesian_swap {x y : C} : x ⊗ y --> y ⊗ x := ⟨ proj2, proj1 ⟩.
 
   Definition quasicartesian_swap_laws : sym_mon_cat_laws_tensored
-       quasicartesian_monoidal_cat (λ x y : C, quasicartesian_swap).
+       quasicartesian_monoidal_cat (λ x y : C, swap).
   Proof.
     repeat split.
     - (* involution *)
-      intros x y. cbn. unfold quasicartesian_swap. qcart_coherence.
+      intros x y. cbn. unfold swap. qcart_coherence.
     - (* naturality *)
       intros x y z w f g. 
-      unfold quasicartesian_swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
+      unfold swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
       rewrite !pairing_nat_r, pairing_tensor, pairing_swap. reflexivity.
     - (* hexagon *)
       intros x y z. cbn. 
-      unfold quasicartesian_swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
+      unfold swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
       qcart_coherence.
   Defined.      
 
   Definition quasicartesian_symmetric : symmetric quasicartesian_monoidal.
   Proof.
     use (make_symmetric quasicartesian_monoidal_cat _ _).
-    - exact @quasicartesian_swap.
+    - exact (@swap C).
     - exact quasicartesian_swap_laws.
   Defined.
   
@@ -307,6 +305,7 @@ Section QuasiCartesianToMarkovToQuasiCartesian.
     reflexivity.
   Qed.
 
+  (* TODO can be improved with [total2_paths_f] *)
   Proposition quasicartesian_to_markov_inv_data :
     markov_to_quasicartesian_data (quasicartesian_to_markov C) = C.
   Proof.
@@ -412,9 +411,8 @@ Section MarkovToQuasiCartesianToMarkov.
   Definition quasicartesian_monoidal_data_eq :
     quasicartesian_monoidal_data Q = C.
   Proof.
-    unfold quasicartesian_monoidal_data.
     use total2_paths_f. { exact quasicartesian_tensor_data_eq. }
-    unfold quasicartesian_tensor_data_eq,
+    (* unfold quasicartesian_tensor_data_eq,
            tensor_data,
            bifunctor_data,
            leftunitor_data,
@@ -423,7 +421,7 @@ Section MarkovToQuasiCartesianToMarkov.
            rightunitorinv_data,
            associator_data,
            associatorinv_data,
-           bifunctor_on_objects.
+           bifunctor_on_objects. *)
 
     etrans. { refine (transportf_total2_paths_f famoflife _ _ _). }
 
@@ -452,20 +450,33 @@ Section MarkovToQuasiCartesianToMarkov.
     - exact quasicartesian_monoidal_data_eq.
   Defined.
 
+  Definition quasicartesian_monoidal_cat_eq :
+    quasicartesian_monoidal_cat Q = C.
+  Proof.
+    use total2_paths_f. { apply idpath. }
+    abstract (rewrite idpath_transportf; exact quasicartesian_monoidal_eq).
+  Defined.
+
   (* Symmetry *)
 
-  Definition quasicartesian_
+  Definition quasicartesian_sym_monoidal_eq :
+    quasicartesian_sym_monoidal_cat Q = C.
+  Proof.
+    use total2_paths_f. { apply quasicartesian_monoidal_cat_eq. }
+    unfold quasicartesian_monoidal_cat_eq.
+    unfold monoidal_cat.
+    Print symmetric.
+  Admitted.
 
-    
-  (* Proposition markov_to_quasicartesian_inv_data :
+  Proposition markov_to_quasicartesian_inv_data :
     quasicartesian_to_markov_data (markov_to_quasicartesian C) = C.
   Proof.
     unfold quasicartesian_to_markov_data,
            markov_to_quasicartesian.
     cbn.
-    (* rewrite pair_eta. *)
+    (* rewrite pair_eta.
     pose(D := C).
-    assert(E : C = D). { reflexivity. }
+    assert(E : C = D). { reflexivity. } *)
 
     destruct C as [[[[C0 [mon monlaws]] sym] [semicart copy]] laws].
     unfold quasicartesian_sym_monoidal_cat, 
@@ -474,9 +485,28 @@ Section MarkovToQuasiCartesianToMarkov.
            quasicartesian_monoidal_data,
            markov_to_quasicartesian_data.
     cbn.
-    Check total2_paths_f.
-    Check pr1_transportf.
-  Admitted.     *)
+    
+    use total2_paths_f. { cbn.
+      use total2_paths_f. { cbn. 
+        use total2_paths_f. { apply idpath. }
+        rewrite idpath_transportf. cbn.
+        use total2_paths_f. { cbn.
+          unfold make_monoidal_data, 
+                 quasicartesian_tensor_data,
+                 make_bifunctor_data.
+          use total2_paths_f. { cbn.
+            use total2_paths_f. { cbn. apply idpath. }
+            rewrite idpath_transportf. cbn.
+            apply dirprod_paths.
+            - do 4 (apply funextsec2; intros). cbn.
+              etrans. {
+                rewrite <- (pairing_proj_whisker_l).
+              }
+          }
+        }
+      }
+    }
+  Admitted.
 
   Proposition markov_to_quasicartesian_inv : 
     quasicartesian_to_markov (markov_to_quasicartesian C) = C.
