@@ -228,32 +228,34 @@ Section QuasiCartesianToMarkov.
 
   (* Symmetry *)
        
-  Definition swap {x y : C} : x ⊗ y --> y ⊗ x := ⟨ proj2, proj1 ⟩.
+  Definition quasicartesian_swap {x y : C} : x ⊗ y --> y ⊗ x := ⟨ proj2, proj1 ⟩.
 
-  Definition swap_laws : sym_mon_cat_laws_tensored
-       quasicartesian_monoidal_cat (λ x y : C, swap).
+  Definition quasicartesian_swap_laws : sym_mon_cat_laws_tensored
+       quasicartesian_monoidal_cat (λ x y : C, quasicartesian_swap).
   Proof.
     repeat split.
     - (* involution *)
-      intros x y. cbn. unfold swap. qcart_coherence.
-    - intros x y z w f g. 
-      unfold swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
+      intros x y. cbn. unfold quasicartesian_swap. qcart_coherence.
+    - (* naturality *)
+      intros x y z w f g. 
+      unfold quasicartesian_swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
       rewrite !pairing_nat_r, pairing_tensor, pairing_swap. reflexivity.
-    - intros x y z. cbn. 
-      unfold swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
+    - (* hexagon *)
+      intros x y z. cbn. 
+      unfold quasicartesian_swap, monoidal_cat_tensor_mor, functoronmorphisms1. cbn.
       qcart_coherence.
   Defined.      
 
-  Definition sym : symmetric quasicartesian_monoidal.
+  Definition quasicartesian_symmetric : symmetric quasicartesian_monoidal.
   Proof.
     use (make_symmetric quasicartesian_monoidal_cat _ _).
-    - intros x y. apply swap.
-    - apply swap_laws.
+    - exact @quasicartesian_swap.
+    - exact quasicartesian_swap_laws.
   Defined.
   
   Definition quasicartesian_sym_monoidal_cat : sym_monoidal_cat.
   Proof.
-    refine (quasicartesian_monoidal_cat ,, sym).
+    exact (quasicartesian_monoidal_cat ,, quasicartesian_symmetric).
   Defined.
 
   (* Markov category *)
@@ -279,11 +281,12 @@ Section QuasiCartesianToMarkov.
   
   Definition quasicartesian_to_markov : markov_category.
   Proof.
-    refine (quasicartesian_to_markov_data ,, quasicartesian_to_markov_laws).
+    exact (quasicartesian_to_markov_data ,, quasicartesian_to_markov_laws).
   Defined.
 
 End QuasiCartesianToMarkov.
 
+(* TODO ?? *)
 Lemma pair_eta {X : UU} (P : X -> UU) (p : ∑ x, P x) : p = (pr1 p ,, pr2 p).
 Proof.
   reflexivity.
@@ -353,7 +356,108 @@ Section MarkovToQuasiCartesianToMarkov.
 
   Local Open Scope markov.
 
-  Proposition markov_to_quasicartesian_inv_data :
+  Let Q := markov_to_quasicartesian C.
+
+  Definition quasicartesian_tensor_data_eq' :
+    quasicartesian_tensor_data Q = C.
+  Proof.
+    unfold quasicartesian_tensor_data.
+    use total2_paths_f. { apply idpath. }
+    (* TODO make subproofs abstract *)
+    rewrite idpath_transportf. cbn.
+    use dirprod_paths.
+    - do 4 (apply funextsec2; intros). cbn.
+      etrans. {
+        rewrite <- pairing_proj_whisker_l. reflexivity.
+      }
+      reflexivity.
+    - do 4 (apply funextsec2; intros). cbn.
+      etrans. {
+        rewrite <- pairing_proj_whisker_r. reflexivity.
+      }
+      reflexivity.
+  Defined.
+
+  Definition quasicartesian_tensor_data_eq :
+    quasicartesian_tensor_data Q = C.
+  Proof.
+    unfold quasicartesian_tensor_data.
+    use total2_paths_f. { apply idpath. }
+    abstract (
+      rewrite idpath_transportf; cbn;
+      use dirprod_paths;
+      (do 4 (apply funextsec2; intros)); cbn;
+      (etrans; [   rewrite <- pairing_proj_whisker_l
+                || rewrite <- pairing_proj_whisker_r ; reflexivity | reflexivity])
+    ).
+  Defined.
+
+  Definition famoflife := 
+    (λ t : Q → Q → Q,
+    ∑ I : Q,
+    (∏ x0 : Q, Q ⟦ t I x0, x0 ⟧)
+    × (∏ x0 : Q, Q ⟦ x0, t I x0 ⟧)
+    × (∏ x0 : Q, Q ⟦ t x0 I, x0 ⟧)
+    × (∏ x0 : Q, Q ⟦ x0, t x0 I ⟧)
+    × (∏ x0 y z : Q, Q ⟦ t (t x0 y) z, t x0 (t y z) ⟧)
+    × (∏ x0 y z : Q, Q ⟦ t x0 (t y z), t (t x0 y) z ⟧)).
+
+  (* Note:
+     This proof is a bit nasty because while formally [monoidal_data] depends on
+     [tensor_data], it really only depends on the first fied, i.e. the tensor-on-objects.
+     We need to use [transportf_total2_paths_f] to kick out the spurious dependence, but that
+     requires unfolding everything to really show that there is no dependence.
+  *)
+
+  Definition quasicartesian_monoidal_data_eq :
+    quasicartesian_monoidal_data Q = C.
+  Proof.
+    unfold quasicartesian_monoidal_data.
+    use total2_paths_f. { exact quasicartesian_tensor_data_eq. }
+    unfold quasicartesian_tensor_data_eq,
+           tensor_data,
+           bifunctor_data,
+           leftunitor_data,
+           leftunitorinv_data,
+           rightunitor_data,
+           rightunitorinv_data,
+           associator_data,
+           associatorinv_data,
+           bifunctor_on_objects.
+
+    etrans. { refine (transportf_total2_paths_f famoflife _ _ _). }
+
+    rewrite idpath_transportf.
+    unfold make_monoidal_data. cbn.
+    use total2_paths_f. { apply idpath. }
+    rewrite idpath_transportf. cbn.
+
+    do 5 (try apply dirprod_paths); cbn;
+    do 3 (try apply funextsec2; intros);
+    symmetry.
+    - apply pairing_proj_lunitor.
+    - apply pairing_proj_linvunitor.
+    - apply pairing_proj_runitor.
+    - apply pairing_proj_rinvunitor.
+    - apply pairing_proj_lassociator.
+    - apply pairing_proj_rassociator.
+  Defined.
+
+  Definition quasicartesian_monoidal_eq :
+    quasicartesian_monoidal Q = C.
+  Proof.
+    unfold quasicartesian_monoidal.
+    use subtypePath. 
+    - unfold isPredicate. intros. apply isaprop_monoidal_laws.
+    - exact quasicartesian_monoidal_data_eq.
+  Defined.
+
+  (* Symmetry *)
+
+  Definition quasicartesian_
+
+    
+  (* Proposition markov_to_quasicartesian_inv_data :
     quasicartesian_to_markov_data (markov_to_quasicartesian C) = C.
   Proof.
     unfold quasicartesian_to_markov_data,
@@ -370,7 +474,9 @@ Section MarkovToQuasiCartesianToMarkov.
            quasicartesian_monoidal_data,
            markov_to_quasicartesian_data.
     cbn.
-  Admitted.    
+    Check total2_paths_f.
+    Check pr1_transportf.
+  Admitted.     *)
 
   Proposition markov_to_quasicartesian_inv : 
     quasicartesian_to_markov (markov_to_quasicartesian C) = C.
@@ -378,7 +484,7 @@ Section MarkovToQuasiCartesianToMarkov.
     unfold quasicartesian_to_markov, markov_to_quasicartesian.
     apply subtypePath.
     - exact isaprop_markov_category_laws.
-    -
+    - cbn. 
   Admitted. 
 
 End MarkovToQuasiCartesianToMarkov.
