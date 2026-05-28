@@ -95,7 +95,7 @@ Proof.
     refine (f ,, _).
     apply H.
   - intro f.
-    exact (pr1 f). (* TODO: INFRASTRUCTURE DETERMINISTIC ISO *)
+    exact f.
   - abstract
       (intro f ;
       reflexivity).

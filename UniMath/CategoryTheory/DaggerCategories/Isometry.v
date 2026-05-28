@@ -51,7 +51,7 @@ Section IsometriesDef.
     - intro ; apply isasetaprop ; apply isaprop_is_isometry.
   Qed.
 
-  Lemma isometry_eq {x y : C} (f g : isometry x y) :
+  Lemma isometry_ext {x y : C} (f g : isometry x y) :
     pr1 f = pr1 g -> f = g.
   Proof.
     use subtypePath.
@@ -95,7 +95,7 @@ Section CoisometriesDef.
     - intro ; apply isasetaprop ; apply isaprop_is_coisometry.
   Qed.
 
-  Lemma coisometry_eq {x y : C} (f g : coisometry x y) :
+  Lemma coisometry_ext {x y : C} (f g : coisometry x y) :
     pr1 f = pr1 g -> f = g.
   Proof.
     use subtypePath.
@@ -104,6 +104,9 @@ Section CoisometriesDef.
   Qed.
 
 End CoisometriesDef.
+
+Arguments isometry_to_mor {C} {dag} {x y}.
+Arguments coisometry_to_mor {C} {dag} {x y}.
 
 Section IsometryCoisometryProperties.
   Context {C : category} (dag : dagger C).
@@ -225,6 +228,14 @@ Section IsometryCoisometryProperties.
     - abstract (apply unitary_isometry_coisometry; exact (pr2 f)).
   Defined.  
 
+  Definition unitary_to_coisometry {x y : C} (f : unitary dag x y) : coisometry dag x y.
+  Proof.
+    use make_coisometry.
+    - exact f.
+    - abstract (apply unitary_isometry_coisometry; exact (pr2 f)).
+  Defined.  
+
+  (* If an isomorphism is isometric, then it is unitary *)
   Lemma z_iso_isometry_unitary {x y : C} (f : z_iso x y) 
     : is_isometry dag f -> is_unitary dag f.
   Proof.
@@ -244,6 +255,7 @@ Section IsometryCoisometryProperties.
       apply z_iso_after_z_iso_inv.
   Qed.
 
+  (* If an isomorphism is coisometric, then it is unitary *)
   Lemma z_iso_coisometry_unitary {x y : C} (f : z_iso x y) 
     : is_coisometry dag f -> is_unitary dag f.
   Proof.

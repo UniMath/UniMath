@@ -2,7 +2,7 @@
 
 This is the first in the group of files which contain the (current state of) the mathematical
 library for the proof assistant Coq based on the Univalent Foundations.  It contains some new
-notations for constructions defined in Coq.Init library as well as the definition of dependent sum.
+notations for constructions defined in Corelib.Init library as well as the definition of dependent sum.
 
 
 *)
@@ -82,7 +82,7 @@ Fixpoint sub n m :=
   end
 where "n - m" := (sub n m) : nat_scope.
 
-(* note: our mul differs from that in Coq.Init.Nat  *)
+(* note: our mul differs from that in Corelib.Init.Nat  *)
 Definition mul : nat -> nat -> nat.
 Proof.
   intros n m.

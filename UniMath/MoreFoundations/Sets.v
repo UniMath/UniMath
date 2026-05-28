@@ -130,6 +130,15 @@ Proof.
   exact (setquotuniv4prop R (λ x1 x2 x3 x4, make_hProp (P x1 x2 x3 x4) (H x1 x2 x3 x4)) ps).
 Defined.
 
+(** ** Helper function to extract a witness from an equality of equivalence classes *)
+
+Proposition setquotpreq {X : UU} (R : eqrel X) (x x' : X) :
+  (setquotpr R x = setquotpr R x') -> R x x'.
+Proof.
+  use invmap.
+  apply weqpathsinsetquot.
+Defined.
+
 (** ** The trivial equivalence relation on the unit type*)
 Definition unittrivialrel : hrel unit := λ _ _, htrue.
 

@@ -241,7 +241,7 @@ End ProbabilitySpacesDagger.
 
 (** * 3. Defining an Isomorphism of Dagger Categories between Probability Spaces and Couplings *)
 
-(** * 3.1 Defining the Dagger Functor from Probability Spaces to Couplings *)
+(** ** 3.1 Defining the Dagger Functor from Probability Spaces to Couplings *)
 
 Section ProbabilitySpacesToCouplings.
   Context {C : markov_category_with_conditionals}.
@@ -341,7 +341,7 @@ Section ProbabilitySpacesToCouplings.
 End ProbabilitySpacesToCouplings.
 
 
-(** * 3.2 Defining the Dagger Functor from Couplings to Probability Spaces *)
+(** ** 3.2 Defining the Dagger Functor from Couplings to Probability Spaces *)
 
 Section CouplingsToProbabilitySpaces.
   Context {C : markov_category_with_conditionals}.
@@ -354,8 +354,16 @@ Section CouplingsToProbabilitySpaces.
   Definition coupling_cond {p q : couplings C} (γ : p --> q) : (pr1 p) --> (pr1 q)
     := ((coupling_to_state γ) |1).
 
-  Lemma coupling_cond_state_preservation {p q : couplings C} (γ : p --> q) 
-    : (pr2 p) · (coupling_cond γ) = (pr2 q).
+  Proposition coupling_is_bloom_cond {p q : state C} (γ : coupling p q) :
+    coupling_to_state γ = bloom_coupling p (coupling_cond γ).
+  Proof.    
+    rewrite (coupling_is_bloom_coupling (coupling_to_state γ)).
+    rewrite coupling_dom.
+    reflexivity.
+  Qed.
+
+  Proposition coupling_cond_state_preservation {p q : couplings C} (γ : p --> q) 
+    : (state_dist p) · coupling_cond γ = state_dist q.
   Proof.
     destruct p as [x p], q as [y q], γ as [γ [dom cod]].
     unfold coupling_cond.
@@ -391,7 +399,7 @@ Section CouplingsToProbabilitySpaces.
   Proof.
     use make_functor. { exact couplings_to_ps_data. }
     split.
-    - (* Identitiy law *)
+    - (* Identity law *)
       intros [x p].
       apply iscompsetquotpr.
       unfold coupling_cond.
@@ -457,7 +465,7 @@ Section CouplingsToProbabilitySpaces.
 
 End CouplingsToProbabilitySpaces.
 
-(** * 3.3 Proof that the Functors are Inverses *)
+(** ** 3.3 Proof that the Functors are Inverses *)
 
 Section EquivalenceProof.
   Context {C : markov_category_with_conditionals}.
@@ -494,7 +502,7 @@ Section EquivalenceProof.
     - reflexivity.
   Qed. 
 
-  (** * 3.4 Deriving the equality [couplings = prob_space] *)
+  (** ** 3.4 Deriving the equality [couplings = prob_space] *)
 
   Proposition couplings_to_ps_fully_faithful : fully_faithful (@couplings_to_ps C).
   Proof.
