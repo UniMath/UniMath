@@ -796,3 +796,9 @@ MarkovCategories/State.v
 MarkovCategories/ProbabilitySpaces.v
 MarkovCategories/Couplings.v
 MarkovCategories/RelativeProduct.v
+
+CategoriesWithFamilies/CatsWithFams.v
+ComprehensionCats/CompCats.v
+ComprehensionCats/CompCatTypeFormers.v
+ComprehensionCats/CompCatUniverse.v
+ComprehensionCats/CwfFromCompCatWithUniv.v
