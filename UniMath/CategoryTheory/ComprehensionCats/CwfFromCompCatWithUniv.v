@@ -73,8 +73,6 @@ Section Construction.
   Definition ob_mor_from_comp_cat_with_u :=
     make_precategory_ob_mor context_from_comp_cat_with_u substitution_from_comp_cat_with_u.
 
-  Coercion ob_from_ob_mor_from_comp_cat_with_u {C : ob_mor_from_comp_cat_with_u} := pr1 C.
-
   Definition precategory_data_context_from_comp_cat_with_u : precategory_data.
   Proof.
     use make_precategory_data.

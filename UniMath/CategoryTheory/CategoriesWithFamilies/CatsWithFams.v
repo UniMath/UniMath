@@ -239,22 +239,11 @@ Proof.
       * intro A.
         exact (tm_subst Γ Δ f A).
   - (* functor laws *)
-    split.
-    + (* identity *)
-      intro Γ.
-      use fam_mor_eq ; cbn.
-      * intro A.
-        apply ty_subst_id.
-      * intros A t.
-        apply tm_subst_id.
-    + (* composition *)
-      cbn.
-      intro; intros.
-      use fam_mor_eq ; cbn.
-      * intros.
-        apply ty_subst_comp.
-      * intros.
-        apply tm_subst_comp.
+    abstract (
+        split; try intro ; try intros ;
+        use fam_mor_eq ; cbn ; intros ;
+        [ apply ty_subst_id | apply tm_subst_id
+        | apply ty_subst_comp | apply tm_subst_comp]).
 Defined.
 
 Definition cwf_exted_con {C : category} {T : cwf_ty_term_subst C} (Γ : C) (A : cwf_ty_from_ty_term_subst T Γ) : UU
@@ -1004,7 +993,7 @@ End Pi_For_CwF.
 
 Section cwf_pi_accessors.
 
-  Coercion cwf_pi_Pi (C : cwf) (π : cwf_pi_structure C)
+  Definition cwf_pi_Pi (C : cwf) (π : cwf_pi_structure C)
     : ∏ (Γ : pr1 C) (A : cwf_ty Γ) (B : cwf_ty (Γ & A)),
       cwf_ty Γ
     := pr1 π.
@@ -1191,7 +1180,7 @@ End Sigma_For_CwF.
 
 Section cwf_sigma_accessors.
 
-  Coercion cwf_sigma_Sig (C : cwf) (σ : cwf_sigma_structure C)
+  Definition cwf_sigma_Sig (C : cwf) (σ : cwf_sigma_structure C)
     : ∏ (Γ : pr1 C) (A : cwf_ty Γ) (B : cwf_ty (Γ & A)),
       cwf_ty Γ
     := pr1 σ.
