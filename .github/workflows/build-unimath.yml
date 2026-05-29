@@ -288,7 +288,6 @@ jobs:
           path: _build/default/UniMath/UniMath.html
 
   alectryon:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false) }}
     name: "Alectryon"
     if: github.ref == 'refs/heads/master'
     needs: build-Unimath-ubuntu
