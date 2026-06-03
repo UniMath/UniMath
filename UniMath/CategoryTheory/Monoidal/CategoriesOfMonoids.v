@@ -200,7 +200,7 @@ Section Category_of_Monoids.
   Definition category_of_monoids_in_monoidal_cat : category
     := total_category monoid_disp_cat.
 
-  Let MON : category := category_of_monoids_in_monoidal_cat.
+  Definition MON : category := category_of_monoids_in_monoidal_cat.
 
   Definition monoid_carrier
              (X : MON)
