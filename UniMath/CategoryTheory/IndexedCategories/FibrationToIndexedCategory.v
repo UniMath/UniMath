@@ -31,6 +31,189 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
 
+Local Open Scope cat.
+
+Proposition disp_cat_cleaving_id_left
+            {C : category}
+            {D : disp_cat C}
+            (HD : cleaving D)
+            {x y : C}
+            (f : y --> x)
+            (xx : D x)
+  : identity _
+    =
+    # (fiber_functor_from_cleaving D HD f) (fiber_functor_from_cleaving_identity HD x xx)
+    · fiber_functor_from_cleaving_comp HD (identity x) f xx
+    · idtoiso (maponpaths (λ g, fiber_functor_from_cleaving D HD g xx) (id_right _)).
+Proof.
+  cbn.
+  use (cartesian_factorisation_unique (HD _ _ _ _)).
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !transport_f_f.
+  rewrite id_left_disp.
+  refine (!_).
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply idtoiso_fiber_category.
+    }
+    apply idtoiso_disp_cartesian_lift.
+  }
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  unfold transportb.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite id_right_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition disp_cat_cleaving_id_right
+            {C : category}
+            {D : disp_cat C}
+            (HD : cleaving D)
+            {x y : C}
+            (f : y --> x)
+            (xx : D x)
+  : identity _
+    =
+    fiber_functor_from_cleaving_identity HD y (fiber_functor_from_cleaving D HD f xx)
+    · fiber_functor_from_cleaving_comp HD f (identity y) xx
+    · idtoiso (maponpaths (λ g, fiber_functor_from_cleaving D HD g xx) (id_left _)).
+Proof.
+  cbn.
+  use (cartesian_factorisation_unique (HD _ _ _ _)).
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !transport_f_f.
+  rewrite id_left_disp.
+  refine (!_).
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply idtoiso_fiber_category.
+    }
+    apply idtoiso_disp_cartesian_lift.
+  }
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  unfold transportb.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite id_left_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition disp_cat_cleaving_assoc
+            {C : category}
+            {D : disp_cat C}
+            (HD : cleaving D)
+            {w x y z : C}
+            (f : x --> w)
+            (g : y --> x)
+            (h : z --> y)
+            (ww : D w)
+  : fiber_functor_from_cleaving_comp HD g h (fiber_functor_from_cleaving D HD f ww)
+    · fiber_functor_from_cleaving_comp HD f (h · g) ww
+    · idtoiso (maponpaths (λ g, fiber_functor_from_cleaving D HD g ww) (assoc' _ _ _))
+    =
+    # (fiber_functor_from_cleaving D HD h) (fiber_functor_from_cleaving_comp HD f g ww)
+    · fiber_functor_from_cleaving_comp HD (g · f) h ww.
+Proof.
+  cbn.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  use (cartesian_factorisation_unique (HD _ _ _ _)).
+  rewrite assoc_disp_var.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  etrans.
+  {
+    do 3 apply maponpaths.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply idtoiso_fiber_category.
+    }
+    apply idtoiso_disp_cartesian_lift.
+  }
+  rewrite !mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  unfold transportb.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  refine (!_).
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite !transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
 Section FibrationToIndexedCat.
   Context {C : category}
           (D : disp_univalent_category C)
@@ -57,142 +240,11 @@ Section FibrationToIndexedCat.
   Proof.
     repeat split.
     - intros x y f xx.
-      (*
-      cbn -[fiber_functor_from_cleaving fiber_category fiber_functor_from_cleaving_identity fiber_functor_from_cleaving_comp].
-       *)
-      cbn.
-      use (cartesian_factorisation_unique (HD _ _ _ _)).
-      rewrite !mor_disp_transportf_postwhisker.
-      rewrite !transport_f_f.
-      rewrite id_left_disp.
-      refine (!_).
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        etrans.
-        {
-          apply maponpaths_2.
-          apply idtoiso_fiber_category.
-        }
-        apply idtoiso_disp_cartesian_lift.
-      }
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      unfold transportb.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite assoc_disp.
-      unfold transportb.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      rewrite mor_disp_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite id_right_disp.
-      unfold transportb.
-      rewrite transport_f_f.
-      apply maponpaths_2.
-      apply homset_property.
-    - intros x y f xx ; cbn.
-      use (cartesian_factorisation_unique (HD _ _ _ _)).
-      rewrite !mor_disp_transportf_postwhisker.
-      rewrite !transport_f_f.
-      rewrite id_left_disp.
-      refine (!_).
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        etrans.
-        {
-          apply maponpaths_2.
-          apply idtoiso_fiber_category.
-        }
-        apply idtoiso_disp_cartesian_lift.
-      }
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      unfold transportb.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite assoc_disp.
-      unfold transportb.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      rewrite mor_disp_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite id_left_disp.
-      unfold transportb.
-      rewrite transport_f_f.
-      apply maponpaths_2.
-      apply homset_property.
-    - intros w x y z f g h ww ; cbn.
-      rewrite mor_disp_transportf_postwhisker.
-      rewrite transport_f_f.
-      use (cartesian_factorisation_unique (HD _ _ _ _)).
-      rewrite assoc_disp_var.
-      rewrite !mor_disp_transportf_postwhisker.
-      rewrite transport_f_f.
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      rewrite assoc_disp_var.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      etrans.
-      {
-        do 3 apply maponpaths.
-        etrans.
-        {
-          apply maponpaths_2.
-          apply idtoiso_fiber_category.
-        }
-        apply idtoiso_disp_cartesian_lift.
-      }
-      rewrite !mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      unfold transportb.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite assoc_disp.
-      unfold transportb.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      rewrite mor_disp_transportf_postwhisker.
-      rewrite transport_f_f.
-      refine (!_).
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite assoc_disp.
-      unfold transportb.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      rewrite mor_disp_transportf_postwhisker.
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite !transport_f_f.
-      apply maponpaths_2.
-      apply homset_property.
+      exact (disp_cat_cleaving_id_left HD f xx).
+    - intros x y f xx.
+      exact (disp_cat_cleaving_id_right HD f xx).
+    - intros w x y z f g h ww.
+      exact (disp_cat_cleaving_assoc HD f g h ww).
   Qed.
 
   (**
