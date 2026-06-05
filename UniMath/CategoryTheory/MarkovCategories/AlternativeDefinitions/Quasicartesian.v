@@ -19,7 +19,7 @@ deterministic morphisms, so we need to axiomatize determinism separately.
 But again, discharging these determinism assumptions is easily automated. 
 
 We show that the two axiomatizations of Markov categories are equivalent
-in QuasiCartesianVsMarkov.v.
+in EquivalenceQuasicartesianMarkov.v.
 
 Table of Contents
 1. Definition of quasicartesian categories

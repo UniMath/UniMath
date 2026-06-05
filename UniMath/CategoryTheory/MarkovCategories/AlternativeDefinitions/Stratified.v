@@ -1,3 +1,20 @@
+(*********************************************
+
+This is an equivalent reorganization of the data of Markov categories.
+The main purpose is to have an easier dependency structure of the data which
+is helpful for the proofs in `EquivalenceQuasicartesianMarkov.v`.
+
+The data is organized similar to the way one would define a GAT of Markov categories:
+- Signature: tensor on objects ⊗, unit I
+- Structure: 
+  * tensor on morphisms
+  * all coherence maps
+  * symmetry
+  * Markov structure 
+- Laws: all equations (this is a proposition)
+
+*********************************************)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -11,12 +28,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 
 Import MonoidalNotations.
-
-(* An alternative definition of Markov category which proceeds in stages, GAT
-    - Signature: tensor on objects, unit
-    - Structure: tensor on morphisms, all coherence morphisms
-    - Laws: all laws
-*)
 
 Section Stratified.
 
@@ -253,7 +264,8 @@ Section MarkovCategoryFromCat.
     - exact (pr2 (pr222 cd)).
   Defined.  
 
-  Definition markov_category_from_cat : markov_category := (markov_category_data ,, markov_category_laws).
+  Definition markov_category_from_cat : markov_category 
+    := (markov_category_data ,, markov_category_laws).
 
 End MarkovCategoryFromCat.
 
@@ -302,22 +314,8 @@ Section CatFromMarkovCategory.
   Defined.
   
   Definition laws_cat : markov_laws_cat := (struct_cat ,, laws).
-  
-End CatFromMarkovCategory.
 
-Definition total2_asstor_path 
-  {A : UU}
-  {B : A -> UU}
-  {C : (∑ a : A, B a) -> UU}
-  {x y :  (∑ z : (∑ a : A, B a), C z)} :
-  total2asstor _ _ x = total2asstor _ _ y -> x = y.
-Proof.
-  intros d.
-  use invmaponpathsweq.
-  - exact (∑ a : A, ∑ b : B a, C (a ,, b)).
-  - use weqtotal2asstor .
-  - exact d.
-Defined.
+End CatFromMarkovCategory.
 
 Section Roundtrips.
   Definition markov_roundtrip (C : markov_category) 
@@ -326,9 +324,9 @@ Section Roundtrips.
     
     destruct C as [[[Cmon [s slaws]] markov] l].
     use subtypePath. { intros cc. apply isaprop_markov_category_laws. }
-    apply total2_asstor_path. unfold total2asstor. cbn.
+    apply total2asstor_path. unfold total2asstor. cbn.
     apply maponpaths.
-    apply total2_asstor_path. unfold total2asstor. cbn.
+    apply total2asstor_path. unfold total2asstor. cbn.
     apply maponpaths.
 
     apply dirprod_paths.

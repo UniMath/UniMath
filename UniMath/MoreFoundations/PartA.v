@@ -928,6 +928,36 @@ Proof.
   apply idpath.
 Defined.
 
+(* could also have better names but I'm saying consistent with [total2asstor] from PartA *)
+
+Definition total2asstor_path
+  {A : UU}
+  {B : A -> UU}
+  {C : (∑ a : A, B a) -> UU}
+  {x y :  (∑ z : (∑ a : A, B a), C z)} :
+  total2asstor _ _ x = total2asstor _ _ y -> x = y.
+Proof.
+  intros d.
+  use invmaponpathsweq.
+  - exact (∑ a : A, ∑ b : B a, C (a ,, b)).
+  - use weqtotal2asstor.
+  - exact d.
+Defined.
+
+Definition total2asstol_path
+  {A : UU}
+  {B : A -> UU}
+  {C : (∑ a : A, B a) -> UU}
+  {x y :  ∑ a : A, ∑ b : B a, C (a ,, b)} :
+  total2asstol _ _ x = total2asstol _ _ y -> x = y.
+Proof.
+  intros d.
+  use invmaponpathsweq.
+  - exact (∑ z : (∑ a : A, B a), C z).
+  - use weqtotal2asstol.
+  - exact d.
+Defined.
+
 Section InvRot.
 
   (** moving pathsinv0 to the other side in equations *)

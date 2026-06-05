@@ -13,8 +13,10 @@ comparatively very simple. There is a lot of coherence to be checked,
 but these proofs can largely be automated by the [qcart_coherence] tactic. 
 
 Table of Contents
-1. Markov To Quasicartesian
-2. Quasicartesian To Markov
+1. Construction: Markov To Quasicartesian
+2. Construction: Quasicartesian To Markov
+3. Round trips (proof of isomorphism)
+4. Construction of equivalence [markov_category = quasicartesian_category]
 **********************************************)
 
 Require Import UniMath.Foundations.All.
@@ -29,16 +31,17 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
 Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 Require Import UniMath.CategoryTheory.MarkovCategories.Determinism.
-Require Import UniMath.CategoryTheory.MarkovCategories.QuasiCartesian.
 
-Require UniMath.CategoryTheory.MarkovCategories.Stratified.
+Require UniMath.CategoryTheory.MarkovCategories.AlternativeDefinitions.Stratified.
+Require Import UniMath.CategoryTheory.MarkovCategories.AlternativeDefinitions.QuasiCartesian.
 
 Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
 
-(** * 1. Markov To Quasicartesian *)
+(** * 1. Construction: Markov To Quasicartesian *)
+
 Section MarkovToQuasiCartesian.
   Context (C : markov_category).
 
@@ -93,14 +96,14 @@ Section MarkovToQuasiCartesian.
 End MarkovToQuasiCartesian.
 
 
-(** * 2. Quasicartesian To Markov *)
+(** * 2. Construction: Quasicartesian To Markov *)
 
 Section QuasiCartesianToMarkov.
-  Context (C : quasicartesian_category).
+  Context (Q : quasicartesian_category).
 
   Local Open Scope quasicartesian.
 
-  Definition quasicartesian_tensor_data : tensor_data C.
+  Definition quasicartesian_tensor_data : tensor_data Q.
   Proof. 
     use make_bifunctor_data.
     - exact tensor.
@@ -108,7 +111,7 @@ Section QuasiCartesianToMarkov.
     - intros b a1 a2 f. exact ⟨proj1 · f, proj2⟩.
   Defined.
 
-  Definition quasicartesian_monoidal_data : monoidal_data C.
+  Definition quasicartesian_monoidal_data : monoidal_data Q.
   Proof.
     use make_monoidal_data.
     - exact quasicartesian_tensor_data.
@@ -217,21 +220,21 @@ Section QuasiCartesianToMarkov.
       apply pentagon.
   Defined.
 
-  Definition quasicartesian_monoidal : monoidal C.
+  Definition quasicartesian_monoidal : monoidal Q.
   Proof.
     exact (quasicartesian_monoidal_data ,, quasicartesian_monoidal_laws).
   Defined.
 
   Definition quasicartesian_monoidal_cat : monoidal_cat.
   Proof.
-    refine ((C :> category) ,, _).
+    refine ((Q :> category) ,, _).
     apply quasicartesian_monoidal.
   Defined.
 
   (* Symmetry *)
 
   Definition quasicartesian_swap_laws : sym_mon_cat_laws_tensored
-       quasicartesian_monoidal_cat (λ x y : C, swap).
+       quasicartesian_monoidal_cat (λ x y : Q, swap).
   Proof.
     repeat split.
     - (* involution *)
@@ -249,7 +252,7 @@ Section QuasiCartesianToMarkov.
   Definition quasicartesian_symmetric : symmetric quasicartesian_monoidal.
   Proof.
     use (make_symmetric quasicartesian_monoidal_cat _ _).
-    - exact (@swap C).
+    - exact (@swap Q).
     - exact quasicartesian_swap_laws.
   Defined.
   
@@ -286,6 +289,8 @@ Section QuasiCartesianToMarkov.
 
 End QuasiCartesianToMarkov.
 
+(** * 3. Round trips (proof of isomorphism) *)
+
 Section Roundtrips.
 
   Local Open Scope quasicartesian.
@@ -299,9 +304,9 @@ Section Roundtrips.
         quasicartesian_to_markov,
         quasicartesian_data_to_cat; cbn.
 
-    apply Stratified.total2_asstor_path. unfold total2asstor. cbn.
+    apply total2asstor_path. unfold total2asstor. cbn.
     do 2 apply maponpaths.
-    apply Stratified.total2_asstor_path. unfold total2asstor. cbn.
+    apply total2asstor_path. unfold total2asstor. cbn.
     do 2 apply maponpaths.
 
     use total2_paths_f. { apply idpath. }
@@ -342,7 +347,7 @@ Section Roundtrips.
   Proof.
     refine (invmaponpathsweq Stratified.markov_laws_weq _ _ _).
     
-    apply Stratified.total2_asstor_path. unfold total2asstor. cbn.
+    apply total2asstor_path. unfold total2asstor. cbn.
     
     (* signatures are equal *)
     apply maponpaths.
@@ -368,6 +373,8 @@ Section Roundtrips.
   Defined.       
 
 End Roundtrips.
+
+(** * 4. Construction of equivalence [markov_category = quasicartesian_category] *)
 
 Theorem markov_quasicartesian_weq :
   markov_category ≃ quasicartesian_category.
