@@ -302,46 +302,22 @@ Section CatFromMarkovCategory.
   Defined.
   
   Definition laws_cat : markov_laws_cat := (struct_cat ,, laws).
+  
 End CatFromMarkovCategory.
 
-Ltac hammer H :=
-  lazymatch type of H with
-  | ?T =>
-      let T' := eval hnf in T in
-      lazymatch T' with
-      | total2 _ => 
-          let H1 := fresh H "1" in
-          let H2 := fresh H "2" in
-          destruct H as [H1 H2]
-      end
-  end.
-
-(* Reassociating *)
-
-Search "total2" "assoc".
-
-Section Reassoc.
-  Context (A : UU)
-          (B : A -> UU)
-          (C : (∑ a : A, B a) -> UU).
-
-  (* total2asstor  *)
-  Definition reassoc : (∑ z : (∑ a : A, B a), C z) -> ∑ a : A, ∑ b : B a, C (a ,, b).
-  Proof.
-    apply total2asstor.
-  Defined.
-
-  Definition reassoc_eq {x y :  (∑ z : (∑ a : A, B a), C z)} :
-    total2asstor _ _ x = total2asstor _ _ y -> x = y.
-  Proof.
-    intros d.
-    use invmaponpathsweq.
-    - exact (∑ a : A, ∑ b : B a, C (a ,, b)).
-    - use weqtotal2asstor .
-    - exact d.
-  Defined.   
-     
-End Reassoc.
+Definition total2_asstor_path 
+  {A : UU}
+  {B : A -> UU}
+  {C : (∑ a : A, B a) -> UU}
+  {x y :  (∑ z : (∑ a : A, B a), C z)} :
+  total2asstor _ _ x = total2asstor _ _ y -> x = y.
+Proof.
+  intros d.
+  use invmaponpathsweq.
+  - exact (∑ a : A, ∑ b : B a, C (a ,, b)).
+  - use weqtotal2asstor .
+  - exact d.
+Defined.
 
 Section Roundtrips.
   Definition markov_roundtrip (C : markov_category) 
@@ -350,9 +326,9 @@ Section Roundtrips.
     
     destruct C as [[[Cmon [s slaws]] markov] l].
     use subtypePath. { intros cc. apply isaprop_markov_category_laws. }
-    apply reassoc_eq. unfold total2asstor. cbn.
+    apply total2_asstor_path. unfold total2asstor. cbn.
     apply maponpaths.
-    apply reassoc_eq. unfold total2asstor. cbn.
+    apply total2_asstor_path. unfold total2asstor. cbn.
     apply maponpaths.
 
     apply dirprod_paths.

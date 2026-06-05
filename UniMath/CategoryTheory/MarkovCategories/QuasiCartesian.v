@@ -343,6 +343,16 @@ Section MoreLaws.
     qcart_coherence.
   Qed.
 
+  Lemma pairing_lemma {x y z : C} (f : x --> y) (g : x --> z) : 
+    ⟨ identity x, identity x ⟩ · (⟨ proj1 · f, proj2 ⟩ · ⟨ proj1, proj2 · g ⟩) 
+    = ⟨ f, g ⟩.
+  Proof.
+    rewrite assoc.
+    rewrite pairing_nat_l, pairing_nat_r.
+    rewrite !id_left.
+    reflexivity.
+  Qed.
+
   Proposition pairing_assoc' {x y z w : C} (f : x --> y) (g : x --> z) (h : x --> w) :
         ⟨ f , ⟨ g, h ⟩ ⟩ · ⟨ ⟨ proj1, proj2 · proj1 ⟩, proj2 · proj2 ⟩ 
       = ⟨ ⟨ f, g ⟩, h ⟩.
