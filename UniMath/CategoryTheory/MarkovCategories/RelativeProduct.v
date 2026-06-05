@@ -580,14 +580,23 @@ Section Dilators.
     rewrite <- couplings_equals_ps_dagger.
     apply couplings_have_dilators.
   Defined.
-
-  (* TODO: be more explicit here. 
-    e.g. manually construct the bloom dilation and 
-    show that it fixed by the equivalence *)
   
-  Definition hProj {X : UU} (i : isaset X) (x : make_hSet X i) : X.
+  Local Definition hProj {X : UU} (i : isaset X) (x : make_hSet X i) : X.
   Proof.
     exact x.
+  Defined.
+
+  Definition bloom_dist {p q : PS} (f : p --> q) : I_{C} --> state_ob p ⊗ state_ob q.
+  Proof.
+    use hProj. { apply homset_property. }
+    revert f.
+    use setquotuniv.
+    - intros [f e]. exact (bloom_coupling (state_dist p) f).
+    - abstract (
+      intros [f e] [g h] ase;
+      unfold bloom_coupling;
+      apply equal_almost_surely_r;
+      exact ase).
   Defined.
 
   Definition bloom_space {p q : PS} (f : p --> q) : PS.
@@ -607,9 +616,42 @@ Section Dilators.
 
   Definition bloom_space_proj1 {p q : PS} (f : p --> q) : (bloom_space f) --> p.
   Proof.
-    use hProj. { apply homset_property. } 
+    apply setquotpr.
+    refine (proj1 ,, _).
+    simpl.
     revert f.
-    (* TODO *)
-  Abort.
+    apply setquotunivprop'. { intros. apply homset_property. }
+    intros f. unfold bloom_dist.
+
+    etrans. {
+      apply maponpaths_2.
+      apply maponpaths_1.
+      apply setquotunivcomm.
+    }
+
+    unfold hProj.
+    apply bloom_coupling_dom.
+  Qed.
+
+  Definition bloom_space_proj2 {p q : PS} (f : p --> q) : (bloom_space f) --> q.
+  Proof.
+    apply setquotpr.
+    refine (proj2 ,, _).
+    simpl.
+    revert f.
+    apply setquotunivprop'. { intros. apply homset_property. }
+    intros f. unfold bloom_dist.
+
+    etrans. {
+      apply maponpaths_2.
+      apply maponpaths_1.
+      apply setquotunivcomm.
+    }
+
+    unfold hProj.
+    rewrite bloom_coupling_cod.
+    rewrite <- (pr2 f).
+    reflexivity.
+  Qed.
 
 End Dilators.
