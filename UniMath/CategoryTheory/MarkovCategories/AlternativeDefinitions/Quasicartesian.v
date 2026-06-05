@@ -366,7 +366,6 @@ Section MoreLaws.
 
   (* Defining coherence maps *)
 
-  (* TODO find a good place to put these -- own submodule? *)
   Definition lassociator {x y z : C} : (x ⊗ y) ⊗ z --> x ⊗ (y ⊗ z)
     :=  ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩. 
 

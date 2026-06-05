@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 
 Import MonoidalNotations.
 
-Section Stratified.
+Section Signature.
 
   Definition mon_sig (C : category) := (C -> C -> C) × C.
   Definition mon_sig_cat := ∑ C : category, mon_sig C.
@@ -39,7 +39,12 @@ Section Stratified.
 
   Definition I {C : mon_sig_cat} : C := pr22 C.
   Definition tensor {C : mon_sig_cat} (x y : C) : C := pr12 C x y.
-  Local Notation "x ⊗ y" := (tensor x y).
+
+End Signature.
+
+Local Notation "x ⊗ y" := (tensor x y).
+
+Section Structure.
 
   Definition markov_struct (C : mon_sig_cat) : UU.
   Proof.
@@ -101,7 +106,7 @@ Section Stratified.
     Definition copy (x : C) : C ⟦ x, x ⊗ x ⟧ := pr22 (pr222 (pr222 (pr222 C))) x.
   End MarkovStructAccessors.
 
-End Stratified.
+End Structure.
 
 Local Notation "x ⊗ y" := (tensor x y).
 Local Notation "f #⊗ g" := (tensor_mor f g).
@@ -169,7 +174,7 @@ Section Laws.
         copy x · swap _ _
       = copy x.
 
-  Local Definition inner_swap (x y z w : C)
+  Definition inner_swap (x y z w : C)
     : C ⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
     refine (associator _ _ _ · _).
@@ -210,6 +215,7 @@ Section Laws.
     ; repeat (apply impred_isaprop; intros)
     ; try (apply homset_property || apply Isos.isaprop_is_inverse_in_precat).
   Qed.
+  
 End Laws.
 
 Definition markov_laws_cat := ∑ C : markov_struct_cat, markov_laws C.

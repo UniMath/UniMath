@@ -33,7 +33,7 @@ Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 Require Import UniMath.CategoryTheory.MarkovCategories.Determinism.
 
 Require UniMath.CategoryTheory.MarkovCategories.AlternativeDefinitions.Stratified.
-Require Import UniMath.CategoryTheory.MarkovCategories.AlternativeDefinitions.QuasiCartesian.
+Require Import UniMath.CategoryTheory.MarkovCategories.AlternativeDefinitions.Quasicartesian.
 
 Import MonoidalNotations.
 
@@ -349,7 +349,7 @@ Section Roundtrips.
     
     apply total2asstor_path. unfold total2asstor. cbn.
     
-    (* signatures are equal *)
+    (* signatures are equal on the nose *)
     apply maponpaths.
 
     (* laws are mere propositions *)
