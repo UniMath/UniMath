@@ -492,6 +492,8 @@ Monoidal/Functors.v
 Monoidal/FunctorCategories.v
 Monoidal/Adjunctions.v
 Monoidal/CategoriesOfMonoids.v
+Monoidal/Modules.v
+Monoidal/TotalCategoriesOfModules.v
 
 Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
 Monoidal/Displayed/Monoidal.v
@@ -800,3 +802,9 @@ MarkovCategories/RelativeProduct.v
 MarkovCategories/AlternativeDefinitions/Stratified.v
 MarkovCategories/AlternativeDefinitions/Quasicartesian.v
 MarkovCategories/AlternativeDefinitions/EquivalenceQuasicartesianMarkov.v
+
+CategoriesWithFamilies/CatsWithFams.v
+ComprehensionCats/CompCats.v
+ComprehensionCats/CompCatTypeFormers.v
+ComprehensionCats/CompCatUniverse.v
+ComprehensionCats/CwfFromCompCatWithUniv.v

@@ -1434,8 +1434,6 @@ Proposition transportf_enriched_r
     =
     f · postcomp_arr E x (idtoiso p).
 Proof.
-
-Proof.
   induction p ; cbn.
   rewrite postcomp_arr_id.
   rewrite id_right.

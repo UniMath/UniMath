@@ -55,7 +55,6 @@ Coercion eqrelofcong : congruence >-> Funclass.
 Definition quotalgebra {σ : signature} (A : algebra σ) (R : congruence A)
   : algebra σ.
 Proof.
-Proof.
   use make_algebra.
   - intro s.
     exact (setquot (eqrelofcong R s)).

@@ -502,7 +502,7 @@ Section IndAndCoind.
         (** now begins the naturality reasoning *)
         etrans.
         match goal with |[ |- _ ?arg = _] => set (thearg := arg) end.
-        use (maponpaths (fun x : SET
+        unshelve use (maponpaths (fun x : SET
                                  ⟦ pr1 (pr1 STLC_gen (sorted_option_functorSet s (sorted_option_functorSet (s ⇒ s) ξ))) s,
                                    pr1 (pr1 STLC_gen (sorted_option_functorSet s (sorted_option_functorSet (s ⇒ s) ξ'))) s ⟧
                          => x thearg)).
@@ -562,7 +562,7 @@ Section IndAndCoind.
         unfold functor_compose.
         etrans.
         2: { match goal with |[ |- _= _ ?arg ] => set (thearg := arg) end.
-             use (maponpaths (fun x : SET
+             unshelve use (maponpaths (fun x : SET
                                       ⟦ pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ) (s ⇒ s),
                                         pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ') (s ⇒ s) ⟧
                               =>  x thearg)).
@@ -625,7 +625,7 @@ Section IndAndCoind.
           unfold functor_compose.
           etrans.
           match goal with |[ |- _ ?arg = _] => set (thearg := arg) end.
-          use (maponpaths (fun x : SET
+          unshelve use (maponpaths (fun x : SET
                                    ⟦ pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ) (s ⇒ s),
                                      pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ') (s ⇒ s) ⟧
                            =>  x thearg)).
@@ -643,7 +643,7 @@ Section IndAndCoind.
             { apply postcomp_with_projSortToSet_on_mor. }
             etrans.
             match goal with |[ |- _ ?arg = _] => set (thearg := arg) end.
-            use (maponpaths (fun x : SET
+            unshelve use (maponpaths (fun x : SET
        ⟦ pr1 (pr1 (functor_compose (sorted_option_functorSet s) STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ)) s,
         pr1 (pr1 (functor_compose (sorted_option_functorSet s) STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ')) s ⟧
                              => x thearg)).
@@ -669,7 +669,7 @@ Section IndAndCoind.
             unfold functor_compose.
             etrans.
             match goal with |[ |- _ ?arg = _] => set (thearg := arg) end.
-            use (maponpaths (fun x : SET
+            unshelve use (maponpaths (fun x : SET
        ⟦ pr1 (pr1 (sorted_option_functor sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET (s ⇒ s) ∙ STLC_gen) ξ) (s ⇒ s),
        pr1 (pr1 (sorted_option_functor sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET (s ⇒ s) ∙ STLC_gen) ξ') (s ⇒ s) ⟧
                              => x thearg)).
@@ -687,7 +687,7 @@ Section IndAndCoind.
                unfold functor_compose.
                etrans.
                match goal with |[ |- _ ?arg = _] => set (thearg := arg) end.
-               use (maponpaths (fun x : SET
+               unshelve use (maponpaths (fun x : SET
        ⟦ pr1 (pr1 (sorted_option_functorSet s ∙ STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ)) s,
         pr1 (pr1 (sorted_option_functorSet s ∙ STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ')) s ⟧
                                 => x thearg)).

@@ -331,7 +331,7 @@ Proof.
   set (homset_iso := isColim_is_z_iso _ (ColimsHSET _ (homSet_diagram (pr1 (morcls_lp_map S)) d)) _ _ homset_ccbase_isCC).
   set (carrcomm := colimArrowCommutes (homset_ccbase_CC) _ (colimCocone (ColimsHSET _ (homSet_diagram (pr1 (morcls_lp_map S)) d))) v).
   use (pathscomp1 (funeq carrcomm (pr2 S))); [|reflexivity].
-  etrans. use (funeq _ (pr2 S)).
+  etrans. unshelve use (funeq _ (pr2 S)).
           2: {
             use (colimArrowCommutes (homset_ccbase_CC)).
           }
