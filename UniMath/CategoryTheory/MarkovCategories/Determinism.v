@@ -11,13 +11,15 @@ versus running it once and copying (sharing) the result.
 
 We give proofs of determinism of all relevant structure morphisms of the Markov category C,
 and prove various lemmas about composition of deterministic maps. These lemmas unlock some mild automation:
-Using a hint database [autodet], we can solve some goals of the form [is_deterministic] automatically using.
+Using a hint database [autodet], we can solve some goals of the form [is_deterministic] automatically.
 
-By converting all structural morphisms into explicit pairing form [⟨...⟩], we can use a calculus in the style of 
-cartesian categories to reason about equalities of structural morphisms in a simpler and semi-automatic form.
+Further automation is unlocked as follows: We say that a morphism is in pairing-projection form if it is 
+written using pairing ⟨ , ⟩, proj1, proj2, composition, identity and delete.
 
-We lastly give some tactics [pairing_proj_expand], [pairing_simpl] and [markov_coherence] which solve some coherence
-equations automatically. TODO The automation could be vastly improved (and even made complete for some class of morphisms).
+We show a series of [pairing_proj] lemmas which show how to express all structure maps and constructs 
+such as tensor [f #⊗ g] in pairing-projection form. On terms in pairing-projection form, we can use a
+rewrite system to simplify them automatically. For deterministic morphisms, we apply an η-law to break them 
+down into components. This automation strategy [markov_coherence] is complete for equalities between structure maps.
 
 Table of Contents
 1. Definition of Determinism

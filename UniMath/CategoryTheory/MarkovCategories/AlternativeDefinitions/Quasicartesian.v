@@ -7,12 +7,13 @@ deciding coherence is easily automated using η-laws and rewriting.
 
 We adapt this style of presentation to give an alternative axiomatization 
 for Markov categories, which we dub "quasicartesian". 
-This has a series of advantages over the traditional axiomatization
+This has a series of advantages over the original axiomatization
 1. The same automation strategy for coherence remains functional, which is a 
    big improvement over reasoning with the original Markov category axioms. 
-2. The quasicartesian axioms are simpler than the full Markov category axiomatization,
-   which helps in constructing instances. Unlike for cartesian categories where
-   picking a monoidal structure requires a choice, no choice is needed here. 
+   We give a tactic [qcart_coherence] which works much the same way as [markov_coherence].
+2. The quasicartesian axioms are simpler than the full Markov category axioms,
+   which helps in constructing explicit instances. Unlike for cartesian categories where
+   picking a monoidal structure requires a choice of product, no choice is needed here. 
 
 The only difference to the cartesian axioms is that η-laws only hold for
 deterministic morphisms, so we need to axiomatize determinism separately. 
@@ -26,7 +27,7 @@ Table of Contents
 2. Accessors
 3. Derived laws
 4. Automation
-5. Further laws
+5. Further laws and definitions
 
 **********************************************)
 
@@ -326,7 +327,7 @@ Ltac qcart_coherence :=
   qcart_simpl; qcart_split; qcart_solve.
 
 
-(** * 5. Further laws *)
+(** * 5. Further laws and definitions *)
   
 Section MoreLaws.
   Context {C : quasicartesian_category}.
@@ -364,7 +365,7 @@ Section MoreLaws.
     qcart_coherence.
   Qed.
 
-  (* Defining coherence maps *)
+  (* Explicit forms for the monoidal coherence maps *)
 
   Definition lassociator {x y z : C} : (x ⊗ y) ⊗ z --> x ⊗ (y ⊗ z)
     :=  ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩. 
@@ -385,6 +386,9 @@ Section MoreLaws.
   Definition inner_swap {x y z w : C} : (x ⊗ y) ⊗ (z ⊗ w) --> (x ⊗ z) ⊗ (y ⊗ w) 
     := ⟨ proj1 #⊗ proj1, proj2 #⊗ proj2 ⟩.
   
+  (* Define an equivalent expression for [inner_swap] which is linear 
+     in the sense that it is built up only from the monoidal sub-language 
+     (this implies it uses variables precisely once) *)
   Definition inner_swap_linear {x y z w : C} : (x ⊗ y) ⊗ (z ⊗ w) --> (x ⊗ z) ⊗ (y ⊗ w).
   Proof.
     refine(
