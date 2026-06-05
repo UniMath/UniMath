@@ -803,6 +803,7 @@ MarkovCategories/AlternativeDefinitions/Stratified.v
 MarkovCategories/AlternativeDefinitions/Quasicartesian.v
 MarkovCategories/AlternativeDefinitions/EquivalenceQuasicartesianMarkov.v
 
+# Comprehension categories
 CategoriesWithFamilies/CatsWithFams.v
 ComprehensionCats/CompCats.v
 ComprehensionCats/CompCatTypeFormers.v
