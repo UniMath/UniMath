@@ -786,6 +786,7 @@ ModelCategories/NWFSisWFS.v
 
 # Markov categories
 MarkovCategories/MarkovCategory.v
+MarkovCategories/Stratified.v
 MarkovCategories/QuasiCartesian.v
 MarkovCategories/QuasiCartesianVsMarkov.v
 MarkovCategories/Determinism.v

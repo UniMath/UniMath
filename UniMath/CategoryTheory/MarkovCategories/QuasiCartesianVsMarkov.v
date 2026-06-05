@@ -284,7 +284,7 @@ Section QuasiCartesianToMarkov.
 
 End QuasiCartesianToMarkov.
 
-(* TODO ?? *)
+(* TODO ?? replace with [change] *)
 Lemma pair_eta {X : UU} (P : X -> UU) (p : ∑ x, P x) : p = (pr1 p ,, pr2 p).
 Proof.
   reflexivity.
@@ -350,6 +350,190 @@ Section QuasiCartesianToMarkovToQuasiCartesian.
 
 End QuasiCartesianToMarkovToQuasiCartesian.
 
+Section Practice.
+
+Definition vertical
+  {A : UU}
+  {B : A -> UU}
+  {a : A}
+  {b b' : B a}
+  (v : b = b') : (a ,, b) = (a ,, b').
+Proof.
+  apply maponpaths.
+  exact v.
+Defined.
+
+(* TODO tiny aside *)
+Lemma vertical'
+  {A : UU}
+  {B : A -> UU}
+  {a : A}
+  {b b' : B a}
+  (v : b = b') : (a ,, b) = (a ,, b').
+Proof.
+  refine (@total2_paths_f _ _ (a ,, b) (a ,, b') (idpath a) _).
+  etrans. { apply idpath_transportf. }
+  exact v.
+Defined.
+
+Lemma vertical_eq
+  {A : UU}
+  {B : A -> UU}
+  {a : A}
+  {b b' : B a}
+  (v : b = b') : vertical v = vertical' v.
+Proof.
+  induction v.
+  unfold vertical, vertical'.
+  rewrite maponpaths_idpath.
+  rewrite pathscomp0rid.
+  unfold total2_paths_f, idpath_transportf.
+  apply idpath.
+Defined.
+
+(* TODO does this lemma exist? *)
+Lemma total2_paths_vertical
+  {A : UU}
+  {B : A -> UU} 
+  {C : (∑ a : A, B a) -> UU}
+  {a a' : A}
+  {b b' : B a}
+  {c : C (a ,, b)}
+  (v : b = b') : transportf C (vertical v) c = transportf (λ bb, C (a ,, bb)) v c.
+Proof.
+  induction v.
+  rewrite idpath_transportf.
+  unfold vertical.
+  rewrite maponpaths_idpath.
+  rewrite idpath_transportf.
+  apply idpath.
+Defined.
+
+Lemma total2_paths_vertical'
+  {A : UU}
+  {B : A -> UU} 
+  {C : (∑ a : A, B a) -> UU}
+  {a a' : A}
+  {b b' : B a}
+  {c : C (a ,, b)}
+  (v : b = b') : transportf C (maponpaths (tpair _ a) v) c = transportf (λ bb, C (a ,, bb)) v c.
+Proof.
+  induction v.
+  rewrite idpath_transportf.
+  rewrite maponpaths_idpath.
+  rewrite idpath_transportf.
+  apply idpath.
+Defined.
+
+End Practice.
+
+Section Dependency.
+  Context {A : UU} {B : A -> UU} {C0 : A -> UU}.
+
+  Definition S := ∑ a : A, B a.
+  Definition C : S -> UU := λ s, C0 (pr1 s).
+
+  Context (a : A) (b b' : B a).
+
+  Context (v : b = b').
+
+  Let e : (a ,, b) = (a ,, b') := vertical' v.
+
+  Context (c : C (a ,, b)).
+
+  Proposition dep1 : ((a ,, b) ,, c) = ((a ,, b') ,, c).
+  Proof.
+    use total2_paths_f. { exact e. }
+    etrans. {
+      unfold e, vertical'.
+      apply transportf_total2_paths_f. 
+    }
+    rewrite idpath_transportf.
+    apply idpath.
+  Qed.
+
+  Definition order :
+    (∑ s : S, C s) -> ∑ a : A, (B a) × (C0 a).
+  Proof.
+    intros [[aa bb] cc].
+    refine (aa ,, (bb ,, cc)).
+  Defined.
+
+  Definition restore :
+    (∑ a : A, (B a) × (C0 a)) -> (∑ s : S, C s).
+  Proof.
+    intros [aa [bb cc]].
+    refine ((aa ,, bb),, cc).
+  Defined.
+
+  Proposition order_equiv :
+     (∑ s : S, C s) ≃ (∑ a : A, (B a) × (C0 a)).
+  Proof.
+    
+    use make_weq. { exact order. }
+    use isweq_iso.
+    - exact restore.
+    - intros [[aa bb] cc]. unfold restore, order. cbn. reflexivity.
+    - intros [aa [bb cc]]. unfold order, restore. cbn. reflexivity.
+  Defined.     
+
+  Proposition dep2 : ((a ,, b) ,, c) = ((a ,, b') ,, c).
+  Proof.
+    refine (invmaponpathsweq order_equiv _ _ _). cbn; unfold order.
+    rewrite v.
+    apply idpath.
+  Qed.
+
+End Dependency.
+
+
+Definition descend {A : UU} {B : A -> UU} (C : (∑ a : A, B a) -> UU) : UU
+  := A -> UU.
+  
+Definition descend_sigma
+  {A : UU} {B : A -> UU} {D : UU}
+  (C : ∏ d : D, (∑ a : A, B a) -> UU)
+  (c0 : ∏ d : D, descend (λ z, C d z))
+  : descend (λ z, ∑ d : D, C d z).
+Proof.
+  refine (λ a, ∑ d : D, c0 d a).
+Defined.
+
+Definition descend_prod 
+    {A : UU} {B : A -> UU}
+    {C1 C2 : (∑ a : A, B a) -> UU}
+    (d1 : descend C1) (d2 : descend C2)
+  : descend (λ z, (C1 z) × (C2 z)).
+Proof.
+  exact (λ a, (d1 a) × (d2 a)).
+Defined. 
+
+Definition descend_pi
+  {A : UU} {B : A -> UU} {D : UU}
+  (C : ∏ d : D, (∑ a : A, B a) -> UU)
+  (c0 : ∏ d : D, descend (λ z, C d z))
+  : descend (λ z, ∏ d : D, C d z).
+Proof.
+  refine (λ a, ∏ d : D, c0 d a).
+Defined.
+
+  Lemma transportf_subtypePath'
+    {A : UU} 
+    {P : A -> UU}
+    {Q : (∑ a : A, P a) -> UU}
+    {pred : isPredicate P}
+    {a1 a2 : A}
+    {p1 : P a1}
+    {p2 : P a2}
+    {e1 : a1 = a2}
+    {q : Q (a1 ,, p1)}
+    {e2 : transportf P e1 p1 = p2}
+    : UU.
+  Proof.
+    Check @subtypePath.
+    refine(transportf Q (@subtypePath _ _ pred (a1 ,, p1) (a2 ,, p2) e1) q = _).
+  Admitted.
+
 Section MarkovToQuasiCartesianToMarkov.
   Context {C : markov_category}.
 
@@ -401,31 +585,127 @@ Section MarkovToQuasiCartesianToMarkov.
     × (∏ x0 y z : Q, Q ⟦ t (t x0 y) z, t x0 (t y z) ⟧)
     × (∏ x0 y z : Q, Q ⟦ t x0 (t y z), t (t x0 y) z ⟧)).
 
+
   (* Note:
      This proof is a bit nasty because while formally [monoidal_data] depends on
-     [tensor_data], it really only depends on the first fied, i.e. the tensor-on-objects.
+     [tensor_data], it really only depends on the first field, i.e. the tensor-on-objects.
      We need to use [transportf_total2_paths_f] to kick out the spurious dependence, but that
      requires unfolding everything to really show that there is no dependence.
   *)
+  
+
+  Definition fam := (λ x : tensor_data Q,
+    ∑ I : Q,
+    leftunitor_data x I
+    × leftunitorinv_data x I
+    × rightunitor_data x I
+    × rightunitorinv_data x I × associator_data x
+    × associatorinv_data x).
+
+
+  (* Unification Hack:
+     - If [C] is definitionally equal to a ∑-type [∑ a, B a], then
+       [sigma_fiber (idpath C)] is definitionally equal to [B].
+  *)
+  Definition sigma_base {A : UU} {B : A -> UU} {C : UU} (p : C = ∑ a : A, B a) : UU := A.
+  Definition sigma_fiber {A : UU} {B : A -> UU} {C : UU} (p : C = ∑ a : A, B a) : A -> UU := B.
+
+
+  Goal ∏ z : sigma_base (idpath (monoidal_data C)), 
+    sigma_fiber (idpath (monoidal_data C)) z = famoflife (pr1 z).
+  Proof.
+    reflexivity.
+  Qed.
+
+  Definition monoidal_data_descends : 
+    descend (sigma_fiber (idpath (monoidal_data C))).
+  Proof.
+    apply descend_sigma. intros d.
+    repeat apply descend_prod.
+    - apply descend_pi. intros. unfold bifunctor_on_objects.  
+  Admitted.
+
+  Definition mk_descend {A : UU} {B : A -> UU} (C : (∑ a : A, B a) -> UU)
+    (C0 : A -> UU)
+    : descend C := C0.
+
+  (* transportf (λ x : monoidal (pr1 C), braiding_data x) *)
+  Definition braiding_data_descends :
+    descend (λ x : monoidal (pr1 C), braiding_data x).
+  Proof.
+    unfold monoidal.
+    unfold braiding_data.
+    apply descend_pi. intros.
+    apply descend_pi. intros.
+    intros a.
+    refine (C ⟦ bifunctor_on_objects a d d0, bifunctor_on_objects a d0 d ⟧).
+  Defined.
+
+  Definition braiding_data_descends' :
+    descend braiding_data_descends.
+  Proof.
+    unfold braiding_data_descends.
+    repeat (apply descend_prod || (apply descend_pi || apply descend_sigma); intros).
+    intros a.
+    exact (C ⟦ bifunctor_on_objects a d d0, bifunctor_on_objects a d0 d ⟧).
+  Defined.
+
+  Definition braiding_data_descends'' :
+    descend braiding_data_descends'.
+  Proof.
+    unfold braiding_data_descends.
+    repeat (apply descend_prod || (apply descend_pi || apply descend_sigma); intros).
+    intros a.
+    exact (C ⟦ a d d0, a d0 d ⟧).
+  Defined.
+
+  Goal ∏ z : monoidal C, braiding_data z = braiding_data_descends (pr1 z).
+  Proof.
+    reflexivity.
+  Qed.
+
+  Goal ∏ z, braiding_data_descends z = braiding_data_descends' (pr1 z).
+  Proof.
+    reflexivity.
+  Qed.
+
+  Definition monoidal_data_irrelevance {x y1 y2 q c}
+    : transportf (sigma_fiber (idpath (monoidal_data C))) (@total2_paths_f _ _ (x ,, y1) (x ,, y2) (idpath x) q) c = c.
+  Proof.
+    cbn in *. induction q. apply idpath.
+  Defined.
 
   Definition quasicartesian_monoidal_data_eq :
     quasicartesian_monoidal_data Q = C.
   Proof.
+    Print monoidal_data.
     use total2_paths_f. { exact quasicartesian_tensor_data_eq. }
-    (* unfold quasicartesian_tensor_data_eq,
-           tensor_data,
-           bifunctor_data,
-           leftunitor_data,
-           leftunitorinv_data,
-           rightunitor_data,
-           rightunitorinv_data,
-           associator_data,
-           associatorinv_data,
-           bifunctor_on_objects. *)
 
-    etrans. { refine (transportf_total2_paths_f famoflife _ _ _). }
+    Search "total2_paths".
 
-    rewrite idpath_transportf.
+    etrans. {
+      Check transportf_total2_paths_f.
+      fold fam.
+
+(*       
+      unfold tensor_data,
+             bifunctor_data,
+             leftunitor_data,
+             leftunitorinv_data,
+             rightunitor_data,
+             rightunitorinv_data,
+             associator_data,
+             associatorinv_data,
+             bifunctor_on_objects. *)
+(* 
+      evar (C0 : (Q -> Q -> Q) -> Type). *)
+      change fam with (λ z : tensor_data Q, famoflife (pr1 z)).
+        
+      refine (transportf_total2_paths_f _ _ _ _).
+    }
+
+    (* etrans. { refine monoidal_data_irrelevance. }  *)
+
     unfold make_monoidal_data. cbn.
     use total2_paths_f. { apply idpath. }
     rewrite idpath_transportf. cbn.
@@ -453,8 +733,10 @@ Section MarkovToQuasiCartesianToMarkov.
   Definition quasicartesian_monoidal_cat_eq :
     quasicartesian_monoidal_cat Q = C.
   Proof.
-    use total2_paths_f. { apply idpath. }
-    abstract (rewrite idpath_transportf; exact quasicartesian_monoidal_eq).
+    unfold quasicartesian_monoidal_cat.
+    change C with (pr1 C ,, pr2 C).
+    use maponpaths.
+    exact quasicartesian_monoidal_eq.
   Defined.
 
   (* Symmetry *)
@@ -465,10 +747,85 @@ Section MarkovToQuasiCartesianToMarkov.
     use total2_paths_f. { apply quasicartesian_monoidal_cat_eq. }
     unfold quasicartesian_monoidal_cat_eq.
     unfold monoidal_cat.
-    Print symmetric.
+    etrans. {
+      refine (total2_paths_vertical' quasicartesian_monoidal_eq). exact C.
+    }
+    unfold quasicartesian_monoidal_eq.
+    cbn.
+    apply subtypeInjectivity. { intros x. apply isaprop_braiding_laws. }
+    Check pr1_transportf.
+    etrans. { refine (pr1_transportf _ _). }
+    cbn.
+
+    Print braiding_data.
+    unfold subtypePath.
+
+    (* We need to re-prove that [braiding_data] only depends on the object tensor) *)
+    
+    unfold quasicartesian_monoidal_eq. 
+    unfold quasicartesian_monoidal_data_eq.
+
+    etrans. {
+      refine (transportf_total2_paths_f braiding_data_descends _ _ _).
+    }
+
+    etrans. {
+      refine (transportf_total2_paths_f braiding_data_descends' _ _ _).
+    }
+
+    etrans. {
+      refine (transportf_total2_paths_f braiding_data_descends'' _ _ _).
+    }
+
+    etrans. {
+      refine (idpath_transportf _ _).
+    }
+
+    do 2 (apply funextsec2; intros).
+    etrans. {
+      refine (!pairing_proj_braiding _ _).
+    }
+    reflexivity. 
+  Defined.
+
+  Definition markov_category_data_descends :
+    descend (sigma_fiber (idpath markov_category_data)).
+  Proof.
+    Print markov_category_data.
+    repeat (apply descend_prod || (apply descend_pi || apply descend_sigma); intros).
+    - intros a. exact (is_semicartesian a).
+    - intros c. exact (∏ x : c, c ⟦ x, x ⊗ x ⟧).
+  Defined.   
+
+  Definition quasicartesian_to_markov_data_eq :
+    quasicartesian_to_markov_data Q = C.
+  Proof.
+    unfold quasicartesian_to_markov_data.
+    use total2_paths_f. { apply quasicartesian_sym_monoidal_eq. }
+    cbn.
+    unfold quasicartesian_sym_monoidal_eq.
+    unfold quasicartesian_monoidal_cat_eq.
+
+    etrans. {
+      refine (transportf_total2_paths_f markov_category_data_descends _ _ _).
+    }
+
+    etrans. {
+      refine (total2_paths_vertical' quasicartesian_monoidal_eq). exact C.
+    }
+
+    Search "path" "assoc".
+
+    unfold quasicartesian_monoidal_eq.
+    unfold subtypePath.
+    (* unfold quasicartesian_monoidal_data_eq. *)
+    unfold markov_category_data_descends, descend_prod. cbn.
+    unfold quasicartesian_monoidal_data_eq.
+    unfold quasicartesian_tensor_data_eq.
   Admitted.
 
-  Proposition markov_to_quasicartesian_inv_data :
+
+  (* Proposition markov_to_quasicartesian_inv_data :
     quasicartesian_to_markov_data (markov_to_quasicartesian C) = C.
   Proof.
     unfold quasicartesian_to_markov_data,
@@ -506,7 +863,7 @@ Section MarkovToQuasiCartesianToMarkov.
         }
       }
     }
-  Admitted.
+  Admitted. *)
 
   Proposition markov_to_quasicartesian_inv : 
     quasicartesian_to_markov (markov_to_quasicartesian C) = C.
