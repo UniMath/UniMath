@@ -49,11 +49,11 @@ Section MarkovToQuasiCartesian.
 
   Definition markov_to_quasicartesian_data : quasicartesian_data.
   Proof.
-    refine ((C :> category) ,, _ ,, _).
-    - refine (I_{C} ,, _).
+    simple refine ((C :> category) ,, _ ,, _).
+    - simple refine (I_{C} ,, _).
       intros x.
       exact (MarkovCategory.del x).
-    - refine ((λ x y, x ⊗ y) ,, _). repeat split.
+    - simple refine ((λ x y, x ⊗ y) ,, _). repeat split.
       * intros x y z f g. exact (⟨f,g⟩).
       * intros x y. exact (MarkovCategory.proj1).
       * intros x y. exact (MarkovCategory.proj2).
@@ -88,10 +88,8 @@ Section MarkovToQuasiCartesian.
     - rewrite <- pairing_proj_braiding. apply pairing_sym_mon_braiding.
   Defined.
   
-  Definition markov_to_quasicartesian : quasicartesian_category.
-  Proof.
-    refine (markov_to_quasicartesian_data ,, markov_to_quasicartesian_laws).
-  Defined.
+  Definition markov_to_quasicartesian : quasicartesian_category
+    := (markov_to_quasicartesian_data ,, markov_to_quasicartesian_laws).
 
 End MarkovToQuasiCartesian.
 
@@ -220,16 +218,11 @@ Section QuasiCartesianToMarkov.
       apply pentagon.
   Defined.
 
-  Definition quasicartesian_monoidal : monoidal Q.
-  Proof.
-    exact (quasicartesian_monoidal_data ,, quasicartesian_monoidal_laws).
-  Defined.
+  Definition quasicartesian_monoidal : monoidal Q
+    := (quasicartesian_monoidal_data ,, quasicartesian_monoidal_laws).
 
-  Definition quasicartesian_monoidal_cat : monoidal_cat.
-  Proof.
-    refine ((Q :> category) ,, _).
-    apply quasicartesian_monoidal.
-  Defined.
+  Definition quasicartesian_monoidal_cat : monoidal_cat
+    := ((Q :> category) ,, quasicartesian_monoidal).
 
   (* Symmetry *)
 
@@ -256,17 +249,15 @@ Section QuasiCartesianToMarkov.
     - exact quasicartesian_swap_laws.
   Defined.
   
-  Definition quasicartesian_sym_monoidal_cat : sym_monoidal_cat.
-  Proof.
-    exact (quasicartesian_monoidal_cat ,, quasicartesian_symmetric).
-  Defined.
+  Definition quasicartesian_sym_monoidal_cat : sym_monoidal_cat
+    := (quasicartesian_monoidal_cat ,, quasicartesian_symmetric).
 
   (* Markov category *)
 
   Definition quasicartesian_to_markov_data : markov_category_data.
   Proof.
-    refine (quasicartesian_sym_monoidal_cat ,, _ ,, _).
-    - intros x. refine (del x ,, _).
+    simple refine (quasicartesian_sym_monoidal_cat ,, _ ,, _).
+    - intros x. simple refine (del x ,, _).
       intros f. apply del_unique.
     - intros x. exact ⟨ identity x , identity x ⟩.
   Defined.
@@ -282,10 +273,8 @@ Section QuasiCartesianToMarkov.
       qcart_coherence. 
   Defined.
   
-  Definition quasicartesian_to_markov : markov_category.
-  Proof.
-    exact (quasicartesian_to_markov_data ,, quasicartesian_to_markov_laws).
-  Defined.
+  Definition quasicartesian_to_markov : markov_category
+    := (quasicartesian_to_markov_data ,, quasicartesian_to_markov_laws).
 
 End QuasiCartesianToMarkov.
 
@@ -312,11 +301,11 @@ Section Roundtrips.
     use total2_paths_f. { apply idpath. }
     rewrite idpath_transportf. cbn.
 
-      (repeat apply dirprod_paths)
+    (repeat apply dirprod_paths)
     ; (repeat (apply funextsec2; intros))
     ; cbn.
     - assert (aux : pr122 (pr21 Q) x x0 x1 x2 x3 = @pairing (pr1 Q) x x0 x1 x2 x3). { reflexivity. }
-      refine (_ @ !aux).
+      simple refine (_ @ !aux).
       unfold MarkovCategory.pairing,
              copy, 
              monoidal_cat_tensor_mor,
@@ -345,7 +334,7 @@ Section Roundtrips.
   Proposition markov_roundtrip (C : markov_category) : 
     quasicartesian_to_markov (markov_to_quasicartesian C) = C.
   Proof.
-    refine (invmaponpathsweq Stratified.markov_laws_weq _ _ _).
+    simple refine (invmaponpathsweq Stratified.markov_laws_weq _ _ _).
     
     apply total2asstor_path. unfold total2asstor. cbn.
     
@@ -370,7 +359,7 @@ Section Roundtrips.
     - rewrite <- pairing_proj_braiding. reflexivity.
     - reflexivity.
     - rewrite <- MarkovCategory.pairing_id. reflexivity.
-  Defined.       
+  Defined.
 
 End Roundtrips.
 

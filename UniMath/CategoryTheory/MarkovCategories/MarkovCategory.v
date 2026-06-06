@@ -330,7 +330,7 @@ Section Marginals.
     mon_lassociator _ _ _ · (identity x #⊗ f) · proj2.
   Proof.
     unfold proj2.
-    refine (!_).
+    symmetry.
     etrans.
     {
       rewrite !assoc'.

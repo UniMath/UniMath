@@ -46,33 +46,29 @@ Local Notation "x ⊗ y" := (tensor x y).
 
 Section Structure.
 
-  Definition markov_struct (C : mon_sig_cat) : UU.
-  Proof.
-    refine (
-        (* Left whisker *)
-      (∏ (a : C) (b1 b2 : C), C ⟦ b1, b2 ⟧ → C ⟦ a ⊗ b1, a ⊗ b2 ⟧)
-      × (* Right whisker *)
-      (∏ (b : C) (a1 a2 : C), C ⟦ a1, a2 ⟧ → C ⟦ a1 ⊗ b, a2 ⊗ b ⟧)
-      × (* Left unitor *)
-      (∏ x : C, C ⟦ I ⊗ x, x ⟧)
-      × (* Left inv unitor *)
-      (∏ x : C, C ⟦ x, I ⊗ x ⟧)
-      × (* Right unitor *)
-      (∏ x : C, C ⟦ x ⊗ I, x ⟧)
-      × (* Right inv unitor *)
-      (∏ x : C, C ⟦ x, x ⊗ I ⟧)
-      × (* Associator *)
-      (∏ x y z : C, C ⟦ (x ⊗ y) ⊗ z, x ⊗ (y ⊗ z) ⟧)
-      × (* Inv associator *)
-      (∏ x y z : C, C ⟦ x ⊗ (y ⊗ z), (x ⊗ y) ⊗ z ⟧)
-      × (* Symmetry *)
-      (∏ x y : C, C ⟦ x ⊗ y, y ⊗ x ⟧)
-      × (* Delete *)
-      (∏ x : C, C ⟦ x, I ⟧)
-      × (* Copy *)
-      (∏ x : C, C ⟦ x, x ⊗ x ⟧)
-    ).
-  Defined.
+  Definition markov_struct (C : mon_sig_cat) : UU :=
+      (* Left whisker *)
+    (∏ (a : C) (b1 b2 : C), C ⟦ b1, b2 ⟧ → C ⟦ a ⊗ b1, a ⊗ b2 ⟧)
+    × (* Right whisker *)
+    (∏ (b : C) (a1 a2 : C), C ⟦ a1, a2 ⟧ → C ⟦ a1 ⊗ b, a2 ⊗ b ⟧)
+    × (* Left unitor *)
+    (∏ x : C, C ⟦ I ⊗ x, x ⟧)
+    × (* Left inv unitor *)
+    (∏ x : C, C ⟦ x, I ⊗ x ⟧)
+    × (* Right unitor *)
+    (∏ x : C, C ⟦ x ⊗ I, x ⟧)
+    × (* Right inv unitor *)
+    (∏ x : C, C ⟦ x, x ⊗ I ⟧)
+    × (* Associator *)
+    (∏ x y z : C, C ⟦ (x ⊗ y) ⊗ z, x ⊗ (y ⊗ z) ⟧)
+    × (* Inv associator *)
+    (∏ x y z : C, C ⟦ x ⊗ (y ⊗ z), (x ⊗ y) ⊗ z ⟧)
+    × (* Symmetry *)
+    (∏ x y : C, C ⟦ x ⊗ y, y ⊗ x ⟧)
+    × (* Delete *)
+    (∏ x : C, C ⟦ x, I ⟧)
+    × (* Copy *)
+    (∏ x : C, C ⟦ x, x ⊗ x ⟧).
 
   Definition markov_struct_cat := ∑ C : mon_sig_cat, markov_struct C.
 
@@ -155,39 +151,38 @@ Section Laws.
     ×
     symmetry_hexagon.
 
-  Definition semicartesianness : UU :=
-    (∏ x : C, ∏ f : (x --> I), f = delete x).
+  Definition semicartesianness : UU := ∏ (x : C) (f : x --> I), 
+      f = delete x.
 
   Definition copy_assoc : UU := ∏ (x : C),
-        copy x · (identity _ #⊗ copy x)
-      = copy x · (copy x #⊗ identity _) · associator _ _ _.
+      copy x · (identity _ #⊗ copy x)
+    = copy x · (copy x #⊗ identity _) · associator _ _ _.
 
   Definition copy_del_r : UU := ∏ (x : C),
-        copy x · (identity _ #⊗ delete x) · rightunitor _
-      = identity _.
+      copy x · (identity _ #⊗ delete x) · rightunitor _
+    = identity _.
 
   Definition copy_del_l : UU := ∏ (x : C),
-        copy x · (delete x #⊗ identity _) · leftunitor _
-      = identity _.
+      copy x · (delete x #⊗ identity _) · leftunitor _
+    = identity _.
 
   Definition copy_comm : UU := ∏ (x : C),
-        copy x · swap _ _
-      = copy x.
+      copy x · swap _ _ = copy x.
 
   Definition inner_swap (x y z w : C)
     : C ⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
-    refine (associator _ _ _ · _).
-    refine (_ · associatorinv _ _ _).
-    refine (whisker_l _ _).
-    refine (associatorinv _ _ _ · _).
-    refine (_ · associator _ _ _).
-    exact (whisker_r _ (swap y z)).
+    simple refine (associator _ _ _ · _).
+    simple refine (_ · associatorinv _ _ _).
+    simple refine (whisker_l _ _).
+    simple refine (associatorinv _ _ _ · _).
+    simple refine (_ · associator _ _ _).
+    simple refine (whisker_r _ (swap y z)).
   Defined.
 
   Definition copy_tensor : UU := ∏ (x y : C),
-        (copy x #⊗ copy y) · inner_swap _ _ _ _
-      = copy (x ⊗ y).
+      (copy x #⊗ copy y) · inner_swap _ _ _ _
+    = copy (x ⊗ y).
 
   Definition copydelete_laws : UU := 
     copy_assoc
@@ -254,8 +249,8 @@ Section MarkovCategoryFromCat.
   Definition markov_category_data : markov_category_data.
   Proof.
     pose (semicart := pr1 (pr222 C)).
-    refine (markov_sym_monoidal_cat ,, _ ,, _).
-    - intros x. refine (delete x ,, _). intros f. exact (semicart x f).
+    simple refine (markov_sym_monoidal_cat ,, _ ,, _).
+    - intros x. simple refine (delete x ,, _). intros f. exact (semicart x f).
     - exact copy.
   Defined.
 
@@ -304,19 +299,17 @@ Section CatFromMarkovCategory.
   Definition laws : markov_laws struct_cat.
   Proof.
     pose(moncat := pr111 C).
-    refine (_ ,, _ ,, _ ,, _).
-    - exact (pr22 moncat).
-    - repeat split.
-      * intros x y. apply sym_mon_braiding_inv.
-      * intros x1 x2 y1 y2 f g. apply tensor_sym_mon_braiding.
-      * intros x y z. apply sym_mon_hexagon_lassociator.
-    - intros x f. apply markov_category_unit_eq.
-    - repeat split.
-      * intros x. apply MarkovCategory.copy_assoc'.
-      * intros x. apply MarkovCategory.copy_del_r.
-      * intros x. apply MarkovCategory.copy_del_l.
-      * intros x. apply MarkovCategory.copy_comm.
-      * intros x. apply MarkovCategory.copy_tensor.
+    simple refine (pr22 moncat ,, _ ,, _ ,, _); 
+    repeat split; repeat intro.
+    * apply sym_mon_braiding_inv.
+    * apply tensor_sym_mon_braiding.
+    * apply sym_mon_hexagon_lassociator.
+    * apply markov_category_unit_eq.
+    * apply MarkovCategory.copy_assoc'.
+    * apply MarkovCategory.copy_del_r.
+    * apply MarkovCategory.copy_del_l.
+    * apply MarkovCategory.copy_comm.
+    * apply MarkovCategory.copy_tensor.
   Defined.
   
   Definition laws_cat : markov_laws_cat := (struct_cat ,, laws).
@@ -324,10 +317,10 @@ Section CatFromMarkovCategory.
 End CatFromMarkovCategory.
 
 Section Roundtrips.
+
   Definition markov_roundtrip (C : markov_category) 
     : markov_category_from_cat (laws_cat C) = C.
   Proof.
-    
     destruct C as [[[Cmon [s slaws]] markov] l].
     use subtypePath. { intros cc. apply isaprop_markov_category_laws. }
     apply total2asstor_path. unfold total2asstor. cbn.
@@ -350,9 +343,10 @@ Section Roundtrips.
     use subtypePath. { intros cc. apply isaprop_markov_laws. }
     use total2_paths_f.
     - apply idpath.
-    - etrans. { refine (idpath_transportf _ _). } 
+    - etrans. { apply idpath_transportf. } 
       apply idpath.
   Defined.
+
 End Roundtrips.
 
 Definition markov_laws_weq :

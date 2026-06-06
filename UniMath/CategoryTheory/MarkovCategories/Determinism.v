@@ -260,7 +260,7 @@ Section ExamplesAndProperties.
       }
       apply idpath. 
     }
-    refine (!_).
+    symmetry.
     etrans.
     {
       rewrite double_copy_assoc.
@@ -299,7 +299,7 @@ Section ExamplesAndProperties.
     apply make_is_deterministic.
     rewrite <- copy_tensor.
     rewrite <- precompose_inner_swap_with_lunitors_on_right.
-    refine (!_).
+    symmetry.
     etrans.
     { 
       rewrite !assoc'.
@@ -315,7 +315,7 @@ Section ExamplesAndProperties.
     apply maponpaths_2.
     etrans.
     {
-      refine (!_).
+      symmetry.
       apply tensor_comp_mor.
     }
     rewrite id_right.
@@ -329,7 +329,7 @@ Section ExamplesAndProperties.
     apply make_is_deterministic.
     rewrite <- copy_tensor.
     rewrite <- precompose_inner_swap_with_lunitors_and_runitor.
-    refine (!_).
+    symmetry.
     etrans.
     { 
       rewrite !assoc'.
@@ -345,7 +345,7 @@ Section ExamplesAndProperties.
     apply maponpaths_2.
     etrans.
     {
-      refine (!_).
+      symmetry.
       apply tensor_comp_mor.
     }
     rewrite id_right.
@@ -373,16 +373,14 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_mon_linvunitor (x : C) :
     is_deterministic (mon_linvunitor x).
   Proof.
-    refine (is_deterministic_inverse (z_iso_from_mon_lunitor x) _).
-    cbn.
+    simple refine (is_deterministic_inverse (z_iso_from_mon_lunitor x) _).
     apply is_deterministic_mon_lunitor.
   Qed.
         
   Proposition is_deterministic_mon_rinvunitor (x : C) :
     is_deterministic (mon_rinvunitor x).
   Proof.
-    refine (is_deterministic_inverse (z_iso_from_mon_runitor x) _).
-    cbn.
+    simple refine (is_deterministic_inverse (z_iso_from_mon_runitor x) _).
     apply is_deterministic_mon_runitor.
   Qed.  
 
@@ -399,7 +397,7 @@ Section ExamplesAndProperties.
       rewrite !assoc'.
       apply idpath.
     }
-    refine (!_).
+    symmetry.
     etrans.
     {
       rewrite <- !copy_tensor.
@@ -416,8 +414,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_mon_rassociator (x y z : C) :
     is_deterministic (mon_rassociator x y z).
   Proof.
-    refine (is_deterministic_inverse (z_iso_from_mon_lassociator x y z) _).
-    cbn.
+    simple refine (is_deterministic_inverse (z_iso_from_mon_lassociator x y z) _).
     apply is_deterministic_mon_lassociator.
   Qed.
 
@@ -509,23 +506,24 @@ Create HintDb autodet.
 Section PairingCalculus.
   Context {C : markov_category}.
 
+  Proposition proj_inner_swap (x y : C) : inner_swap _ x x y y · proj1 #⊗ proj2 = proj1 #⊗ proj2.
+  Proof.
+    unfold proj1, proj2.
+    rewrite !tensor_comp_mor.
+    rewrite !assoc.
+    rewrite naturality_inner_swap.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite inner_swap_along_unit.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
   Lemma pairing_proj_id (x y : C) :
     identity (x ⊗ y) = ⟨proj1, proj2⟩.
   Proof.
     unfold pairing.
     rewrite <- copy_tensor.
-    assert(proj_inner_swap : inner_swap _ x x y y · proj1 #⊗ proj2 = proj1 #⊗ proj2).
-    {
-      unfold proj1, proj2.
-      rewrite !tensor_comp_mor.
-      rewrite !assoc.
-      rewrite naturality_inner_swap.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite inner_swap_along_unit.
-      rewrite id_left.
-      apply idpath.
-    }
     rewrite assoc', proj_inner_swap.
     rewrite <- tensor_comp_mor.
     rewrite copy_proj1, copy_proj2.
@@ -753,9 +751,11 @@ Ltac markov_solve :=
   try reflexivity.
 
 Ltac markov_coherence :=
-  pairing_proj_expand; markov_simpl;
-  markov_split; (* split goals with eta rule *)
-  markov_solve.
+  abstract (
+    pairing_proj_expand; markov_simpl;
+    markov_split; (* split goals with eta rule *)
+    markov_solve
+  ).
 
 (* Some lemmas that are solved by the tactic *)
 

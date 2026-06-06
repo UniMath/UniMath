@@ -928,7 +928,7 @@ Proof.
   apply idpath.
 Defined.
 
-(* could also have better names but I'm saying consistent with [total2asstor] from PartA *)
+(* could also have better names, but I'm staying consistent with [total2asstor] from Foundations/PartA.v *)
 
 Definition total2asstor_path
   {A : UU}

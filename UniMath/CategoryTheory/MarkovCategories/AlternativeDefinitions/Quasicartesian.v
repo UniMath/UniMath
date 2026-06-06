@@ -208,7 +208,7 @@ Section QuasicartesianLaws.
   Proposition det_id {x : C} : det (identity x).
   Proof.
     unfold det.
-    now rewrite id_left.
+    apply id_left.
   Qed.
 
   Proposition det_comp {x y z : C} (f : x --> y) (g : y --> z) :
@@ -219,8 +219,7 @@ Section QuasicartesianLaws.
     transitivity (f · ⟨ identity y · g, identity y · g⟩). { rewrite id_left. reflexivity. }
     rewrite <- pairing_tensor, assoc.
     rewrite df.
-    rewrite pairing_tensor.
-    reflexivity.
+    apply pairing_tensor.
   Qed.
 
   Proposition det_proj (x y z : C) (f : x --> y ⊗ z) :
@@ -233,8 +232,7 @@ Section QuasicartesianLaws.
     rewrite pairing_tensor.
     rewrite !id_left.
     rewrite <- pairing_id.
-    rewrite id_right.
-    reflexivity.
+    apply id_right.
   Qed.
 
   Proposition eta_det {x y z : C} (f g : x --> y ⊗ z) :
@@ -324,7 +322,7 @@ Ltac qcart_split :=
 
 (* Repeatedly split and solve *)
 Ltac qcart_coherence :=
-  qcart_simpl; qcart_split; qcart_solve.
+  abstract (qcart_simpl; qcart_split; qcart_solve).
 
 
 (** * 5. Further laws and definitions *)
@@ -391,11 +389,11 @@ Section MoreLaws.
      (this implies it uses variables precisely once) *)
   Definition inner_swap_linear {x y z w : C} : (x ⊗ y) ⊗ (z ⊗ w) --> (x ⊗ z) ⊗ (y ⊗ w).
   Proof.
-    refine(
+    simple refine (
       lassociator
       · (identity x #⊗ _)
       · rassociator).
-    refine(rassociator · (_ #⊗ identity w) · lassociator).
+    simple refine (rassociator · (_ #⊗ identity w) · lassociator).
     exact swap.
   Defined.
 

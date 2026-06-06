@@ -602,7 +602,7 @@ Section Dilators.
   Definition bloom_space {p q : PS} (f : p --> q) : PS.
   Proof.
     destruct p as [x p], q as [y q].
-    refine (x ⊗ y ,, _).
+    simple refine (x ⊗ y ,, _).
     use hProj. { apply homset_property. } 
     revert f.
     use setquotuniv.
@@ -617,7 +617,7 @@ Section Dilators.
   Definition bloom_space_proj1 {p q : PS} (f : p --> q) : (bloom_space f) --> p.
   Proof.
     apply setquotpr.
-    refine (proj1 ,, _).
+    simple refine (proj1 ,, _).
     simpl.
     revert f.
     apply setquotunivprop'. { intros. apply homset_property. }
@@ -636,7 +636,7 @@ Section Dilators.
   Definition bloom_space_proj2 {p q : PS} (f : p --> q) : (bloom_space f) --> q.
   Proof.
     apply setquotpr.
-    refine (proj2 ,, _).
+    simple refine (proj2 ,, _).
     simpl.
     revert f.
     apply setquotunivprop'. { intros. apply homset_property. }
