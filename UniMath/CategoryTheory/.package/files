@@ -353,6 +353,7 @@ Categories/CGraph.v
 
 Presheaf.v
 ElementsOp.v
+Categories/CategoryOfElementsPsh.v
 elems_slice_equiv.v
 YonedaBinproducts.v
 YonedaExponentials.v
@@ -566,6 +567,10 @@ DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
 DisplayedCats/MoreFibrations/FibrationsCharacterisation.v
 DisplayedCats/MoreFibrations/DispCatsEquivFunctors.v
 DisplayedCats/MoreFibrations/DisplayedDisplayedCats.v
+DisplayedCats/MoreFibrations/FiberEquivalence.v
+
+DisplayedCats/Fiberwise/BeckChevalleyChosenSum.v
+DisplayedCats/Fiberwise/BeckChevalleyChosenProd.v
 
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
@@ -736,6 +741,15 @@ IndexedCategories/IndexedTransformationToTransformation.v
 
 IndexedCategories/OpIndexedCategory.v
 IndexedCategories/CoreIndexedCategory.v
+
+# Presheaf model of type theory
+Presheaves/DependentPresheaf.v
+Presheaves/TotalPresheaf.v
+Presheaves/DisplayedCatOfDependentPresheaf.v
+Presheaves/Constructions.v
+Presheaves/SigmaTypes.v
+Presheaves/PiTypes.v
+Presheaves/PiTypesStable.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
