@@ -751,6 +751,7 @@ Presheaves/SigmaTypes.v
 Presheaves/PiTypes.v
 Presheaves/PiTypesStable.v
 Presheaves/NaturalNumbers.v
+Presheaves/Precomposition.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v

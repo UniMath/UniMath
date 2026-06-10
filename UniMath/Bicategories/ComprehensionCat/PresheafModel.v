@@ -11,12 +11,16 @@
  - Morphisms between types: natural transformation
  - Terms are the same as sections
  We construct this model as a full comprehension category. In addition, we show that
- this model supports various type formers, like extensional identity, an empty type,
- unit type, binary products, binary coproducts, ∑-types, natural numbers, and ∏-types.
+ this model supports various type formers, like extensional identity types, a unit type,
+ binary products, ∑-types, natural numbers, and ∏-types.
+
+ We also show that functors and natural transformations lift to the presheaf model.
 
  Content
  1. The full comprehension category
  2. Type formers in the presheaf model
+ 3. Functors on the presheaf model
+ 4. Natural transformations on the presheaf model
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -40,6 +44,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
@@ -48,6 +53,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
 Require Import UniMath.CategoryTheory.Presheaves.DependentPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.TotalPresheaf.
@@ -57,6 +63,7 @@ Require Import UniMath.CategoryTheory.Presheaves.SigmaTypes.
 Require Import UniMath.CategoryTheory.Presheaves.PiTypes.
 Require Import UniMath.CategoryTheory.Presheaves.PiTypesStable.
 Require Import UniMath.CategoryTheory.Presheaves.NaturalNumbers.
+Require Import UniMath.CategoryTheory.Presheaves.Precomposition.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
@@ -210,3 +217,96 @@ Section PShCompCat.
       exact (dep_psh_fiberwise_nno_stable s).
   Defined.
 End PShCompCat.
+
+(** * 3. Functors on the presheaf model *)
+Section PShCompCatFunctor.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂).
+
+  Definition precomposition_psh_functor_with_terminal_disp_cat
+    : functor_with_terminal_disp_cat
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  Proof.
+    use make_functor_with_terminal_disp_cat.
+    - exact (precomp_psh F).
+    - exact (preserves_terminal_precomp_psh F).
+    - exact (precomp_dep_psh_disp_functor F).
+  Defined.
+
+  Definition precomposition_psh_functor_with_terminal_cleaving
+    : functor_with_terminal_cleaving
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  Proof.
+    use make_functor_with_terminal_cleaving.
+    - exact precomposition_psh_functor_with_terminal_disp_cat.
+    - exact (is_cartesian_precomp_dep_psh_disp_functor F).
+  Defined.
+
+  Definition precomposition_psh_comp_cat_functor
+    : comp_cat_functor
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  Proof.
+    use make_comp_cat_functor.
+    - exact precomposition_psh_functor_with_terminal_cleaving.
+    - exact (precomp_dep_psh_disp_functor_comprehension F).
+  Defined.
+
+  Definition precomposition_psh_full_comp_cat_functor
+    : full_comp_cat_functor
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  Proof.
+    use make_full_comp_cat_functor.
+    - exact precomposition_psh_comp_cat_functor.
+    - exact (λ Γ A, precomp_dep_psh_disp_functor_comprehension_z_iso F A).
+  Defined.
+
+  Definition precomposition_psh_dfl_full_comp_cat_functor
+    : dfl_full_comp_cat_functor
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  Proof.
+    use make_dfl_full_comp_cat_functor.
+    - exact precomposition_psh_full_comp_cat_functor.
+    - exact (precomp_dep_psh_disp_functor_preserves_terminal F).
+    - exact (precomp_dep_psh_disp_functor_preserves_binproduct F).
+    - exact (precomp_dep_psh_disp_functor_preserves_equalizer F).
+  Defined.
+End PShCompCatFunctor.
+
+(** * 4. Natural transformations on the presheaf model *)
+Section PShCompCatNatTrans.
+  Context {C₁ C₂ : category}
+          {F G : C₁ ⟶ C₂}
+          (τ : F ⟹ G).
+
+  Definition precomposition_psh_dfl_full_nat_trans_with_terminal_cleaving
+    : nat_trans_with_terminal_cleaving
+        (precomposition_psh_dfl_full_comp_cat_functor G)
+        (precomposition_psh_dfl_full_comp_cat_functor F).
+  Proof.
+    use make_nat_trans_with_terminal_cleaving.
+    use make_nat_trans_with_terminal_disp_cat.
+    - exact (precomp_psh_nat_trans τ).
+    - exact (precomp_psh_disp_nat_trans τ).
+  Defined.
+
+  Definition precomposition_psh_dfl_full_comp_cat_nat_trans
+    : dfl_full_comp_cat_nat_trans
+        (precomposition_psh_dfl_full_comp_cat_functor G)
+        (precomposition_psh_dfl_full_comp_cat_functor F).
+  Proof.
+    use make_dfl_full_comp_cat_nat_trans.
+    use make_full_comp_cat_nat_trans.
+    use make_comp_cat_nat_trans.
+    - exact precomposition_psh_dfl_full_nat_trans_with_terminal_cleaving.
+    - abstract
+        (intros Γ A ;
+         use nat_trans_eq ; [ apply homset_property | ] ;
+         intro x ; cbn ;
+         apply idpath).
+  Defined.
+End PShCompCatNatTrans.

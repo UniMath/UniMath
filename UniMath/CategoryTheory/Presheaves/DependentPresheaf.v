@@ -205,6 +205,23 @@ Proof.
   apply dep_psh_mor_comp.
 Qed.
 
+Proposition transport_dep_psh_mor
+            {C : category}
+            {Γ : C^op ⟶ HSET}
+            (A : dep_psh Γ)
+            {x : C}
+            {xx₁ xx₂ : (Γ x : hSet)}
+            (p : xx₁ = xx₂)
+            (a : A x xx₁)
+  : transportf (A x) p a
+    =
+    #d A (identity _) (eqtohomot (functor_id Γ _) _ @ p) a.
+Proof.
+  induction p ; cbn.
+  refine (!_).
+  apply dep_psh_mor_id.
+Qed.
+
 Definition make_dep_psh
            {C : category}
            {Γ : C^op ⟶ HSET}
