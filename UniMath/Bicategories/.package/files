@@ -536,6 +536,7 @@ ComprehensionCat/InternalLanguageTopos/ToposNat.v
 ComprehensionCat/InternalLanguageTopos/ToposNatUniv.v
 
 ComprehensionCat/SetGroupoidModel.v
+ComprehensionCat/PresheafModel.v
 
 Logic/ComprehensionBicat.v
 

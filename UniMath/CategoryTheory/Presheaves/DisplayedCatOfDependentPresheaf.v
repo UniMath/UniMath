@@ -363,6 +363,14 @@ Section DispCatDepPsh.
       apply idpath.
   Qed.
 
+  Definition univalent_disp_cat_dep_psh
+    : disp_univalent_category (PreShv C).
+  Proof.
+    simple refine (_ ,, _).
+    - exact disp_cat_dep_psh.
+    - exact is_univalent_disp_disp_cat_dep_psh.
+  Defined.
+
   (** * 4. The cleaving *)
   Definition cleaving_disp_cat_dep_psh
     : cleaving disp_cat_dep_psh.

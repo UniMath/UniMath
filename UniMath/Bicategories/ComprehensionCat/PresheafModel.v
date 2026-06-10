@@ -12,7 +12,7 @@
  - Terms are the same as sections
  We construct this model as a full comprehension category. In addition, we show that
  this model supports various type formers, like extensional identity, an empty type,
- unit type, binary products, binary coproducts, ∑-types, and ∏-types.
+ unit type, binary products, binary coproducts, ∑-types, natural numbers, and ∏-types.
 
  Content
  1. The full comprehension category
@@ -48,13 +48,17 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+Require Import UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
 Require Import UniMath.CategoryTheory.Presheaves.DependentPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.TotalPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.Constructions.
 Require Import UniMath.CategoryTheory.Presheaves.SigmaTypes.
 Require Import UniMath.CategoryTheory.Presheaves.PiTypes.
+Require Import UniMath.CategoryTheory.Presheaves.PiTypesStable.
+Require Import UniMath.CategoryTheory.Presheaves.NaturalNumbers.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
@@ -64,6 +68,9 @@ Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.UnitTypes.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.
+Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWithProp.
 
 Local Open Scope cat.
 Local Open Scope comp_cat.
@@ -182,5 +189,24 @@ Section PShCompCat.
       use make_is_z_isomorphism.
       + exact (dep_psh_pi_subst s A B).
       + exact (dep_psh_pi_subst_inv_laws s A B _).
+  Defined.
+
+  Definition pnno_psh_comp_cat
+    : fiberwise_cat_property
+        parameterized_NNO_local_property
+        psh_dfl_full_comp_cat.
+  Proof.
+    use make_fiberwise_cat_property.
+    - intro Γ.
+      refine (_ ,, _ ,, _ ,, _).
+      exact (is_parameterized_NNO_prod_independent
+               (C := univalent_fiber_category
+                       (univalent_disp_cat_dep_psh C)
+                       Γ)
+               _
+               (dep_psh_fiberwise_nno Γ)).
+    - intros Γ₁ Γ₂ s.
+      use preserves_parameterized_NNO_prod_independent.
+      exact (dep_psh_fiberwise_nno_stable s).
   Defined.
 End PShCompCat.
