@@ -13,15 +13,17 @@
  We construct this model as a full comprehension category. In addition, we show that
  this model supports various type formers, like extensional identity types, a unit type,
  binary products, ∑-types, natural numbers, and ∏-types. We also show that it supports
- a subobject classifier type.
+ a subobject classifier type. We use this to deduce that the category of presheaves
+ is an elementary topos.
 
  We also show that functors and natural transformations lift to the presheaf model.
 
  Content
  1. The full comprehension category
  2. Type formers in the presheaf model
- 3. Functors on the presheaf model
- 4. Natural transformations on the presheaf model
+ 3. The category of presheaves is an elementary topos
+ 4. Functors on the presheaf model
+ 5. Natural transformations on the presheaf model
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -35,6 +37,7 @@ Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.FunctorCategory.
@@ -55,6 +58,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizer
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+Require Import UniMath.CategoryTheory.Exponentials.
+Require Import UniMath.CategoryTheory.PowerObject.
+Require Import UniMath.CategoryTheory.ElementaryTopos.
 Require Import UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
 Require Import UniMath.CategoryTheory.Presheaves.DependentPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.TotalPresheaf.
@@ -83,6 +89,9 @@ Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWithProp.
+Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv.
+Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
 
 Local Open Scope cat.
 Local Open Scope comp_cat.
@@ -232,9 +241,52 @@ Section PShCompCat.
       use preserves_parameterized_NNO_prod_independent.
       exact (dep_psh_fiberwise_nno_stable s).
   Defined.
+
+  (** * 3. The category of presheaves is an elementary topos *)
+  Definition psh_univ_cat_with_finlim
+    : univ_cat_with_finlim
+    := dfl_full_comp_cat_to_finlim psh_dfl_full_comp_cat.
+
+  Definition is_locally_cartesian_closed_psh_univ_cat_with_finlim
+    : is_locally_cartesian_closed
+        (pullbacks_univ_cat_with_finlim psh_univ_cat_with_finlim)
+    := dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob
+         psh_dfl_full_comp_cat
+         dependent_prod_psh_comp_cat.
+
+  Definition psh_univ_cat_subobject_classifier
+    : subobject_classifier (@Terminal_PreShv C)
+    := local_property_in_dfl_comp_cat
+         subobject_classifier_local_property
+         psh_dfl_full_comp_cat
+         subobject_classifier_psh_comp_cat.
+
+  Definition psh_univ_cat_pnno
+    : parameterized_NNO
+        Terminal_PreShv
+        (binproducts_univ_cat_with_finlim
+           psh_univ_cat_with_finlim)
+    := local_property_in_dfl_comp_cat
+         parameterized_NNO_local_property
+         psh_dfl_full_comp_cat
+         pnno_psh_comp_cat.
+
+  Definition psh_topos
+    : Topos.
+  Proof.
+    use make_Topos.
+    - exact psh_univ_cat_with_finlim.
+    - use make_Topos_Structure.
+      + exact (pullbacks_univ_cat_with_finlim psh_univ_cat_with_finlim).
+      + exact (terminal_univ_cat_with_finlim psh_univ_cat_with_finlim).
+      + exact psh_univ_cat_subobject_classifier.
+      + use PowerObject_from_exponentials.
+        use is_locally_cartesian_closed_exponentials.
+        exact is_locally_cartesian_closed_psh_univ_cat_with_finlim.
+  Defined.
 End PShCompCat.
 
-(** * 3. Functors on the presheaf model *)
+(** * 4. Functors on the presheaf model *)
 Section PShCompCatFunctor.
   Context {C₁ C₂ : category}
           (F : C₁ ⟶ C₂).
@@ -293,7 +345,7 @@ Section PShCompCatFunctor.
   Defined.
 End PShCompCatFunctor.
 
-(** * 4. Natural transformations on the presheaf model *)
+(** * 5. Natural transformations on the presheaf model *)
 Section PShCompCatNatTrans.
   Context {C₁ C₂ : category}
           {F G : C₁ ⟶ C₂}
