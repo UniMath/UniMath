@@ -750,6 +750,7 @@ Presheaves/Constructions.v
 Presheaves/SigmaTypes.v
 Presheaves/PiTypes.v
 Presheaves/PiTypesStable.v
+Presheaves/SubobjectClassifier.v
 Presheaves/NaturalNumbers.v
 Presheaves/Precomposition.v
 

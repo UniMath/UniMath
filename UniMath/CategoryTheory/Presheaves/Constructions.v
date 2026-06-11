@@ -16,7 +16,8 @@
  5. Fiberwise equalizers
  6. Constant dependent presheaves
  7. Democracy of the presheaf model
- 8. Statements for fiberwise limits and colimits
+ 8. Presheaf of morphisms
+ 9. Statements for fiberwise limits and colimits
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -997,9 +998,74 @@ Section ExamplesDepPsh.
          cbn ;
          apply idpath).
   Defined.
+
+  (** * 8. Presheaf of morphisms *)
+  Definition mor_dep_psh
+             {Γ : C^op ⟶ HSET}
+             {x : C}
+             (xx : (Γ x : hSet))
+    : dep_psh Γ.
+  Proof.
+    use make_dep_psh.
+    - intros y yy.
+      use make_hSet.
+      + exact (∑ (f : y --> x), #Γ f xx = yy).
+      + abstract
+          (use isaset_total2 ; [ apply homset_property | ] ;
+           intro ;
+           apply isasetaprop ;
+           apply setproperty).
+    - intros y₁ y₂ yy₁ yy₂ s p a.
+      refine (s · pr1 a ,, _).
+      abstract
+        (cbn in a ;
+         refine (_ @ p) ;
+         refine (eqtohomot (functor_comp Γ _ _) _ @ _) ;
+         cbn ;
+         apply maponpaths ;
+         exact (pr2 a)).
+    - abstract
+        (intros y yy p a ;
+         use subtypePath ; [ intro ; apply setproperty | ] ;
+         cbn ;
+         apply id_left).
+    - abstract
+        (intros y₁ y₂ y₃ yy₁ yy₂ yy₃ s₁ s₂ p q r a ;
+         use subtypePath ; [ intro ; apply setproperty | ] ;
+         cbn ;
+         apply assoc').
+  Defined.
+
+  Definition id_mor_dep_psh
+             {Γ : C^op ⟶ HSET}
+             {x : C}
+             (xx : (Γ x : hSet))
+    : mor_dep_psh xx x xx.
+  Proof.
+    refine (identity _ ,, _).
+    exact (eqtohomot (functor_id Γ _) _).
+  Defined.
+
+  Definition dep_psh_nat_trans_from_mor_dep_psh
+             {Γ : C^op ⟶ HSET}
+             {A : dep_psh Γ}
+             {x : C}
+             {xx : (Γ x : hSet)}
+             (a : A x xx)
+    : dep_psh_nat_trans (mor_dep_psh xx) A (nat_trans_id _).
+  Proof.
+    use make_dep_psh_nat_trans.
+    - exact (λ y yy b, #d A (pr1 b) (pr2 b) a).
+    - abstract
+        (intros y₁ y₂ yy₁ yy₂ f p q b ;
+         cbn ;
+         rewrite dep_psh_mor_comp' ;
+         apply dep_psh_mor_path_eq ;
+         apply idpath).
+  Defined.
 End ExamplesDepPsh.
 
-(** * 8. Statements for fiberwise limits and colimits *)
+(** * 9. Statements for fiberwise limits and colimits *)
 Definition dep_psh_fiberwise_terminal
            (C : category)
   : fiberwise_terminal (cleaving_disp_cat_dep_psh C).

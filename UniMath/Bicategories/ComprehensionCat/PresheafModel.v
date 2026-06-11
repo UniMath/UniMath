@@ -12,7 +12,8 @@
  - Terms are the same as sections
  We construct this model as a full comprehension category. In addition, we show that
  this model supports various type formers, like extensional identity types, a unit type,
- binary products, ∑-types, natural numbers, and ∏-types.
+ binary products, ∑-types, natural numbers, and ∏-types. We also show that it supports
+ a subobject classifier type.
 
  We also show that functors and natural transformations lift to the presheaf model.
 
@@ -62,9 +63,13 @@ Require Import UniMath.CategoryTheory.Presheaves.Constructions.
 Require Import UniMath.CategoryTheory.Presheaves.SigmaTypes.
 Require Import UniMath.CategoryTheory.Presheaves.PiTypes.
 Require Import UniMath.CategoryTheory.Presheaves.PiTypesStable.
+Require Import UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.Presheaves.NaturalNumbers.
 Require Import UniMath.CategoryTheory.Presheaves.Precomposition.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
@@ -196,6 +201,17 @@ Section PShCompCat.
       use make_is_z_isomorphism.
       + exact (dep_psh_pi_subst s A B).
       + exact (dep_psh_pi_subst_inv_laws s A B _).
+  Defined.
+
+  Definition subobject_classifier_psh_comp_cat
+    : fiberwise_cat_property
+        subobject_classifier_local_property
+        psh_dfl_full_comp_cat.
+  Proof.
+    use make_fiberwise_cat_property.
+    - exact dep_psh_subobject_classifier.
+    - intros Γ₁ Γ₂ s.
+      exact (dep_psh_subobject_classifier_preservation s).
   Defined.
 
   Definition pnno_psh_comp_cat
