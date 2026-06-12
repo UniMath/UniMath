@@ -32,13 +32,13 @@ Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
           × (∏ x y z : X, le x y -> lt y z -> lt x z)).
 Definition EffectiveOrder (X : UU) :=
   ∑ le lt : hrel X, isEffectiveOrder le lt.
-Definition pairEffectiveOrder {X : UU} (le lt : hrel X) (is : isEffectiveOrder le lt) : EffectiveOrder X :=
-  (le,,lt,,is).
+Definition pairEffectiveOrder {X : UU} (le lt : hrel X) (isc : isEffectiveOrder le lt) : EffectiveOrder X :=
+  (le,,lt,,isc).
 
 Definition EffectivelyOrderedSet :=
   ∑ X : hSet, EffectiveOrder X.
-Definition pairEffectivelyOrderedSet {X : hSet} (is : EffectiveOrder X) : EffectivelyOrderedSet
-  := tpair _ X is.
+Definition pairEffectivelyOrderedSet {X : hSet} (isc : EffectiveOrder X) : EffectivelyOrderedSet
+  := tpair _ X isc.
 Definition pr1EffectivelyOrderedSet : EffectivelyOrderedSet → hSet := pr1.
 Coercion pr1EffectivelyOrderedSet : EffectivelyOrderedSet >-> hSet.
 
@@ -191,8 +191,8 @@ Definition isLeastUpperBound (E : hsubtype X) (lub : X) : UU :=
 Definition LeastUpperBound (E : hsubtype X) : UU :=
   ∑ lub : X, isLeastUpperBound E lub.
 Definition pairLeastUpperBound (E : hsubtype X) (lub : X)
-           (is : isLeastUpperBound E lub) : LeastUpperBound E :=
-  tpair (isLeastUpperBound E) lub is.
+           (isc : isLeastUpperBound E lub) : LeastUpperBound E :=
+  tpair (isLeastUpperBound E) lub isc.
 Definition pr1LeastUpperBound {E : hsubtype X} :
   LeastUpperBound E → X := pr1.
 
@@ -236,8 +236,8 @@ Definition isGreatestLowerBound (E : hsubtype X) (glb : X) : UU :=
 Definition GreatestLowerBound (E : hsubtype X) : UU :=
   ∑ glb : X, isGreatestLowerBound E glb.
 Definition pairGreatestLowerBound (E : hsubtype X) (glb : X)
-           (is : isGreatestLowerBound E glb) : GreatestLowerBound E :=
-  tpair (isGreatestLowerBound E) glb is.
+           (isc : isGreatestLowerBound E glb) : GreatestLowerBound E :=
+  tpair (isGreatestLowerBound E) glb isc.
 Definition pr1GreatestLowerBound {E : hsubtype X} :
   GreatestLowerBound E → X := pr1.
 

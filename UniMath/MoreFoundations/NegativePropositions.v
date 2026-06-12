@@ -102,15 +102,15 @@ Definition make_isolated_ne (T : UU) (t:T) (neq:neqReln T) (i:isisolated_ne _ t 
 Definition pr1isolated_ne ( T : UU ) (neq:neqReln T) (x:isolated_ne T neq) : T := pr1 x.
 
 Theorem isaproppathsfromisolated_ne (X : UU) (x : X) (neq_x : neqPred x)
-        (is : isisolated_ne X x neq_x) (y : X)
+        (isc : isisolated_ne X x neq_x) (y : X)
   : isaprop (x = y).
 Proof.
   (* we could follow the proof of isaproppathsfromisolated here, but we try a
      different way *)
-  intros. unfold isisolated_ne in is. apply invproofirrelevance; intros m n.
+  intros. unfold isisolated_ne in isc. apply invproofirrelevance; intros m n.
   set (Q y := (x = y) ⨿ (neq_x y)).
-  assert (a := (transport_section is m) @ !(transport_section is n)).
-  induction (is x) as [j|k].
+  assert (a := (transport_section isc m) @ !(transport_section isc n)).
+  induction (isc x) as [j|k].
   - assert (b := transport_map (λ y p, ii1 p : Q y) m j); simpl in b;
       assert (c := transport_map (λ y p, ii1 p : Q y) n j); simpl in c.
     assert (d := equality_by_case (!b @ a @ c)); simpl in d.
@@ -175,7 +175,7 @@ Proof.
   - exact x.
 Defined.
 
-Definition maponcomplincl_ne {X Y : UU} (f : X -> Y) (is : isincl f) (x : X)
+Definition maponcomplincl_ne {X Y : UU} (f : X -> Y) (isc : isincl f) (x : X)
            (neq_x : neqPred x) (neq_fx : neqPred (f x))
   : compl_ne X x neq_x -> compl_ne Y (f x) neq_fx.
 Proof.
@@ -183,7 +183,7 @@ Proof.
   set (x' := pr1 c).
   set (neqx := pr2 c).
   exact (f x',,neg_to_negProp (nP := neq_fx (f x'))
-           (negf (invmaponpathsincl _ is x x') (negProp_to_neg neqx))).
+           (negf (invmaponpathsincl _ isc x x') (negProp_to_neg neqx))).
 Defined.
 
 Definition weqoncompl_ne {X Y : UU} (w : X ≃ Y) (x : X) (neq_x : neqPred x)
@@ -211,55 +211,55 @@ Proof.
 Defined.
 
 Definition invrecompl_ne (X : UU) (x : X) (neq_x : neqPred x)
-           (is : isisolated X x) : X -> compl_ne X x neq_x ⨿ unit.
+           (isc : isisolated X x) : X -> compl_ne X x neq_x ⨿ unit.
 Proof.
-  intros y. induction (is y) as [k|k].
+  intros y. induction (isc y) as [k|k].
   - exact (ii2 tt).
   - exact (ii1 (make_compl_ne X x neq_x y (neg_to_negProp k))).
 Defined.
 
-Theorem isweqrecompl_ne (X : UU) (x : X) (is : isisolated X x)
+Theorem isweqrecompl_ne (X : UU) (x : X) (isc : isisolated X x)
         (neq_x : neqPred x) : isweq (recompl_ne _ x neq_x).
 Proof.
   (* does not use [funextemptyAxiom] *)
   intros.
-  set (f := recompl_ne X x neq_x). set (g := invrecompl_ne X x neq_x is).
+  set (f := recompl_ne X x neq_x). set (g := invrecompl_ne X x neq_x isc).
   refine (isweq_iso f g _ _).
-  {intro u. induction (is (f u)) as [ eq | ne ].
+  {intro u. induction (isc (f u)) as [ eq | ne ].
    - induction u as [ c | u].
      + simpl. induction c as [ t neq ]; simpl; simpl in eq.
        contradicts (negProp_to_neg neq) eq.
      + induction u.
        intermediate_path (g x).
        {apply maponpaths. exact (pathsinv0 eq). }
-       {unfold g, invrecompl_ne. induction (is x) as [ i | e ].
+       {unfold g, invrecompl_ne. induction (isc x) as [ i | e ].
         {apply idpath. }
         {simpl. contradicts e (idpath x). }}
    - induction u as [ c | u ]. simpl.
      + induction c as [ y neq ]; simpl. unfold g, invrecompl_ne.
-       induction (is y) as [ eq' | ne' ].
+       induction (isc y) as [ eq' | ne' ].
        {contradicts (negProp_to_neg neq) eq'. }
        {induction (ii2 ne') as [eq|neq'].
         {simpl. contradicts eq ne'. }
         {simpl. apply maponpaths. unfold make_compl_ne. apply maponpaths.
          apply proofirrelevance. exact (pr1 (pr2 (neq_x y))). }}
      + induction u. unfold f,g,invrecompl_ne;simpl.
-       induction (is x) as [eq|neq].
+       induction (isc x) as [eq|neq].
        {simpl. apply idpath. }
        {apply fromempty. apply neq. apply idpath. }}
   {intro y. unfold f,g,invrecompl_ne;simpl.
-   induction (is y) as [eq|neq].
+   induction (isc y) as [eq|neq].
    - induction eq. apply idpath.
    - simpl. apply idpath. }
 Defined.
 
-Theorem isweqrecompl_ne' (X : UU) (x : X) (is : isisolated X x)
+Theorem isweqrecompl_ne' (X : UU) (x : X) (isc : isisolated X x)
         (neq_x : neqPred x) : isweq (recompl_ne _ x neq_x).
 Proof.
   (* an alternative proof *)
   intros. set (f := recompl_ne X x neq_x). intro y.
-  unfold neqPred,negProp in neq_x; unfold isisolated in is.
-  apply (iscontrweqb (weqtotal2overcoprod _)). induction (is y) as [eq|ne].
+  unfold neqPred,negProp in neq_x; unfold isisolated in isc.
+  apply (iscontrweqb (weqtotal2overcoprod _)). induction (isc y) as [eq|ne].
   {induction eq. refine (iscontrweqf (weqii2withneg _ _) _).
    {intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
     contradicts (!e) (negProp_to_neg neq). }
@@ -267,7 +267,7 @@ Proof.
     {exact tt. }
     {apply idpath. }
     {intro w. induction w as [t e]. unfold f in *; simpl in *. induction t.
-     apply maponpaths. apply isaproppathsfromisolated. exact is. }}}
+     apply maponpaths. apply isaproppathsfromisolated. exact isc. }}}
   {refine (iscontrweqf (weqii1withneg _ _) _).
    {intros z; induction z as [z e]; simpl in *. contradicts ne e. }
    {simple refine ((_,,_),,_).
@@ -281,16 +281,16 @@ Proof.
   }}
 Defined.
 
-Definition weqrecompl_ne (X : UU) (x : X) (is : isisolated X x)
+Definition weqrecompl_ne (X : UU) (x : X) (isc : isisolated X x)
            (neq_x : neqPred x) : compl_ne X x neq_x ⨿ unit ≃ X
-  := make_weq _ (isweqrecompl_ne X x is neq_x).
+  := make_weq _ (isweqrecompl_ne X x isc neq_x).
 
-Theorem isweqrecompl' (X : UU) (x : X) (is : isisolated X x) :
+Theorem isweqrecompl' (X : UU) (x : X) (isc : isisolated X x) :
   isweq (recompl _ x).
 Proof.
   (* alternative proof, spoils a computation if used in [weqrecompl], so unused *)
   intros. set (neq_x := λ y, make_neqProp x y).
-  apply (isweqhomot (weqrecompl_ne X x is neq_x
+  apply (isweqhomot (weqrecompl_ne X x isc neq_x
                                    ∘ weqcoprodf (compl_ne_weq_compl X x neq_x)
                                    (idweq unit))%weq).
   {intro y. induction y as [y|t]; apply idpath. }

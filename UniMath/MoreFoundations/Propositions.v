@@ -264,7 +264,7 @@ Lemma factor_through_squash_hProp {X} : ∏ hQ:hProp, (X -> hQ) -> ∥ X ∥ -> 
 Proof. intros [Q i] f h. refine (h _ _). assumption. Defined.
 
 Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
-Proof. intros is. apply (impredfun 2). assumption. Defined.
+Proof. intros isc. apply (impredfun 2). assumption. Defined.
 
 Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
@@ -405,10 +405,10 @@ Proof.
   use (samehfibers (prtoimage f) (pr1image f) (isinclpr1image f) y).
 Defined. 
 
-Lemma isinclprtoimage {X Y : UU} (f : X -> Y) (is: isincl f) : isincl (prtoimage f).
+Lemma isinclprtoimage {X Y : UU} (f : X -> Y) (isc: isincl f) : isincl (prtoimage f).
 Proof.
   intro y.
   fold isaprop.
   rewrite hfiberprtoimage.
-  use is.
+  use isc.
 Qed.

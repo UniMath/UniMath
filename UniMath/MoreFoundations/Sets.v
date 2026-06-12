@@ -175,7 +175,7 @@ Proof.
   use hPropUnivalence.
   - intros _ .
     induction c as [c iseqclass].
-    induction iseqclass as [ishinh is].
+    induction iseqclass as [ishinh isc].
     use (squash_to_hProp ishinh).
     intro t.
     induction t as [t tinc].
