@@ -1122,9 +1122,9 @@ Section EquivalentDefinition.
   Definition isBinCoproduct' : UU :=
     ∏ c : ob C, isweq (precomp_with_injections c).
 
-  Definition isBinCoproduct'_weq (is : isBinCoproduct') :
+  Definition isBinCoproduct'_weq (isc : isBinCoproduct') :
     ∏ c, (co --> c) ≃ (a --> c) × (b --> c) :=
-    λ a, make_weq (precomp_with_injections a) (is a).
+    λ a, make_weq (precomp_with_injections a) (isc a).
 
   Lemma isBinCoproduct'_to_isBinCoproduct :
     isBinCoproduct' -> isBinCoproduct _ _ _ co i1 i2.

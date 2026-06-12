@@ -448,8 +448,8 @@ End finite_property.
    Definition carddneg  (X : UU) (fx: isfinite X) : nat
               := pr1 (isfiniteimplisfinite0 X fx).
 
-Definition preweq  ( X : UU ) (is: isfinite X): isofnel (carddneg X is) X.
-Proof. intros X is X0.  set (c:= carddneg X is). set (dnw:= pr2 (isfiniteimplisfinite0 X is)). simpl in dnw. change (pr1 nat (λ n : nat, isofnel0 n X) (isfiniteimplisfinite0 X is)) with c in dnw.
+Definition preweq  ( X : UU ) (isc: isfinite X): isofnel (carddneg X isc) X.
+Proof. intros X isc X0.  set (c:= carddneg X isc). set (dnw:= pr2 (isfiniteimplisfinite0 X isc)). simpl in dnw. change (pr1 nat (λ n : nat, isofnel0 n X) (isfiniteimplisfinite0 X isc)) with c in dnw.
 
 assert (f: dirprod (finitestruct X) (dneg (weq (stn c) X)) -> weq (stn c) X). intro H. destruct H as [ t x ].  destruct t as [ t x0 ].
 assert (dw: dneg ((stn t) ≃ (stn c))). set (ff:= fun ab:dirprod (weq (stn t) X)(weq (stn c) X) => weqcomp _ _ _ (pr1 ab) (invweq (pr2 ab))).  apply (dnegf _ _ ff (inhdnegand _ _ (todneg _ x0) x)).
@@ -476,7 +476,7 @@ Proof.
               (isfinite_isdeceq X fin x y))).
 Defined.
 
-Definition subsetFiniteness {X : UU} (is : isfinite X) (P : DecidableSubtype X)
+Definition subsetFiniteness {X : UU} (isc : isfinite X) (P : DecidableSubtype X)
   : isfinite (decidableSubtypeCarrier P).
 Proof.
   intros.

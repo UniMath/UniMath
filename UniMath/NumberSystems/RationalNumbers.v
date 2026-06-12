@@ -107,11 +107,11 @@ Lemma isinclhqplusl ( n : hq ) : isincl ( λ m : hq, n + m ) .
 Proof.  intro.  apply ( pr2 ( weqtoincl ( weqlmultingr hqaddabgr n ) ) ) . Defined .
 
 
-Lemma hqpluslcan ( a b c : hq ) ( is : paths ( c + a ) ( c + b ) ) : a = b .
-Proof . intros . apply ( @grlcan hqaddabgr a b c is ) .  Defined .
+Lemma hqpluslcan ( a b c : hq ) ( isc : paths ( c + a ) ( c + b ) ) : a = b .
+Proof . intros . apply ( @grlcan hqaddabgr a b c isc ) .  Defined .
 
-Lemma hqplusrcan ( a b c : hq ) ( is : paths ( a + c ) ( b + c ) ) : a = b .
-Proof . intros . apply ( @grrcan hqaddabgr a b c is ) .  Defined .
+Lemma hqplusrcan ( a b c : hq ) ( isc : paths ( a + c ) ( b + c ) ) : a = b .
+Proof . intros . apply ( @grrcan hqaddabgr a b c isc ) .  Defined .
 
 Definition hqinvmaponpathsminus { a b : hq } ( e :  paths ( - a ) ( - b ) ) : a = b := grinvmaponpathsinv hqaddabgr e .
 
@@ -308,7 +308,7 @@ Proof. intros g . apply iscoasymmhqgeh . apply ( todneg _ g ) . Defined .
 Definition hqlthtoleh ( n m : hq ) : hqlth n m -> hqleh n m := hqgthtogeh _ _ .
 
 Definition hqlehtoneghqgth ( n m : hq ) : hqleh n m -> neg ( hqgth n m )  .
-Proof. intros is is' . apply ( is is' ) .  Defined .
+Proof. intros isc is' . apply ( isc is' ) .  Defined .
 
 Definition  hqgthtoneghqleh ( n m : hq ) : hqgth n m -> neg ( hqleh n m ) := λ g l , hqlehtoneghqgth _ _ l g .
 
@@ -452,40 +452,40 @@ Proof . apply isinvringmultgtif .  apply isplushrelhqgth .  apply isringmulthqgt
 
 (** [ hqgth ] *)
 
-Lemma hqgth0andminus { n : hq } ( is : hqgth n 0 ) : hqlth ( - n ) 0 .
-Proof . intros . unfold hqlth . apply ( ringfromgt0 hq isplushrelhqgth is ) .  Defined .
+Lemma hqgth0andminus { n : hq } ( isc : hqgth n 0 ) : hqlth ( - n ) 0 .
+Proof . intros . unfold hqlth . apply ( ringfromgt0 hq isplushrelhqgth isc ) .  Defined .
 
-Lemma hqminusandgth0 { n : hq } ( is : hqgth ( - n ) 0 ) : hqlth n 0 .
-Proof . intros . unfold hqlth . apply ( ringtolt0 hq isplushrelhqgth is ) .  Defined .
+Lemma hqminusandgth0 { n : hq } ( isc : hqgth ( - n ) 0 ) : hqlth n 0 .
+Proof . intros . unfold hqlth . apply ( ringtolt0 hq isplushrelhqgth isc ) .  Defined .
 
 
 (** [ hqlth ] *)
 
-Lemma hqlth0andminus { n : hq } ( is : hqlth n 0 ) : hqgth ( - n ) 0 .
-Proof . intros .  unfold hqlth . apply ( ringfromlt0 hq isplushrelhqgth is ) .  Defined .
+Lemma hqlth0andminus { n : hq } ( isc : hqlth n 0 ) : hqgth ( - n ) 0 .
+Proof . intros .  unfold hqlth . apply ( ringfromlt0 hq isplushrelhqgth isc ) .  Defined .
 
-Lemma hqminusandlth0 { n : hq } ( is : hqlth ( - n ) 0 ) : hqgth n 0 .
-Proof . intros . unfold hqlth . apply ( ringtogt0 hq isplushrelhqgth is ) .  Defined .
+Lemma hqminusandlth0 { n : hq } ( isc : hqlth ( - n ) 0 ) : hqgth n 0 .
+Proof . intros . unfold hqlth . apply ( ringtogt0 hq isplushrelhqgth isc ) .  Defined .
 
 (* ??? Coq slows down for no good reason at Defined in the previous four lemmas. *)
 
 (** [ hqleh ] *)
 
-Lemma hqleh0andminus { n : hq } ( is : hqleh n 0 ) : hqgeh ( - n ) 0 .
-Proof . revert is. apply ( negf ( @hqminusandlth0 n ) ) . Defined .
+Lemma hqleh0andminus { n : hq } ( isc : hqleh n 0 ) : hqgeh ( - n ) 0 .
+Proof . revert isc. apply ( negf ( @hqminusandlth0 n ) ) . Defined .
 
-Lemma hqminusandleh0 { n : hq } ( is : hqleh ( - n ) 0 ) : hqgeh n 0 .
-Proof . revert is. apply ( negf ( @hqlth0andminus n ) ) . Defined .
+Lemma hqminusandleh0 { n : hq } ( isc : hqleh ( - n ) 0 ) : hqgeh n 0 .
+Proof . revert isc. apply ( negf ( @hqlth0andminus n ) ) . Defined .
 
 
 
 (** [ hqgeh ] *)
 
-Lemma hqgeh0andminus { n : hq } ( is : hqgeh n 0 ) : hqleh ( - n ) 0 .
-Proof . revert is. apply ( negf ( @hqminusandgth0 n ) ) . Defined .
+Lemma hqgeh0andminus { n : hq } ( isc : hqgeh n 0 ) : hqleh ( - n ) 0 .
+Proof . revert isc. apply ( negf ( @hqminusandgth0 n ) ) . Defined .
 
-Lemma hqminusandgeh0 { n : hq } ( is : hqgeh ( - n ) 0 ) : hqleh n 0 .
-Proof . revert is. apply ( negf ( @hqgth0andminus n ) ) . Defined .
+Lemma hqminusandgeh0 { n : hq } ( isc : hqgeh ( - n ) 0 ) : hqleh n 0 .
+Proof . revert isc. apply ( negf ( @hqgth0andminus n ) ) . Defined .
 
 
 (** *** Multiplication and comparisons  *)
@@ -494,54 +494,54 @@ Proof . revert is. apply ( negf ( @hqgth0andminus n ) ) . Defined .
 (** [ gth ] *)
 
 
-Definition hqgthandmultl ( n m k : hq ) ( is : hqgth k hqzero ) : hqgth n m -> hqgth ( k * n ) ( k * m ) .
-Proof. revert n m k is. apply ( isringmultgttoislringmultgt _ isplushrelhqgth isringmulthqgth ) .   Defined .
+Definition hqgthandmultl ( n m k : hq ) ( isc : hqgth k hqzero ) : hqgth n m -> hqgth ( k * n ) ( k * m ) .
+Proof. revert n m k isc. apply ( isringmultgttoislringmultgt _ isplushrelhqgth isringmulthqgth ) .   Defined .
 
-Definition hqgthandmultr ( n m k : hq ) ( is : hqgth k hqzero ) : hqgth n m -> hqgth ( n * k ) ( m * k )  .
-Proof . revert n m k is. apply ( isringmultgttoisrringmultgt _ isplushrelhqgth isringmulthqgth ) . Defined .
+Definition hqgthandmultr ( n m k : hq ) ( isc : hqgth k hqzero ) : hqgth n m -> hqgth ( n * k ) ( m * k )  .
+Proof . revert n m k isc. apply ( isringmultgttoisrringmultgt _ isplushrelhqgth isringmulthqgth ) . Defined .
 
-Definition  hqgthandmultlinv ( n m k : hq ) ( is : hqgth k hqzero ) : hqgth ( k * n ) ( k * m ) -> hqgth n m .
-Proof . intros is' .  apply ( isinvringmultgttoislinvringmultgt hq isplushrelhqgth isinvringmulthqgth n m k is is' ) .  Defined .
+Definition  hqgthandmultlinv ( n m k : hq ) ( isc : hqgth k hqzero ) : hqgth ( k * n ) ( k * m ) -> hqgth n m .
+Proof . intros is' .  apply ( isinvringmultgttoislinvringmultgt hq isplushrelhqgth isinvringmulthqgth n m k isc is' ) .  Defined .
 
-Definition hqgthandmultrinv ( n m k : hq ) ( is : hqgth k hqzero ) : hqgth ( n * k ) ( m * k ) -> hqgth n m .
-Proof.   intros is' .  apply ( isinvringmultgttoisrinvringmultgt hq isplushrelhqgth isinvringmulthqgth n m k is is' ) .  Defined .
+Definition hqgthandmultrinv ( n m k : hq ) ( isc : hqgth k hqzero ) : hqgth ( n * k ) ( m * k ) -> hqgth n m .
+Proof.   intros is' .  apply ( isinvringmultgttoisrinvringmultgt hq isplushrelhqgth isinvringmulthqgth n m k isc is' ) .  Defined .
 
 
 
 (** [ lth ] *)
 
 
-Definition hqlthandmultl ( n m k : hq ) ( is : hqgth k 0 ) : hqlth n m -> hqlth ( k * n ) ( k * m )  := hqgthandmultl _ _ _ is .
+Definition hqlthandmultl ( n m k : hq ) ( isc : hqgth k 0 ) : hqlth n m -> hqlth ( k * n ) ( k * m )  := hqgthandmultl _ _ _ isc .
 
-Definition hqlthandmultr ( n m k : hq ) ( is : hqgth k 0 ) : hqlth n m -> hqlth ( n * k ) ( m * k ) := hqgthandmultr _ _ _ is .
+Definition hqlthandmultr ( n m k : hq ) ( isc : hqgth k 0 ) : hqlth n m -> hqlth ( n * k ) ( m * k ) := hqgthandmultr _ _ _ isc .
 
-Definition hqlthandmultlinv ( n m k : hq ) ( is : hqgth k 0 ) : hqlth ( k * n ) ( k * m ) -> hqlth n m := hqgthandmultlinv _ _ _ is .
+Definition hqlthandmultlinv ( n m k : hq ) ( isc : hqgth k 0 ) : hqlth ( k * n ) ( k * m ) -> hqlth n m := hqgthandmultlinv _ _ _ isc .
 
-Definition hqlthandmultrinv ( n m k : hq ) ( is : hqgth k 0 ) : hqlth ( n * k ) ( m * k ) -> hqlth n m := hqgthandmultrinv _ _ _ is .
+Definition hqlthandmultrinv ( n m k : hq ) ( isc : hqgth k 0 ) : hqlth ( n * k ) ( m * k ) -> hqlth n m := hqgthandmultrinv _ _ _ isc .
 
 
 (** [ leh ] *)
 
 
-Definition hqlehandmultl ( n m k : hq ) ( is : hqgth k 0 ) : hqleh n m -> hqleh ( k * n ) ( k * m ) := negf ( hqgthandmultlinv _ _ _ is ) .
+Definition hqlehandmultl ( n m k : hq ) ( isc : hqgth k 0 ) : hqleh n m -> hqleh ( k * n ) ( k * m ) := negf ( hqgthandmultlinv _ _ _ isc ) .
 
-Definition hqlehandmultr ( n m k : hq ) ( is : hqgth k 0 ) : hqleh n m -> hqleh ( n * k ) ( m * k ) := negf ( hqgthandmultrinv _ _ _ is ) .
+Definition hqlehandmultr ( n m k : hq ) ( isc : hqgth k 0 ) : hqleh n m -> hqleh ( n * k ) ( m * k ) := negf ( hqgthandmultrinv _ _ _ isc ) .
 
-Definition hqlehandmultlinv ( n m k : hq ) ( is : hqgth k 0 ) : hqleh ( k * n ) ( k * m ) -> hqleh n m := negf ( hqgthandmultl _ _ _ is )  .
+Definition hqlehandmultlinv ( n m k : hq ) ( isc : hqgth k 0 ) : hqleh ( k * n ) ( k * m ) -> hqleh n m := negf ( hqgthandmultl _ _ _ isc )  .
 
-Definition hqlehandmultrinv ( n m k : hq ) ( is : hqgth k 0 ) : hqleh ( n * k ) ( m * k ) -> hqleh n m := negf ( hqgthandmultr _ _ _ is ) .
+Definition hqlehandmultrinv ( n m k : hq ) ( isc : hqgth k 0 ) : hqleh ( n * k ) ( m * k ) -> hqleh n m := negf ( hqgthandmultr _ _ _ isc ) .
 
 
 (** [ geh ] *)
 
 
-Definition hqgehandmultl ( n m k : hq ) ( is : hqgth k 0 ) : hqgeh n m -> hqgeh ( k * n ) ( k * m ) := negf ( hqgthandmultlinv _ _ _ is ) .
+Definition hqgehandmultl ( n m k : hq ) ( isc : hqgth k 0 ) : hqgeh n m -> hqgeh ( k * n ) ( k * m ) := negf ( hqgthandmultlinv _ _ _ isc ) .
 
-Definition hqgehandmultr ( n m k : hq ) ( is : hqgth k 0 ) : hqgeh n m -> hqgeh ( n * k ) ( m * k )  := negf ( hqgthandmultrinv _ _ _ is ) .
+Definition hqgehandmultr ( n m k : hq ) ( isc : hqgth k 0 ) : hqgeh n m -> hqgeh ( n * k ) ( m * k )  := negf ( hqgthandmultrinv _ _ _ isc ) .
 
-Definition hqgehandmultlinv ( n m k : hq ) ( is : hqgth k 0 ) : hqgeh ( k * n ) ( k * m ) -> hqgeh n m := negf ( hqgthandmultl _ _ _ is )   .
+Definition hqgehandmultlinv ( n m k : hq ) ( isc : hqgth k 0 ) : hqgeh ( k * n ) ( k * m ) -> hqgeh n m := negf ( hqgthandmultl _ _ _ isc )   .
 
-Definition hqgehandmultrinv ( n m k : hq ) ( is : hqgth k 0 ) : hqgeh ( n * k ) ( m * k ) -> hqgeh n m := negf ( hqgthandmultr _ _ _ is )  .
+Definition hqgehandmultrinv ( n m k : hq ) ( isc : hqgth k 0 ) : hqgeh ( n * k ) ( m * k ) -> hqgeh n m := negf ( hqgthandmultr _ _ _ isc )  .
 
 
 
@@ -670,7 +670,7 @@ Definition hztohq : hz -> hq := tofldfrac hzintdom isdeceqhz.
 
 Definition isinclhztohq : isincl hztohq := isincltofldfrac hzintdom isdeceqhz .
 
-Definition hztohqandneq ( n m : hz ) ( is : hzneq n m ) : hqneq ( hztohq n ) ( hztohq m ) := negf ( invmaponpathsincl _ isinclhztohq n m ) is .
+Definition hztohqandneq ( n m : hz ) ( isc : hzneq n m ) : hqneq ( hztohq n ) ( hztohq m ) := negf ( invmaponpathsincl _ isinclhztohq n m ) isc .
 
 Definition hztohqand0 : paths ( hztohq 0%hz ) 0 := idpath _ .
 
@@ -682,14 +682,14 @@ Definition hztohqandminus ( n m : hz ) : paths ( hztohq ( n - m )%hz ) ( hztohq 
 
 Definition hztohqandmult ( n m : hz ) : paths ( hztohq ( n * m )%hz ) ( hztohq n * hztohq m ) := isbinop2funtofldfrac hzintdom isdeceqhz n m .
 
-Definition hztohqandgth ( n m : hz ) ( is : hzgth n m ) : hqgth ( hztohq n ) ( hztohq m ) := iscomptofldfrac hzintdom isdeceqhz isplushrelhzgth isringmulthzgth ( ct ( hzgth , isdecrelhzgth , 1 , 0 )%hz ) ( hzneqchoice ) ( isasymmhzgth ) n m is .
+Definition hztohqandgth ( n m : hz ) ( isc : hzgth n m ) : hqgth ( hztohq n ) ( hztohq m ) := iscomptofldfrac hzintdom isdeceqhz isplushrelhzgth isringmulthzgth ( ct ( hzgth , isdecrelhzgth , 1 , 0 )%hz ) ( hzneqchoice ) ( isasymmhzgth ) n m isc .
 
-Definition hztohqandlth ( n m : hz ) ( is : hzlth n m ) : hqlth ( hztohq n ) ( hztohq m ) := hztohqandgth m n is .
+Definition hztohqandlth ( n m : hz ) ( isc : hzlth n m ) : hqlth ( hztohq n ) ( hztohq m ) := hztohqandgth m n isc .
 
-Definition hztohqandleh ( n m : hz ) ( is : hzleh n m ) : hqleh ( hztohq n ) ( hztohq m ) .
-Proof . intros . destruct ( hzlehchoice _ _ is ) as [ l | e ] .   apply ( hqlthtoleh _ _ ( hztohqandlth _ _ l ) ) .  rewrite e .  apply ( isreflhqleh ) .  Defined .
+Definition hztohqandleh ( n m : hz ) ( isc : hzleh n m ) : hqleh ( hztohq n ) ( hztohq m ) .
+Proof . intros . destruct ( hzlehchoice _ _ isc ) as [ l | e ] .   apply ( hqlthtoleh _ _ ( hztohqandlth _ _ l ) ) .  rewrite e .  apply ( isreflhqleh ) .  Defined .
 
-Definition hztohqandgeh ( n m : hz ) ( is : hzgeh n m ) : hqgeh ( hztohq n ) ( hztohq m ) := hztohqandleh _ _ is .
+Definition hztohqandgeh ( n m : hz ) ( isc : hzgeh n m ) : hqgeh ( hztohq n ) ( hztohq m ) := hztohqandleh _ _ isc .
 
 
 

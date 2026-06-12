@@ -827,9 +827,9 @@ Section EquivalentDefinition.
 
   Definition isBinProduct' : UU := ∏ a : ob C, isweq (postcomp_with_projections a).
 
-  Definition isBinProduct'_weq (is : isBinProduct') :
+  Definition isBinProduct'_weq (isc : isBinProduct') :
     ∏ a, (a --> p) ≃ (a --> c) × (a --> d) :=
-    λ a, make_weq (postcomp_with_projections a) (is a).
+    λ a, make_weq (postcomp_with_projections a) (isc a).
 
   Lemma isBinProduct'_to_isBinProduct :
     isBinProduct' -> isBinProduct _ _ _ p p1 p2.

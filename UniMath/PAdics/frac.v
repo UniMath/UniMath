@@ -475,7 +475,7 @@ Proof.
 Defined.
 
 Definition afldfracmultinvint ( ab : A × aintdomazerosubmonoid A )
-           ( is : afldfracapartrelpre ab ( make_dirprod ( @ringunel1 A )
+           ( isc : afldfracapartrelpre ab ( make_dirprod ( @ringunel1 A )
                               ( unel ( aintdomazerosubmonoid A ) ) ) ) :
   A × aintdomazerosubmonoid A.
 Proof.
@@ -483,17 +483,17 @@ Proof.
   destruct ab as [ a b ].
   destruct b as [ b b' ].
   split with b.
-  simpl in is.
+  simpl in isc.
   split with a.
-  unfold afldfracapartrelpre in is.
-  simpl in is.
+  unfold afldfracapartrelpre in isc.
+  simpl in isc.
   change ( a # 0 ).
-  rewrite ( @ringmult0x A ) in is.
-  rewrite ( @ringrunax2 A ) in is.
+  rewrite ( @ringmult0x A ) in isc.
+  rewrite ( @ringrunax2 A ) in isc.
   assumption.
 Defined.
 
-Definition afldfracmultinv ( a : afldfrac0 ) ( is : a # 0 ) :
+Definition afldfracmultinv ( a : afldfrac0 ) ( isc : a # 0 ) :
   multinvpair afldfrac0 a.
 Proof.
   intros.

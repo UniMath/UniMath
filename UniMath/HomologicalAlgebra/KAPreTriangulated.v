@@ -372,7 +372,7 @@ Section KAPreTriangulated.
       + exact (RotMorphism_is_z_isomorphism A _).
   Defined.
 
-  Lemma KARotDTris : ∏ D : DTri, @isDTri KAPreTriangData (RotTri D).
+  Lemma KARotDTrisc : ∏ D : DTri, @isDTri KAPreTriangData (RotTri D).
   Proof.
     intros D.
     use (squash_to_prop (DTriisDTri D) (propproperty _)). intros I.
@@ -479,7 +479,7 @@ Section KAPreTriangulated.
       + exact (InvRotMorphism_is_z_isomorphism A _).
   Defined.
 
-  Lemma KAInvRotDTris : ∏ D : DTri, @isDTri KAPreTriangData (InvRotTri D).
+  Lemma KAInvRotDTrisc : ∏ D : DTri, @isDTri KAPreTriangData (InvRotTri D).
   Proof.
     intros D.
     use (squash_to_prop (DTriisDTri D) (propproperty _)). intros I.
@@ -703,8 +703,8 @@ Section KAPreTriangulated.
     - use make_isPreTriang.
       + exact KATrivialDistinguished.
       + exact KADTrisIsos.
-      + exact KARotDTris.
-      + exact KAInvRotDTris.
+      + exact KARotDTrisc.
+      + exact KAInvRotDTrisc.
       + exact KAConeDTri.
       + exact KAExt.
   Defined.

@@ -58,7 +58,7 @@ Section LEM.
 Definition LEM : hProp := ∀ P : hProp, decidable_prop P.
 
 Lemma LEM_for_sets (X : UU) : LEM -> isaset X -> isdeceq X.
-Proof. intros lem is x y. exact (lem (make_hProp (x = y) (is x y))). Defined.
+Proof. intros lem isc x y. exact (lem (make_hProp (x = y) (isc x y))). Defined.
 
 Lemma isaprop_LEM : isaprop LEM.
 Proof.
@@ -211,15 +211,15 @@ Definition to_ComplementaryPair {P : UU} (c : P ⨿ neg P) : ComplementaryPair
 
 (* Relate isolated points to complementary pairs *)
 
-Definition isolation {X : UU} (x : X) (is : isisolated X x) (y : X) : UU
-  := isFalse (to_ComplementaryPair (is y)).
+Definition isolation {X : UU} (x : X) (isc : isisolated X x) (y : X) : UU
+  := isFalse (to_ComplementaryPair (isc y)).
 
-Definition isaprop_isolation {X : UU} (x : X) (is : isisolated X x) (y : X) :
-  isaprop (isolation x is y) := isaprop_isFalse _.
+Definition isaprop_isolation {X : UU} (x : X) (isc : isisolated X x) (y : X) :
+  isaprop (isolation x isc y) := isaprop_isFalse _.
 
-Definition isolation_to_inequality {X : UU} (x : X) (is : isisolated X x)
+Definition isolation_to_inequality {X : UU} (x : X) (isc : isisolated X x)
            (y : X) :
-  isolation x is y -> x != y := falseWitness.
+  isolation x isc y -> x != y := falseWitness.
 
 Definition inequality_to_isolation {X : UU} (x : X) (i : isisolated X x)
            (y : X) :
@@ -307,8 +307,8 @@ Definition DecidableRelation (X : UU) : UU := X -> X -> DecidableProposition.
 Definition decrel_to_DecidableRelation {X : UU} :
   decrel X -> DecidableRelation X.
 Proof.
-  intros R x y. induction R as [R is]. exists (R x y).
-  apply isdecpropif. { apply propproperty. } apply is.
+  intros R x y. induction R as [R isc]. exists (R x y).
+  apply isdecpropif. { apply propproperty. } apply isc.
 Defined.
 
 Definition decidableAnd (P Q : DecidableProposition) : DecidableProposition.

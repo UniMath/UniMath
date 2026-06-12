@@ -56,14 +56,14 @@ Section PowerObject_def.
       is_PowerObject P inmap.
 
   Definition make_PowerObject
-    (P : ob C ->  ob C) (inmap : ∏ (b:C), C ⟦b x (P b), O⟧ ) (is : is_PowerObject P inmap)
+    (P : ob C ->  ob C) (inmap : ∏ (b:C), C ⟦b x (P b), O⟧ ) (isc : is_PowerObject P inmap)
     : PowerObject.
   Proof.
     use tpair.
     + exact P.
     + use tpair.
       - exact inmap.
-      - exact is.
+      - exact isc.
   Defined.
 
 End PowerObject_def.
@@ -92,7 +92,7 @@ Proof.
       use (pathscomp0 (b:=(φ_adj_inv (ExpAdj b) (φ_adj (ExpAdj b) f)))).
       * apply idpath.
       * use φ_adj_inv_after_φ_adj.
-    - intros (t,tis).
+    - intros (t,tisc).
       use subtypePath.
       * intro.
         use homset_property.
@@ -100,7 +100,7 @@ Proof.
         cbn.
         rewrite φ_adj_inv_after_φ_adj.
         use pathsinv0.
-        use tis.
+        use tisc.
 Defined.
 
 End PowerObject_from_exponentials.
