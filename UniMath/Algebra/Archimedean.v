@@ -903,35 +903,35 @@ Proof.
   apply (isarchring_2 R H x).
 Defined.
 
-Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel X R ) ( is1 : isringmultgt X R ) ( is2 : R 1%ring 0%ring ) ( nc : neqchoice R ) ( irr : isirrefl R ) ( tra : istrans R ) :
-  isarchring R → isarchfld (X := fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
+Theorem isarchfldfrac ( X : intdom ) ( isc : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel X R ) ( is1 : isringmultgt X R ) ( is2 : R 1%ring 0%ring ) ( nc : neqchoice R ) ( irr : isirrefl R ) ( tra : istrans R ) :
+  isarchring R → isarchfld (X := fldfrac X isc ) (fldfracgt _  isc is0 is1 is2 nc).
 Proof.
   intros.
   apply isarchring_isarchfld.
   unfold fldfracgt.
   generalize (isarchcommringfrac (X := X) (S := ringpossubmonoid X is1 is2) R is0 is1 (λ (c : X) (r : (ringpossubmonoid X is1 is2) c), r) is2 tra X0).
   intros.
-  assert (H_f : ∏ n x, (weqfldfracgt_f X is is0 is1 is2 nc (nattoring n * x)%ring) = (nattoring n * weqfldfracgt_f X is is0 is1 is2 nc x)%ring).
+  assert (H_f : ∏ n x, (weqfldfracgt_f X isc is0 is1 is2 nc (nattoring n * x)%ring) = (nattoring n * weqfldfracgt_f X isc is0 is1 is2 nc x)%ring).
   { clear -irr.
     intros n x.
     unfold nattoring.
-    rewrite (nattorig_natmult (X := fldfrac X is)), (nattorig_natmult (X := commringfrac X (@ringpossubmonoid X R is1 is2))).
+    rewrite (nattorig_natmult (X := fldfrac X isc)), (nattorig_natmult (X := commringfrac X (@ringpossubmonoid X R is1 is2))).
     induction n as [|n IHn].
     - refine (pr2 (pr1 (isringfunweqfldfracgt_f _ _ _ _ _ _ _))).
       exact irr.
     - rewrite !natmultS, <- IHn.
       refine (pr1 (pr1 (isringfunweqfldfracgt_f _ _ _ _ _ _ _)) _ _).
       exact irr. }
-  assert (H_0 : (weqfldfracgt_f X is is0 is1 is2 nc 0%ring) = 0%ring).
+  assert (H_0 : (weqfldfracgt_f X isc is0 is1 is2 nc 0%ring) = 0%ring).
   { refine (pr2 (pr1 (isringfunweqfldfracgt_f _ _ _ _ _ _ _))).
     exact irr. }
-  assert (H_1 : (weqfldfracgt_f X is is0 is1 is2 nc 1%ring) = 1%ring).
+  assert (H_1 : (weqfldfracgt_f X isc is0 is1 is2 nc 1%ring) = 1%ring).
   { refine (pr2 (pr2 (isringfunweqfldfracgt_f _ _ _ _ _ _ _))).
     exact irr. }
   split.
   - intros x Hx.
     eapply hinhfun.
-    2: apply (isarchring_1 _ X1 (weqfldfracgt_f X is is0 is1 is2 nc x)).
+    2: apply (isarchring_1 _ X1 (weqfldfracgt_f X isc is0 is1 is2 nc x)).
     intros (n,Hn).
     exists n.
     rewrite H_f, H_1.
@@ -940,7 +940,7 @@ Proof.
     exact Hx.
   - intros x.
     eapply hinhfun.
-    2: apply (isarchring_2 _ X1 (weqfldfracgt_f X is is0 is1 is2 nc x)).
+    2: apply (isarchring_2 _ X1 (weqfldfracgt_f X isc is0 is1 is2 nc x)).
     intros (n,Hn).
     exists n.
     rewrite <- (ringrunax2 _ (nattoring n)), H_f, H_1, ringrunax2.

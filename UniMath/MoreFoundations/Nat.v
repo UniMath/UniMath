@@ -599,40 +599,40 @@ Proof.
 Defined.
 
 
-Lemma isdecbexists (n : nat) (P : nat → UU) (is : ∏ n', isdecprop (P n')) :
+Lemma isdecbexists (n : nat) (P : nat → UU) (isc : ∏ n', isdecprop (P n')) :
   isdecprop (∃ n', n' ≤ n × P n').
 Proof.
-  set (P' := λ n' : nat, make_hProp _ (is n')).
+  set (P' := λ n' : nat, make_hProp _ (isc n')).
   induction n as [ | n IHn ].
   - apply (isdecpropweqb (weqexistsnatlehn0 P')).
-    apply (is 0).
+    apply (isc 0).
   - apply (isdecpropweqb (weqexistsnatlehnsn' _ P')).
     apply isdecprophdisj.
     + apply IHn.
-    + apply (is (S n)).
+    + apply (isc (S n)).
 Defined.
 
-Lemma isdecbforall (n : nat) (P : nat → UU) (is : ∏ n', isdecprop (P n')) :
+Lemma isdecbforall (n : nat) (P : nat → UU) (isc : ∏ n', isdecprop (P n')) :
   isdecprop (∏ n', n' ≤ n → P n').
 Proof.
-  set (P' := λ n' : nat, make_hProp _ (is n')).
+  set (P' := λ n' : nat, make_hProp _ (isc n')).
   induction n as [ | n IHn ].
   - apply (isdecpropweqb (weqforallnatlehn0 P')).
-    apply (is 0).
+    apply (isc 0).
   - apply (isdecpropweqb (weqforallnatlehnsn' _ P')).
     apply isdecpropdirprod.
     + apply IHn.
-    + apply (is (S n)).
+    + apply (isc (S n)).
 Defined.
 
 (** The following lemma finds the largest [ n' ] such that [ neg (P n') ]. It is a stronger form of (neg ∏) → (exists neg) in the case of bounded quantification of decidable propositions. *)
 
 Lemma negbforalldectototal2neg (n : nat) (P : nat → UU)
-  (is : ∏ (n' : nat), isdecprop (P n')) :
+  (isc : ∏ (n' : nat), isdecprop (P n')) :
   ¬ (∏ (n' : nat), n' ≤ n → P n') →
   ∑ n', (n' ≤ n × ¬ P n').
 Proof.
-  set (P' := λ n' : nat, make_hProp _ (is n')).
+  set (P' := λ n' : nat, make_hProp _ (isc n')).
   induction n as [ | n IHn ].
   - intro nf.
     set (nf0 := negf (invweq (weqforallnatlehn0 P')) nf).
@@ -640,7 +640,7 @@ Proof.
     apply (make_dirprod (isreflnatleh 0) nf0).
   - intro nf.
     set (nf2 := negf (invweq (weqforallnatlehnsn' n P')) nf).
-    set (nf3 := fromneganddecy (is (S n)) nf2).
+    set (nf3 := fromneganddecy (isc (S n)) nf2).
     destruct nf3 as [ f1 | f2 ].
     + set (int := IHn f1).
       destruct int as [ n' d2 ].
@@ -656,13 +656,13 @@ Defined.
 
 (** ** Accessibility - the least element of an inhabited decidable subset of [nat] *)
 
-Definition natdecleast (F : nat → UU) (is : ∏ n, isdecprop (F n)) :=
+Definition natdecleast (F : nat → UU) (isc : ∏ n, isdecprop (F n)) :=
   ∑ (n : nat), (F n × ∏ (n' : nat), F n' → n ≤ n').
 
-Lemma isapropnatdecleast (F : nat → UU) (is : ∏ n, isdecprop (F n)) :
-  isaprop (natdecleast F is).
+Lemma isapropnatdecleast (F : nat → UU) (isc : ∏ n, isdecprop (F n)) :
+  isaprop (natdecleast F isc).
 Proof.
-  set (P := λ n' : nat, make_hProp _ (is n')).
+  set (P := λ n' : nat, make_hProp _ (isc n')).
   assert (int1 : ∏ n : nat, isaprop ((F n) × (∏ n' : nat, F n' → n ≤ n'))).
   { intro n.
     apply isapropdirprod.
@@ -686,20 +686,20 @@ Defined.
 
 Print isapropnatdecleast.
 
-Theorem accth (F : nat → UU) (is : ∏ n, isdecprop (F n))
-        (is' : ∃ n, F n) : natdecleast F is.
+Theorem accth (F : nat → UU) (isc : ∏ n, isdecprop (F n))
+        (is' : ∃ n, F n) : natdecleast F isc.
 Proof.
   revert is'.
   simpl.
-  apply (@hinhuniv _ (make_hProp _ (isapropnatdecleast F is))).
+  apply (@hinhuniv _ (make_hProp _ (isapropnatdecleast F isc))).
   intro t2.
   destruct t2 as [ n l ].
   simpl.
   set (F' := λ n' : nat, ∃ n'', (n'' ≤ n') × (F n'')).
-  assert (X : ∏ n', F' n' → natdecleast F is).
+  assert (X : ∏ n', F' n' → natdecleast F isc).
   { intro n'.
     induction n' as [ | n' IHn' ].
-    - apply (@hinhuniv _  (make_hProp _ (isapropnatdecleast F is))).
+    - apply (@hinhuniv _  (make_hProp _ (isapropnatdecleast F isc))).
       intro t2.
       destruct t2 as [ n'' is'' ].
       destruct is'' as [ l'' d'' ].
@@ -710,7 +710,7 @@ Proof.
         destruct e.
         apply d''.
       + apply (λ n', λ f : _, natleh0n n').
-    - apply (@hinhuniv _  (make_hProp _ (isapropnatdecleast F is))).
+    - apply (@hinhuniv _  (make_hProp _ (isapropnatdecleast F isc))).
       intro t2.
       destruct t2 as [ n'' is'' ].
       set (j := natlehchoice2 _ _ (pr1 is'')).
@@ -721,7 +721,7 @@ Proof.
         rewrite je in is''.
         destruct is'' as [ nn is'' ].
         clear nn. clear je. clear n''.
-        assert (is' : isdecprop (F' n')) by apply (isdecbexists n' F is).
+        assert (is' : isdecprop (F' n')) by apply (isdecbexists n' F isc).
         destruct (pr1 is') as [ f | nf ].
         * apply (IHn'  f).
         * split with (S n').

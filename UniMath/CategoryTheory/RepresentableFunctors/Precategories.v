@@ -517,7 +517,7 @@ Definition ZeroMaps (C:category) :=
     ×
     (∏ a b c, ∏ f:c --> b, zero b a ∘ f = zero c a).
 
-Definition is {C:category} (zero: ZeroMaps C) {a b:C} (f:a-->b)
+Definition isc {C:category} (zero: ZeroMaps C) {a b:C} (f:a-->b)
   := f = pr1 zero _ _.
 
 Definition ZeroMaps_opp (C:category) : ZeroMaps C -> ZeroMaps C^op
