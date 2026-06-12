@@ -437,7 +437,7 @@ Definition shift_iter_map_restricts' (A : C) (i : nat)
 (**
   We need F to be well-pointed to prove (F^ω A, shift_iter_map A) forms a pointed
   algebra (this is the only place well-pointedness is used, but many things follow)
-  Dependency chain isc:
+  Dependency chain is:
   F_well_pointed
     => iter_chain_mor_is_point
     => shift_iter_map_forms_ptd_alg
