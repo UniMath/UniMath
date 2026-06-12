@@ -39,7 +39,7 @@ Section definition .
   Definition interlaced_prebilattice (X : hSet) :=
     ∑ b : prebilattice X,  is_interlaced b.
 
-  Definition make_interlaced_prebilattice {X : hSet} {b : prebilattice X} (is : is_interlaced b) : interlaced_prebilattice X := b,,is.
+  Definition make_interlaced_prebilattice {X : hSet} {b : prebilattice X} (isc : is_interlaced b) : interlaced_prebilattice X := b,,isc.
 
   Definition interlaced_prebilattice_to_prebilattice {X : hSet} (b: interlaced_prebilattice X) : prebilattice X := pr1 b.
   Coercion interlaced_prebilattice_to_prebilattice : interlaced_prebilattice >-> prebilattice .
