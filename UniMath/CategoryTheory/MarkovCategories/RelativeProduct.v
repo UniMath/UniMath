@@ -580,38 +580,36 @@ Section Dilators.
     rewrite <- couplings_equals_ps_dagger.
     apply couplings_have_dilators.
   Defined.
-  
-  Local Definition hProj {X : UU} (i : isaset X) (x : make_hSet X i) : X.
-  Proof.
-    exact x.
-  Defined.
 
   Definition bloom_dist {p q : PS} (f : p --> q) : I_{C} --> state_ob p ⊗ state_ob q.
   Proof.
-    use hProj. { apply homset_property. }
     revert f.
-    use setquotuniv.
-    - intros [f e]. exact (bloom_coupling (state_dist p) f).
+    simple refine (setquotuniv _ (_ ,, _) _ _).
+    - apply homset_property.
+    - intros [ff e]. exact (bloom_coupling (state_dist p) ff).
     - abstract (
-      intros [f e] [g h] ase;
-      unfold bloom_coupling;
-      apply equal_almost_surely_r;
-      exact ase).
+        intros [ff e] [gg h] ase;
+        unfold bloom_coupling;
+        apply equal_almost_surely_r;
+        exact ase
+      ).
   Defined.
 
   Definition bloom_space {p q : PS} (f : p --> q) : PS.
   Proof.
     destruct p as [x p], q as [y q].
     simple refine (x ⊗ y ,, _).
-    use hProj. { apply homset_property. } 
+
     revert f.
-    use setquotuniv.
-    - intros [f e].
-      exact (bloom_coupling p f).
-    - intros [f e] [g h] ase.
-      unfold bloom_coupling.
-      apply equal_almost_surely_r.
-      exact ase.
+    simple refine (setquotuniv _ (_ ,, _) _ _).
+    - apply homset_property.
+    - intros [f e]. exact (bloom_coupling p f).
+    - abstract (
+        intros [f e] [g h] ase;
+        unfold bloom_coupling;
+        apply equal_almost_surely_r;
+        exact ase
+      ).
   Defined.
 
   Definition bloom_space_proj1 {p q : PS} (f : p --> q) : (bloom_space f) --> p.
@@ -621,15 +619,8 @@ Section Dilators.
     simpl.
     revert f.
     apply setquotunivprop'. { intros. apply homset_property. }
-    intros f. unfold bloom_dist.
-
-    etrans. {
-      apply maponpaths_2.
-      apply maponpaths_1.
-      apply setquotunivcomm.
-    }
-
-    unfold hProj.
+    intros f. unfold bloom_dist. cbn.
+    
     apply bloom_coupling_dom.
   Qed.
 
@@ -640,15 +631,8 @@ Section Dilators.
     simpl.
     revert f.
     apply setquotunivprop'. { intros. apply homset_property. }
-    intros f. unfold bloom_dist.
+    intros f. unfold bloom_dist. cbn.
 
-    etrans. {
-      apply maponpaths_2.
-      apply maponpaths_1.
-      apply setquotunivcomm.
-    }
-
-    unfold hProj.
     rewrite bloom_coupling_cod.
     rewrite <- (pr2 f).
     reflexivity.

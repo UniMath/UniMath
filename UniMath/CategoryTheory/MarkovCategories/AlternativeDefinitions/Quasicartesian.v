@@ -1,4 +1,4 @@
-(*********************************************
+(**
 An Alternative Axiomatization of Markov Categories
 
 Cartesian categories with chosen products have an equational presentation
@@ -28,8 +28,7 @@ Table of Contents
 3. Derived laws
 4. Automation
 5. Further laws and definitions
-
-**********************************************)
+**)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

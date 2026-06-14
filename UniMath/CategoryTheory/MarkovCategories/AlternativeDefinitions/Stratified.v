@@ -341,10 +341,7 @@ Section Roundtrips.
   Proof.
     destruct C as [[sig struct] laws].
     use subtypePath. { intros cc. apply isaprop_markov_laws. }
-    use total2_paths_f.
-    - apply idpath.
-    - etrans. { apply idpath_transportf. } 
-      apply idpath.
+    apply idpath.
   Defined.
 
 End Roundtrips.
