@@ -156,7 +156,7 @@ Section ConditionalsAndRelativePositivity.
     (inv_gf : g · f =_{p · f} identity y)
     : is_deterministic_ase p f.
   Proof.
-    unfold is_deterministic_ase.
+    apply make_is_deterministic_ase.
 
     assert(gf_det_ase : is_deterministic_ase (p · f) (g · f)).
     { apply is_deterministic_ase_stable with (identity _).
