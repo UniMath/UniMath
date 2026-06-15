@@ -340,7 +340,7 @@ Section CausalityConsequences.
     : is_deterministic_ase p f -> is_deterministic_ase (p · f) g -> is_deterministic_ase p (f · g).
   Proof.
     intros df dg.
-    unfold is_deterministic_ase.
+    apply make_is_deterministic_ase.
     apply ase_trans with (f · copy y · g #⊗ g).
     { 
       rewrite !assoc'.
@@ -370,7 +370,7 @@ Section PositivityConsequences.
     apply ase_trans with (f · ⟨proj1, identity _⟩ · (identity _ #⊗ proj2)).
     { apply ase_from_eq.
       rewrite assoc', <- pairing_split_r.
-      rewrite pairing_proj_id.
+      rewrite <- pairing_proj_id.
       rewrite id_right.
       reflexivity. }
       
@@ -414,7 +414,7 @@ Section PositivityConsequences.
   Proof.
     transitivity (f · ⟨proj1, identity _⟩ · (identity _ #⊗ proj2)).
     { rewrite assoc', <- pairing_split_r.
-      rewrite pairing_proj_id.
+      rewrite <- pairing_proj_id.
       rewrite id_right.
       reflexivity. }
       
@@ -516,7 +516,7 @@ Section CausalityImpliesRelPosAux.
     rewrite pairing_tensor, id_left, assoc'.
     rewrite pairing_proj1.
     rewrite <- pairing_tensor_l, assoc.
-    rewrite pairing_proj_id, id_right.
+    rewrite <- pairing_proj_id, id_right.
     unfold d.
     rewrite assoc', rassociator_proj1_tensor.
     rewrite pairing_tensor, !assoc'.
@@ -531,7 +531,7 @@ Section CausalityImpliesRelPosAux.
     rewrite pairing_tensor, id_left, assoc'.
     rewrite pairing_proj1.
     rewrite <- pairing_tensor_l, assoc.
-    rewrite pairing_proj_id, id_right.
+    rewrite <- pairing_proj_id, id_right.
     unfold d.
     rewrite assoc', rassociator_proj2_tensor.
     rewrite pairing_proj2.
@@ -569,7 +569,9 @@ Section ImplicationsBetweenAxioms.
     intros x y z f g det_fg.
     apply id_ase.
     apply rel_positivity_l. { exact rp. }
+    apply make_is_deterministic_ase.
     apply ase_from_eq.
+    apply is_deterministic_eq.
     exact det_fg.
   Qed.   
 
@@ -586,7 +588,7 @@ Section ImplicationsBetweenAxioms.
       is_positive C -> all_isos_deterministic C.
   Proof.
     intros pos x y f.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     pose (g := inv_from_z_iso f).
 
     transitivity (f · ⟨identity _ , identity _⟩).

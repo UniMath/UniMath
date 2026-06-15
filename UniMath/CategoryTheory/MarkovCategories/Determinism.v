@@ -11,13 +11,15 @@ versus running it once and copying (sharing) the result.
 
 We give proofs of determinism of all relevant structure morphisms of the Markov category C,
 and prove various lemmas about composition of deterministic maps. These lemmas unlock some mild automation:
-Using a hint database [autodet], we can solve some goals of the form [is_deterministic] automatically using.
+Using a hint database [autodet], we can solve some goals of the form [is_deterministic] automatically.
 
-By converting all structural morphisms into explicit pairing form [⟨...⟩], we can use a calculus in the style of 
-cartesian categories to reason about equalities of structural morphisms in a simpler and semi-automatic form.
+Further automation is unlocked as follows: We say that a morphism is in pairing-projection form if it is 
+written using pairing ⟨ , ⟩, proj1, proj2, composition, identity and delete.
 
-We lastly give some tactics [pairing_proj_expand], [pairing_simpl] and [markov_coherence] which solve some coherence
-equations automatically. TODO The automation could be vastly improved (and even made complete for some class of morphisms).
+We show a series of [pairing_proj] lemmas which show how to express all structure maps and constructs 
+such as tensor [f #⊗ g] in pairing-projection form. On terms in pairing-projection form, we can use a
+rewrite system to simplify them automatically. For deterministic morphisms, we apply an η-law to break them 
+down into components. This automation strategy [markov_coherence] is complete for equalities between structure maps.
 
 Table of Contents
 1. Definition of Determinism
@@ -51,13 +53,39 @@ Local Open Scope cat.
 Local Open Scope moncat.
 Local Open Scope markov.
 
-(** 1. Definition of Determinism *)
+(** * 1. Definition of Determinism *)
 
 Section DefDeterminism.
   Context {C : markov_category}.
 
   Definition is_deterministic {x y : C} (f : x --> y) : UU
     := f · copy y = copy x · f #⊗ f.
+
+  (* Accessors *)
+  
+  Proposition is_deterministic_eq {x y : C} (f : x --> y) :
+    is_deterministic f -> f · copy y = copy x · f #⊗ f.
+  Proof.
+    intros d. exact d.
+  Qed.
+
+  Proposition is_deterministic_eq' {x y : C} (f : x --> y) :
+    is_deterministic f -> f · ⟨identity y, identity y⟩ = ⟨f, f⟩.
+  Proof.
+    intros d. rewrite pairing_id. exact d.
+  Qed.
+
+  Proposition make_is_deterministic {x y : C} (f : x --> y) :
+    f · copy y = copy x · f #⊗ f -> is_deterministic f.
+  Proof.
+    intros e. exact e.
+  Qed.
+
+  Proposition make_is_deterministic' {x y : C} (f : x --> y) :
+    f · ⟨identity y, identity y⟩ = ⟨f, f⟩ -> is_deterministic f.
+  Proof.
+    intros e. rewrite pairing_id in e. exact e.
+  Qed.
 
   Proposition isaprop_is_deterministic
               {x y : C}
@@ -82,9 +110,9 @@ Section DefDeterminism.
 
 End DefDeterminism.
 
-(** * 2. Examples and Properties *)
+#[global] Opaque is_deterministic.
 
-Create HintDb autodet.
+(** * 2. Examples and Properties *)
 
 Section ExamplesAndProperties.
   Context {C : markov_category}.
@@ -92,7 +120,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_identity {x : C} : 
     is_deterministic (identity x).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite tensor_id_id, id_left, id_right.
     reflexivity.
   Qed.
@@ -109,7 +137,8 @@ Section ExamplesAndProperties.
     (df : is_deterministic f) (dg : is_deterministic g)
     : is_deterministic (f · g).
   Proof.
-    unfold is_deterministic in *.
+    apply make_is_deterministic.
+    apply is_deterministic_eq in df, dg.
     rewrite tensor_comp_mor.
     rewrite assoc.
     rewrite <- df.
@@ -121,7 +150,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_to_terminal {x : C} (f : x --> I_{C}) :
     is_deterministic f.
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     use cancel_z_iso.
     - apply I_{C}.
     - apply z_iso_from_mon_runitor. 
@@ -138,7 +167,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_sym_mon_braiding (x y : C) :
     is_deterministic (sym_mon_braiding _ x y).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite <- !copy_tensor.
     etrans.
     {
@@ -190,7 +219,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_copy (x : C) :
     is_deterministic (copy x).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite <- copy_tensor.
     etrans.
     {
@@ -231,7 +260,7 @@ Section ExamplesAndProperties.
       }
       apply idpath. 
     }
-    refine (!_).
+    symmetry.
     etrans.
     {
       rewrite double_copy_assoc.
@@ -247,7 +276,8 @@ Section ExamplesAndProperties.
     (d1 : is_deterministic f1) (d2 : is_deterministic f2)
     : is_deterministic (f1 #⊗ f2).
   Proof.
-    unfold is_deterministic in *.
+    apply make_is_deterministic.
+    apply is_deterministic_eq in d1, d2.
     rewrite <- !copy_tensor.
     etrans.
     {
@@ -266,10 +296,10 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_mon_lunitor (x : C) :
     is_deterministic (mon_lunitor x).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite <- copy_tensor.
     rewrite <- precompose_inner_swap_with_lunitors_on_right.
-    refine (!_).
+    symmetry.
     etrans.
     { 
       rewrite !assoc'.
@@ -285,7 +315,7 @@ Section ExamplesAndProperties.
     apply maponpaths_2.
     etrans.
     {
-      refine (!_).
+      symmetry.
       apply tensor_comp_mor.
     }
     rewrite id_right.
@@ -296,10 +326,10 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_mon_runitor (x : C) :
     is_deterministic (mon_runitor x).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     rewrite <- copy_tensor.
     rewrite <- precompose_inner_swap_with_lunitors_and_runitor.
-    refine (!_).
+    symmetry.
     etrans.
     { 
       rewrite !assoc'.
@@ -315,7 +345,7 @@ Section ExamplesAndProperties.
     apply maponpaths_2.
     etrans.
     {
-      refine (!_).
+      symmetry.
       apply tensor_comp_mor.
     }
     rewrite id_right.
@@ -327,7 +357,8 @@ Section ExamplesAndProperties.
     (f : z_iso x y) (df : is_deterministic f)
     : is_deterministic (inv_from_z_iso f).
   Proof.
-    unfold is_deterministic in *.
+    apply make_is_deterministic.
+    apply is_deterministic_eq in df.
     use z_iso_inv_on_right.
     rewrite assoc.
     rewrite df.
@@ -342,23 +373,21 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_mon_linvunitor (x : C) :
     is_deterministic (mon_linvunitor x).
   Proof.
-    refine (is_deterministic_inverse (z_iso_from_mon_lunitor x) _).
-    cbn.
+    simple refine (is_deterministic_inverse (z_iso_from_mon_lunitor x) _).
     apply is_deterministic_mon_lunitor.
   Qed.
         
   Proposition is_deterministic_mon_rinvunitor (x : C) :
     is_deterministic (mon_rinvunitor x).
   Proof.
-    refine (is_deterministic_inverse (z_iso_from_mon_runitor x) _).
-    cbn.
+    simple refine (is_deterministic_inverse (z_iso_from_mon_runitor x) _).
     apply is_deterministic_mon_runitor.
   Qed.  
 
   Proposition is_deterministic_mon_lassociator (x y z : C) :
     is_deterministic (mon_lassociator x y z).
   Proof.
-    unfold is_deterministic.
+    apply make_is_deterministic.
     etrans.
     {
       rewrite <- !copy_tensor.
@@ -368,7 +397,7 @@ Section ExamplesAndProperties.
       rewrite !assoc'.
       apply idpath.
     }
-    refine (!_).
+    symmetry.
     etrans.
     {
       rewrite <- !copy_tensor.
@@ -385,8 +414,7 @@ Section ExamplesAndProperties.
   Proposition is_deterministic_mon_rassociator (x y z : C) :
     is_deterministic (mon_rassociator x y z).
   Proof.
-    refine (is_deterministic_inverse (z_iso_from_mon_lassociator x y z) _).
-    cbn.
+    simple refine (is_deterministic_inverse (z_iso_from_mon_lassociator x y z) _).
     apply is_deterministic_mon_lassociator.
   Qed.
 
@@ -418,6 +446,19 @@ Section ExamplesAndProperties.
       * apply is_deterministic_identity.
     - apply is_deterministic_mon_lunitor.
   Qed.
+
+  Proposition is_deterministic_inner_swap (x y z w : C) : is_deterministic (inner_swap C x y z w).
+  Proof.
+    unfold inner_swap.
+    apply is_deterministic_composition; try apply is_deterministic_mon_lassociator.
+    apply is_deterministic_composition; try apply is_deterministic_mon_rassociator.
+    rewrite tensor_mor_left, tensor_mor_right.
+    apply is_deterministic_tensor; try apply is_deterministic_identity.
+    apply is_deterministic_composition; try apply is_deterministic_mon_rassociator.
+    apply is_deterministic_composition; try apply is_deterministic_mon_lassociator.
+    apply is_deterministic_tensor; try apply is_deterministic_sym_mon_braiding.
+    apply is_deterministic_identity.
+  Qed.
   
 End ExamplesAndProperties.
 
@@ -427,6 +468,8 @@ End ExamplesAndProperties.
 
 (* We can automatically derive that some morphisms are deterministic by 
    composing various primitive determinism statements *)
+
+Create HintDb autodet.
 
 #[global] Hint Resolve is_deterministic_identity : autodet.
 #[global] Hint Resolve is_deterministic_composition : autodet.
@@ -447,6 +490,8 @@ End ExamplesAndProperties.
 #[global] Hint Resolve is_deterministic_proj1 : autodet.
 #[global] Hint Resolve is_deterministic_proj2 : autodet.
 
+#[global] Hint Resolve is_deterministic_inner_swap : autodet.
+
 #[global] Hint Resolve deterministic_iso_to_z_iso_is_deterministic : autodet.
 
 (** ** 3.2 Lemmas for a Calculus of Pairings *)
@@ -461,23 +506,24 @@ End ExamplesAndProperties.
 Section PairingCalculus.
   Context {C : markov_category}.
 
+  Proposition proj_inner_swap (x y : C) : inner_swap _ x x y y · proj1 #⊗ proj2 = proj1 #⊗ proj2.
+  Proof.
+    unfold proj1, proj2.
+    rewrite !tensor_comp_mor.
+    rewrite !assoc.
+    rewrite naturality_inner_swap.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite inner_swap_along_unit.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
   Lemma pairing_proj_id (x y : C) :
-    ⟨proj1, proj2⟩ = identity (x ⊗ y).
+    identity (x ⊗ y) = ⟨proj1, proj2⟩.
   Proof.
     unfold pairing.
     rewrite <- copy_tensor.
-    assert(proj_inner_swap : inner_swap _ x x y y · proj1 #⊗ proj2 = proj1 #⊗ proj2).
-    {
-      unfold proj1, proj2.
-      rewrite !tensor_comp_mor.
-      rewrite !assoc.
-      rewrite naturality_inner_swap.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite inner_swap_along_unit.
-      rewrite id_left.
-      apply idpath.
-    }
     rewrite assoc', proj_inner_swap.
     rewrite <- tensor_comp_mor.
     rewrite copy_proj1, copy_proj2.
@@ -485,17 +531,7 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
-  Lemma pairing_proj_tensor
-    {x1 x2 y1 y2 : C}
-    (f : x1 --> y1) (g : x2 --> y2) 
-    : ⟨proj1 · f, proj2 · g⟩ = f #⊗ g.
-  Proof.
-    rewrite <- pairing_tensor.
-    rewrite pairing_proj_id, id_left.
-    reflexivity.
-  Qed.
-
-  Lemma pairing_det {x y : C} (f : x --> y) :
+  Proposition pairing_det {x y : C} (f : x --> y) :
     is_deterministic f -> ⟨f,f⟩ = f · ⟨identity y, identity y⟩.
   Proof.
     intros det.
@@ -505,7 +541,7 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
-  Lemma pairing_precomp {x y z w : C} 
+  Proposition pairing_precomp {x y z w : C} 
     (f : y --> z) (g : y --> w) (h : x --> y) 
     : is_deterministic h -> ⟨h · f, h · g⟩ = h · ⟨f, g⟩.
   Proof.
@@ -516,17 +552,17 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
-  Lemma pairing_eta {x y z : C} (h : x --> y ⊗ z) :
+  Proposition pairing_eta {x y z : C} (h : x --> y ⊗ z) :
     is_deterministic h -> h = ⟨h · proj1, h · proj2⟩.
   Proof.
     intros det.
     rewrite pairing_precomp ; [..|assumption].
-    rewrite pairing_proj_id.
+    rewrite <- pairing_proj_id.
     rewrite id_right.
     reflexivity.
   Qed.
 
-  Lemma det_eta {x y z : C} (f g : x --> y ⊗ z) 
+  Proposition det_eta {x y z : C} (f g : x --> y ⊗ z) 
     (df : is_deterministic f) (dg : is_deterministic g)
     : f · proj1 = g · proj1 -> f · proj2 = g · proj2 -> f = g.
   Proof.
@@ -537,8 +573,37 @@ Section PairingCalculus.
     reflexivity.
   Qed.
 
+  Lemma pairing_proj_tensor {x1 x2 y1 y2 : C} (f : x1 --> y1) (g : x2 --> y2) :
+    f #⊗ g = ⟨proj1 · f, proj2 · g⟩.
+  Proof.
+    rewrite <- pairing_tensor.
+    rewrite <- pairing_proj_id, id_left.
+    reflexivity.
+  Qed.
+
+  Lemma pairing_proj_whisker_l {x y z : C} (g : y --> z) :
+    x ⊗^{C}_{l} g = ⟨proj1, proj2 · g⟩.
+  Proof.
+    rewrite tensor_mor_left, pairing_proj_tensor, id_right.
+    reflexivity.
+  Qed.
+
+  Lemma pairing_proj_whisker_r {x y z : C} (f : x --> y) :
+    f ⊗^{C}_{r} z = ⟨proj1 · f, proj2⟩.
+  Proof.
+    rewrite tensor_mor_right, pairing_proj_tensor, id_right.
+    reflexivity.
+  Qed.
+
+  Lemma pairing_proj_copy {x : C} :
+    copy x = ⟨identity x, identity x⟩.
+  Proof.
+    rewrite pairing_id.
+    reflexivity.
+  Qed.
+
   Lemma pairing_proj_braiding (x y : C) :
-    ⟨proj2, proj1⟩ = sym_mon_braiding C x y.
+    sym_mon_braiding C x y = ⟨proj2, proj1⟩.
   Proof.
     apply det_eta; try auto with autodet.
     - rewrite pairing_proj1.
@@ -550,7 +615,7 @@ Section PairingCalculus.
   Qed. 
 
   Lemma pairing_proj_rassociator {x y z : C} :
-    ⟨⟨proj1, proj2 · proj1⟩, proj2 · proj2⟩ = mon_rassociator x y z.
+    mon_rassociator x y z = ⟨⟨proj1, proj2 · proj1⟩, proj2 · proj2⟩.
   Proof.
     use cancel_z_iso.
     - exact (x ⊗ (y ⊗ z)).
@@ -558,13 +623,13 @@ Section PairingCalculus.
     - cbn.
       rewrite mon_rassociator_lassociator, pairing_lassociator.
       rewrite pairing_precomp; [..|auto with autodet].
-      rewrite pairing_proj_id, id_right.
-      rewrite pairing_proj_id.
+      rewrite <- pairing_proj_id, id_right.
+      rewrite <- pairing_proj_id.
       reflexivity.
   Qed.
 
   Lemma pairing_proj_lassociator {x y z : C} :
-    ⟨proj1 · proj1, ⟨proj1 · proj2, proj2⟩⟩ = mon_lassociator x y z.
+    mon_lassociator x y z = ⟨proj1 · proj1, ⟨proj1 · proj2, proj2⟩⟩.
   Proof.
     use cancel_z_iso.
     - exact ((x ⊗ y) ⊗ z).
@@ -572,11 +637,69 @@ Section PairingCalculus.
     - cbn.
       rewrite mon_lassociator_rassociator, pairing_rassociator.
       rewrite pairing_precomp; [..|auto with autodet].
-      rewrite pairing_proj_id, id_right.
+      rewrite <- pairing_proj_id, id_right.
       rewrite pairing_proj_id.
       reflexivity.
   Qed.
 
+  Lemma pairing_proj_lunitor {x : C} :
+    mon_lunitor x = proj2.
+  Proof.
+    unfold proj2.
+    assert(e : del I_{C} = identity I_{C}). { apply markov_category_unit_eq. }
+    rewrite e, tensor_id_id, id_left.
+    reflexivity.
+  Qed.
+
+  Lemma pairing_proj_linvunitor {x : C} :
+    mon_linvunitor x = ⟨del x, identity x⟩.
+  Proof.
+    apply det_eta; try auto with autodet.
+    - apply markov_category_unit_eq.
+    - rewrite pairing_proj2.
+      rewrite <- pairing_proj_lunitor. 
+      rewrite mon_linvunitor_lunitor.
+      reflexivity.
+  Qed.
+
+  Lemma pairing_proj_runitor {x : C} :
+    mon_runitor x = proj1.
+  Proof.
+    unfold proj1.
+    assert(e : del I_{C} = identity I_{C}). { apply markov_category_unit_eq. }
+    rewrite e, tensor_id_id, id_left.
+    reflexivity.
+  Qed.
+
+  Lemma pairing_proj_rinvunitor {x : C} :
+    mon_rinvunitor x = ⟨identity x, del x⟩.
+  Proof.
+    apply det_eta; try auto with autodet.
+    - rewrite pairing_proj1.
+      rewrite <- pairing_proj_runitor. 
+      rewrite mon_rinvunitor_runitor.
+      reflexivity.
+    - apply markov_category_unit_eq.
+  Qed.
+
+  Lemma pairing_proj_inner_swap' {x y z w : C} :
+    inner_swap C x y z w = ⟨ proj1 #⊗ proj1 , proj2 #⊗ proj2 ⟩.
+  Proof.
+    transitivity ((⟨proj1, proj2⟩ #⊗ ⟨proj1, proj2⟩) · inner_swap C x y z w). {
+      rewrite <- !pairing_proj_id, tensor_id_id, id_left.
+      reflexivity.
+    }
+    rewrite pairing_inner_swap.
+    reflexivity.
+  Qed.
+
+  Lemma pairing_proj_inner_swap {x y z w : C} :
+    inner_swap C x y z w = ⟨ ⟨ proj1 · proj1 , proj2 · proj1 ⟩ , ⟨ proj1 · proj2 , proj2 · proj2 ⟩ ⟩.
+  Proof.
+    rewrite <- !pairing_proj_tensor.
+    apply pairing_proj_inner_swap'.
+  Qed. 
+  
 End PairingCalculus.
 
 (** ** 3.3 Coherence Tactics *)
@@ -589,44 +712,53 @@ End PairingCalculus.
 (* Expand out all all structural maps 
     in terms of just pairing and projections *)
 Ltac pairing_proj_expand :=
-  (rewrite <- !pairing_proj_id) ||
-  (rewrite <- !pairing_eq) ||
-  (rewrite <- !pairing_id) ||
-  (rewrite <- !pairing_proj_braiding) ||
-  (rewrite <- !pairing_proj_tensor) ||
-  (rewrite <- !pairing_proj_lassociator) ||
-  (rewrite <- !pairing_proj_rassociator).
+  (repeat rewrite pairing_proj_whisker_l);
+  (repeat rewrite pairing_proj_whisker_r);
+  (repeat rewrite pairing_proj_tensor);
+  (repeat rewrite pairing_proj_copy);
+  (repeat rewrite pairing_proj_id);
+  (repeat rewrite pairing_proj_braiding);
+  (repeat rewrite pairing_proj_lassociator);
+  (repeat rewrite pairing_proj_rassociator);
+  (repeat rewrite pairing_proj_lunitor);
+  (repeat rewrite pairing_proj_linvunitor);
+  (repeat rewrite pairing_proj_runitor);
+  (repeat rewrite pairing_proj_rinvunitor);
+  (repeat rewrite pairing_proj_inner_swap).
 
-(* Make some basic simplifications *)
-Ltac pairing_simpl_basic := 
-  (rewrite !pairing_proj1) ||
-  (rewrite !pairing_proj2) ||
-  (rewrite !id_left) ||
-  (rewrite !id_right).
+Ltac normalize_assoc :=
+  repeat rewrite assoc.
 
-(* Try repeated simplification, and some
-    shuffling around with associators *)
-Ltac pairing_simpl := 
-    repeat pairing_simpl_basic;
-    try (rewrite !assoc'; pairing_simpl_basic; repeat pairing_simpl_basic);
-    try (rewrite !assoc; pairing_simpl_basic; repeat pairing_simpl_basic).
+Ltac markov_step :=
+     (rewrite id_left)
+  || (rewrite id_right)
+  || (rewrite pairing_proj1)
+  || (rewrite pairing_proj2)
+  || (rewrite pairing_proj1_nested)
+  || (rewrite pairing_proj2_nested).
 
-(* This tactic tries to discharge or simplify 
-    an equation between structural maps into tensors by eta-rule.
-    - Expand both sides in terms of pairings and projections
-    - Simplify
-    - apply deterministic eta rule
-    - dischage determinism assumptions using hints
-    - simplify and see if that suffices *)
-Ltac markov_coherence :=
-  repeat pairing_proj_expand;
-  repeat pairing_simpl;
-  apply det_eta;
-  try auto with autodet; 
-  repeat pairing_simpl;
+(* never fails *)
+
+Ltac markov_simpl :=
+  repeat (normalize_assoc; markov_step).
+
+Ltac markov_split :=
+  repeat (apply det_eta; try auto 20 with autodet).
+
+Ltac markov_solve :=
+  pairing_proj_expand; markov_simpl; 
+  try apply markov_category_unit_eq;
   try reflexivity.
 
+Ltac markov_coherence :=
+  abstract (
+    pairing_proj_expand; markov_simpl;
+    markov_split; (* split goals with eta rule *)
+    markov_solve
+  ).
+
 (* Some lemmas that are solved by the tactic *)
+
 Section Corollaries.
   Context {C : markov_category}.
 
@@ -651,7 +783,7 @@ Section Corollaries.
   Proposition copy_copy (x : C)
     : copy x · copy (x ⊗ x) = copy x · copy x #⊗ copy x.
   Proof.
-    markov_coherence; markov_coherence.
+    markov_coherence.
   Qed.
   
   Proposition copy_pairing 
@@ -666,83 +798,11 @@ Section Corollaries.
     reflexivity.
   Qed.
 
-  (* This is a nice test case: 
-     If [markov_coherence] was better, it should solve this goal automatically. *)
   Proposition inner_swap_proj {x y z w : C} : 
     ⟨ ⟨ proj1 · proj1 , proj2 · proj1 ⟩ , ⟨ proj1 · proj2, proj2 · proj2 ⟩ ⟩ 
     = inner_swap _ x y z w.
   Proof.
-    unfold inner_swap.
-    rewrite tensor_mor_left, tensor_mor_right.
-    markov_coherence; [try auto 10 with autodet|..]. 
-    - markov_coherence; [try auto 10 with autodet|..].
-      rewrite !assoc.
-      symmetry. etrans. {
-        apply maponpaths_2.
-        rewrite !assoc'.
-        pairing_simpl.
-        reflexivity.
-      }
-      pairing_simpl.
-      rewrite !assoc.
-      etrans. {
-        apply maponpaths_2.
-        rewrite !assoc'.
-        pairing_simpl.
-        rewrite !assoc.
-        apply maponpaths_2.
-        pairing_simpl.
-        reflexivity.
-      }
-      pairing_simpl.
-      reflexivity.
-    - markov_coherence; [try auto 10 with autodet|..].
-      * rewrite !assoc.
-        refine (!_).
-        etrans. {
-          do 2 apply maponpaths_2.
-          rewrite !assoc'.
-          pairing_simpl.
-          reflexivity.
-        }
-        etrans. {
-          apply maponpaths_2.
-          rewrite !assoc'.
-          pairing_simpl.
-          reflexivity.
-        }
-        pairing_simpl.
-        rewrite !assoc.
-        etrans. {
-          apply maponpaths_2.
-          rewrite !assoc'.
-          pairing_simpl.
-          reflexivity.
-        }
-        rewrite !assoc.
-        pairing_simpl.
-        etrans. {
-          rewrite !assoc.
-          apply maponpaths_2.
-          pairing_simpl.
-          reflexivity.
-        }
-        pairing_simpl.
-        reflexivity.
-      * symmetry.
-        etrans. {
-          rewrite !assoc.
-          do 2 apply maponpaths_2.
-          pairing_simpl.
-          reflexivity. 
-        }
-        etrans. {
-          apply maponpaths_2.
-          pairing_simpl.
-          reflexivity.
-        }
-        pairing_simpl.
-        reflexivity.
+    markov_coherence.
   Qed.
 
 End Corollaries.

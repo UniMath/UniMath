@@ -92,7 +92,7 @@ Definition iso_weq_det_iso_all_deterministic
 Proof.
   use weq_iso.
   - intro f.
-    refine (f ,, _).
+    simple refine (f ,, _).
     apply H.
   - intro f.
     exact f.
@@ -113,7 +113,7 @@ Proof.
   use weqimplimpl.
   - intros HC x y.
     use weqhomot.
-    + refine (iso_weq_det_iso_all_deterministic H x y ∘ _)%weq.
+    + simple refine (iso_weq_det_iso_all_deterministic H x y ∘ _)%weq.
       use make_weq.
       * apply idtoiso.
       * apply HC. 
@@ -128,7 +128,7 @@ Proof.
       reflexivity. 
   - intros HC x y.
     use weqhomot.
-    + refine (invweq (iso_weq_det_iso_all_deterministic H x y) ∘ _)%weq.
+    + simple refine (invweq (iso_weq_det_iso_all_deterministic H x y) ∘ _)%weq.
       use make_weq.
       * apply idtodet_iso.
       * apply HC. 

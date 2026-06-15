@@ -118,6 +118,16 @@ Definition markov_category_laws
       =
       copy (x ⊗ y)).
 
+Proposition isaprop_markov_category_laws 
+            (C : markov_category_data)
+     : isaprop (markov_category_laws C).
+Proof.
+  unfold markov_category_laws.
+  (repeat apply isapropdirprod)
+  ; repeat (apply impred_isaprop; intros)
+  ; try apply homset_property.
+Qed.
+
 Definition markov_category
   : UU
   := ∑ (C : markov_category_data),
@@ -320,7 +330,7 @@ Section Marginals.
     mon_lassociator _ _ _ · (identity x #⊗ f) · proj2.
   Proof.
     unfold proj2.
-    refine (!_).
+    symmetry.
     etrans.
     {
       rewrite !assoc'.
@@ -452,6 +462,22 @@ Section PairingProperties.
       rewrite mon_linvunitor_lunitor.
       rewrite id_left.
       reflexivity. }
+    reflexivity.
+  Qed.
+
+  (* The following two formulations are useful for rewriting inside right-associated composites *)
+
+  Lemma pairing_proj1_nested {a b x y : C} (f : a --> b) (g : b --> x) (h : b --> y) :
+    f · ⟨ g , h ⟩ · proj1 = f · g.
+  Proof.
+    rewrite assoc', pairing_proj1.
+    reflexivity.
+  Qed.
+
+  Lemma pairing_proj2_nested {a b x y : C} (f : a --> b) (g : b --> x) (h : b --> y) :
+    f · ⟨ g , h ⟩ · proj2 = f · h.
+  Proof.
+    rewrite assoc', pairing_proj2.
     reflexivity.
   Qed.
 
