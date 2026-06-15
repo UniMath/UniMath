@@ -137,9 +137,9 @@ Proof.
       + assert ( egf1 : ∏ a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  a1' = a1 ).
         * intros.
           set ( X' :=  maponpaths pr1 X ).
-          assert ( isc : isweq h ).
+          assert ( isw : isweq h ).
           { simpl in h .  apply isweqpr1pr1 . }
-          apply ( invmaponpathsweq ( make_weq h isc ) _ _ X' ).
+          apply ( invmaponpathsweq ( make_weq h isw ) _ _ X' ).
         * set ( egf := λ a1 , egf1 _ _ ( egf0 a1 ) ).
           set ( is2 := isweq_iso _ _ egf efg ).
           apply ( isweqtotaltofib _ _ ( λ _, eqweqmap) is2 ( make_dirprod T1 T2 ) ).
