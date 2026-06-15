@@ -55,7 +55,35 @@ Section SubobjectClassifier.
     : UU
     := (C / x)^op ⟶ hProp_category.
 
-  Identity Coercion sieve_to_functor : sieve >-> functor.
+  Definition sieve_ob
+             {x : C}
+             (ω : sieve x)
+             {y : C}
+             (f : y --> x)
+    : hProp
+    := pr1 ω (make_cod_fib_ob f).
+
+  Coercion sieve_ob : sieve >-> Funclass.
+
+  Definition sieve_mor
+             {x : C}
+             (ω : sieve x)
+             {y₁ y₂ : C}
+             {f₁ : y₁ --> x}
+             {f₂ : y₂ --> x}
+             (h : y₁ --> y₂)
+             (p : h · f₂ = f₁)
+             (q : ω y₂ f₂)
+    : ω y₁ f₁
+    := # (ω : functor _ _)
+         (make_cod_fib_mor
+            (f₁ := make_cod_fib_ob f₁)
+            (f₂ := make_cod_fib_ob f₂)
+            h
+            p)
+         q.
+
+  Notation "#ω" := sieve_mor : cat.
 
   Definition make_sieve
              (x : C)
@@ -81,8 +109,8 @@ Section SubobjectClassifier.
   Definition sieve_eq
              {x : C}
              {ω₁ ω₂ : sieve x}
-             (p : ∏ (g : C/x), (ω₁ g : hProp) → (ω₂ g : hProp))
-             (q : ∏ (g : C/x), (ω₂ g : hProp) → (ω₁ g : hProp))
+             (p : ∏ (y : C) (g : y --> x), ω₁ y g → ω₂ y g)
+             (q : ∏ (y : C) (g : y --> x), ω₂ y g → ω₁ y g)
     : ω₁ = ω₂.
   Proof.
     use functor_eq.
@@ -98,27 +126,27 @@ Section SubobjectClassifier.
     use funextsec.
     intro g.
     use hPropUnivalence.
-    - exact (p g).
-    - exact (q g).
+    - exact (p (pr1 g) (pr2 g)).
+    - exact (q (pr1 g) (pr2 g)).
   Qed.
 
   Definition from_sieve_eq_l
-             {x : C}
+             {x y : C}
              {ω₁ ω₂ : sieve x}
              (p : ω₁ = ω₂)
-             (g : C/x)
-    : (ω₁ g : hProp) → (ω₂ g : hProp).
+             (g : y --> x)
+    : ω₁ y g → ω₂ y g.
   Proof.
     induction p.
     exact (λ z, z).
   Defined.
 
   Definition from_sieve_eq_r
-             {x : C}
+             {x y : C}
              {ω₁ ω₂ : sieve x}
              (p : ω₁ = ω₂)
-             (g : C/x)
-    : (ω₂ g : hProp) → (ω₁ g : hProp).
+             (g : y --> x)
+    : ω₂ y g → ω₁ y g.
   Proof.
     induction p.
     exact (λ z, z).
@@ -159,15 +187,13 @@ Section SubobjectClassifier.
   Proof.
     use sieve_eq.
     - intros g q ; simpl in q.
-      refine (#ω _ q).
-      use make_cod_fib_mor.
+      simple refine (#ω ω _ _).
       + apply identity.
       + cbn.
         rewrite id_left, id_right.
         apply idpath.
     - intros g q ; simpl in q.
-      refine (#ω _ q).
-      use make_cod_fib_mor.
+      simple refine (#ω ω _ _).
       + apply identity.
       + cbn.
         rewrite id_left, id_right.
@@ -185,16 +211,14 @@ Section SubobjectClassifier.
   Proof.
     use sieve_eq.
     - intros g q ; simpl in q.
-      refine (#ω _ q).
-      use make_cod_fib_mor.
+      simple refine (#ω ω _ _).
       + apply identity.
       + cbn.
         rewrite id_left.
         rewrite assoc'.
         apply idpath.
     - intros g q ; simpl in q.
-      refine (#ω _ q).
-      use make_cod_fib_mor.
+      simple refine (#ω ω _ _).
       + apply identity.
       + cbn.
         rewrite id_left.
@@ -227,8 +251,8 @@ Section SubobjectClassifier.
     : truth_sieve y = functor_opp (comp_functor f) ∙ truth_sieve x.
   Proof.
     use sieve_eq.
-    - exact (λ _ _, tt).
-    - exact (λ _ _, tt).
+    - exact (λ _ _ _, tt).
+    - exact (λ _ _ _, tt).
   Qed.
 
   Definition dep_psh_truth
@@ -398,7 +422,7 @@ Section SubobjectClassifier.
         #d (dep_psh_subobject_classifier_ob Γ) f q (fiber_sieve b).
     Proof.
       use sieve_eq.
-      - intros g [ a r ].
+      - intros z g [ a r ].
         simple refine (_ ,, _).
         + simple refine (#d A (identity _) _ a).
           abstract
@@ -424,7 +448,7 @@ Section SubobjectClassifier.
           use dep_psh_mor_path_eq.
           rewrite id_left.
           apply idpath.
-      - intros g [ a r ].
+      - intros z g [ a r ].
         simple refine (_ ,, _).
         + simple refine (#d A (identity _) _ a).
           abstract
@@ -473,7 +497,7 @@ Section SubobjectClassifier.
       use sieve_eq.
       - intros.
         exact tt.
-      - intros [ y g ] t ; cbn in *.
+      - intros y g t ; cbn in *.
         simple refine (_ ,, _).
         + exact (#d A g (idpath _) a).
         + unfold in_fiber ; cbn.
@@ -529,7 +553,7 @@ Section SubobjectClassifier.
           pose (q₂ @ dep_psh_fiber_comp _ θ₂ (dep_psh_truth Γ) z)
             as q₃.
           simpl in q₃.
-          pose (from_sieve_eq_r q₃ (cod_fib_id x) tt) as a.
+          pose (from_sieve_eq_r q₃ (identity x) tt) as a.
           simple refine (_ ,, _).
           + refine (#d A (identity _) _ (pr1 a)).
             exact (eqtohomot (functor_id Γ _) _ @ eqtohomot (functor_id Γ _) _).
@@ -645,7 +669,7 @@ Section SubobjectClassifier.
       use dep_psh_nat_trans_eq.
       intros x xx b.
       use sieve_eq.
-      - cbn ; intros [ y g ] γ.
+      - cbn ; intros y g γ.
         assert (compose
                   (C := (disp_cat_dep_psh C)[{Γ}])
                   (dep_psh_nat_trans_from_mor_dep_psh (#d B g (idpath _) b))
@@ -671,15 +695,12 @@ Section SubobjectClassifier.
           refine (dep_psh_nat_trans_ax χ (pr1 a · g) _ q _ @ _).
           use sieve_eq.
           {
-            exact (λ _ _, tt).
+            exact (λ _ _ _, tt).
           }
-          intros [ w h ] _.
-          refine (#(χ _ _ _ : sieve _) _ γ).
-          cbn.
-          simple refine (_ ,, _).
+          intros w h _.
+          simple refine (#ω (χ _ _ _ : sieve _) _ _ γ).
           + exact (h · pr1 a).
           + cbn.
-            rewrite id_right.
             rewrite assoc'.
             apply idpath.
         }
@@ -707,18 +728,18 @@ Section SubobjectClassifier.
           rewrite dep_psh_mor_comp'.
           use dep_psh_mor_path_eq.
           apply id_left.
-      - cbn ; intros [ y g ] [ a q ].
+      - cbn ; intros y g [ a q ].
         unfold in_fiber in q ; cbn in a, q.
-        simple refine (#(χ x xx b : sieve _) _ _).
-        + exact (cod_fib_comp g (cod_fib_id y)).
-        + refine (identity _ ,, _).
-          cbn.
-          rewrite !id_left, id_right.
+        simple refine (#ω (χ x xx b : sieve _) (identity _) _ _).
+        + exact (identity _ · g).
+        + cbn.
+          rewrite !id_left.
           apply idpath.
-        + pose (dep_psh_nat_trans_ax χ g (idpath _) (idpath _) b)
+        + pose proof (dep_psh_nat_trans_ax χ g (idpath _) (idpath _) b)
             as r₁.
           cbn in r₁.
-          pose (maponpaths (λ z : sieve _, z (cod_fib_id _)) r₁)
+          pose proof (maponpaths (λ z : sieve _, z _ (identity _)) r₁
+              : _ = (χ x xx b : sieve _) y (identity y · g))
             as r₂.
           cbn in r₂.
           cbn.
@@ -731,7 +752,7 @@ Section SubobjectClassifier.
             as r₂.
           clear r₁.
           cbn in r₂, a.
-          pose (from_sieve_eq_r r₂ (cod_fib_id y) tt) as r₃.
+          pose (from_sieve_eq_r r₂ (identity _) tt) as r₃.
           cbn in r₃.
           exact r₃.
     Qed.
@@ -827,3 +848,5 @@ Section SubobjectClassifier.
            apply idpath).
   Defined.
 End SubobjectClassifier.
+
+Notation "#ω" := sieve_mor : cat.
