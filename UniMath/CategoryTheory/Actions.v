@@ -214,9 +214,9 @@ Proof.
   - apply iscontrunit.
 Defined.
 
-Definition contr_category_to_monoid (C : category) (is : iscontr (ob C)) : monoid.
+Definition contr_category_to_monoid (C : category) (isc : iscontr (ob C)) : monoid.
 Proof.
-  pose (center := iscontrpr1 is).
+  pose (center := iscontrpr1 isc).
   use make_monoid.
   - use make_setwithbinop.
     + use make_hSet.

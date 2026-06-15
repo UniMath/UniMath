@@ -580,7 +580,7 @@ Defined.
 Definition pair_path_props {X} {P:X->Type} {x y:X} {p:P x} {q:P y} :
   x = y -> (∏ z, isaprop (P z)) -> x,,p = y,,q.
 Proof.
-  intros e is. now apply subtypePairEquality.
+  intros e isc. now apply subtypePairEquality.
 Abort.
 
 Local Open Scope transport.
@@ -881,7 +881,7 @@ Defined.
 
 Goal ∏ (X:Type) (x y:X) (p q:x = y), isaset X -> p = q.
 Proof.
-  intros * is. apply is.
+  intros * isc. apply isc.
 Defined.
 
 Definition funset X (Y:hSet) : hSet
@@ -926,6 +926,36 @@ Proof.
   destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
   cbn in eb; destruct eb; cbn in ec; destruct ec.
   apply idpath.
+Defined.
+
+(* could also have better names, but I'm staying consistent with [total2asstor] from Foundations/PartA.v *)
+
+Definition total2asstor_path
+  {A : UU}
+  {B : A -> UU}
+  {C : (∑ a : A, B a) -> UU}
+  {x y :  (∑ z : (∑ a : A, B a), C z)} :
+  total2asstor _ _ x = total2asstor _ _ y -> x = y.
+Proof.
+  intros d.
+  use invmaponpathsweq.
+  - exact (∑ a : A, ∑ b : B a, C (a ,, b)).
+  - use weqtotal2asstor.
+  - exact d.
+Defined.
+
+Definition total2asstol_path
+  {A : UU}
+  {B : A -> UU}
+  {C : (∑ a : A, B a) -> UU}
+  {x y :  ∑ a : A, ∑ b : B a, C (a ,, b)} :
+  total2asstol _ _ x = total2asstol _ _ y -> x = y.
+Proof.
+  intros d.
+  use invmaponpathsweq.
+  - exact (∑ z : (∑ a : A, B a), C z).
+  - use weqtotal2asstol.
+  - exact d.
 Defined.
 
 Section InvRot.

@@ -302,9 +302,9 @@ Section Equalizers'.
   Definition isEqualizer' : UU :=
     ∏ (a : ob C), isweq (postcomp_with_equalizer_mor a).
 
-  Definition isEqualizer'_weq (is : isEqualizer') :
+  Definition isEqualizer'_weq (isc : isEqualizer') :
     ∏ a, (a --> E) ≃ (∑ k : a --> c, (k · f = k · g)) :=
-    λ a, make_weq (postcomp_with_equalizer_mor a) (is a).
+    λ a, make_weq (postcomp_with_equalizer_mor a) (isc a).
 
   Lemma isaprop_isEqualizer' : isaprop isEqualizer'.
   Proof.
