@@ -82,6 +82,31 @@ Section SigmaTypes.
       apply dep_psh_mor_id.
     Qed.
 
+    Proposition path_sigma_dep_psh_pr1
+                {x : C}
+                {xx : (Γ x : hSet)}
+                {ab₁ ab₂ : sigma_dep_psh_ob xx}
+                (p : ab₁ = ab₂)
+      : pr1 ab₁ = pr1 ab₂.
+    Proof.
+      induction p.
+      apply idpath.
+    Defined.
+
+    Proposition path_sigma_dep_psh_pr2
+                {x : C}
+                {xx : (Γ x : hSet)}
+                {ab₁ ab₂ : sigma_dep_psh_ob xx}
+                (p : ab₁ = ab₂)
+      : pr2 ab₁
+        =
+        #d B (identity _) (path_sigma_dep_psh_ob_path (path_sigma_dep_psh_pr1 p)) (pr2 ab₂).
+    Proof.
+      induction p ; cbn.
+      refine (!_).
+      apply dep_psh_mor_id.
+    Qed.
+
     Definition sigma_dep_psh_mor
                {x y : C}
                {xx : (Γ x : hSet)}

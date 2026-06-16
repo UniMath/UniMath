@@ -179,11 +179,31 @@ Section SubobjectClassifier.
     - exact (isaset_sieve x).
   Defined.
 
+  Definition precomp_sieve
+             {x y : C}
+             (f : x --> y)
+             (ω : sieve y)
+    : sieve x.
+  Proof.
+    use make_sieve.
+    - exact (λ w h, ω _ (h · f)).
+    - intros y₁ y₂ g₁ g₂ h p q.
+      simple refine (#ω ω  _ _ q).
+      + exact h.
+      + abstract
+          (cbn in * ;
+           rewrite !assoc ;
+           rewrite p ;
+           apply idpath).
+  Defined.
+
+  Notation "f ^* ω" := (precomp_sieve f ω) (at level 50) : cat.
+
   (** * 2. The presheaf of sieves *)
-  Proposition comp_functor_sieve_id
+  Proposition id_precomp_sieve
               {x : C}
               (ω : sieve x)
-    : functor_opp (comp_functor (identity x)) ∙ ω = ω.
+    : identity x ^* ω = ω.
   Proof.
     use sieve_eq.
     - intros g q ; simpl in q.
@@ -200,14 +220,12 @@ Section SubobjectClassifier.
         apply idpath.
   Qed.
 
-  Proposition comp_functor_sieve_comp
+  Proposition comp_precomp_sieve
               {x y z : C}
               (f₁ : y --> x)
               (f₂ : z --> y)
               (ω : sieve x)
-    : functor_opp (comp_functor (f₂ · f₁)) ∙ ω
-      =
-      functor_opp (comp_functor f₂) ∙ (functor_opp (comp_functor f₁) ∙ ω).
+    : (f₂ · f₁)^* ω = f₂ ^* (f₁ ^* ω).
   Proof.
     use sieve_eq.
     - intros g q ; simpl in q.
@@ -232,11 +250,11 @@ Section SubobjectClassifier.
   Proof.
     use make_dep_psh.
     - exact (λ x xx, set_of_sieves x).
-    - exact (λ x y xx yy f p ω, functor_opp (comp_functor f) ∙ ω).
+    - exact (λ x y xx yy f p ω, f^* ω).
     - intros x xx p ω.
-      exact (comp_functor_sieve_id ω).
+      exact (id_precomp_sieve ω).
     - intros x y z xx yy zz f₁ f₂ p q r ω.
-      exact (comp_functor_sieve_comp f₁ f₂ ω).
+      exact (comp_precomp_sieve f₁ f₂ ω).
   Defined.
 
   (** * 3. The canonical monomorphism into the presheaf of sieves *)
@@ -248,7 +266,7 @@ Section SubobjectClassifier.
   Definition truth_sieve_comp
              {x y : C}
              (f : y --> x)
-    : truth_sieve y = functor_opp (comp_functor f) ∙ truth_sieve x.
+    : truth_sieve y = f^* truth_sieve x.
   Proof.
     use sieve_eq.
     - exact (λ _ _ _, tt).
@@ -850,3 +868,4 @@ Section SubobjectClassifier.
 End SubobjectClassifier.
 
 Notation "#ω" := sieve_mor : cat.
+Notation "f ^* ω" := (precomp_sieve f ω) (at level 50) : cat.
