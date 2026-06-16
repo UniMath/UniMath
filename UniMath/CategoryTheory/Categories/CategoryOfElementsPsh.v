@@ -4,7 +4,7 @@
 
  Every presheaf gives rise to a category of elements. If we have a presheaf `F` on `C`,
  then the objects of the category of elements `∫ F` are pairs of objects `c : C` with
- an elements `x : F c`.
+ an element `x : F c`.
 
  Note: the category of elements for a presheaf is also constructed in ElementsOp.v. The
  main difference is that in this file we use displayed categories. In addition, morphisms
