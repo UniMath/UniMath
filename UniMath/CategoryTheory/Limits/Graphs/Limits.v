@@ -38,6 +38,14 @@ Definition forms_cone {C : precategory} {g : graph} (d : diagram g C)
     {c : C} (f : ∏ (v : vertex g), C⟦c, dob d v⟧) : UU
   := ∏ (u v : vertex g) (e : edge u v), f u · dmor d e = f v.
 
+Lemma isaprop_forms_cone {C : category} {g : graph} {d : diagram g C}
+  {c : C} {f : ∏ (v : vertex g), C⟦c,dob d v⟧} 
+  : isaprop (forms_cone d f).
+Proof.
+  do 3 (use impred; intro).
+  use homset_property.
+Qed.
+
 (** better not the following: [Coercion coneOut : cone >-> Funclass.] *)
 
 Definition cone {C : precategory} {g : graph} (d : diagram g C) (c : C) : UU :=
@@ -60,6 +68,14 @@ Qed.
 Definition is_cone_mor {C : precategory} {g : graph} {d : diagram g C} {c1 : C}
            (cc1 : cone d c1) {c2 : C} (cc2 : cone d c2) (x : c1 --> c2) : UU :=
   ∏ (v : vertex g), x · coneOut cc2 v = coneOut cc1 v.
+
+Lemma isaprop_is_cone_mor {C : category} {g : graph} {d : diagram g C}
+  {c1 : C} (cc1 : cone d c1) {c2 : C} (cc2 : cone d c2) (f : c1 --> c2)
+  : isaprop (is_cone_mor cc1 cc2 f).
+Proof.
+  apply impred_isaprop ; intro.
+  apply homset_property.
+Qed.
 
 Definition constant_cone
   {C : category}

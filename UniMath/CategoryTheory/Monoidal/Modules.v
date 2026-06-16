@@ -8,7 +8,8 @@
  Contents
  1. Definitions
  2. Two examples of modules
- 3. Colimits MOD R are inherited from colimits in C
+ 3. Colimits in MOD R are inherited from colimits in C
+ 4. Limits in MOD R are inherited from colimits in C
 
  ***************************************************************************)
 
@@ -19,6 +20,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
@@ -210,7 +212,7 @@ Proof.
     := make_functor forgetful_functor_data forgetful_is_functor.
 
   (**
-     3. Colimits MOD R are inherited from colimits in C
+     3. Colimits in MOD R are inherited from colimits in C
    *)
 
   Section Colimits.
@@ -218,7 +220,7 @@ Proof.
     Context (colims_g : Colims_of_shape g C).
     Context (HR : preserves_colimits_of_shape (rightwhiskering_functor C R) g).
 
-    Variable (F : diagram g MOD).
+    Context (F : diagram g MOD).
 
     Let F' := mapdiagram forgetful F : diagram g C.
     Let L : C := pr11 (colims_g F').
@@ -584,5 +586,201 @@ Proof.
     : Colims_of_shape g MOD.
   Proof.
     now use colim_module_ColimCocone.
+  Defined.
+
+  (**
+     4. Limits in MOD R are inherited from colimits in C
+   *)
+
+  Section limits.
+    Context {g : graph}.
+    Context (lims_g : Lims_of_shape g C).
+
+    Context (F : diagram g MOD).
+
+    Let F' := mapdiagram forgetful F : diagram g C.
+    Let L : C := pr11 (lims_g F').
+    Let cc : cone F' L := pr21 (lims_g F').
+    Let c : isLimCone F' L cc := pr2 (lims_g F').
+
+    Let q (v : vertex g): module_subst (dob F' v) := pr12 (dob F v).
+    Let f (v : vertex g): L --> dob F' v := limOut _ v.
+
+    Local Lemma lim_module_forms_cone_tens_R
+      : forms_cone F' (λ v, f v ⊗r R · q v).
+    Proof.
+      intros u v e.
+      symmetry; etrans.
+      - use (maponpaths (λ x, x ⊗r _ · _)); [shelve|].
+        unfold f; now rewrite <- (limOutCommutes _ _ _ e).
+      - rewrite (bifunctor_rightcomp C), <- assoc, <- assoc.
+        use maponpaths; use (pr2 (dmor F e)).
+    Qed.
+
+    Definition lim_module_subst : module_subst L
+      := limArrow _ _ (make_cone _ lim_module_forms_cone_tens_R).
+
+    Local Lemma lim_module_forms_cone_tens_I
+      : forms_cone F' (λ v, f v ⊗r I_{ C} · dob F' v ⊗l η · q v).
+    Proof.
+      intros u v e.
+      etrans; [etrans|]; swap 2 3.
+      - rewrite <- assoc.
+        use (maponpaths (λ x, _ · _ · x)); [shelve|].
+        use (!pr2 (dmor F e)).
+      - use (maponpaths (λ x, x ⊗r _ · _ · _)); [shelve|].
+        use (limOutCommutes _ _ _ e).
+      - rewrite (bifunctor_rightcomp C).
+        do 3 rewrite <- assoc; use maponpaths.
+        do 2 rewrite assoc; use (maponpaths (λ x, x · _)).
+        do 2 rewrite @tensor_mor_left, @tensor_mor_right; use tensor_swap'.
+    Qed.
+
+    Lemma lim_module_unit 
+      : module_laws_unit lim_module_subst.
+    Proof.
+      etrans.
+      - use limArrowUnique.
+        use (make_cone _ lim_module_forms_cone_tens_I).
+        intro u; unfold lim_module_subst; cbn; etrans.
+        + rewrite <- assoc; use maponpaths; [shelve|].
+          use (limArrowCommutes (lims_g F')).
+        + cbn; rewrite assoc; use (maponpaths (λ x, x · _)).
+          do 2 rewrite @tensor_mor_left, @tensor_mor_right; use tensor_swap'.
+      - symmetry; use limArrowUnique; intro u; cbn; symmetry; etrans.
+        + rewrite <- assoc; use maponpaths; [shelve|].
+          use module_laws_unit_from_module.
+        + use monoidal_rightunitornat.
+    Qed.
+
+    Local Lemma lim_module_forms_cone_tens_R_R
+      : forms_cone F' (λ v, (f v ⊗r R) ⊗r R · q v ⊗r R · q v).
+    Proof.
+      intros u v e; symmetry; etrans; [etrans|].
+      - use (maponpaths (λ x, (x ⊗r R) ⊗r R · _ · _)); [shelve|].
+        use (!limOutCommutes _ _ _ e).
+      - do 2 rewrite (bifunctor_rightcomp C).
+        do 2 rewrite <- assoc; use maponpaths; [shelve|].
+        rewrite assoc; use (maponpaths (λ x, x · _)); [shelve|].
+        rewrite <- @bifunctor_rightcomp; use maponpaths; [shelve|].
+        use (pr2 (dmor F e)).
+      - rewrite bifunctor_rightcomp; 
+        do 3 rewrite <- assoc;
+        do 2 use maponpaths.
+        use (pr2 (dmor F e)).
+    Qed.
+
+    Lemma lim_module_assoc
+      : module_laws_assoc lim_module_subst.
+    Proof.
+      unfold module_laws_assoc; symmetry; etrans.
+      - use limArrowUnique.
+        use (make_cone _ lim_module_forms_cone_tens_R_R).
+        intro u; unfold lim_module_subst; cbn; etrans.
+        + rewrite <- assoc; use maponpaths; [shelve|].
+          use (limArrowCommutes (lims_g F')).
+        + cbn; rewrite assoc; use (maponpaths (λ x, x · _)).
+          do 2 rewrite <- (bifunctor_rightcomp C).
+          use maponpaths; use (limArrowCommutes (lims_g F')).
+      - symmetry; use limArrowUnique; intro u; cbn.
+        symmetry; do 2 etrans; swap 3 4.
+        + rewrite <- assoc; use maponpaths; [shelve|].
+          symmetry; use module_laws_assoc_from_module.
+        + do 2 rewrite assoc; use (maponpaths (λ x, x · _ · _)); [shelve|].
+          symmetry; use monoidal_associatornatright.
+        + symmetry; rewrite <- assoc; use maponpaths; [shelve|].
+          use (limArrowCommutes (lims_g F')).
+        + cbn.
+          do 3 rewrite <- assoc; use maponpaths.
+          do 2 rewrite assoc; use (maponpaths (λ x, x · _)).
+          do 2 rewrite @tensor_mor_right, @tensor_mor_left; use tensor_swap.
+    Qed.
+
+
+    Definition lim_module : module L
+      := make_module lim_module_subst lim_module_unit lim_module_assoc.
+
+    Lemma lim_module_cone : cone F (L ,, lim_module).
+    Proof.
+      use make_cone.
+      - intro v; exists (f v).
+        abstract (
+          cbn; unfold is_module_mor; symmetry;
+          use (limArrowCommutes (lims_g F'))
+        ).
+      - abstract(
+          intros u v e;
+          use invmap; [|use path_sigma_hprop|];
+          [use isaprop_is_module_mor|use limOutCommutes]
+        ).
+    Defined.
+
+    Lemma lim_module_limArrow_is_module_mor (M : MOD) (cc' : cone F M)
+      : is_module_mor (pr2 M) lim_module
+        (limArrow (lims_g F') (pr1 M) (mapcone forgetful F cc')).
+    Proof.
+      unfold is_module_mor; cbn; etrans.
+      - use limArrowUnique; [use make_cone|].
+        + intro v; use (module_to_module_subst (pr2 M) · pr1 (coneOut cc' v)).
+        + abstract (
+            intros u v e; rewrite <- assoc; use maponpaths;
+            now rewrite <- (coneOutCommutes _ _ _ e)
+          ).
+        + intro u; cbn; etrans; [etrans|].
+          * rewrite <- assoc; use maponpaths; [shelve|];
+            use (limArrowCommutes (lims_g F')).
+          * cbn; rewrite assoc, <- (bifunctor_rightcomp C); 
+            use (maponpaths (λ x, x ⊗r R · _)); [shelve|].
+            use (limArrowCommutes (lims_g F')).
+          * use (pr2 (coneOut cc' _)).
+      - symmetry; use limArrowUnique; intro u; cbn.
+        rewrite <- assoc; use maponpaths.
+        use (limArrowCommutes (lims_g F')).
+    Qed.
+
+    Definition lim_module_limArrow (M : MOD) (cc' : cone F M)
+      : MOD⟦M, (L ,, lim_module)⟧.
+    Proof.
+      use tpair; [use limArrow; now use mapcone|].
+      use lim_module_limArrow_is_module_mor.
+    Defined.
+
+    Lemma lim_module_limArrow_is_cocone_mor (M : MOD) (cc' : cone F M)
+      : is_cone_mor cc' lim_module_cone (lim_module_limArrow M cc').
+    Proof.
+      intro v.
+      use invmap; [|use path_sigma_hprop|]. use isaprop_is_module_mor.
+      use (limArrowCommutes (lims_g F')).
+    Qed.
+
+    Lemma lim_module_isLimCone
+      : isLimCone F (L,, lim_module) lim_module_cone.
+    Proof.
+      intros M cc'.
+      use tpair; [use tpair|]; cbn.
+      - use (lim_module_limArrow _ cc').
+      - use lim_module_limArrow_is_cocone_mor.
+      - intros [[h H] H'].
+        use invmap; [|use path_sigma_hprop|].
+        use (isaprop_is_cone_mor _ _ (lim_module_limArrow _ _)).
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_module_mor.
+        use limArrowUnique; intro u; cbn.
+        now rewrite <- H'.
+    Qed.
+
+    Definition lim_module_LimCone : LimCone F.
+    Proof.
+      use make_LimCone.
+      - eexists; exact lim_module.
+      - use lim_module_cone.
+      - use lim_module_isLimCone.
+    Defined.
+  End limits.
+
+  Theorem MOD_inherits_limits (g : graph) (_ : Lims_of_shape g C)
+    : Lims_of_shape g MOD.
+  Proof.
+    now use lim_module_LimCone.
   Defined.
 End Modules.
