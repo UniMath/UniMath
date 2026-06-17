@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCatsFinalObject</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCatsFinalObject</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+**********************************************************
+
+<div class="paragraph"> </div>
+
+Ralph Matthes
+
+<div class="paragraph"> </div>
+
+August 2022
+
+<div class="paragraph"> </div>
+
+ **********************************************************
+
+<div class="paragraph"> </div>
+
+constructs the final object of the bicategory of whiskered monoidal categories
+
+<div class="paragraph"> </div>
+
+this resides in a separate file because of the heavy dependencies
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.StandardCategories</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfCats</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Limits.Final.html#"><span class="id" title="library">UniMath.Bicategories.Limits.Final</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.html#"><span class="id" title="library">UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.html#"><span class="id" title="library">UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.html#"><span class="id" title="library">UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_monoidal" class="idref" href="#unit_monoidal"><span class="id" title="definition">unit_monoidal</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#unit_category"><span class="id" title="definition">unit_category</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#make_bifunctor_data"><span class="id" title="definition">make_bifunctor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> =&gt; <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span> (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 (<span class="id" title="tactic">split</span>; [<span class="id" title="tactic">split</span>; <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a> | <span class="id" title="tactic">split</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>] |]);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ <span class="id" title="tactic">do</span> 3 (<span class="id" title="tactic">split</span>; [<span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a> |]);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a> |<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>]).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="unit_monoidal_disp_bifinal_obj" class="idref" href="#unit_monoidal_disp_bifinal_obj"><span class="id" title="definition">unit_monoidal_disp_bifinal_obj</span></a> : <a class="idref" href="UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.html#disp_bifinal_obj_stronger"><span class="id" title="definition">disp_bifinal_obj_stronger</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.html#bidisp_monbicat_disp_bicat"><span class="id" title="definition">bidisp_monbicat_disp_bicat</span></a> (<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.html#bifinal_cats"><span class="id" title="definition">bifinal_cats</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCatsFinalObject.html#unit_monoidal"><span class="id" title="definition">unit_monoidal</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> <span class="id" title="var">M</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">split</span>; <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">split</span>; <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>); <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">split</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">xx</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">ff</span> <span class="id" title="var">gg</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">red</span>; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">red</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">red</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="bifinal_moncats" class="idref" href="#bifinal_moncats"><span class="id" title="definition">bifinal_moncats</span></a> : <a class="idref" href="UniMath.Bicategories.Limits.Final.html#bifinal_obj"><span class="id" title="definition">bifinal_obj</span></a> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.html#monbicat"><span class="id" title="definition">monbicat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.html#total_bicat_final_stronger"><span class="id" title="definition">total_bicat_final_stronger</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.html#monbicat_disp_2cells_isaprop"><span class="id" title="lemma">monbicat_disp_2cells_isaprop</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.html#bifinal_cats"><span class="id" title="definition">bifinal_cats</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCatsFinalObject.html#unit_monoidal_disp_bifinal_obj"><span class="id" title="definition">unit_monoidal_disp_bifinal_obj</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

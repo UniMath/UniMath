@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.Universal.Equations</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.Universal.Equations</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab255"></a><h1 class="section">Equations over a signature and equational theories</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 
+<div class="paragraph"> </div>
+
+This file contains a formalization of equations and equation systems over a signature.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#"><span class="id" title="library">UniMath.Algebra.Universal.VTerms</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab256"></a><h2 class="section">Equations.</h2>
+
+An equation is a pair of terms (with variables) of the same sort
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="equation" class="idref" href="#equation"><span class="id" title="definition">equation</span></a> (<a id="037d1dbc1a02d6ef6874dcc89df346e1" class="idref" href="#037d1dbc1a02d6ef6874dcc89df346e1"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>) (<a id="V:2" class="idref" href="#V:2"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#037d1dbc1a02d6ef6874dcc89df346e1"><span class="id" title="variable">σ</span></a>): <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="s:3" class="idref" href="#s:3"><span class="id" title="binder">s</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#037d1dbc1a02d6ef6874dcc89df346e1"><span class="id" title="variable">σ</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#term"><span class="id" title="definition">term</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#037d1dbc1a02d6ef6874dcc89df346e1"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:2"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#s:3"><span class="id" title="variable">s</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#term"><span class="id" title="definition">term</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#037d1dbc1a02d6ef6874dcc89df346e1"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:2"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#s:3"><span class="id" title="variable">s</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="eqsort" class="idref" href="#eqsort"><span class="id" title="definition">eqsort</span></a> {<a id="cd01c1f8eba18116122f50d6eb622af2" class="idref" href="#cd01c1f8eba18116122f50d6eb622af2"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>} {<a id="V:5" class="idref" href="#V:5"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#cd01c1f8eba18116122f50d6eb622af2"><span class="id" title="variable">σ</span></a>} (<a id="eq:6" class="idref" href="#eq:6"><span class="id" title="binder">eq</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#equation"><span class="id" title="definition">equation</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#cd01c1f8eba18116122f50d6eb622af2"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:5"><span class="id" title="variable">V</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#cd01c1f8eba18116122f50d6eb622af2"><span class="id" title="variable">σ</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eq:6"><span class="id" title="variable">eq</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lhs" class="idref" href="#lhs"><span class="id" title="definition">lhs</span></a> {<a id="8fe0309a395dd0f70ca736ba68316e70" class="idref" href="#8fe0309a395dd0f70ca736ba68316e70"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>} {<a id="V:8" class="idref" href="#V:8"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#8fe0309a395dd0f70ca736ba68316e70"><span class="id" title="variable">σ</span></a>} (<a id="eq:9" class="idref" href="#eq:9"><span class="id" title="binder">eq</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#equation"><span class="id" title="definition">equation</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#8fe0309a395dd0f70ca736ba68316e70"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:8"><span class="id" title="variable">V</span></a>): <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#term"><span class="id" title="definition">term</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#8fe0309a395dd0f70ca736ba68316e70"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:8"><span class="id" title="variable">V</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsort"><span class="id" title="definition">eqsort</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eq:9"><span class="id" title="variable">eq</span></a>) := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eq:9"><span class="id" title="variable">eq</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="rhs" class="idref" href="#rhs"><span class="id" title="definition">rhs</span></a> {<a id="962aaeeff05b6bd0df6153509c8e8505" class="idref" href="#962aaeeff05b6bd0df6153509c8e8505"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>} {<a id="V:11" class="idref" href="#V:11"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#962aaeeff05b6bd0df6153509c8e8505"><span class="id" title="variable">σ</span></a>} (<a id="eq:12" class="idref" href="#eq:12"><span class="id" title="binder">eq</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#equation"><span class="id" title="definition">equation</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#962aaeeff05b6bd0df6153509c8e8505"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:11"><span class="id" title="variable">V</span></a>): <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#term"><span class="id" title="definition">term</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#962aaeeff05b6bd0df6153509c8e8505"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:11"><span class="id" title="variable">V</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsort"><span class="id" title="definition">eqsort</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eq:12"><span class="id" title="variable">eq</span></a>) := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eq:12"><span class="id" title="variable">eq</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_equation" class="idref" href="#make_equation"><span class="id" title="definition">make_equation</span></a> {<a id="8520583ae5f9101ee6510faa5e82ff2f" class="idref" href="#8520583ae5f9101ee6510faa5e82ff2f"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>} {<a id="V:14" class="idref" href="#V:14"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#8520583ae5f9101ee6510faa5e82ff2f"><span class="id" title="variable">σ</span></a>} {<a id="s:15" class="idref" href="#s:15"><span class="id" title="binder">s</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#8520583ae5f9101ee6510faa5e82ff2f"><span class="id" title="variable">σ</span></a>} (<a id="lhs:16" class="idref" href="#lhs:16"><span class="id" title="binder">lhs</span></a> <a id="rhs:17" class="idref" href="#rhs:17"><span class="id" title="binder">rhs</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#term"><span class="id" title="definition">term</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#8520583ae5f9101ee6510faa5e82ff2f"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:14"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#s:15"><span class="id" title="variable">s</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#equation"><span class="id" title="definition">equation</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#8520583ae5f9101ee6510faa5e82ff2f"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:14"><span class="id" title="variable">V</span></a> :=  <a class="idref" href="UniMath.Algebra.Universal.Equations.html#s:15"><span class="id" title="variable">s</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#lhs:16"><span class="id" title="variable">lhs</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#rhs:17"><span class="id" title="variable">rhs</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab257"></a><h2 class="section">Notations for equations.</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Declare Scope</span> <span class="id" title="var">eq_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Delimit</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">eq_scope</span> <span class="id" title="keyword">with</span> <span class="id" title="var">eq</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Bind Scope</span> <span class="id" title="var">eq_scope</span> <span class="id" title="keyword">with</span> <span class="id" title="var">equation</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id="946b9ba0ab2226a57d7bd73cbe21a223" class="idref" href="#946b9ba0ab2226a57d7bd73cbe21a223"><span class="id" title="notation">&quot;</span></a>lhs == rhs" := (<a class="idref" href="UniMath.Algebra.Universal.Equations.html#make_equation"><span class="id" title="definition">make_equation</span></a> <span class="id" title="var">lhs</span> <span class="id" title="var">rhs</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 95, <span class="id" title="keyword">no</span> <span class="id" title="keyword">associativity</span>): <span class="id" title="var">eq_scope</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab258"></a><h2 class="section">Equation systems.</h2>
+
+Since we do not have power types, we define an equation system as a type of equation
+identifiers endowed with a map from identifiers to equations.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="eqsystem" class="idref" href="#eqsystem"><span class="id" title="definition">eqsystem</span></a> (<a id="afb2f45ff79aed8fbb6b6cf08ccf3841" class="idref" href="#afb2f45ff79aed8fbb6b6cf08ccf3841"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>) (<a id="V:19" class="idref" href="#V:19"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#afb2f45ff79aed8fbb6b6cf08ccf3841"><span class="id" title="variable">σ</span></a>): <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="E:20" class="idref" href="#E:20"><span class="id" title="binder">E</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#E:20"><span class="id" title="variable">E</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#equation"><span class="id" title="definition">equation</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#afb2f45ff79aed8fbb6b6cf08ccf3841"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:19"><span class="id" title="variable">V</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="eqsystemids" class="idref" href="#eqsystemids"><span class="id" title="definition">eqsystemids</span></a> (<a id="2cc2b4bb09eef09b11acd987eb0eb4c0" class="idref" href="#2cc2b4bb09eef09b11acd987eb0eb4c0"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>) (<a id="V:22" class="idref" href="#V:22"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#2cc2b4bb09eef09b11acd987eb0eb4c0"><span class="id" title="variable">σ</span></a>): <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystem"><span class="id" title="definition">eqsystem</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#2cc2b4bb09eef09b11acd987eb0eb4c0"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:22"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystemids"><span class="id" title="definition">eqsystemids</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystemids"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystemids"><span class="id" title="definition">eqsystem</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystemids"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystemids"><span class="id" title="definition">UU</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="geteq" class="idref" href="#geteq"><span class="id" title="definition">geteq</span></a> {<a id="ae0c06ba32431cba6651bad87205f6d2" class="idref" href="#ae0c06ba32431cba6651bad87205f6d2"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>} {<a id="V:24" class="idref" href="#V:24"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#ae0c06ba32431cba6651bad87205f6d2"><span class="id" title="variable">σ</span></a>} {<a id="sys:25" class="idref" href="#sys:25"><span class="id" title="binder">sys</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystem"><span class="id" title="definition">eqsystem</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#ae0c06ba32431cba6651bad87205f6d2"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:24"><span class="id" title="variable">V</span></a>}: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#sys:25"><span class="id" title="variable">sys</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#equation"><span class="id" title="definition">equation</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#ae0c06ba32431cba6651bad87205f6d2"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:24"><span class="id" title="variable">V</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#sys:25"><span class="id" title="variable">sys</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab259"></a><h2 class="section">Equational specifications.</h2>
+
+An equational specification is a signature endowed with an equation system (and the
+necessary variable specification).
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="eqspec" class="idref" href="#eqspec"><span class="id" title="definition">eqspec</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>  := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="17b9a5ba653b503cf4087ea21d5f1992" class="idref" href="#17b9a5ba653b503cf4087ea21d5f1992"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>) (<a id="V:27" class="idref" href="#V:27"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#17b9a5ba653b503cf4087ea21d5f1992"><span class="id" title="variable">σ</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystem"><span class="id" title="definition">eqsystem</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#17b9a5ba653b503cf4087ea21d5f1992"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#V:27"><span class="id" title="variable">V</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="signature_of_eqspec" class="idref" href="#signature_of_eqspec"><span class="id" title="definition">signature_of_eqspec</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#signature_of_eqspec"><span class="id" title="definition">signature_of_eqspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#signature_of_eqspec"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#signature_of_eqspec"><span class="id" title="definition">eqspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#signature_of_eqspec"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#signature_of_eqspec"><span class="id" title="definition">signature</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="variables" class="idref" href="#variables"><span class="id" title="definition">variables</span></a> (<a id="a495c8a53f846c31d2ded0ea4db1b92c" class="idref" href="#a495c8a53f846c31d2ded0ea4db1b92c"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>): <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#a495c8a53f846c31d2ded0ea4db1b92c"><span class="id" title="variable">σ</span></a> := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#a495c8a53f846c31d2ded0ea4db1b92c"><span class="id" title="variable">σ</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="equations" class="idref" href="#equations"><span class="id" title="definition">equations</span></a> (<a id="41fad5ed30e0ddd6aae2f148cb138a09" class="idref" href="#41fad5ed30e0ddd6aae2f148cb138a09"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>): <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystem"><span class="id" title="definition">eqsystem</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#41fad5ed30e0ddd6aae2f148cb138a09"><span class="id" title="variable">σ</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Equations.html#variables"><span class="id" title="definition">variables</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#41fad5ed30e0ddd6aae2f148cb138a09"><span class="id" title="variable">σ</span></a>) := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#41fad5ed30e0ddd6aae2f148cb138a09"><span class="id" title="variable">σ</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

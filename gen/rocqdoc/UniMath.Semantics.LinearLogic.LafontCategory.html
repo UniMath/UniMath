@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Semantics.LinearLogic.LafontCategory</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Semantics.LinearLogic.LafontCategory</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Comonads.html#"><span class="id" title="library">UniMath.CategoryTheory.Monads.Comonads</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Adjunctions.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Adjunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.FunctorCategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.FunctorCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Displayed.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Cartesian</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Closed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.Category.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Comonoids.Category</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.Monoidal.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Comonoids.Monoidal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.CommComonoidsCartesian.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Comonoids.CommComonoidsCartesian</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#"><span class="id" title="library">UniMath.Semantics.LinearLogic.LinearNonLinear</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. Lafont category
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="lafont_category" class="idref" href="#lafont_category"><span class="id" title="definition">lafont_category</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="V:1" class="idref" href="#V:1"><span class="id" title="binder">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#is_left_adjoint"><span class="id" title="definition">is_left_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.Category.html#underlying_commutative_comonoid"><span class="id" title="definition">underlying_commutative_comonoid</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#V:1"><span class="id" title="variable">V</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a id="lafont_category_to_sym_mon_closed_cat" class="idref" href="#lafont_category_to_sym_mon_closed_cat"><span class="id" title="definition">lafont_category_to_sym_mon_closed_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="V:2" class="idref" href="#V:2"><span class="id" title="binder">V</span></a> : <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#lafont_category"><span class="id" title="definition">lafont_category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#V:2"><span class="id" title="variable">V</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_left_adjoint_lafont_category" class="idref" href="#is_left_adjoint_lafont_category"><span class="id" title="definition">is_left_adjoint_lafont_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="V:3" class="idref" href="#V:3"><span class="id" title="binder">V</span></a> : <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#lafont_category"><span class="id" title="definition">lafont_category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#is_left_adjoint"><span class="id" title="definition">is_left_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.Category.html#underlying_commutative_comonoid"><span class="id" title="definition">underlying_commutative_comonoid</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#V:3"><span class="id" title="variable">V</span></a>)<br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#V:3"><span class="id" title="variable">V</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. Every Lafont category gives rise to a linear-non-linear model
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="linear_non_linear_model_from_lafont_category" class="idref" href="#linear_non_linear_model_from_lafont_category"><span class="id" title="definition">linear_non_linear_model_from_lafont_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="V:4" class="idref" href="#V:4"><span class="id" title="binder">V</span></a> : <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#lafont_category"><span class="id" title="definition">lafont_category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#make_linear_non_linear_from_strong"><span class="id" title="definition">make_linear_non_linear_from_strong</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">V</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric.html#symmetric_cat_commutative_comonoids"><span class="id" title="definition">symmetric_cat_commutative_comonoids</span></a> <span class="id" title="var">V</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#make_adjunction"><span class="id" title="definition">make_adjunction</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#make_adjunction_data"><span class="id" title="definition">make_adjunction_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.Category.html#underlying_commutative_comonoid"><span class="id" title="definition">underlying_commutative_comonoid</span></a> <span class="id" title="var">V</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#right_adjoint"><span class="id" title="definition">right_adjoint</span></a> (<a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#is_left_adjoint_lafont_category"><span class="id" title="definition">is_left_adjoint_lafont_category</span></a> <span class="id" title="var">V</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#adjunit"><span class="id" title="definition">adjunit</span></a> (<a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#is_left_adjoint_lafont_category"><span class="id" title="definition">is_left_adjoint_lafont_category</span></a> <span class="id" title="var">V</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#adjcounit"><span class="id" title="definition">adjcounit</span></a> (<a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#is_left_adjoint_lafont_category"><span class="id" title="definition">is_left_adjoint_lafont_category</span></a> <span class="id" title="var">V</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#is_left_adjoint_lafont_category"><span class="id" title="definition">is_left_adjoint_lafont_category</span></a> <span class="id" title="var">V</span><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.CommComonoidsCartesian.html#cartesian_monoidal_cat_of_comm_comonoids"><span class="id" title="definition">cartesian_monoidal_cat_of_comm_comonoids</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.html#projection_fmonoidal"><span class="id" title="definition">projection_fmonoidal</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.html#projection_is_symmetric"><span class="id" title="definition">projection_is_symmetric</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. Builder for Lafont categories
+
+<div class="paragraph"> </div>
+
+ Note: it is convenient to use `coreflections_to_is_left_adjoint` to
+ construct Lafont categories.
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="make_lafont_category" class="idref" href="#make_lafont_category"><span class="id" title="definition">make_lafont_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="V:5" class="idref" href="#V:5"><span class="id" title="binder">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HV:6" class="idref" href="#HV:6"><span class="id" title="binder">HV</span></a> : <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#is_left_adjoint"><span class="id" title="definition">is_left_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Comonoids.Category.html#underlying_commutative_comonoid"><span class="id" title="definition">underlying_commutative_comonoid</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#V:5"><span class="id" title="variable">V</span></a>))<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#lafont_category"><span class="id" title="definition">lafont_category</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#V:5"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LafontCategory.html#HV:6"><span class="id" title="variable">HV</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

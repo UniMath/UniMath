@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.ModelCategories.Generated.SmallObjectArgument</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.ModelCategories.Generated.SmallObjectArgument</h1>
+
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Coproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Coproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pushouts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pushouts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coequalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Coequalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#"><span class="id" title="library">UniMath.CategoryTheory.Monads.Monads</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monads.MonadAlgebras.html#"><span class="id" title="library">UniMath.CategoryTheory.Monads.MonadAlgebras</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Total</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Constructions.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Constructions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Chains.Chains.html#"><span class="id" title="library">UniMath.CategoryTheory.Chains.Chains</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Examples.Arrow</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.Three.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Examples.Three</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#"><span class="id" title="library">UniMath.ModelCategories.MorphismClass</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.LiftingWithClass.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.LiftingWithClass</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.NWFS.html#"><span class="id" title="library">UniMath.ModelCategories.NWFS</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.OneStepMonad.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.OneStepMonad</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.GenericFreeMonoid.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.GenericFreeMonoid</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.GenericFreeMonoidSequence.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.GenericFreeMonoidSequence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.MonoidalHelpers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Helpers.html#"><span class="id" title="library">UniMath.ModelCategories.Helpers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.MonoidalHelpers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.FFMonoidalStructure.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.FFMonoidalStructure</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.LNWFSMonoidalStructure</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.LNWFSCocomplete.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.LNWFSCocomplete</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.LNWFSClosed.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.LNWFSClosed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.LNWFSSmallnessReduction.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.LNWFSSmallnessReduction</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Generated.OneStepMonadSmall.html#"><span class="id" title="library">UniMath.ModelCategories.Generated.OneStepMonadSmall</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="SmallObjectArgument" class="idref" href="#SmallObjectArgument"><span class="id" title="section">SmallObjectArgument</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> {<a id="SmallObjectArgument.C" class="idref" href="#SmallObjectArgument.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}.<br/>
+<span class="id" title="keyword">Context</span> (<a id="SmallObjectArgument.J" class="idref" href="#SmallObjectArgument.J"><span class="id" title="variable">J</span></a> : <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#morphism_class"><span class="id" title="definition">morphism_class</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.C"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Context</span> (<a id="SmallObjectArgument.CC" class="idref" href="#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#Colims"><span class="id" title="definition">Colims</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="one_step_comonad_as_LNWFS" class="idref" href="#one_step_comonad_as_LNWFS"><span class="id" title="definition">one_step_comonad_as_LNWFS</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> (<a class="idref" href="UniMath.ModelCategories.NWFS.html#LNWFS"><span class="id" title="definition">LNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.C"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.ModelCategories.Generated.OneStepMonad.html#one_step_factorization"><span class="id" title="definition">one_step_factorization</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.J"><span class="id" title="variable">J</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.ModelCategories.Generated.OneStepMonad.html#one_step_comonad"><span class="id" title="definition">one_step_comonad</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.J"><span class="id" title="variable">J</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="LNWFS_pointed" class="idref" href="#LNWFS_pointed"><span class="id" title="definition">LNWFS_pointed</span></a> (<a id="L:4" class="idref" href="#L:4"><span class="id" title="binder">L</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> (<a class="idref" href="UniMath.ModelCategories.NWFS.html#LNWFS"><span class="id" title="definition">LNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.C"><span class="id" title="variable">C</span></a>)) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.ModelCategories.Generated.GenericFreeMonoid.html#pointed"><span class="id" title="definition">pointed</span></a> (@<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#LNWFS_tot_monoidal"><span class="id" title="definition">LNWFS_tot_monoidal</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.C"><span class="id" title="variable">C</span></a>) :=<br/>
+&nbsp;&nbsp;(<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#LNWFS_tot_l_point"><span class="id" title="definition">LNWFS_tot_l_point</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#L:4"><span class="id" title="variable">L</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="Ff_mon" class="idref" href="#Ff_mon"><span class="id" title="definition">Ff_mon</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a> :=<br/>
+&nbsp;&nbsp;(<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> @<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#Ff_monoidal"><span class="id" title="definition">Ff_monoidal</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.C"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="LNWFS_mon" class="idref" href="#LNWFS_mon"><span class="id" title="definition">LNWFS_mon</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a> :=<br/>
+&nbsp;&nbsp;(<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> @<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#LNWFS_tot_monoidal"><span class="id" title="definition">LNWFS_tot_monoidal</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#BifunctorNotations"><span class="id" title="module">BifunctorNotations</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="osc_preserves_diagram_on" class="idref" href="#osc_preserves_diagram_on"><span class="id" title="lemma">osc_preserves_diagram_on</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HJ:5" class="idref" href="#HJ:5"><span class="id" title="binder">HJ</span></a> : <a class="idref" href="UniMath.ModelCategories.Generated.OneStepMonadSmall.html#class_presentable"><span class="id" title="definition">class_presentable</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.J"><span class="id" title="variable">J</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="B:6" class="idref" href="#B:6"><span class="id" title="binder">B</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.GenericFreeMonoidSequence.html#T_preserves_diagram_on"><span class="id" title="definition">T_preserves_diagram_on</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#LNWFS_tot_monoidal"><span class="id" title="definition">LNWFS_tot_monoidal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#LNWFS_pointed"><span class="id" title="definition">LNWFS_pointed</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#one_step_comonad_as_LNWFS"><span class="id" title="definition">one_step_comonad_as_LNWFS</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSCocomplete.html#ChainsLNWFS"><span class="id" title="lemma">ChainsLNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSCocomplete.html#CoequalizersLNWFS"><span class="id" title="lemma">CoequalizersLNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#B:6"><span class="id" title="variable">B</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">B</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">CC'</span> <span class="id" title="var">cl'</span> <span class="id" title="var">cc'</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">L1</span> := <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#LNWFS_pointed"><span class="id" title="definition">LNWFS_pointed</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#one_step_comonad_as_LNWFS"><span class="id" title="definition">one_step_comonad_as_LNWFS</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">d</span> := (<a class="idref" href="UniMath.ModelCategories.Generated.GenericFreeMonoidSequence.html#free_monoid_coeq_sequence_diagram_on"><span class="id" title="definition">free_monoid_coeq_sequence_diagram_on</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#LNWFS_tot_monoidal"><span class="id" title="definition">LNWFS_tot_monoidal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">L1</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSCocomplete.html#CoequalizersLNWFS"><span class="id" title="lemma">CoequalizersLNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">B</span><br/>
+&nbsp;&nbsp;)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">CL</span> := <a class="idref" href="UniMath.ModelCategories.Generated.LNWFSCocomplete.html#ChainsLNWFS"><span class="id" title="lemma">ChainsLNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a> <span class="id" title="var">d</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">dbase</span> := <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Diagrams.html#mapdiagram"><span class="id" title="definition">mapdiagram</span></a> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#pr1_category"><span class="id" title="definition">pr1_category</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">d</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSSmallnessReduction.html#Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim"><span class="id" title="lemma">Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a> <span class="id" title="var">L1</span> <span class="id" title="var">d</span> <span class="id" title="var">_</span> <span class="id" title="var">cl'</span> <span class="id" title="var">cc'</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSSmallnessReduction.html#FR_lt_preserves_colim_impl_Ff_lt_preserves_colim"><span class="id" title="lemma">FR_lt_preserves_colim_impl_Ff_lt_preserves_colim</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr11'_x"><span class="id" title="notation">pr11</span></a> <span class="id" title="var">L1</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSSmallnessReduction.html#FR_slice_omega_small_if_L_omega_small"><span class="id" title="lemma">FR_slice_omega_small_if_L_omega_small</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.ModelCategories.Generated.OneStepMonadSmall.html#L1_small_if_K_small"><span class="id" title="lemma">L1_small_if_K_small</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.ModelCategories.Generated.OneStepMonadSmall.html#K_small_if_J_small"><span class="id" title="lemma">K_small_if_J_small</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">HJ</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="free_monoid_coeq_sequence_converges_for_osc" class="idref" href="#free_monoid_coeq_sequence_converges_for_osc"><span class="id" title="lemma">free_monoid_coeq_sequence_converges_for_osc</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HJ:7" class="idref" href="#HJ:7"><span class="id" title="binder">HJ</span></a> : <a class="idref" href="UniMath.ModelCategories.Generated.OneStepMonadSmall.html#class_presentable"><span class="id" title="definition">class_presentable</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.J"><span class="id" title="variable">J</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.ModelCategories.Generated.GenericFreeMonoidSequence.html#free_monoid_coeq_sequence_converges_on"><span class="id" title="definition">free_monoid_coeq_sequence_converges_on</span></a> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#LNWFS_pointed"><span class="id" title="definition">LNWFS_pointed</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#one_step_comonad_as_LNWFS"><span class="id" title="definition">one_step_comonad_as_LNWFS</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSCocomplete.html#ChainsLNWFS"><span class="id" title="lemma">ChainsLNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSCocomplete.html#CoequalizersLNWFS"><span class="id" title="lemma">CoequalizersLNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_unit"><span class="id" title="definition">monoidal_unit</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#LNWFS_tot_monoidal"><span class="id" title="definition">LNWFS_tot_monoidal</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.ModelCategories.Generated.GenericFreeMonoidSequence.html#T_preserves_diagram_impl_convergence_on"><span class="id" title="lemma">T_preserves_diagram_impl_convergence_on</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#osc_preserves_diagram_on"><span class="id" title="lemma">osc_preserves_diagram_on</span></a> <span class="id" title="var">HJ</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="small_object_argument" class="idref" href="#small_object_argument"><span class="id" title="lemma">small_object_argument</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HJ:8" class="idref" href="#HJ:8"><span class="id" title="binder">HJ</span></a> : <a class="idref" href="UniMath.ModelCategories.Generated.OneStepMonadSmall.html#class_presentable"><span class="id" title="definition">class_presentable</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.J"><span class="id" title="variable">J</span></a>) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#total_category"><span class="id" title="definition">total_category</span></a> (<a class="idref" href="UniMath.ModelCategories.NWFS.html#NWFS"><span class="id" title="definition">NWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.C"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">lnwfs_monoid</span> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.ModelCategories.Generated.GenericFreeMonoidSequence.html#Tinf_monoid"><span class="id" title="definition">Tinf_monoid</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(@<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#LNWFS_tot_monoidal"><span class="id" title="definition">LNWFS_tot_monoidal</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#LNWFS_pointed"><span class="id" title="definition">LNWFS_pointed</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#one_step_comonad_as_LNWFS"><span class="id" title="definition">one_step_comonad_as_LNWFS</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSCocomplete.html#ChainsLNWFS"><span class="id" title="lemma">ChainsLNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSCocomplete.html#CoequalizersLNWFS"><span class="id" title="lemma">CoequalizersLNWFS</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#free_monoid_coeq_sequence_converges_for_osc"><span class="id" title="lemma">free_monoid_coeq_sequence_converges_for_osc</span></a> <span class="id" title="var">HJ</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSClosed.html#LNWFS_rt_coeq"><span class="id" title="lemma">LNWFS_rt_coeq</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.LNWFSClosed.html#LNWFS_rt_chain"><span class="id" title="lemma">LNWFS_rt_chain</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument.CC"><span class="id" title="variable">CC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#osc_preserves_diagram_on"><span class="id" title="lemma">osc_preserves_diagram_on</span></a> <span class="id" title="var">HJ</span>)<br/>
+&nbsp;&nbsp;).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.html#LNWFS_tot_monoid_is_NWFS"><span class="id" title="definition">LNWFS_tot_monoid_is_NWFS</span></a> <span class="id" title="var">lnwfs_monoid</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.ModelCategories.Generated.SmallObjectArgument.html#SmallObjectArgument"><span class="id" title="section">SmallObjectArgument</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

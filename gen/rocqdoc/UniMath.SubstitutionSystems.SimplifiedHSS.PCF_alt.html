@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+Syntax of PCF as a multisorted binding signature.
+
+<div class="paragraph"> </div>
+
+Written by: Anders Mörtberg, 2021
+
+<div class="paragraph"> </div>
+
+version for simplified notion of HSS by Ralph Matthes (2022, 2023)
+the file is identical to the homonymous file in the parent directory, except for importing files from the present directory
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.Lists.html#"><span class="id" title="library">UniMath.Combinatorics.Lists</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Products</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Coproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Coproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorAlgebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Chains.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Chains.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#"><span class="id" title="library">UniMath.CategoryTheory.Monads.Monads</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Limits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Structures.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Structures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.StandardCategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.StandardCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#"><span class="id" title="library">UniMath.CategoryTheory.Groupoids</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#"><span class="id" title="library">UniMath.SubstitutionSystems.Signatures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SumOfSignatures.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SumOfSignatures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.BinProductOfSignatures.html#"><span class="id" title="library">UniMath.SubstitutionSystems.BinProductOfSignatures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SignatureExamples.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SignatureExamples</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SortIndexing</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#"><span class="id" title="library">UniMath.SubstitutionSystems.MultiSortedBindingSig</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSorted_alt.html#"><span class="id" title="library">UniMath.SubstitutionSystems.MultiSorted_alt</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction_alt.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction_alt</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.MonadsMultiSorted_alt.html#"><span class="id" title="library">UniMath.SubstitutionSystems.MonadsMultiSorted_alt</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.STLC_alt.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SimplifiedHSS.STLC_alt</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="pcf" class="idref" href="#pcf"><span class="id" title="section">pcf</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We assume a set of types with bool, nat and function types 
+</div>
+<div class="code">
+<span class="id" title="keyword">Context</span> (<a id="pcf.type" class="idref" href="#pcf.type"><span class="id" title="variable">type</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) (<a id="pcf.Bool" class="idref" href="#pcf.Bool"><span class="id" title="variable">Bool</span></a> <a id="pcf.Nat" class="idref" href="#pcf.Nat"><span class="id" title="variable">Nat</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#type:1"><span class="id" title="variable">type</span></a>) (<a id="pcf.arr" class="idref" href="#pcf.arr"><span class="id" title="variable">arr</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#type:1"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#type:1"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#type:1"><span class="id" title="variable">type</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="pcf.Htype" class="idref" href="#pcf.Htype"><span class="id" title="variable">Htype</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> 3 <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.type"><span class="id" title="variable">type</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF_Hsort"><span class="id" title="definition">MultiSortedBindingSig.PCF_Hsort</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.type"><span class="id" title="variable">type</span></a>.<br/>
+<span class="id" title="keyword">Let</span> <a id="pcf.typeToSet" class="idref" href="#pcf.typeToSet"><span class="id" title="variable">typeToSet</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#sortToSet"><span class="id" title="definition">SortIndexing.sortToSet</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.type"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.Htype"><span class="id" title="variable">Htype</span></a>.<br/>
+<span class="id" title="keyword">Let</span> <a id="pcf.typeToSet2" class="idref" href="#pcf.typeToSet2"><span class="id" title="variable">typeToSet2</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#sortToSet2"><span class="id" title="definition">SortIndexing.sortToSet2</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.type"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.Htype"><span class="id" title="variable">Htype</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="BCtypeToSet" class="idref" href="#BCtypeToSet"><span class="id" title="definition">BCtypeToSet</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.typeToSet"><span class="id" title="variable">typeToSet</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#BCsortToSet"><span class="id" title="definition">SortIndexing.BCsortToSet</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.type"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.Htype"><span class="id" title="variable">Htype</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="pcf.:::'Id'" class="idref" href="#pcf.:::'Id'"><span class="id" title="notation">&quot;</span></a>'Id'" := (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="pcf.PCF_Sig" class="idref" href="#pcf.PCF_Sig"><span class="id" title="variable">PCF_Sig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.type"><span class="id" title="variable">type</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF_Sig"><span class="id" title="definition">PCF_Sig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.type"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.Bool"><span class="id" title="variable">Bool</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.Nat"><span class="id" title="variable">Nat</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.arr"><span class="id" title="variable">arr</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PCF_Signature" class="idref" href="#PCF_Signature"><span class="id" title="definition">PCF_Signature</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#Signature"><span class="id" title="definition">Signature</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.typeToSet"><span class="id" title="variable">typeToSet</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction_alt.html#MultiSortedSigToSignatureSet"><span class="id" title="definition">MultiSortedSigToSignatureSet</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.type"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.Htype"><span class="id" title="variable">Htype</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.PCF_Sig"><span class="id" title="variable">PCF_Sig</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PCF_Functor" class="idref" href="#PCF_Functor"><span class="id" title="definition">PCF_Functor</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.typeToSet2"><span class="id" title="variable">typeToSet2</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.typeToSet2"><span class="id" title="variable">typeToSet2</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.html#Id_H"><span class="id" title="definition">Id_H</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#BCtypeToSet"><span class="id" title="definition">BCtypeToSet</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_Signature"><span class="id" title="definition">PCF_Signature</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="PCF_Functor_Initial" class="idref" href="#PCF_Functor_Initial"><span class="id" title="lemma">PCF_Functor_Initial</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> (<a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#FunctorAlg"><span class="id" title="definition">FunctorAlg</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_Functor"><span class="id" title="definition">PCF_Functor</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction_alt.html#SignatureInitialAlgebra"><span class="id" title="definition">SignatureInitialAlgebra</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#InitialHSET"><span class="id" title="lemma">InitialHSET</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#ColimsHSET_of_shape"><span class="id" title="lemma">ColimsHSET_of_shape</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSorted_alt.html#is_omega_cocont_MultiSortedSigToSignature"><span class="id" title="lemma">is_omega_cocont_MultiSortedSigToSignature</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#ProductsHSET"><span class="id" title="lemma">ProductsHSET</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Structures.html#Exponentials_functor_HSET"><span class="id" title="lemma">Exponentials_functor_HSET</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#ColimsHSET_of_shape"><span class="id" title="lemma">ColimsHSET_of_shape</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PCF_Monad" class="idref" href="#PCF_Monad"><span class="id" title="definition">PCF_Monad</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#Monad"><span class="id" title="definition">Monad</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.typeToSet"><span class="id" title="variable">typeToSet</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction_alt.html#MultiSortedSigToMonadSet"><span class="id" title="definition">MultiSortedSigToMonadSet</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.type"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.Htype"><span class="id" title="variable">Htype</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.PCF_Sig"><span class="id" title="variable">PCF_Sig</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Extract the constructors from the initial algebra 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="PCF_M" class="idref" href="#PCF_M"><span class="id" title="definition">PCF_M</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.typeToSet2"><span class="id" title="variable">typeToSet2</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#alg_carrier"><span class="id" title="definition">alg_carrier</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_Functor_Initial"><span class="id" title="lemma">PCF_Functor_Initial</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="pcf.PCF_M_mor" class="idref" href="#pcf.PCF_M_mor"><span class="id" title="variable">PCF_M_mor</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.typeToSet2"><span class="id" title="variable">typeToSet2</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_Functor"><span class="id" title="definition">PCF_Functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_M"><span class="id" title="definition">PCF_M</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_M"><span class="id" title="definition">PCF_M</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#alg_map"><span class="id" title="definition">alg_map</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_Functor_Initial"><span class="id" title="lemma">PCF_Functor_Initial</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="pcf.PCF_M_alg" class="idref" href="#pcf.PCF_M_alg"><span class="id" title="variable">PCF_M_alg</span></a> : <a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_Functor"><span class="id" title="definition">PCF_Functor</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_Functor_Initial"><span class="id" title="lemma">PCF_Functor_Initial</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The variables 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="var_map" class="idref" href="#var_map"><span class="id" title="definition">var_map</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.typeToSet2"><span class="id" title="variable">typeToSet2</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.:::'Id'"><span class="id" title="notation">Id</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#PCF_M"><span class="id" title="definition">PCF_M</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.html#6f2f7304141c15bf565f34aa10b8e335"><span class="id" title="abbreviation">η</span></a> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf.PCF_M_alg"><span class="id" title="variable">PCF_M_alg</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.PCF_alt.html#pcf"><span class="id" title="section">pcf</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

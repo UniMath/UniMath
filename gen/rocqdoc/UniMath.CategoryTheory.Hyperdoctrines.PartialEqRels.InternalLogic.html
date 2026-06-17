@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.InternalLogic</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.InternalLogic</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCartesianClosed.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCartesianClosed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERTerminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERTerminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERBinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERBinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Truth.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Truth</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Conjunction.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Conjunction</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Disjunction.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Disjunction</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Implication.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Implication</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Existential.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Existential</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Universal.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Universal</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">hd</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="per_subobject_hyperdoctrine" class="idref" href="#per_subobject_hyperdoctrine"><span class="id" title="definition">per_subobject_hyperdoctrine</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:1" class="idref" href="#H:1"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#first_order_hyperdoctrine"><span class="id" title="definition">first_order_hyperdoctrine</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#hyperdoctrine"><span class="id" title="definition">hyperdoctrine</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#make_hyperdoctrine"><span class="id" title="definition">make_hyperdoctrine</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.html#category_of_partial_setoids"><span class="id" title="definition">category_of_partial_setoids</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#disp_cat_per_subobject"><span class="id" title="definition">disp_cat_per_subobject</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERTerminal.html#terminal_partial_setoid"><span class="id" title="definition">terminal_partial_setoid</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERBinProducts.html#binproducts_partial_setoid"><span class="id" title="definition">binproducts_partial_setoid</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#disp_cat_per_subobject_cleaving"><span class="id" title="definition">disp_cat_per_subobject_cleaving</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#locally_prop_disp_cat_per_subobject"><span class="id" title="lemma">locally_prop_disp_cat_per_subobject</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.html#is_univalent_disp_cat_per_subobject"><span class="id" title="lemma">is_univalent_disp_cat_per_subobject</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="per_subobject_first_order_hyperdoctrine" class="idref" href="#per_subobject_first_order_hyperdoctrine"><span class="id" title="definition">per_subobject_first_order_hyperdoctrine</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:2" class="idref" href="#H:2"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#first_order_hyperdoctrine"><span class="id" title="definition">first_order_hyperdoctrine</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#first_order_hyperdoctrine"><span class="id" title="definition">first_order_hyperdoctrine</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#make_first_order_hyperdoctrine"><span class="id" title="definition">make_first_order_hyperdoctrine</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.InternalLogic.html#per_subobject_hyperdoctrine"><span class="id" title="definition">per_subobject_hyperdoctrine</span></a> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Truth.html#fiberwise_terminal_per_subobject"><span class="id" title="definition">fiberwise_terminal_per_subobject</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Falsity.html#fiberwise_initial_per_subobject"><span class="id" title="definition">fiberwise_initial_per_subobject</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Conjunction.html#fiberwise_binproducts_per_subobject"><span class="id" title="definition">fiberwise_binproducts_per_subobject</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Disjunction.html#fiberwise_bincoproducts_per_subobject"><span class="id" title="definition">fiberwise_bincoproducts_per_subobject</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Implication.html#fiberwise_exponentials_per_subobject"><span class="id" title="definition">fiberwise_exponentials_per_subobject</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Universal.html#dependent_products_per_subobject"><span class="id" title="definition">dependent_products_per_subobject</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.Existential.html#dependent_sums_per_subobject"><span class="id" title="definition">dependent_sums_per_subobject</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

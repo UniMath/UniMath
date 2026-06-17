@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+Let V be a symmetric monoidal category,
+we show how the "diagonal functor" V → V : x ↦ x ⊗ x is part of a strong monoidal functor.
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Functors</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#BifunctorNotations"><span class="id" title="module">BifunctorNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">moncat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="DiagFunctor" class="idref" href="#DiagFunctor"><span class="id" title="section">DiagFunctor</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="DiagFunctor.V" class="idref" href="#DiagFunctor.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diag_functor_data" class="idref" href="#diag_functor_data"><span class="id" title="definition">diag_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_data"><span class="id" title="definition">functor_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctor.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctor.V"><span class="id" title="variable">V</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#make_functor_data"><span class="id" title="definition">make_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:2" class="idref" href="#x:2"><span class="id" title="binder"><span id="x:3" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#x:2"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#d6782db472d204ca16d8e268b37d8b4e"><span class="id" title="notation">⊗</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#x:2"><span class="id" title="variable">x</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="f:4" class="idref" href="#f:4"><span class="id" title="binder"><span id="f:5" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#f:4"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#9f734cd40c69d1354e95a8ea7e8adc36"><span class="id" title="notation">#⊗</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#f:4"><span class="id" title="variable">f</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="diag_is_functor" class="idref" href="#diag_is_functor"><span class="id" title="lemma">diag_is_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#is_functor"><span class="id" title="definition">is_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_data"><span class="id" title="definition">diag_functor_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span> ; <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#tensor_id_id"><span class="id" title="definition">tensor_id_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#tensor_comp_mor"><span class="id" title="definition">tensor_comp_mor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diag_functor" class="idref" href="#diag_functor"><span class="id" title="definition">diag_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctor.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctor.V"><span class="id" title="variable">V</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_data"><span class="id" title="definition">diag_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_is_functor"><span class="id" title="lemma">diag_is_functor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctor"><span class="id" title="section">DiagFunctor</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="DiagFunctorMonoidal" class="idref" href="#DiagFunctorMonoidal"><span class="id" title="section">DiagFunctorMonoidal</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="DiagFunctorMonoidal.V" class="idref" href="#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#sym_monoidal_cat"><span class="id" title="definition">sym_monoidal_cat</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="DiagFunctorMonoidal.diag" class="idref" href="#DiagFunctorMonoidal.diag"><span class="id" title="variable">diag</span></a> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor"><span class="id" title="definition">diag_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diag_preserves_tensor_data" class="idref" href="#diag_preserves_tensor_data"><span class="id" title="definition">diag_preserves_tensor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#preserves_tensordata"><span class="id" title="definition">preserves_tensordata</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.diag"><span class="id" title="variable">diag</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:7" class="idref" href="#x:7"><span class="id" title="binder"><span id="x:9" class="id">x</span></span></a> <a id="y:8" class="idref" href="#y:8"><span class="id" title="binder"><span id="y:10" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#inner_swap"><span class="id" title="definition">inner_swap</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#y:8"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#y:8"><span class="id" title="variable">y</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diag_preserves_unit" class="idref" href="#diag_preserves_unit"><span class="id" title="definition">diag_preserves_unit</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#preserves_unit"><span class="id" title="definition">preserves_unit</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.diag"><span class="id" title="variable">diag</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#mon_linvunitor"><span class="id" title="definition">mon_linvunitor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diag_functor_fmonoidal_data" class="idref" href="#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_data"><span class="id" title="definition">fmonoidal_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.diag"><span class="id" title="variable">diag</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_preserves_tensor_data"><span class="id" title="definition">diag_preserves_tensor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_preserves_unit"><span class="id" title="definition">diag_preserves_unit</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="diag_functor_fmonoidal_nat_left" class="idref" href="#diag_functor_fmonoidal_nat_left"><span class="id" title="lemma">diag_functor_fmonoidal_nat_left</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#preserves_tensor_nat_left"><span class="id" title="definition">preserves_tensor_nat_left</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservestensordata"><span class="id" title="definition">fmonoidal_preservestensordata</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">y</span> <span class="id" title="var">x1</span> <span class="id" title="var">x2</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#naturality_inner_swap"><span class="id" title="lemma">naturality_inner_swap</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">y</span>) (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">y</span>) <span class="id" title="var">f</span> <span class="id" title="var">f</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#when_bifunctor_becomes_leftwhiskering"><span class="id" title="lemma">when_bifunctor_becomes_leftwhiskering</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#when_bifunctor_becomes_leftwhiskering"><span class="id" title="lemma">when_bifunctor_becomes_leftwhiskering</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#when_bifunctor_becomes_leftwhiskering"><span class="id" title="lemma">when_bifunctor_becomes_leftwhiskering</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#tensor_id_id"><span class="id" title="definition">tensor_id_id</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="diag_functor_fmonoidal_nat_right" class="idref" href="#diag_functor_fmonoidal_nat_right"><span class="id" title="lemma">diag_functor_fmonoidal_nat_right</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#preserves_tensor_nat_right"><span class="id" title="definition">preserves_tensor_nat_right</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservestensordata"><span class="id" title="definition">fmonoidal_preservestensordata</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x1</span> <span class="id" title="var">x2</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#naturality_inner_swap"><span class="id" title="lemma">naturality_inner_swap</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <span class="id" title="var">f</span> <span class="id" title="var">f</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">y</span>) (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">y</span>) <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#when_bifunctor_becomes_rightwhiskering"><span class="id" title="lemma">when_bifunctor_becomes_rightwhiskering</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#when_bifunctor_becomes_rightwhiskering"><span class="id" title="lemma">when_bifunctor_becomes_rightwhiskering</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#when_bifunctor_becomes_rightwhiskering"><span class="id" title="lemma">when_bifunctor_becomes_rightwhiskering</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#tensor_id_id"><span class="id" title="definition">tensor_id_id</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="diag_functor_fmonoidal_assoc" class="idref" href="#diag_functor_fmonoidal_assoc"><span class="id" title="lemma">diag_functor_fmonoidal_assoc</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#preserves_associativity"><span class="id" title="definition">preserves_associativity</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservestensordata"><span class="id" title="definition">fmonoidal_preservestensordata</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#inner_swap_hexagon'_3"><span class="id" title="lemma">inner_swap_hexagon'_3</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#when_bifunctor_becomes_rightwhiskering"><span class="id" title="lemma">when_bifunctor_becomes_rightwhiskering</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#when_bifunctor_becomes_leftwhiskering"><span class="id" title="lemma">when_bifunctor_becomes_leftwhiskering</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="diag_functor_fmonoidal_leftunitality" class="idref" href="#diag_functor_fmonoidal_leftunitality"><span class="id" title="lemma">diag_functor_fmonoidal_leftunitality</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#preserves_leftunitality"><span class="id" title="definition">preserves_leftunitality</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservestensordata"><span class="id" title="definition">fmonoidal_preservestensordata</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservesunit"><span class="id" title="definition">fmonoidal_preservesunit</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#precompose_inner_swap_with_lunitors_on_right"><span class="id" title="lemma">precompose_inner_swap_with_lunitors_on_right</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <span class="id" title="var">x</span> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> ! <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#inner_swap_is_z_isomorphism"><span class="id" title="lemma">inner_swap_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_rightcomp"><span class="id" title="definition">bifunctor_rightcomp</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_leftunitorisolaw"><span class="id" title="definition">monoidal_leftunitorisolaw</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_rightid"><span class="id" title="definition">bifunctor_rightid</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="diag_functor_fmonoidal_rightunitality" class="idref" href="#diag_functor_fmonoidal_rightunitality"><span class="id" title="lemma">diag_functor_fmonoidal_rightunitality</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#preserves_rightunitality"><span class="id" title="definition">preserves_rightunitality</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservestensordata"><span class="id" title="definition">fmonoidal_preservestensordata</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservesunit"><span class="id" title="definition">fmonoidal_preservesunit</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_preserves_unit"><span class="id" title="definition">diag_preserves_unit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_preserves_tensor_data"><span class="id" title="definition">diag_preserves_tensor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#precompose_inner_swap_with_lunitors_and_runitor"><span class="id" title="lemma">precompose_inner_swap_with_lunitors_and_runitor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> ! <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#inner_swap_is_z_isomorphism"><span class="id" title="lemma">inner_swap_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_leftcomp"><span class="id" title="definition">bifunctor_leftcomp</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_leftunitorisolaw"><span class="id" title="definition">monoidal_leftunitorisolaw</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_leftid"><span class="id" title="definition">bifunctor_leftid</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="diag_functor_fmonoidal_laxlaws" class="idref" href="#diag_functor_fmonoidal_laxlaws"><span class="id" title="lemma">diag_functor_fmonoidal_laxlaws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_laxlaws"><span class="id" title="definition">fmonoidal_laxlaws</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_nat_left"><span class="id" title="lemma">diag_functor_fmonoidal_nat_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_nat_right"><span class="id" title="lemma">diag_functor_fmonoidal_nat_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_assoc"><span class="id" title="lemma">diag_functor_fmonoidal_assoc</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_leftunitality"><span class="id" title="lemma">diag_functor_fmonoidal_leftunitality</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_rightunitality"><span class="id" title="lemma">diag_functor_fmonoidal_rightunitality</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diag_functor_fmonoidal_lax" class="idref" href="#diag_functor_fmonoidal_lax"><span class="id" title="definition">diag_functor_fmonoidal_lax</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_lax"><span class="id" title="definition">fmonoidal_lax</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.diag"><span class="id" title="variable">diag</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_data"><span class="id" title="definition">diag_functor_fmonoidal_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_laxlaws"><span class="id" title="lemma">diag_functor_fmonoidal_laxlaws</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diag_functor_is_strong_fmonoidal" class="idref" href="#diag_functor_is_strong_fmonoidal"><span class="id" title="definition">diag_functor_is_strong_fmonoidal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_stronglaws"><span class="id" title="definition">fmonoidal_stronglaws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservestensordata"><span class="id" title="definition">fmonoidal_preservestensordata</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_lax"><span class="id" title="definition">diag_functor_fmonoidal_lax</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservesunit"><span class="id" title="definition">fmonoidal_preservesunit</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_lax"><span class="id" title="definition">diag_functor_fmonoidal_lax</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_stronglaws"><span class="id" title="definition">fmonoidal_stronglaws</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#inner_swap_is_z_isomorphism"><span class="id" title="lemma">inner_swap_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span> ; <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_leftunitorisolaw"><span class="id" title="definition">monoidal_leftunitorisolaw</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">I_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">}</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diag_functor_fmonoidal" class="idref" href="#diag_functor_fmonoidal"><span class="id" title="definition">diag_functor_fmonoidal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal"><span class="id" title="definition">fmonoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.diag"><span class="id" title="variable">diag</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal_lax"><span class="id" title="definition">diag_functor_fmonoidal_lax</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_is_strong_fmonoidal"><span class="id" title="definition">diag_functor_is_strong_fmonoidal</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diag_functor_is_symmetric" class="idref" href="#diag_functor_is_symmetric"><span class="id" title="definition">diag_functor_is_symmetric</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#is_symmetric_monoidal_functor"><span class="id" title="definition">is_symmetric_monoidal_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#diag_functor_fmonoidal"><span class="id" title="definition">diag_functor_fmonoidal</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.html#inner_swap_commute_with_swap"><span class="id" title="lemma">inner_swap_commute_with_swap</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.html#DiagFunctorMonoidal"><span class="id" title="section">DiagFunctorMonoidal</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

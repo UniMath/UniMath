@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.PseudoFunctors.Examples.CatDiag</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.PseudoFunctors.Examples.CatDiag</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#"><span class="id" title="library">UniMath.CategoryTheory.PrecategoryBinProduct</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Invertible_2cells.html#"><span class="id" title="library">UniMath.Bicategories.Core.Invertible_2cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfUnivCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.PseudoFunctor</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#Notations"><span class="id" title="module">PseudoFunctor.Notations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="diag_univ_cat_data" class="idref" href="#diag_univ_cat_data"><span class="id" title="definition">diag_univ_cat_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#psfunctor_data"><span class="id" title="definition">psfunctor_data</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#bicat_of_univ_cats"><span class="id" title="definition">bicat_of_univ_cats</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#bicat_of_univ_cats"><span class="id" title="definition">bicat_of_univ_cats</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#make_psfunctor_data"><span class="id" title="definition">make_psfunctor_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:1" class="idref" href="#C:1"><span class="id" title="binder"><span id="C:2" class="id">C</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#univalent_category_binproduct"><span class="id" title="definition">univalent_category_binproduct</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#C:1"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#C:1"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:3" class="idref" href="#C:3"><span class="id" title="binder"><span id="C:6" class="id">C</span></span></a> <a id="D:4" class="idref" href="#D:4"><span class="id" title="binder"><span id="D:7" class="id">D</span></span></a> <a id="F:5" class="idref" href="#F:5"><span class="id" title="binder"><span id="F:8" class="id">F</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#pair_functor"><span class="id" title="definition">pair_functor</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#F:5"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#F:5"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="422fa54cfa58f613edff23e882af5e79" class="idref" href="#422fa54cfa58f613edff23e882af5e79"><span class="id" title="binder"><span id="defa1e777e5cd1fd69c3288883e3429c" class="id">C₁</span></span></a> <a id="fac20af712cc0c8374543dcdfdb71a00" class="idref" href="#fac20af712cc0c8374543dcdfdb71a00"><span class="id" title="binder"><span id="56d7ef3e65232dec6373b00136d1fda2" class="id">C₂</span></span></a> <a id="F:11" class="idref" href="#F:11"><span class="id" title="binder"><span id="F:16" class="id">F</span></span></a> <a id="G:12" class="idref" href="#G:12"><span class="id" title="binder"><span id="G:17" class="id">G</span></span></a> <a id="0ecbf596692ea26080ba0b1e06a9cd5c" class="idref" href="#0ecbf596692ea26080ba0b1e06a9cd5c"><span class="id" title="binder"><span id="a9a9eb1d2135bda778522837c19ce29b" class="id">τ</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#pair_nat_trans"><span class="id" title="definition">pair_nat_trans</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#0ecbf596692ea26080ba0b1e06a9cd5c"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#0ecbf596692ea26080ba0b1e06a9cd5c"><span class="id" title="variable">τ</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:19" class="idref" href="#C:19"><span class="id" title="binder"><span id="C:20" class="id">C</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_id"><span class="id" title="definition">nat_trans_id</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="63c90babd4216292517d3199174961ba" class="idref" href="#63c90babd4216292517d3199174961ba"><span class="id" title="binder"><span id="1ca0e6874f93ee359dc2bcb129e9e15a" class="id">C₁</span></span></a> <a id="dc10aecbfc065b95be9d05022f029190" class="idref" href="#dc10aecbfc065b95be9d05022f029190"><span class="id" title="binder"><span id="3832b264c5f9200df9cefd81230e34a1" class="id">C₂</span></span></a> <a id="070c978735818d03678afb57d3e51aff" class="idref" href="#070c978735818d03678afb57d3e51aff"><span class="id" title="binder"><span id="06ac811e214af67c659911c0d634c75e" class="id">C₃</span></span></a> <a id="F:24" class="idref" href="#F:24"><span class="id" title="binder"><span id="F:29" class="id">F</span></span></a> <a id="G:25" class="idref" href="#G:25"><span class="id" title="binder"><span id="G:30" class="id">G</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_id"><span class="id" title="definition">nat_trans_id</span></a> <span class="id" title="var">_</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="diag_univ_cat_laws" class="idref" href="#diag_univ_cat_laws"><span class="id" title="lemma">diag_univ_cat_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#psfunctor_laws"><span class="id" title="definition">psfunctor_laws</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#diag_univ_cat_data"><span class="id" title="definition">diag_univ_cat_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span> ;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;(<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq"><span class="id" title="lemma">nat_trans_eq</span></a> ; [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a> | ]) ;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ;<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsdirprod"><span class="id" title="definition">pathsdirprod</span></a> ;<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">try</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>) ;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> ?<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, ?<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> ;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">try</span> (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>) ;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_id"><span class="id" title="definition">functor_id</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="diag_univ_cat_invertibles" class="idref" href="#diag_univ_cat_invertibles"><span class="id" title="definition">diag_univ_cat_invertibles</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#invertible_cells"><span class="id" title="definition">invertible_cells</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#diag_univ_cat_data"><span class="id" title="definition">diag_univ_cat_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">C</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#is_nat_z_iso_to_is_invertible_2cell"><span class="id" title="definition">is_nat_z_iso_to_is_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_z_iso_id"><span class="id" title="lemma">nat_z_iso_id</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span> <span class="id" title="var">C₃</span> <span class="id" title="var">F</span> <span class="id" title="var">G</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#is_nat_z_iso_to_is_invertible_2cell"><span class="id" title="definition">is_nat_z_iso_to_is_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_z_iso_id"><span class="id" title="lemma">nat_z_iso_id</span></a> <span class="id" title="var">_</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="diag_univ_cat" class="idref" href="#diag_univ_cat"><span class="id" title="definition">diag_univ_cat</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#bicat_of_univ_cats"><span class="id" title="definition">bicat_of_univ_cats</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#bicat_of_univ_cats"><span class="id" title="definition">bicat_of_univ_cats</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#make_psfunctor"><span class="id" title="definition">make_psfunctor</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#diag_univ_cat_data"><span class="id" title="definition">diag_univ_cat_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#diag_univ_cat_laws"><span class="id" title="lemma">diag_univ_cat_laws</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.CatDiag.html#diag_univ_cat_invertibles"><span class="id" title="definition">diag_univ_cat_invertibles</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

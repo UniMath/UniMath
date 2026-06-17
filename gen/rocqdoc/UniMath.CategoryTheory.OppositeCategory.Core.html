@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.OppositeCategory.Core</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.OppositeCategory.Core</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="opp_cat" class="idref" href="#opp_cat"><span class="id" title="definition">opp_cat</span></a> (<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.opp_precat.html#opp_precat"><span class="id" title="definition">opp_precat</span></a> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#has_homsets_op"><span class="id" title="definition">has_homsets_op</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id="a94a1bf0b374183e66549def52723bf4" class="idref" href="#a94a1bf0b374183e66549def52723bf4"><span class="id" title="notation">&quot;</span></a> C ^opp" := (<a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#opp_cat"><span class="id" title="definition">opp_cat</span></a> <span class="id" title="var">C</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 31).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="functor_op" class="idref" href="#functor_op"><span class="id" title="definition">functor_op</span></a> {<a id="C:2" class="idref" href="#C:2"><span class="id" title="binder">C</span></a> <a id="D:3" class="idref" href="#D:3"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="F:4" class="idref" href="#F:4"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#C:2"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#D:3"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> (<a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#opp_cat"><span class="id" title="definition">opp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#C:2"><span class="id" title="variable">C</span></a>) (<a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#opp_cat"><span class="id" title="definition">opp_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#D:3"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#functor_opp"><span class="id" title="definition">functor_opp</span></a> <a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#F:4"><span class="id" title="variable">F</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

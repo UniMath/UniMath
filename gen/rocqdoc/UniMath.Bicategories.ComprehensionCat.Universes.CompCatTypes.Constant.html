@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+ Types formers in universes of comprehension categories
+
+<div class="paragraph"> </div>
+
+ We defined when a comprehension category is equipped with a universe type, and we constructed
+ a biequivalence between the bicategory of univalent DFL full comprehension categories with a
+ universe type and the bicategory of univalent categories with finite limits and a universe
+ type. Our next goal is to extended this biequivalence to cover universes that are closed under
+ certain type formers as well. We consider various type formers, and these are given in various
+ files. In this file, we consider codes for a fixed type in the empty context, and we instantiate
+ that to the unit type, empty type, natural numbers, and subobject classifier.
+
+<div class="paragraph"> </div>
+
+ There are several design decisions in the development. First, to express that a universe has a
+ code for a certain type former, we assume that the comprehension category supports that type
+ former and we say that we have codes whose associated type is isomorphic to the given type
+ former. For instance, to say that we have codes for the propositional truncation, we assume
+ that the comprehension category is fiberwise a regular category (and that substitution preserves
+ regular epimorphisms), and then we say that for each small type (i.e., a term in the universe)
+ there is another term in the universe that is isomorphic to the propositional truncation of
+ the given type. As a consequence, codes for each type former is expressed using terms of the
+ universe type and an isomorphism. This isomorphism is required to live in the slice category
+ of the category of contexts, which is sufficient to obtain an isomorphism betwteen types.
+ The codes and isomorphism are required to be stable under substitution, which we express
+ using two equalities. One of them is an equality of codes and the other says that some
+ diagram commutes. Each of the type formers in this file is expressed this way, and thus
+ they all are quite similar. Note that we can capture the unit type, empty type, the type of
+ natural numbers, and the subobject classifier type with a uniform construction. Specifically,
+ for these types it is sufficient to only require a code in the empty context, and we give a
+ single generalizing construction for them.
+
+<div class="paragraph"> </div>
+
+ Finally, we do not define when a functor preserves codes in this file. Our strategy to define
+ this is as follows. First we connect type formers in universes for a comprehension category to
+ type formers in universes for the category of contexts. For instance, we show that whenever a
+ universe in a comprehension category supports propositional resizing, then the universe in the
+ category of contexts does so as well. This allows us to express preservation of type formers
+ in comprehension categories via preservation of type formers in categories, which simplifies
+ the development.
+
+<div class="paragraph"> </div>
+
+ Contents
+ 1. Codes for a type in the empty context
+ 2. Codes for the unit type
+ 3. Codes for the empty type
+ 4. Codes for the type of natural numbers
+ 5. Codes for the subobject classifier type
+
+<div class="paragraph"> </div>
+
+                                                                                           
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.StrictInitial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.StrictInitial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#"><span class="id" title="library">UniMath.CategoryTheory.Monics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#"><span class="id" title="library">UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.html#"><span class="id" title="library">UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.html#"><span class="id" title="library">UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#"><span class="id" title="library">UniMath.CategoryTheory.Arithmetic.ParameterizedNNO</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.StructuredCategories.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.StructuredCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.BicatOfCompCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.DFLCompCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.CompCatNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.HPropMono.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.HPropMono</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.ComprehensionPreservation.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.ComprehensionPreservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">comp_cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="TypesInCompCatUniv" class="idref" href="#TypesInCompCatUniv"><span class="id" title="section">TypesInCompCatUniv</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="TypesInCompCatUniv.C" class="idref" href="#TypesInCompCatUniv.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.html#dfl_full_comp_cat_with_univ"><span class="id" title="definition">dfl_full_comp_cat_with_univ</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="TypesInCompCatUniv.el" class="idref" href="#TypesInCompCatUniv.el"><span class="id" title="variable">el</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.html#comp_cat_univ_type"><span class="id" title="definition">comp_cat_univ_type</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.html#dfl_full_comp_cat_ob"><span class="id" title="definition">dfl_full_comp_cat_ob</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.html#dfl_full_comp_cat_el"><span class="id" title="definition">dfl_full_comp_cat_el</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.C"><span class="id" title="variable">C</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab800"></a><h1 class="section">1. Codes for a type in the empty context</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="TypesInCompCatUniv.FixAType" class="idref" href="#TypesInCompCatUniv.FixAType"><span class="id" title="section">FixAType</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="TypesInCompCatUniv.FixAType.A" class="idref" href="#TypesInCompCatUniv.FixAType.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#:::'ty'"><span class="id" title="notation">ty</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#:::'ty'"><span class="id" title="notation">([]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#:::'ty'"><span class="id" title="notation">:</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#:::'ty'"><span class="id" title="notation">C</span></a><a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#:::'ty'"><span class="id" title="notation">)</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="type_in_comp_cat_univ" class="idref" href="#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="a:3" class="idref" href="#a:3"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">tm</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">comp_cat_univ</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">[])</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:x_'&amp;'_x"><span class="id" title="notation">&amp;</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.html#comp_cat_univ_el"><span class="id" title="definition">comp_cat_univ_el</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.el"><span class="id" title="variable">el</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#a:3"><span class="id" title="variable">a</span></a>) (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:x_'&amp;'_x"><span class="id" title="notation">&amp;</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.FixAType.A"><span class="id" title="variable">A</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="isaset_type_in_comp_cat_univ" class="idref" href="#isaset_type_in_comp_cat_univ"><span class="id" title="lemma">isaset_type_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#isaset_total2"><span class="id" title="lemma">isaset_total2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#isaset_comp_cat_tm"><span class="id" title="lemma">isaset_comp_cat_tm</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#isaset_z_iso"><span class="id" title="lemma">isaset_z_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="make_type_in_comp_cat_univ" class="idref" href="#make_type_in_comp_cat_univ"><span class="id" title="definition">make_type_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="a:4" class="idref" href="#a:4"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">tm</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">comp_cat_univ</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">[])</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:5" class="idref" href="#f:5"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:x_'&amp;'_x"><span class="id" title="notation">&amp;</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.html#comp_cat_univ_el"><span class="id" title="definition">comp_cat_univ_el</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.el"><span class="id" title="variable">el</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#a:4"><span class="id" title="variable">a</span></a>) (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:x_'&amp;'_x"><span class="id" title="notation">&amp;</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.FixAType.A"><span class="id" title="variable">A</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#a:4"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#f:5"><span class="id" title="variable">f</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="type_in_comp_cat_univ_code" class="idref" href="#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="a:6" class="idref" href="#a:6"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">tm</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">comp_cat_univ</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:'tm'"><span class="id" title="notation">[])</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#a:6"><span class="id" title="variable">a</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="type_in_comp_cat_univ_z_iso" class="idref" href="#type_in_comp_cat_univ_z_iso"><span class="id" title="definition">type_in_comp_cat_univ_z_iso</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="a:7" class="idref" href="#a:7"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:x_'&amp;'_x"><span class="id" title="notation">&amp;</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.html#comp_cat_univ_el"><span class="id" title="definition">comp_cat_univ_el</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.el"><span class="id" title="variable">el</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#a:7"><span class="id" title="variable">a</span></a>)) (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#::comp_cat:x_'&amp;'_x"><span class="id" title="notation">&amp;</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.FixAType.A"><span class="id" title="variable">A</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#a:7"><span class="id" title="variable">a</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="type_in_comp_cat_univ_z_iso_fiber" class="idref" href="#type_in_comp_cat_univ_z_iso_fiber"><span class="id" title="definition">type_in_comp_cat_univ_z_iso_fiber</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="a:8" class="idref" href="#a:8"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">C</span> := <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#fiber_category"><span class="id" title="definition">fiber_category</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.html#comp_cat_univ_el"><span class="id" title="definition">comp_cat_univ_el</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.el"><span class="id" title="variable">el</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#a:8"><span class="id" title="variable">a</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.FixAType.A"><span class="id" title="variable">A</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.html#cod_iso_to_type_iso"><span class="id" title="definition">cod_iso_to_type_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_z_iso"><span class="id" title="definition">type_in_comp_cat_univ_z_iso</span></a> <span class="id" title="var">a</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrowEq"><span class="id" title="lemma">TerminalArrowEq</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="type_in_comp_cat_univ_eq" class="idref" href="#type_in_comp_cat_univ_eq"><span class="id" title="lemma">type_in_comp_cat_univ_eq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="1d38163782b2995a06ed731e8cdcebfb" class="idref" href="#1d38163782b2995a06ed731e8cdcebfb"><span class="id" title="binder">a₁</span></a> <a id="9a2fa517537ee38d36da8e8c30b349d3" class="idref" href="#9a2fa517537ee38d36da8e8c30b349d3"><span class="id" title="binder">a₂</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:11" class="idref" href="#p:11"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#1d38163782b2995a06ed731e8cdcebfb"><span class="id" title="variable">a₁</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#9a2fa517537ee38d36da8e8c30b349d3"><span class="id" title="variable">a₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="q:12" class="idref" href="#q:12"><span class="id" title="binder">q</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#comp_cat_comp_mor"><span class="id" title="definition">comp_cat_comp_mor</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.html#comp_cat_el_map_on_eq"><span class="id" title="definition">comp_cat_el_map_on_eq</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.el"><span class="id" title="variable">el</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#p:11"><span class="id" title="variable">p</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_z_iso"><span class="id" title="definition">type_in_comp_cat_univ_z_iso</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#9a2fa517537ee38d36da8e8c30b349d3"><span class="id" title="variable">a₂</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_z_iso"><span class="id" title="definition">type_in_comp_cat_univ_z_iso</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#1d38163782b2995a06ed731e8cdcebfb"><span class="id" title="variable">a₁</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#1d38163782b2995a06ed731e8cdcebfb"><span class="id" title="variable">a₁</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#9a2fa517537ee38d36da8e8c30b349d3"><span class="id" title="variable">a₂</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">a₁</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">a₁</span> <span class="id" title="var">f₁</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">a₂</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">a₂</span> <span class="id" title="var">f₂</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_eq"><span class="id" title="lemma">z_iso_eq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">q</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>) ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#comp_cat_comp_mor_id"><span class="id" title="lemma">comp_cat_comp_mor_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.FixAType"><span class="id" title="section">FixAType</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a> <span class="id" title="var">A</span> : <span class="id" title="tactic">clear</span> <span class="id" title="var">implicits</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab801"></a><h2 class="section">2. Codes for the unit type</h2>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="unit_in_comp_cat_univ" class="idref" href="#unit_in_comp_cat_univ"><span class="id" title="definition">unit_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#dfl_full_comp_cat_unit"><span class="id" title="definition">dfl_full_comp_cat_unit</span></a> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.C"><span class="id" title="variable">C</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="unit_in_comp_cat_univ_eq" class="idref" href="#unit_in_comp_cat_univ_eq"><span class="id" title="lemma">unit_in_comp_cat_univ_eq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="36b36173a16032ce76ab51527644476b" class="idref" href="#36b36173a16032ce76ab51527644476b"><span class="id" title="binder">a₁</span></a> <a id="46006906b5e34a7dcd2df2e3418db5fa" class="idref" href="#46006906b5e34a7dcd2df2e3418db5fa"><span class="id" title="binder">a₂</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#unit_in_comp_cat_univ"><span class="id" title="definition">unit_in_comp_cat_univ</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:15" class="idref" href="#p:15"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#36b36173a16032ce76ab51527644476b"><span class="id" title="variable">a₁</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#46006906b5e34a7dcd2df2e3418db5fa"><span class="id" title="variable">a₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#36b36173a16032ce76ab51527644476b"><span class="id" title="variable">a₁</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#46006906b5e34a7dcd2df2e3418db5fa"><span class="id" title="variable">a₂</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">a₁</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">a₁</span> <span class="id" title="var">f₁</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">a₂</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">a₂</span> <span class="id" title="var">f₂</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_eq"><span class="id" title="lemma">z_iso_eq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#cancel_z_iso"><span class="id" title="lemma">cancel_z_iso</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#dfl_full_comp_cat_extend_unit_z_iso"><span class="id" title="definition">dfl_full_comp_cat_extend_unit_z_iso</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">C</span> := <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.html#dfl_full_comp_cat_with_univ_types"><span class="id" title="definition">dfl_full_comp_cat_with_univ_types</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#TerminalArrowEq"><span class="id" title="lemma">TerminalArrowEq</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab802"></a><h2 class="section">3. Codes for the empty type</h2>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="empty_in_comp_cat_univ" class="idref" href="#empty_in_comp_cat_univ"><span class="id" title="definition">empty_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="I:16" class="idref" href="#I:16"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#fiberwise_cat_property"><span class="id" title="definition">fiberwise_cat_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#strict_initial_local_property"><span class="id" title="definition">strict_initial_local_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.html#dfl_full_comp_cat_with_univ_types"><span class="id" title="definition">dfl_full_comp_cat_with_univ_types</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.C"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Limits.StrictInitial.html#strict_initial_to_initial"><span class="id" title="definition">strict_initial_to_initial</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#fiberwise_cat_property_ob"><span class="id" title="definition">fiberwise_cat_property_ob</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#I:16"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a>))).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="empty_in_comp_cat_univ_eq" class="idref" href="#empty_in_comp_cat_univ_eq"><span class="id" title="lemma">empty_in_comp_cat_univ_eq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="I:17" class="idref" href="#I:17"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#fiberwise_cat_property"><span class="id" title="definition">fiberwise_cat_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#strict_initial_local_property"><span class="id" title="definition">strict_initial_local_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.html#dfl_full_comp_cat_with_univ_types"><span class="id" title="definition">dfl_full_comp_cat_with_univ_types</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.C"><span class="id" title="variable">C</span></a>)}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="22673a4e43a35f4340bd14a3ff502098" class="idref" href="#22673a4e43a35f4340bd14a3ff502098"><span class="id" title="binder">a₁</span></a> <a id="610e1332ba3187fa805d2c96ba4cc144" class="idref" href="#610e1332ba3187fa805d2c96ba4cc144"><span class="id" title="binder">a₂</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#empty_in_comp_cat_univ"><span class="id" title="definition">empty_in_comp_cat_univ</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#I:17"><span class="id" title="variable">I</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:20" class="idref" href="#p:20"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#22673a4e43a35f4340bd14a3ff502098"><span class="id" title="variable">a₁</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#610e1332ba3187fa805d2c96ba4cc144"><span class="id" title="variable">a₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#22673a4e43a35f4340bd14a3ff502098"><span class="id" title="variable">a₁</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#610e1332ba3187fa805d2c96ba4cc144"><span class="id" title="variable">a₂</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">a₁</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">a₁</span> <span class="id" title="var">f₁</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">a₂</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">a₂</span> <span class="id" title="var">f₂</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_eq_inv"><span class="id" title="lemma">z_iso_eq_inv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialArrowEq"><span class="id" title="lemma">InitialArrowEq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">O</span> := <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#make_Initial"><span class="id" title="definition">make_Initial</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.ComprehensionPreservation.html#preserves_initial_dfl_full_comp_cat_adjequiv_base_functor"><span class="id" title="definition">preserves_initial_dfl_full_comp_cat_adjequiv_base_functor</span></a> <span class="id" title="var">I</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.StrictInitial.html#strict_initial_to_initial"><span class="id" title="definition">strict_initial_to_initial</span></a> (<span class="id" title="var">I</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab803"></a><h2 class="section">4. Codes for the type of natural numbers</h2>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="pnno_in_comp_cat_univ" class="idref" href="#pnno_in_comp_cat_univ"><span class="id" title="definition">pnno_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="N:21" class="idref" href="#N:21"><span class="id" title="binder">N</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#fiberwise_cat_property"><span class="id" title="definition">fiberwise_cat_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#parameterized_NNO_local_property"><span class="id" title="definition">parameterized_NNO_local_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.html#dfl_full_comp_cat_with_univ_types"><span class="id" title="definition">dfl_full_comp_cat_with_univ_types</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.C"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#parameterized_NNO_carrier"><span class="id" title="definition">parameterized_NNO_carrier</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#fiberwise_cat_property_ob"><span class="id" title="definition">fiberwise_cat_property_ob</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#N:21"><span class="id" title="variable">N</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a>)).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab804"></a><h2 class="section">5. Codes for the subobject classifier type</h2>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subobject_classifier_in_comp_cat_univ" class="idref" href="#subobject_classifier_in_comp_cat_univ"><span class="id" title="definition">subobject_classifier_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="40acb5fb342faf0150e31b97f860217f" class="idref" href="#40acb5fb342faf0150e31b97f860217f"><span class="id" title="binder">Ω</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#fiberwise_cat_property"><span class="id" title="definition">fiberwise_cat_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#subobject_classifier_local_property"><span class="id" title="definition">subobject_classifier_local_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.html#dfl_full_comp_cat_with_univ_types"><span class="id" title="definition">dfl_full_comp_cat_with_univ_types</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv.C"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#subobject_classifier_object"><span class="id" title="definition">subobject_classifier_object</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#fiberwise_cat_property_ob"><span class="id" title="definition">fiberwise_cat_property_ob</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#40acb5fb342faf0150e31b97f860217f"><span class="id" title="variable">Ω</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#ce535aefd13c296f3de573496b54417d"><span class="id" title="notation">[]</span></a>)).<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#TypesInCompCatUniv"><span class="id" title="section">TypesInCompCatUniv</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ"><span class="id" title="definition">type_in_comp_cat_univ</span></a> {<span class="id" title="var">C</span>} <span class="id" title="var">A</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_code"><span class="id" title="definition">type_in_comp_cat_univ_code</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">A</span>} <span class="id" title="var">a</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_z_iso"><span class="id" title="definition">type_in_comp_cat_univ_z_iso</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">A</span>} <span class="id" title="var">a</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.html#type_in_comp_cat_univ_z_iso_fiber"><span class="id" title="definition">type_in_comp_cat_univ_z_iso_fiber</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">A</span>} <span class="id" title="var">a</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

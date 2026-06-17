@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUniv</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUniv</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+ Categories with universes versus comprehension categories with universes: the counit
+
+<div class="paragraph"> </div>
+
+ Our goal is to establish a biequivalence between the bicategories of univalent categories
+ with finite limits and a universe type and the bicategory of univalent full DFL comprehension
+ categories that have a universe.
+
+<div class="paragraph"> </div>
+
+ The mathematical development of the counit is rather straightforward. However, there are
+ some technical issues, namely keeping the memory consumption and the running time acceptable.
+ Tricks to decrease the running time are documented in the file, and the development of the
+ pointwise morphism and the naturality squares are split up into separate files. In this file,
+ we construct the displayed pseudotransformation.
+
+<div class="paragraph"> </div>
+
+                                                                                            
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#Notations"><span class="id" title="module">DispBicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBuilders.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBuilders</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispPseudofunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispTransformation.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispTransformation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.PseudoFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Identity.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.Identity</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Composition.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.Composition</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#"><span class="id" title="library">UniMath.Bicategories.Transformations.PseudoTransformation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.StructuredCategories.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.StructuredCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.BicatOfCompCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.DFLCompCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCompCatUniv.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCompCatUniv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivActions.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivActions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivCell.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivCell</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivIdent.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivIdent</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUniv.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUniv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivMor.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivMor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivNat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivNat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">comp_cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="dfl_comp_cat_to_finlim_disp_psfunctor_counit" class="idref" href="#dfl_comp_cat_to_finlim_disp_psfunctor_counit"><span class="id" title="definition">dfl_comp_cat_to_finlim_disp_psfunctor_counit</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispTransformation.html#disp_pstrans"><span class="id" title="definition">disp_pstrans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.html#disp_pseudo_id"><span class="id" title="definition">disp_pseudo_id</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.html#disp_bicat_dfl_full_comp_cat_with_univ"><span class="id" title="definition">disp_bicat_dfl_full_comp_cat_with_univ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.html#disp_pseudo_comp"><span class="id" title="definition">disp_pseudo_comp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUniv.html#dfl_comp_cat_to_finlim_disp_psfunctor_universe"><span class="id" title="definition">dfl_comp_cat_to_finlim_disp_psfunctor_universe</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCompCatUniv.html#finlim_to_dfl_comp_cat_disp_psfunctor_universe"><span class="id" title="definition">finlim_to_dfl_comp_cat_disp_psfunctor_universe</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.html#finlim_dfl_comp_cat_counit"><span class="id" title="definition">finlim_dfl_comp_cat_counit</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBuilders.html#make_disp_pstrans"><span class="id" title="definition">make_disp_pstrans</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.html#disp_2cells_isaprop_disp_bicat_dfl_full_comp_cat_with_univ"><span class="id" title="lemma">disp_2cells_isaprop_disp_bicat_dfl_full_comp_cat_with_univ</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.html#disp_locally_groupoid_disp_bicat_dfl_full_comp_cat_with_univ"><span class="id" title="lemma">disp_locally_groupoid_disp_bicat_dfl_full_comp_cat_with_univ</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> <span class="id" title="var">u</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivMor.html#finlim_dfl_comp_cat_counit_ob"><span class="id" title="definition">finlim_dfl_comp_cat_counit_ob</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">u</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivMor.html#finlim_dfl_comp_cat_counit_preserves_univ_type"><span class="id" title="definition">finlim_dfl_comp_cat_counit_preserves_univ_type</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">u</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">u</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span> <span class="id" title="var">F</span> <span class="id" title="var">u₁</span> <span class="id" title="var">u₂</span> <span class="id" title="var">Fu</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivNat.html#finlim_dfl_comp_cat_counit_natural_ob_lem"><span class="id" title="lemma">finlim_dfl_comp_cat_counit_natural_ob_lem</span></a> <span class="id" title="var">F</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">Fu</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUnivNat.html#finlim_dfl_comp_cat_counit_natural_preserves_univ_type"><span class="id" title="definition">finlim_dfl_comp_cat_counit_natural_preserves_univ_type</span></a> <span class="id" title="var">F</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">Fu</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">Fu</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

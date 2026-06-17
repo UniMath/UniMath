@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.DaggerCategories.CatIso</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.DaggerCategories.CatIso</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.catiso.html#"><span class="id" title="library">UniMath.CategoryTheory.catiso</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.CategoryEquality.html#"><span class="id" title="library">UniMath.CategoryTheory.CategoryEquality</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.DaggerCategories.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DaggerCategories.Functors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="daggercatiso" class="idref" href="#daggercatiso"><span class="id" title="definition">daggercatiso</span></a> (<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> <a id="D:2" class="idref" href="#D:2"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.Categories.html#dagger_category"><span class="id" title="definition">dagger_category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="i:3" class="idref" href="#i:3"><span class="id" title="binder">i</span></a> : <a class="idref" href="UniMath.CategoryTheory.catiso.html#catiso"><span class="id" title="definition">catiso</span></a> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#C:1"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#D:2"><span class="id" title="variable">D</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DaggerCategories.Functors.html#is_dagger_functor"><span class="id" title="definition">is_dagger_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#C:1"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#D:2"><span class="id" title="variable">D</span></a> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#i:3"><span class="id" title="variable">i</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="daggercatiso_is_path_cat" class="idref" href="#daggercatiso_is_path_cat"><span class="id" title="definition">daggercatiso_is_path_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:4" class="idref" href="#C:4"><span class="id" title="binder">C</span></a> <a id="D:5" class="idref" href="#D:5"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.Categories.html#dagger_category"><span class="id" title="definition">dagger_category</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#C:4"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#D:5"><span class="id" title="variable">D</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#daggercatiso"><span class="id" title="definition">daggercatiso</span></a> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#C:4"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.CatIso.html#D:5"><span class="id" title="variable">D</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#53dcbacd2d163123616a0a748cd5ffab"><span class="id" title="notation">∘</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_equiv"><span class="id" title="lemma">total2_paths_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)%<span class="id" title="var">weq</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#weqbandf"><span class="id" title="definition">weqbandf</span></a> (<a class="idref" href="UniMath.CategoryTheory.CategoryEquality.html#catiso_is_path_cat"><span class="id" title="definition">catiso_is_path_cat</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">C</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">D</span>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">C</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">C</span> <span class="id" title="var">dagC</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">D</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">D</span> <span class="id" title="var">dagD</span>].<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#weqimplimpl"><span class="id" title="definition">weqimplimpl</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span> ; <span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">q</span> ; <span class="id" title="tactic">induction</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span> ; <span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.Categories.html#dagger_equality"><span class="id" title="lemma">dagger_equality</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a> ; <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a> ; <span class="id" title="tactic">intro</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a> ; <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">q</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.Categories.html#isaset_dagger"><span class="id" title="lemma">isaset_dagger</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.DaggerCategories.Functors.html#isaprop_is_dagger_functor"><span class="id" title="lemma">isaprop_is_dagger_functor</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

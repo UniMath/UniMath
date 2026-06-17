@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.DCPOs.Examples.Fixpoints</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.DCPOs.Examples.Fixpoints</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.Basics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.MonotoneFunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.PointedPosets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.DirectedSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.Basics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Examples.SubDCPO</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottContinuous.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.ScottContinuous</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">dcpo</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FixpointDCPO" class="idref" href="#FixpointDCPO"><span class="id" title="section">FixpointDCPO</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FixpointDCPO.X" class="idref" href="#FixpointDCPO.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FixpointDCPO.f" class="idref" href="#FixpointDCPO.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottContinuous.html#scott_continuous_map"><span class="id" title="definition">scott_continuous_map</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#X:1"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#X:1"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   1. Fixpoints are closed under least upperbounds
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="lub_fixpoint" class="idref" href="#lub_fixpoint"><span class="id" title="lemma">lub_fixpoint</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="D:3" class="idref" href="#D:3"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#directed_set"><span class="id" title="definition">directed_set</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#FixpointDCPO.X"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HD:5" class="idref" href="#HD:5"><span class="id" title="binder">HD</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="d:4" class="idref" href="#d:4"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#D:3"><span class="id" title="variable">D</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#FixpointDCPO.f"><span class="id" title="variable">f</span></a>(<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#D:3"><span class="id" title="variable">D</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#d:4"><span class="id" title="variable">d</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#D:3"><span class="id" title="variable">D</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#d:4"><span class="id" title="variable">d</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#FixpointDCPO.f"><span class="id" title="variable">f</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#5722364dcd44d883bddb37d170a0195c"><span class="id" title="notation">⨆</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#D:3"><span class="id" title="variable">D</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#5722364dcd44d883bddb37d170a0195c"><span class="id" title="notation">⨆</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#D:3"><span class="id" title="variable">D</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottContinuous.html#scott_continuous_map_on_lub"><span class="id" title="lemma">scott_continuous_map_on_lub</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#antisymm_dcpo"><span class="id" title="lemma">antisymm_dcpo</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo_lub_is_least"><span class="id" title="lemma">dcpo_lub_is_least</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">i</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#less_than_dcpo_lub"><span class="id" title="lemma">less_than_dcpo_lub</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#eq_to_le_dcpo"><span class="id" title="definition">eq_to_le_dcpo</span></a> (<span class="id" title="var">HD</span> <span class="id" title="var">i</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo_lub_is_least"><span class="id" title="lemma">dcpo_lub_is_least</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">i</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#less_than_dcpo_lub"><span class="id" title="lemma">less_than_dcpo_lub</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#eq_to_le_dcpo"><span class="id" title="definition">eq_to_le_dcpo</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><span class="id" title="var">HD</span> <span class="id" title="var">i</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   2. The DCPO of fixpoint of a Scott continuous maps
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="fixpoint_dcpo" class="idref" href="#fixpoint_dcpo"><span class="id" title="definition">fixpoint_dcpo</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_dcpo"><span class="id" title="definition">sub_dcpo</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#FixpointDCPO.X"><span class="id" title="variable">X</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:6" class="idref" href="#x:6"><span class="id" title="binder">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#FixpointDCPO.f"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#x:6"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#34ab7197338beb0a96e3d3d2ed512739"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#x:6"><span class="id" title="variable">x</span></a>)%<span class="id" title="var">logic</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#lub_fixpoint"><span class="id" title="lemma">lub_fixpoint</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Fixpoints.html#FixpointDCPO"><span class="id" title="section">FixpointDCPO</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
