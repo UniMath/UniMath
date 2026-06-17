@@ -9,7 +9,7 @@ among functions from [T] to objects of hProp. Proving that [ishinh T] is in
 [hProp] requires a resizing rule which can be written in the putative notation
 for such rules as follows :
 
-Resizing Rule RR1 (U1 U2 : Univ) (X : U1) (isc : isaprop X) |- X : U2.
+Resizing Rule RR1 (U1 U2 : Univ) (X : U1) (isp : isaprop X) |- X : U2.
 
 Further in the file we introduce the univalence axiom [hPropUnivalence] for
 hProp and a proof of the fact that it is equivalent to a simplier and better
@@ -78,8 +78,8 @@ Require Export UniMath.Foundations.PartD.
 
 
 Definition hProp := total2 (λ X : UU, isaprop X).
-Definition make_hProp (X : UU) (isc : isaprop X) : hProp
-  := tpair (λ X : UU, isaprop X) X isc.
+Definition make_hProp (X : UU) (isp : isaprop X) : hProp
+  := tpair (λ X : UU, isaprop X) X isp.
 Definition hProptoType := @pr1 _ _ : hProp -> UU.
 Coercion hProptoType : hProp >-> UU.
 
@@ -256,10 +256,10 @@ Defined.
 
 Lemma hinhcoprod (X Y : UU) : ∥ (∥ X ∥ ⨿ ∥ Y ∥) ∥ -> ∥ X ⨿ Y ∥.
 Proof.
-  intros isc. unfold ishinh. intro P. intro CP.
+  intros isin. unfold ishinh. intro P. intro CP.
   set (CPX := λ x : X, CP (ii1 x)).
   set (CPY := λ y : Y, CP (ii2 y)).
-  set (is1P := isc P).
+  set (is1P := isin P).
   assert (f : (ishinh X) ⨿ (ishinh Y) -> P).
   apply (sumofmaps (hinhuniv CPX) (hinhuniv CPY)).
   apply (is1P f).
@@ -436,8 +436,8 @@ Notation "'∃' x .. y , P"
        (at level 200, x binder, y binder, right associativity) : type_scope.
   (* in agda-input method, type \ex *)
 
-Definition wittohexists {X : UU} (P : X -> UU) (x : X) (isc : P x) : hexists P
-  := @hinhpr (total2 P) (tpair _ x isc).
+Definition wittohexists {X : UU} (P : X -> UU) (x : X) (isp : P x) : hexists P
+  := @hinhpr (total2 P) (tpair _ x isp).
 
 Definition total2tohexists {X : UU} (P : X -> UU) : total2 P -> hexists P
   := hinhpr.
@@ -569,24 +569,24 @@ Defined.
 
 Lemma tonegcoprod {X Y : UU} : ¬ X × ¬ Y -> ¬ (X ⨿ Y).
 Proof.
-  intros isc. intro c. induction c as [ x | y ].
-  - apply (pr1 isc x).
-  - apply (pr2 isc y).
+  intros isp. intro c. induction c as [ x | y ].
+  - apply (pr1 isp x).
+  - apply (pr2 isp y).
 Defined.
 
 Lemma toneghdisj {X Y : UU} : ¬ X × ¬ Y -> ¬ (X ∨ Y).
 Proof.
-  intros isc. unfold hdisj.
+  intros isp. unfold hdisj.
   apply weqnegtonegishinh.
   apply tonegcoprod.
-  apply isc.
+  apply isp.
 Defined.
 
 Lemma fromnegcoprod {X Y : UU} : ¬ (X ⨿ Y) -> ¬X × ¬Y.
 Proof.
-  intros isc. split.
-  - exact (λ x, isc (ii1 x)).
-  - exact (λ y, isc (ii2 y)).
+  intros isn. split.
+  - exact (λ x, isn (ii1 x)).
+  - exact (λ y, isn (ii2 y)).
 Defined.
 
 Corollary fromnegcoprod_prop {X Y : hProp} : ¬ (X ∨ Y) -> ¬ X ∧ ¬ Y.
@@ -642,9 +642,9 @@ Definition inhdnegpr (X : UU) : X -> isinhdneg X := todneg X.
 Definition inhdnegfun {X Y : UU} (f : X -> Y) : isinhdneg X -> isinhdneg Y
   := dnegf f.
 
-Definition inhdneguniv (X : UU) (P : UU) (isc : isweq (todneg P)) :
+Definition inhdneguniv (X : UU) (P : UU) (isw : isweq (todneg P)) :
   (X -> P) -> ((isinhdneg X) -> P)
-  := λ xp : _, λ inx0 : _, (invmap (make_weq _ isc) (dnegf  xp inx0)).
+  := λ xp : _, λ inx0 : _, (invmap (make_weq _ isw) (dnegf  xp inx0)).
 
 Definition inhdnegand (X Y : UU) (inx0 : isinhdneg X) (iny0 : isinhdneg Y) :
   isinhdneg (X × Y) := dneganddnegimpldneg inx0 iny0.
@@ -710,8 +710,8 @@ Proof.
   {
     intros ? ? X.
     set (X' := maponpaths (@pr1 _ _) X).
-    assert (isc : isweq h) by apply (isweqpr1pr1 hProp).
-    apply (invmaponpathsweq (make_weq h isc) _ _ X').
+    assert (isw : isweq h) by apply (isweqpr1pr1 hProp).
+    apply (invmaponpathsweq (make_weq h isw) _ _ X').
   }
   set (egf := λ a1, (egf1 _ _ (egf0 a1))).
   set (is2 := isweq_iso _ _ egf efg).

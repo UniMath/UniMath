@@ -104,18 +104,18 @@ Defined.
 Lemma iscontr_weq (X Y : UU)
   : iscontr X → iscontr Y → iscontr (X ≃ Y).
 Proof.
-  intros cX cY.
-  exists (weqcontrcontr cX cY ).
+  intros isx isy.
+  exists (weqcontrcontr isx isy ).
   intro f.
   apply subtypePath.
   { exact isapropisweq. }
-  apply funextfun. cbn. intro x. apply (pr2 cY).
+  apply funextfun. cbn. intro x. apply (pr2 isy).
 Defined.
 
 Lemma isofhlevel0pathspace (X Y : UU)
   : iscontr X -> iscontr Y -> iscontr (X = Y).
 Proof.
-  intros pX pY.
+  intros isx isy.
   set (H := isofhlevelweqb 0 (eqweqmap ,, univalenceAxiom X Y)).
   apply H. clear H.
   apply iscontr_weq;
