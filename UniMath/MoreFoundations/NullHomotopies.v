@@ -30,20 +30,20 @@ Proof.
   intros y. apply impred; intros x. apply isasetaprop. apply i.
 Defined.
 
-Lemma isaprop_nullHomotopyTo {X Y} (isc:isaset Y) (f:X->Y) (y:Y) :
+Lemma isaprop_nullHomotopyTo {X Y} (iss:isaset Y) (f:X->Y) (y:Y) :
   isaprop (nullHomotopyTo f y).
 Proof.
-  apply impred; intros x. apply isc.
+  apply impred; intros x. apply iss.
 Defined.
 
-Lemma isaprop_NullHomotopyTo {X} {Y} (isc:isaset Y) (f:X->Y) :
+Lemma isaprop_NullHomotopyTo {X} {Y} (iss:isaset Y) (f:X->Y) :
   ∥ X ∥ -> isaprop (NullHomotopyTo f).
 Proof.
   apply factor_through_squash.
   apply isapropisaprop.
   intros x. apply invproofirrelevance. intros [r i] [s j].
   apply subtypePairEquality.
-  - intros n. apply (isaprop_nullHomotopyTo isc).
+  - intros n. apply (isaprop_nullHomotopyTo iss).
   - exact (!i x @ j x).
 Defined.
 
