@@ -58,7 +58,7 @@ Section LEM.
 Definition LEM : hProp := ∀ P : hProp, decidable_prop P.
 
 Lemma LEM_for_sets (X : UU) : LEM -> isaset X -> isdeceq X.
-Proof. intros lem isc x y. exact (lem (make_hProp (x = y) (isc x y))). Defined.
+Proof. intros lem iss x y. exact (lem (make_hProp (x = y) (iss x y))). Defined.
 
 Lemma isaprop_LEM : isaprop LEM.
 Proof.
@@ -211,15 +211,15 @@ Definition to_ComplementaryPair {P : UU} (c : P ⨿ neg P) : ComplementaryPair
 
 (* Relate isolated points to complementary pairs *)
 
-Definition isolation {X : UU} (x : X) (isc : isisolated X x) (y : X) : UU
-  := isFalse (to_ComplementaryPair (isc y)).
+Definition isolation {X : UU} (x : X) (isi : isisolated X x) (y : X) : UU
+  := isFalse (to_ComplementaryPair (isi y)).
 
-Definition isaprop_isolation {X : UU} (x : X) (isc : isisolated X x) (y : X) :
-  isaprop (isolation x isc y) := isaprop_isFalse _.
+Definition isaprop_isolation {X : UU} (x : X) (isi : isisolated X x) (y : X) :
+  isaprop (isolation x isi y) := isaprop_isFalse _.
 
-Definition isolation_to_inequality {X : UU} (x : X) (isc : isisolated X x)
+Definition isolation_to_inequality {X : UU} (x : X) (isi : isisolated X x)
            (y : X) :
-  isolation x isc y -> x != y := falseWitness.
+  isolation x isi y -> x != y := falseWitness.
 
 Definition inequality_to_isolation {X : UU} (x : X) (i : isisolated X x)
            (y : X) :
@@ -307,8 +307,8 @@ Definition DecidableRelation (X : UU) : UU := X -> X -> DecidableProposition.
 Definition decrel_to_DecidableRelation {X : UU} :
   decrel X -> DecidableRelation X.
 Proof.
-  intros R x y. induction R as [R isc]. exists (R x y).
-  apply isdecpropif. { apply propproperty. } apply isc.
+  intros R x y. induction R as [R isd]. exists (R x y).
+  apply isdecpropif. { apply propproperty. } apply isd.
 Defined.
 
 Definition decidableAnd (P Q : DecidableProposition) : DecidableProposition.
@@ -458,7 +458,7 @@ End DecidablePropositions.
 
 Section DecidableEquality.
 
-Lemma isdeceq_subtype {X : UU} (P : hsubtype X) : 
+Lemma isdeceq_subtype {X : UU} (P : hsubtype X) :
   isdeceq X → isdeceq P.
 Proof.
   intros deceqX predP. apply isdeceq_total2.
@@ -474,11 +474,11 @@ Qed.
     use weq_iso.
     - intros [[x neq] | tt]; [apply x | apply y].
     - intros x. induction (deceqx x y); [right; apply tt | left].
-      apply tpair with (pr1 := x), b. 
+      apply tpair with (pr1 := x), b.
     - intros [[x neq] | tt].
       + induction (deceqx x y).
         * apply fromempty. induction neq. assumption.
-        * cbn. apply maponpaths, subtypePath_prop, idpath. 
+        * cbn. apply maponpaths, subtypePath_prop, idpath.
       + induction (deceqx y y).
         * induction tt. apply idpath.
         * apply fromempty, b, idpath.

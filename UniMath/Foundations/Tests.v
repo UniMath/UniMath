@@ -70,14 +70,14 @@ Module Test_sets.
 
   Import UniMath.Foundations.Sets.
 
-  Goal ∏ Y (isc:isaset Y) (F:Y->UU) (e :∏ y y', F y -> F y' -> y=y')
-         y (f:F y), squash_pairs_to_set F isc e (hinhpr (y,,f)) = y.
+  Goal ∏ Y (iss:isaset Y) (F:Y->UU) (e :∏ y y', F y -> F y' -> y=y')
+         y (f:F y), squash_pairs_to_set F iss e (hinhpr (y,,f)) = y.
   Proof.
     intros. apply idpath.
   Qed.
 
-  Goal ∏ X Y (isc:isaset Y) (f:X->Y) (e:∏ x x', f x = f x'),
-         f = funcomp hinhpr (squash_to_set isc f e).
+  Goal ∏ X Y (iss:isaset Y) (f:X->Y) (e:∏ x x', f x = f x'),
+         f = funcomp hinhpr (squash_to_set iss f e).
   Proof.
     intros. apply idpath.
   Qed.

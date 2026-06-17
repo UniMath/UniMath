@@ -32,11 +32,11 @@ Defined.
 Lemma isweqcontrprop (X Y : UU) (f : X → Y) :
   iscontr X → isaprop Y → isweq f.
 Proof.
-  intros HX HY.
+  intros isx isy.
   apply isweqimplimpl.
-  - intros. apply HX.
-  - apply isapropifcontr. apply HX.
-  - apply HY.
+  - intros. apply isx.
+  - apply isapropifcontr. apply isx.
+  - apply isy.
 Defined.
 
 (** TODO: can this be derived from [weqtotal2comm12] or similar? *)
@@ -68,7 +68,7 @@ Defined.
 (** Contractible types are neutral elements for ×, up to weak equivalence. *)
 Lemma dirprod_with_contr_r : ∏ X Y : UU, iscontr X -> (Y ≃ Y × X).
 Proof.
-  intros X Y iscontrX.
+  intros X Y isx.
   intermediate_weq (Y × unit); [apply weqtodirprodwithunit|].
   - apply weqdirprodf.
     * apply idweq.
@@ -77,7 +77,7 @@ Defined.
 
 Lemma dirprod_with_contr_l : ∏ X Y : UU, iscontr X -> (Y ≃ X × Y).
 Proof.
-  intros X Y iscontrX.
+  intros X Y isx.
   intermediate_weq (Y × X).
   - apply dirprod_with_contr_r; assumption.
   - apply weqdirprodcomm.

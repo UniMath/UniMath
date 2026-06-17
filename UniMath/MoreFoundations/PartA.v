@@ -475,14 +475,14 @@ Definition path_type {X} {x x':X} (p:x = x') := X.
 Definition path_start {X} {x x':X} (p:x = x') := x.
 Definition path_end {X} {x x':X} (p:x = x') := x'.
 
-Definition uniqueness {T} (i:iscontr T) (t:T) : t = iscontrpr1 i.
+Definition uniqueness {T} (isc:iscontr T) (t:T) : t = iscontrpr1 isc.
 Proof.
-  intros. exact (pr2 i t).
+  intros. exact (pr2 isc t).
 Defined.
 
-Definition uniqueness' {T} (i:iscontr T) (t:T) : iscontrpr1 i = t.
+Definition uniqueness' {T} (isc:iscontr T) (t:T) : iscontrpr1 isc = t.
 Proof.
-  intros. exact (! (pr2 i t)).
+  intros. exact (! (pr2 isc t)).
 Defined.
 
 Definition path_inverse_to_right {X} {x y:X} (p q:x = y) : p = q -> !q@p = idpath _.
@@ -580,7 +580,7 @@ Defined.
 Definition pair_path_props {X} {P:X->Type} {x y:X} {p:P x} {q:P y} :
   x = y -> (∏ z, isaprop (P z)) -> x,,p = y,,q.
 Proof.
-  intros e isc. now apply subtypePairEquality.
+  intros e isp. now apply subtypePairEquality.
 Abort.
 
 Local Open Scope transport.
@@ -881,7 +881,7 @@ Defined.
 
 Goal ∏ (X:Type) (x y:X) (p q:x = y), isaset X -> p = q.
 Proof.
-  intros * isc. apply isc.
+  intros * iss. apply iss.
 Defined.
 
 Definition funset X (Y:hSet) : hSet
@@ -1444,11 +1444,11 @@ Section surjectivity.
   Lemma issurjective_to_contr {X Y : UU}
     (x : X)
     (f : X → Y)
-    (contr : iscontr Y) : issurjective f.
+    (isc : iscontr Y) : issurjective f.
   Proof.
     intro; apply hinhpr.
     apply(make_hfiber f x).
-    apply proofirrelevancecontr, contr.
+    apply proofirrelevancecontr, isc.
   Qed.
 
   Lemma issurjective_tounit {X : UU} : X -> issurjective (@tounit X).
