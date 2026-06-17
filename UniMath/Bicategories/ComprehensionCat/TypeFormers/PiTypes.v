@@ -29,6 +29,7 @@
  8. This displayed bicategory is univalent
  9. Pi-types for DFL full comprehension categories
  10. Adjoint equivalences
+ 11. Stability of dependent products for chosen pullbacks
 
  *******************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -39,7 +40,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FiberEquivalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.BeckChevalleyChosenProd.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
@@ -683,4 +687,264 @@ Definition disp_adjoint_equiv_disp_bicat_of_pi_type_dfl_full_comp_cat
   : disp_left_adjoint_equivalence HF FF.
 Proof.
   exact (disp_adjoint_equiv_disp_bicat_of_pi_type_dfl_full_comp_cat_help (F ,, HF) FF).
+Defined.
+
+(** * 11. Stability of dependent products for chosen pullbacks *)
+Definition comp_cat_dependent_prod_chosen
+           (C : comp_cat)
+  : UU
+  := ∑ (pi : ∏ (Γ : C) (A : ty Γ), dependent_product (cleaving_of_types C) (π A)),
+     ∏ (Γ₁ Γ₂ : C)
+       (A : ty Γ₂)
+       (s : Γ₁ --> Γ₂),
+     right_beck_chevalley
+       _
+       (π A) s (π (A [[ s ]])) _
+       (comprehension_functor_mor_comm
+          (comp_cat_comprehension C)
+          (cleaving_of_types C _ _ s A))
+       (pi _ A)
+       (pi _ (A [[ s ]])).
+
+Definition make_comp_cat_dependent_prod_chosen
+           {C : comp_cat}
+           (pi : ∏ (Γ : C) (A : ty Γ), dependent_product (cleaving_of_types C) (π A))
+           (H : ∏ (Γ₁ Γ₂ : C)
+                  (A : ty Γ₂)
+                  (s : Γ₁ --> Γ₂),
+                right_beck_chevalley
+                  _
+                  (π A) s (π (A [[ s ]])) _
+                  (comprehension_functor_mor_comm
+                     (comp_cat_comprehension C)
+                     (cleaving_of_types C _ _ s A))
+                  (pi _ A)
+                  (pi _ (A [[ s ]])))
+  : comp_cat_dependent_prod_chosen C
+  := pi ,, H.
+
+Section DependentProdWithChosenPB.
+  Context {C : comp_cat}
+          (H : comp_cat_dependent_prod_chosen C)
+          {Γ₁ Γ₂ : C}
+          {A₁ : ty Γ₁}
+          {A₂ : ty Γ₂}
+          {s₁ : Γ₁ --> Γ₂}
+          {s₂ : Γ₁ & A₁ --> Γ₂ & A₂}
+          (p : s₂ · π A₂ = π A₁ · s₁)
+          (Hp : isPullback p).
+
+  Let D : disp_cat C := disp_cat_of_types C.
+  Let HD : cleaving D := cleaving_of_types C.
+  Let PBfg : Pullback (π A₂) s₁ := make_Pullback _ Hp.
+  Let PBfg' : Pullback (π A₂) s₁ := comp_cat_pullback A₂ s₁.
+
+  Definition comp_cat_dependent_prod_from_chosen_adjequiv
+    : D[{PBfg}] ⟶ D[{PBfg'}].
+  Proof.
+    use (fiber_functor_from_cleaving D HD).
+    exact (z_iso_from_Pullback_to_Pullback _ PBfg).
+  Defined.
+
+  Definition comp_cat_dependent_prod_from_chosen_left
+    : nat_z_iso
+        (fiber_functor_from_cleaving D HD (π A₁)
+         ∙ comp_cat_dependent_prod_from_chosen_adjequiv)
+        (fiber_functor_from_cleaving D HD (PullbackPr2 _)).
+  Proof.
+    refine (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso HD _ _)
+              (fiber_functor_on_eq_nat_z_iso HD _)).
+    apply (PullbackArrow_PullbackPr2 PBfg).
+  Defined.
+
+  Definition comp_cat_dependent_prod_from_chosen_right
+    : nat_z_iso
+        (fiber_functor_from_cleaving D HD s₂
+         ∙ comp_cat_dependent_prod_from_chosen_adjequiv)
+        (fiber_functor_from_cleaving D HD (PullbackPr1 _)).
+  Proof.
+    refine (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso HD _ _)
+              (fiber_functor_on_eq_nat_z_iso HD _)).
+    apply (PullbackArrow_PullbackPr1 PBfg).
+  Defined.
+
+  Local Arguments transportf {X P x x' e} _.
+
+  Proposition comp_cat_dependent_prod_from_chosen_eq
+    : right_beck_chevalley_adj_equiv_equality
+        (comm_nat_z_iso_inv HD (π A₂) s₁ (π A₁) s₂ p)
+        (comm_nat_z_iso_inv
+           HD
+           (π A₂) s₁ (π (A₂ [[ s₁ ]]))
+           (comprehension_functor_mor
+              (comp_cat_comprehension C)
+              (cleaving_of_types C Γ₂ Γ₁ s₁ A₂))
+           (comprehension_functor_mor_comm (comp_cat_comprehension C)
+              (cleaving_of_types C Γ₂ Γ₁ s₁ A₂)))
+        comp_cat_dependent_prod_from_chosen_adjequiv
+        comp_cat_dependent_prod_from_chosen_left
+        comp_cat_dependent_prod_from_chosen_right.
+  Proof.
+    intro ww.
+    cbn -[fiber_functor_from_cleaving_comp_nat_z_iso
+            fiber_functor_on_eq_nat_z_iso
+            fiber_functor_from_cleaving
+            comm_nat_z_iso_inv].
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite mor_disp_transportf_postwhisker.
+    rewrite !transport_f_f.
+    use (cartesian_factorisation_unique
+           (cartesian_lift_is_cartesian _ _ (HD _ _ _ _))).
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !assoc_disp_var.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      apply fiber_functor_on_eq_comm.
+    }
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite transport_f_f.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    unfold transportb.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite transport_f_f.
+    etrans.
+    {
+      cbn -[comm_nat_z_iso_inv].
+      rewrite !assoc_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+      rewrite assoc_disp_var.
+      rewrite transport_f_f.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply maponpaths_2.
+        apply comm_nat_z_iso_inv_ob.
+      }
+      cbn -[fiber_functor_on_eq].
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      rewrite !assoc_disp_var.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      do 4 apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    refine (!_).
+    etrans.
+    {
+      do 3 apply maponpaths.
+      apply maponpaths_2.
+      apply comm_nat_z_iso_inv_ob.
+    }
+    etrans.
+    {
+      cbn -[fiber_functor_on_eq].
+      unfold transportb.
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      rewrite !assoc_disp_var.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      do 5 apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    use (cartesian_factorisation_unique
+           (cartesian_lift_is_cartesian _ _ (HD _ _ _ _))).
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !assoc_disp_var.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      do 5 apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      do 4 apply maponpaths.
+      apply fiber_functor_on_eq_comm.
+    }
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    rewrite cartesian_factorisation_commutes.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !assoc_disp.
+      apply maponpaths.
+      apply maponpaths_2.
+      apply fiber_functor_on_eq_comm.
+    }
+    unfold transportb.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      rewrite !assoc_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+      apply idpath.
+    }
+    refine (!_).
+    rewrite cartesian_factorisation_commutes.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      apply fiber_functor_on_eq_comm.
+    }
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    rewrite cartesian_factorisation_commutes.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    rewrite !assoc_disp_var.
+    rewrite !transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+End DependentProdWithChosenPB.
+
+Definition make_comp_cat_dependent_prod_from_chosen
+           {C : comp_cat}
+           (H : comp_cat_dependent_prod_chosen C)
+  : comp_cat_dependent_prod C.
+Proof.
+  use make_comp_cat_dependent_prod.
+  - exact (pr1 H).
+  - intros Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp B.
+    pose (PBfg := make_Pullback _ Hp).
+    use (right_beck_chevalley_adj_equiv'
+           _ _ _ _ _ _ _ _ _ _
+           (pr2 H Γ₁ Γ₂ A₂ s₁ B)).
+    + exact (comp_cat_dependent_prod_from_chosen_adjequiv p Hp).
+    + apply fiber_functor_cleaving_of_z_iso_adj_equiv.
+    + apply comp_cat_dependent_prod_from_chosen_left.
+    + apply comp_cat_dependent_prod_from_chosen_right.
+    + apply comp_cat_dependent_prod_from_chosen_eq.
 Defined.

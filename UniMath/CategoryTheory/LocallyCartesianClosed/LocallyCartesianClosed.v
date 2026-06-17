@@ -1433,3 +1433,18 @@ Proof.
   - intros x y f.
     exact (left_adjoint_preserves_bincoproduct _ (HC x y f)).
 Qed.
+
+Definition is_locally_cartesian_closed_exponentials
+           {C : univalent_category}
+           (T : Terminal C)
+           {PB : Pullbacks C}
+           (HC : is_locally_cartesian_closed PB)
+  : Exponentials (BinProductsFromPullbacks PB T).
+Proof.
+  use (exponentials_through_adj_equivalence_univalent_cats
+         _ _
+         (locally_cartesian_closed_to_exponentials PB HC T)).
+  - exact (_ ,, cod_fib_terminal T).
+  - apply is_univalent_cod_slice.
+  - exact (univalent_category_is_univalent C).
+Defined.
