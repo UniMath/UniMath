@@ -23,17 +23,12 @@ Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedM
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.AssociatorUnitorsLayer.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.FinalLayer.
 
-Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
-Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.AssociatorUnitorsLayer.
-Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.FinalLayer.
-
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.EquivalenceMonCatCurried.
 Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.EquivalenceWhiskeredCurried.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-(*
 Definition TODO {A : UU} : A.
 Admitted.
 
@@ -226,44 +221,64 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
     - exact tt.
   Defined.
 
+
+  Definition cmonoidal_from_noncurried_functor_tensorunit (M N : ob UMONCAT)
+      (M' := pr1 (cmonoidal_to_noncurriedmonoidal M))
+      (N' := pr1 (cmonoidal_to_noncurriedmonoidal N))
+    : UMONCAT ⟦ M, N ⟧
+       → functor_tensorunit_cat (monoidal_cat_tensor M') (monoidal_cat_tensor N')
+                                (monoidal_cat_unit M') (monoidal_cat_unit N').
+  Proof.
+    intro F.
+    exists (pr1 F).
+    split.
+    + use tpair.
+      * intro ; apply (pr1 (pr112 F)).
+      * intros [x1 x2] [y1 y2] [f g].
+        etrans. { apply maponpaths_2, (! tensor_on_hom_eq N _ _). }
+        refine (! pr21 (pr112 F) x1 y1 x2 y2 f g @ _).
+        apply maponpaths; cbn; apply maponpaths.
+        apply tensor_on_hom_eq.
+    + apply (pr2 (pr112 F)).
+  Defined.
+
+  Definition cmonoidal_from_noncurried_functor_associator (M N : ob UMONCAT)
+      (F : UMONCAT ⟦ M, N ⟧)
+    : functor_ass_disp_cat
+        (monoidal_cat_associator _) (monoidal_cat_associator _)
+        (cmonoidal_from_noncurried_functor_tensorunit M N F).
+  Proof.
+    intros x y z.
+  (*
+        etrans. { do 2 apply maponpaths_2. apply (! tensor_on_hom_eq N _ _). }
+        refine ((pr2 (pr212 F) x y z) @ _).
+        apply maponpaths_2.
+        apply maponpaths.
+        apply (tensor_on_hom_eq N).
+   *)
+  Admitted.
+
   Definition cmonoidal_from_noncurried_functor (M N : ob UMONCAT)
     :  UMONCAT ⟦ M, N ⟧
        → LaxMonoidalFunctorCat (pr1 (cmonoidal_to_noncurriedmonoidal M))
                                (pr1 (cmonoidal_to_noncurriedmonoidal N)).
   Proof.
     intro F.
-    use tpair.
-    - exists (pr1 F).
-      split.
-      + use tpair.
-        * intro ; apply (pr1 (pr112 F)).
-        * intros [x1 x2] [y1 y2] [f g].
-          etrans. { apply maponpaths_2, (! tensor_on_hom_eq N _ _). }
-          refine (! pr21 (pr112 F) x1 y1 x2 y2 f g @ _).
-          simpl.
-          do 2 apply maponpaths.
-          apply tensor_on_hom_eq.
-      + apply (pr2 (pr112 F)).
-    - repeat split.
-      + abstract (
+    exists (cmonoidal_from_noncurried_functor_tensorunit M N F).
+    repeat split.
+    - abstract (
             intro x ;
             refine (! (pr11 (pr212 F) x) @ _) ;
             do 2 apply maponpaths_2 ;
             apply (tensor_on_hom_eq N)).
-      + abstract (
+    - abstract (
             intro x ;
             refine (! (pr21 (pr212 F) x) @ _) ;
             do 2 apply maponpaths_2 ;
             apply (tensor_on_hom_eq N)).
-      + intros x y z.
-        (*
-        etrans. { do 2 apply maponpaths_2. apply (! tensor_on_hom_eq N _ _). }
-        refine ((pr2 (pr212 F) x y z) @ _).
-        apply maponpaths_2.
-        apply maponpaths.
-        apply (tensor_on_hom_eq N).
-         *)
-        apply TODO.
+    - apply cmonoidal_from_noncurried_functor_associator.
+    (* TODO: possibly inline [cmonoidal_from_noncurried_functor_associator]
+       once completed, but check how it affects typechecking time here. *)
   Defined.
 
   Definition cmonoidal_from_noncurried_nattrans
@@ -432,7 +447,9 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
     use tpair.
     - exists (nat_trans_id _).
       split.
-      + intros x y.
+      + apply TODO.
+(*
+        intros x y.
         simpl ; rewrite id_right ; cbn.
         etrans. {
           apply maponpaths_2.
@@ -442,6 +459,7 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
           apply tensor_id.
         }
         apply id_left.
+*)
       + apply id_right.
     - repeat (use tpair) ; exact tt.
   Defined.
@@ -495,12 +513,14 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
         * exact tt.
         * exact tt.
         * exact tt.
-      + split ; apply UMONCAT_2cell_equality ; intro ; apply id_right.
+      + apply TODO. (* split ; apply UMONCAT_2cell_equality ; intro ; apply id_right. *)
     - use tpair.
       + repeat (use tpair).
         * apply nat_trans_id.
         * apply nat_trans_id.
-        * intros x y.
+        * apply TODO.
+          (*
+          intros x y.
           simpl.
           rewrite id_right.
           etrans. {
@@ -511,7 +531,7 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
             apply maponpaths_2.
             apply (tensor_id _ _ _).
           }
-          apply id_left.
+          apply id_left. *)
         * apply id_right.
         * exact tt.
         * exact tt.
@@ -534,5 +554,5 @@ Section EquivalenceMonCatNonCurriedLaxFunctors.
     - exact (cmonoidal_formadjunction_noncurried M N).
     - exact (cmonoidal_formequivalence_noncurried M N).
   Defined.
+
 End EquivalenceMonCatNonCurriedLaxFunctors.
-*)
