@@ -91,8 +91,8 @@ Definition multilinearfun {I : UU} {rings : I -> ring} (MM NN : multimodule ring
   : UU := ∑ f : MM -> NN, ismultilinear f.
 
 Definition make_multilinearfun {I : UU} {rings : I -> ring} {MM NN : multimodule rings}
-           (f : MM -> NN) (is : ismultilinear f) : multilinearfun MM NN
-  := tpair _ f is.
+           (f : MM -> NN) (isc : ismultilinear f) : multilinearfun MM NN
+  := tpair _ f isc.
 
 Definition pr1multilinearfun {I : UU} {rings : I -> ring} {MM NN : multimodule rings}
            (f : multilinearfun MM NN) : MM -> NN := pr1 f.
@@ -133,8 +133,8 @@ Definition multimodulefun {I : UU} {rings : I -> ring}
            (MM NN : multimodule rings) : UU := ∑ f : MM -> NN, ismultimodulefun f.
 
 Definition make_multimodulefun {I : UU} {rings : I -> ring}
-           {MM NN : multimodule rings} (f : MM -> NN) (is : ismultimodulefun f) :
-  multimodulefun MM NN := tpair _ f is.
+           {MM NN : multimodule rings} (f : MM -> NN) (isc : ismultimodulefun f) :
+  multimodulefun MM NN := tpair _ f isc.
 
 Definition pr1multimodulefun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) : MM -> NN := pr1 f.

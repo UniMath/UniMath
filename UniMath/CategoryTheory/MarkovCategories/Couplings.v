@@ -279,7 +279,7 @@ Section CouplingCompositionLemmas.
         do 2 apply maponpaths_2.
         exact (conditional_distribution_1_eq β).
       }
-      do 2 refine (assoc' _ _ _ @ _).
+      do 2 simple refine (assoc' _ _ _ @ _).
       rewrite <- tensor_comp_id_l.
       rewrite pairing_tensor_r.
       rewrite conditional_distribution_1_to_2.
@@ -290,7 +290,7 @@ Section CouplingCompositionLemmas.
       rewrite conditional_distribution_1_to_2.
       rewrite id_right.
       rewrite <- pairing_tensor_l.
-      refine (assoc _ _ _ @ _).
+      simple refine (assoc _ _ _ @ _).
       apply maponpaths_2.
       exact (!(conditional_distribution_2_eq δ)).
     }

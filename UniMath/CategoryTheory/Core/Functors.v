@@ -1166,17 +1166,17 @@ Section functor_equalities.
 Lemma functor_identity_left (C D : precategory) (F : functor C D) :
   functor_composite (functor_identity C) F = F.
 Proof.
-  destruct F as [ [ Fob Fmor ] is ].
-  destruct is as [ idax compax ] .
+  destruct F as [ [ Fob Fmor ] isc ].
+  destruct isc as [ idax compax ] .
   apply idpath .
 Defined.
 
 Lemma functor_identity_right (C D : precategory) (F : functor C D) :
   functor_composite F (functor_identity D) = F.
 Proof.
-  destruct F as [ [ Fob Fmor ] is ] .
+  destruct F as [ [ Fob Fmor ] isc ] .
   apply ( maponpaths ( λ p, tpair is_functor (tpair _ Fob Fmor) p ) ) .
-  destruct is as [ idax compax ] .
+  destruct isc as [ idax compax ] .
   apply pathsdirprod .
   simpl . apply funextsec . intro t . unfold functor_identity .  unfold functor_id . simpl .
   rewrite maponpathsidfun .

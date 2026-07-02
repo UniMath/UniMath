@@ -298,11 +298,39 @@ Section AlmostSurelyDeterministic.
   Definition is_deterministic_ase {a x y : C} (p : a --> x) (f : x --> y) : UU
    := f · copy y =_{p} copy x · f #⊗ f.
 
+  (* Accessors *)
+
+  Definition make_is_deterministic_ase {a x y : C} (p : a --> x) (f : x --> y) :
+    f · copy y =_{p} copy x · f #⊗ f -> is_deterministic_ase p f.
+  Proof.
+    intros e. exact e.
+  Qed.
+
+  Definition is_deterministic_ase_eq {a x y : C} (p : a --> x) (f : x --> y) :
+    is_deterministic_ase p f -> f · copy y =_{p} copy x · f #⊗ f.
+  Proof.
+    intros d. exact d.
+  Qed.
+
+  Proposition isaprop_is_deterministic_ase {a x y : C} (p : a --> x) (f : x --> y) :
+    isaprop (is_deterministic_ase p f).
+  Proof.
+    apply isaprop_ase.
+  Qed.
+
+End AlmostSurelyDeterministic. 
+
+#[global] Opaque is_deterministic_ase.
+
+Section AlmostSurelyDeterministicProperties.
+  Context {C : markov_category}.
+
   Proposition deterministic_implies_determinstic_ase 
             {a x y : C} (p : a --> x) (f : x --> y) :
     is_deterministic f -> is_deterministic_ase p f.
   Proof.
     intros e.
+    apply make_is_deterministic_ase.
     apply ase_from_eq.
     exact e.
   Qed.
@@ -311,7 +339,7 @@ Section AlmostSurelyDeterministic.
     (f =_{p} g) -> is_deterministic_ase p f -> is_deterministic_ase p g.
   Proof. 
     intros ase df.
-    unfold is_deterministic_ase.
+    apply make_is_deterministic_ase.
 
     apply ase_trans with (f · copy y).
     { apply ase_postcomp. apply ase_symm. exact ase. }
@@ -328,7 +356,7 @@ Section AlmostSurelyDeterministic.
     : is_deterministic_ase p f -> is_deterministic g -> is_deterministic_ase p (f · g).
   Proof.
     intros df dg.
-    unfold is_deterministic_ase.
+    apply make_is_deterministic_ase.
     rewrite assoc', dg.
     rewrite tensor_comp_mor, !assoc.
     apply ase_postcomp. 
@@ -342,7 +370,7 @@ Section AlmostSurelyDeterministic.
       -> is_deterministic_ase (p1 #⊗ p2) (f1 #⊗ f2).
   Proof.
     intros d1 d2.
-    unfold is_deterministic_ase.
+    apply make_is_deterministic_ase.
     use cancel_z_iso_ase.
     - exact ((y1 ⊗ y1) ⊗ (y2 ⊗ y2)).
     - exists (inner_swap _ _ _ _ _); apply inner_swap_is_z_isomorphism.
@@ -367,7 +395,7 @@ Section AlmostSurelyDeterministic.
       -> is_deterministic_ase p ⟨f,g⟩.
   Proof.
     intros d1 d2.
-    unfold is_deterministic_ase.
+    apply make_is_deterministic_ase.
     use cancel_z_iso_ase.
     - exact (y ⊗ y ⊗ (z ⊗ z)).
     - exists (inner_swap _ _ _ _ _); apply inner_swap_is_z_isomorphism.
@@ -386,4 +414,4 @@ Section AlmostSurelyDeterministic.
       * exact d2.
   Qed.
 
-End AlmostSurelyDeterministic.
+End AlmostSurelyDeterministicProperties.

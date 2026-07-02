@@ -143,22 +143,22 @@ Ltac poset_induction f e :=
 
 (* applications of poset equivalence induction: *)
 
-Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) :
+Lemma isMinimal_preserved {X Y:Poset} {x:X} (isc:isMinimal x) (f:X ≅ Y) :
   isMinimal (f x).
 Proof.
   intros.
   (* Anders says " induction f. " should look for PosetEquivalence_rect.
      Why doesn't it? *)
-  poset_induction f e. induction e. simpl. exact is.
+  poset_induction f e. induction e. simpl. exact isc.
 Defined.
 
-Lemma isMaximal_preserved {X Y:Poset} {x:X} (is:isMaximal x) (f:X ≅ Y) :
+Lemma isMaximal_preserved {X Y:Poset} {x:X} (isc:isMaximal x) (f:X ≅ Y) :
   isMaximal (f x).
-Proof. intros. poset_induction f e. induction e. simpl. exact is.
+Proof. intros. poset_induction f e. induction e. simpl. exact isc.
 Defined.
 
-Lemma consecutive_preserved {X Y:Poset} {x y:X} (is:consecutive x y) (f:X ≅ Y) : consecutive (f x) (f y).
-Proof. intros. poset_induction f e. induction e. simpl. exact is.
+Lemma consecutive_preserved {X Y:Poset} {x y:X} (isc:consecutive x y) (f:X ≅ Y) : consecutive (f x) (f y).
+Proof. intros. poset_induction f e. induction e. simpl. exact isc.
 Defined.
 
 (** * Ordered sets *)

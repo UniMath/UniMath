@@ -233,15 +233,15 @@ Section quotmod_def.
   Definition quotmoduniv_data
     (N : module R)
     (f : R-mod(M, N))
-    (is : iscomprelfun E f)
+    (isc : iscomprelfun E f)
     : quotmod → N
-    := setquotuniv E _ f is.
+    := setquotuniv E _ f isc.
 
   Lemma quotmoduniv_ismodulefun
     (N : module R)
     (f : R-mod(M, N))
-    (is : iscomprelfun E f)
-    : ismodulefun (quotmoduniv_data N f is).
+    (isc : iscomprelfun E f)
+    : ismodulefun (quotmoduniv_data N f isc).
   Proof.
     unfold quotmoduniv_data.
     use make_ismodulefun.
@@ -268,9 +268,9 @@ Section quotmod_def.
   Definition quotmoduniv
     (N : module R)
     (f : R-mod(M, N))
-    (is : iscomprelfun E f)
+    (isc : iscomprelfun E f)
     : R-mod(quotmod, N)
-    := make_modulefun (quotmoduniv_data N f is) (quotmoduniv_ismodulefun N f is).
+    := make_modulefun (quotmoduniv_data N f isc) (quotmoduniv_ismodulefun N f isc).
 
 End quotmod_def.
 
@@ -287,8 +287,8 @@ Section from_submodule.
   Definition quotmoduniv_submodule
              (N : module R)
              (f : R-mod(M, N))
-             (is : iscomprelfun (module_eqrelsubmodule M A) f) :
+             (isc : iscomprelfun (module_eqrelsubmodule M A) f) :
     R-mod(quotmod M (module_eqrelsubmodule M A), N) :=
-    quotmoduniv M (module_eqrelsubmodule M A) N f is.
+    quotmoduniv M (module_eqrelsubmodule M A) N f isc.
 
 End from_submodule.

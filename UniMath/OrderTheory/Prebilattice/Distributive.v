@@ -37,7 +37,7 @@ Section Def.
 
   Coercion distributive_prebilattices_to_prebilattices : distributive_prebilattice >-> prebilattice .
 
-  Definition make_distributive_prebilattice {X : hSet} {b : prebilattice X} (is : is_distributive_prebilattice b) : distributive_prebilattice X := b,,is .
+  Definition make_distributive_prebilattice {X : hSet} {b : prebilattice X} (isc : is_distributive_prebilattice b) : distributive_prebilattice X := b,,isc .
 End Def.
 
 Section Properties.

@@ -70,7 +70,7 @@ End A.
 
 Definition toDirectSum {C:category} (h:ZeroMaps C) {I} (dec : isdeceq I) (d:I -> ob C)
            (B:Sum d) (D:Product d)
-           (is: is_iso (identity_map h dec B D)) : DirectSum h I dec d.
+           (isc: is_iso (identity_map h dec B D)) : DirectSum h I dec d.
 Proof.
   intros. set (id := identity_map h dec B D).
   refine (make_DirectSum h I dec d (universalObject D)
@@ -85,7 +85,7 @@ Proof.
     destruct b.
     exact (twooutof3c (λ f, f ∘ id)
                       (λ g i, g ∘ in_ B i)
-                      (iso_comp_right_isweq (id,,is) c)
+                      (iso_comp_right_isweq (id,,isc) c)
                       (pr2 (universalProperty B c))). }
 Defined.
 Definition FiniteDirectSums (C:category) :=
