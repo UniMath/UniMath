@@ -159,6 +159,17 @@ Proof.
 apply path_to_ctr. red. apply Hk.
 Qed.
 
+Lemma limArrow_comp {C : precategory} {g : graph} {d1 d2 : diagram g C}
+  (CC1 : LimCone d1) (CC2 : LimCone d2) (X : C)
+  (cc1 : cone d1 X) (cc2 : cone d2 (lim CC1))
+  (H : forms_cone d2 (λ v : vertex g, limArrow CC1 X cc1 · coneOut cc2 v))
+  : limArrow CC1 _ cc1 · limArrow CC2 _ cc2 
+  = limArrow _ _ (make_cone (λ v, limArrow CC1 _ cc1 · coneOut cc2 v) H).
+Proof.
+  use limArrowUnique.
+  intro u; now rewrite <- assoc, limArrowCommutes.
+Qed.
+
 Lemma Cone_precompose {C : precategory} {g : graph} {d : diagram g C}
   {c : C} (cc : cone d c) (x : C) (f : C⟦x,c⟧) :
     ∏ u v (e : edge u v), (f · coneOut cc u) · dmor d e = f · coneOut cc v.
@@ -564,6 +575,23 @@ Definition preserves_limit {g : graph} (d : diagram g C) (L : C)
   (cc : cone d L) : UU :=
   isLimCone d L cc -> isLimCone (mapdiagram F d) (F L) (mapcone d cc).
 
+Lemma isaprop_preserves_limit {g : graph} (d : diagram g C) (L : C) (cc : cone d L)
+  : isaprop (preserves_limit d L cc).
+Proof.
+  use impred_isaprop; intro.
+  use isaprop_isLimCone.
+Qed.
+
+Definition preserves_limits_of_shape (g : graph) : UU :=
+  ∏ (d : diagram g C) (L : C)(cc : cone d L), preserves_limit d L cc.
+
+Lemma isaprop_preserves_limits_of_shape {g : graph}
+  : isaprop (preserves_limits_of_shape g).
+Proof.
+  do 3 (use impred_isaprop; intro).
+  use isaprop_preserves_limit.
+Qed.
+
 (** ** Right adjoints preserve limits *)
 Lemma right_adjoint_preserves_limit (HF : is_right_adjoint F)
       {g : graph} (d : diagram g C) (L : C) (ccL : cone d L) : preserves_limit d L ccL.
@@ -853,6 +881,7 @@ use (uniqueExists (limUnivProp CC _ _)).
   now apply id_left.
 - simpl; now apply H.
 Qed.
+
 
 (*
 Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
