@@ -1,15 +1,36 @@
+(***************************************************************************
+
+ (Right) Module Signatures
+
+ In this file, we define signatures as sections of the forgetful functor from
+ the total category of right modules to the category of monoids.
+
+ They form a category "module_signature_cat".
+
+ Contents
+ 1. Definitions
+ 2. Two examples of module signatures
+ 3. Evaluation functor (for some fixed monoid R)
+
+ ***************************************************************************)
+
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Modules.
-Require Import UniMath.CategoryTheory.Monoidal.TotalCategoriesOfModules.
+Require Import UniMath.CategoryTheory.Monoidal.RModules.
+Require Import UniMath.CategoryTheory.Monoidal.TotalCategoriesOfRModules.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.
 
 Import BifunctorNotations.
@@ -17,12 +38,19 @@ Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope mor_disp_scope.
 
 Section ModuleSignatures.
   Context {C : monoidal_cat}.
 
   Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
   Local Notation "f ⊗r y" := (f ⊗^{C}_{r} y) (at level 31).
+
+  (**
+     1. Definitions
+   *)
+
+  (* We use displayed sections, as total_category_of_modules is a displayed category *)
 
   Definition module_signature_data 
     := @section_disp_data (MON C) total_category_of_modules_disp_cat.
@@ -41,6 +69,10 @@ Section ModuleSignatures.
 
   Definition module_signature_axioms (Σ : module_signature_data)
     := section_disp_axioms Σ.
+
+  (**
+     2. Two examples of module signatures
+   *)
 
   Definition trivial_signature_data : module_signature_data.
   Proof.
@@ -113,9 +145,16 @@ Section ModuleSignatures.
     : module_signature_cat
     := product_signature_data Σ D,, product_signature_axioms Σ D.
 
+  (**
+     3. Evaluation functor (for some fixed monoid R)
+   *)
 
-  Definition signature_evaluation_data (R : MON C) 
-    : functor_data module_signature_cat (MOD (pr1 R) (pr2 R)).
+  Context (R : MON C).
+  Let MOD_R := MOD (pr1 R) (pr2 R).
+
+
+  Definition signature_evaluation_data
+    : functor_data module_signature_cat MOD_R.
   Proof.
     use make_functor_data.
     - intro Σ; exact (Σ R).
@@ -131,8 +170,8 @@ Section ModuleSignatures.
       ).
   Defined.
 
-  Lemma signature_evaluation_is_functor (R : MON C)
-    : is_functor (signature_evaluation_data R).
+  Lemma signature_evaluation_is_functor
+    : is_functor signature_evaluation_data.
   Proof.
     split.
     - intro Σ; use invmap; [|use path_sigma_hprop|].
@@ -145,7 +184,6 @@ Section ModuleSignatures.
   Qed.
 
 
-  Definition signature_evaluation (R : MON C) : module_signature_cat ⟶ MOD (pr1 R) (pr2 R)
-    := make_functor (signature_evaluation_data R) (signature_evaluation_is_functor R).
-
+  Definition signature_evaluation : module_signature_cat ⟶ MOD_R
+    := make_functor signature_evaluation_data signature_evaluation_is_functor.
 End ModuleSignatures.

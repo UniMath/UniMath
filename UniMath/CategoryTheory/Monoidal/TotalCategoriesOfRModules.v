@@ -1,10 +1,10 @@
 (***************************************************************************
 
- Total categories of modules
+ Total categories of right modules
 
- In this file, the total category of modules in some fixed monoidal category C.
- Objects in such categories are pairs (R, M) where R is a monoid in C and M is
- a module over R.
+ In this file, the total category of right modules in some fixed monoidal 
+ category C. Objects are pairs (R, M) where R is a monoid in C and M is
+ a right module over R.
 
  ***************************************************************************)
 
@@ -20,14 +20,14 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Modules.
+Require Import UniMath.CategoryTheory.Monoidal.RModules.
 
 Import BifunctorNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
 
-Section TotalCategoryOfModules.
+Section TotalCategoryOfRModules.
   Context {C : monoidal_cat}.
 
   Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
@@ -225,4 +225,4 @@ Section TotalCategoryOfModules.
 
   Definition total_category_of_modules : category
     := total_category total_category_of_modules_disp_cat.
-End TotalCategoryOfModules.
+End TotalCategoryOfRModules.

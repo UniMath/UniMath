@@ -3,8 +3,8 @@
 
     the bicategorical variant is found in [MonadsAsMonoidsWhiskered]
 
-    we also show the direction from monads to monoids
-
+    we also show the direction from monads to monoids, also showing 
+    that the category of monads in C is equivalent to the category of monoids in [C, C]
  *)
 
 Require Import UniMath.Foundations.All.
@@ -33,9 +33,6 @@ Section FixACategory.
   Let EndC : monoidal_cat := _ ,, monendocat_monoidal C.
   Let Monoids := category_of_monoids_in_monoidal_cat EndC.
   Let Monads := category_Monad C.
-
-  Let MonoidModules (M : Monoids) : category := @MOD EndC (pr1 M) (pr2 M).
-  Let MonadModules (M : Monads) : category := category_LModule M C.
 
 Section MonoidToMonad.
 
@@ -208,7 +205,7 @@ Proof.
   use (make_adjunction_data monad_to_monoid_functor monoid_to_monad_functor);
   use make_nat_trans.
   - intro M; cbn.
-    apply (transportb (λ x : category_Monad C, ∑ f, disp_Monad_Mor_laws (pr12 x) (pr12 x) f) (monad_to_monoid_to_monad M)).
+    apply (transportb (λ x, ∑ f, disp_Monad_Mor_laws (pr12 x) (pr12 x) f) (monad_to_monoid_to_monad M)).
     exists (nat_trans_id  _).
     exact (monads_category_id_subproof _ (pr22 M)).
   - abstract (
@@ -238,7 +235,7 @@ Proof.
   use make_forms_equivalence.
   - intro M; use Isos.make_is_z_isomorphism; [|use Isos.make_is_inverse_in_precat].
     {
-      apply (transportb (λ x : category_Monad C, ∑ f, disp_Monad_Mor_laws (pr12 x) (pr12 x) f) (monad_to_monoid_to_monad M)).
+      apply (transportb (λ x, ∑ f, disp_Monad_Mor_laws (pr12 x) (pr12 x) f) (monad_to_monoid_to_monad M)).
       exists (nat_trans_id _).
       exact (monads_category_id_subproof _ (pr22 M)).
     }

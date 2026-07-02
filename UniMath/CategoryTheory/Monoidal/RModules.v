@@ -1,15 +1,15 @@
 (***************************************************************************
 
- Modules over a monoid
+ (Right) Modules over a monoid
 
- In this file, the category of modules MOD R over a given monoid R in some
- fixed monoidal category C.
+ In this file, we define the category of (right) modules MOD R over a given
+ monoid R in some fixed monoidal category C.
 
  Contents
  1. Definitions
  2. Two examples of modules
  3. Colimits in MOD R are inherited from colimits in C
- 4. Limits in MOD R are inherited from colimits in C
+ 4. Limits in MOD R are inherited from limits in C
 
  ***************************************************************************)
 
@@ -37,7 +37,7 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
-Section Modules.
+Section RModules.
   Context {C : monoidal_cat}.
 
   Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
@@ -783,4 +783,4 @@ Proof.
   Proof.
     now use lim_module_LimCone.
   Defined.
-End Modules.
+End RModules.

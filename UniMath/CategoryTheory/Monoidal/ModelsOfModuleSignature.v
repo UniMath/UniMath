@@ -1,3 +1,18 @@
+(***************************************************************************
+
+ Models of a Module Signature
+
+ In this file, we define models of some given module signature Σ as a monoid R
+ and a morphism of right modules Σ(R) --> trivial_module(R).
+
+ Contents
+ 1. Definitions
+ 2. Initial models as fix-points of I + Σ(-)
+ 3. Total category of models and signatures
+ 4. Modularity
+
+ ***************************************************************************)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -10,8 +25,8 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Modules.
-Require Import UniMath.CategoryTheory.Monoidal.TotalCategoriesOfModules.
+Require Import UniMath.CategoryTheory.Monoidal.RModules.
+Require Import UniMath.CategoryTheory.Monoidal.TotalCategoriesOfRModules.
 Require Import UniMath.CategoryTheory.Monoidal.ModuleSignatures.
 
 Require Import UniMath.CategoryTheory.Limits.Initial.
@@ -35,12 +50,16 @@ Section ModelsOfModuleSignature.
 
   Context (Σ : @module_signature_cat C).
 
+  (**
+     1. Definitions
+   *)
+
   Definition models_of_module_signatures_disp_cat_ob_mor : disp_cat_ob_mor (MON C).
   Proof.
     use make_disp_cat_ob_mor.
     - intro R; 
       exact (Σ R --> trivial_module (pr1 R) (pr2 R)).
-- intros R R' r r' f; 
+    - intros R R' r r' f; 
       exact (pr1 r · pr1 f = pr1 (section_disp_on_morphisms (pr1 Σ) f) · pr1 r').
   Defined.
 
@@ -79,6 +98,11 @@ Section ModelsOfModuleSignature.
   Definition is_representable := Initial models_of_module_signatures_cat.
 End ModelsOfModuleSignature.
 
+(**
+   2. Initial models as fix-points of I + Σ(-)
+  *)
+
+(* A lemma very similar to Lambek's on initial algebras as fix-points *)
 Local Lemma lambek (D : category) 
   (F : D ⟶ D)
   (α : F ⟹ functor_identity _)
@@ -191,6 +215,22 @@ Section InitialModelsAsFixpoints.
     Local Definition f : M' --> pr11 M
       := BinCoproductArrow _ ηM rM.
 
+    (* Multiplication is defined as the following
+
+                 ≅                       [λ,u]
+       M' ⊗ M' -----> I ⊗ M' + Σ(M) ⊗ M' -----> M'
+                 μ₁                        μ₂ 
+       
+
+       where λ is the left unitor and u is defined as the composite of
+
+
+                  Σ(M) ⊗ f              p            inr
+       Σ(M) ⊗ M' ---------> Σ(M) ⊗ M -------> Σ(M) -------> M'
+
+       where p is the module substitution of Σ(M) ∈ MOD M
+    *)
+
     Local Definition μ₁ : M' ⊗ M' --> (I_{C} ⊗ M' ++ pr1 (Σ M) ⊗ M')
       := arrow_from_prod_sum.
 
@@ -230,8 +270,9 @@ Section InitialModelsAsFixpoints.
     Proof.
       use BinCoproductIn2Commutes.
     Qed.
-    
 
+
+    (* Three laws for M' to be a monoid *)
 
     Local Lemma monoid_law_1 : η ⊗r M' · μ = lu^{ C }_{ M'}.
     Proof.
@@ -360,6 +401,13 @@ Section InitialModelsAsFixpoints.
       := f ,, (!f_respects_multiplication ,, f_inl).
 
 
+    (* To make M' a model, we use the following morphism as model evaluation
+
+                   Σ(f)          inr
+           Σ(M') -------> Σ(M) ------> M'
+     *)
+
+
     Local Definition r : pr1 (Σ M'_mon) --> M'
       := pr1 (section_disp_on_morphisms (pr1 Σ) f_mon) · inr.
 
@@ -392,6 +440,9 @@ Section InitialModelsAsFixpoints.
 
 
   End FixAModel.
+
+
+  (* The mapping M ↦ M' is functorial *)
 
   Section FixAModelMorphism.
     Context (M N : models_of_module_signatures_cat Σ).
@@ -533,6 +584,7 @@ Section InitialModelsAsFixpoints.
       := h'_mon ,, h'_is_model_mor.
   End FixAModelMorphism.
 
+  (* iter_model_functor is the functor I + Σ(-) : Model(Σ) ⟶ Model(Σ) *)
 
   Definition iter_model_functor_data
     : functor_data (models_of_module_signatures_cat Σ) (models_of_module_signatures_cat Σ)
@@ -572,6 +624,9 @@ Section InitialModelsAsFixpoints.
   Definition iter_model_functor 
     : models_of_module_signatures_cat Σ ⟶ models_of_module_signatures_cat Σ
     := make_functor iter_model_functor_data iter_model_is_functor.
+
+
+  (* The mapping M' → M forms a natural transformation *) 
 
   Definition iter_model_to_model_nat_trans_data
     : nat_trans_data iter_model_functor (functor_identity _)
@@ -615,6 +670,10 @@ Section InitialModelsAsFixpoints.
         * symmetry; use BinCoproductOfArrowsIn2.
   Qed.
 
+
+  (* If M is the initial model of Σ then I + Σ(M) is also initial 
+     (and thus a fix-point by uniqueness of initial objects) *)
+
   Proposition initial_model_fixpoint (HΣ : is_representable Σ)
     : isInitial _ (iter_model (InitialObject HΣ)).
   Proof.
@@ -622,8 +681,22 @@ Section InitialModelsAsFixpoints.
   Qed.
 End InitialModelsAsFixpoints.
 
+(**
+   3. Total category of models and signatures
+
+   Objects are pairs (Σ, M) where Σ is a module signature and M is a model of Σ
+ *)
+
 Section TotalCategoriesOfModels.
   Context {C : monoidal_cat}.
+
+  (*
+     Given h : Σ → Σ', a model (M, r) for Σ' can be transformed into a model
+     (M, r') for Σ where r' is the morphism
+
+                    h(M)            r
+             Σ(M) -------> Σ'(M) ------> M
+  *)
 
   Definition pullback_functor_data 
     {Σ Σ' : @module_signature_cat C} (h : Σ --> Σ') 
@@ -639,14 +712,14 @@ Section TotalCategoriesOfModels.
         rewrite @tensor_mor_left, tensor_id_id, id_left;
         use (pr2 r)
       ).
-    - intros (R, r) (R', r') [f H].
-      eexists f; cbn; cbn in H.
+    - intros (R, r) (R', r') (f, H).
+      eexists f; cbn.
       abstract (
         etrans;
         [
           rewrite <- assoc; use maponpaths; [| use H]
         | do 2 rewrite assoc; use (maponpaths (λ x, x · _));
-          eassert _ by exact (maponpaths pr1 (pr2 h R R' f));
+          eassert _ as X by exact (maponpaths pr1 (pr2 h R R' f));
           cbn in X; unfold mor_disp in X;
           cbn in X; rewrite transportf_total2 in X;
           cbn in X; rewrite transportf_const in X;
@@ -737,6 +810,11 @@ Section TotalCategoriesOfModels.
     := total_category total_category_of_models_disp_cat.
 End TotalCategoriesOfModels.
 
+(**
+   4. Modularity
+
+    A pushout of representable signatures induces a pushout of initial models in total_category_of_models.
+ *)
 
 Section Modularity.
   Context {C : monoidal_cat}.
@@ -752,6 +830,24 @@ Section Modularity.
   Context (HΣ₂  : is_representable Σ₂ ).
 
   Context (HΣ₁₂ : is_representable Σ₁₂).
+
+
+  (*                                modularity_morphism₁
+                        (Σ, M) ---------------------------> (Σ₁, M₁)
+                           |                                     |
+                           |                                     |
+                           |                                     |
+                           |                                     |
+     modularity_morphism₂  |                                     |  modularity_morphism_in₁
+                           |                                     | 
+                           |                                     |
+                           |                                     |
+                           |                               ⌜     |
+                           |                                     |
+                           v                                     v
+                        (Σ₂, M₂) -------------------------> (Σ₁₂, M₁₂)
+                                  modularity_morphism_in₂
+    *)
 
   Definition modularity_morphism₁
     : total_category_of_models⟦
@@ -835,7 +931,10 @@ Section Modularity.
           simpl; use (maponpaths pr1 (InitialArrowUnique HΣ₁₂ (pr1 Rr ,, _) (pr12 u ,, _))).
           simpl; etrans; [use (pr22 u)|].
           use (maponpaths (λ x, _ (pr1 x · _))).
-          exact (maponpaths (λ x, pr1 x (pr1 Rr)) (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout) _ _ _ (maponpaths pr1 H) _ (maponpaths pr1 H') (maponpaths pr1 H''))).
+          exact (
+            maponpaths (λ x, pr1 x (pr1 Rr)) 
+            (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout) _ _ _ (maponpaths pr1 H) _ (maponpaths pr1 H') (maponpaths pr1 H''))
+          ).
   Qed.
 
   Definition modularity
