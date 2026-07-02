@@ -248,9 +248,9 @@ Qed.
 
 (** * 3. Relations on groups *)
 
-Lemma isinvbinophrelgr (X : gr) {R : hrel X} (is : isbinophrel R) : isinvbinophrel R.
+Lemma isinvbinophrelgr (X : gr) {R : hrel X} (isc : isbinophrel R) : isinvbinophrel R.
 Proof.
-  set (is1 := pr1 is). set (is2 := pr2 is). split.
+  set (is1 := pr1 isc). set (is2 := pr2 isc). split.
   - intros a b c r. set (r' := is1 _ _ c^-1 r).
     clearbody r'. rewrite <- (assocax X _ _ a) in r'.
     rewrite <- (assocax X _ _ b) in r'.
@@ -267,9 +267,9 @@ Proof.
     apply r'.
 Qed.
 
-Lemma isbinophrelgr (X : gr) {R : hrel X} (is : isinvbinophrel R) : isbinophrel R.
+Lemma isbinophrelgr (X : gr) {R : hrel X} (isc : isinvbinophrel R) : isbinophrel R.
 Proof.
-  set (is1 := pr1 is). set (is2 := pr2 is). split.
+  set (is1 := pr1 isc). set (is2 := pr2 isc). split.
   - intros a b c r. rewrite <- (lunax X a) in r.
     rewrite <- (lunax X b) in r.
     rewrite <- (grlinvax X c) in r.
@@ -284,38 +284,38 @@ Proof.
     apply (is2 _ _ c^-1 r).
 Qed.
 
-Lemma grfromgtunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R x 1) :
+Lemma grfromgtunel (X : gr) {R : hrel X} (isc : isbinophrel R) {x : X} (isg : R x 1) :
   R 1 x^-1.
 Proof.
   intros.
-  set (r := (pr2 is) _ _ x^-1 isg).
+  set (r := (pr2 isc) _ _ x^-1 isg).
   rewrite (grrinvax X x) in r.
   rewrite (lunax X _) in r.
   apply r.
 Defined.
 
-Lemma grtogtunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R 1 x^-1) :
+Lemma grtogtunel (X : gr) {R : hrel X} (isc : isbinophrel R) {x : X} (isg : R 1 x^-1) :
   R x 1.
 Proof.
-  assert (r := (pr2 is) _ _ x isg).
+  assert (r := (pr2 isc) _ _ x isg).
   rewrite (grlinvax X x) in r.
   rewrite (lunax X _) in r.
   apply r.
 Defined.
 
-Lemma grfromltunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R 1 x) :
+Lemma grfromltunel (X : gr) {R : hrel X} (isc : isbinophrel R) {x : X} (isg : R 1 x) :
   R x^-1 1.
 Proof.
-  assert (r := (pr1 is) _ _ x^-1 isg).
+  assert (r := (pr1 isc) _ _ x^-1 isg).
   rewrite (grlinvax X x) in r.
   rewrite (runax X _) in r.
   apply r.
 Defined.
 
-Lemma grtoltunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R x^-1 1) :
+Lemma grtoltunel (X : gr) {R : hrel X} (isc : isbinophrel R) {x : X} (isg : R x^-1 1) :
   R 1 x.
 Proof.
-  assert (r := (pr1 is) _ _ x isg).
+  assert (r := (pr1 isc) _ _ x isg).
   rewrite (grrinvax X x) in r. rewrite (runax X _) in r.
   apply r.
 Defined.

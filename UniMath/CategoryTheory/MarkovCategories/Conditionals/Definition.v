@@ -133,12 +133,12 @@ Section ConditionalDistributions.
     {
       apply conditional_distribution_1_eq.
     }
-    refine (!_).
-    do 2 refine (assoc' _ _ _ @ _).
+    symmetry.
+    do 2 simple refine (assoc' _ _ _ @ _).
     rewrite pairing_sym_mon_braiding.
     rewrite !assoc'.
     apply maponpaths.
-    refine (_ @ assoc' _ _ _).
+    simple refine (_ @ assoc' _ _ _).
     apply maponpaths_2.
     rewrite sym_mon_braiding_proj1.
     reflexivity.

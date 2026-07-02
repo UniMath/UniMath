@@ -99,12 +99,12 @@ Section Tests.
 
   Hypothesis x y z u v w : M.
 
-  Lemma test_op_strip_1 (is : w = v): x * (y * w) = x * (y * v).
+  Lemma test_op_strip_1 (isc : w = v): x * (y * w) = x * (y * v).
   Proof.
     intros. op_strip (@op M). assumption.
   Qed.
 
-  Lemma test_assocop_clean_1 (is : w = v):  x * (y * w) = (x * y) * v.
+  Lemma test_assocop_clean_1 (isc : w = v):  x * (y * w) = (x * y) * v.
   Proof.
     intros. assocop_clean M (@op M). op_strip (@op M). assumption.
   Qed.

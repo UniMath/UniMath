@@ -185,8 +185,8 @@ Definition islinear {R : ring} {M N : module R} (f : M -> N) :=
 
 Definition linearfun {R : ring} (M N : module R) : UU := ∑ f : M -> N, islinear f.
 
-Definition make_linearfun {R : ring} {M N : module R} (f : M -> N) (is : islinear f) :
-  linearfun M N := f ,, is.
+Definition make_linearfun {R : ring} {M N : module R} (f : M -> N) (isc : islinear f) :
+  linearfun M N := f ,, isc.
 
 Definition pr1linearfun {R : ring} {M N : module R} (f : linearfun M N) : M -> N := pr1 f.
 
@@ -244,14 +244,14 @@ Defined.
 
 Definition modulefun {R : ring} (M N : module R) : UU := module_category R⟦M, N⟧%cat.
 
-Definition make_modulefun {R : ring} {M N : module R} (f : M -> N) (is : ismodulefun f)
+Definition make_modulefun {R : ring} {M N : module R} (f : M -> N) (isc : ismodulefun f)
   : modulefun M N.
 Proof.
-  exists (make_abelian_group_morphism f (pr1 is)).
+  exists (make_abelian_group_morphism f (pr1 isc)).
   abstract (
     intro r;
     apply abelian_group_morphism_eq;
-    exact (pr2 is r)
+    exact (pr2 isc r)
   ).
 Defined.
 
@@ -482,7 +482,7 @@ End accessors_moduleiso.
 Coercion moduleiso_to_weq : moduleiso >-> weq.
 Coercion moduleiso_to_modulefun : moduleiso >-> modulefun.
 
-Definition make_moduleiso {R} {M N : module R} f is : moduleiso M N := f ,, is.
+Definition make_moduleiso {R} {M N : module R} f isc : moduleiso M N := f ,, isc.
 
 Lemma isbinopfuninvmap {R} {M N : module R} (f : moduleiso M N) :
   isbinopfun (invmap f).

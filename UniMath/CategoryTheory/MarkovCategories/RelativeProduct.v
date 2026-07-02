@@ -260,7 +260,7 @@ Section CouplingDilators.
     cbn.
     rewrite bloom_dilation_composition.
     unfold dilation_coupling.
-    rewrite pairing_proj_id, id_right.
+    rewrite <- pairing_proj_id, id_right.
     reflexivity.
   Qed.
 
@@ -581,35 +581,61 @@ Section Dilators.
     apply couplings_have_dilators.
   Defined.
 
-  (* TODO: be more explicit here. 
-    e.g. manually construct the bloom dilation and 
-    show that it fixed by the equivalence *)
-  
-  Definition hProj {X : UU} (i : isaset X) (x : make_hSet X i) : X.
+  Definition bloom_dist {p q : PS} (f : p --> q) : I_{C} --> state_ob p ⊗ state_ob q.
   Proof.
-    exact x.
+    revert f.
+    simple refine (setquotuniv _ (_ ,, _) _ _).
+    - apply homset_property.
+    - intros [ff e]. exact (bloom_coupling (state_dist p) ff).
+    - abstract (
+        intros [ff e] [gg h] ase;
+        unfold bloom_coupling;
+        apply equal_almost_surely_r;
+        exact ase
+      ).
   Defined.
 
   Definition bloom_space {p q : PS} (f : p --> q) : PS.
   Proof.
     destruct p as [x p], q as [y q].
-    refine (x ⊗ y ,, _).
-    use hProj. { apply homset_property. } 
+    simple refine (x ⊗ y ,, _).
+
     revert f.
-    use setquotuniv.
-    - intros [f e].
-      exact (bloom_coupling p f).
-    - intros [f e] [g h] ase.
-      unfold bloom_coupling.
-      apply equal_almost_surely_r.
-      exact ase.
+    simple refine (setquotuniv _ (_ ,, _) _ _).
+    - apply homset_property.
+    - intros [f e]. exact (bloom_coupling p f).
+    - abstract (
+        intros [f e] [g h] ase;
+        unfold bloom_coupling;
+        apply equal_almost_surely_r;
+        exact ase
+      ).
   Defined.
 
   Definition bloom_space_proj1 {p q : PS} (f : p --> q) : (bloom_space f) --> p.
   Proof.
-    use hProj. { apply homset_property. } 
+    apply setquotpr.
+    simple refine (proj1 ,, _).
+    simpl.
     revert f.
-    (* TODO *)
-  Abort.
+    apply setquotunivprop'. { intros. apply homset_property. }
+    intros f. unfold bloom_dist. cbn.
+    
+    apply bloom_coupling_dom.
+  Qed.
+
+  Definition bloom_space_proj2 {p q : PS} (f : p --> q) : (bloom_space f) --> q.
+  Proof.
+    apply setquotpr.
+    simple refine (proj2 ,, _).
+    simpl.
+    revert f.
+    apply setquotunivprop'. { intros. apply homset_property. }
+    intros f. unfold bloom_dist. cbn.
+
+    rewrite bloom_coupling_cod.
+    rewrite <- (pr2 f).
+    reflexivity.
+  Qed.
 
 End Dilators.

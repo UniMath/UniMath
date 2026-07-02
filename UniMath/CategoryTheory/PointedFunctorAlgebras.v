@@ -283,8 +283,8 @@ Corollary well_pointed_has_ptd_alg_isaprop (A : C)
 Proof.
   apply invproofirrelevance; red. intros [a ar] [b br].
   apply subtypeInjectivity; simpl. { intros f. apply homset_property. }
-  set (is := (well_pointed_point_is_z_iso_at_algebra (make_ptd_alg F A a ar))).
-  apply (pre_comp_with_z_iso_is_inj is); simpl.
+  set (isc := (well_pointed_point_is_z_iso_at_algebra (make_ptd_alg F A a ar))).
+  apply (pre_comp_with_z_iso_is_inj isc); simpl.
   exact (ar @ ! br).
 Qed.
 

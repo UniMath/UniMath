@@ -74,7 +74,7 @@ Qed.
 (*TODO: use dispAlg to define this*)
 Definition algebraofsubuniverse {σ : signature}
   {A : algebra σ} {B : shsubtype A}
-  (is : issubuniverse A B)
+  (isc : issubuniverse A B)
   : algebra σ.
 Proof.
   use make_algebra.
@@ -84,7 +84,7 @@ Proof.
     use make_carrier.
     + use (ops A nm).
       use (h1map (λ s, pr1carrier (B s)) xs).
-    + use is.
+    + use isc.
 Defined.
 
 Definition embeddingofsubuniverse {σ : signature}

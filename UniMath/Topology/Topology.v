@@ -100,10 +100,10 @@ Definition isTopologicalSpace (X : hSet) :=
 Definition TopologicalSpace := ∑ X : hSet, isTopologicalSpace X.
 
 Definition make_TopologicalSpace (X : hSet) (O : (X → hProp) → hProp)
-           (is : isSetOfOpen_union O)
+           (isc : isSetOfOpen_union O)
            (is0 : isSetOfOpen_htrue O)
            (is1 : isSetOfOpen_and O) : TopologicalSpace :=
-  (X,,O,,is,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
+  (X,,O,,isc,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
 
 Definition pr1TopologicatSpace : TopologicalSpace → hSet := pr1.
 Coercion pr1TopologicatSpace : TopologicalSpace >-> hSet.
@@ -1247,71 +1247,71 @@ Qed.
 
 (** ** Topology in algebraic structures *)
 
-Definition isTopological_monoid (X : monoid) (is : isTopologicalSpace X) :=
-  continuous2d (U := (pr11 X) ,, is)
-               (V := (pr11 X) ,, is)
-               (W := (pr11 X) ,, is)
+Definition isTopological_monoid (X : monoid) (isc : isTopologicalSpace X) :=
+  continuous2d (U := (pr11 X) ,, isc)
+               (V := (pr11 X) ,, isc)
+               (W := (pr11 X) ,, isc)
                BinaryOperations.op.
 Definition Topological_monoid :=
-  ∑ (X : monoid) (is : isTopologicalSpace X), isTopological_monoid X is.
+  ∑ (X : monoid) (isc : isTopologicalSpace X), isTopological_monoid X isc.
 
-Definition isTopological_gr (X : gr) (is : isTopologicalSpace X) :=
-  isTopological_monoid X is
-    × continuous (U := (pr11 X) ,, is)
-                 (V := (pr11 X) ,, is)
+Definition isTopological_gr (X : gr) (isc : isTopologicalSpace X) :=
+  isTopological_monoid X isc
+    × continuous (U := (pr11 X) ,, isc)
+                 (V := (pr11 X) ,, isc)
                  (grinv X).
 Definition Topological_gr :=
-  ∑ (X : gr) is, isTopological_gr X is.
+  ∑ (X : gr) isc, isTopological_gr X isc.
 
-Definition isTopological_rig (X : rig) (is : isTopologicalSpace X) :=
-  isTopological_monoid (rigaddabmonoid X) is
-  × isTopological_monoid (rigmultmonoid X) is.
+Definition isTopological_rig (X : rig) (isc : isTopologicalSpace X) :=
+  isTopological_monoid (rigaddabmonoid X) isc
+  × isTopological_monoid (rigmultmonoid X) isc.
 Definition Topological_rig :=
-  ∑ (X : rig) is, isTopological_rig X is.
+  ∑ (X : rig) isc, isTopological_rig X isc.
 
-Definition isTopological_ring (X : ring) (is : isTopologicalSpace X) :=
-  isTopological_gr (ringaddabgr X) is
-  × isTopological_monoid (rigmultmonoid X) is.
+Definition isTopological_ring (X : ring) (isc : isTopologicalSpace X) :=
+  isTopological_gr (ringaddabgr X) isc
+  × isTopological_monoid (rigmultmonoid X) isc.
 Definition Topological_ring :=
-  ∑ (X : ring) is, isTopological_ring X is.
+  ∑ (X : ring) isc, isTopological_ring X isc.
 
-Definition isTopological_DivRig (X : DivRig) (is : isTopologicalSpace X) :=
-  isTopological_rig (pr1 X) is
-  × continuous_on (U := (pr111 X) ,, is)
-                  (V := (pr111 X) ,, is)
+Definition isTopological_DivRig (X : DivRig) (isc : isTopologicalSpace X) :=
+  isTopological_rig (pr1 X) isc
+  × continuous_on (U := (pr111 X) ,, isc)
+                  (V := (pr111 X) ,, isc)
                   (λ x : X, make_hProp (x != 0%dr) (isapropneg _)) (λ x Hx, invDivRig (x,,Hx)).
 Definition Topological_DivRig :=
-  ∑ (X : DivRig) is, isTopological_DivRig X is.
+  ∑ (X : DivRig) isc, isTopological_DivRig X isc.
 
-Definition isTopological_fld (X : fld) (is : isTopologicalSpace X) :=
-  isTopological_ring (pr1 X) is
-  × continuous_on (U := (pr111 X) ,, is)
-                  (V := (pr111 X) ,, is)
+Definition isTopological_fld (X : fld) (isc : isTopologicalSpace X) :=
+  isTopological_ring (pr1 X) isc
+  × continuous_on (U := (pr111 X) ,, isc)
+                  (V := (pr111 X) ,, isc)
                   (λ x : X, make_hProp (x != 0%ring) (isapropneg _))
                   fldmultinv.
 Definition Topological_fld :=
-  ∑ (X : fld) is, isTopological_fld X is.
+  ∑ (X : fld) isc, isTopological_fld X isc.
 
 Definition isTopological_ConstructiveDivisionRig
   (X : ConstructiveDivisionRig)
-  (is : isTopologicalSpace X)
-  := isTopological_rig X is
-       × continuous_on (U := (pr111 X) ,, is)
-                       (V := (pr111 X) ,, is)
+  (isc : isTopologicalSpace X)
+  := isTopological_rig X isc
+       × continuous_on (U := (pr111 X) ,, isc)
+                       (V := (pr111 X) ,, isc)
                        (λ x : X, (x ≠ 0)%CDR)
                        CDRinv.
 
 Definition Topological_ConstructiveDivisionRig :=
-  ∑ (X : ConstructiveDivisionRig) is, isTopological_ConstructiveDivisionRig X is.
+  ∑ (X : ConstructiveDivisionRig) isc, isTopological_ConstructiveDivisionRig X isc.
 
 Definition isTopological_ConstructiveField
   (X : ConstructiveField)
-  (is : isTopologicalSpace X)
-  := isTopological_ring X is
-       × continuous_on (U := (pr111 X) ,, is)
-                       (V := (pr111 X) ,, is)
+  (isc : isTopologicalSpace X)
+  := isTopological_ring X isc
+       × continuous_on (U := (pr111 X) ,, isc)
+                       (V := (pr111 X) ,, isc)
                        (λ x : X, (x ≠ 0)%CF)
                        CFinv.
 
 Definition Topological_ConstructiveField :=
-  ∑ (X : ConstructiveField) is, isTopological_ConstructiveField X is.
+  ∑ (X : ConstructiveField) isc, isTopological_ConstructiveField X isc.

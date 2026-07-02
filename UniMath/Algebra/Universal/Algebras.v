@@ -111,7 +111,7 @@ Coercion hom2fun: hom >-> sfun.
 
 Definition hom2axiom {σ: signature} {A1 A2: algebra σ} (f: A1 ↷ A2) := pr2 f.
 
-Definition make_hom {σ: signature} {A1 A2: algebra σ} {f: sfun A1 A2} (is: ishom f): A1 ↷ A2 := f ,, is.
+Definition make_hom {σ: signature} {A1 A2: algebra σ} {f: sfun A1 A2} (isc: ishom f): A1 ↷ A2 := f ,, isc.
 
 Theorem isapropishom {σ: signature} {A1 A2: algebra σ} (f: sfun A1 A2)
    (setprop: has_supportsets A2): isaprop (ishom f).

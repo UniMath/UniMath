@@ -786,6 +786,7 @@ ModelCategories/ModelCategories.v
 ModelCategories/NWFS.v
 ModelCategories/NWFSisWFS.v
 
+# Markov categories
 MarkovCategories/MarkovCategory.v
 MarkovCategories/Determinism.v
 MarkovCategories/Univalence.v
@@ -798,7 +799,11 @@ MarkovCategories/State.v
 MarkovCategories/ProbabilitySpaces.v
 MarkovCategories/Couplings.v
 MarkovCategories/RelativeProduct.v
+MarkovCategories/AlternativeDefinitions/Stratified.v
+MarkovCategories/AlternativeDefinitions/Quasicartesian.v
+MarkovCategories/AlternativeDefinitions/EquivalenceQuasicartesianMarkov.v
 
+# Comprehension categories
 CategoriesWithFamilies/CatsWithFams.v
 ComprehensionCats/CompCats.v
 ComprehensionCats/CompCatTypeFormers.v

@@ -124,11 +124,11 @@ Proof. apply ( pr2 ( weqtoincl ( weqrmultingr hzaddabgr n ) ) ) . Defined.
 Lemma isinclhzplusl ( n : hz ) : isincl ( λ m : hz, n + m ) .
 Proof. apply ( pr2 ( weqtoincl ( weqlmultingr hzaddabgr n ) ) ) . Defined .
 
-Lemma hzpluslcan ( a b c : hz ) ( is : ( c + a ) = ( c + b ) ) : a = b .
-Proof . intros . apply ( @grlcan hzaddabgr a b c is ) .  Defined .
+Lemma hzpluslcan ( a b c : hz ) ( isc : ( c + a ) = ( c + b ) ) : a = b .
+Proof . intros . apply ( @grlcan hzaddabgr a b c isc ) .  Defined .
 
-Lemma hzplusrcan ( a b c : hz ) ( is : ( a + c ) = ( b + c ) ) : a = b .
-Proof . intros . apply ( @grrcan hzaddabgr a b c is ) .  Defined .
+Lemma hzplusrcan ( a b c : hz ) ( isc : ( a + c ) = ( b + c ) ) : a = b .
+Proof . intros . apply ( @grrcan hzaddabgr a b c isc ) .  Defined .
 
 Definition hzinvmaponpathsminus { a b : hz } ( e : ( - a ) = ( - b ) ) : a = b := grinvmaponpathsinv hzaddabgr e .
 
@@ -332,7 +332,7 @@ Proof. intros g . apply iscoasymmhzgeh . apply ( todneg _ g ) . Defined .
 Definition hzlthtoleh ( n m : hz ) : hzlth n m -> hzleh n m := hzgthtogeh _ _ .
 
 Definition hzlehtoneghzgth ( n m : hz ) : hzleh n m -> neg ( hzgth n m )  .
-Proof. intros is is' . apply ( is is' ) .  Defined .
+Proof. intros isc is' . apply ( isc is' ) .  Defined .
 
 Definition  hzgthtoneghzleh ( n m : hz ) : hzgth n m -> neg ( hzleh n m ) := λ g l , hzlehtoneghzgth _ _ l g .
 
@@ -477,41 +477,41 @@ Proof . apply ( isinvringrigtoringmultgt natcommrig isplushrelnatgth isinvplushr
 
 (** [ hzgth ] *)
 
-Lemma hzgth0andminus  { n : hz } ( is : hzgth n 0 ) : hzlth ( - n ) 0 .
-Proof . intros . apply ( ringfromgt0 hz isplushrelhzgth ) . apply is . Defined .
+Lemma hzgth0andminus  { n : hz } ( isc : hzgth n 0 ) : hzlth ( - n ) 0 .
+Proof . intros . apply ( ringfromgt0 hz isplushrelhzgth ) . apply isc . Defined .
 
-Lemma hzminusandgth0  { n : hz } ( is : hzgth ( - n ) 0 ) : hzlth n 0 .
-Proof . intros . apply ( ringtolt0 hz isplushrelhzgth ) . apply is . Defined .
+Lemma hzminusandgth0  { n : hz } ( isc : hzgth ( - n ) 0 ) : hzlth n 0 .
+Proof . intros . apply ( ringtolt0 hz isplushrelhzgth ) . apply isc . Defined .
 
 
 (** [ hzlth ] *)
 
-Lemma hzlth0andminus  { n : hz } ( is : hzlth n 0 ) : hzgth ( - n ) 0 .
-Proof . intros . apply ( ringfromlt0 hz isplushrelhzgth ) . apply is . Defined .
+Lemma hzlth0andminus  { n : hz } ( isc : hzlth n 0 ) : hzgth ( - n ) 0 .
+Proof . intros . apply ( ringfromlt0 hz isplushrelhzgth ) . apply isc . Defined .
 
-Lemma hzminusandlth0  { n : hz } ( is : hzlth ( - n ) 0 ) : hzgth n 0 .
-Proof . intros .  apply ( ringtogt0 hz isplushrelhzgth ) . apply is . Defined .
+Lemma hzminusandlth0  { n : hz } ( isc : hzlth ( - n ) 0 ) : hzgth n 0 .
+Proof . intros .  apply ( ringtogt0 hz isplushrelhzgth ) . apply isc . Defined .
 
 (* ??? Coq slows down on the proofs of these two lemmas for no good reason. *)
 
 
 (** [ hzleh ] *)
 
-Lemma hzleh0andminus  { n : hz } ( is : hzleh n 0 ) : hzgeh ( - n ) 0 .
-Proof . revert is. apply ( negf ( @hzminusandlth0 n ) ) . Defined .
+Lemma hzleh0andminus  { n : hz } ( isc : hzleh n 0 ) : hzgeh ( - n ) 0 .
+Proof . revert isc. apply ( negf ( @hzminusandlth0 n ) ) . Defined .
 
-Lemma hzminusandleh0  { n : hz } ( is : hzleh ( - n ) 0 ) : hzgeh n 0 .
-Proof . revert is. apply ( negf ( @hzlth0andminus n ) ) . Defined .
+Lemma hzminusandleh0  { n : hz } ( isc : hzleh ( - n ) 0 ) : hzgeh n 0 .
+Proof . revert isc. apply ( negf ( @hzlth0andminus n ) ) . Defined .
 
 
 
 (** [ hzgeh ] *)
 
-Lemma hzgeh0andminus  { n : hz } ( is : hzgeh n 0 ) : hzleh ( - n ) 0 .
-Proof . revert is . apply ( negf ( @hzminusandgth0 n ) ) . Defined .
+Lemma hzgeh0andminus  { n : hz } ( isc : hzgeh n 0 ) : hzleh ( - n ) 0 .
+Proof . revert isc . apply ( negf ( @hzminusandgth0 n ) ) . Defined .
 
-Lemma hzminusandgeh0  { n : hz } ( is : hzgeh ( - n ) 0 ) : hzleh n 0 .
-Proof . revert is . apply ( negf ( @hzgth0andminus n ) ) . Defined .
+Lemma hzminusandgeh0  { n : hz } ( isc : hzgeh ( - n ) 0 ) : hzleh n 0 .
+Proof . revert isc . apply ( negf ( @hzgth0andminus n ) ) . Defined .
 
 
 
@@ -521,54 +521,54 @@ Proof . revert is . apply ( negf ( @hzgth0andminus n ) ) . Defined .
 (** [ hzgth ] *)
 
 
-Definition hzgthandmultl ( n m k : hz ) ( is : hzgth k hzzero ) : hzgth n m -> hzgth ( k * n ) ( k * m ) .
-Proof. revert n m k is. apply ( isringmultgttoislringmultgt _ isplushrelhzgth isringmulthzgth ) .   Defined .
+Definition hzgthandmultl ( n m k : hz ) ( isc : hzgth k hzzero ) : hzgth n m -> hzgth ( k * n ) ( k * m ) .
+Proof. revert n m k isc. apply ( isringmultgttoislringmultgt _ isplushrelhzgth isringmulthzgth ) .   Defined .
 
-Definition hzgthandmultr ( n m k : hz ) ( is : hzgth k hzzero ) : hzgth n m -> hzgth ( n * k ) ( m * k )  .
-Proof . revert n m k is. apply ( isringmultgttoisrringmultgt _ isplushrelhzgth isringmulthzgth ) . Defined .
+Definition hzgthandmultr ( n m k : hz ) ( isc : hzgth k hzzero ) : hzgth n m -> hzgth ( n * k ) ( m * k )  .
+Proof . revert n m k isc. apply ( isringmultgttoisrringmultgt _ isplushrelhzgth isringmulthzgth ) . Defined .
 
-Definition  hzgthandmultlinv ( n m k : hz ) ( is : hzgth k hzzero ) : hzgth ( k * n ) ( k * m ) -> hzgth n m .
-Proof . intros is' .  apply ( isinvringmultgttoislinvringmultgt hz isplushrelhzgth isinvringmulthzgth n m k is is' ) .  Defined .
+Definition  hzgthandmultlinv ( n m k : hz ) ( isc : hzgth k hzzero ) : hzgth ( k * n ) ( k * m ) -> hzgth n m .
+Proof . intros is' .  apply ( isinvringmultgttoislinvringmultgt hz isplushrelhzgth isinvringmulthzgth n m k isc is' ) .  Defined .
 
-Definition hzgthandmultrinv ( n m k : hz ) ( is : hzgth k hzzero ) : hzgth ( n * k ) ( m * k ) -> hzgth n m .
-Proof.   intros is' .  apply ( isinvringmultgttoisrinvringmultgt hz isplushrelhzgth isinvringmulthzgth n m k is is' ) .  Defined .
+Definition hzgthandmultrinv ( n m k : hz ) ( isc : hzgth k hzzero ) : hzgth ( n * k ) ( m * k ) -> hzgth n m .
+Proof.   intros is' .  apply ( isinvringmultgttoisrinvringmultgt hz isplushrelhzgth isinvringmulthzgth n m k isc is' ) .  Defined .
 
 
 
 (** [ hzlth ] *)
 
 
-Definition hzlthandmultl ( n m k : hz ) ( is : hzgth k 0 ) : hzlth n m -> hzlth ( k * n ) ( k * m )  := hzgthandmultl _ _ _ is .
+Definition hzlthandmultl ( n m k : hz ) ( isc : hzgth k 0 ) : hzlth n m -> hzlth ( k * n ) ( k * m )  := hzgthandmultl _ _ _ isc .
 
-Definition hzlthandmultr ( n m k : hz ) ( is : hzgth k 0 ) : hzlth n m -> hzlth ( n * k ) ( m * k ) := hzgthandmultr _ _ _ is .
+Definition hzlthandmultr ( n m k : hz ) ( isc : hzgth k 0 ) : hzlth n m -> hzlth ( n * k ) ( m * k ) := hzgthandmultr _ _ _ isc .
 
-Definition hzlthandmultlinv ( n m k : hz ) ( is : hzgth k 0 ) : hzlth ( k * n ) ( k * m ) -> hzlth n m := hzgthandmultlinv _ _ _ is .
+Definition hzlthandmultlinv ( n m k : hz ) ( isc : hzgth k 0 ) : hzlth ( k * n ) ( k * m ) -> hzlth n m := hzgthandmultlinv _ _ _ isc .
 
-Definition hzlthandmultrinv ( n m k : hz ) ( is : hzgth k 0 ) : hzlth ( n * k ) ( m * k ) -> hzlth n m := hzgthandmultrinv _ _ _ is .
+Definition hzlthandmultrinv ( n m k : hz ) ( isc : hzgth k 0 ) : hzlth ( n * k ) ( m * k ) -> hzlth n m := hzgthandmultrinv _ _ _ isc .
 
 
 (** [ hzleh ] *)
 
 
-Definition hzlehandmultl ( n m k : hz ) ( is : hzgth k 0 ) : hzleh n m -> hzleh ( k * n ) ( k * m ) := negf ( hzgthandmultlinv _ _ _ is ) .
+Definition hzlehandmultl ( n m k : hz ) ( isc : hzgth k 0 ) : hzleh n m -> hzleh ( k * n ) ( k * m ) := negf ( hzgthandmultlinv _ _ _ isc ) .
 
-Definition hzlehandmultr ( n m k : hz ) ( is : hzgth k 0 ) : hzleh n m -> hzleh ( n * k ) ( m * k ) := negf ( hzgthandmultrinv _ _ _ is ) .
+Definition hzlehandmultr ( n m k : hz ) ( isc : hzgth k 0 ) : hzleh n m -> hzleh ( n * k ) ( m * k ) := negf ( hzgthandmultrinv _ _ _ isc ) .
 
-Definition hzlehandmultlinv ( n m k : hz ) ( is : hzgth k 0 ) : hzleh ( k * n ) ( k * m ) -> hzleh n m := negf ( hzgthandmultl _ _ _ is )  .
+Definition hzlehandmultlinv ( n m k : hz ) ( isc : hzgth k 0 ) : hzleh ( k * n ) ( k * m ) -> hzleh n m := negf ( hzgthandmultl _ _ _ isc )  .
 
-Definition hzlehandmultrinv ( n m k : hz ) ( is : hzgth k 0 ) : hzleh ( n * k ) ( m * k ) -> hzleh n m := negf ( hzgthandmultr _ _ _ is ) .
+Definition hzlehandmultrinv ( n m k : hz ) ( isc : hzgth k 0 ) : hzleh ( n * k ) ( m * k ) -> hzleh n m := negf ( hzgthandmultr _ _ _ isc ) .
 
 
 (** [ hzgeh ] *)
 
 
-Definition hzgehandmultl ( n m k : hz ) ( is : hzgth k 0 ) : hzgeh n m -> hzgeh ( k * n ) ( k * m ) := negf ( hzgthandmultlinv _ _ _ is ) .
+Definition hzgehandmultl ( n m k : hz ) ( isc : hzgth k 0 ) : hzgeh n m -> hzgeh ( k * n ) ( k * m ) := negf ( hzgthandmultlinv _ _ _ isc ) .
 
-Definition hzgehandmultr ( n m k : hz ) ( is : hzgth k 0 ) : hzgeh n m -> hzgeh ( n * k ) ( m * k )  := negf ( hzgthandmultrinv _ _ _ is ) .
+Definition hzgehandmultr ( n m k : hz ) ( isc : hzgth k 0 ) : hzgeh n m -> hzgeh ( n * k ) ( m * k )  := negf ( hzgthandmultrinv _ _ _ isc ) .
 
-Definition hzgehandmultlinv ( n m k : hz ) ( is : hzgth k 0 ) : hzgeh ( k * n ) ( k * m ) -> hzgeh n m := negf ( hzgthandmultl _ _ _ is )   .
+Definition hzgehandmultlinv ( n m k : hz ) ( isc : hzgth k 0 ) : hzgeh ( k * n ) ( k * m ) -> hzgeh n m := negf ( hzgthandmultl _ _ _ isc )   .
 
-Definition hzgehandmultrinv ( n m k : hz ) ( is : hzgth k 0 ) : hzgeh ( n * k ) ( m * k ) -> hzgeh n m := negf ( hzgthandmultr _ _ _ is )  .
+Definition hzgehandmultrinv ( n m k : hz ) ( isc : hzgth k 0 ) : hzgeh ( n * k ) ( m * k ) -> hzgeh n m := negf ( hzgthandmultr _ _ _ isc )  .
 
 
 
@@ -700,12 +700,12 @@ Proof. intros . apply ( pr2 ( intdomiscancelable hzintdom n ne ) ) . Defined.
 (** *** Comparisons and [ n -> n + 1 ] *)
 
 Definition hzgthtogths ( n m : hz ) : hzgth n m -> hzgth ( n + 1 ) m  .
-Proof. intros is . apply ( istranshzgth _ _ _ ( hzgthsnn n ) is ) . Defined .
+Proof. intros isc . apply ( istranshzgth _ _ _ ( hzgthsnn n ) isc ) . Defined .
 
 Definition hzlthtolths ( n m : hz ) : hzlth n m -> hzlth n ( m + 1 ) := hzgthtogths _ _ .
 
 Definition hzlehtolehs ( n m : hz ) : hzleh n m -> hzleh n ( m + 1 ) .
-Proof . intros is . apply ( istranshzleh _ _ _ is ( hzlthtoleh _ _ ( hzlthnsn _ ) ) ) . Defined .
+Proof . intros isc . apply ( istranshzleh _ _ _ isc ( hzlthtoleh _ _ ( hzlthnsn _ ) ) ) . Defined .
 
 Definition hzgehtogehs ( n m : hz ) : hzgeh n m -> hzgeh ( n + 1 ) m := hzlehtolehs _ _  .
 
@@ -774,11 +774,11 @@ Proof.  intros l . destruct ( hzlehchoice _ _ ( hzlthtolehsn _ _ l ) ) as [ l' |
 
 (** *** Operations and comparisons on [ hz ] and [ natnattohz ] *)
 
-Lemma natnattohzandgth ( xa1 xa2 : dirprod nat nat ) ( is : hzgth ( setquotpr _ xa1 ) ( setquotpr _ xa2 ) ) : natgth ( ( pr1 xa1 ) + ( pr2 xa2 ) ) ( ( pr1 xa2 ) + ( pr2 xa1 ) ) .
-Proof . intros . change ( ishinh_UU ( total2  ( λ a0, natgth (pr1 xa1 + pr2 xa2 + a0) (pr1 xa2 + pr2 xa1 + a0) ) ) ) in is .  generalize is .  apply @hinhuniv .  intro t2 .  set ( a0 := pr1 t2 ) . assert ( g := pr2 t2 ) . change ( pr1 ( natgth (pr1 xa1 + pr2 xa2 + a0) (pr1 xa2 + pr2 xa1 + a0) ) ) in g . apply ( natgthandplusrinv _ _ a0 g ) . Defined .
+Lemma natnattohzandgth ( xa1 xa2 : dirprod nat nat ) ( isc : hzgth ( setquotpr _ xa1 ) ( setquotpr _ xa2 ) ) : natgth ( ( pr1 xa1 ) + ( pr2 xa2 ) ) ( ( pr1 xa2 ) + ( pr2 xa1 ) ) .
+Proof . intros . change ( ishinh_UU ( total2  ( λ a0, natgth (pr1 xa1 + pr2 xa2 + a0) (pr1 xa2 + pr2 xa1 + a0) ) ) ) in isc .  generalize isc .  apply @hinhuniv .  intro t2 .  set ( a0 := pr1 t2 ) . assert ( g := pr2 t2 ) . change ( pr1 ( natgth (pr1 xa1 + pr2 xa2 + a0) (pr1 xa2 + pr2 xa1 + a0) ) ) in g . apply ( natgthandplusrinv _ _ a0 g ) . Defined .
 
-Lemma natnattohzandlth ( xa1 xa2 : dirprod nat nat ) ( is : hzlth ( setquotpr _ xa1 ) ( setquotpr _ xa2 ) ) : natlth ( ( pr1 xa1 ) + ( pr2 xa2 ) ) ( ( pr1 xa2 ) + ( pr2 xa1 ) ) .
-Proof . intros . apply ( natnattohzandgth xa2 xa1 is ) .  Defined .
+Lemma natnattohzandlth ( xa1 xa2 : dirprod nat nat ) ( isc : hzlth ( setquotpr _ xa1 ) ( setquotpr _ xa2 ) ) : natlth ( ( pr1 xa1 ) + ( pr2 xa2 ) ) ( ( pr1 xa2 ) + ( pr2 xa1 ) ) .
+Proof . intros . apply ( natnattohzandgth xa2 xa1 isc ) .  Defined .
 
 
 
@@ -788,7 +788,7 @@ Definition nattohz : nat -> hz := λ n, setquotpr _ ( make_dirprod n 0%nat ) .
 
 Definition isinclnattohz : isincl nattohz := isincltoringdiff natcommrig ( λ n, isinclnatplusr n ) .
 
-Definition nattohzandneq ( n m : nat ) ( is : natnegpaths n m ) : hzneq ( nattohz n ) ( nattohz m ) := negf ( invmaponpathsincl _ isinclnattohz n m ) is .
+Definition nattohzandneq ( n m : nat ) ( isc : natnegpaths n m ) : hzneq ( nattohz n ) ( nattohz m ) := negf ( invmaponpathsincl _ isinclnattohz n m ) isc .
 
 Definition nattohzand0 : ( nattohz 0%nat ) = 0 := idpath _ .
 
@@ -808,22 +808,22 @@ Qed.
 
 Definition nattohzandplus ( n m : nat ) : ( nattohz ( n + m )%nat ) = ( nattohz n + nattohz m ) := isbinop1funtoringdiff natcommrig n m .
 
-Definition nattohzandminus ( n m : nat ) ( is : natgeh n m ) : ( nattohz ( n - m )%nat ) = ( nattohz n - nattohz m ) .
-Proof . intros .  apply ( hzplusrcan _ _ ( nattohz m ) ) . unfold hzminus .  rewrite ( hzplusassoc ( nattohz n ) ( - nattohz m ) ( nattohz m ) ) . rewrite ( hzlminus _ ) .   rewrite hzplusr0 .  rewrite ( pathsinv0 ( nattohzandplus _ _ ) ) .  rewrite ( minusplusnmm _ _ is ) . apply idpath . Defined .
+Definition nattohzandminus ( n m : nat ) ( isc : natgeh n m ) : ( nattohz ( n - m )%nat ) = ( nattohz n - nattohz m ) .
+Proof . intros .  apply ( hzplusrcan _ _ ( nattohz m ) ) . unfold hzminus .  rewrite ( hzplusassoc ( nattohz n ) ( - nattohz m ) ( nattohz m ) ) . rewrite ( hzlminus _ ) .   rewrite hzplusr0 .  rewrite ( pathsinv0 ( nattohzandplus _ _ ) ) .  rewrite ( minusplusnmm _ _ isc ) . apply idpath . Defined .
 
 Opaque nattohzandminus .
 
 Definition nattohzandmult ( n m : nat ) : ( nattohz ( n * m )%nat ) = ( nattohz n * nattohz m ) .
 Proof . intros . simpl . change nattohz with ( toringdiff natcommrig ) . apply ( isbinop2funtoringdiff natcommrig n m ) . Defined .
 
-Definition nattohzandgth ( n m : nat ) ( is : natgth n m ) : hzgth ( nattohz n ) ( nattohz m ) := iscomptoringdiff natcommrig isplushrelnatgth n m is .
+Definition nattohzandgth ( n m : nat ) ( isc : natgth n m ) : hzgth ( nattohz n ) ( nattohz m ) := iscomptoringdiff natcommrig isplushrelnatgth n m isc .
 
-Definition nattohzandlth ( n m : nat ) ( is : natlth n m ) : hzlth ( nattohz n ) ( nattohz m ) := nattohzandgth m n is .
+Definition nattohzandlth ( n m : nat ) ( isc : natlth n m ) : hzlth ( nattohz n ) ( nattohz m ) := nattohzandgth m n isc .
 
-Definition nattohzandleh ( n m : nat ) ( is : natleh n m ) : hzleh ( nattohz n ) ( nattohz m ) .
-Proof . intros . destruct ( natlehchoice _ _ is ) as [ l | e ] .   apply ( hzlthtoleh _ _ ( nattohzandlth _ _ l ) ) .  rewrite e .  apply ( isreflhzleh ) .  Defined .
+Definition nattohzandleh ( n m : nat ) ( isc : natleh n m ) : hzleh ( nattohz n ) ( nattohz m ) .
+Proof . intros . destruct ( natlehchoice _ _ isc ) as [ l | e ] .   apply ( hzlthtoleh _ _ ( nattohzandlth _ _ l ) ) .  rewrite e .  apply ( isreflhzleh ) .  Defined .
 
-Definition nattohzandgeh ( n m : nat ) ( is : natgeh n m ) : hzgeh ( nattohz n ) ( nattohz m ) := nattohzandleh _ _ is .
+Definition nattohzandgeh ( n m : nat ) ( isc : natgeh n m ) : hzgeh ( nattohz n ) ( nattohz m ) := nattohzandleh _ _ isc .
 
 (** *** Addition and subtraction on [ nat ] and [ hz ] *)
 
@@ -855,9 +855,9 @@ Definition hzabsval : hz -> nat := setquotuniv _ natset hzabsvalint hzabsvalintc
 Lemma hzabsval0 : ( hzabsval 0 ) = 0%nat .
 Proof .  apply idpath .  Defined .
 
-Lemma hzabsvalgth0 { x : hz } ( is : hzgth x 0 ) : ( nattohz ( hzabsval x ) ) = x .
+Lemma hzabsvalgth0 { x : hz } ( isc : hzgth x 0 ) : ( nattohz ( hzabsval x ) ) = x .
 Proof .
-revert x is.
+revert x isc.
 assert ( int : ∏ x : hz , isaprop ( hzgth x 0 -> ( nattohz ( hzabsval x ) ) = x ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( λ x, make_hProp _ ( int x ) ) ) . intros xa g . simpl in xa . assert ( g' := natnattohzandgth _ _ g ) . simpl in g' .  simpl .  change (( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( make_dirprod ( hzabsvalint xa ) 0%nat ) ) = ( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) xa ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natgth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in g' . rewrite ( natplusr0 _ ) in g' .  change ((hzabsvalint xa + pr2 xa + 0)%nat = (pr1 xa + 0 + 0)%nat ) . rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g'' | l ] .
 
 rewrite ( minusplusnmm _ _ ( natlthtoleh _ _ g'' ) ) . apply idpath .
@@ -867,12 +867,12 @@ Defined .
 
 Opaque hzabsvalgth0 .
 
-Lemma hzabsvalgeh0 { x : hz } ( is : hzgeh x 0 ) : ( nattohz ( hzabsval x ) ) = x .
-Proof .  intros . destruct ( hzgehchoice _ _ is ) as [ g | e ] .  apply ( hzabsvalgth0 g ) . rewrite e .  apply idpath .  Defined .
+Lemma hzabsvalgeh0 { x : hz } ( isc : hzgeh x 0 ) : ( nattohz ( hzabsval x ) ) = x .
+Proof .  intros . destruct ( hzgehchoice _ _ isc ) as [ g | e ] .  apply ( hzabsvalgth0 g ) . rewrite e .  apply idpath .  Defined .
 
-Lemma hzabsvallth0 { x : hz } ( is : hzlth x 0 ) : ( nattohz ( hzabsval x ) ) = ( - x ) .
+Lemma hzabsvallth0 { x : hz } ( isc : hzlth x 0 ) : ( nattohz ( hzabsval x ) ) = ( - x ) .
 Proof .
-revert x is.
+revert x isc.
 assert ( int : ∏ x : hz , isaprop ( hzlth x 0 -> ( nattohz ( hzabsval x ) ) = ( - x ) ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( λ x, make_hProp _ ( int x ) ) ) . intros xa l . simpl in xa . assert ( l' := natnattohzandlth _ _ l ) . simpl in l' .  simpl .  change (( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( make_dirprod ( hzabsvalint xa ) 0%nat ) ) = ( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( make_dirprod ( pr2 xa ) ( pr1 xa ) ) ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natlth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in l' . rewrite ( natplusr0 _ ) in l' .  change ((hzabsvalint xa + pr1 xa + 0)%nat = (pr2 xa + 0 + 0)%nat). rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g | l'' ] .
 
 destruct ( isasymmnatgth _ _ g l' ) .
@@ -881,8 +881,8 @@ rewrite ( minusplusnmm _ _ l'' ) . apply idpath . Defined .
 
 Opaque hzabsvallth0 .
 
-Lemma hzabsvalleh0 { x : hz } ( is : hzleh x 0 ) : ( nattohz ( hzabsval x ) ) = ( - x ) .
-Proof .  intros . destruct ( hzlehchoice _ _ is ) as [ l | e ] .  apply ( hzabsvallth0 l ) . rewrite e .  apply idpath .  Defined .
+Lemma hzabsvalleh0 { x : hz } ( isc : hzleh x 0 ) : ( nattohz ( hzabsval x ) ) = ( - x ) .
+Proof .  intros . destruct ( hzlehchoice _ _ isc ) as [ l | e ] .  apply ( hzabsvallth0 l ) . rewrite e .  apply idpath .  Defined .
 
 
 Lemma hzabsvaleq0 { x : hz } ( e : ( hzabsval x ) = 0%nat ) : x = 0  .

@@ -31,38 +31,38 @@ Proof.
     now apply isapropinvpair.
 Qed.
 
-Definition isDivRig_zero {X : rig} (is : isDivRig X) : X := 0%rig.
-Definition isDivRig_one {X : rig} (is : isDivRig X) : X := 1%rig.
-Definition isDivRig_plus {X : rig} (is : isDivRig X) : binop X := λ x y : X, (x + y)%rig.
-Definition isDivRig_mult {X : rig} (is : isDivRig X) : binop X := λ x y : X, (x * y)%rig.
-Definition isDivRig_inv {X : rig} (is : isDivRig X) : (∑  x : X, x != isDivRig_zero is) → X :=
-  λ x, pr1 ((pr2 is) (pr1 x) (pr2 x)).
+Definition isDivRig_zero {X : rig} (isc : isDivRig X) : X := 0%rig.
+Definition isDivRig_one {X : rig} (isc : isDivRig X) : X := 1%rig.
+Definition isDivRig_plus {X : rig} (isc : isDivRig X) : binop X := λ x y : X, (x + y)%rig.
+Definition isDivRig_mult {X : rig} (isc : isDivRig X) : binop X := λ x y : X, (x * y)%rig.
+Definition isDivRig_inv {X : rig} (isc : isDivRig X) : (∑  x : X, x != isDivRig_zero isc) → X :=
+  λ x, pr1 ((pr2 isc) (pr1 x) (pr2 x)).
 
-Definition isDivRig_isassoc_plus {X : rig} (is : isDivRig X) : isassoc (isDivRig_plus is)
+Definition isDivRig_isassoc_plus {X : rig} (isc : isDivRig X) : isassoc (isDivRig_plus isc)
   := rigassoc1 X.
-Definition isDivRig_islunit_x0 {X : rig} (is : isDivRig X) : islunit (isDivRig_plus is) (isDivRig_zero is)
+Definition isDivRig_islunit_x0 {X : rig} (isc : isDivRig X) : islunit (isDivRig_plus isc) (isDivRig_zero isc)
   := riglunax1 X.
-Definition isDivRig_isrunit_x0 {X : rig} (is : isDivRig X) : isrunit (isDivRig_plus is) (isDivRig_zero is)
+Definition isDivRig_isrunit_x0 {X : rig} (isc : isDivRig X) : isrunit (isDivRig_plus isc) (isDivRig_zero isc)
   := rigrunax1 X.
-Definition isDivRig_iscomm_plus {X : rig} (is : isDivRig X) : iscomm (isDivRig_plus is)
+Definition isDivRig_iscomm_plus {X : rig} (isc : isDivRig X) : iscomm (isDivRig_plus isc)
   := rigcomm1 X.
 
-Definition isDivRig_isassoc_mult {X : rig} (is : isDivRig X) : isassoc (isDivRig_mult is)
+Definition isDivRig_isassoc_mult {X : rig} (isc : isDivRig X) : isassoc (isDivRig_mult isc)
   := rigassoc2 X.
-Definition isDivRig_islunit_x1 {X : rig} (is : isDivRig X) : islunit (isDivRig_mult is) (isDivRig_one is)
+Definition isDivRig_islunit_x1 {X : rig} (isc : isDivRig X) : islunit (isDivRig_mult isc) (isDivRig_one isc)
   := riglunax2 X.
-Definition isDivRig_isrunit_x1 {X : rig} (is : isDivRig X) : isrunit (isDivRig_mult is) (isDivRig_one is)
+Definition isDivRig_isrunit_x1 {X : rig} (isc : isDivRig X) : isrunit (isDivRig_mult isc) (isDivRig_one isc)
   := rigrunax2 X.
 
-Definition isDivRig_islinv {X : rig} (is : isDivRig X) :
-  ∏ (x : X) (Hx : x != isDivRig_zero is), isDivRig_mult is (isDivRig_inv is (x,, Hx)) x = isDivRig_one is
-  := λ (x : X) (Hx : x != isDivRig_zero is), pr1 (pr2 (pr2 is x Hx)).
-Definition isDivRig_isrinv {X : rig} (is : isDivRig X) :
-  ∏ (x : X) (Hx : x != isDivRig_zero is), isDivRig_mult is x (isDivRig_inv is (x,, Hx)) = isDivRig_one is
-  := λ (x : X) (Hx : x != isDivRig_zero is), pr2 (pr2 (pr2 is x Hx)).
+Definition isDivRig_islinv {X : rig} (isc : isDivRig X) :
+  ∏ (x : X) (Hx : x != isDivRig_zero isc), isDivRig_mult isc (isDivRig_inv isc (x,, Hx)) x = isDivRig_one isc
+  := λ (x : X) (Hx : x != isDivRig_zero isc), pr1 (pr2 (pr2 isc x Hx)).
+Definition isDivRig_isrinv {X : rig} (isc : isDivRig X) :
+  ∏ (x : X) (Hx : x != isDivRig_zero isc), isDivRig_mult isc x (isDivRig_inv isc (x,, Hx)) = isDivRig_one isc
+  := λ (x : X) (Hx : x != isDivRig_zero isc), pr2 (pr2 (pr2 isc x Hx)).
 
-Definition isDivRig_isldistr {X : rig} (is : isDivRig X) : isldistr (isDivRig_plus is) (isDivRig_mult is) := rigldistr X.
-Definition isDivRig_isrdistr {X : rig} (is : isDivRig X) : isrdistr (isDivRig_plus is) (isDivRig_mult is) := rigrdistr X.
+Definition isDivRig_isldistr {X : rig} (isc : isDivRig X) : isldistr (isDivRig_plus isc) (isDivRig_mult isc) := rigldistr X.
+Definition isDivRig_isrdistr {X : rig} (isc : isDivRig X) : isrdistr (isDivRig_plus isc) (isDivRig_mult isc) := rigrdistr X.
 
 (** DivRig *)
 
@@ -82,7 +82,7 @@ Definition DivRig_isDivRig (F : DivRig) :
   isDivRig (pr1 F) := (pr2 F).
 
 Definition isDivRig_DivRig {X : rig} : isDivRig X → DivRig :=
-λ is : isDivRig X, X ,, is.
+λ isc : isDivRig X, X ,, isc.
 
 Declare Scope dr_scope.
 Delimit Scope dr_scope with dr.

@@ -99,8 +99,8 @@ Defined.
 
 Definition monoidfun (X Y : monoid) : UU := monoid_category⟦X, Y⟧%cat.
 
-Definition make_monoidfun {X Y : monoid} {f : X → Y} (is : ismonoidfun f) : monoidfun X Y
-  := (f ,, pr1 is) ,, (tt ,, pr2 is).
+Definition make_monoidfun {X Y : monoid} {f : X → Y} (isc : ismonoidfun f) : monoidfun X Y
+  := (f ,, pr1 isc) ,, (tt ,, pr2 isc).
 
 Definition pr1monoidfun (X Y : monoid) (f : monoidfun X Y) : X → Y := pr11 f.
 
@@ -177,8 +177,8 @@ Definition unelmonoidfun (X Y : monoid) : monoidfun X Y :=
 
 Definition monoidmono (X Y : monoid) : UU := ∑ (f : incl X Y), ismonoidfun f.
 
-Definition make_monoidmono {X Y : monoid} (f : incl X Y) (is : ismonoidfun f) :
-  monoidmono X Y := f ,, is.
+Definition make_monoidmono {X Y : monoid} (f : incl X Y) (isc : ismonoidfun f) :
+  monoidmono X Y := f ,, isc.
 
 Definition pr1monoidmono (X Y : monoid) : monoidmono X Y → incl X Y := @pr1 _ _.
 Coercion pr1monoidmono : monoidmono >-> incl.
@@ -197,8 +197,8 @@ Definition monoidmonocomp {X Y Z : monoid}
 Definition monoidiso (X Y : monoid) : UU :=
   ∑ (f : X ≃ Y), ismonoidfun f.
 
-Definition make_monoidiso {X Y : monoid} (f : X ≃ Y) (is : ismonoidfun f) :
-  monoidiso X Y := f ,, is.
+Definition make_monoidiso {X Y : monoid} (f : X ≃ Y) (isc : ismonoidfun f) :
+  monoidiso X Y := f ,, isc.
 
 Definition pr1monoidiso (X Y : monoid) : monoidiso X Y → X ≃ Y := @pr1 _ _.
 Coercion pr1monoidiso : monoidiso >-> weq.

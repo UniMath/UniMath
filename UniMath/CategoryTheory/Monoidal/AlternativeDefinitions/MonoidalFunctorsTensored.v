@@ -174,11 +174,11 @@ Proof.
   cbn.
   set (f := nat_z_iso_pointwise_z_iso (monoidal_cat_associator Mon') ((F z, F y), F x)).
   apply (z_iso_inv_on_right _ _ _ f).
-  transparent assert (is : (is_z_isomorphism (# F (monoidal_cat_associator Mon ((z, y), x))))).
+  transparent assert (isc : (is_z_isomorphism (# F (monoidal_cat_associator Mon ((z, y), x))))).
   { apply functor_on_is_z_isomorphism.
     apply monoidal_cat_associator.
   }
-  set (Hass_inst' := z_iso_inv_on_left _ _ _ _ (_,, is) _ (! Hass_inst)).
+  set (Hass_inst' := z_iso_inv_on_left _ _ _ _ (_,, isc) _ (! Hass_inst)).
   etrans.
   { exact Hass_inst'. }
   clear Hass_inst Hass_inst'.
