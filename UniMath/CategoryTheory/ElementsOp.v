@@ -13,6 +13,9 @@ Contents:
 Originally written by: Matthew Weaver (based on Elements.v by Dan Grayson)
 Ported to CT by: Anders Mörtberg
 
+Note: an alternative construction is given in the file `CategoryOfElementsPsh.v‎`
+where displayed categories are used.
+
 *******************************************************************************)
 
 Require Import UniMath.MoreFoundations.All.
