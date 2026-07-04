@@ -368,7 +368,7 @@ Section HValuedSets.
   Definition h_valued_sets_first_order_hyperdoctrine
     : first_order_hyperdoctrine.
   Proof.
-    use make_first_order_hyperdoctrine.
+    use make_first_order_hyperdoctrine_all.
     - exact h_valued_sets_hyperdoctrine.
     - exact fiberwise_terminal_h_valued_sets.
     - exact fiberwise_initial_h_valued_sets.

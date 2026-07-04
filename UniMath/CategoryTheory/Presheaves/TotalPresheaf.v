@@ -13,6 +13,7 @@
  2. The projection
  3. The total presheaf and natural transformations
  4. Sections of the projection
+ 5. Some operations on terms
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -179,17 +180,134 @@ Proof.
 Defined.
 
 (** * 4. Sections of the projection *)
+Definition psh_term_data
+           {C : category}
+           {Γ : C^op ⟶ HSET}
+           (A : dep_psh Γ)
+  : UU
+  := ∏ (x : C) (xx : (Γ x : hSet)), A x xx.
+
+Definition psh_term_law
+           {C : category}
+           {Γ : C^op ⟶ HSET}
+           {A : dep_psh Γ}
+           (t : psh_term_data A)
+  : UU
+  := ∏ (x y : C)
+       (f : y --> x)
+       (xx : (Γ x : hSet)),
+     t y (#Γ f xx)
+     =
+     #d A f (idpath _) (t x xx).
+
+Proposition isaprop_psh_term_law
+            {C : category}
+            {Γ : C^op ⟶ HSET}
+            {A : dep_psh Γ}
+            (t : psh_term_data A)
+  : isaprop (psh_term_law t).
+Proof.
+  repeat (use impred ; intro).
+  apply setproperty.
+Qed.
+
+Definition psh_term
+           {C : category}
+           {Γ : C^op ⟶ HSET}
+           (A : dep_psh Γ)
+  : UU
+  := ∑ (t : psh_term_data A), psh_term_law t.
+
+Definition make_psh_term
+           {C : category}
+           {Γ : C^op ⟶ HSET}
+           {A : dep_psh Γ}
+           (t : psh_term_data A)
+           (p : psh_term_law t)
+  : psh_term A
+  := t ,, p.
+
+Definition psh_term_to_data
+           {C : category}
+           {Γ : C^op ⟶ HSET}
+           {A : dep_psh Γ}
+           (t : psh_term A)
+           (x : C)
+           (xx : (Γ x : hSet))
+  : A x xx
+  := pr1 t x xx.
+
+Coercion psh_term_to_data : psh_term >-> Funclass.
+
+Proposition psh_term_naturality
+            {C : category}
+            {Γ : C^op ⟶ HSET}
+            {A : dep_psh Γ}
+            (t : psh_term A)
+            {x y : C}
+            (f : y --> x)
+            (xx : (Γ x : hSet))
+  : t y (#Γ f xx)
+    =
+    #d A f (idpath _) (t x xx).
+Proof.
+  exact (pr2 t x y f xx).
+Defined.
+
+Proposition psh_term_on_eq
+            {C : category}
+            {Γ : C^op ⟶ HSET}
+            {A : dep_psh Γ}
+            (t : psh_term A)
+            {x : C}
+            {xx₁ xx₂ : (Γ x : hSet)}
+            (p : xx₁ = xx₂)
+  : #d A (identity _) (eqtohomot (functor_id Γ _) _ @ p) (t x xx₁)
+    =
+    t x xx₂.
+Proof.
+  induction p ; cbn.
+  apply dep_psh_mor_id'.
+  apply idpath.
+Qed.
+
+Proposition isaset_psh_term
+            {C : category}
+            {Γ : C^op ⟶ HSET}
+            (A : dep_psh Γ)
+  : isaset (psh_term A).
+Proof.
+  use isaset_total2.
+  - repeat (use impred_isaset ; intro).
+    apply setproperty.
+  - intro t.
+    use isasetaprop.
+    apply isaprop_psh_term_law.
+Qed.
+
+Proposition psh_term_eq
+            {C : category}
+            {Γ : C^op ⟶ HSET}
+            {A : dep_psh Γ}
+            {t₁ t₂ : psh_term A}
+            (p : ∏ (x : C) (xx : (Γ x : hSet)), t₁ x xx = t₂ x xx)
+  : t₁ = t₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_psh_term_law.
+  }
+  use funextsec ; intro x.
+  use funextsec ; intro xx.
+  exact (p x xx).
+Qed.
+
 Definition make_psh_section
            {C : category}
            {Γ : C^op ⟶ HSET}
            (A : dep_psh Γ)
-           (t : ∏ (x : C) (xx : (Γ x : hSet)), A x xx)
-           (p : ∏ (x y : C)
-                  (f : y --> x)
-                  (xx : (Γ x : hSet)),
-                t y (#Γ f xx)
-                =
-                #d A f (idpath _) (t x xx))
+           (t : psh_term A)
   : section_of_mor (C := PreShv C) (total_psh_pr A).
 Proof.
   use make_section_of_mor.
@@ -203,7 +321,7 @@ Proof.
          intro xx ;
          cbn ;
          apply maponpaths ;
-         exact (p x y f xx)).
+         exact (psh_term_naturality t f xx)).
   - abstract
       (use nat_trans_eq ; [ apply homset_property | ] ;
        intro x ;
@@ -262,23 +380,14 @@ Definition psh_section_weq
            (A : dep_psh Γ)
   : section_of_mor (C := PreShv C) (total_psh_pr A)
     ≃
-    ∑ (t : ∏ (x : C) (xx : (Γ x : hSet)), A x xx),
-    ∏ (x y : C)
-      (f : y --> x)
-      (xx : (Γ x : hSet)),
-    t y (#Γ f xx)
-    =
-    #d A f (idpath _) (t x xx).
+    psh_term A.
 Proof.
   use weq_iso.
   - intro t.
-    simple refine (_ ,, _).
+    use make_psh_term.
     + exact (λ x xx, psh_section_pt t xx).
     + exact (psh_section_natural t).
-  - intros t.
-    use make_psh_section.
-    + exact (pr1 t).
-    + exact (pr2 t).
+  - exact (make_psh_section A).
   - abstract
       (intros t ;
        use eq_section_of_mor ;
@@ -297,15 +406,46 @@ Proof.
        apply idpath).
   - abstract
       (intros t ;
-       use subtypePath ;
-       [ intro ;
-         repeat (use impred ; intro) ;
-         apply setproperty
-       | ] ;
-       use funextsec ;
-       intro x ;
-       use funextsec ;
-       intro xx ;
+       use psh_term_eq ;
+       intros x xx ;
        unfold psh_section_pt ; cbn ;
        apply dep_psh_mor_id).
+Defined.
+
+(** * 5. Some operations on terms *)
+Proposition psh_term_pt_eq
+            {C : category}
+            {Γ : C^op ⟶ HSET}
+            {A : dep_psh Γ}
+            (t : psh_term A)
+            {x : C}
+            {xx₁ xx₂ : (Γ x : hSet)}
+            (p : xx₁ = xx₂)
+  : t x xx₁
+    =
+    #d A (identity _) (eqtohomot (functor_id Γ _) _ @ !p) (t x xx₂).
+Proof.
+  induction p.
+  refine (!_).
+  apply dep_psh_mor_id.
+Qed.
+
+Definition psh_term_subst
+           {C : category}
+           {Γ₁ Γ₂ : C^op ⟶ HSET}
+           (s : Γ₁ ⟹ Γ₂)
+           {A : dep_psh Γ₂}
+           (t : psh_term A)
+  : psh_term (dep_psh_subst s A).
+Proof.
+  use make_psh_term.
+  - exact (λ x xx, t x (s x xx)).
+  - abstract
+      (intros x y f xx ; cbn ;
+       refine (psh_term_pt_eq t (eqtohomot (nat_trans_ax s _ _ f) xx) @ _) ;
+       refine (maponpaths (#d A _ _) (psh_term_naturality t f (s x xx)) @ _) ;
+       cbn ;
+       rewrite dep_psh_mor_comp' ;
+       use dep_psh_mor_path_eq ;
+       apply id_left).
 Defined.

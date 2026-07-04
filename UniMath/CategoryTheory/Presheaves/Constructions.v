@@ -927,7 +927,6 @@ Section ExamplesDepPsh.
          apply idpath).
   Defined.
 
-  (** * 7. Democracy of the presheaf model *)
   Definition constant_dep_psh_map
              {Γ : C^op ⟶ HSET}
              {A B : hSet}
@@ -944,6 +943,7 @@ Section ExamplesDepPsh.
          apply idpath).
   Defined.
 
+  (** * 7. Democracy of the presheaf model *)
   Definition psh_to_dep_psh
              (Γ : C^op ⟶ HSET)
     : dep_psh (constant_functor C^op HSET unitHSET).

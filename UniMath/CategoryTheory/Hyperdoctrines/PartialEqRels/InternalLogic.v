@@ -64,7 +64,7 @@ Definition per_subobject_first_order_hyperdoctrine
            (H : first_order_hyperdoctrine)
   : first_order_hyperdoctrine.
 Proof.
-  use make_first_order_hyperdoctrine.
+  use make_first_order_hyperdoctrine_all.
   - exact (per_subobject_hyperdoctrine H).
   - apply fiberwise_terminal_per_subobject.
   - apply fiberwise_initial_per_subobject.
