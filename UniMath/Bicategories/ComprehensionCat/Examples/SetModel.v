@@ -12,13 +12,6 @@
  descriptions of various operations for terms in the comprehension category for the
  set model of type theory.
 
- Finally, we give a convenient method for constructing universes in the set model.
- Specifically, we simplify the general notion of a universe in a comprehension category
- for the set model, and we show that the resulting notion indeed gives rises to a
- universe. This simplification makes it more convenient to construct actual examples
- of universes, and one can directly instantiate it to iterative sets or to an
- inductive-recursive universe.
-
  Content
  1. The full comprehension category for the set model
  2. The set model is democratic
@@ -28,7 +21,6 @@
  6. The subobject classifier and the natural numbers in the set model
  7. Sets form an elementary topos with an NNO
  8. Terms in the set model
- 9. Universes of sets
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -71,6 +63,7 @@ Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+Require Import UniMath.Bicategories.ComprehensionCat.HPropMono.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes.
@@ -825,3 +818,61 @@ Proof.
   - cbn.
     apply idpath.
 Qed.
+
+Proposition set_comp_cat_hprop_ty
+            {Γ : set_dfl_full_comp_cat}
+            (A : ty Γ)
+            (HA : ∏ (x : (Γ : hSet)), isaprop (A x))
+  : is_hprop_ty A.
+Proof.
+  use mono_ty_to_hprop_ty.
+  use (invmap (MonosAreInjective_HSET (π A))).
+  use isweqonpathsincl.
+  intros y.
+  use invproofirrelevance.
+  intros [ [ x₁ a₁ ] p₁ ] [ [ x₂ a₂ ] p₂ ].
+  cbn in x₁, x₂, a₁, a₂, p₁, p₂.
+  use subtypePath.
+  {
+    intro.
+    apply setproperty.
+  }
+  cbn.
+  induction p₁, p₂.
+  apply maponpaths.
+  apply HA.
+Qed.
+
+Proposition set_comp_cat_hprop_ty_inv
+            {Γ : set_dfl_full_comp_cat}
+            (A : ty Γ)
+            (HA : is_hprop_ty A)
+            (x : (Γ : hSet))
+  : isaprop (A x).
+Proof.
+  apply hprop_ty_to_mono_ty in HA.
+  apply MonosAreInjective_HSET in HA.
+  apply isinclweqonpaths in HA.
+  use invproofirrelevance.
+  intros a₁ a₂.
+  pose (proofirrelevance _ (HA x) ((x ,, a₁) ,, idpath _) ((x ,, a₂) ,, idpath _)) as H.
+  pose (fiber_paths (maponpaths pr1 H)) as p.
+  cbn in p.
+  refine (!_ @ p).
+  apply (transportf_set A).
+  apply setproperty.
+Qed.
+
+Proposition set_comp_cat_hprop_ty_weq
+            {Γ : set_dfl_full_comp_cat}
+            (A : ty Γ)
+  : (∏ (x : (Γ : hSet)), isaprop (A x)) ≃ is_hprop_ty A.
+Proof.
+  use weqimplimpl.
+  - exact (set_comp_cat_hprop_ty A).
+  - exact (set_comp_cat_hprop_ty_inv A).
+  - abstract
+      (use impred ; intro ;
+       apply isapropisaprop).
+  - apply isaprop_is_hprop_ty.
+Defined.

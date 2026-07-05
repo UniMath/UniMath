@@ -86,8 +86,8 @@ Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWit
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
-Require Import UniMath.Bicategories.ComprehensionCat.PresheafModel.
-Require Import UniMath.Bicategories.ComprehensionCat.SubCompCat.
+Require Import UniMath.Bicategories.ComprehensionCat.Examples.PresheafModel.
+Require Import UniMath.Bicategories.ComprehensionCat.Examples.SubCompCat.
 
 Local Open Scope cat.
 Local Open Scope comp_cat.

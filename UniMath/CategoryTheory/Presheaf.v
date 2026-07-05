@@ -21,6 +21,7 @@ Contents:
   [Ω_PreShv_bounded_lattice])
 - Construction of isomorphisms of functors between presheaf categories
   ([make_PreShv_functor_iso])
+ - Monomorphisms of presheaves
 
 Written by: Anders Mörtberg, 2017-2019
 
@@ -40,6 +41,8 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.LatticeObject.
+
+Require Import UniMath.CategoryTheory.yoneda.
 
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
@@ -427,3 +430,38 @@ Proof.
 Defined.
 
 End iso_presheaf.
+
+(** * Monomorphisms of presheaves *)
+Proposition isMonic_presheaf_injective
+            {C : category}
+            {Γ₁ Γ₂ : C^op ⟶ HSET}
+            {τ : Γ₁ ⟹ Γ₂}
+            (H : isMonic (C := PreShv C) τ)
+            {x : C}
+            {xx₁ xx₂ : (Γ₁ x : hSet)}
+            (p : τ x xx₁ = τ x xx₂)
+  : xx₁ = xx₂.
+Proof.
+  refine (_ @ eqtohomot (functor_id Γ₁ _) _).
+  refine (!(eqtohomot (functor_id Γ₁ _) _) @ _).
+  use (eqtohomot
+         (nat_trans_eq_pointwise
+            (H (yoneda C x)
+               (invmap (yoneda_weq C x Γ₁) xx₁)
+               (invmap (yoneda_weq C x Γ₁) xx₂)
+               _)
+            x)
+         (identity _)).
+  use nat_trans_eq.
+  {
+    apply homset_property.
+  }
+  intro y.
+  use funextsec.
+  cbn ; intro f.
+  refine (_ @ !(eqtohomot (nat_trans_ax τ _ _ f) _)).
+  refine (eqtohomot (nat_trans_ax τ _ _ f) _ @ _).
+  cbn.
+  apply maponpaths.
+  exact p.
+Qed.

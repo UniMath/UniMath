@@ -535,11 +535,11 @@ ComprehensionCat/InternalLanguageTopos/Topos.v
 ComprehensionCat/InternalLanguageTopos/ToposNat.v
 ComprehensionCat/InternalLanguageTopos/ToposNatUniv.v
 
-ComprehensionCat/SubCompCat.v
-ComprehensionCat/SetModel.v
-ComprehensionCat/PresheafModel.v
-ComprehensionCat/SheafModel.v
-ComprehensionCat/SetGroupoidModel.v
+ComprehensionCat/Examples/SubCompCat.v
+ComprehensionCat/Examples/SetModel.v
+ComprehensionCat/Examples/PresheafModel.v
+ComprehensionCat/Examples/SheafModel.v
+ComprehensionCat/Examples/SetGroupoidModel.v
 
 Logic/ComprehensionBicat.v
 
