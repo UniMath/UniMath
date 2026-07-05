@@ -1204,13 +1204,45 @@ Proof.
   apply fiber_functor_dep_sheaf_incl.
 Qed.
 
+Proposition injective_sheaf_isMonic
+            {C : site}
+            {Γ₁ Γ₂ : sheaf C}
+            {τ : sheaf_nat_trans Γ₁ Γ₂}
+            (H : ∏ (x : C)
+                   (xx₁ xx₂ : (Γ₁ x : hSet))
+                   (p : τ x xx₁ = τ x xx₂),
+                 xx₁ = xx₂)
+  : isMonic (C := cat_of_sheaves C) τ.
+Proof.
+  intros Δ θ₁ θ₂ p.
+  use sheaf_nat_trans_eq.
+  use nat_trans_eq.
+  {
+    apply homset_property.
+  }
+  intro x.
+  use funextsec.
+  intros xx.
+  use H.
+  exact (eqtohomot (nat_trans_eq_pointwise (maponpaths pr1 p) x) xx).
+Qed.
+
 (** * 10. Sections of the projection *)
+Definition sheaf_term
+           {C : site}
+           {Γ : sheaf C}
+           (A : dep_sheaf Γ)
+  : UU
+  := psh_term A.
+
+Identity Coercion sheaf_term_to_psh_term : sheaf_term >-> psh_term.
+
 Definition sheaf_section_to_term
            {C : site}
            {Γ : sheaf C}
            {A : dep_sheaf Γ}
            (t : section_of_mor (C := cat_of_sheaves C) (total_sheaf_pr A))
-  : psh_term A.
+  : sheaf_term A.
 Proof.
   use make_psh_term.
   - exact (λ x xx, psh_section_pt (functor_on_section (sheaf_incl C) t) xx).
@@ -1221,7 +1253,7 @@ Definition sheaf_term_to_section
            {C : site}
            {Γ : sheaf C}
            {A : dep_sheaf Γ}
-           (t : psh_term A)
+           (t : sheaf_term A)
   : section_of_mor (C := cat_of_sheaves C) (total_sheaf_pr A).
 Proof.
   use make_section_of_mor.
@@ -1247,7 +1279,7 @@ Definition sheaf_section_weq
            (A : dep_sheaf Γ)
   : section_of_mor (C := cat_of_sheaves C) (total_sheaf_pr A)
     ≃
-    psh_term A.
+    sheaf_term A.
 Proof.
   use weq_iso.
   - exact sheaf_section_to_term.
@@ -1280,3 +1312,28 @@ Proof.
        unfold psh_section_pt ; cbn ;
        apply dep_psh_mor_id).
 Defined.
+
+Definition sheaf_term_subst
+           {C : site}
+           {Γ₁ Γ₂ : sheaf C}
+           (s : sheaf_nat_trans Γ₁ Γ₂)
+           {A : dep_sheaf Γ₂}
+           (t : sheaf_term A)
+  : sheaf_term (dep_sheaf_subst s A)
+  := psh_term_subst s t.
+
+Definition sheaf_term_coerce
+           {C : site}
+           {Γ : sheaf C}
+           {A B : dep_sheaf Γ}
+           (τ : dep_psh_nat_trans A B (nat_trans_id _))
+           (t : sheaf_term A)
+  : sheaf_term B
+  := psh_term_coerce τ t.
+
+Definition sheaf_term_var
+           {C : site}
+           (Γ : sheaf C)
+           (A : dep_sheaf Γ)
+  : sheaf_term (dep_sheaf_subst (total_sheaf_pr A) A)
+  := psh_term_var Γ A.

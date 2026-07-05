@@ -535,7 +535,7 @@ ComprehensionCat/InternalLanguageTopos/Topos.v
 ComprehensionCat/InternalLanguageTopos/ToposNat.v
 ComprehensionCat/InternalLanguageTopos/ToposNatUniv.v
 
-ComprehensionCat/Examples/SubCompCat.v
+ComprehensionCat/Examples/FullSubCompCat.v
 ComprehensionCat/Examples/SetModel.v
 ComprehensionCat/Examples/PresheafModel.v
 ComprehensionCat/Examples/SheafModel.v

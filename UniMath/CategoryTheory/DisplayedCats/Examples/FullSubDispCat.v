@@ -978,6 +978,21 @@ Section FullSubDispCat.
   End Equalizers.
 
   (** * 7. Properties of the inclusion *)
+  Proposition fully_faithful_full_subcat_incl
+    : fully_faithful full_subcat_incl.
+  Proof.
+    intros x y.
+    use isweq_iso.
+    - exact (λ f, f ,, tt).
+    - abstract
+        (intro f ; cbn ;
+         use subtypePath ; [ intro ; apply isapropunit | ] ;
+         apply idpath).
+    - abstract
+        (intro f ;
+         apply idpath).
+  Defined.
+
   Proposition preserves_terminal_full_subcat_incl
               (T : Terminal C)
               (H : P T)
@@ -989,6 +1004,13 @@ Section FullSubDispCat.
     }
     exact (pr2 T).
   Qed.
+
+  Proposition disp_functor_ff_full_sub_disp_cat_incl
+    : disp_functor_ff full_sub_disp_cat_incl.
+  Proof.
+    intros x y xx yy f.
+    exact (idisweq _).
+  Defined.
 
   Proposition is_cartesian_full_sub_disp_cat_incl
               (HD : cleaving D)

@@ -449,3 +449,34 @@ Proof.
        use dep_psh_mor_path_eq ;
        apply id_left).
 Defined.
+
+Definition psh_term_coerce
+           {C : category}
+           {Γ : C^op ⟶ HSET}
+           {A B : dep_psh Γ}
+           (τ : dep_psh_nat_trans A B (nat_trans_id _))
+           (t : psh_term A)
+  : psh_term B.
+Proof.
+  use make_psh_term.
+  - exact (λ x xx, τ x xx (t x xx)).
+  - abstract
+      (intros x y f xx ;
+       refine (_ @ dep_psh_nat_trans_ax τ f (idpath _) (idpath _) (t x xx)) ;
+       apply maponpaths ;
+       apply (psh_term_naturality t)).
+Defined.
+
+Definition psh_term_var
+           {C : category}
+           (Γ : C^op ⟶ HSET)
+           (A : dep_psh Γ)
+  : psh_term (dep_psh_subst (total_psh_pr A) A).
+Proof.
+  use make_psh_term.
+  - exact (λ x xx, pr2 xx).
+  - abstract
+      (intros x y f xx ; cbn ;
+       apply dep_psh_mor_path_eq ;
+       apply idpath).
+Defined.

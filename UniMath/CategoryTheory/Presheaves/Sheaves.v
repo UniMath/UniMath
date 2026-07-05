@@ -783,6 +783,19 @@ Proof.
   exact p.
 Qed.
 
+Proposition from_sheaf_nat_trans_eq
+            {C : site}
+            {Γ₁ Γ₂ : sheaf C}
+            {τ₁ τ₂ : sheaf_nat_trans Γ₁ Γ₂}
+            (p : τ₁ = τ₂)
+            {x : C}
+            (xx : (Γ₁ x : hSet))
+  : τ₁ x xx = τ₂ x xx.
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
 Definition sheaf_incl
            (C : site)
   : cat_of_sheaves C ⟶ PreShv C

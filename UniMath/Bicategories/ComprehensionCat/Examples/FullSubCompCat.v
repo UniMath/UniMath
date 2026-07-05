@@ -24,6 +24,7 @@ Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
@@ -242,6 +243,164 @@ Section SubCompCat.
     - exact full_sub_cat_with_terminal_cleaving.
     - exact full_sub_comp_cat_comprehension.
   Defined.
+
+  Proposition full_sub_comp_cat_id_subst_ty
+              {Γ : full_sub_comp_cat}
+              (A : ty Γ)
+    : id_subst_ty (C := full_sub_comp_cat) A = id_subst_ty (C := C) (pr1 A).
+  Proof.
+    cbn.
+    apply maponpaths.
+    etrans.
+    {
+      match goal with
+      | [ |- transportb _ ?q _ = _ ] => exact (transportb_full_sub_disp_cat _ _ _ q _)
+      end.
+    }
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Proposition full_sub_comp_cat_id_subst_ty_inv
+              {Γ : full_sub_comp_cat}
+              (A : ty Γ)
+    : id_subst_ty_inv (C := full_sub_comp_cat) A = id_subst_ty_inv (C := C) (pr1 A).
+  Proof.
+    cbn.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite transport_f_f.
+    etrans.
+    {
+      apply maponpaths.
+      match goal with
+      | [ |- (_ ;; transportf _ ?q _)%mor_disp = _ ] =>
+        apply (mor_disp_transportf_prewhisker q (cleaving_of_types _ Γ Γ (identity _) A))
+      end.
+    }
+    rewrite transport_f_f.
+    etrans.
+    {
+      match goal with
+      | [ |- transportf _ ?q _ = _ ] => pose q as p
+      end.
+      exact (transportf_full_sub_disp_cat
+               (disp_cat_of_types C)
+               (comp_cat_pred_con P)
+               (λ Γ p A, comp_cat_pred_ty P p A)
+               p
+               (cleaving_of_types _ Γ Γ (identity _) A ;; _))%mor_disp.
+    }
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Proposition full_sub_comp_cat_comp_subst_ty
+              {Γ₁ Γ₂ Γ₃ : full_sub_comp_cat}
+              (s₁ : Γ₁ --> Γ₂)
+              (s₂ : Γ₂ --> Γ₃)
+              (A : ty Γ₃)
+    : comp_subst_ty (C := full_sub_comp_cat) s₁ s₂ A
+      =
+      comp_subst_ty (C := C) (pr1 s₁) (pr1 s₂) (pr1 A).
+  Proof.
+    cbn.
+    apply maponpaths.
+    etrans.
+    {
+      match goal with
+      | [ |- transportb _ ?q _ = _ ] => pose q as p
+      end.
+      exact (transportb_full_sub_disp_cat
+               (disp_cat_of_types C)
+               (comp_cat_pred_con P)
+               (λ Γ p A, comp_cat_pred_ty P p A)
+               p
+               (cleaving_of_types _ _ _ _ _ ;; cleaving_of_types _ Γ₃ Γ₂ s₂ A))%mor_disp.
+    }
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Proposition full_sub_comp_cat_comp_subst_ty_inv
+              {Γ₁ Γ₂ Γ₃ : full_sub_comp_cat}
+              (s₁ : Γ₁ --> Γ₂)
+              (s₂ : Γ₂ --> Γ₃)
+              (A : ty Γ₃)
+    : comp_subst_ty_inv (C := full_sub_comp_cat) s₁ s₂ A
+      =
+      comp_subst_ty_inv (C := C) (pr1 s₁) (pr1 s₂) (pr1 A).
+  Proof.
+    cbn.
+    unfold fiber_functor_from_cleaving_comp_inv.
+    do 2 apply maponpaths.
+    etrans.
+    {
+      match goal with
+      | [ |- transportf _ ?q _ = _ ] => pose q as p
+      end.
+      exact (transportf_full_sub_disp_cat
+               (disp_cat_of_types C)
+               (comp_cat_pred_con P)
+               (λ Γ p A, comp_cat_pred_ty P p A)
+               p
+               (cleaving_of_types _ Γ₃ Γ₁ (s₁ · s₂) A)).
+    }
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Proposition full_sub_comp_cat_eq_subst_ty
+              {Γ₁ Γ₂ : full_sub_comp_cat}
+              {s₁ s₂ : Γ₁ --> Γ₂}
+              (A : ty Γ₂)
+              (p : s₁ = s₂)
+    : eq_subst_ty (C := full_sub_comp_cat) A p
+      =
+      eq_subst_ty (C := C) (pr1 A) (maponpaths pr1 p).
+  Proof.
+    induction p ; cbn.
+    apply idpath.
+  Qed.
+
+  Proposition full_sub_comp_cat_eq_subst_ty_inv
+              {Γ₁ Γ₂ : full_sub_comp_cat}
+              {s₁ s₂ : Γ₁ --> Γ₂}
+              (A : ty Γ₂)
+              (p : s₁ = s₂)
+    : eq_subst_ty_inv (C := full_sub_comp_cat) A p
+      =
+      eq_subst_ty_inv (C := C) (pr1 A) (maponpaths pr1 p).
+  Proof.
+    induction p ; cbn.
+    apply idpath.
+  Qed.
+
+  Proposition full_sub_comp_cat_coerce_subst_ty
+              {Γ₁ Γ₂ : full_sub_comp_cat}
+              (s : Γ₁ --> Γ₂)
+              {A B : ty Γ₂}
+              (f : A <: B)
+    : coerce_subst_ty (C := full_sub_comp_cat) s f
+      =
+      coerce_subst_ty (C := C) (pr1 s) f.
+  Proof.
+    cbn.
+    apply maponpaths.
+    etrans.
+    {
+      match goal with
+      | [ |- transportf _ ?q _ = _ ] => pose q as p
+      end.
+      exact (transportf_full_sub_disp_cat
+               (disp_cat_of_types C)
+               (comp_cat_pred_con P)
+               (λ Γ p A, comp_cat_pred_ty P p A)
+               p
+               (cleaving_of_types _ Γ₂ Γ₁ s A ;; f)%mor_disp).
+    }
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
 End SubCompCat.
 
 Definition full_sub_full_comp_cat

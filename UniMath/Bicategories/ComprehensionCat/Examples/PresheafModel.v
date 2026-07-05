@@ -22,8 +22,9 @@
  1. The full comprehension category
  2. Type formers in the presheaf model
  3. The category of presheaves is an elementary topos
- 4. Functors on the presheaf model
- 5. Natural transformations on the presheaf model
+ 4. Terms in the presheaf model
+ 5. Functors on the presheaf model
+ 6. Natural transformations on the presheaf model
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -80,6 +81,7 @@ Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+Require Import UniMath.Bicategories.ComprehensionCat.HPropMono.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes.
@@ -284,9 +286,386 @@ Section PShCompCat.
         use is_locally_cartesian_closed_exponentials.
         exact is_locally_cartesian_closed_psh_univ_cat_with_finlim.
   Defined.
+
+  (** * 4. Terms in the presheaf model *)
+  Definition psh_comp_cat_tm_to_sec
+             {Γ : psh_dfl_full_comp_cat}
+             {A : ty Γ}
+             (t : tm Γ A)
+    : psh_term A.
+  Proof.
+    use make_psh_term.
+    - refine (λ x γ, transportf ((A : dep_psh _) x) _ (pr2 ((pr1 t : _ ⟹ _) x γ))).
+      exact (eqtohomot (nat_trans_eq_pointwise (comp_cat_tm_eq t) x) γ).
+    - abstract
+        (intros x y f γ ;
+         etrans ;
+         [ apply maponpaths ;
+           exact (!(fiber_paths (!(eqtohomot (nat_trans_ax (pr1 t) _ _ f) γ))))
+         | ] ;
+         rewrite !transport_dep_psh_mor ;
+         cbn ;
+         rewrite !dep_psh_mor_comp' ;
+         use dep_psh_mor_path_eq ;
+         rewrite !id_left, id_right ;
+         apply idpath).
+  Defined.
+
+  Definition psh_comp_cat_sec_to_tm_nat_trans
+             {Γ : psh_dfl_full_comp_cat}
+             {A : ty Γ}
+             (t : psh_term A)
+    : Γ --> Γ & A.
+  Proof.
+    use make_nat_trans.
+    - exact (λ x γ, γ ,, t x γ).
+    - abstract
+        (intros x y f ;
+         use funextsec ; intro γ ;
+         cbn ;
+         apply maponpaths ;
+         exact (psh_term_naturality t f γ)).
+  Defined.
+
+  Definition psh_comp_cat_sec_to_tm
+             {Γ : psh_dfl_full_comp_cat}
+             {A : ty Γ}
+             (t : psh_term A)
+    : tm Γ A.
+  Proof.
+    use make_comp_cat_tm.
+    - exact (psh_comp_cat_sec_to_tm_nat_trans t).
+    - abstract
+        (use nat_trans_eq ; [ apply homset_property | ] ;
+         cbn ;
+         intro x ;
+         apply idpath).
+  Defined.
+
+  Proposition psh_comp_cat_tm_to_sec_to_tm
+              {Γ : psh_dfl_full_comp_cat}
+              {A : ty Γ}
+              (t : tm Γ A)
+    : psh_comp_cat_sec_to_tm (psh_comp_cat_tm_to_sec t) = t.
+  Proof.
+    use eq_comp_cat_tm.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro x.
+    use funextsec.
+    intro γ ; cbn.
+    refine (!_).
+    use total2_paths_f.
+    - exact (eqtohomot (nat_trans_eq_pointwise (comp_cat_tm_eq t) x) γ).
+    - apply idpath.
+  Qed.
+
+  Proposition psh_comp_cat_sec_to_tm_to_sec
+              {Γ : psh_dfl_full_comp_cat}
+              {A : ty Γ}
+              (t : psh_term A)
+    : psh_comp_cat_tm_to_sec (psh_comp_cat_sec_to_tm t) = t.
+  Proof.
+    use psh_term_eq.
+    intros x γ.
+    cbn.
+    apply (transportf_set ((A : dep_psh _) x)).
+    apply setproperty.
+  Qed.
+
+  Definition psh_comp_cat_tm_weq_sec
+             {Γ : psh_dfl_full_comp_cat}
+             (A : ty Γ)
+    : tm Γ A ≃ psh_term A.
+  Proof.
+    use weq_iso.
+    - exact psh_comp_cat_tm_to_sec.
+    - exact psh_comp_cat_sec_to_tm.
+    - exact psh_comp_cat_tm_to_sec_to_tm.
+    - exact psh_comp_cat_sec_to_tm_to_sec.
+  Defined.
+
+  Proposition psh_comp_cat_tm_subst
+              {Γ Δ : psh_dfl_full_comp_cat}
+              {A : ty Γ}
+              (t : tm Γ A)
+              (s : Δ --> Γ)
+    : t [[ s ]]tm
+      =
+      psh_comp_cat_sec_to_tm (psh_term_subst s (psh_comp_cat_tm_to_sec t)).
+  Proof.
+    use eq_comp_cat_tm ; cbn.
+    refine (!_).
+    use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A s))).
+    - use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use funextsec ; intro γ ; cbn.
+      refine (!_).
+      use total2_paths_f.
+      + exact (eqtohomot (nat_trans_eq_pointwise (comp_cat_tm_eq t) x) _).
+      + cbn.
+        apply idpath.
+    - use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use funextsec ; intro γ ; cbn.
+      apply idpath.
+  Qed.
+
+  Proposition psh_comp_cat_tm_coerce
+              {Γ : psh_dfl_full_comp_cat}
+              {A B : ty Γ}
+              (f : A <: B)
+              (t : tm Γ A)
+    : t ↑ f
+      =
+      psh_comp_cat_sec_to_tm (psh_term_coerce f (psh_comp_cat_tm_to_sec t)).
+  Proof.
+    use eq_comp_cat_tm.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro x.
+    use funextsec ; intro γ.
+    use total2_paths_f ; cbn.
+    - exact (eqtohomot (nat_trans_eq_pointwise (comp_cat_tm_eq t) x) _).
+    - rewrite transport_map.
+      apply idpath.
+  Qed.
+
+  Proposition psh_comp_cat_id_subst_ty
+              {Γ : C^op ⟶ HSET}
+              (A : dep_psh Γ)
+              {x : C}
+              {γ : (Γ x : hSet)}
+              (a : A x γ)
+    : (id_subst_ty (C := psh_dfl_full_comp_cat) A : dep_psh_nat_trans _ _ _) x γ a
+      =
+      a.
+  Proof.
+    cbn.
+    rewrite transportb_dep_psh_nat_trans.
+    apply (transportf_set (A x)).
+    apply setproperty.
+  Qed.
+
+  Proposition psh_comp_cat_id_subst_ty_inv
+              {Γ : C^op ⟶ HSET}
+              (A : dep_psh Γ)
+              {x : C}
+              {γ : (Γ x : hSet)}
+              (a : A x γ)
+    : (id_subst_ty_inv (C := psh_dfl_full_comp_cat) A : dep_psh_nat_trans _ _ _) x γ a
+      =
+      a.
+  Proof.
+    cbn.
+    rewrite transportf_dep_psh_nat_trans ; cbn.
+    rewrite transportf_dep_psh_nat_trans ; cbn.
+    rewrite transport_f_f.
+    apply (transportf_set (A x)).
+    apply setproperty.
+  Qed.
+
+  Proposition psh_comp_cat_comp_subst_ty
+              {Γ₁ Γ₂ Γ₃ : C^op ⟶ HSET}
+              (s₁ : Γ₁ ⟹ Γ₂)
+              (s₂ : Γ₂ ⟹ Γ₃)
+              (A : dep_psh Γ₃)
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s₂ x (s₁ x γ)))
+    : (comp_subst_ty (C := psh_dfl_full_comp_cat) s₁ s₂ A : dep_psh_nat_trans _ _ _) x γ a
+      =
+      a.
+  Proof.
+    cbn.
+    rewrite transportb_dep_psh_nat_trans ; cbn.
+    apply (transportf_set (A x)).
+    apply setproperty.
+  Qed.
+
+  Proposition psh_comp_cat_comp_subst_ty_inv
+              {Γ₁ Γ₂ Γ₃ : C^op ⟶ HSET}
+              (s₁ : Γ₁ ⟹ Γ₂)
+              (s₂ : Γ₂ ⟹ Γ₃)
+              (A : dep_psh Γ₃)
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s₂ x (s₁ x γ)))
+    : (comp_subst_ty_inv (C := psh_dfl_full_comp_cat) s₁ s₂ A : dep_psh_nat_trans _ _ _) x γ a
+      =
+      a.
+  Proof.
+    cbn.
+    rewrite transportf_dep_psh_nat_trans ; cbn.
+    apply (transportf_set (A x)).
+    apply setproperty.
+  Qed.
+
+  Proposition psh_comp_cat_eq_subst_ty
+              {Γ₁ Γ₂ : C^op ⟶ HSET}
+              {s₁ s₂ : Γ₁ ⟹ Γ₂}
+              (A : dep_psh Γ₂)
+              (p : s₁ = s₂)
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s₁ x γ))
+    : (eq_subst_ty (C := psh_dfl_full_comp_cat) A p : dep_psh_nat_trans _ _ _) x γ a
+      =
+      transportf (A x) (eqtohomot (nat_trans_eq_pointwise p x) γ) a.
+  Proof.
+    induction p ; cbn.
+    cbn.
+    refine (!_).
+    apply (transportf_set (A x)).
+    apply setproperty.
+  Qed.
+
+  Proposition psh_comp_cat_eq_subst_ty_inv
+              {Γ₁ Γ₂ : C^op ⟶ HSET}
+              {s₁ s₂ : Γ₁ ⟹ Γ₂}
+              (A : dep_psh Γ₂)
+              (p : s₁ = s₂)
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s₂ x γ))
+    : (eq_subst_ty_inv (C := psh_dfl_full_comp_cat) A p : dep_psh_nat_trans _ _ _) x γ a
+      =
+      transportb (A x) (eqtohomot (nat_trans_eq_pointwise p x) γ) a.
+  Proof.
+    induction p ; cbn.
+    cbn.
+    refine (!_).
+    apply (transportf_set (A x)).
+    apply setproperty.
+  Qed.
+
+  Proposition psh_comp_cat_coerce_subst_ty
+              {Γ₁ Γ₂ : C^op ⟶ HSET}
+              (s : Γ₁ ⟹ Γ₂)
+              {A B : dep_psh Γ₂}
+              (f : dep_psh_nat_trans A B (nat_trans_id _))
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s x γ))
+    : (coerce_subst_ty (C := psh_dfl_full_comp_cat) s f : dep_psh_nat_trans _ _ _) x γ a
+      =
+      f x (s x γ) a.
+  Proof.
+    cbn.
+    rewrite transportf_dep_psh_nat_trans ; cbn.
+    apply (transportf_set (B x)).
+    apply setproperty.
+  Qed.
+
+  Proposition psh_comp_cat_sub_to_extension
+              {Γ Δ : C^op ⟶ HSET}
+              {A : dep_psh Γ}
+              (s : Δ ⟹ Γ)
+              (t : comp_cat_tm (C := psh_dfl_full_comp_cat) Δ (dep_psh_subst s A))
+              {x : C}
+              (δ : (Δ x : hSet))
+    : (sub_to_extension (C := psh_dfl_full_comp_cat) s t : _ ⟹ _) x δ
+      =
+      s x δ
+      ,,
+      psh_comp_cat_tm_to_sec t x δ.
+  Proof.
+    cbn.
+    use total2_paths_f ; cbn.
+    - apply maponpaths.
+      exact (eqtohomot (nat_trans_eq_pointwise (comp_cat_tm_eq t) x) δ).
+    - rewrite (functtransportf (s x) (A x)).
+      apply idpath.
+  Qed.
+
+  Proposition psh_comp_cat_var
+              (Γ : psh_dfl_full_comp_cat)
+              (A : ty Γ)
+    : comp_cat_tm_var Γ A = psh_comp_cat_sec_to_tm (psh_term_var Γ A).
+  Proof.
+    use eq_comp_cat_tm.
+    refine (!_).
+    use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A _))).
+    - use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x ; cbn.
+      apply idpath.
+    - use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x ; cbn.
+      apply idpath.
+  Qed.
+
+  Proposition psh_comp_cat_hprop_ty
+              {Γ : C^op ⟶ HSET}
+              (A : dep_psh Γ)
+              (HA : ∏ (x : C) (xx : (Γ x : hSet)), isaprop (A x xx))
+    : is_hprop_ty (C := psh_dfl_full_comp_cat) A.
+  Proof.
+    use mono_ty_to_hprop_ty.
+    use injective_presheaf_isMonic.
+    cbn ; intros x [ xx a₁ ] [ xx' a₂ ] p.
+    cbn in p.
+    induction p.
+    apply maponpaths.
+    specialize (HA x xx).
+    apply (proofirrelevance _ HA).
+  Qed.
+
+  Proposition psh_comp_cat_hprop_ty_inv
+              {Γ : C^op ⟶ HSET}
+              (A : dep_psh Γ)
+              (HA : is_hprop_ty (C := psh_dfl_full_comp_cat) A)
+              (x : C)
+              (xx : (Γ x : hSet))
+    : isaprop (A x xx).
+  Proof.
+    apply hprop_ty_to_mono_ty in HA.
+    use invproofirrelevance.
+    intros a₁ a₂.
+    pose proof (isMonic_presheaf_injective
+                  HA
+                  (x := x)
+                  (xx₁ := (xx ,, a₁)) (xx₂ := (xx ,, a₂))
+                  (idpath _))
+      as p.
+    refine (!_ @ fiber_paths p).
+    apply (transportf_set (A x)).
+    apply setproperty.
+  Qed.
+
+  Proposition psh_comp_cat_hprop_ty_weq
+              {Γ : C^op ⟶ HSET}
+              (A : dep_psh Γ)
+    : is_hprop_ty (C := psh_dfl_full_comp_cat) A
+      ≃
+      (∏ (x : C) (xx : (Γ x : hSet)), isaprop (A x xx)).
+  Proof.
+    use weqimplimpl.
+    - exact (psh_comp_cat_hprop_ty_inv A).
+    - exact (psh_comp_cat_hprop_ty A).
+    - apply isaprop_is_hprop_ty.
+    - abstract
+        (do 2 (use impred ; intro) ;
+         apply isapropisaprop).
+  Defined.
 End PShCompCat.
 
-(** * 4. Functors on the presheaf model *)
+(** * 5. Functors on the presheaf model *)
 Section PShCompCatFunctor.
   Context {C₁ C₂ : category}
           (F : C₁ ⟶ C₂).
@@ -345,7 +724,7 @@ Section PShCompCatFunctor.
   Defined.
 End PShCompCatFunctor.
 
-(** * 5. Natural transformations on the presheaf model *)
+(** * 6. Natural transformations on the presheaf model *)
 Section PShCompCatNatTrans.
   Context {C₁ C₂ : category}
           {F G : C₁ ⟶ C₂}

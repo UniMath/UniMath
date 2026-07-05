@@ -657,18 +657,7 @@ Proof.
   intro γ.
   use total2_paths_f ; cbn.
   - exact (eqtohomot (comp_cat_tm_eq t) γ).
-  - enough (∏ p,
-            transportf (λ x, B x) p (f (pr1 (pr1 t γ)) (pr2 (pr1 t γ)))
-            =
-            f γ (transportf (λ x, A x) p (pr2 (pr1 t γ))))
-      as H.
-    {
-      apply H.
-    }
-    cbn.
-    intro p.
-    induction p.
-    cbn.
+  - rewrite transport_map.
     apply idpath.
 Qed.
 
@@ -866,13 +855,13 @@ Qed.
 Proposition set_comp_cat_hprop_ty_weq
             {Γ : set_dfl_full_comp_cat}
             (A : ty Γ)
-  : (∏ (x : (Γ : hSet)), isaprop (A x)) ≃ is_hprop_ty A.
+  : is_hprop_ty A ≃ (∏ (x : (Γ : hSet)), isaprop (A x)).
 Proof.
   use weqimplimpl.
-  - exact (set_comp_cat_hprop_ty A).
   - exact (set_comp_cat_hprop_ty_inv A).
+  - exact (set_comp_cat_hprop_ty A).
+  - apply isaprop_is_hprop_ty.
   - abstract
       (use impred ; intro ;
        apply isapropisaprop).
-  - apply isaprop_is_hprop_ty.
 Defined.

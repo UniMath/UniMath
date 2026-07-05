@@ -465,3 +465,25 @@ Proof.
   apply maponpaths.
   exact p.
 Qed.
+
+Proposition injective_presheaf_isMonic
+            {C : category}
+            {Γ₁ Γ₂ : C^op ⟶ HSET}
+            {τ : Γ₁ ⟹ Γ₂}
+            (H : ∏ (x : C)
+                   (xx₁ xx₂ : (Γ₁ x : hSet))
+                   (p : τ x xx₁ = τ x xx₂),
+                 xx₁ = xx₂)
+  : isMonic (C := PreShv C) τ.
+Proof.
+  intros Δ θ₁ θ₂ p.
+  use nat_trans_eq.
+  {
+    apply homset_property.
+  }
+  intro x.
+  use funextsec.
+  intros xx.
+  use H.
+  exact (eqtohomot (nat_trans_eq_pointwise p x) xx).
+Qed.

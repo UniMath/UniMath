@@ -37,10 +37,12 @@ Require Import UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClo
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.
@@ -48,6 +50,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.FullSubDispCat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.PowerObject.
@@ -74,6 +78,8 @@ Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClas
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+Require Import UniMath.Bicategories.ComprehensionCat.HPropMono.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes.
@@ -87,7 +93,7 @@ Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToF
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
 Require Import UniMath.Bicategories.ComprehensionCat.Examples.PresheafModel.
-Require Import UniMath.Bicategories.ComprehensionCat.Examples.SubCompCat.
+Require Import UniMath.Bicategories.ComprehensionCat.Examples.FullSubCompCat.
 
 Local Open Scope cat.
 Local Open Scope comp_cat.
@@ -203,5 +209,401 @@ Section SheafCompCat.
       + use PowerObject_from_exponentials.
         use is_locally_cartesian_closed_exponentials.
         exact is_locally_cartesian_closed_sheaf_univ_cat_with_finlim.
+  Defined.
+
+  (** * 4. Terms in the presheaf model *)
+  Definition sheaf_comp_cat_tm_to_sec
+             {Γ : sheaf_dfl_full_comp_cat}
+             {A : ty Γ}
+             (t : tm Γ A)
+    : sheaf_term A.
+  Proof.
+    use make_psh_term.
+    - exact (λ x γ,
+             transportf
+               ((A : dep_sheaf _) x)
+               (from_sheaf_nat_trans_eq (comp_cat_tm_eq t) γ)
+               (pr2 ((pr11 t : _ ⟹ _) x γ))).
+    - abstract
+        (intros x y f γ ;
+         etrans ;
+         [ apply maponpaths ;
+           exact (!(fiber_paths (!(eqtohomot (nat_trans_ax (pr11 t) _ _ f) γ))))
+         | ] ;
+         rewrite !transport_dep_psh_mor ;
+         rewrite !dep_psh_mor_comp' ;
+         refine (dep_psh_mor_comp' _ _ _ _ _ _ @ _) ;
+         use dep_psh_mor_path_eq ;
+         rewrite !id_left, id_right ;
+         apply idpath).
+  Defined.
+
+  Definition sheaf_comp_cat_sec_to_tm_nat_trans
+             {Γ : sheaf_dfl_full_comp_cat}
+             {A : ty Γ}
+             (t : sheaf_term A)
+    : Γ --> Γ & A.
+  Proof.
+    use make_sheaf_nat_trans.
+    use make_nat_trans.
+    - exact (λ x γ, γ ,, t x γ).
+    - abstract
+        (intros x y f ;
+         use funextsec ; intro γ ;
+         cbn ;
+         apply maponpaths ;
+         exact (psh_term_naturality t f γ)).
+  Defined.
+
+  Definition sheaf_comp_cat_sec_to_tm
+             {Γ : sheaf_dfl_full_comp_cat}
+             {A : ty Γ}
+             (t : sheaf_term A)
+    : tm Γ A.
+  Proof.
+    use make_comp_cat_tm.
+    - exact (sheaf_comp_cat_sec_to_tm_nat_trans t).
+    - abstract
+        (use sheaf_nat_trans_eq ;
+         use nat_trans_eq ; [ apply homset_property | ] ;
+         cbn ;
+         intro x ;
+         apply idpath).
+  Defined.
+
+  Proposition sheaf_comp_cat_tm_to_sec_to_tm
+              {Γ : sheaf_dfl_full_comp_cat}
+              {A : ty Γ}
+              (t : tm Γ A)
+    : sheaf_comp_cat_sec_to_tm (sheaf_comp_cat_tm_to_sec t) = t.
+  Proof.
+    use eq_comp_cat_tm.
+    use sheaf_nat_trans_eq.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro x.
+    use funextsec.
+    intro γ ; cbn.
+    refine (!_).
+    use total2_paths_f.
+    - exact (from_sheaf_nat_trans_eq (comp_cat_tm_eq t) γ).
+    - cbn.
+      apply idpath.
+  Qed.
+
+  Proposition sheaf_comp_cat_sec_to_tm_to_sec
+              {Γ : sheaf_dfl_full_comp_cat}
+              {A : ty Γ}
+              (t : sheaf_term A)
+    : sheaf_comp_cat_tm_to_sec (sheaf_comp_cat_sec_to_tm t) = t.
+  Proof.
+    use psh_term_eq.
+    intros x γ.
+    cbn.
+    apply (transportf_set ((A : dep_sheaf _) x)).
+    apply setproperty.
+  Qed.
+
+  Definition sheaf_comp_cat_tm_weq_sec
+             {Γ : sheaf_dfl_full_comp_cat}
+             (A : ty Γ)
+    : tm Γ A ≃ sheaf_term A.
+  Proof.
+    use weq_iso.
+    - exact sheaf_comp_cat_tm_to_sec.
+    - exact sheaf_comp_cat_sec_to_tm.
+    - exact sheaf_comp_cat_tm_to_sec_to_tm.
+    - exact sheaf_comp_cat_sec_to_tm_to_sec.
+  Defined.
+
+  Proposition sheaf_comp_cat_tm_subst
+              {Γ Δ : sheaf_dfl_full_comp_cat}
+              {A : ty Γ}
+              (t : tm Γ A)
+              (s : Δ --> Γ)
+    : t [[ s ]]tm
+      =
+      sheaf_comp_cat_sec_to_tm (sheaf_term_subst s (sheaf_comp_cat_tm_to_sec t)).
+  Proof.
+    use eq_comp_cat_tm.
+    refine (!_).
+    use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A s))).
+    - use sheaf_nat_trans_eq.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use funextsec ; intro γ.
+      refine (!_).
+      use total2_paths_f.
+      + exact (from_sheaf_nat_trans_eq (comp_cat_tm_eq t) _).
+      + apply idpath.
+    - use sheaf_nat_trans_eq.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use funextsec ; intro γ.
+      apply idpath.
+  Qed.
+
+  Proposition sheaf_comp_cat_tm_coerce
+              {Γ : sheaf_dfl_full_comp_cat}
+              {A B : ty Γ}
+              (f : A <: B)
+              (t : tm Γ A)
+    : t ↑ f
+      =
+      sheaf_comp_cat_sec_to_tm (sheaf_term_coerce f (sheaf_comp_cat_tm_to_sec t)).
+  Proof.
+    use eq_comp_cat_tm.
+    use sheaf_nat_trans_eq.
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    intro x.
+    use funextsec ; intro γ.
+    use total2_paths_f ; cbn.
+    - exact (from_sheaf_nat_trans_eq (comp_cat_tm_eq t) _).
+    - rewrite transport_map.
+      apply maponpaths.
+      apply maponpaths_2.
+      apply setproperty.
+  Qed.
+
+  Proposition sheaf_comp_cat_id_subst_ty
+              {Γ : sheaf C}
+              (A : dep_sheaf Γ)
+              {x : C}
+              {γ : (Γ x : hSet)}
+              (a : A x γ)
+    : (id_subst_ty (C := sheaf_dfl_full_comp_cat) A : dep_psh_nat_trans _ _ _) x γ a
+      =
+      a.
+  Proof.
+    refine (_ @ psh_comp_cat_id_subst_ty C A a).
+    refine (maponpaths (λ (z : dep_psh_nat_trans _ _ _), z x γ a) _).
+    exact (full_sub_comp_cat_id_subst_ty is_sheaf_comp_cat_pred A).
+  Qed.
+
+  Proposition sheaf_comp_cat_id_subst_ty_inv
+              {Γ : sheaf C}
+              (A : dep_sheaf Γ)
+              {x : C}
+              {γ : (Γ x : hSet)}
+              (a : A x γ)
+    : (id_subst_ty_inv (C := sheaf_dfl_full_comp_cat) A : dep_psh_nat_trans _ _ _) x γ a
+      =
+      a.
+  Proof.
+    refine (_ @ psh_comp_cat_id_subst_ty_inv C A a).
+    refine (maponpaths
+              (λ (z : dep_psh_nat_trans _ _ _), z x γ _)
+              _).
+    exact (full_sub_comp_cat_id_subst_ty_inv is_sheaf_comp_cat_pred A).
+  Qed.
+
+  Proposition sheaf_comp_cat_comp_subst_ty
+              {Γ₁ Γ₂ Γ₃ : sheaf C}
+              (s₁ : sheaf_nat_trans Γ₁ Γ₂)
+              (s₂ : sheaf_nat_trans Γ₂ Γ₃)
+              (A : dep_sheaf Γ₃)
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s₂ x (s₁ x γ)))
+    : (comp_subst_ty (C := sheaf_dfl_full_comp_cat) s₁ s₂ A : dep_psh_nat_trans _ _ _) x γ a
+      =
+      a.
+  Proof.
+    refine (_ @ psh_comp_cat_comp_subst_ty C s₁ s₂ A a).
+    refine (maponpaths
+              (λ (z : dep_psh_nat_trans _ _ _), z x γ _)
+              _).
+    exact (full_sub_comp_cat_comp_subst_ty is_sheaf_comp_cat_pred s₁ s₂ A).
+  Qed.
+
+  Proposition sheaf_comp_cat_comp_subst_ty_inv
+              {Γ₁ Γ₂ Γ₃ : sheaf C}
+              (s₁ : sheaf_nat_trans Γ₁ Γ₂)
+              (s₂ : sheaf_nat_trans Γ₂ Γ₃)
+              (A : dep_sheaf Γ₃)
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s₂ x (s₁ x γ)))
+    : (comp_subst_ty_inv (C := sheaf_dfl_full_comp_cat) s₁ s₂ A : dep_psh_nat_trans _ _ _) x γ a
+      =
+      a.
+  Proof.
+    refine (_ @ psh_comp_cat_comp_subst_ty_inv C s₁ s₂ A a).
+    refine (maponpaths
+              (λ (z : dep_psh_nat_trans _ _ _), z x γ _)
+              _).
+    exact (full_sub_comp_cat_comp_subst_ty_inv is_sheaf_comp_cat_pred s₁ s₂ A).
+  Qed.
+
+  Proposition sheaf_comp_cat_eq_subst_ty
+              {Γ₁ Γ₂ : sheaf C}
+              {s₁ s₂ : sheaf_nat_trans Γ₁ Γ₂}
+              (A : dep_sheaf Γ₂)
+              (p : s₁ = s₂)
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s₁ x γ))
+    : (eq_subst_ty (C := sheaf_dfl_full_comp_cat) A p : dep_psh_nat_trans _ _ _) x γ a
+      =
+      transportf (A x) (from_sheaf_nat_trans_eq p γ) a.
+  Proof.
+    refine (_ @ psh_comp_cat_eq_subst_ty C A (maponpaths pr1 p) a @ _).
+    - refine (maponpaths
+                (λ (z : dep_psh_nat_trans _ _ _), z x γ _)
+                _).
+      exact (full_sub_comp_cat_eq_subst_ty is_sheaf_comp_cat_pred A p).
+    - apply maponpaths_2.
+      apply setproperty.
+  Qed.
+
+  Proposition sheaf_comp_cat_eq_subst_ty_inv
+              {Γ₁ Γ₂ : sheaf C}
+              {s₁ s₂ : sheaf_nat_trans Γ₁ Γ₂}
+              (A : dep_sheaf Γ₂)
+              (p : s₁ = s₂)
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s₂ x γ))
+    : (eq_subst_ty_inv (C := sheaf_dfl_full_comp_cat) A p : dep_psh_nat_trans _ _ _) x γ a
+      =
+      transportb (A x) (from_sheaf_nat_trans_eq p γ) a.
+  Proof.
+    refine (_ @ psh_comp_cat_eq_subst_ty_inv C A (maponpaths pr1 p) a @ _).
+    - refine (maponpaths
+                (λ (z : dep_psh_nat_trans _ _ _), z x γ _)
+                _).
+      exact (full_sub_comp_cat_eq_subst_ty_inv is_sheaf_comp_cat_pred A p).
+    - apply maponpaths_2.
+      apply setproperty.
+  Qed.
+
+  Proposition sheaf_comp_cat_coerce_subst_ty
+              {Γ₁ Γ₂ : sheaf C}
+              (s : sheaf_nat_trans Γ₁ Γ₂)
+              {A B : dep_sheaf Γ₂}
+              (f : dep_psh_nat_trans A B (nat_trans_id _))
+              {x : C}
+              {γ : (Γ₁ x : hSet)}
+              (a : A x (s x γ))
+    : (coerce_subst_ty (C := sheaf_dfl_full_comp_cat) s f : dep_psh_nat_trans _ _ _) x γ a
+      =
+      f x (s x γ) a.
+  Proof.
+    refine (_ @ psh_comp_cat_coerce_subst_ty C s f a).
+    refine (maponpaths
+              (λ (z : dep_psh_nat_trans _ _ _), z x γ _)
+              _).
+    exact (full_sub_comp_cat_coerce_subst_ty is_sheaf_comp_cat_pred s f).
+  Qed.
+
+  Proposition sheaf_comp_cat_sub_to_extension
+              {Γ Δ : sheaf C}
+              {A : dep_sheaf Γ}
+              (s : sheaf_nat_trans Δ Γ)
+              (t : comp_cat_tm (C := sheaf_dfl_full_comp_cat) Δ (dep_sheaf_subst s A))
+              {x : C}
+              (δ : (Δ x : hSet))
+    : (sub_to_extension (C := sheaf_dfl_full_comp_cat) s t : sheaf_nat_trans _ _) x δ
+      =
+      s x δ
+      ,,
+      sheaf_comp_cat_tm_to_sec t x δ.
+  Proof.
+    cbn.
+    use total2_paths_f ; cbn.
+    - apply maponpaths.
+      exact (from_sheaf_nat_trans_eq (comp_cat_tm_eq t) δ).
+    - rewrite (functtransportf (s x) (A x)).
+      apply maponpaths_2.
+      apply setproperty.
+  Qed.
+
+  Proposition sheaf_comp_cat_var
+              (Γ : sheaf_dfl_full_comp_cat)
+              (A : ty Γ)
+    : comp_cat_tm_var Γ A = sheaf_comp_cat_sec_to_tm (sheaf_term_var Γ A).
+  Proof.
+    use eq_comp_cat_tm.
+    refine (!_).
+    use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A _))).
+    - use sheaf_nat_trans_eq.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x ; cbn.
+      apply idpath.
+    - use sheaf_nat_trans_eq.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x ; cbn.
+      apply idpath.
+  Qed.
+
+  Proposition sheaf_comp_cat_hprop_ty
+              {Γ : sheaf C}
+              (A : dep_sheaf Γ)
+              (HA : ∏ (x : C) (xx : (Γ x : hSet)), isaprop (A x xx))
+    : is_hprop_ty (C := sheaf_dfl_full_comp_cat) A.
+  Proof.
+    use mono_ty_to_hprop_ty.
+    use injective_sheaf_isMonic.
+    cbn ; intros x [ xx a₁ ] [ xx' a₂ ] p.
+    cbn in p.
+    induction p.
+    apply maponpaths.
+    specialize (HA x xx).
+    apply (proofirrelevance _ HA).
+  Qed.
+
+  Proposition sheaf_comp_cat_hprop_ty_inv
+              {Γ : sheaf C}
+              (A : dep_sheaf Γ)
+              (HA : is_hprop_ty (C := sheaf_dfl_full_comp_cat) A)
+              (x : C)
+              (xx : (Γ x : hSet))
+    : isaprop (A x xx).
+  Proof.
+    apply hprop_ty_to_mono_ty in HA.
+    use invproofirrelevance.
+    intros a₁ a₂.
+    pose proof (isMonic_sheaf_injective
+                  HA
+                  (x := x)
+                  (xx₁ := (xx ,, a₁)) (xx₂ := (xx ,, a₂))
+                  (idpath _))
+      as p.
+    refine (!_ @ fiber_paths p).
+    apply (transportf_set (A x)).
+    apply setproperty.
+  Qed.
+
+  Proposition sheaf_comp_cat_hprop_ty_weq
+              {Γ : sheaf C}
+              (A : dep_sheaf Γ)
+    : is_hprop_ty (C := sheaf_dfl_full_comp_cat) A
+      ≃
+      (∏ (x : C) (xx : (Γ x : hSet)), isaprop (A x xx)).
+  Proof.
+    use weqimplimpl.
+    - exact (sheaf_comp_cat_hprop_ty_inv A).
+    - exact (sheaf_comp_cat_hprop_ty A).
+    - apply isaprop_is_hprop_ty.
+    - abstract
+        (do 2 (use impred ; intro) ;
+         apply isapropisaprop).
   Defined.
 End SheafCompCat.
