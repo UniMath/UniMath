@@ -179,7 +179,7 @@ Section ModuleSignatures.
       easy.
     - intros Σ Σ' Σ'' f g; use invmap; [|use path_sigma_hprop|].
       use isaprop_is_module_mor.
-      cbn; unfold Core.mor_disp; cbn.
+      cbn; unfold mor_disp; cbn.
       now rewrite transportf_total2, transportf_const.
   Qed.
 

@@ -69,7 +69,7 @@ Section ModelsOfModuleSignature.
     split; intros.
     - cbn; now rewrite @section_disp_id, id_left, id_right.
     - simpl; rewrite @section_disp_comp, assoc; cbn; etrans.
-      + use (maponpaths (λ x, x · _)); [|use X].
+      + refine (maponpaths (λ x, x · _) X).
       + do 2 rewrite <- assoc; now use maponpaths.
   Qed.
 
@@ -113,7 +113,7 @@ Proof.
   assert (#F (InitialArrow O _) · α _ = identity _) as H'.
   {
     transitivity (#F (InitialArrow O _) · #F (α (InitialObject O))).
-    - use maponpaths; exact (maponpaths (λ f, pr1 f _) H).
+    - exact (maponpaths (λ f, _ · pr1 f _) H).
     - rewrite <- functor_comp, <- functor_id;
       use maponpaths;
       use InitialArrowEq.
@@ -152,51 +152,48 @@ Section InitialModelsAsFixpoints.
   Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
   Local Notation "f ⊗r y" := (f ⊗^{C}_{r} y) (at level 31).
 
+  Local Definition ProdSum {X Y Z : C} : BinCoproduct (X ⊗ Z) (Y ⊗ Z)
+    := make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr).
+
   Local Definition arrow_from_prod_sum {X Y Z : C}
     : (X ++ Y) ⊗ Z --> (X ⊗ Z ++ Y ⊗ Z)
-    := BinCoproductArrow 
-      (make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr)) 
-      inl inr.
+    := BinCoproductArrow ProdSum inl inr.
 
   Local Lemma arrow_from_prod_sum_inl {X Y Z : C}
     : inl ⊗r Z · @arrow_from_prod_sum X Y Z = inl.
   Proof.
-    use (BinCoproductIn1Commutes _ _ _ (make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr))).
+    use (BinCoproductIn1Commutes _ _ _ ProdSum).
   Qed.
 
   Local Lemma arrow_from_prod_sum_inr {X Y Z : C}
     : inr ⊗r Z · @arrow_from_prod_sum X Y Z = inr.
   Proof.
-    use (BinCoproductIn2Commutes _ _ _ (make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr))).
+    use (BinCoproductIn2Commutes _ _ _ ProdSum).
   Qed.
 
   Local Lemma arrow_from_prod_sum_nat {X Y Z W : C}
     : (X ++ Y) ⊗l inl · @arrow_from_prod_sum X Y (Z ++ W) 
     = arrow_from_prod_sum · BinCoproductOfArrows _ _ _ (_ ⊗l inl) (_ ⊗l inl). 
   Proof.
-    use (
-      BinCoproductArrowsEq _ _ _
-      (make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr))
-      (X ⊗ (Z ++ W) ++ Y ⊗ (Z ++ W))
-    ); cbn.
+    use (BinCoproductArrowsEq _ _ _ ProdSum _); cbn.
     - etrans; etrans; try rewrite assoc; swap 3 4.
-      + use (maponpaths (λ x, x · _)); [shelve|].
+      + refine (maponpaths (λ x, x · _) _).
         rewrite tensor_mor_left, tensor_mor_right.
         use tensor_swap.
       + rewrite <- tensor_mor_left, <- tensor_mor_right, <- assoc.
-        use maponpaths; [shelve|].
+        refine (maponpaths _ _).
         use arrow_from_prod_sum_inl.
-      + symmetry; use (maponpaths (λ x, x · _)); [shelve|].
+      + symmetry; refine (maponpaths (λ x, x · _) _).
         use arrow_from_prod_sum_inl.
       + symmetry; use BinCoproductOfArrowsIn1.
     - etrans; etrans; try rewrite assoc; swap 3 4.
-      + use (maponpaths (λ x, x · _)); [shelve|].
+      + refine (maponpaths (λ x, x · _) _).
         rewrite tensor_mor_left, tensor_mor_right.
         use tensor_swap.
       + rewrite <- tensor_mor_left, <- tensor_mor_right, <- assoc.
-        use maponpaths; [shelve|].
+        refine (maponpaths _ _).
         use arrow_from_prod_sum_inr.
-      + symmetry; use (maponpaths (λ x, x · _)); [shelve|].
+      + refine (!maponpaths (λ x, x · _) _).
         use arrow_from_prod_sum_inr.
       + symmetry; use BinCoproductOfArrowsIn2.
   Qed.
@@ -248,7 +245,7 @@ Section InitialModelsAsFixpoints.
     Proof.
       unfold μ, η, μ₁; rewrite assoc.
       etrans.
-      - use (maponpaths (λ x, x · _)); [|use arrow_from_prod_sum_inl].
+      - refine (maponpaths (λ x, x · _) arrow_from_prod_sum_inl).
       - use BinCoproductIn1Commutes.
     Qed.
 
@@ -257,7 +254,7 @@ Section InitialModelsAsFixpoints.
     Proof.
       unfold μ, η, μ₁; rewrite assoc.
       etrans.
-      - use (maponpaths (λ x, x · _)); [|use arrow_from_prod_sum_inr].
+      - refine (maponpaths (λ x, x · _) arrow_from_prod_sum_inr).
       - use BinCoproductIn2Commutes.
     Qed.
 
@@ -274,126 +271,125 @@ Section InitialModelsAsFixpoints.
 
     (* Three laws for M' to be a monoid *)
 
-    Local Lemma monoid_law_1 : η ⊗r M' · μ = lu^{ C }_{ M'}.
+    Local Lemma μ_lunit : η ⊗r M' · μ = lu^{ C }_{ M'}.
     Proof.
       use multiplication_inl.
     Qed.
 
-    Local Lemma monoid_law_2 : M' ⊗l η · μ = ru^{ C }_{ M'}.
+    Local Lemma μ_runit : M' ⊗l η · μ = ru^{ C }_{ M'}.
     Proof.
-      use (
-        BinCoproductArrowsEq _ _ _ 
-        (make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr))
-        M'
-      ); cbn.
+      use (BinCoproductArrowsEq _ _ _ ProdSum _); cbn.
       - etrans; etrans. etrans.
         + rewrite assoc, tensor_mor_left, tensor_mor_right.
-          use (maponpaths (λ x, x · _)); [|use tensor_swap].
+          refine (maponpaths (λ x, x · _) _). use tensor_swap.
         + rewrite <- tensor_mor_left, <- tensor_mor_right, <- assoc.
           use maponpaths; [|use multiplication_inl].
         + use monoidal_leftunitornat.
-        + use (maponpaths (λ x, x · _)); [|use unitors_coincide_on_unit].
+        + refine (maponpaths (λ x, x · _) _); use unitors_coincide_on_unit.
         + symmetry; use monoidal_rightunitornat.
       - etrans; (etrans; [etrans|]).
         + rewrite assoc, tensor_mor_left, tensor_mor_right.
           use (maponpaths (λ x, x · _)); [|use tensor_swap].
         + rewrite <- tensor_mor_left, <- tensor_mor_right, <- assoc.
-          use maponpaths; [|use multiplication_inr].
-        + rewrite assoc, assoc. use (maponpaths (λ x, x · _ · _));
-          [|symmetry; use (bifunctor_leftcomp C)].
-        + use (maponpaths (λ x, _ ⊗l x · _ · _)); [|use BinCoproductIn1Commutes].
-        + use (maponpaths (λ x, x · _)); [|use (pr222 (Σ M))].
+          refine (maponpaths _ _); use multiplication_inr.
+        + rewrite assoc, assoc.
+          refine (!maponpaths (λ x, x · _ · _) _).
+          use (bifunctor_leftcomp C).
+        + refine (maponpaths (λ x, _ ⊗l x · _ · _) _); use BinCoproductIn1Commutes.
+        + refine (maponpaths (λ x, x · _) (pr222 (Σ M))).
         + symmetry; use monoidal_rightunitornat.
     Qed.
 
     Local Lemma f_respects_multiplication : μ · f = (f #⊗ f) · μM.
     Proof.
-      use (
-          BinCoproductArrowsEq _ _ _ 
-          (make_BinCoproduct _ _ _ _ _ _ (Hpres M' _ _ M' _ _ iscopr))
-          (pr11 M)
-      ).
+      use ( BinCoproductArrowsEq _ _ _ ProdSum (pr11 M)).
       - cbn; rewrite assoc; symmetry; etrans; [etrans;etrans|etrans]; symmetry.
-        + rewrite assoc; use (maponpaths (λ x, x · _)); [shelve|].
+        + rewrite assoc; refine (maponpaths (λ x, x · _) _).
           rewrite tensor_split', <- tensor_mor_left, <- tensor_mor_right, assoc.
           use (maponpaths (λ x, x · _)); [|use (bifunctor_rightcomp C)].
         + use (maponpaths (λ x, x ⊗r _ · _ · _)); [|use (!f_inl)].
         + rewrite tensor_mor_left, tensor_mor_right.
           use (maponpaths (λ x, x · _)); [|use tensor_swap'].
         + rewrite <- tensor_mor_right, <- tensor_mor_left, <- assoc.
-          use maponpaths; [|symmetry; use monoid_to_unit_left_law].
+          refine (!maponpaths _ _); use monoid_to_unit_left_law.
         + symmetry; use monoidal_leftunitornat.
-        + etrans.
-          * use (maponpaths (λ x, x · _)); [|use multiplication_inl].
-          * use idpath.
+        + refine (maponpaths (λ x, x · _)  multiplication_inl).
       - cbn; rewrite assoc; symmetry; etrans; [etrans;etrans|etrans]; symmetry.
-        + rewrite assoc; use (maponpaths (λ x, x · _)); [shelve|].
+        + rewrite assoc; refine (maponpaths (λ x, x · _) _).
           rewrite tensor_split', <- tensor_mor_left, <- tensor_mor_right, assoc.
           use (maponpaths (λ x, x · _)); [|use (bifunctor_rightcomp C)].
         + use (maponpaths (λ x, x ⊗r _ · _ · _)); [|use (!f_inr)].
         + rewrite tensor_mor_left, tensor_mor_right.
           use (maponpaths (λ x, x · _)); [|use tensor_swap'].
         + rewrite <- tensor_mor_right, <- tensor_mor_left, <- assoc.
-          use maponpaths; [|symmetry; use (pr22 M)].
+          refine (!maponpaths _ (pr22 M)).
         + fold rM; now rewrite assoc.
         + etrans.
-          * use (maponpaths (λ x, x · _)); [|use multiplication_inr].
+          * refine (maponpaths (λ x, x · _) multiplication_inr).
           * do 3 rewrite <- assoc; do 2 use maponpaths; use f_inr.
     Qed.
 
-    Local Lemma monoid_law_3 : α^{ C }_{ M', M', M'} · M' ⊗l μ · μ = μ ⊗r M' · μ.
+    Local Definition ProdProdSum {X Y Z W : C} 
+      : BinCoproduct ((X ⊗ W) ⊗ Z) ((Y ⊗ W) ⊗ Z)
+      := make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr)).
+
+    Local Lemma μ_assoc : α^{ C }_{ M', M', M'} · M' ⊗l μ · μ = μ ⊗r M' · μ.
     Proof.
-      use (
-          BinCoproductArrowsEq _ _ _ 
-          (make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr)))
-          M'
-      ); cbn; repeat rewrite assoc.
-      - symmetry; etrans; [|symmetry;etrans;[etrans|]]; etrans.
-        + use (maponpaths (λ x, x · _)); [|symmetry; use (bifunctor_rightcomp C)].
-        + use (maponpaths (λ x, x ⊗r _ · _)); [|use multiplication_inl].
-        + use (maponpaths (λ x, x · _ · _)); [|symmetry; use monoidal_associatornatright].
-        + rewrite <- assoc, <- assoc, tensor_mor_right, tensor_mor_left.
-          use maponpaths; [shelve|]; rewrite assoc. 
-          use (maponpaths (λ x, x · _)); [|use tensor_swap].
+      use (BinCoproductArrowsEq _ _ _ ProdProdSum M').
+      cbn; repeat rewrite assoc.
+      - do 3 etrans; swap 7 8.
+        + refine (!maponpaths (λ x, x · _ · _) _); use monoidal_associatornatright.
+        + rewrite <- assoc, <- assoc, @tensor_mor_right, @tensor_mor_left.
+          refine (maponpaths _ _); rewrite assoc. 
+          refine (maponpaths (λ x, x · _) _); use tensor_swap.
         + rewrite <- tensor_mor_right, <- tensor_mor_left, <- assoc.
-          do 2 (use maponpaths; [shelve|]); use multiplication_inl.
-        + use maponpaths; [|use monoidal_leftunitornat].
+          do 2 (refine (maponpaths _ _)).
+          use multiplication_inl.
+        + refine (maponpaths _ _); use monoidal_leftunitornat.
         + use assoc.
-        + use (maponpaths (λ x, x · _)); use right_whisker_with_lunitor.
-      - symmetry; etrans; [|symmetry]; (etrans; [etrans; etrans|]).
-        + rewrite <- (bifunctor_rightcomp C).
-          use (maponpaths (λ x, x ⊗r _ · _)); [|use multiplication_inr].
+        + refine (maponpaths (λ x, x · _) _); use right_whisker_with_lunitor.
+        + refine (maponpaths (λ x, x · _) _); use (bifunctor_rightcomp C).
+        + refine (!maponpaths (λ x, x ⊗r _ · _) _); use multiplication_inl.
+      - symmetry; do 3 etrans.
+        8: etrans; swap 1 2; symmetry; etrans.
+        + cbn. rewrite assoc; etrans.
+          * refine (!maponpaths (λ x, x · _) _); use (bifunctor_rightcomp C).
+          * refine (maponpaths (λ x, x ⊗r _ · _) _); use multiplication_inr.
         + do 2 rewrite (bifunctor_rightcomp C), <- assoc.
-          do 2 (use maponpaths; [shelve|]).
+          do 2 (refine (maponpaths _ _)).
           use multiplication_inr.
         + rewrite @tensor_mor_right, @tensor_mor_left, @tensor_mor_right; do 3 rewrite assoc.
-          use (maponpaths (λ x, x · _ · _)); [shelve|].
-          rewrite <- assoc; use maponpaths; [|use tensor_swap].
-        + rewrite assoc; use (maponpaths (λ x, x · _ · _ · _)); [|use tensor_swap].
+          refine (maponpaths (λ x, x · _ · _) _).
+          rewrite <- assoc; refine (maponpaths _ _). use tensor_swap.
+        + rewrite assoc; refine (maponpaths (λ x, x · _ · _ · _) _). use tensor_swap.
         + repeat rewrite <- tensor_mor_left; repeat rewrite <- tensor_mor_right.
-          use (maponpaths (λ x, x · _)); [shelve|].
-          rewrite <- assoc; use maponpaths; [|symmetry; use (pr122 (Σ M))].
-        + use (maponpaths (λ x, x · _ · _)); [|symmetry; use monoidal_associatornatright].
-        + do 2 rewrite <- assoc; use maponpaths; [shelve|].
-          rewrite assoc; use (maponpaths (λ x, x · _)).
-          * exact (_ ⊗l μ · inr ⊗r _).
-          * do 2 rewrite tensor_mor_left, tensor_mor_right; use tensor_swap.
-        + use maponpaths; [shelve|].
-          rewrite <- assoc; use maponpaths; [|use multiplication_inr].
-        + do 3 rewrite assoc.
-          use (maponpaths (λ x, x · _ · _)); [shelve|].
-          rewrite <- assoc, <- (bifunctor_leftcomp C).
-          do 2 (use maponpaths; [shelve|]).
-          use f_respects_multiplication.
-        + rewrite bifunctor_leftcomp, assoc, assoc, assoc, tensor_split,
-            <- tensor_mor_left, <- tensor_mor_right, bifunctor_leftcomp, assoc.
-          use (maponpaths (λ x, x · _ · _ · _)); etrans.
-          * use (maponpaths (λ x, x · _)); [|use monoidal_associatornatleft].
-          * rewrite <- assoc, <- assoc; use maponpaths; use monoidal_associatornatleftright.
+          refine (maponpaths (λ x, x · _) _).
+          rewrite <- assoc; refine (!maponpaths _ (pr122 (Σ M))).
+        + do 2 rewrite assoc; refine (maponpaths (λ x, x · _ · _ · _) _).
+          rewrite <- assoc; refine (!maponpaths _ _).
+          use monoidal_associatornatleftright.
+        + rewrite assoc; refine (!maponpaths (λ x, x · _ · _ · _ · _) _).
+          use monoidal_associatornatleft.
+        + do 2 rewrite assoc; refine (!maponpaths (λ x, x · _ · _ ) _).
+          use monoidal_associatornatright.
+        + rewrite <- assoc, <- assoc, @tensor_mor_left, @tensor_mor_right.
+          refine (maponpaths _ _); rewrite assoc.
+          refine (maponpaths (λ x, x · _) (tensor_swap _ _)).
+        + rewrite <- tensor_mor_left, <- tensor_mor_right.
+          refine (maponpaths _ _); rewrite <- assoc.
+          refine (maponpaths _ _); use multiplication_inr.
+        + do 3 rewrite assoc; use (maponpaths (λ x, x · pM · inr)).
+          do 3 rewrite <- assoc; use (maponpaths (λ x, _ · x)).
+          etrans; [etrans|].
+          * symmetry; use (bifunctor_leftcomp C).
+          * refine (maponpaths _ _); use f_respects_multiplication.
+          * do 2 rewrite <- (bifunctor_leftcomp C).
+            use maponpaths.
+            now rewrite assoc, @tensor_split, @tensor_mor_left, @tensor_mor_right.
     Qed.
 
     Definition iter_model_monoid : monoid C (I_{C} ++ pr1 (Σ M))
-      := make_monoid _ μ η monoid_law_1 monoid_law_2 monoid_law_3.
+      := make_monoid _ μ η μ_lunit μ_runit μ_assoc.
 
     Local Definition M'_mon : MON C := M' ,, iter_model_monoid.
 
@@ -417,7 +413,7 @@ Section InitialModelsAsFixpoints.
       unfold is_module_mor, r; cbn.
       rewrite assoc, (bifunctor_rightcomp C).
       etrans.
-      - rewrite <- assoc; use maponpaths; [|use multiplication_inr].
+      - rewrite <- assoc; refine (maponpaths _ multiplication_inr).
       - rewrite assoc; use (maponpaths (λ x, x · _)).
         exact (pr2 (section_disp_on_morphisms (pr1 Σ) f_mon)).
     Qed.
@@ -468,14 +464,14 @@ Section InitialModelsAsFixpoints.
     Proof.
       use (BinCoproductArrowsEq _ _ _ _ (pr11 N)); cbn.
       - rewrite assoc, assoc; etrans; etrans; swap 3 4.
-        + use (maponpaths (λ x, x · _)); [|use BinCoproductOfArrowsIn1].
+        + refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn1.
         + rewrite id_left; use f_inl.
-        + use (maponpaths (λ x, x · _)); [|symmetry; use f_inl].
-        + symmetry; use (pr221 h).
+        + refine (!maponpaths (λ x, x · _) (f_inl _)).
+        + refine (!pr221 h).
       - rewrite assoc, assoc; etrans; etrans; swap 3 4.
-        + use (maponpaths (λ x, x · _)); [|use BinCoproductOfArrowsIn2].
-        + rewrite <- assoc; use maponpaths; [|use f_inr].
-        + use (maponpaths (λ x, x · _)); [|symmetry; use f_inr].
+        + refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn2.
+        + rewrite <- assoc; refine (maponpaths _ _); use f_inr.
+        + refine (!maponpaths (λ x, x · _) (f_inr _)).
         + use (!pr2 h).
     Qed.
 
@@ -490,7 +486,7 @@ Section InitialModelsAsFixpoints.
         N'
       ); cbn.
       - do 2 rewrite assoc; etrans; [etrans; etrans|etrans]; cycle 5.
-        + use (maponpaths (λ x, x · _)); [|use (!multiplication_inl _)].
+        + refine (!maponpaths (λ x, x · _) _); use multiplication_inl.
         + rewrite tensor_split', tensor_mor_right, assoc,
             <- tensor_mor_right, <- tensor_mor_right, <- tensor_mor_left.
           use (maponpaths (λ x, x · _ · _)); [|symmetry; use (bifunctor_rightcomp C)].
@@ -511,17 +507,17 @@ Section InitialModelsAsFixpoints.
           use (maponpaths (λ x, x · _ )); [|use tensor_swap].
         + rewrite <- tensor_mor_left, <- tensor_mor_right, <- assoc,
             (bifunctor_rightcomp C), <- assoc.
-          do 2 (use maponpaths; [shelve|]). 
+          do 2 refine (maponpaths _ _). 
           use multiplication_inr.
-        + rewrite assoc. use (maponpaths (λ x, x · _)); [shelve|].
-          rewrite <- assoc; use maponpaths; [shelve|].
+        + rewrite assoc. refine (maponpaths (λ x, x · _) _).
+          rewrite <- assoc; refine (maponpaths _ _).
           use (pr2 (section_disp_on_morphisms (pr1 Σ) (pr1 h))).
         + cbn; do 5 rewrite assoc; use (maponpaths (λ x, x · _ · _)).
           etrans; etrans.
-          * use (maponpaths (λ x, x · _)); [shelve|].
+          * refine (maponpaths (λ x, x · _) _).
             rewrite tensor_mor_left, tensor_mor_right. use tensor_swap'.
           * rewrite <- tensor_mor_left, <- tensor_mor_right, <- assoc.
-            use maponpaths; [|symmetry; use (bifunctor_leftcomp C)].
+            refine (!maponpaths _ _). use (bifunctor_leftcomp C).
           * use (maponpaths (λ x, _ · _ ⊗l x)); [|use f_nat].
           * rewrite (bifunctor_leftcomp C), assoc; use (maponpaths (λ x, x · _)).
             do 2 rewrite @tensor_mor_left, @tensor_mor_right.
@@ -547,30 +543,17 @@ Section InitialModelsAsFixpoints.
        use (!f_nat).
     Qed.
 
-    (* This should be somewhere... but I did not find it *)
-    Lemma maponpaths_dep
-      {A : UU}
-      {P : A -> UU}
-      (f : ∏ x, P x)
-      {x y : A}
-      (p : x = y)
-      : transportf P p (f x) = f y.
-    Proof.
-      induction p.
-      apply idpath.
-    Defined.
-
     Local Lemma h'_is_model_mor
       : r M · h' = pr1 (section_disp_on_morphisms (pr1 Σ) h'_mon) · r N.
     Proof.
       unfold r; etrans; etrans; swap 3 4.
       + rewrite <- assoc; use maponpaths; [|use BinCoproductOfArrowsIn2].
-      + rewrite assoc; use (maponpaths (λ x, x · _)); [shelve|].
-        symmetry; use (maponpaths pr1 (section_disp_comp Σ _ _ _ _ _)).
-      + rewrite assoc; use (maponpaths (λ x, x · _)); [shelve|].
+      + rewrite assoc; refine (maponpaths (λ x, x · _) _).
+        use (!maponpaths pr1 (section_disp_comp Σ _ _ _ _ _)).
+      + rewrite assoc; refine (maponpaths (λ x, x · _) _).
         use (maponpaths pr1 (section_disp_comp Σ _ _ _ _ _)).
       + eassert _  as H by exact (
-          maponpaths_dep 
+          transport_section 
           (λ x, pr1 (section_disp_on_morphisms (pr1 Σ) x) · inr (A := I_{C}))
           f_nat_mon
         ); cbn in H.
@@ -616,8 +599,8 @@ Section InitialModelsAsFixpoints.
       + cbn; rewrite assoc; etrans; etrans; swap 3 4.
         * use (maponpaths (λ x, x · _)); [|use BinCoproductOfArrowsIn2].
         * rewrite <- assoc; use maponpaths; [|use BinCoproductOfArrowsIn2].
-        * use (maponpaths (λ x, x · _)); [shelve|].
-          symmetry; use (maponpaths pr1 (section_disp_comp Σ _ _ _ _ _)).
+        * refine (!maponpaths (λ x, x · _) _).
+          refine (maponpaths pr1 (section_disp_comp Σ _ _ _ _ _)).
         * use assoc.
   Qed.
 
@@ -704,14 +687,14 @@ Section TotalCategoriesOfModels.
   Proof.
     use make_functor_data.
     - intros (R, r); exists R.
-      use (_ · _); [shelve| |].
-      use (pr1 h R).
-      use (pr1 r,, _).
-      abstract (
-        cbn; unfold pullback_functor_funct, is_module_mor; cbn;
-        rewrite @tensor_mor_left, tensor_id_id, id_left;
-        use (pr2 r)
-      ).
+      refine (_ · _).
+      + refine (pr1 h R).
+      + refine (pr1 r ,, _).
+        abstract (
+          cbn; unfold pullback_functor_funct, is_module_mor; cbn;
+          rewrite @tensor_mor_left, tensor_id_id, id_left;
+          use (pr2 r)
+        ).
     - intros (R, r) (R', r') (f, H).
       eexists f; cbn.
       abstract (
@@ -767,9 +750,9 @@ Section TotalCategoriesOfModels.
         simpl; rewrite @section_disp_comp, assoc, assoc, assoc; cbn;
         etrans; [|symmetry; etrans];
         [
-          use (maponpaths (λ x, x · _)); [|use (pr2 u)]
-        | do 3 rewrite <- assoc; use maponpaths; [shelve|];
-          rewrite assoc; use (maponpaths (λ x, x · _)); [shelve|];
+          refine (maponpaths (λ x, x · _) (pr2 u))
+        | do 3 rewrite <- assoc; refine (maponpaths _ _);
+          rewrite assoc; refine (maponpaths (λ x, x · _) _);
           eassert _ by exact (maponpaths pr1 (pr2 f0 R' R'' (pr1 v)));
           simpl in X; unfold mor_disp, total_category_of_modules_disp_cat_ob_mor in X;
           simpl in X; rewrite transportf_total2 in X;
@@ -933,7 +916,12 @@ Section Modularity.
           use (maponpaths (λ x, _ (pr1 x · _))).
           exact (
             maponpaths (λ x, pr1 x (pr1 Rr)) 
-            (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout) _ _ _ (maponpaths pr1 H) _ (maponpaths pr1 H') (maponpaths pr1 H''))
+            (PushoutArrowUnique _ _ _ _ _ 
+              (isPushout_Pushout H_pushout) _ _ _ 
+              (maponpaths pr1 H) _ 
+              (maponpaths pr1 H') 
+              (maponpaths pr1 H'')
+            )
           ).
   Qed.
 

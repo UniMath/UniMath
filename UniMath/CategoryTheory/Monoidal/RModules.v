@@ -158,9 +158,9 @@ Proof.
     unfold module_laws_unit.
     rewrite assoc, <- (monoidal_associatornatleft C).
     etrans.
-    - rewrite <- assoc; use maponpaths; [shelve|].
+    - rewrite <- assoc; refine (maponpaths _ _).
       rewrite <- (bifunctor_leftcomp C).
-      use maponpaths; [shelve|].
+      refine (maponpaths _ _).
       use (module_laws_unit_from_module p).
     - use left_whisker_with_runitor.
   Qed.
@@ -170,21 +170,21 @@ Proof.
   Proof.
     unfold module_laws_assoc; symmetry.
     etrans; etrans. etrans. etrans.
-    - use (maponpaths (λ x, x · (α^{C}_{_,_,_} · D ⊗l p))); [shelve | now rewrite (bifunctor_rightcomp C)].
-    - rewrite <- assoc; use (maponpaths (λ x, α^{C}_{_,_,_} ⊗r R · x)); [shelve|rewrite assoc].
-      use (maponpaths (λ x, x · D ⊗l p)); [shelve|].
-      symmetry; use monoidal_associatornatleftright.
+    - refine (maponpaths (λ x, x · _) _). use (bifunctor_rightcomp C).
+    - rewrite <- assoc; refine (maponpaths _ _); rewrite assoc.
+      refine (!maponpaths (λ x, x · _) _).
+      use monoidal_associatornatleftright.
     - rewrite <- assoc.
-      do 2 (use maponpaths; [shelve|]).
+      do 2 refine (maponpaths _ _).
       rewrite <- (bifunctor_leftcomp C).
-      use maponpaths; [shelve|]; symmetry; use (module_laws_assoc_from_module p).
+      refine (!maponpaths _ _); use (module_laws_assoc_from_module p).
     - do 2 rewrite bifunctor_leftcomp; do 3 rewrite assoc.
-      use (maponpaths (λ x, x · _ · _)); [shelve|].
+      refine (maponpaths (λ x, x · _ · _) _).
       use monoidal_pentagonidentity.
     - do 2 rewrite <- assoc.
-      use maponpaths; [shelve|].
+      refine (maponpaths _ _).
       rewrite assoc.
-      use (maponpaths (λ x, x · _)); [shelve|].
+      refine (maponpaths (λ x, x · _) _).
       use monoidal_associatornatleft.
     - now do 3 rewrite assoc.
   Qed.
@@ -253,11 +253,13 @@ Proof.
       use (colimOfArrowsIn _ _ ColimCocone_L_R _ _ _ v).
     Defined.
 
-    Lemma rw_unit_is_left_adjoint : is_left_adjoint (rightwhiskering_functor C I_{C}).
+    Lemma rw_unit_is_left_adjoint 
+      : is_left_adjoint (rightwhiskering_functor C I_{C}).
     Proof.
-      exists (functor_identity C); use make_are_adjoints; [| |use make_form_adjunction].
-      - eexists; intros A B h; cbn; symmetry; use monoidal_rightunitorinvnat.
-      - eexists; intros A B h; cbn; use monoidal_rightunitornat.
+      exists (functor_identity C); use make_are_adjoints.
+      3: use make_form_adjunction.
+      - eexists; intros A B h; symmetry; use monoidal_rightunitorinvnat.
+      - eexists; intros A B h; use monoidal_rightunitornat.
       - intro A. cbn; symmetry.
         transitivity (ruinv^{C}_{A} ⊗r I_{C} · ru^{C}_{A} ⊗r I_{C}); [etrans|]; swap 1 2.
         + use (bifunctor_rightcomp C). 
@@ -278,8 +280,7 @@ Proof.
       by (
         intros v w e; simpl;
         rewrite assoc, monoidal_rightunitornat, <- assoc;
-        use maponpaths; change (dmor F' e · f w = f v); 
-        use (coconeInCommutes cc)
+        use maponpaths; use (coconeInCommutes cc)
       ).
       pose (make_cocone _ H_cc') as cc'.
       assert (∏ (u : vertex g), colimIn ColimCocone_L_I u · ru^{C}_{L} = coconeIn cc' u) as H_unique 
@@ -330,7 +331,7 @@ Proof.
       ) as H.
       {
         intros; cbn; symmetry; etrans.
-        - rewrite <- assoc; use (maponpaths (λ x, _ · x)); [shelve|].
+        - rewrite <- assoc; refine (maponpaths (λ x, _ · x) _).
           symmetry; use (pr2 (dmor F e)).
         - do 2 rewrite assoc; use (maponpaths (λ u, u · _)).
           do 2 rewrite @tensor_mor_left, @tensor_mor_right.
@@ -374,10 +375,9 @@ Proof.
         rewrite <- (bifunctor_rightcomp C), assoc.
         use maponpaths.
         etrans.
-        - use (maponpaths (λ u, u · f y)); [shelve|].
-          use (pr2 (dmor F e)).
+        - refine (maponpaths (λ u, u · f y) (pr2 (dmor F e))).
         - rewrite <- assoc; use (maponpaths (λ u, q x · u)).
-          change (dmor F' e · f y = f x); use colimInCommutes.
+          use colimInCommutes.
       }
 
       pose (make_cocone _ H_cc') as cc'.
@@ -410,8 +410,8 @@ Proof.
       · dmor F' e ⊗r R.
     Proof.
       intros; rewrite assoc; etrans.
-      - use (maponpaths (λ x, x · _)); [shelve|].
-        symmetry; use monoidal_associatornatright.
+      - refine (!maponpaths (λ x, x · _) _).
+        use monoidal_associatornatright.
       - do 2 rewrite <- assoc. 
         use maponpaths.
         do 2 rewrite @tensor_mor_right, @tensor_mor_left.
@@ -432,7 +432,7 @@ Proof.
         intros x y e; cbn; do 2 rewrite assoc.
         etrans; [etrans|]; swap 2 3.
         - now rewrite <- assoc, <- (monoidal_associatornatright C), <- assoc.
-        - do 2 (use maponpaths; [shelve|]); use (colimInCommutes _ _ _ e).
+        - do 2 (refine (maponpaths _ _)); use (colimInCommutes _ _ _ e).
         - rewrite <- assoc; use (maponpaths (λ u, _ · u)).
           rewrite (bifunctor_rightcomp C).
           do 2 rewrite assoc.
@@ -445,8 +445,8 @@ Proof.
 
       assert (∏ u : vertex g, colimIn ColimCocone_L_R_R u · (α^{C}_{_,_,_} · L ⊗^{ C}_{l} μ) = coconeIn cc' u) as H_unique. {
         intro; cbn; rewrite assoc; etrans.
-        - use (maponpaths (λ x, x · _)); [shelve|].
-          symmetry; use monoidal_associatornatright.
+        - refine (!maponpaths (λ x, x · _) _).
+          use monoidal_associatornatright.
         - do 2 rewrite <- assoc; use maponpaths.
           do 2 rewrite @tensor_mor_right, @tensor_mor_left.
           use tensor_swap.
@@ -471,8 +471,7 @@ Proof.
         intros.
         do 2 rewrite assoc.
         etrans; cycle 1.
-        - rewrite <- assoc; use maponpaths; [shelve|].
-          use (pr2 (dmor F e)).
+        - rewrite <- assoc; refine (maponpaths _ (pr2 (dmor F e))).
         - rewrite <- (monoidal_associatornatright C).
           rewrite assoc; use (maponpaths (λ x, x · _)).
           do 2 rewrite <- assoc; use maponpaths.
@@ -488,8 +487,7 @@ Proof.
       {
         intros; rewrite assoc.
         etrans; cycle 1.
-        - rewrite <- assoc. use (maponpaths (λ x, q u ⊗r R · x)); [shelve|].
-          use (pr2 (dmor F e)).
+        - rewrite <- assoc. refine (maponpaths (λ x, _ · x) (pr2 (dmor F e))).
         - rewrite assoc. use (maponpaths (λ x, x · _)).
           do 2 rewrite <- (bifunctor_rightcomp C).
           use maponpaths.
@@ -535,8 +533,8 @@ Proof.
       use (colimArrowUnique' ColimCocone_L_R).
       intro u; cbn; do 2 rewrite assoc.
       symmetry; etrans; etrans.
-      - use (maponpaths (λ x, x · _)); [shelve|use colim_module_mor].
-      - rewrite <- assoc; use maponpaths; [shelve|use colimArrowCommutes].
+      - refine (maponpaths (λ x, x · _) _); use colim_module_mor.
+      - rewrite <- assoc; use maponpaths; [|use colimArrowCommutes].
       - symmetry; use (pr2 (coconeIn cc' u)).
       - symmetry; rewrite <- (bifunctor_rightcomp C).
         use (maponpaths (λ x, x · _)); use maponpaths.
@@ -611,7 +609,7 @@ Proof.
     Proof.
       intros u v e.
       symmetry; etrans.
-      - use (maponpaths (λ x, x ⊗r _ · _)); [shelve|].
+      - refine (maponpaths (λ x, x ⊗r _ · _) _).
         unfold f; now rewrite <- (limOutCommutes _ _ _ e).
       - rewrite (bifunctor_rightcomp C), <- assoc, <- assoc.
         use maponpaths; use (pr2 (dmor F e)).
@@ -626,9 +624,9 @@ Proof.
       intros u v e.
       etrans; [etrans|]; swap 2 3.
       - rewrite <- assoc.
-        use (maponpaths (λ x, _ · _ · x)); [shelve|].
-        use (!pr2 (dmor F e)).
-      - use (maponpaths (λ x, x ⊗r _ · _ · _)); [shelve|].
+        refine (!maponpaths (λ x, _ · _ · x) _).
+        use (pr2 (dmor F e)).
+      - refine (maponpaths (λ x, x ⊗r _ · _ · _) _).
         use (limOutCommutes _ _ _ e).
       - rewrite (bifunctor_rightcomp C).
         do 3 rewrite <- assoc; use maponpaths.
@@ -643,12 +641,12 @@ Proof.
       - use limArrowUnique.
         use (make_cone _ lim_module_forms_cone_tens_I).
         intro u; unfold lim_module_subst; cbn; etrans.
-        + rewrite <- assoc; use maponpaths; [shelve|].
+        + rewrite <- assoc; refine (maponpaths _ _).
           use (limArrowCommutes (lims_g F')).
         + cbn; rewrite assoc; use (maponpaths (λ x, x · _)).
           do 2 rewrite @tensor_mor_left, @tensor_mor_right; use tensor_swap'.
       - symmetry; use limArrowUnique; intro u; cbn; symmetry; etrans.
-        + rewrite <- assoc; use maponpaths; [shelve|].
+        + rewrite <- assoc; refine (maponpaths _ _).
           use module_laws_unit_from_module.
         + use monoidal_rightunitornat.
     Qed.
@@ -657,12 +655,12 @@ Proof.
       : forms_cone F' (λ v, (f v ⊗r R) ⊗r R · q v ⊗r R · q v).
     Proof.
       intros u v e; symmetry; etrans; [etrans|].
-      - use (maponpaths (λ x, (x ⊗r R) ⊗r R · _ · _)); [shelve|].
-        use (!limOutCommutes _ _ _ e).
+      - refine (!maponpaths (λ x, (x ⊗r R) ⊗r R · _ · _) _).
+        use (limOutCommutes _ _ _ e).
       - do 2 rewrite (bifunctor_rightcomp C).
-        do 2 rewrite <- assoc; use maponpaths; [shelve|].
-        rewrite assoc; use (maponpaths (λ x, x · _)); [shelve|].
-        rewrite <- @bifunctor_rightcomp; use maponpaths; [shelve|].
+        do 2 rewrite <- assoc; refine (maponpaths _ _).
+        rewrite assoc; refine (maponpaths (λ x, x · _) _).
+        rewrite <- @bifunctor_rightcomp; refine (maponpaths _ _).
         use (pr2 (dmor F e)).
       - rewrite bifunctor_rightcomp; 
         do 3 rewrite <- assoc;
@@ -677,18 +675,18 @@ Proof.
       - use limArrowUnique.
         use (make_cone _ lim_module_forms_cone_tens_R_R).
         intro u; unfold lim_module_subst; cbn; etrans.
-        + rewrite <- assoc; use maponpaths; [shelve|].
+        + rewrite <- assoc; refine (maponpaths _ _).
           use (limArrowCommutes (lims_g F')).
         + cbn; rewrite assoc; use (maponpaths (λ x, x · _)).
           do 2 rewrite <- (bifunctor_rightcomp C).
           use maponpaths; use (limArrowCommutes (lims_g F')).
       - symmetry; use limArrowUnique; intro u; cbn.
         symmetry; do 2 etrans; swap 3 4.
-        + rewrite <- assoc; use maponpaths; [shelve|].
+        + rewrite <- assoc; refine (maponpaths _ _).
           symmetry; use module_laws_assoc_from_module.
-        + do 2 rewrite assoc; use (maponpaths (λ x, x · _ · _)); [shelve|].
+        + do 2 rewrite assoc; refine (maponpaths (λ x, x · _ · _) _).
           symmetry; use monoidal_associatornatright.
-        + symmetry; rewrite <- assoc; use maponpaths; [shelve|].
+        + symmetry; rewrite <- assoc; refine (maponpaths _ _).
           use (limArrowCommutes (lims_g F')).
         + cbn.
           do 3 rewrite <- assoc; use maponpaths.
@@ -727,10 +725,10 @@ Proof.
             now rewrite <- (coneOutCommutes _ _ _ e)
           ).
         + intro u; cbn; etrans; [etrans|].
-          * rewrite <- assoc; use maponpaths; [shelve|];
+          * rewrite <- assoc; refine (maponpaths _ _).
             use (limArrowCommutes (lims_g F')).
           * cbn; rewrite assoc, <- (bifunctor_rightcomp C); 
-            use (maponpaths (λ x, x ⊗r R · _)); [shelve|].
+            refine (maponpaths (λ x, x ⊗r R · _) _).
             use (limArrowCommutes (lims_g F')).
           * use (pr2 (coneOut cc' _)).
       - symmetry; use limArrowUnique; intro u; cbn.
