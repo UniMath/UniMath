@@ -878,52 +878,103 @@ Section Modularity.
       + exact (maponpaths pr1 (PushoutSqrCommutes H_pushout)).
     - use InitialArrowEq.
   Qed.
-  
-  Lemma modularity_is_pushout 
-    : isPushout
-      modularity_morphism₁ modularity_morphism₂
-      modularity_morphism_in₁ modularity_morphism_in₂ 
-      modularity_commutes.
-  Proof.
-    use make_isPushout; intros (Σ', Rr) f g H.
-    use tpair; [use tpair; use tpair|].
-    - use (PushoutArrow H_pushout _ (pr1 f) (pr1 g)).
-      use (maponpaths pr1 H).
-    - use tpair.
-      use (pr1 (InitialArrow HΣ₁₂ _)).
-      use (pr2 (InitialArrow HΣ₁₂ _)).
-    - use invmap; [|use total2_paths_equiv|]; use tpair.
-      use (PushoutArrow_PushoutIn1 H_pushout).
-      use InitialArrowEq.
-    - use invmap; [|use total2_paths_equiv|]; use tpair.
-      use (PushoutArrow_PushoutIn2 H_pushout).
-      use InitialArrowEq.
-    - simpl; intros (u, (H', H'')).
+
+  Section ModularityPushoutInducedMorphism.
+    Context (Σ' : @module_signature_cat C).
+    Context (Rr : models_of_module_signatures_cat Σ').
+
+    Context (f : total_category_of_models⟦(Σ₁,,InitialObject HΣ₁), (Σ',,Rr)⟧).
+    Context (g : total_category_of_models⟦(Σ₂,,InitialObject HΣ₂), (Σ',,Rr)⟧).
+
+    Context (H : modularity_morphism₁ · f = modularity_morphism₂ · g).
+
+    Definition modularity_induced_morphism 
+      : total_category_of_models ⟦ (Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr) ⟧
+      := PushoutArrow H_pushout _ (pr1 f) (pr1 g) (maponpaths pr1 H) ,,
+        InitialArrow HΣ₁₂ _.
+
+    Lemma modularity_morphism_commutes1
+      : modularity_morphism_in₁ · modularity_induced_morphism = f.
+    Proof.
+      use invmap; [|use total2_paths_equiv|]; use tpair.
+      - use (PushoutArrow_PushoutIn1 H_pushout).
+      - use InitialArrowEq.
+    Qed.
+
+    Lemma modularity_morphism_commutes2
+      : modularity_morphism_in₂ · modularity_induced_morphism = g.
+    Proof.
+      use invmap; [|use total2_paths_equiv|]; use tpair.
+      - use (PushoutArrow_PushoutIn2 H_pushout).
+      - use InitialArrowEq.
+    Qed.
+
+    Let triplet 
+      : ∑(u : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧),
+        modularity_morphism_in₁ · u = f 
+        × modularity_morphism_in₂ · u = g
+      := (modularity_induced_morphism ,, 
+          modularity_morphism_commutes1 ,, 
+          modularity_morphism_commutes2).
+
+    Context (triplet' 
+      : ∑(u : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧),
+        modularity_morphism_in₁ · u = f 
+        × modularity_morphism_in₂ · u = g).
+
+    Let u : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧ 
+      := pr1 triplet'.
+
+    Let H' : modularity_morphism_in₁ · u = f 
+      := pr12 triplet'.
+
+    Let H'' : modularity_morphism_in₂ · u = g
+      := pr22 triplet'.
+
+    Lemma modularity_induced_morphism_unique 
+      : u = modularity_induced_morphism.
+    Proof.
+      use invmap; [|use total2_paths_equiv|]. 
+      use tpair; swap 1 2.
+      - use invmap; [|use path_sigma_hprop|].
+        use homset_property.
+        simpl; rewrite transportf_total2;
+        simpl; rewrite transportf_const;
+        simpl; simpl in u.
+        use (maponpaths pr1 (InitialArrowUnique HΣ₁₂ (pr1 Rr ,, _) (pr12 u ,, _))).
+        simpl; etrans; [use (pr22 u)|].
+        refine (maponpaths (λ x, _ (pr1 x · _)) _).
+        exact (
+          maponpaths (λ x, pr1 x (pr1 Rr)) 
+          (PushoutArrowUnique _ _ _ _ _ 
+            (isPushout_Pushout H_pushout) _ _ _ 
+            (maponpaths pr1 H) _ 
+            (maponpaths pr1 H') 
+            (maponpaths pr1 H'')
+          )
+        ).
+      - use (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout)).
+        + use (maponpaths pr1 H').
+        + use (maponpaths pr1 H'').
+    Qed.
+
+    Lemma modularity_pushout_uniqueness : triplet' = triplet.
+    Proof.
       use invmap; [|use path_sigma_hprop|]; [use isapropdirprod|].
       + use (homset_property total_category_of_models _ _ _ f).
       + use (homset_property total_category_of_models _ _ _ g).
-      + use invmap; [|use total2_paths_equiv|].
-        use tpair.
-        * cbn. use (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout)).
-          use (maponpaths pr1 H').
-          use (maponpaths pr1 H'').
-        * use invmap; [|use path_sigma_hprop|].
-          use homset_property.
-          simpl; rewrite transportf_total2;
-          simpl; rewrite transportf_const.
-          simpl; use (maponpaths pr1 (InitialArrowUnique HΣ₁₂ (pr1 Rr ,, _) (pr12 u ,, _))).
-          simpl; etrans; [use (pr22 u)|].
-          use (maponpaths (λ x, _ (pr1 x · _))).
-          exact (
-            maponpaths (λ x, pr1 x (pr1 Rr)) 
-            (PushoutArrowUnique _ _ _ _ _ 
-              (isPushout_Pushout H_pushout) _ _ _ 
-              (maponpaths pr1 H) _ 
-              (maponpaths pr1 H') 
-              (maponpaths pr1 H'')
-            )
-          ).
-  Qed.
+      + use modularity_induced_morphism_unique.
+    Qed.
+
+  End ModularityPushoutInducedMorphism.
+  
+  Definition modularity_is_pushout 
+    : isPushout
+      modularity_morphism₁ modularity_morphism₂
+      modularity_morphism_in₁ modularity_morphism_in₂ 
+      modularity_commutes
+    := make_isPushout _ _ _ _ modularity_commutes
+      (λ Σ' f g H, _ ,, modularity_pushout_uniqueness _ _ _ _ H).
 
   Definition modularity
     : Pushout modularity_morphism₁ modularity_morphism₂
