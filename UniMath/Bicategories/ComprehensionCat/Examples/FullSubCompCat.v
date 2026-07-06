@@ -1,14 +1,29 @@
 (**
 
- Full subcomprehension categories
+ Full sub comprehension categories
+
+ In this file, we define the full sub comprehension category. If we have a comprehension
+ category `C` together with a predicate on the contexts and a predicate on the types, then
+ we can construct a new comprehension category by only considering those contexts and types
+ that satisfy the given predicates. The morphisms between contexts and between contexts in
+ the resulting comprehension are the same as morphisms in `C`.
+
+ We also show how to interpret various type formers in the full sub comprehension category
+ under certain conditions. To see what these conditions are, we consider an example. Let `C`
+ be a comprehension category and let `P` and `Q` be predicates on the contexts and type of
+ `C` respectively. One way to equip the full comprehension category of `C` with ∑-types is
+ by assuming that `Q` is closed under `∑`-types: if both `A` and `B` satisfy, then so does
+ the type `∑ A B`. We give similar conditions for unit types, product types, equalizer types,
+ democracy, and `∏`-types.
 
  Content
  1. Predicates on comprehension categories
  2. The full subcomprehension category for a predicate
- 3. Predicates on DFL full comprehension categories
- 4. Full subcomprehension categories of DFL full comprehension categories
- 5. ∏-types in the full subcomprehension categories
- 6. The inclusion
+ 3. Some operations in the full sub comprehension category
+ 4. Predicates on DFL full comprehension categories
+ 5. Full subcomprehension categories of DFL full comprehension categories
+ 6. ∏-types in the full subcomprehension categories
+ 7. The inclusion
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -244,6 +259,7 @@ Section SubCompCat.
     - exact full_sub_comp_cat_comprehension.
   Defined.
 
+  (** * 3. Some operations in the full sub comprehension category *)
   Proposition full_sub_comp_cat_id_subst_ty
               {Γ : full_sub_comp_cat}
               (A : ty Γ)
@@ -414,7 +430,7 @@ Proof.
     apply full_comp_cat_comprehension_fully_faithful.
 Defined.
 
-(** * 3. Predicates on DFL full comprehension categories *)
+(** * 4. Predicates on DFL full comprehension categories *)
 Definition contains_unit_comp_cat_pred
            (C : dfl_full_comp_cat)
            (P : comp_cat_pred C)
@@ -601,7 +617,7 @@ Proof.
   exact (pr22 (pr222 P) Γ pΓ A pA B pB).
 Defined.
 
-(** * 4. Full subcomprehension categories of DFL full comprehension categories *)
+(** * 5. Full subcomprehension categories of DFL full comprehension categories *)
 Section SubDFLFullCompCat.
   Context {C : dfl_full_comp_cat}
           (P : dfl_full_comp_cat_pred C).
@@ -892,7 +908,7 @@ Section SubDFLFullCompCat.
   Defined.
 End SubDFLFullCompCat.
 
-(** * 5. ∏-types in the full subcomprehension categories *)
+(** * 6. ∏-types in the full subcomprehension categories *)
 Definition dfl_full_pi_comp_cat_pred
            (C : dfl_full_comp_cat)
            (pi : comp_cat_dependent_prod C)
@@ -1150,7 +1166,7 @@ Section SubDFLFullCompCatPi.
   Defined.
 End SubDFLFullCompCatPi.
 
-(** * 6. The inclusion *)
+(** * 7. The inclusion *)
 Section FullSubCompCatIncl.
   Context {C : comp_cat}
           (P : comp_cat_pred C).
