@@ -8,6 +8,18 @@
  the slice category `C / x` to the category `hProp` (objects are propositions, and the type
  of morphisms is given by impliciation).
 
+ In the file `GrothendieckToposes/Sites.v` an equivalent definition of a site is given, but
+ it is phrased in a slightly different way. The difference comes from how sieves are defined,
+ as there are several equivalent definitions of sieves:
+ 1. A sieve is class of morphisms that is closed under precomposition.
+ 2. A sieve is a subobject of a representable functor.
+ 3. A sieve is a functor `(C / x)^op --> hProp`.
+
+ The development of sites in this file is based on the third definition, whereas as the
+ development in `GrothendieckToposes/Sites.v` is based on the second definition. The third
+ definition is chosen in this file instead of the third, is because the third definition is
+ more concrete and because it gives direct access to the property on morphisms.
+
  Content
  1. Grothendieck topologies
  2. Sites
