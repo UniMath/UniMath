@@ -541,34 +541,52 @@ Proof.
         use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
     Qed.
 
-    Definition colim_module_colimArrow (M : MOD) (cc' : cocone F M) 
-      : MOD⟦(L ,, colim_module) , M⟧.
-    Proof.
-      use tpair; [use colimArrow; now use mapcocone|].
-      use colim_module_colimArrow_is_module_mor.
-    Defined.
+    Section FixACocone.
+      Context (M : MOD).
+      Context (cc' : cocone F M).
 
-    Lemma colim_module_colimArrow_is_cocone_mor (M : MOD) (cc' : cocone F M)
-      : is_cocone_mor colim_module_cocone cc' (colim_module_colimArrow M cc').
-    Proof.
-      intro u; use invmap; [|use path_sigma_hprop|].
-      - use isaprop_is_module_mor.
-      - use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
-    Qed.
+      Definition colim_module_colimArrow
+        : MOD⟦(L ,, colim_module) , M⟧.
+      Proof.
+        use tpair; [use colimArrow; now use mapcocone|].
+        use colim_module_colimArrow_is_module_mor.
+      Defined.
 
-    Lemma colim_module_isColimCocone : isColimCocone F (L,, colim_module) colim_module_cocone.
-    Proof.
-      unfold isColimCocone.
-      intros M cc'.
-      use tpair; [use tpair|]; cbn.
-      - now use colim_module_colimArrow.
-      - now use colim_module_colimArrow_is_cocone_mor.
-      - intros [[t H_mor] H_cc].
-        use invmap; [|use path_sigma_hprop|];[|use invmap; [|use path_sigma_hprop|]].
-        + use (isaprop_is_cocone_mor colim_module_cocone).
-        + use isaprop_is_module_mor.
-        + use colimArrowUnique; intro u; cbn; now rewrite <- H_cc.
-    Qed.
+      Lemma colim_module_colimArrow_is_cocone_mor
+        : is_cocone_mor colim_module_cocone cc' colim_module_colimArrow.
+      Proof.
+        intro u; use invmap; [|use path_sigma_hprop|].
+        - use isaprop_is_module_mor.
+        - use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
+      Qed.
+
+      Context (pair : ∑ (u: MOD⟦(L ,, colim_module), M⟧),
+            is_cocone_mor colim_module_cocone cc' u).
+      
+      Let u : MOD⟦(L ,, colim_module), M⟧ := pr1 pair.
+      Let H : is_cocone_mor colim_module_cocone cc' u := pr2 pair.
+
+      Lemma colim_module_colimArrow_unique
+        : u = colim_module_colimArrow.
+      Proof.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_module_mor.
+        use colimArrowUnique; intro v; cbn.
+        now rewrite <- H.
+      Qed.
+
+      Lemma colim_module_colimArrow_uniqueness
+        : pair = (colim_module_colimArrow ,, colim_module_colimArrow_is_cocone_mor).
+      Proof.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_cocone_mor.
+        use colim_module_colimArrow_unique.
+      Qed.
+    End FixACocone.
+
+    Definition colim_module_isColimCocone 
+      : isColimCocone F (L,, colim_module) colim_module_cocone
+      := λ M cc', _ ,, colim_module_colimArrow_uniqueness M cc'. 
 
     Definition colim_module_ColimCocone : ColimCocone F.
     Proof.
@@ -736,36 +754,54 @@ Proof.
         use (limArrowCommutes (lims_g F')).
     Qed.
 
-    Definition lim_module_limArrow (M : MOD) (cc' : cone F M)
-      : MOD⟦M, (L ,, lim_module)⟧.
-    Proof.
-      use tpair; [use limArrow; now use mapcone|].
-      use lim_module_limArrow_is_module_mor.
-    Defined.
+    Section FixACone.
 
-    Lemma lim_module_limArrow_is_cocone_mor (M : MOD) (cc' : cone F M)
-      : is_cone_mor cc' lim_module_cone (lim_module_limArrow M cc').
-    Proof.
-      intro v.
-      use invmap; [|use path_sigma_hprop|]. use isaprop_is_module_mor.
-      use (limArrowCommutes (lims_g F')).
-    Qed.
+      Context (M : MOD).
+      Context (cc' : cone F M).
 
-    Lemma lim_module_isLimCone
-      : isLimCone F (L,, lim_module) lim_module_cone.
-    Proof.
-      intros M cc'.
-      use tpair; [use tpair|]; cbn.
-      - use (lim_module_limArrow _ cc').
-      - use lim_module_limArrow_is_cocone_mor.
-      - intros [[h H] H'].
-        use invmap; [|use path_sigma_hprop|].
-        use (isaprop_is_cone_mor _ _ (lim_module_limArrow _ _)).
+      Definition lim_module_limArrow
+        : MOD⟦M, (L ,, lim_module)⟧.
+      Proof.
+        use tpair; [use limArrow; now use mapcone|].
+        use lim_module_limArrow_is_module_mor.
+      Defined.
+
+      Lemma lim_module_limArrow_is_cone_mor
+        : is_cone_mor cc' lim_module_cone lim_module_limArrow.
+      Proof.
+        intro v.
+        use invmap; [|use path_sigma_hprop|]. use isaprop_is_module_mor.
+        use (limArrowCommutes (lims_g F')).
+      Qed.
+
+      Context (pair : ∑ (u: MOD⟦M, (L ,, lim_module)⟧),
+            is_cone_mor cc' lim_module_cone u).
+      
+      Let u : MOD⟦M, (L ,, lim_module)⟧ := pr1 pair.
+      Let H : is_cone_mor cc' lim_module_cone u := pr2 pair.
+
+      Lemma lim_module_limArrow_unique
+        : u = lim_module_limArrow.
+      Proof.
         use invmap; [|use path_sigma_hprop|].
         use isaprop_is_module_mor.
-        use limArrowUnique; intro u; cbn.
-        now rewrite <- H'.
-    Qed.
+        use limArrowUnique; intro v; cbn.
+        now rewrite <- H.
+      Qed.
+
+      Lemma lim_module_limArrow_uniqueness
+        : pair = (lim_module_limArrow ,, lim_module_limArrow_is_cone_mor).
+      Proof.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_cone_mor.
+        use lim_module_limArrow_unique.
+      Qed.
+
+    End FixACone.
+
+    Definition lim_module_isLimCone
+      : isLimCone F (L,, lim_module) lim_module_cone
+      := λ M cc', _ ,, lim_module_limArrow_uniqueness M cc'.
 
     Definition lim_module_LimCone : LimCone F.
     Proof.
