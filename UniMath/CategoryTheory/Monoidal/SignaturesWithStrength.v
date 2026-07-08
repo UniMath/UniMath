@@ -233,7 +233,9 @@ Section SignaturesWithStrength.
       := H ∙ bifunctor_to_functorintoendofunctorcat C D.
 
     Goal ∏ (A : C), product_signature_functor A = D ⊗ H A.
-    Proof (λ _, idpath _).
+    Proof.
+      exact (λ _, idpath _).
+    Qed.
 
     Definition product_signature_strength_mor (A : C) (bB : pointed) 
       : D ⊗_{ C} H A ⊗ bB --> D ⊗_{ C} H (A ⊗ bB)
@@ -653,9 +655,6 @@ Section SignaturesWithStrength.
       intros u v e.
       use invmap; [|use path_sigma_hprop|].
       use isaprop_is_a_morphism_of_signatures_with_strength.
-      use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_nat_trans; use homset_property.
-      cbn; use funextsec; intro A.
       use limOutCommutes.
     Qed.
 
@@ -664,16 +663,16 @@ Section SignaturesWithStrength.
       := make_cone _ limit_signature_with_strength_cone_is_cone.
 
     Section FixACone.
-      Context (H : C ⟶ C) (θ : strength_for_signature H).
-      Context (cc : cone F (H ,, θ)).
+      Context (H' : C ⟶ C) (θ' : strength_for_signature H').
+      Context (cc : cone F (H' ,, θ')).
        
       Definition limit_signature_with_strength_arrow_data
-        : H ⟹ limit_sig_functor
+        : H' ⟹ limit_sig_functor
         := limArrow _ _ (mapcone forgetful F cc).
 
       Lemma limit_signature_with_strength_arrow_is_mor
         : is_a_morphism_of_signatures_with_strength 
-          H limit_sig_functor θ
+          H' limit_sig_functor θ'
           limit_sig_strength limit_signature_with_strength_arrow_data.
       Proof.
         intros A bB; use arr_to_LimCone_eq; intro u; cbn.
@@ -689,7 +688,7 @@ Section SignaturesWithStrength.
       Qed.
 
       Definition limit_signature_with_strength_arrow
-        : signature_with_strength_cat ⟦ H,, θ, limit_signature_with_strength ⟧
+        : signature_with_strength_cat ⟦ H',, θ', limit_signature_with_strength ⟧
         := limit_signature_with_strength_arrow_data ,,
            limit_signature_with_strength_arrow_is_mor.
 
@@ -706,11 +705,11 @@ Section SignaturesWithStrength.
       Qed.
       
       Context (f_Hf : 
-        ∑(f : signature_with_strength_cat ⟦ H,, θ, limit_signature_with_strength ⟧),
+        ∑(f : signature_with_strength_cat ⟦ H',, θ', limit_signature_with_strength ⟧),
         is_cone_mor cc limit_signature_with_strength_cone f
       ).
 
-      Let f : signature_with_strength_cat ⟦ H,, θ, limit_signature_with_strength ⟧
+      Let f : signature_with_strength_cat ⟦ H',, θ', limit_signature_with_strength ⟧
         := pr1 f_Hf.
 
       Let Hf : is_cone_mor cc limit_signature_with_strength_cone f
@@ -740,7 +739,7 @@ Section SignaturesWithStrength.
 
     Definition limit_signature_with_strength_cone_is_lim_cone
       : isLimCone F _ limit_signature_with_strength_cone
-      := λ Hθ A, 
+      := λ _ A, 
         (_ ,, limit_signature_with_strength_arrow_is_cone_mor _ _ A) ,,
         limit_signature_with_strength_arrow_unique_pair _ _ A.
 
@@ -755,11 +754,312 @@ Section SignaturesWithStrength.
   End Limits.
 
 
-  Theorem signature_with_strength_inherits_limits (g : graph) (_ : Lims_of_shape g C)
+  Theorem signature_with_strength_inherits_limits 
+    (g : graph) (l : Lims_of_shape g C)
     : Lims_of_shape g signature_with_strength_cat.
   Proof.
-    now use limit_signature_with_strength_lim_cone.
+    exact (limit_signature_with_strength_lim_cone l).
   Defined.
 
+
+  Section Colimits.
+    Context {g : graph}.
+    Context (colims_g : Colims_of_shape g C).
+    Context (H_prod : ∏ B : pointed, 
+      preserves_colimits_of_shape (rightwhiskering_functor C B) g).
+    Context (F : diagram g signature_with_strength_cat).
+    Let F' := mapdiagram forgetful F.
+
+    Definition colimit_sig_functor_cocone : ColimCocone F'
+      := ColimsFunctorCategory_of_shape g C _ colims_g _.
+
+    Definition colimit_sig_functor : C ⟶ C 
+      := colim colimit_sig_functor_cocone.
+
+    Let H (A : C) : C := colimit_sig_functor A.
+
+    (* Colim Cocone for H(A) *)
+    Local Definition H_Cocone {A : C}
+      : ColimCocone (diagram_pointwise F' A)
+      := (colims_g (diagram_pointwise F' A)).
+
+    (* Colim Cocone for H(A) ⊗ B *)
+    Local Definition H_Cocone_Prod {A : C} {bB : pointed}
+      : ColimCocone (mapdiagram (rightwhiskering_functor C bB)
+        (diagram_pointwise F' A))
+      := make_ColimCocone _ _ _ (H_prod bB _ _ _ 
+        (pr2 (colims_g (diagram_pointwise F' A)))).
+
+    Goal ∏ A bB, colim (@H_Cocone_Prod A bB) = H A ⊗ bB. 
+    Proof.
+      intros; use idpath.
+    Qed.
+
+    Definition colimit_sig_strength_data (A : C) (B : pointed)
+      : H A ⊗ B --> H (A ⊗ B).
+    Proof.
+      use (colimOfArrows H_Cocone_Prod H_Cocone).
+      - intro u; use (pr12 (dob F u)).
+      - intros u v e; use (!pr2 (dmor F e) _ _).
+    Defined.
+
+    Lemma colimit_sig_strength_unit
+      : strength_for_signature_law_unit _ colimit_sig_strength_data.
+    Proof.
+      intro A; use (colimArrowUnique' (H_Cocone_Prod (bB := pointed_unit))).
+      intro u; simpl.
+      etrans.
+      {
+        use (colimOfArrowsIn _ _ (H_Cocone_Prod (bB := pointed_unit)) H_Cocone).
+      }
+      simpl; symmetry; etrans.
+      {
+        unfold ColimFunctor_mor.
+        eassert (colimIn (H_Cocone_Prod (bB := pointed_unit)) u = (colimIn _) u ⊗r I_{C}) by use idpath.
+        rewrite X, assoc, monoidal_rightunitornat, <- assoc.
+        refine (maponpaths _ _); use (colimOfArrowsIn _ _ H_Cocone).
+      }
+      cbn. rewrite assoc. refine (!maponpaths (λ x, x · _) _).
+      use signature_with_strength_unit.
+    Qed.
+
+    Lemma colimit_sig_strength_nat
+      : strength_for_signature_law_nat _ colimit_sig_strength_data.
+    Proof.
+      do 6 intro. use (colimArrowUnique' H_Cocone_Prod).
+      intro u; simpl.
+      etrans.
+      {
+        rewrite assoc; refine (maponpaths (λ x, x · _) _).
+        use (colimOfArrowsIn _ _ H_Cocone_Prod).
+      }
+      simpl; symmetry; etrans.
+      {
+        rewrite tensor_split', <- tensor_mor_left, <- tensor_mor_right, assoc, assoc.
+        refine (maponpaths (λ x, x · _ · _) _).
+        eassert (colimIn H_Cocone_Prod u = colimIn H_Cocone u ⊗r bB) by use idpath.
+        rewrite X.
+        etrans; [use (!bifunctor_rightcomp C _ _ _ _ _ _)|]. 
+        refine (maponpaths _ _); use (colimOfArrowsIn _ _ H_Cocone H_Cocone).
+      }
+      simpl; etrans.
+      {
+        refine (maponpaths (λ x, x · _) _).
+        rewrite tensor_mor_right, tensor_mor_left.
+        etrans; [use tensor_swap|].
+        now rewrite <- tensor_mor_right, <- tensor_mor_left.
+      }
+      etrans.
+      {
+        rewrite (bifunctor_rightcomp C), <- assoc, <- assoc.
+        do 2 refine (maponpaths _ _).
+        use (colimOfArrowsIn _ _ H_Cocone_Prod H_Cocone).
+      }
+      simpl; symmetry; etrans.
+      {
+        rewrite <- assoc; refine (maponpaths _ _).
+        use (colimOfArrowsIn _ _ H_Cocone).
+      }
+      simpl; do 3 rewrite assoc.
+      use (maponpaths (λ x, x · _) _).
+      etrans.
+      {
+        use signature_with_strength_nat.
+      }
+      now rewrite tensor_mor_left, tensor_mor_right, tensor_split.
+    Qed.
+    
+    Lemma colimit_sig_strength_prod
+      : strength_for_signature_law_prod _ colimit_sig_strength_data.
+    Proof.
+      do 3 intro. use (colimArrowUnique' H_Cocone_Prod).
+      intro u.
+      etrans. use colimOfArrowsIn. 
+      do 3 rewrite assoc.
+      eassert (∏ bB : pointed, colimIn H_Cocone_Prod u
+        = colimIn H_Cocone u ⊗r bB) by (intro; use idpath).
+      symmetry; etrans.
+      {
+        rewrite X; refine (maponpaths (λ x, x · _ · _ · _) _).
+        use monoidal_associatorinvnatright.
+      }
+      etrans.
+      {
+        repeat rewrite <- assoc; refine (maponpaths _ _).
+        repeat rewrite assoc; rewrite <- (bifunctor_rightcomp C).
+        refine (maponpaths (λ x, x ⊗r _ · _ · _) _).
+        use (colimOfArrowsIn _ _ H_Cocone_Prod).
+      }
+      etrans.
+      {
+        rewrite (bifunctor_rightcomp C), <- assoc, <- assoc.
+        do 2 refine (maponpaths _ _).
+        rewrite assoc; refine (maponpaths (λ x, x · _) _).
+        use (colimOfArrowsIn _ _ H_Cocone_Prod).
+      }
+      etrans.
+      {
+        simpl.
+        repeat rewrite assoc.
+        rewrite <- assoc.
+        refine (maponpaths _ _).
+        use (colimOfArrowsIn _ _ H_Cocone H_Cocone).
+      }
+      simpl; rewrite assoc.
+      use (!maponpaths (λ x, x · _) _).
+      use signature_with_strength_prod.
+    Qed.
+
+
+    Definition colimit_sig_strength
+      : strength_for_signature colimit_sig_functor.
+    Proof.
+      use make_strength_for_signature.
+      - exact colimit_sig_strength_data.
+      - exact colimit_sig_strength_unit.
+      - exact colimit_sig_strength_prod.
+      - exact colimit_sig_strength_nat.
+    Defined.
+
+    Definition colimit_signature_with_strength 
+      : signature_with_strength_cat
+      := colimit_sig_strength.
+
+    Definition colimit_signature_with_strength_in_data (v : vertex g)
+      : pr1 (dob F' v) ⟹ colimit_sig_functor
+      := colimIn colimit_sig_functor_cocone v.
+
+    Lemma colimit_signature_with_strength_in_is_mor (v : vertex g)
+      : is_a_morphism_of_signatures_with_strength _ _ (pr2 (dob F v)) 
+        colimit_sig_strength (colimit_signature_with_strength_in_data v).
+    Proof.
+      intros A bB. symmetry. use (colimOfArrowsIn _ _ H_Cocone_Prod).
+    Qed.
+
+    Definition colimit_signature_with_strength_in (v : vertex g)
+      : dob F v --> colimit_signature_with_strength
+      := colimit_signature_with_strength_in_data v ,,
+         colimit_signature_with_strength_in_is_mor v.
+
+    Lemma colimit_signature_with_strength_cocone_is_cocone
+      : forms_cocone F colimit_signature_with_strength_in.
+    Proof.
+      intros u v e.
+      use invmap; [|use path_sigma_hprop|].
+      use isaprop_is_a_morphism_of_signatures_with_strength.
+      use (colimInCommutes colimit_sig_functor_cocone).
+    Qed.
+
+    Definition colimit_signature_with_strength_cocone
+      : cocone F colimit_signature_with_strength
+      := make_cocone _ colimit_signature_with_strength_cocone_is_cocone.
+
+
+    Section FixACocone.
+      Context (H' : C ⟶ C) (θ' : strength_for_signature H').
+      Context (cc : cocone F (H' ,, θ')).
+
+      Definition colimit_signature_with_strength_arrow_data
+        : colimit_sig_functor ⟹ H'
+        := colimArrow _ _ (mapcocone forgetful F cc).
+
+      Lemma colimit_signature_with_strength_arrow_is_mor
+        : is_a_morphism_of_signatures_with_strength colimit_sig_functor H'
+            colimit_sig_strength θ' colimit_signature_with_strength_arrow_data.
+      Proof.
+        intros A bB. use (colimArrowUnique' H_Cocone_Prod).
+        intro u; etrans.
+        {
+          rewrite assoc; refine (maponpaths (λ x, x ·_) _).
+          use (colimOfArrowsIn _ _ H_Cocone_Prod).
+        }
+        simpl; etrans.
+        {
+          rewrite <- assoc; refine (maponpaths _ _).
+          use (colimArrowCommutes H_Cocone).
+        }
+        simpl; symmetry; etrans.
+        {
+          eassert (colimIn H_Cocone_Prod u = colimIn H_Cocone u ⊗r bB) by use idpath.
+          rewrite X, assoc, <- (bifunctor_rightcomp C).
+          refine (maponpaths (λ x, x ⊗r bB · _) _).
+          use (colimArrowCommutes H_Cocone).
+        }
+        use (!pr2 (coconeIn cc u) _ _).
+      Qed.
+
+      Definition colimit_signature_with_strength_arrow
+        : signature_with_strength_cat⟦colimit_signature_with_strength, (H',,θ')⟧ 
+        := colimit_signature_with_strength_arrow_data ,,
+           colimit_signature_with_strength_arrow_is_mor.
+
+      Lemma  colimit_signature_with_strength_arrow_is_cocone_mor
+        : is_cocone_mor colimit_signature_with_strength_cocone cc
+            colimit_signature_with_strength_arrow.
+      Proof.
+        intro u.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_a_morphism_of_signatures_with_strength.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_nat_trans; use homset_property.
+        use funextsec; intro A.
+        use (colimArrowCommutes (colims_g (diagram_pointwise F' _))).
+      Qed.
+      
+      Context (f_Hf : 
+        ∑(f : signature_with_strength_cat ⟦colimit_signature_with_strength, H',, θ' ⟧),
+        is_cocone_mor colimit_signature_with_strength_cocone cc f
+      ).
+
+      Let f : signature_with_strength_cat ⟦colimit_signature_with_strength, H',, θ' ⟧
+        := pr1 f_Hf.
+
+      Let Hf : is_cocone_mor colimit_signature_with_strength_cocone  cc f
+        := pr2 f_Hf.
+
+      Lemma colimit_signature_with_strength_arrow_unique
+        : f = colimit_signature_with_strength_arrow.
+      Proof.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_a_morphism_of_signatures_with_strength.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_nat_trans; use homset_property.
+        use funextsec; intro A; use colimArrowUnique; intro u; cbn.
+        exact (maponpaths (λ x, pr11 x A) (Hf u)).
+      Qed.
+
+      Lemma colimit_signature_with_strength_arrow_unique_pair
+        : f_Hf = (_ ,, colimit_signature_with_strength_arrow_is_cocone_mor).
+      Proof.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_cocone_mor.
+        use colimit_signature_with_strength_arrow_unique.
+      Qed.
+    End FixACocone.
+
+    Definition colimit_signature_with_strength_cocone_is_colim_cocone
+      : isColimCocone F _ colimit_signature_with_strength_cocone
+      := λ _ A, 
+        (_ ,, colimit_signature_with_strength_arrow_is_cocone_mor _ _ A) ,,
+        colimit_signature_with_strength_arrow_unique_pair _ _ A.
+
+
+    Definition colimit_signature_with_strength_colim_cocone : ColimCocone F.
+    Proof.
+      use make_ColimCocone.
+      - exact colimit_signature_with_strength.
+      - exact colimit_signature_with_strength_cocone.
+      - exact colimit_signature_with_strength_cocone_is_colim_cocone.
+    Defined.
+  End Colimits.
+
+  Theorem signature_with_strength_inherits_colimits 
+    (g : graph) (cl : Colims_of_shape g C)
+    (H_prod : ∏ bB : pointed, 
+      preserves_colimits_of_shape (rightwhiskering_functor C bB) g)
+    : Colims_of_shape g signature_with_strength_cat.
+  Proof.
+    use (colimit_signature_with_strength_colim_cocone cl H_prod).
+  Defined.
 End SignaturesWithStrength.
 
