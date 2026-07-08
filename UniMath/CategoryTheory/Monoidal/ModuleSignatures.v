@@ -186,4 +186,16 @@ Section ModuleSignatures.
 
   Definition signature_evaluation : module_signature_cat ⟶ MOD_R
     := make_functor signature_evaluation_data signature_evaluation_is_functor.
+
+
+  (*
+  Lemma module_signature_equality (Σ Σ' : module_signature_cat)
+    (e : ∏ A, Σ A = Σ' A)
+    (e' : ∏ A A' (f : A --> A'), 
+      transportf (λ Σ, Σ A --> pullback_functor' A A' f (Σ A'))
+        (funextsec _ _ _ e) (section_disp_on_morphisms (pr1 Σ) f)
+        = section_disp_on_morphisms (pr1 Σ') f
+    )
+    : Σ = Σ'.
+  *)
 End ModuleSignatures.

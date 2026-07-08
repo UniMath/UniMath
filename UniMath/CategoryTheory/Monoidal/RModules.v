@@ -66,6 +66,12 @@ Section RModules.
   Definition module_laws {M : C} (p : module_subst M) : UU
     := module_laws_assoc p × module_laws_unit p.
 
+  Lemma isaprop_module_laws {M : C} (p : module_subst M)
+    : isaprop (module_laws p).
+  Proof.
+    use isapropdirprod; use homset_property.
+  Qed.
+
   Definition module (M : C): UU := ∑ p : module_subst M, module_laws p.
 
   Definition make_module

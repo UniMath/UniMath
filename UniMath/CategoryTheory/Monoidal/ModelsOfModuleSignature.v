@@ -90,10 +90,9 @@ Section ModelsOfModuleSignature.
     := total_category models_of_module_signatures_disp_cat.
 
 
-  Definition monoid_of_models_of_module_signatures 
+  Coercion monoid_of_models_of_module_signatures 
     (M : models_of_module_signatures_cat)
     : MON C := pr1 M.
-  Coercion monoid_of_models_of_module_signatures : ob >-> ob.
 
   Definition is_representable := Initial models_of_module_signatures_cat.
 End ModelsOfModuleSignature.
