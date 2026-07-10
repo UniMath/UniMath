@@ -21,14 +21,18 @@ Require Import UniMath.CategoryTheory.Monoidal.TotalCategoriesOfRModules.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
 
 Require Import UniMath.CategoryTheory.coslicecat.
+
+Require Import UniMath.CategoryTheory.Chains.All.
 
 Import BifunctorNotations.
 Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope mor_disp.
 
 
 Section SignaturesWithStrength.
@@ -40,7 +44,7 @@ Section SignaturesWithStrength.
   (* A Pointed Object is given by Z ∈ C and I --> Z in C *)
   Definition pointed : category := coslice_cat C I_{C}.
 
-  Coercion pointed_to_ob (aA : pointed): ob C := pr1 aA.
+  Coercion pointed_to_ob (aA : pointed): C := pr1 aA.
   Coercion pointed_to_mor (aA : pointed): I_{C} --> aA := pr2 aA.
   Coercion pointed_mor_to_mor {aA bB : pointed} (f : aA --> bB) : C⟦aA, bB⟧ := pr1 f.
 
@@ -513,7 +517,7 @@ Section SignaturesWithStrength.
 
   End ToModuleSignatures.
 
-  Definition forgetful : signature_with_strength_cat ⟶ [C, C]
+  Let forgetful : signature_with_strength_cat ⟶ [C, C]
     := pr1_category _.
 
   Section Limits.
@@ -1063,3 +1067,78 @@ Section SignaturesWithStrength.
   Defined.
 End SignaturesWithStrength.
 
+Section OmegaCocontSignaturewWithStrength.
+  Context {C : monoidal_cat}.
+
+  Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
+  Local Notation "f ⊗r y" := (f ⊗^{C}_{r} y) (at level 31).
+
+  Definition omega_signature_with_strength_law
+    (Hθ : @signature_with_strength_cat C)
+    := is_omega_cocont (pr1 Hθ).
+
+  Lemma isaprop_omega_signature_with_strength_law 
+    (Hθ : signature_with_strength_cat)
+    : isaprop (omega_signature_with_strength_law Hθ).
+  Proof.
+    do 4 (use impred; intro).
+    use isaprop_isColimCocone.
+  Qed.
+
+  Definition omega_signature_with_strength_cat : category
+    := full_subcat _ omega_signature_with_strength_law.
+
+
+  Let forgetful : omega_signature_with_strength_cat ⟶ signature_with_strength_cat
+    := pr1_category _.
+
+
+  (*
+  Section Colimits.
+    Context {g : graph}.
+    Context (colims_g : Colims_of_shape g C).
+    Context (H_prod : ∏ (B : pointed), 
+      preserves_colimits_of_shape (rightwhiskering_functor C B) g).
+    Context (F : diagram g omega_signature_with_strength_cat).
+    Let F' := mapdiagram forgetful F.
+
+    Let H := colimit_signature_with_strength colims_g H_prod F'.
+
+    Section FixACochain.
+      Context (c : chain C) (L : C) (cc : cocone c L) (hyp : isColimCocone c L cc).
+
+      Let Hc : chain C := mapdiagram (pr1 H) c.
+      Let HL : C := pr11 H L.
+      Let Hcc : cocone Hc HL := mapcocone (pr1 H) c cc.
+
+      Section FixACocone.
+        Context (HL' : C) (cc' : cocone Hc HL').
+
+        Definition omega_colimit_signature_with_strength_is_omega_cocont_arrow
+          : C ⟦ HL, HL' ⟧
+          := colimArrow _ _ hyp.
+
+      Lemma omega_colimit_signature_with_strength_is_omega_cocont_lem
+        : isColimCocone Hc HL Hcc.
+      Proof.
+        intro.
+
+    End FixACochain.
+
+    Lemma omega_colimit_signature_with_strength_is_omega_cocont
+      : is_omega_cocont (pr1 H).
+    Proof.
+      intros c L cc hyp.
+
+  Theorem omega_signature_with_strength_inherits_colimits 
+    (g : graph) (cl : Colims_of_shape g C)
+    (H_prod : ∏ bB : pointed, 
+      preserves_colimits_of_shape (rightwhiskering_functor C bB) g)
+    : Colims_of_shape g omega_signature_with_strength_cat.
+  Proof.
+    intros F.
+
+
+  *)
+
+End OmegaCocontSignaturewWithStrength.
