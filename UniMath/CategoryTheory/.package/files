@@ -496,6 +496,8 @@ Monoidal/RModules.v
 Monoidal/TotalCategoriesOfRModules.v
 Monoidal/ModuleSignatures.v
 Monoidal/ModelsOfModuleSignature.v
+Monoidal/SignaturesWithStrength.v
+Monoidal/HeterogeneousSubstitutionSystem.v
 
 Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
 Monoidal/Displayed/Monoidal.v

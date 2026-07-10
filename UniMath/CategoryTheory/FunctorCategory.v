@@ -16,8 +16,7 @@ Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
  *)
 
 Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Univalence.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -624,3 +623,30 @@ Local Notation "G 'O' F '{' hsB  hsC '}'" :=
 Local Notation "G 'o' F '{' hsB  hsC '}'" :=
         (functor_compose hsB hsC  F G : functor _ _ ) (at level 200).
  *)
+
+Section ConstantFunctorFunctor.
+  Context {A B : category}.
+
+  Definition constant_functor_functor_data 
+    : functor_data A [B, A].
+  Proof.
+    use tpair.
+    - use constant_functor.
+    - use constant_nat_trans.
+  Defined.
+
+  Lemma constant_functor_functor_is_functor
+    : is_functor constant_functor_functor_data.
+  Proof.
+    split.
+    - intro.
+      use invmap; [|use path_sigma_hprop|easy].
+      use isaprop_is_nat_trans; use homset_property.
+    - do 5 intro.
+      use invmap; [|use path_sigma_hprop|easy].
+      use isaprop_is_nat_trans; use homset_property.
+  Qed.
+
+  Definition constant_functor_functor : A ⟶ [B, A]
+    := make_functor _ constant_functor_functor_is_functor.
+End ConstantFunctorFunctor.
