@@ -34,7 +34,7 @@ Section GeneralizedMendlerIteration.
 
 
   Let Fchain : chain C := initChain O F.
-  Variable (CC : ColimCocone Fchain).
+  Context (CC : ColimCocone Fchain).
 
   Let LFchain : chain D :=  mapchain L Fchain.
 
@@ -102,10 +102,11 @@ Section GeneralizedMendlerIteration.
   Qed.
 
   Proposition mendler_iteration_arrow_commutes
-    : #L r · mendler_iteration_arrow = Ψ _ mendler_iteration_arrow.
+    : Ψ _ mendler_iteration_arrow = #L r · mendler_iteration_arrow.
   Proof.
     assert (r · rinv = identity _) as H
     by exact (pr122 (colim_algebra_mor_iso _ F_cocont CC)).
+    symmetry.
     rewrite <- id_left, <- functor_id, <- H, functor_comp, <- assoc.
     refine (!maponpaths _ _).
     use (colimArrowUnique L_CC). 
@@ -137,3 +138,40 @@ Section GeneralizedMendlerIteration.
     Qed.
   End Uniqueness.
 End GeneralizedMendlerIteration.
+
+Section FusionLaw.
+  Context {C D : category}.
+  Context (F : C ⟶ C) (L : C ⟶ D).
+  Context (F_cocont : is_omega_cocont F).
+  Context (L_cocont : is_omega_cocont L).
+  Context (L_init : preserves_initial L).
+  Context (O : Initial C).
+
+  Context (X : D).
+  Context (Ψ : ∏ {c}, D⟦ L c, X ⟧ → D⟦ L (F c) , X ⟧).
+  Context (Ψ_nat : ∏ c c' (q : L c --> X) (f : c' --> c), 
+    Ψ c' (#L f · q) = #L (#F f) · Ψ c q).
+
+  Context (CC : ColimCocone (initChain O F)).
+
+  Context (L' : C ⟶ D) (X' : D).
+  Context (L'_cocont : is_omega_cocont L').
+  Context (L'_init : preserves_initial L').
+  Context (Ψ' : ∏ c, D ⟦ L' c, X' ⟧ → D ⟦ L' (F c), X' ⟧).
+  Context (Ψ'_nat : ∏ (c c' : C) (q : D ⟦ L' c, X' ⟧) (f : C ⟦ c', c ⟧),
+      Ψ' c' (#L' f · q) = #L' (# F f) · Ψ' c q).
+
+  Context (Φ : ∏ c, D⟦ L c, X ⟧ → D⟦ L' c, X' ⟧).
+  Context (Φ_nat : ∏ (c c' : C) (f : c' --> c) (h : L c --> X), 
+      #L' f · Φ _ h = Φ _ (#L f · h)).
+  Context (ΦΨ : ∏ (p : L (colim CC) --> X),
+      Φ _ (Ψ _ p) = Ψ' _ (Φ _ p)).
+
+  Proposition mendler_fusion_law
+    : Φ _ (mendler_iteration_arrow F _ L_cocont L_init O _ _ Ψ_nat CC) 
+      = mendler_iteration_arrow F _ L'_cocont L'_init O _ _ Ψ'_nat CC.
+  Proof.
+    symmetry; use (mendler_iteration_unique _ _ F_cocont).
+    now rewrite Φ_nat, <- ΦΨ, (mendler_iteration_arrow_commutes _ _ F_cocont).
+  Qed.
+End FusionLaw.
