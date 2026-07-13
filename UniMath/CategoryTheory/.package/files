@@ -398,6 +398,7 @@ CompletelyIterativeAlgebras.v
 Chains/Adamek.v
 Chains/CoAdamek.v
 Chains/OmegaCocontFunctors.v
+GeneralizedMendlerIteration.v
 OppositeCategory/LimitsAsColimits.v
 Chains/OmegaContFunctors.v
 Chains/OmegaContPolynomialFunctors.v

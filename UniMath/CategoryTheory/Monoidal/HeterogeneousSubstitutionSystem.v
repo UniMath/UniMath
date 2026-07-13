@@ -7,9 +7,6 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
-Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
-
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
@@ -17,6 +14,15 @@ Require Import UniMath.CategoryTheory.Monoidal.RModules.
 Require Import UniMath.CategoryTheory.Monoidal.ModuleSignatures.
 Require Import UniMath.CategoryTheory.Monoidal.SignaturesWithStrength.
 Require Import UniMath.CategoryTheory.Monoidal.ModelsOfModuleSignature.
+
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.Chains.All.
+
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.GeneralizedMendlerIteration.
 
 Import BifunctorNotations.
 Import MonoidalNotations.
@@ -27,7 +33,7 @@ Local Open Scope moncat.
 Section HeterogeneousSubstitutionSystem.
   Context {C : monoidal_cat}.
 
-  Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
+Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
   Local Notation "f ⊗r y" := (f ⊗^{C}_{r} y) (at level 31).
 
   Section FixASignatureWithStrength.
@@ -44,13 +50,13 @@ Section HeterogeneousSubstitutionSystem.
     Let r : H R --> R := pr22 Rηr.
 
     Section HSS_Equalities.
-      Context (Z : pointed) (f : pr1 Z --> R) (f' : R ⊗ pr1 Z --> R).
+      Context (Z : pointed) (f : (Z : C) --> R) (f' : R ⊗ Z --> R).
 
       Definition heterogeneous_substitution_system_law_eq_unit
-        := η ⊗r pr1 Z · f' = lu^{C}_{_} · f.
+        := η ⊗r Z · f' = lu^{C}_{_} · f.
 
       Definition heterogeneous_substitution_system_law_eq_out
-        := r ⊗r pr1 Z · f' = θ R Z · #H f' · r.
+        := r ⊗r Z · f' = θ R Z · #H f' · r.
 
       Definition heterogeneous_substitution_system_law_eq
         := heterogeneous_substitution_system_law_eq_unit
@@ -58,8 +64,8 @@ Section HeterogeneousSubstitutionSystem.
     End HSS_Equalities.
 
     Definition heterogeneous_substitution_system_law
-      := ∏ (Z : pointed) (f : pr1 Z --> R), 
-        ∃! f' : R ⊗ pr1 Z --> R, heterogeneous_substitution_system_law_eq Z f f'.
+      := ∏ (Z : pointed) (f : (Z : C) --> R), 
+        ∃! f' : R ⊗ Z --> R, heterogeneous_substitution_system_law_eq Z f f'.
 
   End FixASignatureWithStrength.
 
@@ -86,31 +92,31 @@ Section HeterogeneousSubstitutionSystem.
   Definition hss_arrow
     {Hθ : signature_with_strength_cat}
     (hss : heterogeneous_substitution_system Hθ)
-    {Z : pointed} (f : pr1 Z --> hss_object hss)
-    : hss_object hss ⊗ pr1 Z --> hss_object hss := pr11 (pr2 hss Z f).
+    {Z : pointed} (f : (Z : C) --> hss_object hss)
+    : hss_object hss ⊗ Z --> hss_object hss := pr11 (pr2 hss Z f).
 
   Definition hss_arrow_unit
     {Hθ : signature_with_strength_cat}
     (hss : heterogeneous_substitution_system Hθ)
-    {Z : pointed} {f : pr1 Z --> hss_object hss}
-    : hss_unit hss ⊗r pr1 Z · hss_arrow hss f = lu^{C}_{_} · f
+    {Z : pointed} {f : (Z : C) --> hss_object hss}
+    : hss_unit hss ⊗r Z · hss_arrow hss f = lu^{C}_{_} · f
     := pr121 (pr2 hss Z f).
 
   Definition hss_arrow_out
     {H : C ⟶ C} {θ : strength_for_signature H}
     (hss : heterogeneous_substitution_system θ)
-    {Z : pointed} {f : pr1 Z --> hss_object hss}
-    : hss_out hss ⊗r pr1 Z · hss_arrow hss f
+    {Z : pointed} {f : (Z : C) --> hss_object hss}
+    : hss_out hss ⊗r Z · hss_arrow hss f
       = θ (hss_object hss) Z · #H (hss_arrow hss f) · hss_out hss
     := pr221 (pr2 hss Z f).
 
   Definition hss_arrow_unique
     {H : C ⟶ C} {θ : strength_for_signature H}
     (hss : heterogeneous_substitution_system θ)
-    {Z : pointed} {f : pr1 Z --> hss_object hss}
-    (arrow' : hss_object hss ⊗ pr1 Z --> hss_object hss)
-    (arrow'_unit : hss_unit hss ⊗r pr1 Z · arrow' = lu^{C}_{_} · f)
-    (arrow'_out : hss_out hss ⊗r pr1 Z · arrow' = θ (hss_object hss) Z · #H arrow' · hss_out hss)
+    {Z : pointed} {f : (Z : C) --> hss_object hss}
+    (arrow' : hss_object hss ⊗ Z --> hss_object hss)
+    (arrow'_unit : hss_unit hss ⊗r Z · arrow' = lu^{C}_{_} · f)
+    (arrow'_out : hss_out hss ⊗r Z · arrow' = θ (hss_object hss) Z · #H arrow' · hss_out hss)
     : arrow' = hss_arrow hss f
     := maponpaths pr1 (pr2 (pr2 hss Z f) (arrow' ,, arrow'_unit ,, arrow'_out)).
 
@@ -121,7 +127,7 @@ Section HeterogeneousSubstitutionSystem.
     := hss_object hss ,, hss_unit hss.
     
 
-  Section MonoidsFromHSS.
+  Section ModelsFromHSS.
     Context (H : C ⟶ C) (θ : strength_for_signature H).
     Context (hss : heterogeneous_substitution_system θ).
 
@@ -288,5 +294,225 @@ Section HeterogeneousSubstitutionSystem.
       - use hss_out.
       - use (hss_arrow_out hss (Z := R)).
     Defined.
+  End ModelsFromHSS.
 
+  Section BuildingAnHSS.
+    Context (Hθ : @omega_signature_with_strength_cat C).
+    Let H : C ⟶ C := pr11 Hθ.
+    Let θ : strength_for_signature H := pr21 Hθ.
+    Let H_cocont : is_omega_cocont H := pr2 Hθ.
+
+    Context (tens_cocont : ∏ (Z : pointed),
+      is_omega_cocont (rightwhiskering_functor C Z)).
+    Context (tens_init : ∏ (Z : pointed),
+       preserves_initial (rightwhiskering_functor C Z)).
+    Context (tens_bincopr : ∏ (Z : pointed),
+       preserves_bincoproduct (rightwhiskering_functor C Z)).
+
+    Context (O : Initial C) (Copr : BinCoproducts C).
+
+    Let copr (A : C) (B : C) : C := BinCoproductObject (Copr A B).
+    Local Notation "A ++ B" := (copr A B) (at level 60).
+
+    Let inl {A B : C} : A --> (A ++ B) := BinCoproductIn1 _.
+    Let inr {A B : C} : B --> (A ++ B) := BinCoproductIn2 _.
+
+    Local Lemma iscopr {X Y : C} 
+      : isBinCoproduct C X Y (X ++ Y) inl inr.
+    Proof.
+      use isBinCoproduct_BinCoproduct.
+    Qed.
+
+    Definition hss_from_omega_signature_with_strength_iter_functor : C ⟶ C
+      := BinCoproduct_of_functors _ _ Copr (constant_functor _ _ I_{C}) H.
+    
+    Goal ∏ c, hss_from_omega_signature_with_strength_iter_functor c = I_{C} ++ H c.
+    Proof.
+      intro; use idpath.
+    Qed.
+
+    Lemma hss_from_omega_signature_with_strength_iter_functor_omega_cocont
+      : is_omega_cocont hss_from_omega_signature_with_strength_iter_functor.
+    Proof.
+      use is_omega_cocont_BinCoproduct_of_functors.
+      - use is_omega_cocont_constant_functor.
+      - use H_cocont.
+    Qed.
+
+    Let Fchain := initChain O hss_from_omega_signature_with_strength_iter_functor.
+    Variable (CC : ColimCocone Fchain).
+
+    Let f : (I_{C} ++ H (colim CC)) --> colim CC
+      := colim_algebra_mor _ hss_from_omega_signature_with_strength_iter_functor_omega_cocont CC.
+
+    Let η : I_{C} --> colim CC := inl · f.
+    Let r : H (colim CC) --> colim CC := inr · f.
+
+    Definition hss_from_omega_signature_with_strength_data
+      : heterogeneous_substitution_system_data θ
+      := (colim CC ,, η ,, r).
+
+    Section HSS_Law.
+      Context (Z : @pointed C) (g : (Z : C) --> colim CC).
+      
+      Local Definition tens_copr {A B : C}
+        : BinCoproduct (A ⊗ Z) (B ⊗ Z)
+        := (make_BinCoproduct _ _ _ _ _ _ (tens_bincopr Z _ _ (A ++ B) _ _ iscopr)).
+
+      Local Definition Ψ (A : C) (h : A ⊗ Z --> colim CC)
+        : (I_{C} ++ H A) ⊗ Z --> colim CC.
+      Proof.
+        refine (_ · _ · _).
+        - refine (BinCoproductOfArrows _ tens_copr (Copr _ _) lu^{C}_{_} (θ _ _)).
+        - refine (BinCoproductOfArrows _ _ (Copr _ _) (identity _) (#H h)).
+        - refine (BinCoproductArrow _ g r).
+      Defined.
+
+      Local Lemma Ψ_inl (A : C) (h : A ⊗ Z --> colim CC)
+        : BinCoproductIn1 tens_copr · Ψ _ h = lu^{C}_{_} · g.
+      Proof.
+        unfold Ψ; do 2 rewrite assoc; etrans.
+        { refine (maponpaths (λ x, x · _ · _) _); use (BinCoproductOfArrowsIn1 _ tens_copr). }
+        do 2 rewrite <- assoc; use maponpaths; rewrite assoc.
+        etrans.
+        { refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn1. }
+        rewrite id_left.
+        use BinCoproductIn1Commutes.
+      Qed.
+
+      Local Lemma Ψ_inr (A : C) (h : A ⊗ Z --> colim CC)
+        : BinCoproductIn2 tens_copr · Ψ _ h = θ _ _ · #H h · r.
+      Proof.
+        unfold Ψ; do 2 rewrite assoc; etrans.
+        { refine (maponpaths (λ x, x · _ · _) _); use (BinCoproductOfArrowsIn2 _ tens_copr). }
+        do 3 rewrite <- assoc; use maponpaths; rewrite assoc.
+        etrans.
+        { refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn2. }
+        rewrite <- assoc; use maponpaths.
+        use BinCoproductIn2Commutes.
+      Qed.
+
+      Local Lemma Ψ_nat (A B : C) (h : A ⊗ Z --> colim CC) (u : B --> A)
+        : Ψ _ (u ⊗r Z · h) = (#hss_from_omega_signature_with_strength_iter_functor u) ⊗r Z · Ψ _ h.
+      Proof.
+        use (BinCoproductArrowsEq _ _ _ tens_copr).
+        - rewrite assoc, Ψ_inl.
+          cbn; symmetry; etrans.
+          {
+            refine (maponpaths (λ x, x · _) (!_ @ (maponpaths _ _))).
+            + use (bifunctor_rightcomp C).
+            + use BinCoproductOfArrowsIn1. 
+          }
+          rewrite bifunctor_rightcomp.
+          etrans; [|use (Ψ_inl _ h)].
+          use (maponpaths (λ x, x · _)).
+          cbn; now rewrite @tensor_mor_right, tensor_id_id, id_left.
+        - rewrite assoc, Ψ_inr, functor_comp, assoc, (signature_with_strength_nat_left _ θ).
+          cbn; symmetry; etrans.
+          {
+            refine (maponpaths (λ x, x · _) (!_ @ (maponpaths _ _))).
+            + use (bifunctor_rightcomp C).
+            + use BinCoproductOfArrowsIn2. 
+          }
+          rewrite bifunctor_rightcomp.
+          do 3 rewrite <- assoc; use maponpaths; rewrite assoc.
+          use (Ψ_inr _ h).
+      Qed.
+
+      Definition hss_from_omega_signature_with_strength_arrow
+        : colim CC ⊗ Z --> colim CC
+        := mendler_iteration_arrow 
+            hss_from_omega_signature_with_strength_iter_functor
+            _ (tens_cocont Z) (tens_init Z) O (colim CC)
+            Ψ Ψ_nat CC.
+
+      Lemma hss_from_omega_signature_with_strength_arrow_unit
+        : heterogeneous_substitution_system_law_eq_unit θ 
+          hss_from_omega_signature_with_strength_data _ g
+          hss_from_omega_signature_with_strength_arrow.
+      Proof.
+        unfold heterogeneous_substitution_system_law_eq_unit; cbn.
+        rewrite <- (Ψ_inl (colim CC) hss_from_omega_signature_with_strength_arrow).
+        symmetry; etrans.
+        { refine (!maponpaths _ _); use (mendler_iteration_arrow_commutes _ _ 
+              hss_from_omega_signature_with_strength_iter_functor_omega_cocont _ (tens_init Z)). }
+        rewrite assoc; fold hss_from_omega_signature_with_strength_arrow.
+        cbn; unfold η; now rewrite (bifunctor_rightcomp C).
+      Qed.
+      
+      Lemma hss_from_omega_signature_with_strength_arrow_out
+        : heterogeneous_substitution_system_law_eq_out θ
+          hss_from_omega_signature_with_strength_data Z
+          hss_from_omega_signature_with_strength_arrow.
+      Proof.
+        unfold heterogeneous_substitution_system_law_eq_out; cbn.
+        rewrite <- (Ψ_inr (colim CC) hss_from_omega_signature_with_strength_arrow).
+        symmetry; etrans.
+        { refine (!maponpaths _ _); use (mendler_iteration_arrow_commutes _ _ 
+              hss_from_omega_signature_with_strength_iter_functor_omega_cocont _ (tens_init Z)). }
+        rewrite assoc; fold hss_from_omega_signature_with_strength_arrow.
+        unfold r; now rewrite (bifunctor_rightcomp C).
+      Qed.
+
+
+      (* Uniqueness *)
+
+      Context (triple : ∑ (h' : colim CC ⊗ Z --> colim CC),
+        heterogeneous_substitution_system_law_eq θ 
+        hss_from_omega_signature_with_strength_data Z g h').
+
+      Let h' : colim CC ⊗ Z --> colim CC := pr1 triple.
+
+      Let hyp_unit : heterogeneous_substitution_system_law_eq_unit θ
+        hss_from_omega_signature_with_strength_data Z g h' 
+        := pr12 triple.
+
+      Let hyp_out : heterogeneous_substitution_system_law_eq_out θ
+        hss_from_omega_signature_with_strength_data Z h'
+        := pr22 triple.
+
+      Lemma hss_from_omega_signature_with_strength_arrow_unique
+        : h' = hss_from_omega_signature_with_strength_arrow.
+      Proof.
+        symmetry; use (mendler_iteration_unique _ _ hss_from_omega_signature_with_strength_iter_functor_omega_cocont _ (tens_init Z)).
+        cbn; fold f.
+        use (BinCoproductArrowsEq _ _ _ tens_copr); rewrite assoc; cbn.
+        - etrans.
+          { refine (!maponpaths (λ x, x · _) _); use (bifunctor_rightcomp C). }
+          refine (hyp_unit @ !_); use Ψ_inl. 
+        - etrans.
+          { refine (!maponpaths (λ x, x · _) _); use (bifunctor_rightcomp C). }
+          refine (hyp_out @ !_); use Ψ_inr. 
+      Qed.
+
+      Lemma hss_from_omega_signature_with_strength_arrow_unique_triple
+        : triple =  hss_from_omega_signature_with_strength_arrow ,,
+                    hss_from_omega_signature_with_strength_arrow_unit ,,
+                    hss_from_omega_signature_with_strength_arrow_out.
+      Proof.
+        use invmap; [|use path_sigma_hprop|].
+        use isapropdirprod; use homset_property.
+        use hss_from_omega_signature_with_strength_arrow_unique.
+      Qed.
+    End HSS_Law.
+
+    Lemma hss_from_omega_signature_with_strength_law
+      : heterogeneous_substitution_system_law θ hss_from_omega_signature_with_strength_data.
+    Proof.
+      intros Z g.
+      use tpair.
+      - use tpair; [|split].
+        + exact (hss_from_omega_signature_with_strength_arrow Z g).
+        + use hss_from_omega_signature_with_strength_arrow_unit.
+        + use hss_from_omega_signature_with_strength_arrow_out.
+      - use hss_from_omega_signature_with_strength_arrow_unique_triple.
+    Defined.
+
+
+    Definition hss_from_omega_signature_with_strength
+      : heterogeneous_substitution_system θ
+      := hss_from_omega_signature_with_strength_data ,,
+         hss_from_omega_signature_with_strength_law.
+
+  End BuildingAnHSS.
 End HeterogeneousSubstitutionSystem.

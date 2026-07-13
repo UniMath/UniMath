@@ -578,7 +578,15 @@ Qed.
 
 End map.
 
-
+Lemma composition_preserves_colimit 
+  {C D E : category} (F : C ⟶ D) (G : D ⟶ E)
+  {g : graph} {d : diagram g C} (L : C) (cc : cocone d L) 
+  (hyp_F : preserves_colimit F d L cc)
+  (hyp_G : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F d cc))
+  : preserves_colimit (F ∙ G) d L cc.
+Proof.
+  intros isCC; use (hyp_G (hyp_F isCC)).
+Defined.
 
 
 (** ** Left adjoints preserve colimits *)
