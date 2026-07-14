@@ -70,6 +70,27 @@ Section ModuleSignatures.
   Definition module_signature_axioms (Σ : module_signature_data)
     := section_disp_axioms Σ.
 
+  Lemma module_signature_equality (Σ Σ' : module_signature_cat)
+    (equality_on_objects : ∏ A, Σ A = Σ' A)
+    (equality_on_morphisms : ∏ (A A' : MON C) (f : A --> A'),
+      transportf 
+        (λ Σ : (∏ A : MON C, MOD (pr1 A) (pr2 A)), C⟦pr1 (Σ A), pr1 (Σ A')⟧)
+        (funextsec _ _ _ equality_on_objects)
+        (pr1 (section_disp_on_morphisms (pr1 Σ) f))
+        = (pr1 (section_disp_on_morphisms (pr1 Σ') f))
+       )
+    : Σ = Σ'.
+  Proof.
+    use section_disp_equality.
+    - intros; use homset_property.
+    - intro; use equality_on_objects.
+    - intros; cbn.
+      use invmap; [|use path_sigma_hprop|].
+      use isaprop_is_module_mor.
+      rewrite transportf_total2.
+      use equality_on_morphisms.
+  Qed.
+
   (**
      2. Two examples of module signatures
    *)
@@ -186,16 +207,4 @@ Section ModuleSignatures.
 
   Definition signature_evaluation : module_signature_cat ⟶ MOD_R
     := make_functor signature_evaluation_data signature_evaluation_is_functor.
-
-
-  (*
-  Lemma module_signature_equality (Σ Σ' : module_signature_cat)
-    (e : ∏ A, Σ A = Σ' A)
-    (e' : ∏ A A' (f : A --> A'), 
-      transportf (λ Σ, Σ A --> pullback_functor' A A' f (Σ A'))
-        (funextsec _ _ _ e) (section_disp_on_morphisms (pr1 Σ) f)
-        = section_disp_on_morphisms (pr1 Σ') f
-    )
-    : Σ = Σ'.
-  *)
 End ModuleSignatures.

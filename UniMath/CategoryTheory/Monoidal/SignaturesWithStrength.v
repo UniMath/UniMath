@@ -514,7 +514,6 @@ Section SignaturesWithStrength.
       : signature_with_strength_cat ⟶ module_signature_cat
       := signature_with_strength_to_module_signatures_data ,,
       signature_with_strength_to_module_signatures_is_functor.
-
   End ToModuleSignatures.
 
   Let forgetful : signature_with_strength_cat ⟶ [C, C]
@@ -1087,58 +1086,4 @@ Section OmegaCocontSignaturewWithStrength.
 
   Definition omega_signature_with_strength_cat : category
     := full_subcat _ omega_signature_with_strength_law.
-
-
-  Let forgetful : omega_signature_with_strength_cat ⟶ signature_with_strength_cat
-    := pr1_category _.
-
-
-  (*
-  Section Colimits.
-    Context {g : graph}.
-    Context (colims_g : Colims_of_shape g C).
-    Context (H_prod : ∏ (B : pointed), 
-      preserves_colimits_of_shape (rightwhiskering_functor C B) g).
-    Context (F : diagram g omega_signature_with_strength_cat).
-    Let F' := mapdiagram forgetful F.
-
-    Let H := colimit_signature_with_strength colims_g H_prod F'.
-
-    Section FixACochain.
-      Context (c : chain C) (L : C) (cc : cocone c L) (hyp : isColimCocone c L cc).
-
-      Let Hc : chain C := mapdiagram (pr1 H) c.
-      Let HL : C := pr11 H L.
-      Let Hcc : cocone Hc HL := mapcocone (pr1 H) c cc.
-
-      Section FixACocone.
-        Context (HL' : C) (cc' : cocone Hc HL').
-
-        Definition omega_colimit_signature_with_strength_is_omega_cocont_arrow
-          : C ⟦ HL, HL' ⟧
-          := colimArrow _ _ hyp.
-
-      Lemma omega_colimit_signature_with_strength_is_omega_cocont_lem
-        : isColimCocone Hc HL Hcc.
-      Proof.
-        intro.
-
-    End FixACochain.
-
-    Lemma omega_colimit_signature_with_strength_is_omega_cocont
-      : is_omega_cocont (pr1 H).
-    Proof.
-      intros c L cc hyp.
-
-  Theorem omega_signature_with_strength_inherits_colimits 
-    (g : graph) (cl : Colims_of_shape g C)
-    (H_prod : ∏ bB : pointed, 
-      preserves_colimits_of_shape (rightwhiskering_functor C bB) g)
-    : Colims_of_shape g omega_signature_with_strength_cat.
-  Proof.
-    intros F.
-
-
-  *)
-
 End OmegaCocontSignaturewWithStrength.
