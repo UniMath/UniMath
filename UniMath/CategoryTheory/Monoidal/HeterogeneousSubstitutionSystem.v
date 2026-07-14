@@ -514,5 +514,248 @@ Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
       := hss_from_omega_signature_with_strength_data ,,
          hss_from_omega_signature_with_strength_law.
 
+    Definition initial_model_of_omega_signature_with_strength_model
+      : models_of_module_signatures_cat (signature_with_strength_to_module_signatures θ)
+      := models_from_hss H θ hss_from_omega_signature_with_strength.
+
+    Let μ : colim CC ⊗ colim CC --> colim CC 
+      := hss_from_omega_signature_with_strength_arrow (hss_object_pointed hss_from_omega_signature_with_strength) (identity (colim CC)).
+
+    Section Initiality.
+      Context (model' : models_of_module_signatures_cat (signature_with_strength_to_module_signatures θ)).
+      Let R'_mon : MON C := pr1 model'.
+      Let R' : C := pr1 R'_mon.
+      Let μ' : R' ⊗ R' --> R' := pr112 R'_mon.
+      Let η' : I_{C} --> R' := pr212 R'_mon.
+      Let r' : H R' --> R' := pr12 model'.
+
+      Definition initial_model_of_omega_signature_with_strength_arrow_algebra
+        : FunctorAlgebras.category_FunctorAlg hss_from_omega_signature_with_strength_iter_functor.
+      Proof.
+        exists R'; change ((I_{C} ++ H R') --> R').
+        use (BinCoproductArrow _ η' r').
+      Defined.
+
+      Definition initial_model_of_omega_signature_with_strength_arrow_algebra_arrow
+        : colimAlgInitial O hss_from_omega_signature_with_strength_iter_functor_omega_cocont CC 
+          --> initial_model_of_omega_signature_with_strength_arrow_algebra
+        := InitialArrow (colimAlgInitial _ hss_from_omega_signature_with_strength_iter_functor_omega_cocont CC)
+        initial_model_of_omega_signature_with_strength_arrow_algebra.
+
+      Let g : colim CC --> R' := pr1 initial_model_of_omega_signature_with_strength_arrow_algebra_arrow.
+
+      Lemma initial_model_of_omega_signature_with_strength_arrow_respects_unit
+        : η · g = η'.
+      Proof.
+        unfold η; etrans.
+        { rewrite <- assoc; refine (maponpaths _ (pr2 initial_model_of_omega_signature_with_strength_arrow_algebra_arrow)). }
+        cbn; rewrite assoc; etrans.
+        { refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn1. }
+        rewrite id_left; use BinCoproductIn1Commutes.
+      Qed.
+
+      Lemma initial_model_of_omega_signature_with_strength_arrow_respects_model_out
+        : r · g = #H g · r'.
+      Proof.
+        unfold r; etrans.
+        { rewrite <- assoc; refine (maponpaths _ (pr2 initial_model_of_omega_signature_with_strength_arrow_algebra_arrow)). }
+        cbn; rewrite assoc; etrans.
+        { refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn2. }
+        rewrite <- assoc; use maponpaths.
+        use BinCoproductIn2Commutes.
+      Qed.
+
+      Let R : pointed := colim CC ,, η.
+
+      Local Definition g_pointed : R --> (R' ,, η').
+      Proof.
+        exists g.
+        use initial_model_of_omega_signature_with_strength_arrow_respects_unit.
+      Defined.
+
+      Section RespectsMultiplication.
+        Local Definition Ψ' (A : C) (h : C ⟦ A ⊗ R, R' ⟧) : C ⟦ (I_{C} ++ H A) ⊗ R, R' ⟧.
+        Proof.
+          refine (_ · _ · _).
+          - refine (BinCoproductOfArrows _ (tens_copr R) (Copr _ _) lu^{C}_{_} (θ _ _)).
+          - refine (BinCoproductOfArrows _ _ (Copr _ _) (identity _) (#H h)).
+          - refine (BinCoproductArrow _ g r').
+        Defined.
+
+        Local Lemma Ψ'_inl (A : C) (h : A ⊗ R --> R')
+          : BinCoproductIn1 (tens_copr R) · Ψ' _ h = lu^{C}_{_} · g.
+        Proof.
+          unfold Ψ'; do 2 rewrite assoc; etrans.
+          { refine (maponpaths (λ x, x · _ · _) _); use (BinCoproductOfArrowsIn1 _ (tens_copr R)). }
+          do 2 rewrite <- assoc; use maponpaths; rewrite assoc.
+          etrans.
+          { refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn1. }
+          rewrite id_left.
+          use BinCoproductIn1Commutes.
+        Qed.
+
+        Local Lemma Ψ'_inr (A : C) (h : A ⊗ R --> R')
+          : BinCoproductIn2 (tens_copr R) · Ψ' _ h = θ _ _ · #H h · r'.
+        Proof.
+          unfold Ψ'; do 2 rewrite assoc; etrans.
+          { refine (maponpaths (λ x, x · _ · _) _); use (BinCoproductOfArrowsIn2 _ (tens_copr R)). }
+          do 3 rewrite <- assoc; use maponpaths; rewrite assoc.
+          etrans.
+          { refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn2. }
+          rewrite <- assoc; use maponpaths.
+          use BinCoproductIn2Commutes.
+        Qed.
+
+        Local Lemma Ψ'_nat (A B : C) (h : A ⊗ colim CC --> R') (u : B --> A)
+          : Ψ' _ (u ⊗r colim CC · h) = (#hss_from_omega_signature_with_strength_iter_functor u) ⊗r colim CC · Ψ' _ h.
+        Proof.
+          use (BinCoproductArrowsEq _ _ _ (tens_copr R)).
+          - rewrite Ψ'_inl; cbn; cbn in g; unfold BinCoproduct_of_functors_mor; fold g.
+            symmetry; rewrite assoc; cbn; etrans.
+            { refine (!maponpaths (λ x, x · _) _); use (bifunctor_rightcomp C). }
+            etrans.
+            { refine (maponpaths (λ x, x ⊗r _ · _) _); use BinCoproductOfArrowsIn1. }
+            rewrite id_left; use Ψ'_inl.
+          - rewrite Ψ'_inr; cbn; cbn in g; unfold BinCoproduct_of_functors_mor; fold g.
+            symmetry; rewrite assoc; cbn; etrans.
+            { refine (!maponpaths (λ x, x · _) _); use (bifunctor_rightcomp C). }
+            etrans.
+            { refine (maponpaths (λ x, x ⊗r _ · _) _); use BinCoproductOfArrowsIn2. }
+            rewrite (bifunctor_rightcomp C), <- assoc; etrans.
+            { refine (maponpaths _ _); use Ψ'_inr. }
+            rewrite functor_comp; do 3 rewrite assoc.
+            use (!maponpaths (λ x, x · _ · _) _).
+            use (signature_with_strength_nat_left _ _ _ _ R).
+        Qed.
+
+        Local Definition Φ (A : C) (h: C ⟦ A ⊗ R, R ⟧) : C ⟦ A ⊗ R, R' ⟧ := h · g.
+
+        Local Lemma Φ_nat (A A' : C) (u : C ⟦ A', A ⟧) (h : C ⟦ A ⊗ R, R ⟧)
+          : u ⊗r R · Φ A h = Φ A' (u ⊗r R · h).
+        Proof.
+          use assoc.
+        Qed.
+
+        Lemma initial_model_of_omega_signature_with_strength_arrow_respects_multiplication
+          : g #⊗ g · μ' = μ · g.
+        Proof.
+          symmetry.
+          transitivity (
+            mendler_iteration_arrow hss_from_omega_signature_with_strength_iter_functor 
+            _ (tens_cocont R) (tens_init _) _ _ _ Ψ'_nat CC
+          ).
+          {
+            use (mendler_fusion_law _ _ 
+              hss_from_omega_signature_with_strength_iter_functor_omega_cocont 
+              (tens_cocont R) _ _ _ _ _ _ _ _ 
+              (tens_cocont R) _ _ _ _ Φ_nat _).
+            cbn; intro p; unfold Φ; use (BinCoproductArrowsEq _ _ _ (tens_copr R)); rewrite assoc.
+            - etrans.
+              { refine (maponpaths (λ x, x · _) _); use Ψ_inl. }
+              now rewrite id_right, Ψ'_inl.
+            - rewrite Ψ_inr, Ψ'_inr, functor_comp, <- assoc, initial_model_of_omega_signature_with_strength_arrow_respects_model_out.
+              now do 2 rewrite assoc.
+          }
+          use (mendler_iteration_unique _ _ hss_from_omega_signature_with_strength_iter_functor_omega_cocont (tens_cocont R)).
+          cbn in g.
+          rewrite assoc; use (BinCoproductArrowsEq _ _ _ (tens_copr R)); do 2 rewrite assoc; cbn; fold g f.
+          - etrans; [|symmetry; use Ψ'_inl].
+            etrans.
+            { use (!maponpaths (λ x, x · _ · _) _); [use (η ⊗r R)|use (bifunctor_rightcomp C)]. }
+            rewrite tensor_split', <- tensor_mor_left, <- tensor_mor_right, assoc.
+            etrans.
+            { refine (!maponpaths (λ x, x · _ · _) _); use (bifunctor_rightcomp C). }
+            etrans.
+            { refine (maponpaths (λ x, x ⊗r R · _ · _) initial_model_of_omega_signature_with_strength_arrow_respects_unit). }
+            rewrite tensor_mor_left, tensor_mor_right.
+            etrans.
+            { refine (maponpaths (λ x, x · _) _); use tensor_swap. }
+            rewrite <- tensor_mor_right, <- tensor_mor_left, <- assoc.
+            etrans.
+            { refine (maponpaths _ _); use monoid_to_unit_left_law. }
+            use monoidal_leftunitornat.
+          - symmetry; etrans; [use Ψ'_inr|].
+            rewrite functor_comp, assoc.
+            etrans.
+            { refine (maponpaths (λ x, x · _ · _) _); use (signature_with_strength_nat _ _ _ _ _ _ _ g_pointed). }
+            etrans; swap 1 2.
+            { use (maponpaths (λ x, x · _ · _) _); [exact (r ⊗r R)|use (bifunctor_rightcomp C)]. }
+            do 2 rewrite tensor_split', <- tensor_mor_left, <- tensor_mor_right; rewrite assoc.
+            simpl; etrans.
+            { do 2 rewrite <- assoc; refine (maponpaths _ _); rewrite assoc; use (!pr22 model'). }
+            fold R'_mon R' r'; cbn; rewrite assoc.
+            refine (maponpaths (λ x, x · _) _).
+            do 2 rewrite tensor_mor_left, tensor_mor_right, tensor_mor_right.
+            etrans.
+            { rewrite <- assoc; refine (maponpaths _ _); use tensor_swap'. }
+            rewrite assoc; use (maponpaths (λ x, x · _)).
+            do 4 rewrite <- tensor_mor_right.
+            refine (!bifunctor_rightcomp C _ _ _ _ _ _ @ !_ @ bifunctor_rightcomp C _ _ _ _ _ _).
+            use maponpaths.
+            use initial_model_of_omega_signature_with_strength_arrow_respects_model_out.
+        Qed.
+      End RespectsMultiplication.
+
+      Definition initial_model_of_omega_signature_with_strength_arrow
+        : initial_model_of_omega_signature_with_strength_model --> model'.
+      Proof.
+        repeat use tpair; cbn.
+        - exact g.
+        - exact initial_model_of_omega_signature_with_strength_arrow_respects_multiplication.
+        - exact initial_model_of_omega_signature_with_strength_arrow_respects_unit.
+        - exact initial_model_of_omega_signature_with_strength_arrow_respects_model_out.
+      Defined.
+
+      Context (arrow' : initial_model_of_omega_signature_with_strength_model --> model').
+
+      Let g' : colim CC --> R' := pr11 arrow'.
+
+      Local Lemma is_g'_algebra
+        : f · g' = BinCoproductOfArrows _ _ _ (identity _) 
+           (# H g') · BinCoproductArrow (Copr _ _) η' r'.
+      Proof.
+        use BinCoproductArrowsEq; do 2 rewrite assoc.
+        - etrans; [use (pr221 arrow')|].
+          symmetry; etrans.
+          { refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn1. }
+          rewrite id_left; use BinCoproductIn1Commutes.
+        - etrans; [use (pr2 arrow')|]; cbn; fold g'.
+          symmetry; etrans.
+          { refine (maponpaths (λ x, x · _) _); use BinCoproductOfArrowsIn2. }
+          rewrite <- assoc; use maponpaths.
+          use BinCoproductIn2Commutes.
+      Qed.
+
+      Lemma initial_model_of_omega_signature_with_strength_arrow_unique
+        : arrow' = initial_model_of_omega_signature_with_strength_arrow.
+      Proof.
+        use invmap; [|use path_sigma_hprop|].
+        use homset_property.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_monoid_mor.
+        refine (maponpaths pr1 (InitialArrowUnique 
+          (colimAlgInitial _ hss_from_omega_signature_with_strength_iter_functor_omega_cocont CC)
+          initial_model_of_omega_signature_with_strength_arrow_algebra (_ ,, is_g'_algebra))
+        ).
+      Qed.
+    End Initiality.
+
+
+    Lemma initial_model_of_omega_signature_with_strength_is_initial
+      : isInitial _ initial_model_of_omega_signature_with_strength_model.
+    Proof.
+      intro; use tpair.
+      - use initial_model_of_omega_signature_with_strength_arrow.
+      - use initial_model_of_omega_signature_with_strength_arrow_unique.
+    Defined.
+
+    Definition initial_model_of_omega_signature_with_strength 
+      : Initial (models_of_module_signatures_cat (signature_with_strength_to_module_signatures θ)).
+    Proof.
+      use make_Initial.
+      - use initial_model_of_omega_signature_with_strength_model.
+      - use initial_model_of_omega_signature_with_strength_is_initial.
+    Defined.
+
   End BuildingAnHSS.
 End HeterogeneousSubstitutionSystem.
