@@ -434,7 +434,7 @@ Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
         unfold heterogeneous_substitution_system_law_eq_unit; cbn.
         rewrite <- (Ψ_inl (colim CC) hss_from_omega_signature_with_strength_arrow).
         symmetry; etrans.
-        { refine (!maponpaths _ _); use (mendler_iteration_arrow_commutes _ _ 
+        { refine (maponpaths _ _); use (mendler_iteration_arrow_commutes _ _ 
               hss_from_omega_signature_with_strength_iter_functor_omega_cocont _ (tens_init Z)). }
         rewrite assoc; fold hss_from_omega_signature_with_strength_arrow.
         cbn; unfold η; now rewrite (bifunctor_rightcomp C).
@@ -448,7 +448,7 @@ Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
         unfold heterogeneous_substitution_system_law_eq_out; cbn.
         rewrite <- (Ψ_inr (colim CC) hss_from_omega_signature_with_strength_arrow).
         symmetry; etrans.
-        { refine (!maponpaths _ _); use (mendler_iteration_arrow_commutes _ _ 
+        { refine (maponpaths _ _); use (mendler_iteration_arrow_commutes _ _ 
               hss_from_omega_signature_with_strength_iter_functor_omega_cocont _ (tens_init Z)). }
         rewrite assoc; fold hss_from_omega_signature_with_strength_arrow.
         unfold r; now rewrite (bifunctor_rightcomp C).
