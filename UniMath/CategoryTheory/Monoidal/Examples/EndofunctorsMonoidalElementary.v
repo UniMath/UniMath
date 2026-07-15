@@ -105,4 +105,7 @@ Section FixACategory.
     exact monendocat_pentagon_identity.
   Defined.
 
+  Definition monendocat_monoidal_cat : monoidal_cat
+    := [C, C] ,, monendocat_monoidal.
+
 End FixACategory.

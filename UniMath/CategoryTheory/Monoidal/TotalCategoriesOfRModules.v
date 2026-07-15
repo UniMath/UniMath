@@ -6,6 +6,12 @@
  category C. Objects are pairs (R, M) where R is a monoid in C and M is
  a right module over R.
 
+ Given R --> R' a morphism of monoids, the pullback functor transforms modules 
+ over R' into modules over R.
+
+ Contents
+ 1. Pullback functor
+ 2. Total category of right modules
  ***************************************************************************)
 
 Require Import UniMath.Foundations.All.
@@ -33,6 +39,10 @@ Section TotalCategoryOfRModules.
   Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
   Local Notation "f ⊗r y" := (f ⊗^{C}_{r} y) (at level 31).
 
+  (**
+   1. Pullback functor
+   *)
+
   Lemma pullback_functor_funct_unit
     {R R' : C} {R_m : monoid C R} {R'_m : monoid C R'}
     (M' : C) (p' : module R' R'_m M')
@@ -54,20 +64,20 @@ Section TotalCategoryOfRModules.
   Proof.
     unfold module_laws_assoc; do 2 rewrite assoc; rewrite (bifunctor_rightcomp C).
     etrans; [etrans; etrans|].
-    - use (maponpaths (λ x, x · _)); [shelve|].
+    - refine (maponpaths (λ x, x · _) _).
       rewrite <- assoc, <- (bifunctor_leftcomp C).
-      do 2 (use maponpaths; [shelve|]).
+      do 2 (refine (maponpaths _ _)).
       symmetry; use (pr1 f_m).
-    - use (maponpaths (λ x, _ · M' ⊗l (x · _) · _)); [shelve|].
+    - refine (maponpaths (λ x, _ · M' ⊗l (x · _) · _) _).
       assert (f #⊗ f = f ⊗r R · R' ⊗l f) as H by
       now rewrite tensor_split', @tensor_mor_right, @tensor_mor_left.
       use H.
     - do 2 rewrite (bifunctor_leftcomp C), assoc.
       rewrite (monoidal_associatornatleftright C).
-      do 3 rewrite <- assoc; use maponpaths; [shelve|rewrite assoc].
-      now rewrite (monoidal_associatornatleft C).
-    - use maponpaths; [shelve|rewrite <- assoc].
-      use maponpaths; [shelve|rewrite assoc].
+      do 3 rewrite <- assoc; refine (maponpaths _ _).
+      now rewrite assoc, (monoidal_associatornatleft C).
+    - refine (maponpaths _ _); rewrite <- assoc.
+      refine (maponpaths _ _); rewrite assoc.
       use (module_laws_assoc_from_module _ R'_m p').
     - do 2 rewrite <- assoc; use (maponpaths (λ x, _ · x)).
       do 2 rewrite assoc; use (maponpaths (λ x, x · _)).
@@ -94,8 +104,7 @@ Section TotalCategoryOfRModules.
       (pullback_functor_funct M' p' f f_m) r.
   Proof.
     unfold is_module_mor; cbn; symmetry; etrans.
-    + rewrite <- assoc; use maponpaths; [shelve|].
-      symmetry; use r_m.
+    + rewrite <- assoc; refine (!maponpaths _ r_m).
     + do 2 rewrite assoc; use (maponpaths (λ x, x · _)).
       do 2 rewrite @tensor_mor_left, @tensor_mor_right.
       use tensor_swap'.
@@ -151,6 +160,10 @@ Section TotalCategoryOfRModules.
     now use pullback_functor.
   Defined.
 
+  (**
+   2. Total category of right modules
+   *)
+
   Definition total_category_of_modules_disp_cat_ob_mor : disp_cat_ob_mor (MON C).
   Proof.
     use tpair.
@@ -185,8 +198,7 @@ Section TotalCategoryOfRModules.
     rewrite (bifunctor_leftcomp C), (bifunctor_rightcomp C), assoc, assoc, assoc.
     symmetry; etrans.
     - rewrite <- r_m, assoc, <- assoc.
-      use maponpaths; [shelve|]; 
-      use (!t_m).
+      refine (!maponpaths _ t_m).
     - do 2 rewrite assoc; do 2 use (maponpaths (λ x, x · _)).
       do 2 rewrite <- assoc; use maponpaths.
       do 2 rewrite @tensor_mor_left, @tensor_mor_right.
