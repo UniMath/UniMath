@@ -198,6 +198,20 @@ Section ToPosetCategory.
   Defined.
 End ToPosetCategory.
 
+Definition hProp_category
+  : poset_category.
+Proof.
+  use poset_to_poset_category.
+  use make_Poset.
+  - exact hPropset.
+  - use make_PartialOrder.
+    + exact (λ (P Q : hProp), P ⇒ Q)%logic.
+    + repeat split.
+      * exact (λ P₁ P₂ P₃ f g x, g(f x)).
+      * exact (λ P x, x).
+      * exact (λ P₁ P₂ f g, hPropUnivalence _ _ f g).
+Defined.
+
 (** * 4. Equivalence between posetal categories and posets *)
 Definition poset_category_weq_poset_left
            (C : poset_category)
