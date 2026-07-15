@@ -309,7 +309,7 @@ Section SignaturesWithStrength.
       - use product_signature_strength_law_id.
       - use product_signature_strength_law_prod.
       - use product_signature_strength_law_nat.
-    Qed.
+    Defined.
 
   End ProductSignatureWithStrength.
 
@@ -514,6 +514,43 @@ Section SignaturesWithStrength.
       : signature_with_strength_cat ⟶ module_signature_cat
       := signature_with_strength_to_module_signatures_data ,,
       signature_with_strength_to_module_signatures_is_functor.
+
+
+    Proposition signature_with_strength_to_module_signatures_trivial
+      : signature_with_strength_to_module_signatures
+        trivial_signature_with_strength
+        = trivial_signature.
+    Proof.
+      use module_signature_equality.
+      - intro. use total2_paths_f.
+        + use idpath.
+        + abstract (
+            use invmap; [|use path_sigma_hprop|use id_left]; 
+            use isaprop_module_laws
+          ).
+      - intros; etrans.
+        + refine (maponpaths _ _); use transportf_total2_paths_f.
+        + use (transportf_total2_paths_f (λ x, x --> _)).
+    Qed.
+
+    Proposition signature_with_strength_to_module_signatures_product
+      (H : C ⟶ C) (θ : strength_for_signature H) (D : C)
+      : signature_with_strength_to_module_signatures (product_signature_strength H θ D)
+        = product_signature (signature_with_strength_to_module_signatures θ) D.
+    Proof.
+      use module_signature_equality.
+      - intro; use total2_paths_f.
+        + use idpath.
+        + abstract (
+            use invmap; [|use path_sigma_hprop|];
+            [ use isaprop_module_laws
+            | cbn; unfold HR_module_subst;
+              now rewrite (bifunctor_leftcomp C), assoc ]
+          ).
+      - intros; etrans.
+        + refine (maponpaths _ _); use transportf_total2_paths_f.
+        + use (transportf_total2_paths_f (λ x, x --> _)).
+    Qed.
   End ToModuleSignatures.
 
   Let forgetful : signature_with_strength_cat ⟶ [C, C]

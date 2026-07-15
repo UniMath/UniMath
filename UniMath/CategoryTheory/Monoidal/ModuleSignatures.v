@@ -73,12 +73,13 @@ Section ModuleSignatures.
   Lemma module_signature_equality (Σ Σ' : module_signature_cat)
     (equality_on_objects : ∏ A, Σ A = Σ' A)
     (equality_on_morphisms : ∏ (A A' : MON C) (f : A --> A'),
-      transportf 
-        (λ Σ : (∏ A : MON C, MOD (pr1 A) (pr2 A)), C⟦pr1 (Σ A), pr1 (Σ A')⟧)
-        (funextsec _ _ _ equality_on_objects)
-        (pr1 (section_disp_on_morphisms (pr1 Σ) f))
-        = (pr1 (section_disp_on_morphisms (pr1 Σ') f))
-       )
+      transportf
+        (λ ΣA : MOD (pr1 A) (pr2 A), C ⟦ pr1 ΣA, pr1 (Σ' A') ⟧)
+        (equality_on_objects A)
+        (transportf
+           (λ ΣA' : MOD (pr1 A') (pr2 A'), C ⟦ pr1 (Σ A), pr1 ΣA' ⟧)
+           (equality_on_objects A') (pr1 (section_disp_on_morphisms (pr1 Σ) f))) =
+      pr1 (section_disp_on_morphisms (pr1 Σ') f))
     : Σ = Σ'.
   Proof.
     use section_disp_equality.
@@ -87,6 +88,7 @@ Section ModuleSignatures.
     - intros; cbn.
       use invmap; [|use path_sigma_hprop|].
       use isaprop_is_module_mor.
+      rewrite transportf_total2.
       rewrite transportf_total2.
       use equality_on_morphisms.
   Qed.

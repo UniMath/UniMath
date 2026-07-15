@@ -272,15 +272,14 @@ Section Sections.
     - exact isaset_section_nat_trans_disp.
   Defined.
 
-
   Definition section_disp_equality
     { F F' : section_disp }
     (homset_D : ∏ x y (f : C ⟦ x, y ⟧) (c : D x) (d : D y), isaset (c -->[ f] d))
     (equal_on_objects : ∏ A, F A = F' A)
     (equal_on_morphisms : ∏ (A A' : C) (f : A --> A'),
-      transportf (λ F, F A -->[f] F A') 
-      (funextsec _ (pr11 F) (pr11 F') equal_on_objects) 
-      (#F f) = #F' f
+      transportf (λ FA, FA -->[f] F' A') (equal_on_objects A)
+      (transportf (λ FA', F A -->[f] FA') (equal_on_objects A') (#F f))
+      = #F' f
     )
     : F = F'.
   Proof.
@@ -300,7 +299,11 @@ Section Sections.
       etrans; [use transportf_sec_constant|].
       use funextsec; intro A'.
       use funextsec; intro f.
-      use (!helper_A (λ f F, F A -->[ f ] F A') _ _ _).
+      etrans.
+      { refine (maponpaths (λ x, x f) _); use (transportf_funextsec_2 (λ A A' FA FA', ∏ f, FA -->[ f ] FA')). }
+      cbn; etrans.
+      { use (!helper_A _ _ (equal_on_objects A) _). }
+      use maponpaths; use (!helper_A _ _ (equal_on_objects A') _).
   Qed.
 End Sections.
 
