@@ -36,6 +36,8 @@ Section HeterogeneousSubstitutionSystem.
 Local Notation "x ⊗l f" := (x ⊗^{C}_{l} f) (at level 31).
   Local Notation "f ⊗r y" := (f ⊗^{C}_{r} y) (at level 31).
 
+  (* Definition of an HSS for a signature with strength (H,θ) *) 
+
   Section FixASignatureWithStrength.
     Context (Hθ : @signature_with_strength_cat C).
     Let H : C ⟶  C := pr1 Hθ.

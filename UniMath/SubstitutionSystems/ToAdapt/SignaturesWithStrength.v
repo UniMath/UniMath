@@ -1,4 +1,3 @@
-
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -217,6 +216,9 @@ Section SignaturesWithStrength.
     : signature_with_strength_cat := H ,, θ.
 
 
+  (* Id : C ⟶ C is a signature with strength whose strength  *)
+  (* is trivial :  (Id A) ⊗ B = A ⊗ B = Id (A ⊗ B)           *)
+
   Definition trivial_signature_with_strength
     : strength_for_signature (functor_identity C).
   Proof.
@@ -232,6 +234,12 @@ Section SignaturesWithStrength.
 
   Section ProductSignatureWithStrength.
     Context (H : C ⟶ C) (θ : strength_for_signature H) (D : C). 
+
+    (* Given a signature with strength (H,θ), then D ⊗ H(-) *) 
+    (* is also a signature with strength whose strength is  *)
+    (* given by                                              *)
+    (*                α                  θ                  *)
+    (* (D ⊗ H A) ⊗ B ---> D ⊗ (H A ⊗ B) ---> D ⊗ H (A ⊗ B)  *)
 
     Definition product_signature_functor : C ⟶ C
       := H ∙ bifunctor_to_functorintoendofunctorcat C D.
@@ -313,8 +321,11 @@ Section SignaturesWithStrength.
 
   End ProductSignatureWithStrength.
 
-  Section ToModuleSignatures.
 
+  (* Defining a functor from signatures with strength to module signatures *)
+
+  Section ToModuleSignatures.
+    (* On objects, a module signature maps a monoid R to a module over this monoid *)
     Section FixASignatureWithStrength.
       Context (H : C ⟶ C) (θ : strength_for_signature H).
 
@@ -391,6 +402,7 @@ Section SignaturesWithStrength.
 
       End FixAMonoid.
 
+      (* Functoriality *)
       Section FixAMonoidMorphism.
         Context (R R' : MON C) (r : R --> R').
 
@@ -415,7 +427,7 @@ Section SignaturesWithStrength.
           - rewrite functor_comp, assoc; refine (maponpaths (λ x, x · _) _).
             use (signature_with_strength_nat _ _ _ _ _ _ _ pointed_monoid_mor_unit).
         Qed.
-      End FixAMonoidMorphism.
+        End FixAMonoidMorphism.
 
       Definition to_module_signatures_data
         : @module_signature_data C.
@@ -515,6 +527,9 @@ Section SignaturesWithStrength.
       := signature_with_strength_to_module_signatures_data ,,
       signature_with_strength_to_module_signatures_is_functor.
 
+    (* The functor maps the "trivial" and "product" signatures with strength to *)
+    (* their equivalent as module signatures                                    *)
+
 
     Proposition signature_with_strength_to_module_signatures_trivial
       : signature_with_strength_to_module_signatures
@@ -555,6 +570,8 @@ Section SignaturesWithStrength.
 
   Let forgetful : signature_with_strength_cat ⟶ [C, C]
     := pr1_category _.
+
+  (* Signatures with strength inherits their limits from the base category *)
 
   Section Limits.
     Context {g : graph}.
@@ -801,6 +818,9 @@ Section SignaturesWithStrength.
     exact (limit_signature_with_strength_lim_cone l).
   Defined.
 
+
+  (* Signatures with strength inherits their colimits from the base category *)
+  (* assuming - ⊗ B preserves those colimits (for B pointed)                 *)
 
   Section Colimits.
     Context {g : graph}.
@@ -1103,6 +1123,7 @@ Section SignaturesWithStrength.
   Defined.
 End SignaturesWithStrength.
 
+(* Full subcategory of ω-cocontinuous signatures with strength *)
 Section OmegaCocontSignaturewWithStrength.
   Context {C : monoidal_cat}.
 

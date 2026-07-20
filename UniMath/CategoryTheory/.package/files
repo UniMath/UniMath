@@ -399,7 +399,6 @@ CompletelyIterativeAlgebras.v
 Chains/Adamek.v
 Chains/CoAdamek.v
 Chains/OmegaCocontFunctors.v
-GeneralizedMendlerIteration.v
 OppositeCategory/LimitsAsColimits.v
 Chains/OmegaContFunctors.v
 Chains/OmegaContPolynomialFunctors.v
@@ -498,8 +497,6 @@ Monoidal/RModules.v
 Monoidal/TotalCategoriesOfRModules.v
 Monoidal/ModuleSignatures.v
 Monoidal/ModelsOfModuleSignature.v
-Monoidal/SignaturesWithStrength.v
-Monoidal/HeterogeneousSubstitutionSystem.v
 
 Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
 Monoidal/Displayed/Monoidal.v
