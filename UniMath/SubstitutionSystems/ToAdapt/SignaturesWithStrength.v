@@ -237,7 +237,7 @@ Section SignaturesWithStrength.
 
     (* Given a signature with strength (H,θ), then D ⊗ H(-) *) 
     (* is also a signature with strength whose strength is  *)
-    (* given by                                              *)
+    (* given by                                             *)
     (*                α                  θ                  *)
     (* (D ⊗ H A) ⊗ B ---> D ⊗ (H A ⊗ B) ---> D ⊗ H (A ⊗ B)  *)
 
