@@ -7,6 +7,7 @@ SubstitutionSystems.v
 SimplifiedHSS/SubstitutionSystems.v
 SignaturesEquivRelativeStrength.v
 GeneralizedSubstitutionSystems.v
+CategoryOfSignaturesWithStrength.v
 StrengthToModuleSignature.v
 MonadsFromSubstitutionSystems.v
 SimplifiedHSS/MonadsFromSubstitutionSystems.v
