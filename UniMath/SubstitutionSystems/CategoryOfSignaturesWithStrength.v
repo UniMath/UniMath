@@ -78,6 +78,139 @@ Section CategoryOfSignaturesWithStrength.
   Let forgetful : pointedtensorialstrength_cat ⟶ [V, V]
     := pr1_category _.
 
+  (* Id : C ⟶ C is a signature with strength whose strength  *)
+  (* is trivial :  (Id A) ⊗ B = A ⊗ B = Id (A ⊗ B)           *)
+
+  Lemma trivial_signature_with_strength_laws
+    : lineator_laxlaws Mon_PtdV Act Act (functor_identity V) (λ _ _, identity _).
+  Proof.
+    repeat split.
+    - intros ? ? ? ?; cbn; now rewrite id_right, id_left.
+    - intros ? ? ? ?; cbn; now rewrite id_right, id_left.
+    - intros A B C; cbn; unfold reindexed_actor_data; cbn.
+      rewrite (bifunctor_rightid Mon_V), (bifunctor_leftid Mon_V).
+      now repeat rewrite id_left, id_right.
+    - intro A; cbn; unfold reindexed_action_unitor_data; cbn.
+      now rewrite (bifunctor_rightid Mon_V), id_left.
+  Qed.
+
+  Definition trivial_signature_with_strength
+    : pointedtensorialstrength Mon_V (functor_identity V)
+    := _ ,, trivial_signature_with_strength_laws.
+
+  Section ProductSignatureWithStrength.
+    Context (H : V ⟶ V) (θ : pointedtensorialstrength Mon_V H) (D : V). 
+
+    (* Given a signature with strength (H,θ), then H(-) ⊗ D *) 
+    (* is also a signature with strength whose strength is  *)
+    (* given by                                             *)
+    (*                α⁻¹                θ                  *)
+    (* A ⊗ (H B ⊗ D) ---> (A ⊗ H B) ⊗ D ---> H (A ⊗ B) ⊗ D  *)
+
+    Definition product_signature_functor : V ⟶ V
+      := H ∙ rightwhiskering_functor Mon_V D.
+
+    Goal ∏ (A : V), product_signature_functor A = H A ⊗_{Mon_V} D.
+    Proof.
+      exact (λ _, idpath _).
+    Qed.
+
+    Definition product_signature_strength_mor (A : PtdV) (B : V) 
+      : pr1 A ⊗_{Mon_V} (H B ⊗_{Mon_V} D) --> H (pr1 A ⊗_{Mon_V} B) ⊗_{Mon_V} D
+      := αinv^{_}_{_,_,_} · θ A B ⊗^{Mon_V}_{r} D.
+
+    Lemma product_signature_strength_nat_left
+      : lineator_nat_left _ Act Act product_signature_functor product_signature_strength_mor.
+    Proof.
+      intros A B C f; unfold product_signature_strength_mor; cbn.
+      repeat rewrite assoc.
+      rewrite (monoidal_associatorinvnatleftright Mon_V).
+      repeat rewrite <- assoc; use maponpaths.
+      do 2 rewrite <- (bifunctor_rightcomp Mon_V).
+      use maponpaths.
+      use (lineator_linnatleft _ _ _ _ θ).
+    Qed.
+
+    Lemma product_signature_strength_nat_right
+      : lineator_nat_right _ Act Act product_signature_functor product_signature_strength_mor.
+    Proof.
+      intros A B C f; unfold product_signature_strength_mor; cbn.
+      repeat rewrite assoc.
+      rewrite (monoidal_associatorinvnatright Mon_V).
+      repeat rewrite <- assoc; use maponpaths.
+      do 2 rewrite <- (bifunctor_rightcomp Mon_V).
+      use maponpaths.
+      use (lineator_linnatright _ _ _ _ θ).
+    Qed.
+
+    Lemma product_signature_strength_preserves_actor
+      : preserves_actor _ Act Act product_signature_functor product_signature_strength_mor.
+    Proof.
+      intros A B C.
+      cbn; unfold product_signature_strength_mor, reindexed_actor_data; cbn.
+      do 2 rewrite (bifunctor_rightid Mon_V), id_left.
+      rewrite assoc.
+      etrans.
+      { rewrite <- assoc, <- (bifunctor_rightcomp Mon_V); do 2 refine (maponpaths _ _).
+        etrans.
+        { refine (!maponpaths (λ x, _ · #H x) _); now rewrite <- id_left, <- (bifunctor_rightid Mon_V). }
+        use (lineator_preservesactor _ _ _ _ θ).
+      }
+      cbn; unfold reindexed_actor_data; cbn.
+      do 3 rewrite (bifunctor_rightcomp Mon_V), assoc.
+      do 2 rewrite (bifunctor_rightid Mon_V).
+      rewrite id_right.
+      use (maponpaths (λ x, x · _)).
+      rewrite (bifunctor_leftcomp Mon_V), assoc; repeat rewrite <- assoc.
+      rewrite (monoidal_associatorinvnatleftright Mon_V); repeat rewrite assoc.
+      use (!maponpaths (λ x, x · _) _).
+      (* Pentagon axiom *)
+      etrans.
+      { rewrite <- assoc; refine (!maponpaths _ _).
+        rewrite <- id_right, <- (bifunctor_rightid Mon_V).
+        rewrite <- (pr2 (monoidal_associatorisolaw _ _ _ _)).
+        rewrite bifunctor_rightcomp, assoc.
+        now rewrite (monoidal_pentagon_identity_inv Mon_V).
+      }
+      do 2 rewrite assoc; rewrite <- id_left, assoc.
+      refine (maponpaths (λ x, x · _ · _) _).
+      use (pr1 (monoidal_associatorisolaw _ _ _ _)).
+    Qed.
+
+    Lemma product_signature_strength_preserves_unitor
+      : preserves_unitor _ Act Act product_signature_functor product_signature_strength_mor.
+    Proof.
+      intro A.
+      cbn; unfold product_signature_strength_mor, reindexed_action_unitor_data; cbn.
+      do 2 rewrite (bifunctor_rightid Mon_V), id_left; rewrite <- assoc, <- (bifunctor_rightcomp Mon_V).
+      etrans.
+      { do 2 refine (maponpaths _ _).
+        etrans.
+        { do 2 refine (maponpaths _ _); symmetry; now rewrite <- id_left, <- (bifunctor_rightid Mon_V). }
+        use (lineator_preservesunitor _ _ _ _ θ A).
+      }
+      cbn; unfold reindexed_action_unitor_data; cbn.
+      (* Triangle axiom *)
+      rewrite (bifunctor_rightid Mon_V), id_left.
+      rewrite <- id_left, <- (pr2 (monoidal_associatorisolaw _ _ _ _)), <- assoc.
+      use (!maponpaths _ _); use right_whisker_with_lunitor.
+    Qed.
+
+    Lemma product_signature_strength_laws
+      : lineator_laxlaws _ Act Act product_signature_functor product_signature_strength_mor.
+    Proof.
+      repeat split.
+      - exact product_signature_strength_nat_left.
+      - exact product_signature_strength_nat_right.
+      - exact product_signature_strength_preserves_actor.
+      - exact product_signature_strength_preserves_unitor.
+    Qed.
+
+    Definition product_signature_strength
+      : pointedtensorialstrength Mon_V product_signature_functor
+      := product_signature_strength_mor ,, product_signature_strength_laws.
+
+  End ProductSignatureWithStrength.
   (* Signatures with strength inherits their limits from the base category *)
 
   Section Limits.
