@@ -280,6 +280,43 @@ Section StrengthToModuleSignature.
     : pointedtensorialstrength_cat Mon_V_swapped ⟶ module_signature_cat (C := V_Mon)
     := make_functor _ strength_to_module_signature_functor_laws.
 
+  (* The functor maps the "trivial" and "product" signatures with strength to *)
+  (* their equivalent as module signatures                                    *)
+
+  Proposition signature_with_strength_to_module_signatures_trivial
+    : strength_to_module_signature (trivial_signature_with_strength Mon_V_swapped)
+      = trivial_signature.
+  Proof.
+    use module_signature_equality.
+    - intro. use total2_paths_f.
+      + use idpath.
+      + abstract (
+          use invmap; [|use path_sigma_hprop|use id_left]; 
+          use isaprop_module_laws
+        ).
+    - intros; etrans.
+      + refine (maponpaths _ _); use transportf_total2_paths_f.
+      + use (transportf_total2_paths_f (λ x, x --> _)).
+  Qed.
+
+  Proposition signature_with_strength_to_module_signatures_product
+    (H : V ⟶ V) (θ : pointedtensorialstrength Mon_V_swapped H) (D : V)
+    : strength_to_module_signature (product_signature_strength Mon_V_swapped H θ D)
+      = product_signature (strength_to_module_signature θ) D.
+  Proof.
+    use module_signature_equality.
+    - intro; use total2_paths_f.
+      + use idpath.
+      + abstract (
+          use invmap; [|use path_sigma_hprop|];
+          [ use isaprop_module_laws
+          | cbn; now rewrite (bifunctor_leftcomp Mon_V), assoc ]
+        ).
+    - intros; etrans.
+      + refine (maponpaths _ _); use transportf_total2_paths_f.
+      + use (transportf_total2_paths_f (λ x, x --> _)).
+  Qed.
+
   Section ModelsAreSigmaMonoids.
     Context {H : V ⟶ V}.
     Context (θ : pointedtensorialstrength Mon_V_swapped H).
