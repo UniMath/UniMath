@@ -1224,7 +1224,7 @@ Section SheafLogic.
               (φ : sheaf_predicate (Γ ×P A))
               (x : C)
               (xx : (Γ x : hSet))
-    : (x ⊩_{xx} exists_sheaf_predicate φ)
+    : (x ⊩_{xx} ∃h φ)
       ≃
       (∃ (ω : sieve x),
        (C x ω)
