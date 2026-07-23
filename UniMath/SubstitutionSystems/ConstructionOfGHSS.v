@@ -40,8 +40,12 @@ Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 
+Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.opp_precat.
+
 Require Import UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.ActionScenarioForGenMendlerIteration_alt.
+Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
 
 Local Open Scope cat.
@@ -547,123 +551,139 @@ Section InitialAlgebraToMHSS.
   Let σ : SigmaMonoid θ := mhss_to_sigma_monoid θ initial_alg_to_mhss.
   Let μ : pr1 σ ⊗_{Mon_V} pr1 σ --> pr1 σ := pr11 (pr212 σ).
 
+  Section FixASigmaMonoid.
+    Context (asigma : SigmaMonoid θ).
+
+    Let av : V := pr1 asigma.
+    Let aτ : H av --> av := pr112 asigma.
+    Let a_mon : monoid Mon_V av := pr212 asigma.
+    Let aμ : av ⊗_{ Mon_V} av --> av := monoid_data_multiplication _ (pr1 a_mon).
+    Let aη : I_{Mon_V} --> av := monoid_data_unit _ (pr1 a_mon).
+
+    Local Definition It_inst
+      : ∃! h : V ⟦ t, av ⟧, τ · h = # H h · aτ × η · h = aη
+      := Iteration_I_H av aη aτ.
+
+    Let h : t --> av := pr11 It_inst.
+
+    Lemma SigmaMonoidFromInitialAlgebra_initiality_arrow_τ
+      : τ · h = # H h · aτ.
+    Proof.
+      exact (pr121 It_inst).
+    Qed.
+
+    Lemma SigmaMonoidFromInitialAlgebra_initiality_arrow_η
+      : η · h = aη.
+    Proof.
+      exact (pr221 It_inst).
+    Qed.
+
+    Local Definition Mendler_inst := SpecialGenMendlerIterationWithActegoryAndStrength _ _ CV Act
+                           (t,,η) _ _ HH _ _ θ aτ (ru^{Mon_V}_{t} · h)
+                           (initial_annihilates t) (left_whiskering_omega_cocont t) δ.
+
+    Local Definition Mendler_arrow : t ⊗_{Mon_V} t --> av := pr11 Mendler_inst.
+
+    (* This is an instance of the fusion law, but it's easier to prove it    *)
+    (* directly using uniqueness of the Mendler arrow than to use the fusion *)
+    (* law from GenMendlerIteration_alt.v *)
+    Lemma SigmaMonoidFromInitialAlgebra_initiality_arrow_μ_lemma1
+      : μ · h = Mendler_arrow.
+    Proof.
+      use path_to_ctr; split; cbn.
+      - change (t ⊗^{Mon_V}_{l} η · (μ · h) = ru^{ Mon_V }_{ t} · h).
+        rewrite assoc.
+        apply cancel_postcomposition.
+        exact (monoid_to_unit_right_law _ (pr212 σ)).
+      - change (t ⊗^{Mon_V}_{l} τ · (μ · h) = θ (t,, η) t · # H (μ · h) · aτ).
+        rewrite functor_comp, assoc, assoc. symmetry.
+        etrans.
+        { rewrite <- assoc; apply cancel_precomposition.
+          exact (!SigmaMonoidFromInitialAlgebra_initiality_arrow_τ). }
+        rewrite assoc.
+        use cancel_postcomposition.
+        exact (pr22 σ).
+    Qed.
+
+    Local Definition h_ptd : PtdV⟦ t ,, η , av ,, aη ⟧
+      := h ,, SigmaMonoidFromInitialAlgebra_initiality_arrow_η.
+
+    (* We use uniqueness of the Mendler arrow again *)
+    Lemma SigmaMonoidFromInitialAlgebra_initiality_arrow_μ_lemma2
+      : h ⊗^{Mon_V} h · aμ = Mendler_arrow.
+    Proof.
+      use path_to_ctr; split; cbn.
+      - change (t ⊗^{Mon_V}_{l} η · (h ⊗^{ Mon_V} h · aμ) = ru^{ Mon_V }_{ t} · h).
+        unfold functoronmorphisms1; rewrite assoc, assoc, <- (monoidal_rightunitornat Mon_V).
+        etrans.
+        { do 2 apply cancel_postcomposition; symmetry; use (bifunctor_equalwhiskers Mon_V). }
+        unfold functoronmorphisms1; simpl.
+        repeat rewrite <- assoc; use cancel_precomposition. 
+        rewrite assoc, <- (bifunctor_leftcomp Mon_V).
+        etrans; [|apply monoid_to_unit_right_law].
+        apply cancel_postcomposition; use maponpaths.
+        use SigmaMonoidFromInitialAlgebra_initiality_arrow_η.
+      - change (t ⊗^{Mon_V}_{l} τ · (h ⊗^{ Mon_V} h · aμ) = θ (t,, η) t · # H (h ⊗^{ Mon_V} h · aμ) · aτ).
+        symmetry.
+        rewrite functor_comp, assoc, assoc.
+        etrans.
+        { do 2 apply cancel_postcomposition.
+          use (!lineator_is_nattrans_full _ _ _ _ (lineator_linnatleft _ _ _ _ θ) 
+            (lineator_linnatright _ _ _ _ θ) _ _ _ _ h_ptd _). }
+        change (
+          h ⊗^{ Mon_V}_{r} H t · av ⊗^{ Mon_V}_{l} # H h · θ (av,, aη) av · # H aμ · aτ 
+          = t ⊗^{ Mon_V}_{l} τ · (h ⊗^{ Mon_V}_{r} t · av ⊗^{ Mon_V}_{l} h) · aμ).
+        rewrite assoc.
+        etrans.
+        2: { do 2 apply cancel_postcomposition; use (bifunctor_equalwhiskers Mon_V). }
+        unfold functoronmorphisms1.
+        etrans.
+        { do 2 rewrite <- assoc; apply cancel_precomposition; rewrite assoc. use (pr22 asigma). }
+        rewrite assoc; use cancel_postcomposition.
+        do 2 rewrite <- assoc; use cancel_precomposition.
+        do 2 rewrite <- (bifunctor_leftcomp Mon_V).
+        now rewrite SigmaMonoidFromInitialAlgebra_initiality_arrow_τ.
+    Qed.
+
+    Lemma SigmaMonoidFromInitialAlgebra_initiality_arrow_μ
+      : h ⊗^{Mon_V} h · aμ = μ · h.
+    Proof.
+      exact (SigmaMonoidFromInitialAlgebra_initiality_arrow_μ_lemma2 
+          @ !SigmaMonoidFromInitialAlgebra_initiality_arrow_μ_lemma1).
+    Qed.
+
+    Definition SigmaMonoidFromInitialAlgebra_initiality_arrow : σ --> asigma.
+    Proof.
+      exists h.
+      use ((_ ,, _ ,, _) ,, tt); cbn.
+      - exact SigmaMonoidFromInitialAlgebra_initiality_arrow_τ.
+      - exact SigmaMonoidFromInitialAlgebra_initiality_arrow_μ.
+      - exact SigmaMonoidFromInitialAlgebra_initiality_arrow_η.
+    Defined.
+
+    Context (arrow' : σ --> asigma).
+
+    Lemma SigmaMonoidFromInitialAlgebra_initiality_arrow_unique 
+      : arrow' = SigmaMonoidFromInitialAlgebra_initiality_arrow.
+    Proof.
+      use invmap; [|use path_sigma_hprop|].
+      - repeat use isapropdirprod.
+        + use homset_property.
+        + use homset_property.
+        + use homset_property.
+        + use isapropunit.
+      - use (path_to_ctr _ _ It_inst).
+        cbn in arrow'; induction arrow' as [h' [[hypτ [? hypη]] ?]].
+        exact (hypτ ,, hypη).
+    Qed.
+  End FixASigmaMonoid.
+
   Theorem SigmaMonoidFromInitialAlgebra_is_initial : isInitial _ σ.
   Proof.
-    intro asigma.
-    induction asigma as [av [[aτ [[aμ aη] Hμη]] Hτ]].
-    red in Hτ. cbn in Hτ.
-    set (It_inst := Iteration_I_H av aη aτ).
-    set (h := pr11 It_inst).
-    use tpair.
-    - exists h.
-      use tpair.
-      2: { exact tt. }
-      assert (aux := pr21 It_inst).
-      hnf in aux.
-      split.
-      + exact (pr1 aux).
-      + red. split.
-        2: { red. exact (pr2 aux). }
-        red.
-        change (h ⊗^{ Mon_V} h · aμ = μ · h).
-        destruct aux as [auxτ auxη].
-        fold h in auxτ, auxη.
-        (** both sides are identical as unique morphism from the Mendler iteration scheme *)
-        set (Mendler_inst := SpecialGenMendlerIterationWithActegoryAndStrength Mon_PtdV IV CV Act
-                           (t,,η) CP H HH I_{Mon_V} av θ aτ (ru^{Mon_V}_{t} · h)
-                           (initial_annihilates t) (left_whiskering_omega_cocont t) δ).
-        intermediate_path (pr11 Mendler_inst).
-        * apply path_to_ctr.
-          red; split.
-          -- change (t ⊗^{Mon_V}_{l} η · (h ⊗^{ Mon_V} h · aμ) = ru^{ Mon_V }_{ t} · h).
-             etrans.
-             2: { apply monoidal_rightunitornat. }
-             etrans.
-             2: { apply maponpaths.
-                  apply (pr12 Hμη). }
-             repeat rewrite assoc.
-             apply cancel_postcomposition.
-             rewrite (bifunctor_equalwhiskers Mon_V).
-             unfold functoronmorphisms2.
-             rewrite assoc.
-             etrans.
-             { apply cancel_postcomposition.
-               apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V t)). }
-             rewrite auxη.
-             apply pathsinv0, (bifunctor_equalwhiskers Mon_V).
-          -- change (t ⊗^{Mon_V}_{l} τ · (h ⊗^{ Mon_V} h · aμ) = θ (t,, η) t · # H (h ⊗^{ Mon_V} h · aμ) · aτ).
-             etrans.
-             2: { apply cancel_postcomposition.
-                  rewrite functor_comp.
-                  rewrite assoc.
-                  apply cancel_postcomposition.
-                  transparent assert (h_ptd : (PtdV⟦(t,,η),(av,,aη)⟧)).
-                  { exists h.
-                    exact auxη.
-                  }
-                  apply (lineator_is_nattrans_full Mon_PtdV Act Act H
-                           (lineator_linnatleft _ _ _ _ θ) (lineator_linnatright _ _ _ _ θ)_ _ _ _ h_ptd h). }
-             etrans.
-             2: { repeat rewrite assoc'.
-                  apply maponpaths.
-                  rewrite assoc.
-                  apply pathsinv0, Hτ. }
-             repeat rewrite assoc.
-             apply cancel_postcomposition.
-             change (t ⊗^{Mon_V}_{l} τ · h ⊗^{Mon_V} h = h ⊗^{Mon_V} #H h · av ⊗^{Mon_V}_{l} aτ).
-             etrans.
-             2: { unfold functoronmorphisms1.
-                  rewrite assoc'.
-                  apply maponpaths.
-                  apply (functor_comp (leftwhiskering_functor Mon_V av)). }
-             rewrite <- auxτ.
-             etrans.
-             { rewrite (bifunctor_equalwhiskers Mon_V).
-               unfold functoronmorphisms2.
-               rewrite assoc.
-               apply cancel_postcomposition.
-               apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V t)). }
-             apply pathsinv0, (bifunctor_equalwhiskers Mon_V).
-        * apply pathsinv0, path_to_ctr.
-          red; split.
-          -- change (t ⊗^{Mon_V}_{l} η · (μ · h) = ru^{ Mon_V }_{ t} · h).
-             rewrite assoc.
-             etrans.
-             { apply cancel_postcomposition.
-               apply (monoid_to_unit_right_law Mon_V (pr212 σ)). }
-             apply idpath.
-          -- change (t ⊗^{Mon_V}_{l} τ · (μ · h) = θ (t,, η) t · # H (μ · h) · aτ).
-             rewrite assoc.
-             etrans.
-             { apply cancel_postcomposition.
-               apply pathsinv0, (pr22 σ). }
-             repeat rewrite assoc'.
-             apply maponpaths.
-             etrans.
-             2: { apply cancel_postcomposition.
-                  apply pathsinv0, functor_comp. }
-             rewrite assoc'.
-             apply maponpaths.
-             exact auxτ.
-    - hnf.
-      intros [ah Hyp].
-      use total2_paths_f.
-      { apply (path_to_ctr _ _ It_inst).
-        cbn in Hyp.
-        split.
-        + exact (pr11 Hyp).
-        + exact (pr221 Hyp).
-      }
-      show_id_type.
-      assert (aux: isaprop TYPE).
-      { apply isapropdirprod.
-        + apply isapropdirprod.
-          * apply V.
-          * apply isaprop_is_monoid_mor.
-        + apply isapropunit.
-      }
-      apply aux.
-  Qed.
+    intro asigma; use tpair.
+    - use SigmaMonoidFromInitialAlgebra_initiality_arrow.
+    - use SigmaMonoidFromInitialAlgebra_initiality_arrow_unique.
+  Defined.
 
   Definition SigmaMonoidFromInitialAlgebraInitial : Initial (SigmaMonoid θ)
     := σ,,SigmaMonoidFromInitialAlgebra_is_initial.

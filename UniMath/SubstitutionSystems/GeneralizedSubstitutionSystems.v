@@ -307,66 +307,47 @@ Section hss.
   Proof.
     apply pathsinv0, (mfbracket_unique(Z:=I_{Mon_PtdV})).
     split.
-    - cbn. unfold μ_0.
+    - cbn.
       rewrite monoidal_leftunitornat.
       apply cancel_postcomposition.
       apply pathsinv0, unitors_coincide_on_unit.
-    - etrans.
-      { apply cancel_postcomposition.
-        apply pointedtensorialstrength_preserves_unitor.
-        apply lineator_preservesunitor. }
-      cbn.
-      apply pathsinv0, monoidal_leftunitornat.
+    - rewrite monoidal_leftunitornat.
+      apply cancel_postcomposition.
+      apply pointedtensorialstrength_preserves_unitor.
+      apply lineator_preservesunitor.
   Qed.
 
   Definition mhss_monoid_data : monoid_data Mon_V gh := μ,,μ_0.
 
-  Lemma mhss_first_monoidlaw : monoid_laws_unit_right Mon_V mhss_monoid_data.
+  Lemma mhss_monoid_unit_right : monoid_laws_unit_right Mon_V mhss_monoid_data.
   Proof.
     red. cbn.
-    etrans.
-    { apply pathsinv0, (mfbracket_η(Z:=Ptd_from_mhss)). }
-    apply id_right.
+    rewrite <- id_right.
+    apply (! mfbracket_η (Z:=Ptd_from_mhss) _).
   Qed.
 
 
-  Lemma mhss_second_monoidlaw_aux :
+  Lemma mhss_monoid_unit_left_aux :
     ru^{Mon_V}_{I_{Mon_V}} · η = I_{Mon_V} ⊗^{Mon_V}_{l} η · (η ⊗^{Mon_V}_{r} gh · μ).
   Proof.
-    rewrite assoc.
-    etrans.
-    2: { apply cancel_postcomposition.
-         apply (bifunctor_equalwhiskers Mon_V). }
-    unfold functoronmorphisms1.
-    rewrite assoc'.
-    etrans.
-    2: { apply maponpaths.
-         apply pathsinv0, mhss_first_monoidlaw. }
-    apply pathsinv0, monoidal_rightunitornat.
+    rewrite assoc, <- monoidal_rightunitornat, <- mhss_monoid_unit_right, assoc.
+    apply cancel_postcomposition.
+    apply (bifunctor_equalwhiskers Mon_V).
   Qed.
 
-  Lemma mhss_second_monoidlaw : monoid_laws_unit_left Mon_V mhss_monoid_data.
+  Lemma mhss_monoid_unit_left : monoid_laws_unit_left Mon_V mhss_monoid_data.
   Proof.
     red. cbn.
-    etrans.
-    2: { apply μ_1_is_instance_of_left_unitor. }
+    rewrite <- μ_1_is_instance_of_left_unitor.
     apply (mfbracket_unique(Z:=I_{Mon_PtdV})).
     split.
-    - exact mhss_second_monoidlaw_aux.
+    - exact mhss_monoid_unit_left_aux.
     - rewrite functor_comp.
       transitivity (μ_0 ⊗^{ Mon_V}_{r} H (pr1 gh) · θ Ptd_from_mhss (pr1 gh) · # H μ · τ). (* give this term due to efficiency problems *)
       { apply cancel_postcomposition.
         rewrite assoc.
         apply cancel_postcomposition.
-        apply pathsinv0.
-        set (aux := lineator_linnatright Mon_PtdV
-                      (actegory_with_canonical_pointed_action Mon_V)
-                      (actegory_with_canonical_pointed_action Mon_V)
-                      H θ I_{ Mon_PtdV} Ptd_from_mhss (pr1 gh) μ_0_Ptd).
-        cbn in aux.
-        etrans.
-        { exact aux. }
-        apply idpath.
+        apply (!lineator_linnatright _ _ _ _ θ _ _ _ μ_0_Ptd).
       }
       etrans.
       { do 2 rewrite assoc'.
@@ -376,7 +357,6 @@ Section hss.
       }
       repeat rewrite assoc.
       apply cancel_postcomposition.
-      cbn.
       apply (bifunctor_equalwhiskers Mon_V).
   Qed.
 
@@ -391,7 +371,7 @@ Section hss.
     cbn.
     rewrite unitors_coincide_on_unit.
     etrans.
-    2: { apply pathsinv0, mhss_second_monoidlaw_aux. }
+    2: { apply pathsinv0, mhss_monoid_unit_left_aux. }
     rewrite assoc.
     apply cancel_postcomposition.
     apply (bifunctor_equalwhiskers Mon_V).
@@ -404,18 +384,10 @@ Section hss.
   Lemma mhss_third_monoidlaw_aux : θ (pr1 mh_squared,, pr2 mh_squared) gh · # H (μ ⊗^{Mon_V}_{r} gh) =
                                      μ_2 ⊗^{Mon_V}_{r} H gh · θ Ptd_from_mhss gh.
   Proof.
-    apply pathsinv0.
-    assert (aux := lineator_linnatright Mon_PtdV
-                     (actegory_with_canonical_pointed_action Mon_V)
-                     (actegory_with_canonical_pointed_action Mon_V)
-                     H θ mh_squared Ptd_from_mhss gh μ_2_Ptd).
-    simpl in aux. (* simpl not cbn for efficiency of Qed *)
-    etrans.
-    { exact aux. }
-    apply idpath.
+    use (!lineator_linnatright _ _ _ _ θ _ _ _ μ_2_Ptd).
   Qed.
 
-  Lemma mhss_third_monoidlaw : monoid_laws_assoc Mon_V mhss_monoid_data.
+  Lemma mhss_monoid_assoc : monoid_laws_assoc Mon_V mhss_monoid_data.
   Proof.
     red. cbn. apply pathsinv0.
     transitivity μ_3.
@@ -428,12 +400,10 @@ Section hss.
              apply cancel_postcomposition.
              apply (bifunctor_equalwhiskers Mon_V). }
         unfold functoronmorphisms1.
-        etrans.
-        2: { rewrite assoc'.
-             apply maponpaths.
-             apply pathsinv0, mhss_first_monoidlaw.
-        }
-        apply pathsinv0, monoidal_rightunitornat.
+        rewrite <- monoidal_rightunitornat.
+        rewrite assoc'.
+        apply maponpaths.
+        apply (!mhss_monoid_unit_right).
       + etrans.
         { apply cancel_postcomposition.
           rewrite functor_comp.
@@ -449,7 +419,6 @@ Section hss.
         }
         do 2 rewrite assoc.
         apply cancel_postcomposition.
-        cbn.
         apply (bifunctor_equalwhiskers Mon_V).
     - (** this case is the monoidal generalization of the first item on p.168 of Matthes & Uustalu, TCS 2004 *)
       apply pathsinv0, (mfbracket_unique(Z:=mh_squared)).
@@ -466,7 +435,7 @@ Section hss.
         etrans.
         2: { apply cancel_postcomposition.
              do 2 apply maponpaths.
-             apply pathsinv0, mhss_first_monoidlaw. }
+             use (!mhss_monoid_unit_right). }
         apply cancel_postcomposition.
         apply pathsinv0, left_whisker_with_runitor.
       + etrans.
@@ -487,7 +456,7 @@ Section hss.
             rewrite functor_comp.
             rewrite assoc.
             apply cancel_postcomposition.
-            apply pathsinv0, (lineator_linnatleft Mon_PtdV _ _ H θ Ptd_from_mhss _ _ μ).
+            apply (!lineator_linnatleft _ _ _ _ θ Ptd_from_mhss _ _ μ).
           }
           repeat rewrite assoc'.
           apply maponpaths.
@@ -508,14 +477,13 @@ Section hss.
         cbn.
         rewrite (bifunctor_leftcomp Mon_V).
         repeat rewrite assoc.
-        apply cancel_postcomposition.
-        apply monoidal_associatornatleft.
+        now rewrite monoidal_associatornatleft.
   Qed.
 
   Definition mhss_monoid : monoid Mon_V gh.
   Proof.
     exists mhss_monoid_data.
-    exact (mhss_second_monoidlaw,,mhss_first_monoidlaw,,mhss_third_monoidlaw).
+    exact (mhss_monoid_unit_left,,mhss_monoid_unit_right,,mhss_monoid_assoc).
   Defined.
 
   End FixAMhss.
