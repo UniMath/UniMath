@@ -1,3 +1,19 @@
+(***************************************************************************
+
+ Category of signatures with (pointed tensorial) strength
+
+ In this file, we define the category of signatures with a pointed tensorial
+ strength, and prove their closure under colimits and limits.
+
+ Contents
+ 1. Definitions
+ 2. Two examples of signatures with strength
+ 3. Limits are inherited from limits in V
+ 4. Colimits are inherited from colimits in V
+
+ ***************************************************************************)
+
+
 Require Import UniMath.Foundations.All.
 
 Require Import UniMath.MoreFoundations.All.
@@ -37,6 +53,8 @@ Section CategoryOfSignaturesWithStrength.
   Local Definition PtdV : category := coslice_cat_total V I_{Mon_V}.
   Local Definition Mon_PtdV : monoidal PtdV := monoidal_pointed_objects Mon_V.
   Local Definition Act : actegory Mon_PtdV V := actegory_with_canonical_pointed_action Mon_V.
+
+  (** 1. Definitions *)
 
   Definition pointedtensorialstrength_disp_cat_ob_mor
     : disp_cat_ob_mor [V, V].
@@ -78,7 +96,9 @@ Section CategoryOfSignaturesWithStrength.
   Let forgetful : pointedtensorialstrength_cat ⟶ [V, V]
     := pr1_category _.
 
-  (* Id : C ⟶ C is a signature with strength whose strength  *)
+  (** 2. Two examples of signatures with strength *)
+
+  (* Id : V ⟶ V is a signature with strength whose strength  *)
   (* is trivial :  (Id A) ⊗ B = A ⊗ B = Id (A ⊗ B)           *)
 
   Lemma trivial_signature_with_strength_laws
@@ -211,8 +231,8 @@ Section CategoryOfSignaturesWithStrength.
       := product_signature_strength_mor ,, product_signature_strength_laws.
 
   End ProductSignatureWithStrength.
-  (* Signatures with strength inherits their limits from the base category *)
 
+  (** 3. Limits are inherited from limits in V *)
   Section Limits.
     Context {g : graph}.
     Context (lims_g : Lims_of_shape g V).
@@ -463,8 +483,9 @@ Section CategoryOfSignaturesWithStrength.
     exact (limit_signature_with_strength_lim_cone l).
   Defined.
 
-  (* Signatures with strength inherits their colimits from the base category *)
-  (* assuming A ⊗ - preserves those colimits (for A pointed)                 *)
+  (** 4. Colimits are inherited from colimits in V *)
+
+  (* assuming A ⊗ - preserves those colimits for A ∈ PtdV *)
 
   Section Colimits.
     Context {g : graph}.

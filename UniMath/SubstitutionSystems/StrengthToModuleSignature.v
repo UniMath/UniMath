@@ -1,3 +1,20 @@
+(***************************************************************************
+
+   Strength to module signature
+
+   In this file, we define a functor from the category of signatures with a
+   pointed tensorial strength to module signatures, and prove it maps simple
+   example of signatures with strength to the expected module signatures.
+   Finally, we show that models for the obtained module signatures are
+   equivalent to Sigma monoids.
+
+ Contents
+ 1. Definitions
+ 2. Mapping of trivial and product signatures
+ 3. Models are Sigma monoids
+
+ ***************************************************************************)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -42,6 +59,8 @@ Section StrengthToModuleSignature.
   Local Definition Mon_PtdV : monoidal PtdV := monoidal_pointed_objects Mon_V.
 
   Local Definition Mon_V_swapped : monoidal V := monoidal_swapped Mon_V.
+
+  (** 1. Definitions *)
 
   Section FixAStrength.
     Context {H : V ⟶ V}.
@@ -280,6 +299,9 @@ Section StrengthToModuleSignature.
     : pointedtensorialstrength_cat Mon_V_swapped ⟶ module_signature_cat (C := V_Mon)
     := make_functor _ strength_to_module_signature_functor_laws.
 
+
+  (** 2. Mapping of trivial and product signatures *)
+
   (* The functor maps the "trivial" and "product" signatures with strength to *)
   (* their equivalent as module signatures                                    *)
 
@@ -317,6 +339,7 @@ Section StrengthToModuleSignature.
       + use (transportf_total2_paths_f (λ x, x --> _)).
   Qed.
 
+  (** 3. Models are Sigma monoids *)
   Section ModelsAreSigmaMonoids.
     Context {H : V ⟶ V}.
     Context (θ : pointedtensorialstrength Mon_V_swapped H).

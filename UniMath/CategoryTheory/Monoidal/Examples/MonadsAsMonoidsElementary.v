@@ -4,7 +4,12 @@
     the bicategorical variant is found in [MonadsAsMonoidsWhiskered]
 
     we also show the direction from monads to monoids, also showing 
-    that the category of monads in C is equivalent to the category of monoids in [C, C]
+    that the category of monads in C is equivalent to the category 
+    of monoids in [C, C]
+
+   Contents:
+   1. Monads and monoids in [C, C] are equivalent
+   2. Monad modules and monoid modules are equivalent
  *)
 
 Require Import UniMath.Foundations.All.
@@ -25,19 +30,29 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+Require Import UniMath.CategoryTheory.Monoidal.RModules.
+
 Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
 
 Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.Monads.LModules.
 
 Local Open Scope cat.
 
+
+(** 1. Monads and monoids in [C, C] are equivalent *)
 Section FixACategory.
 
   Context {C : category}.
 
   Let EndC : monoidal_cat := monendocat_monoidal_cat C.
+
+  Let EndC_swapped : monoidal_cat :=  _ ,, monoidal_swapped EndC.
+
   Let Monoids : category := category_of_monoids_in_monoidal_cat EndC.
   Let Monads : category := category_Monad C.
+
+  Let Monoids_swapped : category := category_of_monoids_in_monoidal_cat EndC_swapped.
 
 Section MonoidToMonad.
 
@@ -292,4 +307,249 @@ Definition monad_equiv_monoid_endcat
   : equivalence_of_cats Monads Monoids
   := make_equivalence_of_cats adjunction_monad_monoid adjunction_monad_monoid_equiv.
 
+
+(** 2. Monad modules and monoid modules are equivalent *)
+Section FixAMonoid.
+  (* We show that monad left modules are equivalent to monoid left-modules, that is, right-modules for the swapped monoidal product *)
+
+  Context (Monoid' : Monoids).
+  Let Monad : Monads := monoid_to_monad_CAT Monoid'.
+  Let Monoid : Monoids_swapped := monoid_to_monoid_swapped_mon EndC Monoid'.
+
+  Let MonoidModules : category := MOD (pr1 Monoid) (pr2 Monoid).
+  Let MonadModules : category := category_LModule Monad C.
+
+  Section FixAMonadModule.
+    Context (monad_module : MonadModules).
+    Let M : C ⟶  C := pr11 monad_module.
+    Let bind : pr1 Monad ∙ M ⟹  M := pr21 monad_module.
+
+    Lemma monad_to_monoid_modules_laws
+      : module_laws _ (pr2 Monoid) bind.
+    Proof.
+      split.
+      - use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_nat_trans; use homset_property.
+        use funextsec; cbn; intro.
+        rewrite id_left.
+        use LModule_law2.
+      - use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_nat_trans; use homset_property.
+        use funextsec; cbn; intro.
+        use LModule_law1.
+    Qed.
+  
+    Definition monad_to_monoid_modules
+      : MonoidModules
+      := M ,, bind ,, monad_to_monoid_modules_laws.
+  End FixAMonadModule.
+
+  Section FixAMonadModuleMorphism.
+    Context (monad_module : MonadModules).
+    Let M : C ⟶  C := pr11 monad_module.
+    Let bind : pr1 Monad ∙ M ⟹  M := pr21 monad_module.
+
+    Context (monad_module' : MonadModules).
+    Let M' : C ⟶  C := pr11 monad_module'.
+    Let bind' : pr1 Monad ∙ M' ⟹  M' := pr21 monad_module'.
+
+    Context (f : monad_module --> monad_module').
+
+    Lemma monad_to_monoid_modules_map_is_module_mor
+      : is_module_mor _ (pr2 Monoid)
+        (pr2 (monad_to_monoid_modules monad_module))
+        (pr2 (monad_to_monoid_modules monad_module'))
+        (pr1 f).
+    Proof.
+      use invmap; [|use path_sigma_hprop|].
+      use isaprop_is_nat_trans; use homset_property.
+      use funextsec; cbn.
+      use (pr2 f).
+    Qed.
+
+    Definition monad_to_monoid_modules_map
+      : monad_to_monoid_modules monad_module --> monad_to_monoid_modules monad_module'
+      := pr1 f ,, monad_to_monoid_modules_map_is_module_mor.
+  End FixAMonadModuleMorphism.
+
+
+  Definition monad_to_monoid_modules_functor_data
+    : functor_data MonadModules MonoidModules.
+  Proof.
+    use tpair.
+    - exact monad_to_monoid_modules.
+    - exact monad_to_monoid_modules_map.
+  Defined.
+
+  Lemma monad_to_monoid_modules_functor_laws
+    : is_functor monad_to_monoid_modules_functor_data.
+  Proof.
+    split; repeat intro;
+    (use invmap; [|use path_sigma_hprop|easy]);
+    use isaprop_is_module_mor.
+  Qed.
+
+  Definition monad_to_monoid_modules_functor
+    : MonadModules ⟶ MonoidModules
+    := make_functor monad_to_monoid_modules_functor_data monad_to_monoid_modules_functor_laws.
+
+  Section FixAMonoidModule.
+    Context (monoid_module : MonoidModules).
+    Let M : C ⟶  C := pr1 monoid_module.
+    Let bind : pr1 Monad ∙ M ⟹  M := pr12 monoid_module.
+
+    Lemma monoid_to_monad_modules_laws
+      : LModule_laws Monad (M,, bind).
+    Proof.
+      split.
+      - intro; cbn.
+        use (maponpaths (λ f, pr1 f c) (module_laws_unit_from_module _ _ (pr2 monoid_module))).
+      - intro; cbn.
+        symmetry; rewrite <- id_left, assoc; symmetry.
+        use (maponpaths (λ f, pr1 f c) (module_laws_assoc_from_module _ _ (pr2 monoid_module))).
+    Qed.
+
+    Definition monoid_to_monad_modules : MonadModules
+      := (M ,, bind) ,, monoid_to_monad_modules_laws.
+  End FixAMonoidModule.
+  
+  Section FixAMonoidModuleMorphism.
+    Context (monoid_module : MonoidModules).
+    Let M : C ⟶  C := pr1 monoid_module.
+    Let bind : pr1 Monad ∙ M ⟹  M := pr12 monoid_module.
+
+    Context (monoid_module' : MonoidModules).
+    Let M' : C ⟶  C := pr1 monoid_module'.
+    Let bind' : pr1 Monad ∙ M' ⟹  M' := pr12 monoid_module'.
+
+    Context (f : monoid_module --> monoid_module').
+
+    Definition monoid_to_monad_modules_map
+      : monoid_to_monad_modules monoid_module --> monoid_to_monad_modules monoid_module'.
+    Proof.
+      exists (pr1 f).
+      abstract (
+        intro x; exact (maponpaths (λ g, pr1 g x) (pr2 f))
+      ).
+    Defined.
+  End FixAMonoidModuleMorphism.
+
+  Definition monoid_to_monad_modules_functor_data
+    : functor_data MonoidModules MonadModules.
+  Proof.
+    use tpair.
+    - exact monoid_to_monad_modules.
+    - exact monoid_to_monad_modules_map.
+  Defined.
+
+  Lemma monoid_to_monad_modules_functor_laws
+    : is_functor monoid_to_monad_modules_functor_data.
+  Proof.
+    split; repeat intro;
+    (use invmap; [|use path_sigma_hprop|easy]);
+    use isaprop_LModule_Mor_laws.
+  Qed.
+
+  Definition monoid_to_monad_modules_functor
+    : MonoidModules ⟶ MonadModules
+    := make_functor monoid_to_monad_modules_functor_data monoid_to_monad_modules_functor_laws.
+
+  Definition adjunction_monad_monoid_modules_unit
+    : functor_identity _ ⟹ monad_to_monoid_modules_functor ∙ monoid_to_monad_modules_functor.
+  Proof.
+    use make_nat_trans.
+    - use LModule_identity.
+    - abstract (
+        intros M M' f;
+        use invmap; [|use path_sigma_hprop|];
+        [use isaprop_LModule_Mor_laws
+        |use invmap; [|use path_sigma_hprop|];
+          [use isaprop_is_nat_trans; use homset_property
+          |use funextsec; intro; cbn;
+           now rewrite id_left, id_right
+          ]
+        ]
+      ).
+  Defined.
+
+  Definition adjunction_monad_monoid_modules_counit
+    : monoid_to_monad_modules_functor ∙ monad_to_monoid_modules_functor ⟹ functor_identity _.
+  Proof.
+    use make_nat_trans.
+    - intro M; cbn; exists (nat_trans_id _).
+      abstract (
+        use invmap; [|use path_sigma_hprop|];
+        [use isaprop_is_nat_trans; use homset_property
+        |use funextsec; intro; cbn; now rewrite id_left, id_right]
+      ).
+    - abstract (
+        intros M M' f;
+        use invmap; [|use path_sigma_hprop|];
+        [use isaprop_is_module_mor
+        |use invmap; [|use path_sigma_hprop|];
+          [use isaprop_is_nat_trans; use homset_property
+          |use funextsec; intro; cbn;
+           now rewrite id_left, id_right
+          ]
+        ]
+      ).
+  Defined.
+
+  Definition adjunction_monad_monoid_modules
+    : adjunction_data MonadModules MonoidModules.
+  Proof.
+    use make_adjunction_data.
+    - exact monad_to_monoid_modules_functor.
+    - exact monoid_to_monad_modules_functor.
+    - exact adjunction_monad_monoid_modules_unit.
+    - exact adjunction_monad_monoid_modules_counit.
+  Defined.
+
+  Lemma adjunction_monad_monoid_modules_equiv
+    : forms_equivalence adjunction_monad_monoid_modules.
+  Proof.
+    use make_forms_equivalence.
+    - intro M; use make_is_z_isomorphism; cbn; try split.
+      + exists (nat_trans_id _).
+        abstract(intro; now rewrite id_left, id_right).
+      + use invmap; [|use path_sigma_hprop|].
+        use isaprop_LModule_Mor_laws.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_nat_trans; use homset_property.
+        use funextsec; intro; use id_left.
+      + use invmap; [|use path_sigma_hprop|].
+        use isaprop_LModule_Mor_laws.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_nat_trans; use homset_property.
+        use funextsec; intro; use id_left.
+    - intro M; use make_is_z_isomorphism; cbn; try split.
+      + exists (nat_trans_id _).
+        abstract (
+          unfold is_module_mor; cbn;
+          use invmap; [|use path_sigma_hprop|];
+          [use isaprop_is_nat_trans; use homset_property
+          |use funextsec; intro; cbn; now rewrite id_left, id_right]
+        ).
+      + use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_module_mor.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_nat_trans; use homset_property.
+        use funextsec; intro; use id_left.
+      + use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_module_mor.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_nat_trans; use homset_property.
+        use funextsec; intro; use id_left.
+  Qed.
+
+
+  Definition monad_modules_equiv_monoid_modules_endcat
+    : equivalence_of_cats MonadModules MonoidModules.
+  Proof.
+    use make_equivalence_of_cats.
+    - exact adjunction_monad_monoid_modules.
+    - exact adjunction_monad_monoid_modules_equiv.
+  Defined.
+
+End FixAMonoid.
 End FixACategory.
