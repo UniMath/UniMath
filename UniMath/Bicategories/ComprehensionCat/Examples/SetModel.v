@@ -259,19 +259,25 @@ Proof.
   cbn -[fiber_functor_from_cleaving comm_nat_z_iso].
   etrans.
   {
-    exact (fam_disp_cat_comm_nat_z_iso
-             _ _ _ _
-             (comprehension_functor_mor_comm
-                set_comprehension_functor
-                (λ (x : (X₁ : hSet)) (y : Y(s x)), y))
-             _
-             (x := (x ,, y))
-             _).
+    apply maponpaths.
+    pose ((λ xy, s (pr1 xy) ,, pr2 xy) : SET ⟦ total2_hSet (λ z, Y(s z)) , total2_hSet Y ⟧)
+      as f.
+    exact (fam_disp_cat_fiber_functor_from_cleaving f _ _).
   }
+  cbn -[fiber_functor_from_cleaving comm_nat_z_iso].
   etrans.
   {
-    apply maponpaths.
-    exact (fam_disp_cat_fiber_functor_from_cleaving _ _ _).
+    exact (fam_disp_cat_comm_nat_z_iso
+            _ s _
+            (comprehension_functor_mor
+            (comp_cat_comprehension set_full_comp_cat)
+            (cleaving_of_types set_full_comp_cat X₂ X₁ s Y))
+            (comprehension_functor_mor_comm
+               set_comprehension_functor
+               (λ (x : (X₁ : hSet)) (y : Y(s x)), y))
+            (λ x, (∑ y, Z (x ,, y))%set)
+            (x := (x ,,y))
+            (y ,, z)).
   }
   cbn.
   apply (transportf_set (λ x, ∑ (y : Y x), Z (x ,, y))).
@@ -450,19 +456,20 @@ Proof.
   rewrite set_dependent_product_unit.
   etrans.
   {
-    apply maponpaths.
+    exact (fam_disp_cat_fiber_functor_from_cleaving _ _ _).
+  }
+  cbn -[comm_nat_z_iso_inv].
+  etrans.
+  {
+    refine (maponpaths (λ h, h y) _).
     exact (fam_disp_cat_comm_nat_z_iso_inv
              _ _ _ _
              (comprehension_functor_mor_comm
                 set_comprehension_functor
                 (λ (x : (X₁ : hSet)) (y : Y(s x)), y))
-             _
+             (λ x, (∏ y : Y x, Z (x ,, y))%set)
              (x := (x ,, y))
-             _).
-  }
-  etrans.
-  {
-    exact (fam_disp_cat_fiber_functor_from_cleaving _ _ _).
+             f).
   }
   cbn.
   refine (maponpaths (λ h, h y) _).
