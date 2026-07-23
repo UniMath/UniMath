@@ -559,8 +559,22 @@ Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
   isColimCocone d L cc -> isColimCocone (mapdiagram F d) (F L) (mapcocone d cc).
 
+Lemma isaprop_preserves_colimit {g : graph} (d : diagram g C) (L : C) (cc : cocone d L)
+  : isaprop (preserves_colimit d L cc).
+Proof.
+  use impred_isaprop; intro.
+  use isaprop_isColimCocone.
+Qed.
+
 Definition preserves_colimits_of_shape (g : graph) : UU :=
   ∏ (d : diagram g C) (L : C)(cc : cocone d L), preserves_colimit d L cc.
+
+Lemma isaprop_preserves_colimits_of_shape {g : graph}
+  : isaprop (preserves_colimits_of_shape g).
+Proof.
+  do 3 (use impred_isaprop; intro).
+  use isaprop_preserves_colimit.
+Qed.
 
 End map.
 
