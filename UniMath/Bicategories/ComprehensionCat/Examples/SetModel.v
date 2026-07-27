@@ -741,6 +741,18 @@ Proof.
   apply setproperty.
 Qed.
 
+Proposition set_comp_cat_comp_subst_ty_inv'
+            {Γ₁ Γ₂ Γ₃ : set_dfl_full_comp_cat}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (A : ty Γ₃)
+  : comp_subst_ty_inv s₁ s₂ A = λ γ a, a.
+Proof.
+  use funextsec ; intro γ.
+  use funextsec ; intro a.
+  apply set_comp_cat_comp_subst_ty_inv.
+Qed.
+
 Proposition set_comp_cat_eq_subst_ty
             {Γ₁ Γ₂ : set_dfl_full_comp_cat}
             {s₁ s₂ : Γ₁ --> Γ₂}
@@ -813,6 +825,65 @@ Proof.
     apply idpath.
   - cbn.
     apply idpath.
+Qed.
+
+Proposition set_comp_cat_comp_mor_over_sub
+            {Γ : set_dfl_full_comp_cat}
+            {A₁ A₂ : ty Γ}
+            {B₁ : ty (Γ & A₁)}
+            {B₂ : ty (Γ & A₂)}
+            (f : A₁ -->[ identity _ ] A₂)
+            (g : B₁ <: B₂ [[ comp_cat_comp_mor f ]])
+  : comp_cat_comp_mor_over_sub f g = λ x, (pr11 x ,, f _ (pr21 x)) ,, g _ (pr2 x).
+Proof.
+  apply idpath.
+Qed.
+
+Proposition set_comp_cat_comp_mor_over_sub'
+            {Γ : set_dfl_full_comp_cat}
+            {A₁ A₂ : ty Γ}
+            {B₁ : ty (Γ & A₁)}
+            {B₂ : ty (Γ & A₂)}
+            (f : A₁ -->[ identity _ ] A₂)
+            {g₁ g₂ : B₁ <: B₂ [[ comp_cat_comp_mor f ]]}
+            (p : g₁ = g₂)
+  : comp_cat_comp_mor_over_sub f g₁ = λ x, (pr11 x ,, f _ (pr21 x)) ,, g₂ _ (pr2 x).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Proposition set_comp_cat_extend_over
+            {Γ₁ Γ₂ : set_dfl_full_comp_cat}
+            (A : ty Γ₂)
+            (s : Γ₁ --> Γ₂)
+  : comp_cat_extend_over A s = λ x, s (pr1 x) ,, pr2 x.
+Proof.
+  apply idpath.
+Qed.
+
+Proposition set_comp_cat_comp_mor_over
+            {Γ₁ Γ₂ : set_dfl_full_comp_cat}
+            {A : ty Γ₁}
+            {B : ty Γ₂}
+            (s : Γ₁ --> Γ₂)
+            (f : A <: B [[ s ]])
+  : comp_cat_comp_mor_over s f = λ x, s (pr1 x) ,, f _ (pr2 x).
+Proof.
+  apply idpath.
+Qed.
+
+Proposition set_comp_cat_comp_mor_over'
+            {Γ₁ Γ₂ : set_dfl_full_comp_cat}
+            {A : ty Γ₁}
+            {B : ty Γ₂}
+            (s : Γ₁ --> Γ₂)
+            {f₁ f₂ : A <: B [[ s ]]}
+            (p : f₁ = f₂)
+  : comp_cat_comp_mor_over s f₁ = λ x, s (pr1 x) ,, f₂ _ (pr2 x).
+Proof.
+  induction p.
+  apply idpath.
 Qed.
 
 Proposition set_comp_cat_hprop_ty
