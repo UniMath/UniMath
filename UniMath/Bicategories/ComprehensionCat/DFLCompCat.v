@@ -275,6 +275,20 @@ Definition dfl_full_comp_cat_unit
   : ty Γ
   := pr1 (dfl_full_comp_cat_terminal Γ).
 
+Definition dfl_comp_cat_unit_subst
+           {C : dfl_full_comp_cat}
+           {Γ Δ : C}
+           (s : Γ --> Δ)
+  : z_iso
+      (C := fiber_category _ _)
+      (dfl_full_comp_cat_unit Δ [[ s ]])
+      (dfl_full_comp_cat_unit Γ)
+  := preserves_terminal_to_z_iso
+       _
+       (pr2 (fiberwise_terminal_dfl_full_comp_cat C) _ _ s)
+       (dfl_full_comp_cat_terminal _)
+       (dfl_full_comp_cat_terminal _).
+
 Definition dfl_full_comp_cat_extend_unit
            {C : dfl_full_comp_cat}
            (Γ : C)

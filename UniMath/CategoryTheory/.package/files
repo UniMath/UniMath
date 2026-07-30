@@ -106,6 +106,8 @@ Limits/Coends.v
 
 Limits/PullbackConstructions.v
 
+IdempotentsAndSplitting/SectionsExamples.v
+
 RegularAndExact/RegularEpi.v
 RegularAndExact/RegularCategory.v
 RegularAndExact/RegularEpiFacts.v

@@ -457,6 +457,8 @@ ComprehensionCat/TypeFormers/SigmaTypes.v
 ComprehensionCat/TypeFormers/PiTypes.v
 ComprehensionCat/DFLCompCat.v
 ComprehensionCat/DFLCompCatNotations.v
+ComprehensionCat/SigmaTypeNotations.v
+ComprehensionCat/PiTypeNotations.v
 ComprehensionCat/ComprehensionEso.v
 ComprehensionCat/HPropMono.v
 ComprehensionCat/Biequivalence/DFLCompCatToFinLim.v
@@ -520,6 +522,7 @@ ComprehensionCat/Universes/CompCatTypes/Resizing.v
 ComprehensionCat/Universes/CompCatTypes/Truncation.v
 ComprehensionCat/Universes/CompCatTypes/Sum.v
 ComprehensionCat/Universes/CompCatTypes/Sigma.v
+ComprehensionCat/Universes/CompCatTypes/Pi.v
 
 ComprehensionCat/Universes/TypeConstructions/Constant.v
 ComprehensionCat/Universes/TypeConstructions/Identity.v
@@ -535,8 +538,12 @@ ComprehensionCat/InternalLanguageTopos/Topos.v
 ComprehensionCat/InternalLanguageTopos/ToposNat.v
 ComprehensionCat/InternalLanguageTopos/ToposNatUniv.v
 
+ComprehensionCat/Strictify.v
+
 ComprehensionCat/Examples/FullSubCompCat.v
 ComprehensionCat/Examples/SetModel.v
+ComprehensionCat/Examples/SetModelUniverse.v
+ComprehensionCat/Examples/SetUniverseTypes.v
 ComprehensionCat/Examples/PresheafModel.v
 ComprehensionCat/Examples/SheafModel.v
 ComprehensionCat/Examples/SetGroupoidModel.v

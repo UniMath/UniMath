@@ -21,6 +21,9 @@
  6. The subobject classifier and the natural numbers in the set model
  7. Sets form an elementary topos with an NNO
  8. Terms in the set model
+ 9. Useful calculational lemmas
+ 10. Calculational lemmas regarding ∏-types
+ 11. Propositions in the set model
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -64,6 +67,7 @@ Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.HPropMono.
+Require Import UniMath.Bicategories.ComprehensionCat.PiTypeNotations.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes.
@@ -668,6 +672,7 @@ Proof.
     apply idpath.
 Qed.
 
+(** * 9. Useful calculational lemmas *)
 Proposition set_comp_cat_id_subst_ty
             {Γ : set_dfl_full_comp_cat}
             (A : ty Γ)
@@ -827,6 +832,10 @@ Proof.
     apply idpath.
 Qed.
 
+(**
+   While a lot of the following lemmas hold by reflexivity, it can be more convenient to
+   rewrite using the lemmas below instead of doing a full computation.
+ *)
 Proposition set_comp_cat_comp_mor_over_sub
             {Γ : set_dfl_full_comp_cat}
             {A₁ A₂ : ty Γ}
@@ -850,6 +859,17 @@ Proposition set_comp_cat_comp_mor_over_sub'
   : comp_cat_comp_mor_over_sub f g₁ = λ x, (pr11 x ,, f _ (pr21 x)) ,, g₂ _ (pr2 x).
 Proof.
   induction p.
+  apply idpath.
+Qed.
+
+Proposition set_comp_cat_subst
+            {Γ Δ : set_dfl_full_comp_cat}
+            {A : ty Δ}
+            (s : Γ --> Δ)
+            {γ : (Γ : hSet)}
+            (x : A (s γ))
+  : comp_cat_subst A s γ x = x.
+Proof.
   apply idpath.
 Qed.
 
@@ -886,6 +906,214 @@ Proof.
   apply idpath.
 Qed.
 
+(** * 10. Calculational lemmas regarding ∏-types *)
+Proposition set_comp_cat_pi_subst_coerce
+            {Γ Δ : set_dfl_full_comp_cat}
+            (s : Γ --> Δ)
+            (A : ty Δ)
+            (B : ty (Δ & A))
+            {γ : (Γ : hSet)}
+            (φ : ∏ (x : A (s γ)), B (s γ ,, x))
+  : comp_cat_pi_subst_coerce
+      (C := set_dfl_full_comp_cat)
+      dependent_prod_set_comp_cat
+      A B
+      s
+      γ
+      φ
+    =
+    φ.
+Proof.
+  exact (eqtohomot (eqtohomot (set_right_beck_chevalley_nat_trans_eq A s B) γ) φ).
+Qed.
+
+Proposition set_comp_cat_pi_subst_coerce_inv
+            {Γ Δ : set_dfl_full_comp_cat}
+            (s : Γ --> Δ)
+            (A : ty Δ)
+            (B : ty (Δ & A))
+            {γ : (Γ : hSet)}
+            (φ : ∏ (x : A (s γ)), B (s γ ,, x))
+  : comp_cat_pi_subst_coerce_inv
+      (C := set_dfl_full_comp_cat)
+      dependent_prod_set_comp_cat
+      A B
+      s
+      γ
+      φ
+    =
+    φ.
+Proof.
+  pose (maponpaths
+          (λ z, z γ φ)
+          (z_iso_inv_after_z_iso
+             (comp_cat_pi_subst
+                (C := set_dfl_full_comp_cat)
+                dependent_prod_set_comp_cat
+                A B
+                s)))
+    as p.
+  refine (_ @ p).
+  rewrite fam_disp_cat_fiber_comp.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    exact (set_comp_cat_pi_subst_coerce s A B φ).
+  }
+  apply idpath.
+Qed.
+
+Proposition set_dep_prod_functor_mor
+            {Γ : set_dfl_full_comp_cat}
+            (A : ty Γ)
+            {B₁ B₂ : ty (Γ & A)}
+            (g : B₁ <: B₂)
+            {γ : (Γ : hSet)}
+            (φ : ∏ (x : A γ), B₁ (γ ,, x))
+            (x : A γ)
+  : #(dep_prod_functor
+        (C := set_dfl_full_comp_cat)
+        dependent_prod_set_comp_cat
+        A)
+      g
+      γ
+      φ
+      x
+    =
+    g (γ ,, x) (φ x).
+Proof.
+  cbn -[fiber_category].
+  rewrite !fam_disp_cat_fiber_comp.
+  cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_set_dep_prod
+            {Γ : set_dfl_full_comp_cat}
+            {A : ty Γ}
+            {B : ty (Γ & A)}
+            {γ₁ γ₂ : (Γ : hSet)}
+            (p : γ₁ = γ₂)
+            (φ : ∏ (x : A γ₁), B (γ₁ ,, x))
+            (x : A γ₂)
+  : transportf
+      (dep_prod_cc dependent_prod_set_comp_cat A B)
+      p
+      φ
+      x
+    =
+    transportf
+      B
+      (total2_paths_b
+         (B := A)
+         (s := γ₁ ,, transportb A p x) (s' := γ₂ ,, x)
+         p
+         (idpath _))
+      (φ (transportb A p x)).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_set_dep_prod_idpath
+            {Γ : set_dfl_full_comp_cat}
+            {A : ty Γ}
+            {B : ty (Γ & A)}
+            {γ : (Γ : hSet)}
+            (p : γ = γ)
+            (φ : ∏ (x : A γ), B (γ ,, x))
+            (x : A γ)
+  : transportf
+      (dep_prod_cc dependent_prod_set_comp_cat A B)
+      p
+      φ
+      x
+    =
+    φ x.
+Proof.
+  assert (p = idpath _) as ->.
+  {
+    apply setproperty.
+  }
+  cbn.
+  apply idpath.
+Qed.
+
+Proposition set_comp_cat_pi_coerce_mor
+            {Γ : set_dfl_full_comp_cat}
+            {A₁ A₂ : ty Γ}
+            (f : A₂ <: A₁)
+            {B₁ : ty (Γ & A₁)}
+            {B₂ : ty (Γ & A₂)}
+            (g : B₁ [[ comp_cat_comp_mor (C := set_dfl_full_comp_cat) f ]] <: B₂)
+            {γ : (Γ : hSet)}
+            (φ : ∏ (x : A₁ γ), B₁ (γ ,, x))
+            (x : A₂ γ)
+  : comp_cat_pi_coerce_mor
+      (C := set_dfl_full_comp_cat)
+      dependent_prod_set_comp_cat
+      f
+      g
+      (γ ,, x)
+      φ
+    =
+    g (γ ,, x) (φ (f γ x)).
+Proof.
+  unfold comp_cat_pi_coerce_mor.
+  rewrite !fam_disp_cat_fiber_comp.
+  apply maponpaths.
+  etrans.
+  {
+    apply (set_comp_cat_coerce_subst_ty (comp_cat_comp_mor (C := set_dfl_full_comp_cat) f)).
+  }
+  etrans.
+  {
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      apply set_comp_cat_eq_subst_ty.
+    }
+    exact (set_comp_cat_comp_subst_ty_inv
+             (comp_cat_comp_mor (C := set_dfl_full_comp_cat) f)
+             (π _)
+             _ _).
+  }
+  cbn -[dep_prod_cc].
+  apply transportf_set_dep_prod_idpath.
+Qed.
+
+Proposition set_comp_cat_pi_coerce
+            {Γ : set_dfl_full_comp_cat}
+            {A₁ A₂ : ty Γ}
+            (f : A₂ <: A₁)
+            {B₁ : ty (Γ & A₁)}
+            {B₂ : ty (Γ & A₂)}
+            (g : B₁ [[ comp_cat_comp_mor (C := set_dfl_full_comp_cat) f ]] <: B₂)
+            {γ : (Γ : hSet)}
+            (φ : ∏ (x : A₁ γ), B₁ (γ ,, x))
+            (x : A₂ γ)
+  : comp_cat_pi_coerce
+      (C := set_dfl_full_comp_cat)
+      dependent_prod_set_comp_cat
+      f
+      g
+      γ
+      φ
+      x
+    =
+    g (γ ,, x) (φ (f γ x)).
+Proof.
+  unfold comp_cat_pi_coerce.
+  rewrite !fam_disp_cat_fiber_comp.
+  rewrite set_dep_prod_functor_mor.
+  rewrite set_comp_cat_pi_coerce_mor.
+  cbn.
+  apply idpath.
+Qed.
+
+(** * 11. Propositions in the set model *)
 Proposition set_comp_cat_hprop_ty
             {Γ : set_dfl_full_comp_cat}
             (A : ty Γ)

@@ -47,6 +47,7 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
 Require Import UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.
 Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.SectionsExamples.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 
 Local Open Scope cat.
@@ -669,13 +670,8 @@ Proof.
   - use (PullbackArrow (comp_cat_pullback A s)).
     + exact (s · t).
     + apply identity.
-    + abstract
-        (rewrite id_left ;
-         rewrite !assoc' ;
-         rewrite comp_cat_tm_eq ;
-         apply id_right).
-  - abstract
-      (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s))).
+    + exact (section_of_mor_pullback_pb_eq (comp_cat_pullback A s) t).
+  - apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)).
 Defined.
 
 Notation "t [[ s ]]tm" := (subst_comp_cat_tm t s) (at level 20).
@@ -713,11 +709,10 @@ Definition coerce_comp_cat_tm
 Proof.
   use make_comp_cat_tm.
   - exact (t · comp_cat_comp_mor f).
-  - abstract
-      (rewrite !assoc' ;
-       rewrite comp_cat_comp_mor_comm ;
-       rewrite comp_cat_tm_eq ;
-       apply idpath).
+  - exact (coerce_section_of_mor_eq
+             (comp_cat_comp_mor f)
+             (comprehension_functor_mor_comm _ f)
+             t).
 Defined.
 
 Notation "t ↑ f" := (coerce_comp_cat_tm f t) (at level 29, left associativity).
@@ -1497,6 +1492,28 @@ Proof.
     rewrite !assoc'.
     rewrite comp_cat_comp_mor_comm.
     apply (PullbackArrow_PullbackPr2 (comp_cat_pullback (A [[s₂]]) s₁)).
+Qed.
+
+Proposition comp_sub_comp_cat_tm_alt
+            {C : comp_cat}
+            {Γ₁ Γ₂ Γ₃ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            {A : ty Γ₃}
+            (t : tm Γ₃ A)
+  : t [[ s₂ ]]tm [[ s₁ ]]tm
+    =
+    t [[ s₁ · s₂ ]]tm ↑ (comp_subst_ty_inv s₁ s₂ A).
+Proof.
+  rewrite comp_sub_comp_cat_tm.
+  rewrite comp_coerce_comp_cat_tm.
+  refine (!_).
+  etrans.
+  {
+    refine (maponpaths (λ z, _ ↑ z) _).
+    apply z_iso_inv_after_z_iso.
+  }
+  apply id_coerce_comp_cat_tm.
 Qed.
 
 Proposition subst_coerce_comp_cat_tm
