@@ -14,6 +14,7 @@
 
  ***************************************************************************)
 
+Require Import UniMath.Tactics.EnsureStructuredProofs.
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -21,8 +22,10 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
+(*
 Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+*)
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -52,13 +55,13 @@ Section ModuleSignatures.
 
   (* We use displayed sections, as total_category_of_modules is a displayed category *)
 
-  Definition module_signature_data 
+  Definition module_signature_data
     := @section_disp_data (MON C) total_category_of_modules_disp_cat.
 
   Definition module_signature_cat : category
     := @section_disp_cat (MON C) total_category_of_modules_disp_cat.
 
-  Definition module_signature_disp_on_objects (Σ : module_signature_data) (R : MON C) 
+  Definition module_signature_disp_on_objects (Σ : module_signature_data) (R : MON C)
     : MOD (pr1 R) (pr2 R) := pr1 Σ R.
 
   Definition module_signature_disp_cat_to_data (Σ : module_signature_cat)
@@ -87,7 +90,7 @@ Section ModuleSignatures.
     - intro; use equality_on_objects.
     - intros; cbn.
       use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_module_mor.
+      { use isaprop_is_module_mor. }
       rewrite transportf_total2.
       rewrite transportf_total2.
       use equality_on_morphisms.
@@ -109,10 +112,10 @@ Section ModuleSignatures.
       ).
   Defined.
 
-  Lemma trivial_signature_axioms 
+  Lemma trivial_signature_axioms
     : module_signature_axioms trivial_signature_data.
   Proof.
-    split; intros; 
+    split; intros;
     (use invmap; [|use path_sigma_hprop|]);
     now try use isaprop_is_module_mor.
   Qed.
@@ -127,11 +130,11 @@ Section ModuleSignatures.
         (pullback_functor_funct _ (pr2 (product_module _ _ _ D (pr2 (Σ R')))) _ (pr2 f))
         (D ⊗l pr1 Σf).
   Proof.
-    unfold is_module_mor; cbn; do 2 rewrite assoc.
+    unfold is_module_mor; cbn. unfold product_module_subst. do 2 rewrite assoc.
     symmetry; etrans; etrans.
     - rewrite <- assoc; use maponpaths; [shelve|symmetry].
       use (bifunctor_leftcomp C).
-    - do 2 (use maponpaths; [shelve|]); 
+    - do 2 (use maponpaths; [shelve|]);
       use (!pr2 Σf).
     - rewrite (bifunctor_leftcomp C), assoc, (monoidal_associatornatleftright C), <- assoc.
       use maponpaths; [shelve|cbn].
@@ -139,7 +142,7 @@ Section ModuleSignatures.
     - now do 2 rewrite assoc.
   Qed.
 
-  Definition product_signature_data (Σ : module_signature_cat) (D : C) 
+  Definition product_signature_data (Σ : module_signature_cat) (D : C)
     : module_signature_data.
   Proof.
     use tpair; cbn.
@@ -148,23 +151,23 @@ Section ModuleSignatures.
       exists (D ⊗l pr1 Σf); use product_module_signature_lemma.
   Defined.
 
-  Lemma product_signature_axioms (Σ : module_signature_cat) (D : C) 
+  Lemma product_signature_axioms (Σ : module_signature_cat) (D : C)
     : module_signature_axioms (product_signature_data Σ D).
   Proof.
     split.
     - intro R; use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_module_mor.
+      { use isaprop_is_module_mor. }
       cbn; etrans.
       + do 2 (use maponpaths; [shelve|]); use (pr12 Σ R).
       + cbn; now rewrite tensor_mor_left, tensor_id_id.
     - intros R R' R'' f g; use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_module_mor.
+      { use isaprop_is_module_mor. }
       cbn; etrans.
       + do 2 (use maponpaths; [shelve|]); use (pr22 Σ R).
       + use (bifunctor_leftcomp C).
   Qed.
 
-  Definition product_signature (Σ : module_signature_cat) (D : C) 
+  Definition product_signature (Σ : module_signature_cat) (D : C)
     : module_signature_cat
     := product_signature_data Σ D,, product_signature_axioms Σ D.
 
@@ -181,13 +184,13 @@ Section ModuleSignatures.
   Proof.
     use make_functor_data.
     - intro Σ; exact (Σ R).
-    - intros Σ Σ' [f _]; induction (f R) as [fR H]. 
+    - intros Σ Σ' [f _]; induction (f R) as [fR H].
       exists fR.
       abstract (
-        cbn in fR, H |- *; 
+        cbn in fR, H |- *;
         unfold is_module_mor, pullback_functor_funct in *;
         cbn in fR, H |- *;
-        etrans; 
+        etrans;
         [|use H];
         now rewrite assoc, tensor_mor_left, tensor_id_id, id_right
       ).
@@ -197,11 +200,11 @@ Section ModuleSignatures.
     : is_functor signature_evaluation_data.
   Proof.
     split.
-    - intro Σ; use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_module_mor.
+    - intro Σ. use invmap; [|use path_sigma_hprop|].
+      { use isaprop_is_module_mor. }
       easy.
     - intros Σ Σ' Σ'' f g; use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_module_mor.
+      { use isaprop_is_module_mor. }
       cbn; unfold mor_disp; cbn.
       now rewrite transportf_total2, transportf_const.
   Qed.
