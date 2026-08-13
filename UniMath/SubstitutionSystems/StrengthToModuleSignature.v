@@ -76,13 +76,13 @@ Section StrengthToModuleSignature.
       Let η : I_{Mon_V} --> R_ob := monoid_data_unit _ (pr12 R).
       Let μ : R_ob ⊗_{Mon_V} R_ob --> R_ob := monoid_data_multiplication _ (pr12 R).
 
-      Let pointed_R : PtdV := monoid_to_pointed R. 
+      Let pointed_R : PtdV := monoid_to_pointed R.
       Let pointed_RR : PtdV := pointed_R ⊗_{Mon_PtdV} pointed_R.
 
       Local Definition pointed_monoid_unit : PtdV ⟦ I_{Mon_PtdV}, pointed_R ⟧
         := η ,, id_left _.
 
-      Local Lemma pointed_multiplication_lemma 
+      Local Lemma pointed_multiplication_lemma
         : luinv^{_}_{_} · η ⊗^{Mon_V} η · μ = η.
       Proof.
         etrans.
@@ -106,7 +106,7 @@ Section StrengthToModuleSignature.
       Proof.
         unfold module_laws_assoc, HR_module_subst.
         do 2 rewrite assoc; rewrite (bifunctor_rightcomp Mon_V).
-        unfold RModules.μ; fold μ R_ob. 
+        unfold RModules.μ; fold μ R_ob.
         symmetry; etrans.
         { refine (maponpaths (λ x, x · _) _); rewrite <- assoc; refine (maponpaths _ _).
           use (lineator_linnatleft _ _ _ _ θ pointed_R). }
@@ -137,7 +137,7 @@ Section StrengthToModuleSignature.
         rewrite id_right; etrans.
         { rewrite <- assoc, <- functor_comp; do 2 refine (maponpaths _ _).
           use (pr2 (monoidal_associatorisolaw _ _ _ _)). }
-        eassert (_ ⊗^{ tensor_swapped Mon_V} _ = _ ⊗^{Mon_V} _) as hyp 
+        eassert (_ ⊗^{ tensor_swapped Mon_V} _ = _ ⊗^{Mon_V} _) as hyp
         by use monoidal_swapped_whiskering.
         now rewrite functor_id, id_right, hyp.
       Qed.
@@ -161,7 +161,7 @@ Section StrengthToModuleSignature.
         now rewrite (tensor_mor_left (V := V_Mon)), (tensor_id_id (V := V_Mon)).
       Qed.
 
-      Definition strength_to_module 
+      Definition strength_to_module
         : module (C := V_Mon) (pr1 R) (pr2 R) (H R_ob)
         := make_module _ _ _ HR_module_subst_unit HR_module_subst_assoc.
     End FixAMonoid.
@@ -229,10 +229,10 @@ Section StrengthToModuleSignature.
 
     Lemma strength_to_module_signature_morphism_lemma
       (R : MON Mon_V)
-      : α (monoid_carrier Mon_V R) ⊗^{ Mon_V}_{r} pr1 R 
+      : α (monoid_carrier Mon_V R) ⊗^{ Mon_V}_{r} pr1 R
         · H' (monoid_carrier Mon_V R) ⊗^{ Mon_V}_{l} identity (pr1 R)
         · θ' (monoid_to_pointed R) (monoid_carrier Mon_V R)
-        · # H' (monoid_data_multiplication Mon_V (pr12 R)) 
+        · # H' (monoid_data_multiplication Mon_V (pr12 R))
       = θ (monoid_to_pointed R) (monoid_carrier Mon_V R)
         · # H (monoid_data_multiplication Mon_V (pr12 R))
         · α (monoid_carrier Mon_V R).
@@ -250,19 +250,19 @@ Section StrengthToModuleSignature.
       use tpair; cbn.
       - intros R; exists (α _); cbn.
         abstract (
-          unfold is_module_mor; cbn; 
-          do 2 rewrite assoc; 
-          use strength_to_module_signature_morphism_lemma
-        ).
+            unfold is_module_mor; cbn;
+            do 2 rewrite assoc;
+            use strength_to_module_signature_morphism_lemma
+          ).
       - intros R R' f; cbn.
         abstract (
-          use invmap; [|use path_sigma_hprop|];
-          [use isaprop_is_module_mor
-          |unfold mor_disp; cbn; 
-           rewrite transportf_total2; cbn;
-           rewrite transportf_const; cbn;
-           use nat_trans_ax]
-        ).
+            use invmap; [|use path_sigma_hprop|];
+            [use isaprop_is_module_mor
+            |unfold mor_disp; cbn;
+             rewrite transportf_total2; cbn;
+             rewrite transportf_const; cbn;
+             use nat_trans_ax]
+          ).
     Defined.
   End FixAStrengthMorphism.
 
@@ -313,7 +313,7 @@ Section StrengthToModuleSignature.
     - intro. use total2_paths_f.
       + use idpath.
       + abstract (
-          use invmap; [|use path_sigma_hprop|use id_left]; 
+          use invmap; [|use path_sigma_hprop|use id_left];
           use isaprop_module_laws
         ).
     - intros; etrans.
@@ -330,10 +330,10 @@ Section StrengthToModuleSignature.
     - intro; use total2_paths_f.
       + use idpath.
       + abstract (
-          use invmap; [|use path_sigma_hprop|];
-          [ use isaprop_module_laws
-          | cbn; now rewrite (bifunctor_leftcomp Mon_V), assoc ]
-        ).
+        use invmap; [|use path_sigma_hprop|];
+        [ use isaprop_module_laws
+        | cbn; unfold product_module_subst; cbn; now rewrite (bifunctor_leftcomp Mon_V), assoc ]
+          ).
     - intros; etrans.
       + refine (maponpaths _ _); use transportf_total2_paths_f.
       + use (transportf_total2_paths_f (λ x, x --> _)).
@@ -344,7 +344,7 @@ Section StrengthToModuleSignature.
     Context {H : V ⟶ V}.
     Context (θ : pointedtensorialstrength Mon_V_swapped H).
 
-    Definition sigma_monoid_to_model 
+    Definition sigma_monoid_to_model
       (M : SigmaMonoid θ)
       : models_of_module_signatures_cat (strength_to_module_signature θ).
     Proof.
@@ -352,14 +352,14 @@ Section StrengthToModuleSignature.
       - use monoid_swapped_to_monoid_functor; exact (SigmaMonoid_to_monoid θ M).
         (* SigmaMonoid_to_monoid gives an element of MON Mon_V_swapped and not MON Mon_V *)
       - exact (SigmaMonoid_τ θ M).
-      - exact (!SigmaMonoid_is_compatible θ M). 
+      - exact (!SigmaMonoid_is_compatible θ M).
     Defined.
-    
-    Definition model_to_sigma_monoid 
+
+    Definition model_to_sigma_monoid
       (M : models_of_module_signatures_cat (strength_to_module_signature θ))
       : SigmaMonoid θ.
     Proof.
-      induction M as [[M M_mon] [τ hyp]]. 
+      induction M as [[M M_mon] [τ hyp]].
       use (_ ,, (_ ,, _) ,, _); cbn.
       - exact M.
       - exact τ.
@@ -375,8 +375,8 @@ Section StrengthToModuleSignature.
       use ((_ ,, _ ,, _) ,, _); cbn.
       - exact (pr1 f).
       - abstract (
-          unfold is_monoid_mor_mult; cbn; rewrite <- (monoidal_swapped_whiskering Mon_V); use (pr1 (pr212 f))
-        ).
+            unfold is_monoid_mor_mult; cbn; rewrite <- (monoidal_swapped_whiskering Mon_V); use (pr1 (pr212 f))
+          ).
       - exact (pr2 (pr212 f)).
       - exact (pr112 f).
     Defined.
@@ -385,12 +385,12 @@ Section StrengthToModuleSignature.
       : is_functor sigma_monoid_to_model_functor_data.
     Proof.
       split.
-      - intro. 
+      - intro.
         use invmap; [|use path_sigma_hprop|].
         use homset_property.
         use invmap; [|use path_sigma_hprop|easy].
         use isaprop_is_monoid_mor.
-      - intros ? ? ? ? ?. 
+      - intros ? ? ? ? ?.
         use invmap; [|use path_sigma_hprop|].
         use homset_property.
         use invmap; [|use path_sigma_hprop|easy].
@@ -417,13 +417,13 @@ Section StrengthToModuleSignature.
       : is_functor model_to_sigma_monoid_functor_data.
     Proof.
       split.
-      - intro. 
+      - intro.
         use invmap; [|use path_sigma_hprop|easy].
         do 2 try use isapropdirprod.
         + use homset_property.
         + use isaprop_is_monoid_mor.
         + use isapropunit.
-      - intros ? ? ? ? ?. 
+      - intros ? ? ? ? ?.
         use invmap; [|use path_sigma_hprop|easy].
         do 2 try use isapropdirprod.
         + use homset_property.
@@ -443,11 +443,11 @@ Section StrengthToModuleSignature.
       use ((_ ,, _ ,, _) ,, tt); cbn.
       - abstract(now rewrite functor_id, id_left, id_right).
       - abstract (
-          unfold is_monoid_mor_mult; cbn; unfold functoronmorphisms1;
-          now rewrite (bifunctor_leftid (monoidal_swapped Mon_V)), 
-                      (bifunctor_rightid (monoidal_swapped Mon_V)), 
-                      id_left, id_left, id_right
-        ).
+            unfold is_monoid_mor_mult; cbn; unfold functoronmorphisms1;
+            now rewrite (bifunctor_leftid (monoidal_swapped Mon_V)),
+              (bifunctor_rightid (monoidal_swapped Mon_V)),
+              id_left, id_left, id_right
+          ).
       - abstract (use id_right).
     Defined.
 
@@ -466,17 +466,17 @@ Section StrengthToModuleSignature.
     Local Definition equivalence_models_sigma_monoids_adjuction_unit
       : functor_identity _ ⟹ sigma_monoid_to_model_functor ∙ model_to_sigma_monoid_functor
       := make_nat_trans _ _ _ equivalence_models_sigma_monoids_adjuction_unit_law.
-    
+
     Local Definition equivalence_models_sigma_monoids_adjuction_counit_data
       : nat_trans_data (model_to_sigma_monoid_functor ∙ sigma_monoid_to_model_functor) (functor_identity _).
     Proof.
       intro R; use ((_ ,, _ ,, _) ,, _); cbn.
       - exact (identity _).
       - abstract (
-          unfold is_monoid_mor_mult, functoronmorphisms1;
-          now rewrite (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V),
-                      id_left, id_left, id_right
-        ).
+            unfold is_monoid_mor_mult, functoronmorphisms1;
+            now rewrite (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V),
+              id_left, id_left, id_right
+          ).
       - abstract (use id_right).
       - abstract (now rewrite functor_id, id_left, id_right).
     Defined.
@@ -514,9 +514,9 @@ Section StrengthToModuleSignature.
         + use identity.
         + abstract (now rewrite functor_id, id_left, id_right).
         + abstract (
-            unfold is_monoid_mor_mult, functoronmorphisms1; cbn;
-            now rewrite (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V), id_left, id_left, id_right
-          ).
+              unfold is_monoid_mor_mult, functoronmorphisms1; cbn;
+              now rewrite (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V), id_left, id_left, id_right
+            ).
         + abstract (use id_right).
         + use invmap; [|use path_sigma_hprop|].
           do 2 try use isapropdirprod.
@@ -533,10 +533,10 @@ Section StrengthToModuleSignature.
       - intro R; use (((_ ,, _ ,, _) ,, _) ,, _ ,, _); cbn.
         + use identity.
         + abstract (
-            unfold is_monoid_mor_mult, functoronmorphisms1;
-            now rewrite (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V), 
-                        id_right, id_right, id_left
-          ).
+              unfold is_monoid_mor_mult, functoronmorphisms1;
+              now rewrite (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V),
+                id_right, id_right, id_left
+            ).
         + abstract (use id_right).
         + abstract (now rewrite functor_id, id_left, id_right).
         + use invmap; [|use path_sigma_hprop|].
