@@ -2,11 +2,11 @@
 
  Total categories of right modules
 
- In this file, the total category of right modules in some fixed monoidal 
+ In this file, the total category of right modules in some fixed monoidal
  category C. Objects are pairs (R, M) where R is a monoid in C and M is
  a right module over R.
 
- Given R --> R' a morphism of monoids, the pullback functor transforms modules 
+ Given R --> R' a morphism of monoids, the pullback functor transforms modules
  over R' into modules over R.
 
  Contents
@@ -52,7 +52,7 @@ Section TotalCategoryOfRModules.
     unfold module_laws_unit; rewrite assoc.
     induction p' as [p' [w H]]; cbn.
     rewrite <- H.
-    use (maponpaths (λ x, x · _)); induction f_m as [_ H2]. 
+    use (maponpaths (λ x, x · _)); induction f_m as [_ H2].
     rewrite <- (bifunctor_leftcomp C); now use maponpaths.
   Qed.
 
@@ -205,7 +205,7 @@ Section TotalCategoryOfRModules.
       use tensor_swap'.
   Qed.
 
-  Definition total_category_of_modules_disp_cat_id_comp 
+  Definition total_category_of_modules_disp_cat_id_comp
     : disp_cat_id_comp (MON C) total_category_of_modules_disp_cat_ob_mor.
   Proof.
     split.
@@ -223,7 +223,7 @@ Section TotalCategoryOfRModules.
     try use homset_property;
     (use invmap; [|use path_sigma_hprop|]);
     try use isaprop_is_module_mor;
-    unfold mor_disp, transportb; 
+    unfold mor_disp, transportb;
     rewrite functtransportf; cbn;
     rewrite transportf_total2; cbn;
     rewrite transportf_const.
@@ -232,7 +232,7 @@ Section TotalCategoryOfRModules.
     - use assoc.
   Qed.
 
-  Definition total_category_of_modules_disp_cat : disp_cat (MON C) 
+  Definition total_category_of_modules_disp_cat : disp_cat (MON C)
     := total_category_of_modules_disp_cat_data ,, total_category_of_modules_disp_cat_axioms.
 
   Definition total_category_of_modules : category
