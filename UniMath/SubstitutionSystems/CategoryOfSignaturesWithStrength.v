@@ -73,22 +73,14 @@ Section CategoryOfSignaturesWithStrength.
   Qed.
 
   Definition pointedtensorialstrength_disp_cat_data : disp_cat_data [V, V]
-    := pointedtensorialstrength_disp_cat_ob_mor ,, 
-        pointedtensorialstrength_disp_cat_id_comp.
+    := pointedtensorialstrength_disp_cat_ob_mor ,,
+         pointedtensorialstrength_disp_cat_id_comp.
 
-  Lemma pointedtensorialstrength_disp_cat_axioms 
-    : disp_cat_axioms [V , V] pointedtensorialstrength_disp_cat_data.
+  Definition pointedtensorialstrength_disp_cat : disp_cat [V, V].
   Proof.
-    repeat split; cbn.
-    - intros; use proofirrelevance; use isaprop_is_linear_nat_trans.
-    - intros; use proofirrelevance; use isaprop_is_linear_nat_trans.
-    - intros; use proofirrelevance; use isaprop_is_linear_nat_trans.
-    - intros; use isasetaprop; use isaprop_is_linear_nat_trans.
-  Qed.
-
-  Definition pointedtensorialstrength_disp_cat : disp_cat [V, V] 
-    := pointedtensorialstrength_disp_cat_data ,,
-        pointedtensorialstrength_disp_cat_axioms.
+    use (make_disp_cat_locally_prop (D:=pointedtensorialstrength_disp_cat_data)).
+    red; intros; use isaprop_is_linear_nat_trans.
+  Defined.
 
   Definition pointedtensorialstrength_cat : category
     := total_category pointedtensorialstrength_disp_cat.
@@ -119,9 +111,9 @@ Section CategoryOfSignaturesWithStrength.
     := _ ,, trivial_signature_with_strength_laws.
 
   Section ProductSignatureWithStrength.
-    Context (H : V ⟶ V) (θ : pointedtensorialstrength Mon_V H) (D : V). 
+    Context (H : V ⟶ V) (θ : pointedtensorialstrength Mon_V H) (D : V).
 
-    (* Given a signature with strength (H,θ), then H(-) ⊗ D *) 
+    (* Given a signature with strength (H,θ), then H(-) ⊗ D *)
     (* is also a signature with strength whose strength is  *)
     (* given by                                             *)
     (*                α⁻¹                θ                  *)
@@ -135,7 +127,7 @@ Section CategoryOfSignaturesWithStrength.
       exact (λ _, idpath _).
     Qed.
 
-    Definition product_signature_strength_mor (A : PtdV) (B : V) 
+    Definition product_signature_strength_mor (A : PtdV) (B : V)
       : pr1 A ⊗_{Mon_V} (H B ⊗_{Mon_V} D) --> H (pr1 A ⊗_{Mon_V} B) ⊗_{Mon_V} D
       := αinv^{_}_{_,_,_} · θ A B ⊗^{Mon_V}_{r} D.
 
@@ -242,12 +234,12 @@ Section CategoryOfSignaturesWithStrength.
     Definition limit_sig_functor_cone : LimCone F'
       := LimsFunctorCategory_of_shape g V _ lims_g _.
 
-    Definition limit_sig_functor : V ⟶ V 
+    Definition limit_sig_functor : V ⟶ V
       := lim limit_sig_functor_cone.
 
     Lemma limit_sig_strength_forms_cone (A : PtdV) (B : V)
       : forms_cone (diagram_pointwise F' (pr1 A ⊗_{ Mon_V} B))
-          (λ v, pr1 A ⊗^{ Mon_V}_{l} limOut (lims_g (diagram_pointwise F' B)) v 
+          (λ v, pr1 A ⊗^{ Mon_V}_{l} limOut (lims_g (diagram_pointwise F' B)) v
                   · (pr12 (dob F v)) A B).
     Proof.
       intros u v e; etrans.
@@ -356,7 +348,7 @@ Section CategoryOfSignaturesWithStrength.
     Qed.
 
 
-    Definition limit_sig_strength 
+    Definition limit_sig_strength
       : pointedtensorialstrength Mon_V limit_sig_functor
       := _ ,, limit_sig_strength_laws.
 
@@ -393,13 +385,13 @@ Section CategoryOfSignaturesWithStrength.
     Section FixACone.
       Context (H' : V ⟶ V) (θ' : pointedtensorialstrength Mon_V H').
       Context (cc : cone F (H' ,, θ')).
-       
+
       Definition limit_signature_with_strength_arrow_data
         : H' ⟹ limit_sig_functor
         := limArrow _ _ (mapcone forgetful F cc).
 
       Lemma limit_signature_with_strength_arrow_is_mor
-        : is_linear_nat_trans θ' limit_sig_strength 
+        : is_linear_nat_trans θ' limit_sig_strength
           limit_signature_with_strength_arrow_data.
       Proof.
         intros A B; use arr_to_LimCone_eq; intro u; cbn.
@@ -428,8 +420,8 @@ Section CategoryOfSignaturesWithStrength.
         use funextsec; intro A.
         use (limArrowCommutes (lims_g (diagram_pointwise F' _))).
       Qed.
-      
-      Context (f_Hf : 
+
+      Context (f_Hf :
         ∑(f : pointedtensorialstrength_cat ⟦ H',, θ', limit_signature_with_strength ⟧),
         is_cone_mor cc limit_signature_with_strength_cone f
       ).
@@ -462,7 +454,7 @@ Section CategoryOfSignaturesWithStrength.
 
     Definition limit_signature_with_strength_cone_is_lim_cone
       : isLimCone F _ limit_signature_with_strength_cone
-      := λ _ A, 
+      := λ _ A,
         (_ ,, limit_signature_with_strength_arrow_is_cone_mor _ _ A) ,,
         limit_signature_with_strength_arrow_unique_pair _ _ A.
 
@@ -476,7 +468,7 @@ Section CategoryOfSignaturesWithStrength.
   End Limits.
 
 
-  Theorem signature_with_strength_inherits_limits 
+  Theorem signature_with_strength_inherits_limits
     (g : graph) (l : Lims_of_shape g V)
     : Lims_of_shape g pointedtensorialstrength_cat.
   Proof.
@@ -490,7 +482,7 @@ Section CategoryOfSignaturesWithStrength.
   Section Colimits.
     Context {g : graph}.
     Context (colims_g : Colims_of_shape g V).
-    Context (H_prod : ∏ A : PtdV, 
+    Context (H_prod : ∏ A : PtdV,
       preserves_colimits_of_shape (leftwhiskering_functor Mon_V (pr1 A)) g).
     Context (F : diagram g pointedtensorialstrength_cat).
     Let F' := mapdiagram forgetful F.
@@ -498,7 +490,7 @@ Section CategoryOfSignaturesWithStrength.
     Definition colimit_sig_functor_cocone : ColimCocone F'
       := ColimsFunctorCategory_of_shape g V _ colims_g _.
 
-    Definition colimit_sig_functor : V ⟶ V 
+    Definition colimit_sig_functor : V ⟶ V
       := colim colimit_sig_functor_cocone.
 
     Let H (A : V) : V := colimit_sig_functor A.
@@ -513,12 +505,12 @@ Section CategoryOfSignaturesWithStrength.
       : ColimCocone (mapdiagram (leftwhiskering_functor Mon_V (pr1 A)) (diagram_pointwise F' B))
       := make_ColimCocone _ _ _ (H_prod A _ _ _ (pr2 (colims_g (diagram_pointwise F' B)))).
 
-    Goal ∏ A B, colim (@H_Cocone_Prod A B) = pr1 A ⊗_{Mon_V} H B. 
+    Goal ∏ A B, colim (@H_Cocone_Prod A B) = pr1 A ⊗_{Mon_V} H B.
     Proof.
       intros; use idpath.
     Qed.
 
-    Definition colimit_sig_strength_data 
+    Definition colimit_sig_strength_data
       : lineator_data Mon_PtdV Act Act colimit_sig_functor.
     Proof.
       intros A B.
@@ -621,7 +613,7 @@ Section CategoryOfSignaturesWithStrength.
       - exact colimit_sig_strength_preserves_unitor.
     Qed.
 
-    Definition colimit_sig_strength 
+    Definition colimit_sig_strength
       : pointedtensorialstrength Mon_V colimit_sig_functor
       := _ ,, colimit_sig_strength_laws.
 
@@ -679,7 +671,7 @@ Section CategoryOfSignaturesWithStrength.
       Qed.
 
       Definition colimit_signature_with_strength_arrow
-        : pointedtensorialstrength_cat⟦colimit_signature_with_strength, (H',,θ')⟧ 
+        : pointedtensorialstrength_cat⟦colimit_signature_with_strength, (H',,θ')⟧
         := colimit_signature_with_strength_arrow_data ,,
            colimit_signature_with_strength_arrow_is_mor.
 
@@ -695,8 +687,8 @@ Section CategoryOfSignaturesWithStrength.
         use funextsec; intro A.
         use (colimArrowCommutes (colims_g (diagram_pointwise F' _))).
       Qed.
-      
-      Context (f_Hf : 
+
+      Context (f_Hf :
         ∑(f : pointedtensorialstrength_cat ⟦colimit_signature_with_strength, H',, θ' ⟧),
         is_cocone_mor colimit_signature_with_strength_cocone cc f
       ).
@@ -729,7 +721,7 @@ Section CategoryOfSignaturesWithStrength.
 
     Definition colimit_signature_with_strength_cocone_is_colim_cocone
       : isColimCocone F _ colimit_signature_with_strength_cocone
-      := λ _ A, 
+      := λ _ A,
         (_ ,, colimit_signature_with_strength_arrow_is_cocone_mor _ _ A) ,,
         colimit_signature_with_strength_arrow_unique_pair _ _ A.
 
@@ -743,7 +735,7 @@ Section CategoryOfSignaturesWithStrength.
     Defined.
   End Colimits.
 
-  Theorem signature_with_strength_inherits_colimits 
+  Theorem signature_with_strength_inherits_colimits
     (g : graph) (cl : Colims_of_shape g V)
     (H_prod : ∏ A : PtdV, preserves_colimits_of_shape (leftwhiskering_functor Mon_V (pr1 A)) g)
     : Colims_of_shape g pointedtensorialstrength_cat.
