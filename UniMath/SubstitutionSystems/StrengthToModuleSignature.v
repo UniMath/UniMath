@@ -18,6 +18,8 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
+(* Require Import UniMath.Tactics.EnsureStructuredProofs. *)
+
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -162,7 +164,7 @@ Section StrengthToModuleSignature.
       Qed.
 
       Definition strength_to_module
-        : module (C := V_Mon) (pr1 R) (pr2 R) (H R_ob)
+        : module (C := V_Mon) R_ob (monoid_struct _ R) (H R_ob)
         := make_module _ _ _ HR_module_subst_unit HR_module_subst_assoc.
     End FixAMonoid.
 
@@ -174,7 +176,7 @@ Section StrengthToModuleSignature.
       Let R'_ob : V := monoid_carrier _ R'.
       Let r_ob : R_ob --> R'_ob := pr1 r.
 
-      Local Definition r_is_pointed_morphism
+      Local Definition r_as_pointed_morphism
         : monoid_to_pointed R --> monoid_to_pointed R'
         := r_ob ,, pr22 r.
 
@@ -190,7 +192,7 @@ Section StrengthToModuleSignature.
         fold R'_ob R_ob r_ob.
         unfold functoronmorphisms1; rewrite functor_comp, assoc.
         etrans.
-        { rewrite <- assoc; refine (maponpaths _ (lineator_linnatright _ _ _ _ θ _ _ _ r_is_pointed_morphism)). }
+        { rewrite <- assoc; refine (maponpaths _ (lineator_linnatright _ _ _ _ θ _ _ _ r_as_pointed_morphism)). }
         cbn; rewrite assoc; use (maponpaths (λ x, x · _) _).
         use (lineator_linnatleft _ _ _ _ θ (monoid_to_pointed R)).
       Qed.
@@ -209,10 +211,10 @@ Section StrengthToModuleSignature.
     Proof.
       split; intros; cbn.
       - use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_module_mor.
+        { use isaprop_is_module_mor. }
         use functor_id.
       - use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_module_mor.
+        { use isaprop_is_module_mor. }
         use functor_comp.
     Qed.
 
@@ -280,16 +282,16 @@ Section StrengthToModuleSignature.
     split.
     - intro.
       use invmap; [|use path_sigma_hprop|].
-      use isaprop_section_nat_trans_disp_axioms.
+      { use isaprop_section_nat_trans_disp_axioms. }
       use funextsec; intro.
       use invmap; [|use path_sigma_hprop|easy].
       use isaprop_is_module_mor.
     - intros ? ? ? ? ?.
       use invmap; [|use path_sigma_hprop|].
-      use isaprop_section_nat_trans_disp_axioms.
+      { use isaprop_section_nat_trans_disp_axioms. }
       use funextsec; intro.
       use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_module_mor.
+      { use isaprop_is_module_mor. }
       cbn; unfold mor_disp.
       cbn; rewrite transportf_total2.
       cbn; now rewrite transportf_const.
@@ -387,12 +389,12 @@ Section StrengthToModuleSignature.
       split.
       - intro.
         use invmap; [|use path_sigma_hprop|].
-        use homset_property.
+        { use homset_property. }
         use invmap; [|use path_sigma_hprop|easy].
         use isaprop_is_monoid_mor.
       - intros ? ? ? ? ?.
         use invmap; [|use path_sigma_hprop|].
-        use homset_property.
+        { use homset_property. }
         use invmap; [|use path_sigma_hprop|easy].
         use isaprop_is_monoid_mor.
     Qed.
@@ -456,10 +458,10 @@ Section StrengthToModuleSignature.
     Proof.
       intros ? ? ?.
       use invmap; [|use path_sigma_hprop|].
-      do 2 try use isapropdirprod.
-      - use homset_property.
-      - use isaprop_is_monoid_mor.
-      - use isapropunit.
+      - do 2 try use isapropdirprod.
+        + use homset_property.
+        + use isaprop_is_monoid_mor.
+        + use isapropunit.
       - cbn; now rewrite id_left, id_right.
     Defined.
 
@@ -486,9 +488,9 @@ Section StrengthToModuleSignature.
     Proof.
       intros ? ? ?.
       use invmap; [|use path_sigma_hprop|].
-      use homset_property.
+      { use homset_property. }
       use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_monoid_mor.
+      { use isaprop_is_monoid_mor. }
       cbn; now rewrite id_left, id_right.
     Qed.
 
@@ -519,16 +521,16 @@ Section StrengthToModuleSignature.
             ).
         + abstract (use id_right).
         + use invmap; [|use path_sigma_hprop|].
-          do 2 try use isapropdirprod.
-          * use homset_property.
-          * use isaprop_is_monoid_mor.
-          * use isapropunit.
+          * do 2 try use isapropdirprod.
+            -- use homset_property.
+            -- use isaprop_is_monoid_mor.
+            -- use isapropunit.
           * use id_left.
         + use invmap; [|use path_sigma_hprop|].
-          do 2 try use isapropdirprod.
-          * use homset_property.
-          * use isaprop_is_monoid_mor.
-          * use isapropunit.
+          * do 2 try use isapropdirprod.
+            -- use homset_property.
+            -- use isaprop_is_monoid_mor.
+            -- use isapropunit.
           * use id_left.
       - intro R; use (((_ ,, _ ,, _) ,, _) ,, _ ,, _); cbn.
         + use identity.
@@ -540,14 +542,14 @@ Section StrengthToModuleSignature.
         + abstract (use id_right).
         + abstract (now rewrite functor_id, id_left, id_right).
         + use invmap; [|use path_sigma_hprop|].
-          use homset_property.
+          { use homset_property. }
           use invmap; [|use path_sigma_hprop|].
-          use isaprop_is_monoid_mor.
+          { use isaprop_is_monoid_mor. }
           use id_left.
         + use invmap; [|use path_sigma_hprop|].
-          use homset_property.
+          { use homset_property. }
           use invmap; [|use path_sigma_hprop|].
-          use isaprop_is_monoid_mor.
+          { use isaprop_is_monoid_mor. }
           use id_left.
     Qed.
 
