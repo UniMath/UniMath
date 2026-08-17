@@ -85,6 +85,75 @@ Section CategoryOfSignaturesWithStrength.
   Definition pointedtensorialstrength_cat : category
     := total_category pointedtensorialstrength_disp_cat.
 
+
+  (** comments by Ralph Matthes *)
+(*
+  Require Import UniMath.Bicategories.Core.Bicat.
+
+  Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
+  Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
+
+  Local Definition mybicat : bicat := actbicat (monoidal_pointed_objects Mon_V).
+  Local Definition myhomcat : category
+    := hom(C:=mybicat) (V,,actegory_with_canonical_pointed_action Mon_V) (V,,actegory_with_canonical_pointed_action Mon_V).
+
+  (** question: what is the relation between [pointedtensorialstrength_cat] and [myhomcat]?
+      They should be isomorphic. And this for generic reasons since the ingredients are the same for the category and the bicategory construction. Here, we show equality of these categories in this specific instance.
+   *)
+
+  Local Definition myembedding : functor pointedtensorialstrength_cat myhomcat.
+  Proof.
+    use make_functor.
+    - use make_functor_data.
+      + intro ptdstr.
+        exact ptdstr.
+      + intros ptdst ptdstr' mor.
+        exact mor.
+    - split; red; intros.
+      (* show_id_type.
+         red in TYPE. *)
+      + use total2_paths_f.
+        * apply idpath.
+        * cbn.
+          (* show_id_type.
+          red in TYPE. *)
+          apply isaprop_bidisp_actbicat_disp_2cell_struct.
+      + use total2_paths_f.
+        * apply idpath.
+        * cbn.
+          apply isaprop_bidisp_actbicat_disp_2cell_struct.
+  Defined.
+
+  Local Lemma myisweq : isweq (functor_on_objects myembedding).
+  Proof.
+    apply idisweq.
+  Defined.
+
+  Local Lemma myfullyfaithful : fully_faithful myembedding.
+  Proof.
+    intros ptdst ptdstr'.
+    apply idisweq.
+  Defined.
+
+  Require Import UniMath.CategoryTheory.catiso.
+
+  Local Definition catiso_pointedtensorialstrength_cat_myhomcat : catiso pointedtensorialstrength_cat myhomcat.
+  Proof.
+    exists myembedding.
+    split.
+    - apply myfullyfaithful.
+    - apply myisweq.
+  Defined.
+
+  Local Lemma pointedtensorialstrength_cat_equals_myhomcat : pointedtensorialstrength_cat = myhomcat.
+  Proof.
+    apply catiso_to_category_path.
+    exact catiso_pointedtensorialstrength_cat_myhomcat.
+  Qed.
+*)
+  (** end of comments by Ralph Matthes *)
+
+
   Let forgetful : pointedtensorialstrength_cat ⟶ [V, V]
     := pr1_category _.
 
@@ -363,14 +432,15 @@ Section CategoryOfSignaturesWithStrength.
       : cone F limit_signature_with_strength.
     Proof.
       use make_cone.
-      - intro v; use tpair; cbn. use make_nat_trans.
-        + intro; use limit_signature_with_strength_out.
+      - intro v; use tpair; cbn.
+        + use make_nat_trans.
+          * intro; use limit_signature_with_strength_out.
+          * abstract (
+                intros ? ? ?; use (limOfArrowsOut _ _ _ (lims_g (diagram_pointwise F' _)))
+              ).
         + abstract (
-            intros ? ? ?; use (limOfArrowsOut _ _ _ (lims_g (diagram_pointwise F' _)))
-          ).
-        + abstract (
-            intros ? ?; use (limArrowCommutes (lims_g (diagram_pointwise F' _)))
-          ).
+              intros ? ?; use (limArrowCommutes (lims_g (diagram_pointwise F' _)))
+            ).
       - abstract (
           intros ? ? ?;
           use invmap; [|use path_sigma_hprop|];
@@ -414,9 +484,9 @@ Section CategoryOfSignaturesWithStrength.
       Proof.
         intro u.
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_linear_nat_trans.
+        { use isaprop_is_linear_nat_trans. }
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
+        { use isaprop_is_nat_trans; use homset_property. }
         use funextsec; intro A.
         use (limArrowCommutes (lims_g (diagram_pointwise F' _))).
       Qed.
@@ -436,9 +506,9 @@ Section CategoryOfSignaturesWithStrength.
         : f = limit_signature_with_strength_arrow.
       Proof.
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_linear_nat_trans.
+        { use isaprop_is_linear_nat_trans. }
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
+        { use isaprop_is_nat_trans; use homset_property. }
         use funextsec; intro A; use limArrowUnique; intro u; cbn.
         exact (maponpaths (λ x, pr11 x A) (Hf u)).
       Qed.
@@ -447,7 +517,7 @@ Section CategoryOfSignaturesWithStrength.
         : f_Hf = (_ ,, limit_signature_with_strength_arrow_is_cone_mor).
       Proof.
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_cone_mor.
+        { use isaprop_is_cone_mor. }
         use limit_signature_with_strength_arrow_unique.
       Qed.
     End FixACone.
@@ -641,7 +711,7 @@ Section CategoryOfSignaturesWithStrength.
     Proof.
       intros u v e.
       use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_linear_nat_trans.
+      { use isaprop_is_linear_nat_trans. }
       use (colimInCommutes colimit_sig_functor_cocone).
     Qed.
 
@@ -681,9 +751,9 @@ Section CategoryOfSignaturesWithStrength.
       Proof.
         intro u.
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_linear_nat_trans.
+        { use isaprop_is_linear_nat_trans. }
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
+        { use isaprop_is_nat_trans; use homset_property. }
         use funextsec; intro A.
         use (colimArrowCommutes (colims_g (diagram_pointwise F' _))).
       Qed.
@@ -703,9 +773,9 @@ Section CategoryOfSignaturesWithStrength.
         : f = colimit_signature_with_strength_arrow.
       Proof.
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_linear_nat_trans.
+        { use isaprop_is_linear_nat_trans. }
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
+        { use isaprop_is_nat_trans; use homset_property. }
         use funextsec; intro A; use colimArrowUnique; intro u; cbn.
         exact (maponpaths (λ x, pr11 x A) (Hf u)).
       Qed.
@@ -714,7 +784,7 @@ Section CategoryOfSignaturesWithStrength.
         : f_Hf = (_ ,, colimit_signature_with_strength_arrow_is_cocone_mor).
       Proof.
         use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_cocone_mor.
+        { use isaprop_is_cocone_mor. }
         use colimit_signature_with_strength_arrow_unique.
       Qed.
     End FixACocone.
