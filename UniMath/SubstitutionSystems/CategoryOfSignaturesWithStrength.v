@@ -331,11 +331,11 @@ Section CategoryOfSignaturesWithStrength.
       intros A B C f; use arr_to_LimCone_eq; intro u; cbn.
       etrans.
       { rewrite <- assoc; refine (maponpaths _ (limArrowCommutes (lims_g (diagram_pointwise F' _)) _ _ _)). }
-      etrans; swap 1 2.
-      { rewrite <- assoc; refine (!maponpaths _ _); use (limOfArrowsOut _ _ _ (lims_g (diagram_pointwise F' _))). }
+      etrans.
+      2: { rewrite <- assoc; refine (!maponpaths _ _); use (limOfArrowsOut _ _ _ (lims_g (diagram_pointwise F' _))). }
       cbn; do 2 rewrite assoc.
-      etrans; swap 1 2.
-      { refine (!maponpaths (λ x, x · _) (limArrowCommutes (lims_g (diagram_pointwise F' _)) _ _ _)). }
+      etrans.
+      2: { refine (!maponpaths (λ x, x · _) (limArrowCommutes (lims_g (diagram_pointwise F' _)) _ _ _)). }
       cbn; rewrite <- (bifunctor_leftcomp Mon_V); etrans.
       { refine (maponpaths (λ x, pr1 A ⊗^{Mon_V}_{l} x · _) _); use (limOfArrowsOut _ _ _ (lims_g (diagram_pointwise F' _))). }
       cbn; rewrite (bifunctor_leftcomp Mon_V), <- assoc, <- assoc.
@@ -349,11 +349,11 @@ Section CategoryOfSignaturesWithStrength.
       intros A B C f; use arr_to_LimCone_eq; intro u; cbn.
       etrans.
       { rewrite <- assoc; refine (maponpaths _ (limArrowCommutes (lims_g (diagram_pointwise F' _)) _ _ _)). }
-      etrans; swap 1 2.
-      { rewrite <- assoc; refine (!maponpaths _ _); use (limOfArrowsOut _ _ _ (lims_g (diagram_pointwise F' _))). }
+      etrans.
+      2: { rewrite <- assoc; refine (!maponpaths _ _); use (limOfArrowsOut _ _ _ (lims_g (diagram_pointwise F' _))). }
       cbn; do 2 rewrite assoc.
-      etrans; swap 1 2.
-      { refine (!maponpaths (λ x, x · _) (limArrowCommutes (lims_g (diagram_pointwise F' _)) _ _ _)). }
+      etrans.
+      2: { refine (!maponpaths (λ x, x · _) (limArrowCommutes (lims_g (diagram_pointwise F' _)) _ _ _)). }
       cbn; etrans; swap 1 2.
       { rewrite <- assoc; refine (maponpaths _ _); use (lineator_linnatright _ _ _ _ (pr2 (dob F u))). }
       cbn; rewrite assoc; use (maponpaths (λ x, x · _)).
@@ -381,8 +381,8 @@ Section CategoryOfSignaturesWithStrength.
       repeat rewrite <- assoc; use maponpaths; repeat rewrite assoc.
       symmetry.
       rewrite <- id_left, assoc, assoc, <- (bifunctor_rightid Mon_V).
-      etrans; swap 1 2.
-      { use (lineator_preservesactor _ _ _ _ (pr2 (dob F u))). }
+      etrans.
+      2: { use (lineator_preservesactor _ _ _ _ (pr2 (dob F u))). }
       cbn; unfold reindexed_actor_data; cbn.
       do 2 use maponpaths.
       now rewrite (bifunctor_rightid Mon_V), id_left.
@@ -400,8 +400,8 @@ Section CategoryOfSignaturesWithStrength.
       { refine (maponpaths (λ x, x · _) _); use (limArrowCommutes (lims_g (diagram_pointwise F' _))). }
       cbn; rewrite <- monoidal_leftunitornat, <- assoc; use maponpaths.
       rewrite <- id_left, <- (bifunctor_rightid Mon_V).
-      etrans; swap 1 2.
-      { use (lineator_preservesunitor _ _ _  _ (pr2 (dob F u))). }
+      etrans.
+      2: { use (lineator_preservesunitor _ _ _  _ (pr2 (dob F u))). }
       cbn; unfold reindexed_action_unitor_data; cbn.
       now rewrite (bifunctor_rightid Mon_V), id_left.
     Qed.
@@ -646,8 +646,8 @@ Section CategoryOfSignaturesWithStrength.
       { rewrite <- assoc; refine (maponpaths _ _); use (colimOfArrowsIn _ _ H_Cocone_Prod). }
       rewrite assoc; use (maponpaths (λ x, x · _)).
       symmetry; rewrite <- id_left, <- (bifunctor_rightid Mon_V), assoc, assoc.
-      etrans; swap 1 2.
-      { use (lineator_preservesactor _ _ _ _ (pr2 (dob F u))). }
+      etrans.
+      2: { use (lineator_preservesactor _ _ _ _ (pr2 (dob F u))). }
       cbn; unfold reindexed_actor_data; cbn.
       do 2 use maponpaths.
       now rewrite (bifunctor_rightid Mon_V), id_left.
@@ -666,8 +666,8 @@ Section CategoryOfSignaturesWithStrength.
       { refine (maponpaths _ _); use (colimOfArrowsIn _ _ H_Cocone). }
       cbn; rewrite assoc; use (maponpaths (λ x, x · _)).
       rewrite <- id_left, <- (bifunctor_rightid Mon_V).
-      etrans; swap 1 2.
-      { use (lineator_preservesunitor _ _ _ _ (pr2 (dob F u))). }
+      etrans.
+      2: { use (lineator_preservesunitor _ _ _ _ (pr2 (dob F u))). }
       cbn; unfold reindexed_action_unitor_data; cbn.
       do 2 use maponpaths.
       now rewrite (bifunctor_rightid Mon_V), id_left.

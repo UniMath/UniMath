@@ -929,27 +929,28 @@ Section Modularity.
       : u = modularity_induced_morphism.
     Proof.
       use invmap; [|use total2_paths_equiv|].
-      use tpair; swap 1 2.
-      - use invmap; [|use path_sigma_hprop|].
-        use homset_property.
-        simpl; rewrite transportf_total2;
-        simpl; rewrite transportf_const;
-        simpl; simpl in u.
-        use (maponpaths pr1 (InitialArrowUnique HΣ₁₂ (pr1 Rr ,, _) (pr12 u ,, _))).
-        simpl; etrans; [use (pr22 u)|].
-        refine (maponpaths (λ x, _ (pr1 x · _)) _).
-        exact (
-          maponpaths (λ x, pr1 x (pr1 Rr))
-          (PushoutArrowUnique _ _ _ _ _
-            (isPushout_Pushout H_pushout) _ _ _
-            (maponpaths pr1 H) _
-            (maponpaths pr1 H')
-            (maponpaths pr1 H'')
-          )
-        ).
-      - use (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout)).
-        + use (maponpaths pr1 H').
-        + use (maponpaths pr1 H'').
+      use tpair.
+      2: {use invmap; [|use path_sigma_hprop|].
+          use homset_property.
+          simpl; rewrite transportf_total2;
+            simpl; rewrite transportf_const;
+            simpl; simpl in u.
+          use (maponpaths pr1 (InitialArrowUnique HΣ₁₂ (pr1 Rr ,, _) (pr12 u ,, _))).
+          simpl; etrans; [use (pr22 u)|].
+          refine (maponpaths (λ x, _ (pr1 x · _)) _).
+          exact (
+              maponpaths (λ x, pr1 x (pr1 Rr))
+                (PushoutArrowUnique _ _ _ _ _
+                   (isPushout_Pushout H_pushout) _ _ _
+                   (maponpaths pr1 H) _
+                   (maponpaths pr1 H')
+                   (maponpaths pr1 H'')
+                )
+            ).
+      }
+      use (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout)).
+      + use (maponpaths pr1 H').
+      + use (maponpaths pr1 H'').
     Qed.
 
     Lemma modularity_pushout_uniqueness : triplet' = triplet.

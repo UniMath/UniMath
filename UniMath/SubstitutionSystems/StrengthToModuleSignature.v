@@ -153,8 +153,8 @@ Section StrengthToModuleSignature.
         cbn; etrans.
         { rewrite <- assoc, <- functor_comp; do 2 refine (maponpaths _ _).
           use monoid_to_unit_right_law. }
-        rewrite <- id_left; etrans; swap 1 2.
-        { refine (maponpaths (λ x, x · _) _); use (tensor_id_id (V := V_Mon)). }
+        rewrite <- id_left; etrans.
+        2: { refine (maponpaths (λ x, x · _) _); use (tensor_id_id (V := V_Mon)). }
         rewrite <- tensor_mor_left.
         etrans; [|use (lineator_preservesunitor _ _ _ _ θ)].
         cbn; do 2 use maponpaths.
@@ -186,8 +186,8 @@ Section StrengthToModuleSignature.
       Proof.
         unfold is_module_mor, pullback_functor_funct; cbn.
         do 2 rewrite assoc.
-        etrans; swap 1 2.
-        { rewrite <- assoc, <- functor_comp. refine (maponpaths (λ x, _ · #H x ) (pr12 r)). }
+        etrans.
+        2: { rewrite <- assoc, <- functor_comp. refine (maponpaths (λ x, _ · #H x ) (pr12 r)). }
         rewrite functor_comp, assoc; refine (maponpaths (λ x, x · _) _).
         fold R'_ob R_ob r_ob.
         unfold functoronmorphisms1; rewrite functor_comp, assoc.
@@ -240,8 +240,8 @@ Section StrengthToModuleSignature.
         · α (monoid_carrier Mon_V R).
     Proof.
       rewrite (bifunctor_leftid Mon_V), id_right.
-      etrans; swap 1 2.
-      { rewrite <- assoc; refine (!maponpaths _ _); use nat_trans_ax. }
+      etrans.
+      2: { rewrite <- assoc; refine (!maponpaths _ _); use nat_trans_ax. }
       cbn; rewrite assoc; use (!maponpaths (λ x, x · _) _).
       use (hyp (monoid_to_pointed R)).
     Qed.
