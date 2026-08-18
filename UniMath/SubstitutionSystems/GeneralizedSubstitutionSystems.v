@@ -381,7 +381,7 @@ Section hss.
 
   Definition μ_3 : (gh ⊗_{Mon_V} gh) ⊗_{Mon_V} gh --> gh := ⦃μ_2⦄_{mh_squared}.
 
-  Lemma mhss_third_monoidlaw_aux : θ (pr1 mh_squared,, pr2 mh_squared) gh · # H (μ ⊗^{Mon_V}_{r} gh) =
+  Lemma mhss_monoid_assoc_aux : θ (pr1 mh_squared,, pr2 mh_squared) gh · # H (μ ⊗^{Mon_V}_{r} gh) =
                                      μ_2 ⊗^{Mon_V}_{r} H gh · θ Ptd_from_mhss gh.
   Proof.
     use (!lineator_linnatright _ _ _ _ θ _ _ _ μ_2_Ptd).
@@ -409,7 +409,7 @@ Section hss.
           rewrite functor_comp.
           rewrite assoc.
           apply cancel_postcomposition.
-          exact mhss_third_monoidlaw_aux.
+          exact mhss_monoid_assoc_aux.
         }
         etrans.
         { do 2 rewrite assoc'.

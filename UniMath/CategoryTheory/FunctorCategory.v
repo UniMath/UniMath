@@ -627,24 +627,18 @@ Local Notation "G 'o' F '{' hsB  hsC '}'" :=
 Section ConstantFunctorFunctor.
   Context {A B : category}.
 
-  Definition constant_functor_functor_data 
-    : functor_data A [B, A].
-  Proof.
-    use tpair.
-    - use constant_functor.
-    - use constant_nat_trans.
-  Defined.
+  Definition constant_functor_functor_data
+    : functor_data A [B, A]
+    := constant_functor B A ,, @constant_nat_trans B A.
 
   Lemma constant_functor_functor_is_functor
     : is_functor constant_functor_functor_data.
   Proof.
     split.
     - intro.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_nat_trans; use homset_property.
+      apply nat_trans_eq; [apply homset_property |]; easy.
     - do 5 intro.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_nat_trans; use homset_property.
+      apply nat_trans_eq; [apply homset_property |]; easy.
   Qed.
 
   Definition constant_functor_functor : A ⟶ [B, A]

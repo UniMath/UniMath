@@ -261,7 +261,7 @@ Proof.
     apply idpath.
 Defined.
 
-(** Monoids in the monoidal category `monoidal_swapped M` and monoids in M are equivalent *)
+(** Monoids in the monoidal category [monoidal_swapped M] and monoids in M are equivalent *)
 
 Section MonoidsSwapped.
   Context {C : category} (M : monoidal C).
