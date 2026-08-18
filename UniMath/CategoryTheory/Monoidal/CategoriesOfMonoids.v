@@ -188,23 +188,24 @@ Section Category_of_Monoids.
     exact monoid_disp_cat_id_comp.
   Defined.
 
-  Definition monoid_disp_cat_axioms
-    : disp_cat_axioms C monoid_disp_cat_data.
+  Lemma monoid_disp_cat_data_is_locally_propositional : locally_propositional monoid_disp_cat_data.
   Proof.
     repeat split ; intro ; intros ; try (apply isaprop_is_monoid_mor).
-    apply isasetaprop ; apply isaprop_is_monoid_mor.
   Qed.
 
-  Definition monoid_disp_cat : disp_cat C.
-  Proof.
-    exists monoid_disp_cat_data.
-    exact monoid_disp_cat_axioms.
-  Defined.
+  Definition monoid_disp_cat : disp_cat C
+    := make_disp_cat_locally_prop monoid_disp_cat_data_is_locally_propositional.
 
   Definition category_of_monoids_in_monoidal_cat : category
     := total_category monoid_disp_cat.
 
   Definition MON : category := category_of_monoids_in_monoidal_cat.
+
+  Lemma MON_mor_eq {X X' : MON} (r r' : MON⟦X,X'⟧) : pr1 r = pr1 r' -> r = r'.
+  Proof.
+    apply mor_eq_total_category_when_locally_prop.
+    exact monoid_disp_cat_data_is_locally_propositional.
+  Qed.
 
   Definition monoid_carrier
              (X : MON)
@@ -287,12 +288,12 @@ Section MonoidsSwapped.
       use (maponpaths (λ x, x · _ · _) (pr2 (monoidal_associatorisolaw _ _ _ _))).
   Qed.
 
-  Definition monoid_to_monoid_swapped_monoid 
+  Definition monoid_to_monoid_swapped_monoid
     {R : C} (m : monoid M R)
     : monoid (monoidal_swapped M) R
     := monoid_to_monoid_swapped_data m ,, monoid_to_monoid_swapped_laws m.
 
-  Definition monoid_to_monoid_swapped_mon (R : MON M) 
+  Definition monoid_to_monoid_swapped_mon (R : MON M)
     : MON (monoidal_swapped M)
     := pr1 R ,, monoid_to_monoid_swapped_monoid (pr2 R).
 
@@ -326,11 +327,9 @@ Section MonoidsSwapped.
   Proof.
     split.
     - intro.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq; easy.
     - intros ? ? ? ? ?.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq; easy.
   Qed.
 
   Definition monoid_to_monoid_swapped_functor : (MON M) ⟶ (MON (monoidal_swapped M))
@@ -358,12 +357,12 @@ Section MonoidsSwapped.
       use (maponpaths (λ x, x · _ · _) (pr1 (monoidal_associatorisolaw _ _ _ _))).
   Qed.
 
-  Definition monoid_swapped_to_monoid_monoid 
+  Definition monoid_swapped_to_monoid_monoid
     {R : C} (m : monoid (monoidal_swapped M) R)
     : monoid M R
     := monoid_swapped_to_monoid_data m ,, monoid_swapped_to_monoid_laws m.
 
-  Definition monoid_swapped_to_monoid_mon (R : MON (monoidal_swapped M)) 
+  Definition monoid_swapped_to_monoid_mon (R : MON (monoidal_swapped M))
     : MON M
     := pr1 R ,, monoid_swapped_to_monoid_monoid (pr2 R).
 
@@ -397,11 +396,9 @@ Section MonoidsSwapped.
   Proof.
     split.
     - intro.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq; easy.
     - intros ? ? ? ? ?.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq; easy.
   Qed.
 
   Definition monoid_swapped_to_monoid_functor : (MON (monoidal_swapped M)) ⟶ (MON M)
@@ -422,8 +419,7 @@ Section MonoidsSwapped.
     : is_nat_trans _ _ id_to_swap_unswap_data.
   Proof.
     intros ? ? ?.
-    use invmap; [|use path_sigma_hprop|].
-    use isaprop_is_monoid_mor.
+    apply MON_mor_eq.
     cbn; now rewrite id_left, id_right.
   Qed.
 
@@ -446,8 +442,7 @@ Section MonoidsSwapped.
     : is_nat_trans _ _ unswap_swap_to_id_data.
   Proof.
     intros ? ? ?.
-    use invmap; [|use path_sigma_hprop|].
-    use isaprop_is_monoid_mor.
+    apply MON_mor_eq.
     cbn; now rewrite id_left, id_right.
   Defined.
 
@@ -477,11 +472,9 @@ Section MonoidsSwapped.
           ).
         * abstract (use id_right).
       + split.
-        * use invmap; [|use path_sigma_hprop|].
-          use isaprop_is_monoid_mor.
+        * apply MON_mor_eq.
           use id_left.
-        * use invmap; [|use path_sigma_hprop|].
-          use isaprop_is_monoid_mor.
+        * apply MON_mor_eq.
           use id_left.
     - intro R; use tpair; cbn.
       + exists (identity _); split.
@@ -491,15 +484,13 @@ Section MonoidsSwapped.
           ).
         * abstract (use id_right).
       + split.
-        * use invmap; [|use path_sigma_hprop|].
-          use isaprop_is_monoid_mor.
+        * apply MON_mor_eq.
           use id_left.
-        * use invmap; [|use path_sigma_hprop|].
-          use isaprop_is_monoid_mor.
+        * apply MON_mor_eq.
           use id_left.
   Qed.
 
-  Definition equivalence_monoids_monoids_swapped 
+  Definition equivalence_monoids_monoids_swapped
     : equivalence_of_cats (MON M) (MON (monoidal_swapped M)).
   Proof.
     use make_equivalence_of_cats.

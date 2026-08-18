@@ -532,9 +532,8 @@ Section InitialModelsAsFixpoints.
 
     Local Lemma f_nat_mon : f_mon M · pr1 h = h'_mon · f_mon N.
     Proof.
-       use invmap; [|use path_sigma_hprop|].
-       use isaprop_is_monoid_mor.
-       use (!f_nat).
+      apply MON_mor_eq.
+      use (!f_nat).
     Qed.
 
     Local Lemma h'_is_model_mor
@@ -573,8 +572,7 @@ Section InitialModelsAsFixpoints.
     - intro M.
       use invmap; [|use path_sigma_hprop|].
       use homset_property.
-      use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq.
       symmetry; use BinCoproduct_endo_is_identity.
       + etrans; [use BinCoproductOfArrowsIn1|use id_left].
       + etrans; [use BinCoproductOfArrowsIn2|].
@@ -583,8 +581,7 @@ Section InitialModelsAsFixpoints.
     - intros M N P h g.
       use invmap; [|use path_sigma_hprop|].
       use homset_property.
-      use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq.
       symmetry; use BinCoproductArrowUnique.
       + cbn; rewrite id_left, assoc; etrans; [etrans|].
         * use (maponpaths (λ x, x · _)); [|use BinCoproductOfArrowsIn1].
@@ -615,8 +612,7 @@ Section InitialModelsAsFixpoints.
     intros M N h.
     use invmap; [|use path_sigma_hprop|].
     use homset_property.
-    use invmap; [|use path_sigma_hprop|].
-    use isaprop_is_monoid_mor.
+    apply MON_mor_eq.
     use f_nat.
   Qed.
 
@@ -632,9 +628,9 @@ Section InitialModelsAsFixpoints.
   Proof.
     apply nat_trans_eq; [use homset_property|]; intro M; cbn.
     use invmap; [|use path_sigma_hprop|].
-    use homset_property.
+    { use homset_property. }
     use invmap; [|use path_sigma_hprop|].
-    use isaprop_is_monoid_mor.
+    { use isaprop_is_monoid_mor. }
     use BinCoproductArrowsEq; cbn.
     - etrans; [etrans|]; swap 2 3.
       + use (f_inl (iter_model M)).
@@ -768,7 +764,7 @@ Section TotalCategoriesOfModels.
     }
     all:
       use invmap; [|use path_sigma_hprop|]; [use homset_property|];
-      use invmap; [|use path_sigma_hprop|]; [use isaprop_is_monoid_mor|];
+      apply MON_mor_eq;
       simpl; unfold transportb, mor_disp, total_category_of_models_disp_cat_ob_mor;
       simpl; rewrite transportf_total2;
       simpl; rewrite transportf_const;

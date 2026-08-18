@@ -182,11 +182,9 @@ End OnObjects.
   Proof.
     split.
     - intro M.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq; easy.
     - intros M1 M2 M3 f g.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq; easy.
   Qed.
 
   Definition monad_to_monoid_functor
@@ -246,8 +244,7 @@ Lemma nat_monad_to_monoid_to_monad_id_is_nat
   : is_nat_trans _ _ nat_monad_to_monoid_to_monad_id_data.
 Proof.
   intros M M' f.
-  use invmap; [|use path_sigma_hprop|].
-  { use isaprop_is_monoid_mor. }
+  apply MON_mor_eq.
   apply nat_trans_eq; [use homset_property |].
   intro A; cbn. now rewrite id_left, id_right.
 Qed.
@@ -286,8 +283,7 @@ Proof.
       exists (identity _); use id_is_monoid_mor.
     }
 
-    all: use invmap; [|use path_sigma_hprop|]; [use isaprop_is_monoid_mor|];
-      apply nat_trans_eq; [use homset_property |]; intro A; cbn;
+    all: apply MON_mor_eq; apply nat_trans_eq; [use homset_property |]; intro A; cbn;
       unfold transportb; rewrite transportf_total2; cbn;
       induction (monoid_to_monad_to_monoid M);
       now rewrite id_left.
@@ -358,12 +354,8 @@ Section FixAMonoid.
 
 
   Definition monad_to_monoid_modules_functor_data
-    : functor_data MonadModules MonoidModules.
-  Proof.
-    use tpair.
-    - exact monad_to_monoid_modules.
-    - exact monad_to_monoid_modules_map.
-  Defined.
+    : functor_data MonadModules MonoidModules
+    := monad_to_monoid_modules ,,  monad_to_monoid_modules_map.
 
   Lemma monad_to_monoid_modules_functor_laws
     : is_functor monad_to_monoid_modules_functor_data.
@@ -417,19 +409,14 @@ Section FixAMonoid.
   End FixAMonoidModuleMorphism.
 
   Definition monoid_to_monad_modules_functor_data
-    : functor_data MonoidModules MonadModules.
-  Proof.
-    use tpair.
-    - exact monoid_to_monad_modules.
-    - exact monoid_to_monad_modules_map.
-  Defined.
+    : functor_data MonoidModules MonadModules
+    := monoid_to_monad_modules ,, monoid_to_monad_modules_map.
 
   Lemma monoid_to_monad_modules_functor_laws
     : is_functor monoid_to_monad_modules_functor_data.
   Proof.
     split; repeat intro;
-    (use invmap; [|use path_sigma_hprop|easy]);
-    use isaprop_LModule_Mor_laws.
+      apply LModule_Mor_equiv; easy.
   Qed.
 
   Definition monoid_to_monad_modules_functor
@@ -442,12 +429,9 @@ Section FixAMonoid.
     use make_nat_trans.
     - use LModule_identity.
     - abstract (
-          intros M M' f;
-          use invmap; [|use path_sigma_hprop|];
-          [use isaprop_LModule_Mor_laws
-          |use nat_trans_eq; [apply homset_property|]; intro; cbn;
-           now rewrite id_left, id_right
-          ]
+          intros M M' f; apply LModule_Mor_equiv;
+          use nat_trans_eq; [apply homset_property|]; intro; cbn;
+          now rewrite id_left, id_right
         ).
   Defined.
 
@@ -484,12 +468,10 @@ Section FixAMonoid.
     - intro M; use make_is_z_isomorphism; cbn; try split.
       + exists (nat_trans_id _).
         abstract(intro; now rewrite id_left, id_right).
-      + use invmap; [|use path_sigma_hprop|].
-        use isaprop_LModule_Mor_laws.
+      + apply LModule_Mor_equiv.
         apply nat_trans_eq; [use homset_property|].
         intro; use id_left.
-      + use invmap; [|use path_sigma_hprop|].
-        use isaprop_LModule_Mor_laws.
+      + apply LModule_Mor_equiv.
         apply nat_trans_eq; [use homset_property|].
         intro; use id_left.
     - intro M; use make_is_z_isomorphism; cbn; try split.

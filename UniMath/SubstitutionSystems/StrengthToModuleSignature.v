@@ -381,13 +381,11 @@ Section StrengthToModuleSignature.
       - intro.
         use invmap; [|use path_sigma_hprop|].
         { use homset_property. }
-        use invmap; [|use path_sigma_hprop|easy].
-        use isaprop_is_monoid_mor.
+        apply MON_mor_eq; easy.
       - intros ? ? ? ? ?.
         use invmap; [|use path_sigma_hprop|].
         { use homset_property. }
-        use invmap; [|use path_sigma_hprop|easy].
-        use isaprop_is_monoid_mor.
+        apply MON_mor_eq; easy.
     Qed.
 
     Definition sigma_monoid_to_model_functor
@@ -411,17 +409,9 @@ Section StrengthToModuleSignature.
     Proof.
       split.
       - intro.
-        use invmap; [|use path_sigma_hprop|easy].
-        do 2 try use isapropdirprod.
-        + use homset_property.
-        + use isaprop_is_monoid_mor.
-        + use isapropunit.
+        apply SigmaMonoid_mor_eq; easy.
       - intros ? ? ? ? ?.
-        use invmap; [|use path_sigma_hprop|easy].
-        do 2 try use isapropdirprod.
-        + use homset_property.
-        + use isaprop_is_monoid_mor.
-        + use isapropunit.
+        apply SigmaMonoid_mor_eq; easy.
     Qed.
 
     Definition model_to_sigma_monoid_functor
@@ -448,12 +438,8 @@ Section StrengthToModuleSignature.
       : is_nat_trans _ _ equivalence_models_sigma_monoids_adjuction_unit_data.
     Proof.
       intros ? ? ?.
-      use invmap; [|use path_sigma_hprop|].
-      - do 2 try use isapropdirprod.
-        + use homset_property.
-        + use isaprop_is_monoid_mor.
-        + use isapropunit.
-      - cbn; now rewrite id_left, id_right.
+      apply SigmaMonoid_mor_eq.
+      cbn; now rewrite id_left, id_right.
     Defined.
 
     Local Definition equivalence_models_sigma_monoids_adjuction_unit
@@ -480,8 +466,7 @@ Section StrengthToModuleSignature.
       intros ? ? ?.
       use invmap; [|use path_sigma_hprop|].
       { use homset_property. }
-      use invmap; [|use path_sigma_hprop|].
-      { use isaprop_is_monoid_mor. }
+      apply MON_mor_eq.
       cbn; now rewrite id_left, id_right.
     Qed.
 
@@ -511,18 +496,10 @@ Section StrengthToModuleSignature.
               now rewrite (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V), id_left, id_left, id_right
             ).
         + abstract (use id_right).
-        + use invmap; [|use path_sigma_hprop|].
-          * do 2 try use isapropdirprod.
-            -- use homset_property.
-            -- use isaprop_is_monoid_mor.
-            -- use isapropunit.
-          * use id_left.
-        + use invmap; [|use path_sigma_hprop|].
-          * do 2 try use isapropdirprod.
-            -- use homset_property.
-            -- use isaprop_is_monoid_mor.
-            -- use isapropunit.
-          * use id_left.
+        + apply SigmaMonoid_mor_eq.
+          use id_left.
+        + apply SigmaMonoid_mor_eq.
+          use id_left.
       - intro R; use (((_ ,, _ ,, _) ,, _) ,, _ ,, _); cbn.
         + use identity.
         + abstract (
@@ -534,13 +511,11 @@ Section StrengthToModuleSignature.
         + abstract (now rewrite functor_id, id_left, id_right).
         + use invmap; [|use path_sigma_hprop|].
           { use homset_property. }
-          use invmap; [|use path_sigma_hprop|].
-          { use isaprop_is_monoid_mor. }
+          apply MON_mor_eq.
           use id_left.
         + use invmap; [|use path_sigma_hprop|].
           { use homset_property. }
-          use invmap; [|use path_sigma_hprop|].
-          { use isaprop_is_monoid_mor. }
+          apply MON_mor_eq.
           use id_left.
     Qed.
 
