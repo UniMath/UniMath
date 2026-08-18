@@ -630,21 +630,19 @@ Section InitialModelsAsFixpoints.
     : pre_whisker iter_model_functor iter_model_to_model_nat_trans
     = post_whisker iter_model_to_model_nat_trans iter_model_functor.
   Proof.
+    apply nat_trans_eq; [use homset_property|]; intro M; cbn.
     use invmap; [|use path_sigma_hprop|].
-    - use isaprop_is_nat_trans; use homset_property.
-    - use funextsec; intro M; cbn.
-      use invmap; [|use path_sigma_hprop|].
-      use homset_property.
-      use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_monoid_mor.
-      use BinCoproductArrowsEq; cbn.
-      + etrans; [etrans|]; swap 2 3.
-        * use (f_inl (iter_model M)).
-        * symmetry; use BinCoproductOfArrowsIn1.
-        * symmetry; use id_left.
-      + etrans.
-        * use (f_inr (iter_model M)).
-        * symmetry; use BinCoproductOfArrowsIn2.
+    use homset_property.
+    use invmap; [|use path_sigma_hprop|].
+    use isaprop_is_monoid_mor.
+    use BinCoproductArrowsEq; cbn.
+    - etrans; [etrans|]; swap 2 3.
+      + use (f_inl (iter_model M)).
+      + symmetry; use BinCoproductOfArrowsIn1.
+      + symmetry; use id_left.
+    - etrans.
+      + use (f_inr (iter_model M)).
+      + symmetry; use BinCoproductOfArrowsIn2.
   Qed.
 
 
@@ -867,9 +865,7 @@ Section Modularity.
     = modularity_morphism₂ · modularity_morphism_in₂.
   Proof.
     use invmap; [|use total2_paths_equiv|]; use tpair.
-    - use invmap; [|use path_sigma_hprop|].
-      + use isaprop_section_nat_trans_disp_axioms.
-      + exact (maponpaths pr1 (PushoutSqrCommutes H_pushout)).
+    - apply (PushoutSqrCommutes H_pushout).
     - use InitialArrowEq.
   Qed.
 

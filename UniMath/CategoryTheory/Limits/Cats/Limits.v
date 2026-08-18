@@ -158,7 +158,7 @@ Proof.
   now rewrite id_left, id_right.
 Qed.
 
-Lemma limOfArrows_comp {J C : precategory} {F G H : J ⟶ C} 
+Lemma limOfArrows_comp {J C : precategory} {F G H : J ⟶ C}
   (CC1 : LimCone F) (CC2 : LimCone G) (CC3 : LimCone H)
   (fg : ∏ u, C⟦F u,G u⟧) (gh : ∏ u, C⟦G u,H u⟧)
   (fg_nat : ∏ u v e, fg u · # G e = # F e · fg v)
@@ -450,8 +450,8 @@ Section LimitsAreRightAdjoints.
   Proof.
     use tpair.
     - intro F; exact (lim (C_complete F)).
-    - intros F G α; use limOfArrows; cbn in α. 
-      + use α. 
+    - intros F G α; use limOfArrows; cbn in α.
+      + use α.
       + abstract (symmetry; use (nat_trans_ax α)).
   Defined.
 
@@ -486,7 +486,7 @@ Section LimitsAreRightAdjoints.
       { rewrite <- assoc; refine (maponpaths _ _); use limArrowCommutes. }
       cbn. use id_right.
     - intro; cbn; etrans.
-      { 
+      {
         rewrite <- assoc; refine (maponpaths _ _).
         use (limOfArrowsOut _ (C_complete (constant_functor _ _ _))).
       }
@@ -511,9 +511,7 @@ Section LimitsAreRightAdjoints.
     : is_nat_trans _ _ lim_const_to_id_data.
   Proof.
     intros F F' α; cbn in *.
-    use invmap; [|use path_sigma_hprop|].
-    - use isaprop_is_nat_trans; use homset_property.
-    - use funextsec; use limOfArrowsOut.
+    apply nat_trans_eq; [use homset_property|]; use limOfArrowsOut.
   Qed.
 
   Local Definition lim_const_to_id
@@ -521,15 +519,13 @@ Section LimitsAreRightAdjoints.
     := make_nat_trans _ _ _ lim_const_to_id_is_nat.
 
   Local Lemma lim_const_adjunction
-    : form_adjunction constant_functor_functor limit_functor 
+    : form_adjunction constant_functor_functor limit_functor
         id_to_const_lim lim_const_to_id.
   Proof.
     split.
     - intro A; cbn.
-      use invmap; [|use path_sigma_hprop|].
-      * use isaprop_is_nat_trans; use homset_property.
-      * use funextsec; intro u; cbn.
-        use (limArrowCommutes (C_complete (constant_functor_functor A))).
+      apply nat_trans_eq; [use homset_property|]; intro u; cbn.
+      use (limArrowCommutes (C_complete (constant_functor_functor A))).
     - intro A; cbn; etrans.
       {
         use limArrowUnique.

@@ -131,12 +131,9 @@ Section TotalCategoryOfRModules.
     : is_functor (pullback_functor_data R R' R_m R'_m f f_m).
   Proof.
     use make_is_functor.
-    - intros [M p].
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_module_mor.
+    - intros [M p]. apply MOD_mor_eq; easy.
     - intros M M' M'' u v.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_module_mor.
+      apply MOD_mor_eq; easy.
   Qed.
 
 
@@ -219,11 +216,8 @@ Section TotalCategoryOfRModules.
 
   Lemma total_category_of_modules_disp_cat_axioms : disp_cat_axioms _ total_category_of_modules_disp_cat_data.
   Proof.
-    repeat split; intros;
-    try use homset_property;
-    (use invmap; [|use path_sigma_hprop|]);
-    try use isaprop_is_module_mor;
-    unfold mor_disp, transportb;
+    repeat split; intros; try use homset_property; apply MOD_mor_eq;
+      unfold mor_disp, transportb;
     rewrite functtransportf; cbn;
     rewrite transportf_total2; cbn;
     rewrite transportf_const.

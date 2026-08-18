@@ -3,8 +3,8 @@
 
     the bicategorical variant is found in [MonadsAsMonoidsWhiskered]
 
-    we also show the direction from monads to monoids, also showing 
-    that the category of monads in C is equivalent to the category 
+    we also show the direction from monads to monoids, also showing
+    that the category of monads in C is equivalent to the category
     of monoids in [C, C]
 
    Contents:
@@ -104,13 +104,13 @@ End OnObjects.
     use (maponpaths (λ x, pr1 x A) H2).
   Qed.
 
-  Definition monoid_to_monad_map 
+  Definition monoid_to_monad_map
     (M M' : Monoids)
     (f : M --> M') : monoid_to_monad_CAT M --> monoid_to_monad_CAT M'
     := pr1 f ,, monoid_to_monad_map_is_monad_mor f.
 
 
-  Definition monoid_to_monad_functor_data 
+  Definition monoid_to_monad_functor_data
     : functor_data Monoids Monads
     := make_functor_data monoid_to_monad_CAT monoid_to_monad_map.
 
@@ -160,24 +160,20 @@ End OnObjects.
   Lemma monad_to_monoid_map_is_monoid_mor {M M' : Monads} (f : M --> M')
     : is_monoid_mor _ (monad_to_monoid_CAT_disp M) (monad_to_monoid_CAT_disp M') (pr1 f).
   Proof.
-    induction f as [f [H1 H2]]; split.
-    - use invmap; [|use path_sigma_hprop|].
-      + use isaprop_is_nat_trans; use homset_property.
-      + use funextsec; intro A; cbn. 
-        etrans; [|use (!H1 A)].
-        use (maponpaths (λ x, x · _)).
-        use nat_trans_ax.
-    - use invmap; [|use path_sigma_hprop|].
-      + use isaprop_is_nat_trans; use homset_property.
-      + use funextsec; use H2.
+    induction f as [f [H1 H2]]; split; (apply nat_trans_eq; [apply homset_property|]).
+    - intro A; cbn.
+      etrans; [|use (!H1 A)].
+      use (maponpaths (λ x, x · _)).
+      use nat_trans_ax.
+    - exact H2.
   Qed.
 
-  Definition monad_to_monoid_map 
+  Definition monad_to_monoid_map
     (M M' : Monad C)
     (f : M --> M') : monad_to_monoid_CAT M --> monad_to_monoid_CAT M'
     := pr1 f ,, monad_to_monoid_map_is_monoid_mor f.
 
-  Definition monad_to_monoid_functor_data 
+  Definition monad_to_monoid_functor_data
     : functor_data Monads Monoids
     := make_functor_data monad_to_monoid_CAT monad_to_monoid_map.
 
@@ -199,7 +195,7 @@ End OnObjects.
 
 End MonadToMonoid.
 
-Lemma monoid_to_monad_to_monoid 
+Lemma monoid_to_monad_to_monoid
   (M : category_of_monoids_in_monoidal_cat (monendocat_monoidal C))
   : monad_to_monoid_CAT (monoid_to_monad_CAT M) = M.
 Proof.
@@ -208,7 +204,7 @@ Proof.
   use isaprop_monoid_laws.
 Qed.
 
-Lemma monad_to_monoid_to_monad 
+Lemma monad_to_monoid_to_monad
   (M : Monad C)
   : monoid_to_monad_CAT (monad_to_monoid_CAT M) = M.
 Proof.
@@ -220,24 +216,22 @@ Qed.
 Definition nat_id_monoid_to_monad_to_monoid_data
   : nat_trans_data (functor_identity Monads) (monad_to_monoid_functor ∙ monoid_to_monad_functor)
   := λ M,
-    transportb 
-      (λ x, ∑ f, disp_Monad_Mor_laws (pr12 x) (pr12 x) f) 
-      (monad_to_monoid_to_monad M) 
+    transportb
+      (λ x, ∑ f, disp_Monad_Mor_laws (pr12 x) (pr12 x) f)
+      (monad_to_monoid_to_monad M)
       (nat_trans_id _ ,, monads_category_id_subproof _ (pr22 M)).
 
 Lemma nat_id_monoid_to_monad_to_monoid_data_is_nat
   : is_nat_trans _ _ nat_id_monoid_to_monad_to_monoid_data.
 Proof.
   intros M M' f.
-  use invmap; [|use path_sigma_hprop|]. 
-  2: use invmap; [|use path_sigma_hprop|].
-  - use isaprop_disp_Monad_Mor_laws.
-  - use isaprop_is_nat_trans; use homset_property.
-  - unfold nat_id_monoid_to_monad_to_monoid_data, transportb.
-    do 2 rewrite transportf_total2.
-    use funextsec; intro A.
-    induction (monad_to_monoid_to_monad M'), (monad_to_monoid_to_monad M); cbn.
-    now rewrite id_left, id_right.
+  apply Monad_Mor_equiv.
+  apply nat_trans_eq; [use homset_property|].
+  unfold nat_id_monoid_to_monad_to_monoid_data, transportb.
+  do 2 rewrite transportf_total2.
+  intro A.
+  induction (monad_to_monoid_to_monad M'), (monad_to_monoid_to_monad M); cbn.
+  now rewrite id_left, id_right.
 Qed.
 
 Definition nat_id_monoid_to_monad_to_monoid
@@ -252,22 +246,20 @@ Lemma nat_monad_to_monoid_to_monad_id_is_nat
   : is_nat_trans _ _ nat_monad_to_monoid_to_monad_id_data.
 Proof.
   intros M M' f.
-  use invmap; [|use path_sigma_hprop|]. 
-  2: use invmap; [|use path_sigma_hprop|].
-  - use isaprop_is_monoid_mor.
-  - use isaprop_is_nat_trans; use homset_property.
-  - use funextsec; intro A; cbn.
-    now rewrite id_left, id_right.
+  use invmap; [|use path_sigma_hprop|].
+  { use isaprop_is_monoid_mor. }
+  apply nat_trans_eq; [use homset_property |].
+  intro A; cbn. now rewrite id_left, id_right.
 Qed.
 
 Definition nat_monad_to_monoid_to_monad_id
   : monoid_to_monad_functor ∙ monad_to_monoid_functor ⟹ functor_identity Monoids
   := nat_monad_to_monoid_to_monad_id_data ,, nat_monad_to_monoid_to_monad_id_is_nat.
 
-Definition adjunction_monad_monoid 
+Definition adjunction_monad_monoid
   : adjunction_data Monads Monoids
-  := make_adjunction_data 
-        monad_to_monoid_functor 
+  := make_adjunction_data
+        monad_to_monoid_functor
         monoid_to_monad_functor
         nat_id_monoid_to_monad_to_monoid
         nat_monad_to_monoid_to_monad_id.
@@ -281,23 +273,21 @@ Proof.
       exists (nat_trans_id _).
       exact (monads_category_id_subproof _ (pr22 M)).
     }
-    
+
     all: use invmap; [|use path_sigma_hprop|]; [use isaprop_disp_Monad_Mor_laws|];
-      use invmap; [|use path_sigma_hprop|]; [use isaprop_is_nat_trans; use homset_property|];
-      use funextsec; intro A; cbn;
+      apply nat_trans_eq; [use homset_property |]; intro A; cbn;
       do 2 (unfold nat_id_monoid_to_monad_to_monoid_data, transportb; rewrite transportf_total2; cbn);
       induction monad_to_monoid_to_monad; cbn; use id_left.
 
   - intro M; use make_is_z_isomorphism; [|use make_is_inverse_in_precat].
-    
+
     {
       eapply (transportb (λ x, ∑ f, is_monoid_mor _ (pr2 x) (pr2 x) f) (monoid_to_monad_to_monoid M)).
       exists (identity _); use id_is_monoid_mor.
     }
 
     all: use invmap; [|use path_sigma_hprop|]; [use isaprop_is_monoid_mor|];
-      use invmap; [|use path_sigma_hprop|]; [use isaprop_is_nat_trans; use homset_property|];
-      use funextsec; intro A; cbn;
+      apply nat_trans_eq; [use homset_property |]; intro A; cbn;
       unfold transportb; rewrite transportf_total2; cbn;
       induction (monoid_to_monad_to_monoid M);
       now rewrite id_left.
@@ -328,17 +318,13 @@ Section FixAMonoid.
       : module_laws _ (pr2 Monoid) bind.
     Proof.
       split.
-      - use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
-        use funextsec; cbn; intro.
+      - apply nat_trans_eq; [use homset_property |]; cbn; intro.
         rewrite id_left.
         use LModule_law2.
-      - use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
-        use funextsec; cbn; intro.
+      - apply nat_trans_eq; [use homset_property |]; cbn; intro.
         use LModule_law1.
     Qed.
-  
+
     Definition monad_to_monoid_modules
       : MonoidModules
       := M ,, bind ,, monad_to_monoid_modules_laws.
@@ -361,9 +347,7 @@ Section FixAMonoid.
         (pr2 (monad_to_monoid_modules monad_module'))
         (pr1 f).
     Proof.
-      use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_nat_trans; use homset_property.
-      use funextsec; cbn.
+      apply nat_trans_eq; [use homset_property |]; cbn.
       use (pr2 f).
     Qed.
 
@@ -384,9 +368,7 @@ Section FixAMonoid.
   Lemma monad_to_monoid_modules_functor_laws
     : is_functor monad_to_monoid_modules_functor_data.
   Proof.
-    split; repeat intro;
-    (use invmap; [|use path_sigma_hprop|easy]);
-    use isaprop_is_module_mor.
+    split; repeat intro; apply MOD_mor_eq; easy.
   Qed.
 
   Definition monad_to_monoid_modules_functor
@@ -412,7 +394,7 @@ Section FixAMonoid.
     Definition monoid_to_monad_modules : MonadModules
       := (M ,, bind) ,, monoid_to_monad_modules_laws.
   End FixAMonoidModule.
-  
+
   Section FixAMonoidModuleMorphism.
     Context (monoid_module : MonoidModules).
     Let M : C ⟶  C := pr1 monoid_module.
@@ -460,16 +442,13 @@ Section FixAMonoid.
     use make_nat_trans.
     - use LModule_identity.
     - abstract (
-        intros M M' f;
-        use invmap; [|use path_sigma_hprop|];
-        [use isaprop_LModule_Mor_laws
-        |use invmap; [|use path_sigma_hprop|];
-          [use isaprop_is_nat_trans; use homset_property
-          |use funextsec; intro; cbn;
+          intros M M' f;
+          use invmap; [|use path_sigma_hprop|];
+          [use isaprop_LModule_Mor_laws
+          |use nat_trans_eq; [apply homset_property|]; intro; cbn;
            now rewrite id_left, id_right
           ]
-        ]
-      ).
+        ).
   Defined.
 
   Definition adjunction_monad_monoid_modules_counit
@@ -478,21 +457,14 @@ Section FixAMonoid.
     use make_nat_trans.
     - intro M; cbn; exists (nat_trans_id _).
       abstract (
-        use invmap; [|use path_sigma_hprop|];
-        [use isaprop_is_nat_trans; use homset_property
-        |use funextsec; intro; cbn; now rewrite id_left, id_right]
+          apply nat_trans_eq; [use homset_property|];
+          intro; cbn; now rewrite id_left, id_right
       ).
     - abstract (
-        intros M M' f;
-        use invmap; [|use path_sigma_hprop|];
-        [use isaprop_is_module_mor
-        |use invmap; [|use path_sigma_hprop|];
-          [use isaprop_is_nat_trans; use homset_property
-          |use funextsec; intro; cbn;
-           now rewrite id_left, id_right
-          ]
-        ]
-      ).
+          intros M M' f; apply MOD_mor_eq;
+          apply nat_trans_eq; [use homset_property|];
+          intro; cbn; now rewrite id_left, id_right
+        ).
   Defined.
 
   Definition adjunction_monad_monoid_modules
@@ -514,32 +486,27 @@ Section FixAMonoid.
         abstract(intro; now rewrite id_left, id_right).
       + use invmap; [|use path_sigma_hprop|].
         use isaprop_LModule_Mor_laws.
-        use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
-        use funextsec; intro; use id_left.
+        apply nat_trans_eq; [use homset_property|].
+        intro; use id_left.
       + use invmap; [|use path_sigma_hprop|].
         use isaprop_LModule_Mor_laws.
-        use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
-        use funextsec; intro; use id_left.
+        apply nat_trans_eq; [use homset_property|].
+        intro; use id_left.
     - intro M; use make_is_z_isomorphism; cbn; try split.
       + exists (nat_trans_id _).
         abstract (
-          unfold is_module_mor; cbn;
-          use invmap; [|use path_sigma_hprop|];
-          [use isaprop_is_nat_trans; use homset_property
-          |use funextsec; intro; cbn; now rewrite id_left, id_right]
+            unfold is_module_mor; cbn;
+            apply nat_trans_eq; [use homset_property|];
+            intro; cbn; now rewrite id_left, id_right
         ).
       + use invmap; [|use path_sigma_hprop|].
         use isaprop_is_module_mor.
-        use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
-        use funextsec; intro; use id_left.
+        apply nat_trans_eq; [use homset_property|].
+        intro; use id_left.
       + use invmap; [|use path_sigma_hprop|].
         use isaprop_is_module_mor.
-        use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_nat_trans; use homset_property.
-        use funextsec; intro; use id_left.
+        apply nat_trans_eq; [use homset_property|].
+        intro; use id_left.
   Qed.
 
 

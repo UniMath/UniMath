@@ -442,14 +442,11 @@ Section CategoryOfSignaturesWithStrength.
               intros ? ?; use (limArrowCommutes (lims_g (diagram_pointwise F' _)))
             ).
       - abstract (
-          intros ? ? ?;
-          use invmap; [|use path_sigma_hprop|];
-          [ use isaprop_is_linear_nat_trans
-          | use invmap; [|use path_sigma_hprop|];
-            [ use isaprop_is_nat_trans; use homset_property
-            | use funextsec; intro; use limOutCommutes
-            ]]
-        ).
+            intros ? ? ?;
+              use invmap; [|use path_sigma_hprop|];
+            [ use isaprop_is_linear_nat_trans
+            | apply nat_trans_eq; [use homset_property|]; intro; use limOutCommutes ]
+          ).
     Defined.
 
     Section FixACone.
@@ -485,9 +482,7 @@ Section CategoryOfSignaturesWithStrength.
         intro u.
         use invmap; [|use path_sigma_hprop|].
         { use isaprop_is_linear_nat_trans. }
-        use invmap; [|use path_sigma_hprop|].
-        { use isaprop_is_nat_trans; use homset_property. }
-        use funextsec; intro A.
+        apply nat_trans_eq; [use homset_property|]; intro A.
         use (limArrowCommutes (lims_g (diagram_pointwise F' _))).
       Qed.
 
@@ -507,9 +502,7 @@ Section CategoryOfSignaturesWithStrength.
       Proof.
         use invmap; [|use path_sigma_hprop|].
         { use isaprop_is_linear_nat_trans. }
-        use invmap; [|use path_sigma_hprop|].
-        { use isaprop_is_nat_trans; use homset_property. }
-        use funextsec; intro A; use limArrowUnique; intro u; cbn.
+        apply nat_trans_eq; [use homset_property|]; intro A; use limArrowUnique; intro u; cbn.
         exact (maponpaths (λ x, pr11 x A) (Hf u)).
       Qed.
 
@@ -752,9 +745,7 @@ Section CategoryOfSignaturesWithStrength.
         intro u.
         use invmap; [|use path_sigma_hprop|].
         { use isaprop_is_linear_nat_trans. }
-        use invmap; [|use path_sigma_hprop|].
-        { use isaprop_is_nat_trans; use homset_property. }
-        use funextsec; intro A.
+        apply nat_trans_eq; [use homset_property|]; intro A.
         use (colimArrowCommutes (colims_g (diagram_pointwise F' _))).
       Qed.
 
@@ -774,9 +765,7 @@ Section CategoryOfSignaturesWithStrength.
       Proof.
         use invmap; [|use path_sigma_hprop|].
         { use isaprop_is_linear_nat_trans. }
-        use invmap; [|use path_sigma_hprop|].
-        { use isaprop_is_nat_trans; use homset_property. }
-        use funextsec; intro A; use colimArrowUnique; intro u; cbn.
+        apply nat_trans_eq; [use homset_property|]; intro A; use colimArrowUnique; intro u; cbn.
         exact (maponpaths (λ x, pr11 x A) (Hf u)).
       Qed.
 

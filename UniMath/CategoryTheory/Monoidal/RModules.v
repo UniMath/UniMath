@@ -97,7 +97,7 @@ Section RModules.
 
   Lemma isaprop_is_module_mor {M M' : C} (p : module M) (p' : module M') (r : C⟦M,M'⟧)
     : isaprop (is_module_mor p p' r).
-Proof.
+  Proof.
     use homset_property.
   Qed.
 
@@ -136,15 +136,23 @@ Proof.
   Definition module_disp_cat_data : disp_cat_data C
     := module_disp_cat_ob_mor ,, module_disp_cat_id_comp.
 
-  Definition module_disp_cat : disp_cat C.
+  Lemma module_disp_cat_data_is_locally_propositional : locally_propositional module_disp_cat_data.
   Proof.
-    use (make_disp_cat_locally_prop (D:=module_disp_cat_data)).
     red; intros; use isaprop_is_module_mor.
-  Defined.
+  Qed.
+
+  Definition module_disp_cat : disp_cat C
+    := make_disp_cat_locally_prop module_disp_cat_data_is_locally_propositional.
 
   Definition MOD : category := total_category module_disp_cat.
 
   Definition MOD_to_C (M : MOD) : C := pr1 M.
+
+  Lemma MOD_mor_eq {M M' : MOD} (r r' : MOD⟦M,M'⟧) : pr1 r = pr1 r' -> r = r'.
+  Proof.
+    apply mor_eq_total_category_when_locally_prop.
+    exact module_disp_cat_data_is_locally_propositional.
+  Qed.
 
   (**
      2. Two examples of modules
@@ -527,7 +535,7 @@ Proof.
       use make_cocone.
       - intro u; exists (f u); use colim_module_mor.
       - intros u v e.
-        use invmap; [|use path_sigma_hprop|]. use isaprop_is_module_mor.
+        apply MOD_mor_eq.
         change (dmor F' e · f v = f u); use colimInCommutes.
     Defined.
 
@@ -560,9 +568,7 @@ Proof.
       Lemma colim_module_colimArrow_is_cocone_mor
         : is_cocone_mor colim_module_cocone cc' colim_module_colimArrow.
       Proof.
-        intro u; use invmap; [|use path_sigma_hprop|].
-        - use isaprop_is_module_mor.
-        - use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
+        intro u; apply MOD_mor_eq; use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
       Qed.
 
       Context (pair : ∑ (u: MOD⟦(L ,, colim_module), M⟧),
@@ -574,9 +580,7 @@ Proof.
       Lemma colim_module_colimArrow_unique
         : u = colim_module_colimArrow.
       Proof.
-        use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_module_mor.
-        use colimArrowUnique; intro v; cbn.
+        apply MOD_mor_eq; use colimArrowUnique; intro v; cbn.
         now rewrite <- H.
       Qed.
 
@@ -730,10 +734,7 @@ Proof.
           use (limArrowCommutes (lims_g F'))
         ).
       - abstract(
-          intros u v e;
-          use invmap; [|use path_sigma_hprop|];
-          [use isaprop_is_module_mor|use limOutCommutes]
-        ).
+          intros u v e; apply MOD_mor_eq; use limOutCommutes).
     Defined.
 
     Lemma lim_module_limArrow_is_module_mor (M : MOD) (cc' : cone F M)
@@ -775,7 +776,7 @@ Proof.
         : is_cone_mor cc' lim_module_cone lim_module_limArrow.
       Proof.
         intro v.
-        use invmap; [|use path_sigma_hprop|]. use isaprop_is_module_mor.
+        apply MOD_mor_eq.
         use (limArrowCommutes (lims_g F')).
       Qed.
 
@@ -788,8 +789,7 @@ Proof.
       Lemma lim_module_limArrow_unique
         : u = lim_module_limArrow.
       Proof.
-        use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_module_mor.
+        apply MOD_mor_eq.
         use limArrowUnique; intro v; cbn.
         now rewrite <- H.
       Qed.

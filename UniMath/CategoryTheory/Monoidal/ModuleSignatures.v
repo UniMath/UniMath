@@ -115,9 +115,7 @@ Section ModuleSignatures.
   Lemma trivial_signature_axioms
     : module_signature_axioms trivial_signature_data.
   Proof.
-    split; intros;
-    (use invmap; [|use path_sigma_hprop|]);
-    now try use isaprop_is_module_mor.
+    split; intros; apply MOD_mor_eq; easy.
   Qed.
 
   Definition trivial_signature : module_signature_cat
@@ -155,13 +153,11 @@ Section ModuleSignatures.
     : module_signature_axioms (product_signature_data Σ D).
   Proof.
     split.
-    - intro R; use invmap; [|use path_sigma_hprop|].
-      { use isaprop_is_module_mor. }
+    - intro R. apply MOD_mor_eq.
       cbn; etrans.
       + do 2 (use maponpaths; [shelve|]); use (pr12 Σ R).
       + cbn; now rewrite tensor_mor_left, tensor_id_id.
-    - intros R R' R'' f g; use invmap; [|use path_sigma_hprop|].
-      { use isaprop_is_module_mor. }
+    - intros R R' R'' f g. apply MOD_mor_eq.
       cbn; etrans.
       + do 2 (use maponpaths; [shelve|]); use (pr22 Σ R).
       + use (bifunctor_leftcomp C).
@@ -200,12 +196,9 @@ Section ModuleSignatures.
     : is_functor signature_evaluation_data.
   Proof.
     split.
-    - intro Σ. use invmap; [|use path_sigma_hprop|].
-      { use isaprop_is_module_mor. }
+    - intro Σ. apply MOD_mor_eq.
       easy.
-    - intros Σ Σ' Σ'' f g; use invmap; [|use path_sigma_hprop|].
-      { use isaprop_is_module_mor. }
-      cbn; unfold mor_disp; cbn.
+    - intros Σ Σ' Σ'' f g; apply MOD_mor_eq; cbn; unfold mor_disp; cbn.
       now rewrite transportf_total2, transportf_const.
   Qed.
 

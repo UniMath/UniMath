@@ -260,7 +260,7 @@ Section StrengthToModuleSignature.
         abstract (
             use invmap; [|use path_sigma_hprop|];
             [use isaprop_is_module_mor
-            |unfold mor_disp; cbn;
+            | unfold mor_disp; cbn;
              rewrite transportf_total2; cbn;
              rewrite transportf_const; cbn;
              use nat_trans_ax]
@@ -280,19 +280,10 @@ Section StrengthToModuleSignature.
     : is_functor strength_to_module_signature_functor_data.
   Proof.
     split.
-    - intro.
-      use invmap; [|use path_sigma_hprop|].
-      { use isaprop_section_nat_trans_disp_axioms. }
-      use funextsec; intro.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_module_mor.
-    - intros ? ? ? ? ?.
-      use invmap; [|use path_sigma_hprop|].
-      { use isaprop_section_nat_trans_disp_axioms. }
-      use funextsec; intro.
-      use invmap; [|use path_sigma_hprop|].
-      { use isaprop_is_module_mor. }
-      cbn; unfold mor_disp.
+    - intro. apply section_nat_trans_eq; intro.
+      apply MOD_mor_eq; easy.
+    - intros ? ? ? ? ?. apply section_nat_trans_eq; intro.
+      apply MOD_mor_eq. cbn; unfold mor_disp.
       cbn; rewrite transportf_total2.
       cbn; now rewrite transportf_const.
   Qed.
