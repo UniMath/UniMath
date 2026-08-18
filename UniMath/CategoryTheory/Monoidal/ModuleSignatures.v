@@ -88,9 +88,9 @@ Section ModuleSignatures.
     use section_disp_equality.
     - intros; use homset_property.
     - intro; use equality_on_objects.
-    - intros; cbn.
-      use invmap; [|use path_sigma_hprop|].
-      { use isaprop_is_module_mor. }
+    - intros.
+      apply MOD_mor_eq.
+      cbn.
       rewrite transportf_total2.
       rewrite transportf_total2.
       use equality_on_morphisms.

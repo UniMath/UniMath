@@ -474,19 +474,17 @@ Section FixAMonoid.
       + apply LModule_Mor_equiv.
         apply nat_trans_eq; [use homset_property|].
         intro; use id_left.
-    - intro M; use make_is_z_isomorphism; cbn; try split.
+    - intro M; use make_is_z_isomorphism; try split.
       + exists (nat_trans_id _).
         abstract (
             unfold is_module_mor; cbn;
             apply nat_trans_eq; [use homset_property|];
             intro; cbn; now rewrite id_left, id_right
         ).
-      + use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_module_mor.
+      + apply MOD_mor_eq.
         apply nat_trans_eq; [use homset_property|].
         intro; use id_left.
-      + use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_module_mor.
+      + apply MOD_mor_eq.
         apply nat_trans_eq; [use homset_property|].
         intro; use id_left.
   Qed.

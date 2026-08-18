@@ -209,13 +209,9 @@ Section StrengthToModuleSignature.
     Lemma strength_to_module_signature_axioms
       : module_signature_axioms strength_to_module_signature_data.
     Proof.
-      split; intros; cbn.
-      - use invmap; [|use path_sigma_hprop|].
-        { use isaprop_is_module_mor. }
-        use functor_id.
-      - use invmap; [|use path_sigma_hprop|].
-        { use isaprop_is_module_mor. }
-        use functor_comp.
+      split; intros; apply MOD_mor_eq.
+      - use functor_id.
+      - use functor_comp.
     Qed.
 
     Definition strength_to_module_signature
@@ -256,14 +252,11 @@ Section StrengthToModuleSignature.
             do 2 rewrite assoc;
             use strength_to_module_signature_morphism_lemma
           ).
-      - intros R R' f; cbn.
-        abstract (
-            use invmap; [|use path_sigma_hprop|];
-            [use isaprop_is_module_mor
-            | unfold mor_disp; cbn;
+      - intros R R' f; apply MOD_mor_eq.
+        abstract (unfold mor_disp; cbn;
              rewrite transportf_total2; cbn;
              rewrite transportf_const; cbn;
-             use nat_trans_ax]
+             use nat_trans_ax
           ).
     Defined.
   End FixAStrengthMorphism.

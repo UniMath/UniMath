@@ -16,6 +16,8 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
+(* Require Import UniMath.Tactics.EnsureStructuredProofs. *)
+
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -570,6 +572,7 @@ Section InitialModelsAsFixpoints.
   Proof.
     split.
     - intro M.
+
       use invmap; [|use path_sigma_hprop|].
       use homset_property.
       apply MON_mor_eq.
@@ -611,7 +614,7 @@ Section InitialModelsAsFixpoints.
   Proof.
     intros M N h.
     use invmap; [|use path_sigma_hprop|].
-    use homset_property.
+    { use homset_property. }
     apply MON_mor_eq.
     use f_nat.
   Qed.
@@ -626,11 +629,11 @@ Section InitialModelsAsFixpoints.
     : pre_whisker iter_model_functor iter_model_to_model_nat_trans
     = post_whisker iter_model_to_model_nat_trans iter_model_functor.
   Proof.
-    apply nat_trans_eq; [use homset_property|]; intro M; cbn.
+    apply nat_trans_eq; [use homset_property|]; intro M.
     use invmap; [|use path_sigma_hprop|].
     { use homset_property. }
-    use invmap; [|use path_sigma_hprop|].
-    { use isaprop_is_monoid_mor. }
+    apply MON_mor_eq.
+    cbn.
     use BinCoproductArrowsEq; cbn.
     - etrans; [etrans|]; swap 2 3.
       + use (f_inl (iter_model M)).
@@ -704,8 +707,8 @@ Section TotalCategoriesOfModels.
     : is_functor (pullback_functor_data h).
   Proof.
     use make_is_functor; unfold functor_idax, functor_compax;
-    intros; (use invmap; [|use path_sigma_hprop|]);
-    now try use homset_property.
+      intros; (use invmap; [|use path_sigma_hprop|]);
+      now try use homset_property.
   Qed.
 
 
