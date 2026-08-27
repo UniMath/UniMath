@@ -2,11 +2,11 @@
 
  Total categories of right modules
 
- In this file, the total category of right modules in some fixed monoidal 
+ In this file, the total category of right modules in some fixed monoidal
  category C. Objects are pairs (R, M) where R is a monoid in C and M is
  a right module over R.
 
- Given R --> R' a morphism of monoids, the pullback functor transforms modules 
+ Given R --> R' a morphism of monoids, the pullback functor transforms modules
  over R' into modules over R.
 
  Contents
@@ -52,7 +52,7 @@ Section TotalCategoryOfRModules.
     unfold module_laws_unit; rewrite assoc.
     induction p' as [p' [w H]]; cbn.
     rewrite <- H.
-    use (maponpaths (λ x, x · _)); induction f_m as [_ H2]. 
+    use (maponpaths (λ x, x · _)); induction f_m as [_ H2].
     rewrite <- (bifunctor_leftcomp C); now use maponpaths.
   Qed.
 
@@ -131,12 +131,9 @@ Section TotalCategoryOfRModules.
     : is_functor (pullback_functor_data R R' R_m R'_m f f_m).
   Proof.
     use make_is_functor.
-    - intros [M p].
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_module_mor.
+    - intros [M p]. apply MOD_mor_eq; easy.
     - intros M M' M'' u v.
-      use invmap; [|use path_sigma_hprop|easy].
-      use isaprop_is_module_mor.
+      apply MOD_mor_eq; easy.
   Qed.
 
 
@@ -205,7 +202,7 @@ Section TotalCategoryOfRModules.
       use tensor_swap'.
   Qed.
 
-  Definition total_category_of_modules_disp_cat_id_comp 
+  Definition total_category_of_modules_disp_cat_id_comp
     : disp_cat_id_comp (MON C) total_category_of_modules_disp_cat_ob_mor.
   Proof.
     split.
@@ -219,11 +216,8 @@ Section TotalCategoryOfRModules.
 
   Lemma total_category_of_modules_disp_cat_axioms : disp_cat_axioms _ total_category_of_modules_disp_cat_data.
   Proof.
-    repeat split; intros;
-    try use homset_property;
-    (use invmap; [|use path_sigma_hprop|]);
-    try use isaprop_is_module_mor;
-    unfold mor_disp, transportb; 
+    repeat split; intros; try use homset_property; apply MOD_mor_eq;
+      unfold mor_disp, transportb;
     rewrite functtransportf; cbn;
     rewrite transportf_total2; cbn;
     rewrite transportf_const.
@@ -232,7 +226,7 @@ Section TotalCategoryOfRModules.
     - use assoc.
   Qed.
 
-  Definition total_category_of_modules_disp_cat : disp_cat (MON C) 
+  Definition total_category_of_modules_disp_cat : disp_cat (MON C)
     := total_category_of_modules_disp_cat_data ,, total_category_of_modules_disp_cat_axioms.
 
   Definition total_category_of_modules : category

@@ -24,6 +24,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+
 Local Open Scope cat.
 
 Section lim_def.
@@ -145,6 +147,38 @@ Lemma limOfArrowsOut {J C : precategory} {F1 F2 : functor J C}
           limOut CC1 u · f u.
 Proof.
 now unfold limOfArrows; intro u; rewrite limArrowCommutes.
+Qed.
+
+
+Lemma limOfArrows_id {J C : precategory} {F : J ⟶ C} (CC : LimCone F)
+  (id_nat : ∏ u v e, identity (F u) · # F e = # F e · identity (F v))
+  : limOfArrows CC CC (λ _, identity _) id_nat = identity (lim CC).
+Proof.
+  symmetry; use limArrowUnique; intro; cbn.
+  now rewrite id_left, id_right.
+Qed.
+
+Lemma limOfArrows_comp {J C : precategory} {F G H : J ⟶ C}
+  (CC1 : LimCone F) (CC2 : LimCone G) (CC3 : LimCone H)
+  (fg : ∏ u, C⟦F u,G u⟧) (gh : ∏ u, C⟦G u,H u⟧)
+  (fg_nat : ∏ u v e, fg u · # G e = # F e · fg v)
+  (gh_nat : ∏ u v e, gh u · # H e = # G e · gh v)
+  (fgh_nat : ∏ u v e, (fg u · gh u) · # H e = # F e · (fg v · gh v))
+  : limOfArrows CC1 CC3 (λ u, fg u · gh u) fgh_nat
+    = limOfArrows CC1 CC2 fg fg_nat · limOfArrows CC2 CC3 gh gh_nat.
+Proof.
+  symmetry; use limArrowUnique; intro; cbn.
+  etrans.
+  {
+    rewrite <- assoc; refine (maponpaths _ _).
+    use limOfArrowsOut.
+  }
+  etrans.
+  {
+    rewrite assoc; refine (maponpaths (λ x, x·_) _).
+    use limOfArrowsOut.
+  }
+  now rewrite assoc.
 Qed.
 
 Lemma postCompWithLimOfArrows_subproof
@@ -406,3 +440,120 @@ Lemma LimsFunctorCategory_of_shape (J A C : precategory) (hsC : has_homsets C)
 Proof.
 now intros d; apply LimFunctorCone.
 Defined.
+
+
+Section LimitsAreRightAdjoints.
+  Context (J : category) (C : category).
+  Context (C_complete : Lims_of_shape J C).
+
+  Definition limit_functor_data : functor_data [J, C] C.
+  Proof.
+    use tpair.
+    - intro F; exact (lim (C_complete F)).
+    - intros F G α; use limOfArrows; cbn in α.
+      + use α.
+      + abstract (symmetry; use (nat_trans_ax α)).
+  Defined.
+
+
+  Lemma limit_functor_is_functor : is_functor limit_functor_data.
+  Proof.
+    split.
+    - intro; use limOfArrows_id.
+    - do 5 intro; use limOfArrows_comp.
+  Qed.
+
+  Definition limit_functor : [J, C] ⟶ C
+    := make_functor limit_functor_data limit_functor_is_functor.
+
+  Local Definition id_to_const_lim_data
+    : nat_trans_data (functor_identity C) (constant_functor_functor ∙ limit_functor).
+  Proof.
+    intro; use limArrow; use make_cone.
+    - intro u; use identity.
+    - abstract (intros u v e; use id_left).
+  Defined.
+
+  Local Lemma id_to_const_lim_is_nat
+    : is_nat_trans _ _ id_to_const_lim_data.
+  Proof.
+    intros A B f; unfold id_to_const_lim_data; cbn.
+    etrans; [|symmetry]; use limArrowUnique.
+    - use make_cone.
+      * intro; use f.
+      * intros; use id_right.
+    - intro; etrans.
+      { rewrite <- assoc; refine (maponpaths _ _); use limArrowCommutes. }
+      cbn. use id_right.
+    - intro; cbn; etrans.
+      {
+        rewrite <- assoc; refine (maponpaths _ _).
+        use (limOfArrowsOut _ (C_complete (constant_functor _ _ _))).
+      }
+      rewrite assoc; etrans.
+      { refine (maponpaths (λ x, x · _) _); use limArrowCommutes. }
+      cbn. use id_left.
+  Qed.
+
+  Local Definition id_to_const_lim
+    : functor_identity C ⟹ constant_functor_functor ∙ limit_functor
+    := make_nat_trans _ _ _ id_to_const_lim_is_nat.
+
+  Local Definition lim_const_to_id_data
+    : nat_trans_data (limit_functor ∙ constant_functor_functor) (functor_identity [J, C]).
+  Proof.
+    intro F; use make_nat_trans.
+    - intro u; cbn; use limOut.
+    - abstract (intros u v e; rewrite id_left; symmetry; use limOutCommutes).
+  Defined.
+
+  Local Lemma lim_const_to_id_is_nat
+    : is_nat_trans _ _ lim_const_to_id_data.
+  Proof.
+    intros F F' α; cbn in *.
+    apply nat_trans_eq; [use homset_property|]; use limOfArrowsOut.
+  Qed.
+
+  Local Definition lim_const_to_id
+    : limit_functor ∙ constant_functor_functor ⟹ functor_identity [J, C]
+    := make_nat_trans _ _ _ lim_const_to_id_is_nat.
+
+  Local Lemma lim_const_adjunction
+    : form_adjunction constant_functor_functor limit_functor
+        id_to_const_lim lim_const_to_id.
+  Proof.
+    split.
+    - intro A; cbn.
+      apply nat_trans_eq; [use homset_property|]; intro u; cbn.
+      use (limArrowCommutes (C_complete (constant_functor_functor A))).
+    - intro A; cbn; etrans.
+      {
+        use limArrowUnique.
+        use limCone.
+        intro u.
+        etrans.
+        { rewrite <- assoc; refine (maponpaths _ _); use limOfArrowsOut. }
+        cbn; etrans.
+        {
+          rewrite assoc; refine (maponpaths (λ x, x·_) _).
+          use (limArrowCommutes (C_complete (constant_functor_functor _))).
+        }
+        cbn. use id_left.
+      }
+      symmetry; use limArrowUnique; intro u.
+      use id_left.
+  Qed.
+
+  Lemma limit_functor_constant_functor_are_adjoints
+    : are_adjoints constant_functor_functor limit_functor.
+  Proof.
+    use make_are_adjoints.
+    - exact id_to_const_lim.
+    - exact lim_const_to_id.
+    - exact lim_const_adjunction.
+  Defined.
+
+  Definition limit_is_right_adjoint
+    : is_right_adjoint limit_functor
+    := constant_functor_functor ,, limit_functor_constant_functor_are_adjoints.
+End LimitsAreRightAdjoints.

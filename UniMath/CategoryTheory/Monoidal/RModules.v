@@ -61,10 +61,16 @@ Section RModules.
     := α^{C}_{M,R,R} · (M ⊗l μ) · p = p ⊗r R · p.
 
   Definition module_laws_unit {M : C} (p : module_subst M) : UU
-    := M ⊗l η · p = ru^{C}_{M}. 
+    := M ⊗l η · p = ru^{C}_{M}.
 
   Definition module_laws {M : C} (p : module_subst M) : UU
     := module_laws_assoc p × module_laws_unit p.
+
+  Lemma isaprop_module_laws {M : C} (p : module_subst M)
+    : isaprop (module_laws p).
+  Proof.
+    use isapropdirprod; use homset_property.
+  Qed.
 
   Definition module (M : C): UU := ∑ p : module_subst M, module_laws p.
 
@@ -72,7 +78,7 @@ Section RModules.
     {M : C} (p : C⟦M ⊗ R, M⟧)
     (p_unit : M ⊗l η · p = ru^{C}_{M})
     (p_assoc : α^{C}_{M,R,R} · (M ⊗l μ) · p = p ⊗r R · p)
-    : module M 
+    : module M
     := (p ,, p_assoc ,, p_unit).
 
   Definition module_to_module_subst {M : C} (p : module M) : C⟦ M ⊗ R, M ⟧ := pr1 p.
@@ -91,7 +97,7 @@ Section RModules.
 
   Lemma isaprop_is_module_mor {M M' : C} (p : module M) (p' : module M') (r : C⟦M,M'⟧)
     : isaprop (is_module_mor p p' r).
-Proof.
+  Proof.
     use homset_property.
   Qed.
 
@@ -102,7 +108,7 @@ Proof.
     use id_left.
   Qed.
 
-  Lemma comp_is_module_mor (M M' M'' : C) 
+  Lemma comp_is_module_mor (M M' M'' : C)
     (p : module M) (p' : module M') (p'' : module M'')
     (r : C⟦M,M'⟧) (r' : C⟦M',M''⟧)
     (Hr : is_module_mor p p' r) (Hr' : is_module_mor p' p'' r')
@@ -127,22 +133,26 @@ Proof.
   Defined.
 
 
-  Definition module_disp_cat_data : disp_cat_data C 
+  Definition module_disp_cat_data : disp_cat_data C
     := module_disp_cat_ob_mor ,, module_disp_cat_id_comp.
 
-
-  Definition module_disp_cat_axioms : disp_cat_axioms C module_disp_cat_data.
+  Lemma module_disp_cat_data_is_locally_propositional : locally_propositional module_disp_cat_data.
   Proof.
-    repeat split ; intros ; try apply isaprop_is_module_mor.
-    use isasetaprop ; use isaprop_is_module_mor.
+    red; intros; use isaprop_is_module_mor.
   Qed.
 
-
-  Definition module_disp_cat : disp_cat C := module_disp_cat_data ,, module_disp_cat_axioms.
+  Definition module_disp_cat : disp_cat C
+    := make_disp_cat_locally_prop module_disp_cat_data_is_locally_propositional.
 
   Definition MOD : category := total_category module_disp_cat.
 
   Definition MOD_to_C (M : MOD) : C := pr1 M.
+
+  Lemma MOD_mor_eq {M M' : MOD} (r r' : MOD⟦M,M'⟧) : pr1 r = pr1 r' -> r = r'.
+  Proof.
+    apply mor_eq_total_category_when_locally_prop.
+    exact module_disp_cat_data_is_locally_propositional.
+  Qed.
 
   (**
      2. Two examples of modules
@@ -152,10 +162,13 @@ Proof.
     let l := pr2 (monoid_to_monoid_laws C R_m) in
     R ,, μ ,, pr2 l ,, pr1 l.
 
-  Lemma product_module_unit (M D : C) (p : module M) : 
-    module_laws_unit (α^{C}_{D,M,R} · D ⊗l p).
+  Definition product_module_subst {M : C} (D : C) (p : module M) : module_subst (D ⊗_{C} M)
+    := α^{C}_{D,M,R} · D ⊗l p.
+
+  Lemma product_module_unit (M D : C) (p : module M) :
+    module_laws_unit (product_module_subst D p).
   Proof.
-    unfold module_laws_unit.
+    unfold product_module_subst, module_laws_unit.
     rewrite assoc, <- (monoidal_associatornatleft C).
     etrans.
     - rewrite <- assoc; refine (maponpaths _ _).
@@ -165,12 +178,12 @@ Proof.
     - use left_whisker_with_runitor.
   Qed.
 
-  Lemma product_module_assoc (M D : C) (p : module M) : 
-    module_laws_assoc (α^{C}_{D,M,R} · D ⊗l p).
+  Lemma product_module_assoc (M D : C) (p : module M) :
+    module_laws_assoc (product_module_subst D p).
   Proof.
     unfold module_laws_assoc; symmetry.
     etrans; etrans. etrans. etrans.
-    - refine (maponpaths (λ x, x · _) _). use (bifunctor_rightcomp C).
+    - unfold product_module_subst. refine (maponpaths (λ x, x · _) _). use (bifunctor_rightcomp C).
     - rewrite <- assoc; refine (maponpaths _ _); rewrite assoc.
       refine (!maponpaths (λ x, x · _) _).
       use monoidal_associatornatleftright.
@@ -186,13 +199,13 @@ Proof.
       rewrite assoc.
       refine (maponpaths (λ x, x · _) _).
       use monoidal_associatornatleft.
-    - now do 3 rewrite assoc.
+    - unfold product_module_subst. now do 3 rewrite assoc.
   Qed.
 
   Definition product_module (M D : C) (p : module M) : MOD.
   Proof.
     exists (D ⊗ M).
-    exists (α^{C}_{_,_,_} · D ⊗l p).
+    exists (product_module_subst D p).
     split; [use product_module_assoc | use product_module_unit].
   Defined.
 
@@ -227,13 +240,13 @@ Proof.
     Let cc : cocone F' L := pr21 (colims_g F').
     Let c : isColimCocone F' L cc := pr2 (colims_g F').
 
-    (* Colimit cocone over L *) 
+    (* Colimit cocone over L *)
     Definition ColimCocone_L := colims_g F'.
 
-    (* Colimit cocone over L ⊗ R *) 
+    (* Colimit cocone over L ⊗ R *)
     Definition ColimCocone_L_R := make_ColimCocone _ _ _ (HR F' L cc c).
 
-    (* Colimit cocone over (L ⊗ R) ⊗ R *) 
+    (* Colimit cocone over (L ⊗ R) ⊗ R *)
     Definition ColimCocone_L_R_R := make_ColimCocone _ _ _ (HR _ _ _ (HR F' L cc c)).
 
     Let q (v : vertex g): module_subst (dob F' v) := pr12 (dob F v).
@@ -253,7 +266,7 @@ Proof.
       use (colimOfArrowsIn _ _ ColimCocone_L_R _ _ _ v).
     Defined.
 
-    Lemma rw_unit_is_left_adjoint 
+    Lemma rw_unit_is_left_adjoint
       : is_left_adjoint (rightwhiskering_functor C I_{C}).
     Proof.
       exists (functor_identity C); use make_are_adjoints.
@@ -262,7 +275,7 @@ Proof.
       - eexists; intros A B h; use monoidal_rightunitornat.
       - intro A. cbn; symmetry.
         transitivity (ruinv^{C}_{A} ⊗r I_{C} · ru^{C}_{A} ⊗r I_{C}); [etrans|]; swap 1 2.
-        + use (bifunctor_rightcomp C). 
+        + use (bifunctor_rightcomp C).
         + etrans; [symmetry; use tensor_id_id|].
           now rewrite @tensor_mor_right, (pr2 (monoidal_rightunitorisolaw C A)).
         + use maponpaths.
@@ -271,7 +284,7 @@ Proof.
       - intro A; cbn; use (pr2 (monoidal_rightunitorisolaw C A)).
     Qed.
 
-    (* Colimit cocone over L ⊗ I *) 
+    (* Colimit cocone over L ⊗ I *)
     Definition ColimCocone_L_I := make_ColimCocone _ _ _ (left_adjoint_preserves_colimit _ rw_unit_is_left_adjoint _ _ _ c).
 
     Lemma colim_rightunitor : ru^{C}_{L} = colimOfArrows ColimCocone_L_I ColimCocone_L (λ _, ru^{C}_{_}) (λ _ _ _, monoidal_rightunitornat _ _ _ _).
@@ -283,7 +296,7 @@ Proof.
         use maponpaths; use (coconeInCommutes cc)
       ).
       pose (make_cocone _ H_cc') as cc'.
-      assert (∏ (u : vertex g), colimIn ColimCocone_L_I u · ru^{C}_{L} = coconeIn cc' u) as H_unique 
+      assert (∏ (u : vertex g), colimIn ColimCocone_L_I u · ru^{C}_{L} = coconeIn cc' u) as H_unique
       by (intro; cbn; use monoidal_rightunitornat).
       etrans.
       use (colimArrowUnique _ _ _ _ H_unique).
@@ -325,8 +338,8 @@ Proof.
       rewrite colim_unit, colim_rightunitor.
       unfold p, colim_module_subst; simpl.
       simpl.
-      assert (∏ u v (e : edge u v), 
-        dmor F' e ⊗r I_{ C} · (dob F' v ⊗l η · q v) 
+      assert (∏ u v (e : edge u v),
+        dmor F' e ⊗r I_{ C} · (dob F' v ⊗l η · q v)
         = dob F' u ⊗l η · q u · dmor F' e
       ) as H.
       {
@@ -349,7 +362,7 @@ Proof.
       use proofirrelevance; use homset_property.
     Qed.
 
-    Local Lemma lemma_R_R_to_R_nat : 
+    Local Lemma lemma_R_R_to_R_nat :
        (∏ u v e,
         (dmor F' e ⊗r R) ⊗r R · q v ⊗r R =
         q u ⊗r R · dmor F' e ⊗r R).
@@ -412,7 +425,7 @@ Proof.
       intros; rewrite assoc; etrans.
       - refine (!maponpaths (λ x, x · _) _).
         use monoidal_associatornatright.
-      - do 2 rewrite <- assoc. 
+      - do 2 rewrite <- assoc.
         use maponpaths.
         do 2 rewrite @tensor_mor_right, @tensor_mor_left.
         use tensor_swap.
@@ -498,9 +511,9 @@ Proof.
       transitivity (colimOfArrows ColimCocone_L_R_R ColimCocone_L _ H1).
       - change (
           colimOfArrows ColimCocone_L_R_R ColimCocone_L_R _ lemma_R_R_to_R_nat2
-          · colimOfArrows ColimCocone_L_R ColimCocone_L _ (λ _ _ e, pr2 (dmor F e)) 
+          · colimOfArrows ColimCocone_L_R ColimCocone_L _ (λ _ _ e, pr2 (dmor F e))
           = colimOfArrows ColimCocone_L_R_R ColimCocone_L _ H1
-        ); 
+        );
         use colimOfArrows_comp.
       - use two_arg_paths_f; cycle 1.
         + use proofirrelevance; do 3 (use impred; intro); use homset_property.
@@ -510,7 +523,7 @@ Proof.
           colimOfArrows ColimCocone_L_R_R ColimCocone_L_R _ lemma_R_R_to_R_nat
           · colimOfArrows ColimCocone_L_R ColimCocone_L _ (λ _ _ e, pr2 (dmor F e))
           = colimOfArrows ColimCocone_L_R_R ColimCocone_L _ H2
-        ); 
+        );
         use colimOfArrows_comp.
     Qed.
 
@@ -522,7 +535,7 @@ Proof.
       use make_cocone.
       - intro u; exists (f u); use colim_module_mor.
       - intros u v e.
-        use invmap; [|use path_sigma_hprop|]. use isaprop_is_module_mor.
+        apply MOD_mor_eq.
         change (dmor F' e · f v = f u); use colimInCommutes.
     Defined.
 
@@ -555,23 +568,19 @@ Proof.
       Lemma colim_module_colimArrow_is_cocone_mor
         : is_cocone_mor colim_module_cocone cc' colim_module_colimArrow.
       Proof.
-        intro u; use invmap; [|use path_sigma_hprop|].
-        - use isaprop_is_module_mor.
-        - use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
+        intro u; apply MOD_mor_eq; use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
       Qed.
 
       Context (pair : ∑ (u: MOD⟦(L ,, colim_module), M⟧),
             is_cocone_mor colim_module_cocone cc' u).
-      
+
       Let u : MOD⟦(L ,, colim_module), M⟧ := pr1 pair.
       Let H : is_cocone_mor colim_module_cocone cc' u := pr2 pair.
 
       Lemma colim_module_colimArrow_unique
         : u = colim_module_colimArrow.
       Proof.
-        use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_module_mor.
-        use colimArrowUnique; intro v; cbn.
+        apply MOD_mor_eq; use colimArrowUnique; intro v; cbn.
         now rewrite <- H.
       Qed.
 
@@ -584,9 +593,9 @@ Proof.
       Qed.
     End FixACocone.
 
-    Definition colim_module_isColimCocone 
+    Definition colim_module_isColimCocone
       : isColimCocone F (L,, colim_module) colim_module_cocone
-      := λ M cc', _ ,, colim_module_colimArrow_uniqueness M cc'. 
+      := λ M cc', _ ,, colim_module_colimArrow_uniqueness M cc'.
 
     Definition colim_module_ColimCocone : ColimCocone F.
     Proof.
@@ -652,7 +661,7 @@ Proof.
         do 2 rewrite @tensor_mor_left, @tensor_mor_right; use tensor_swap'.
     Qed.
 
-    Lemma lim_module_unit 
+    Lemma lim_module_unit
       : module_laws_unit lim_module_subst.
     Proof.
       etrans.
@@ -680,7 +689,7 @@ Proof.
         rewrite assoc; refine (maponpaths (λ x, x · _) _).
         rewrite <- @bifunctor_rightcomp; refine (maponpaths _ _).
         use (pr2 (dmor F e)).
-      - rewrite bifunctor_rightcomp; 
+      - rewrite bifunctor_rightcomp;
         do 3 rewrite <- assoc;
         do 2 use maponpaths.
         use (pr2 (dmor F e)).
@@ -725,10 +734,7 @@ Proof.
           use (limArrowCommutes (lims_g F'))
         ).
       - abstract(
-          intros u v e;
-          use invmap; [|use path_sigma_hprop|];
-          [use isaprop_is_module_mor|use limOutCommutes]
-        ).
+          intros u v e; apply MOD_mor_eq; use limOutCommutes).
     Defined.
 
     Lemma lim_module_limArrow_is_module_mor (M : MOD) (cc' : cone F M)
@@ -745,7 +751,7 @@ Proof.
         + intro u; cbn; etrans; [etrans|].
           * rewrite <- assoc; refine (maponpaths _ _).
             use (limArrowCommutes (lims_g F')).
-          * cbn; rewrite assoc, <- (bifunctor_rightcomp C); 
+          * cbn; rewrite assoc, <- (bifunctor_rightcomp C);
             refine (maponpaths (λ x, x ⊗r R · _) _).
             use (limArrowCommutes (lims_g F')).
           * use (pr2 (coneOut cc' _)).
@@ -770,21 +776,20 @@ Proof.
         : is_cone_mor cc' lim_module_cone lim_module_limArrow.
       Proof.
         intro v.
-        use invmap; [|use path_sigma_hprop|]. use isaprop_is_module_mor.
+        apply MOD_mor_eq.
         use (limArrowCommutes (lims_g F')).
       Qed.
 
       Context (pair : ∑ (u: MOD⟦M, (L ,, lim_module)⟧),
             is_cone_mor cc' lim_module_cone u).
-      
+
       Let u : MOD⟦M, (L ,, lim_module)⟧ := pr1 pair.
       Let H : is_cone_mor cc' lim_module_cone u := pr2 pair.
 
       Lemma lim_module_limArrow_unique
         : u = lim_module_limArrow.
       Proof.
-        use invmap; [|use path_sigma_hprop|].
-        use isaprop_is_module_mor.
+        apply MOD_mor_eq.
         use limArrowUnique; intro v; cbn.
         now rewrite <- H.
       Qed.

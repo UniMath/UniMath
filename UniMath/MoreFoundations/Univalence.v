@@ -261,3 +261,19 @@ Proof.
     exact XR.
   - induction e. cbn. apply idpath.
 Defined.
+
+Lemma transportf_funextsec_2
+  {X : UU} {Z : X → UU} (P : ∏ x x', Z x → Z x' → UU)
+  {F F' : ∏ x, Z x} (H : ∏ x, F x = F' x) 
+  {x x' : X} (f : P x x' (F x) (F x'))
+  : transportf (λ F, P x x' (F x) (F x')) (funextsec Z F F' H) f
+    = transportf (λ fx : Z x, P x x' fx (F' x')) (H x)
+      (transportf (λ fx' : Z x', P x x' (F x) fx') (H x') f).
+Proof.
+  assert (∏ x, maponpaths (λ u, u x) (funextsec Z F F' H) = H x) 
+  as H' by (intro; use maponpaths_funextsec).
+  unfold transportf2.
+  rewrite <- (H' x), <- (H' x').
+  induction (funextsec Z F F' H).
+  use idpath.
+Qed.

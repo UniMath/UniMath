@@ -1218,3 +1218,83 @@ Proof.
   use funextsec.
   exact p.
 Qed.
+
+Section LimitsOfProductGraphs.
+  Context {g g' : graph}.
+  Context {C : category}.
+  Context (d : diagram (product_graph g g') C).
+  Context (coh : product_diagram_coherence_law d).
+  Context (L : LimCone d).
+
+  Section LimitsCommute.
+
+    Definition product_cone_swap {c : C} (cc : cone d c)
+      : cone (product_diagram_swap g g' d) c.
+    Proof.
+      use make_cone; cbn.
+      - intros (v', v); use (coneOut cc (v ,, v')).
+      - abstract (intros (v', v) (w', w) [e' | e]; cbn; use coneOutCommutes).
+    Defined.
+
+    Definition product_cone_unswap {c : C} (cc : cone (product_diagram_swap g g' d) c)
+      : cone d c.
+    Proof.
+      use make_cone; cbn.
+      - intros (v, v'); use (coneOut cc (v' ,, v)).
+      - abstract(
+          intros (v, v') (w, w') [e | e']; 
+          [use (coneOutCommutes cc (v',,v) (w',,w) (inr e))
+          |use (coneOutCommutes cc (v',,v) (w',,w) (inl e'))]
+        ).
+    Defined.
+
+    Definition limits_commute_cone
+      : cone (product_diagram_swap g g' d) (lim L)
+      := product_cone_swap (limCone L).
+
+    Section FixACone.
+      Context (c : C) (cc : cone (product_diagram_swap g g' d) c).
+      Let cc' := product_cone_unswap cc.
+
+      Definition limits_commute_arrow : C ⟦ c, lim L ⟧
+        := limArrow _ _ cc'.
+
+      Lemma limits_commute_arrow_is_cone_mor
+        : is_cone_mor cc limits_commute_cone limits_commute_arrow.
+      Proof.
+        intros (v' , v); cbn.
+        use limArrowCommutes.
+      Qed.
+
+      Context (pair : ∑ (f : C ⟦ c, lim L ⟧), is_cone_mor cc limits_commute_cone f).
+      Let f := pr1 pair.
+
+      Lemma limits_commute_arrow_unique : f = limits_commute_arrow.
+      Proof.
+        use limArrowUnique; intros (u', u); use (pr2 pair (u,,u')).
+      Qed.
+
+      Lemma limits_commute_arrow_unique_pair 
+        : pair = (limits_commute_arrow ,, limits_commute_arrow_is_cone_mor).
+      Proof.
+        use invmap; [|use path_sigma_hprop|].
+        use isaprop_is_cone_mor.
+        use limits_commute_arrow_unique.
+      Qed.
+
+    End FixACone.
+
+    Definition limits_commute_cone_is_lim
+      : isLimCone (product_diagram_swap g g' d) (lim L) limits_commute_cone
+      := λ _ _, _ ,, limits_commute_arrow_unique_pair _ _.
+
+    Proposition limits_commute
+      : LimCone (product_diagram_swap _ _ d).
+    Proof.
+      use make_LimCone.
+      - exact (lim L).
+      - exact limits_commute_cone.
+      - exact limits_commute_cone_is_lim.
+    Defined.
+  End LimitsCommute.
+End LimitsOfProductGraphs.

@@ -16,6 +16,8 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
+(* Require Import UniMath.Tactics.EnsureStructuredProofs. *)
+
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -57,13 +59,13 @@ Section ModelsOfModuleSignature.
   Definition models_of_module_signatures_disp_cat_ob_mor : disp_cat_ob_mor (MON C).
   Proof.
     use make_disp_cat_ob_mor.
-    - intro R; 
+    - intro R;
       exact (Σ R --> trivial_module (pr1 R) (pr2 R)).
-    - intros R R' r r' f; 
+    - intros R R' r r' f;
       exact (pr1 r · pr1 f = pr1 (section_disp_on_morphisms (pr1 Σ) f) · pr1 r').
   Defined.
 
-  Lemma models_of_module_signatures_disp_cat_id_comp 
+  Lemma models_of_module_signatures_disp_cat_id_comp
     : disp_cat_id_comp (MON C) models_of_module_signatures_disp_cat_ob_mor.
   Proof.
     split; intros.
@@ -76,24 +78,18 @@ Section ModelsOfModuleSignature.
   Definition models_of_module_signatures_disp_cat_data : disp_cat_data (MON C)
     := models_of_module_signatures_disp_cat_ob_mor ,, models_of_module_signatures_disp_cat_id_comp.
 
-  Lemma models_of_module_signatures_disp_cat_axioms : disp_cat_axioms _ models_of_module_signatures_disp_cat_data.
+  Definition models_of_module_signatures_disp_cat : disp_cat (MON C).
   Proof.
-    repeat split; intros; 
-    use proofirrelevance || use isasetaprop;
-    use homset_property.
-  Qed.
-
-  Definition models_of_module_signatures_disp_cat : disp_cat (MON C) 
-    := models_of_module_signatures_disp_cat_data ,, models_of_module_signatures_disp_cat_axioms.
+    use (make_disp_cat_locally_prop (D:=models_of_module_signatures_disp_cat_data)).
+    red; intros; apply homset_property.
+  Defined.
 
   Definition models_of_module_signatures_cat : category
     := total_category models_of_module_signatures_disp_cat.
 
-
-  Definition monoid_of_models_of_module_signatures 
+  Coercion monoid_of_models_of_module_signatures
     (M : models_of_module_signatures_cat)
     : MON C := pr1 M.
-  Coercion monoid_of_models_of_module_signatures : ob >-> ob.
 
   Definition is_representable := Initial models_of_module_signatures_cat.
 End ModelsOfModuleSignature.
@@ -103,7 +99,7 @@ End ModelsOfModuleSignature.
   *)
 
 (* A lemma very similar to Lambek's on initial algebras as fix-points *)
-Local Lemma lambek (D : category) 
+Local Lemma lambek (D : category)
   (F : D ⟶ D)
   (α : F ⟹ functor_identity _)
   (O : Initial D)
@@ -113,13 +109,13 @@ Proof.
   assert (#F (InitialArrow O _) · α _ = identity _) as H'.
   {
     transitivity (#F (InitialArrow O _) · #F (α (InitialObject O))).
-    - exact (maponpaths (λ f, _ · pr1 f _) H).
+    - use maponpaths; exact (maponpaths (λ f, pr1 f _) H).
     - rewrite <- functor_comp, <- functor_id;
       use maponpaths;
       use InitialArrowEq.
   }
 
-  assert (∏ (d : D) (f : F (InitialObject O) --> d), 
+  assert (∏ (d : D) (f : F (InitialObject O) --> d),
       InitialArrow O d = InitialArrow O _ · f
   ) as H'' by (intros; use InitialArrowEq).
 
@@ -143,7 +139,7 @@ Section InitialModelsAsFixpoints.
   Let inl {A B : C} : A --> (A ++ B) := BinCoproductIn1 _.
   Let inr {A B : C} : B --> (A ++ B) := BinCoproductIn2 _.
 
-  Lemma iscopr {X Y : C} 
+  Lemma iscopr {X Y : C}
     : isBinCoproduct C X Y (X ++ Y) inl inr.
   Proof.
     use isBinCoproduct_BinCoproduct.
@@ -172,8 +168,8 @@ Section InitialModelsAsFixpoints.
   Qed.
 
   Local Lemma arrow_from_prod_sum_nat {X Y Z W : C}
-    : (X ++ Y) ⊗l inl · @arrow_from_prod_sum X Y (Z ++ W) 
-    = arrow_from_prod_sum · BinCoproductOfArrows _ _ _ (_ ⊗l inl) (_ ⊗l inl). 
+    : (X ++ Y) ⊗l inl · @arrow_from_prod_sum X Y (Z ++ W)
+    = arrow_from_prod_sum · BinCoproductOfArrows _ _ _ (_ ⊗l inl) (_ ⊗l inl).
   Proof.
     use (BinCoproductArrowsEq _ _ _ ProdSum _); cbn.
     - etrans; etrans; try rewrite assoc; swap 3 4.
@@ -216,8 +212,8 @@ Section InitialModelsAsFixpoints.
 
                  ≅                       [λ,u]
        M' ⊗ M' -----> I ⊗ M' + Σ(M) ⊗ M' -----> M'
-                 μ₁                        μ₂ 
-       
+                 μ₁                        μ₂
+
 
        where λ is the left unitor and u is defined as the composite of
 
@@ -240,7 +236,7 @@ Section InitialModelsAsFixpoints.
 
     Local Definition μ : M' ⊗ M' --> M' := μ₁ · μ₂.
 
-    Local Lemma multiplication_inl 
+    Local Lemma multiplication_inl
       : inl ⊗r M' · μ = lu^{ C }_{ M'}.
     Proof.
       unfold μ, η, μ₁; rewrite assoc.
@@ -249,7 +245,7 @@ Section InitialModelsAsFixpoints.
       - use BinCoproductIn1Commutes.
     Qed.
 
-    Local Lemma multiplication_inr 
+    Local Lemma multiplication_inr
       : inr ⊗r M' · μ = pr1 (Σ M) ⊗l f · pM · inr.
     Proof.
       unfold μ, η, μ₁; rewrite assoc.
@@ -302,7 +298,7 @@ Section InitialModelsAsFixpoints.
 
     Local Lemma f_respects_multiplication : μ · f = (f #⊗ f) · μM.
     Proof.
-      use ( BinCoproductArrowsEq _ _ _ ProdSum (pr11 M)).
+      use (BinCoproductArrowsEq _ _ _ ProdSum (pr11 M)).
       - cbn; rewrite assoc; symmetry; etrans; [etrans;etrans|etrans]; symmetry.
         + rewrite assoc; refine (maponpaths (λ x, x · _) _).
           rewrite tensor_split', <- tensor_mor_left, <- tensor_mor_right, assoc.
@@ -329,7 +325,7 @@ Section InitialModelsAsFixpoints.
           * do 3 rewrite <- assoc; do 2 use maponpaths; use f_inr.
     Qed.
 
-    Local Definition ProdProdSum {X Y Z W : C} 
+    Local Definition ProdProdSum {X Y Z W : C}
       : BinCoproduct ((X ⊗ W) ⊗ Z) ((Y ⊗ W) ⊗ Z)
       := make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr)).
 
@@ -340,7 +336,7 @@ Section InitialModelsAsFixpoints.
       - do 3 etrans; swap 7 8.
         + refine (!maponpaths (λ x, x · _ · _) _); use monoidal_associatornatright.
         + rewrite <- assoc, <- assoc, @tensor_mor_right, @tensor_mor_left.
-          refine (maponpaths _ _); rewrite assoc. 
+          refine (maponpaths _ _); rewrite assoc.
           refine (maponpaths (λ x, x · _) _); use tensor_swap.
         + rewrite <- tensor_mor_right, <- tensor_mor_left, <- assoc.
           do 2 (refine (maponpaths _ _)).
@@ -407,7 +403,7 @@ Section InitialModelsAsFixpoints.
     Local Definition r : pr1 (Σ M'_mon) --> M'
       := pr1 (section_disp_on_morphisms (pr1 Σ) f_mon) · inr.
 
-    Local Lemma r_is_module_mor 
+    Local Lemma r_is_module_mor
       : is_module_mor _ _ (pr2 (Σ M'_mon)) (pr2 (trivial_module _ _)) r.
     Proof.
       unfold is_module_mor, r; cbn.
@@ -422,11 +418,11 @@ Section InitialModelsAsFixpoints.
       : (Σ M'_mon) --> trivial_module _ (pr2 M'_mon)
       := r ,, r_is_module_mor.
 
-    Definition iter_model 
+    Definition iter_model
       : models_of_module_signatures_cat Σ
       := M'_mon ,, r_mon.
 
-    Lemma iter_model_map_is_model_morphism 
+    Lemma iter_model_map_is_model_morphism
       : r · f = pr1 (section_disp_on_morphisms (pr1 Σ) f_mon) · rM.
     Proof.
       unfold r; rewrite <- assoc.
@@ -457,7 +453,7 @@ Section InitialModelsAsFixpoints.
     Let ηN' : I_{C} --> N' := monoid_data_unit _ (pr12 N'_mon).
 
     Local Definition h' : M' --> N'
-      := BinCoproductOfArrows _ _ _ (identity _) 
+      := BinCoproductOfArrows _ _ _ (identity _)
         (pr1 (section_disp_on_morphisms (pr1 Σ) (pr1 h))).
 
     Local Lemma f_nat : h' · f N = f M · pr11 h.
@@ -481,7 +477,7 @@ Section InitialModelsAsFixpoints.
       : h' #⊗ h' · μN' = μM' · h'.
     Proof.
       use (
-        BinCoproductArrowsEq _ _ _ 
+        BinCoproductArrowsEq _ _ _
         (make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr))
         N'
       ); cbn.
@@ -507,7 +503,7 @@ Section InitialModelsAsFixpoints.
           use (maponpaths (λ x, x · _ )); [|use tensor_swap].
         + rewrite <- tensor_mor_left, <- tensor_mor_right, <- assoc,
             (bifunctor_rightcomp C), <- assoc.
-          do 2 refine (maponpaths _ _). 
+          do 2 refine (maponpaths _ _).
           use multiplication_inr.
         + rewrite assoc. refine (maponpaths (λ x, x · _) _).
           rewrite <- assoc; refine (maponpaths _ _).
@@ -525,7 +521,7 @@ Section InitialModelsAsFixpoints.
     Qed.
 
 
-    Local Lemma h'_is_module_mor 
+    Local Lemma h'_is_module_mor
       : is_monoid_mor C (pr2 M'_mon) (pr2 N'_mon) h'.
     Proof.
       split.
@@ -538,9 +534,8 @@ Section InitialModelsAsFixpoints.
 
     Local Lemma f_nat_mon : f_mon M · pr1 h = h'_mon · f_mon N.
     Proof.
-       use invmap; [|use path_sigma_hprop|].
-       use isaprop_is_monoid_mor.
-       use (!f_nat).
+      apply MON_mor_eq.
+      use (!f_nat).
     Qed.
 
     Local Lemma h'_is_model_mor
@@ -553,7 +548,7 @@ Section InitialModelsAsFixpoints.
       + rewrite assoc; refine (maponpaths (λ x, x · _) _).
         use (maponpaths pr1 (section_disp_comp Σ _ _ _ _ _)).
       + eassert _  as H by exact (
-          transport_section 
+          transport_section
           (λ x, pr1 (section_disp_on_morphisms (pr1 Σ) x) · inr (A := I_{C}))
           f_nat_mon
         ); cbn in H.
@@ -577,10 +572,10 @@ Section InitialModelsAsFixpoints.
   Proof.
     split.
     - intro M.
+
       use invmap; [|use path_sigma_hprop|].
       use homset_property.
-      use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq.
       symmetry; use BinCoproduct_endo_is_identity.
       + etrans; [use BinCoproductOfArrowsIn1|use id_left].
       + etrans; [use BinCoproductOfArrowsIn2|].
@@ -589,8 +584,7 @@ Section InitialModelsAsFixpoints.
     - intros M N P h g.
       use invmap; [|use path_sigma_hprop|].
       use homset_property.
-      use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_monoid_mor.
+      apply MON_mor_eq.
       symmetry; use BinCoproductArrowUnique.
       + cbn; rewrite id_left, assoc; etrans; [etrans|].
         * use (maponpaths (λ x, x · _)); [|use BinCoproductOfArrowsIn1].
@@ -604,12 +598,12 @@ Section InitialModelsAsFixpoints.
         * use assoc.
   Qed.
 
-  Definition iter_model_functor 
+  Definition iter_model_functor
     : models_of_module_signatures_cat Σ ⟶ models_of_module_signatures_cat Σ
     := make_functor iter_model_functor_data iter_model_is_functor.
 
 
-  (* The mapping M' → M forms a natural transformation *) 
+  (* The mapping M' → M forms a natural transformation *)
 
   Definition iter_model_to_model_nat_trans_data
     : nat_trans_data iter_model_functor (functor_identity _)
@@ -620,41 +614,38 @@ Section InitialModelsAsFixpoints.
   Proof.
     intros M N h.
     use invmap; [|use path_sigma_hprop|].
-    use homset_property.
-    use invmap; [|use path_sigma_hprop|].
-    use isaprop_is_monoid_mor.
+    { use homset_property. }
+    apply MON_mor_eq.
     use f_nat.
   Qed.
 
   Definition iter_model_to_model_nat_trans
     : iter_model_functor ⟹ functor_identity _
-    := make_nat_trans _ _ 
-      iter_model_to_model_nat_trans_data 
+    := make_nat_trans _ _
+      iter_model_to_model_nat_trans_data
       iter_model_to_model_nat_is_nat.
 
   Lemma iter_model_functor_nat_commutes
-    : pre_whisker iter_model_functor iter_model_to_model_nat_trans 
+    : pre_whisker iter_model_functor iter_model_to_model_nat_trans
     = post_whisker iter_model_to_model_nat_trans iter_model_functor.
   Proof.
+    apply nat_trans_eq; [use homset_property|]; intro M.
     use invmap; [|use path_sigma_hprop|].
-    - use isaprop_is_nat_trans; use homset_property.
-    - use funextsec; intro M; cbn.
-      use invmap; [|use path_sigma_hprop|].
-      use homset_property.
-      use invmap; [|use path_sigma_hprop|].
-      use isaprop_is_monoid_mor.
-      use BinCoproductArrowsEq; cbn.
-      + etrans; [etrans|]; swap 2 3.
-        * use (f_inl (iter_model M)).
-        * symmetry; use BinCoproductOfArrowsIn1.
-        * symmetry; use id_left.
-      + etrans.
-        * use (f_inr (iter_model M)).
-        * symmetry; use BinCoproductOfArrowsIn2.
+    { use homset_property. }
+    apply MON_mor_eq.
+    cbn.
+    use BinCoproductArrowsEq; cbn.
+    - etrans; [etrans|]; swap 2 3.
+      + use (f_inl (iter_model M)).
+      + symmetry; use BinCoproductOfArrowsIn1.
+      + symmetry; use id_left.
+    - etrans.
+      + use (f_inr (iter_model M)).
+      + symmetry; use BinCoproductOfArrowsIn2.
   Qed.
 
 
-  (* If M is the initial model of Σ then I + Σ(M) is also initial 
+  (* If M is the initial model of Σ then I + Σ(M) is also initial
      (and thus a fix-point by uniqueness of initial objects) *)
 
   Proposition initial_model_fixpoint (HΣ : is_representable Σ)
@@ -681,8 +672,8 @@ Section TotalCategoriesOfModels.
              Σ(M) -------> Σ'(M) ------> M
   *)
 
-  Definition pullback_functor_data 
-    {Σ Σ' : @module_signature_cat C} (h : Σ --> Σ') 
+  Definition pullback_functor_data
+    {Σ Σ' : @module_signature_cat C} (h : Σ --> Σ')
     : functor_data (models_of_module_signatures_cat Σ') (models_of_module_signatures_cat Σ).
   Proof.
     use make_functor_data.
@@ -712,18 +703,18 @@ Section TotalCategoriesOfModels.
   Defined.
 
   Lemma pullback_functor_is_functor
-    {Σ Σ' : @module_signature_cat C} (h : Σ --> Σ') 
+    {Σ Σ' : @module_signature_cat C} (h : Σ --> Σ')
     : is_functor (pullback_functor_data h).
   Proof.
     use make_is_functor; unfold functor_idax, functor_compax;
-    intros; (use invmap; [|use path_sigma_hprop|]);
-    now try use homset_property.
+      intros; (use invmap; [|use path_sigma_hprop|]);
+      now try use homset_property.
   Qed.
 
-  
 
-  Definition pullback_functor 
-    {Σ Σ' : @module_signature_cat C} (h : Σ --> Σ') 
+
+  Definition pullback_functor
+    {Σ Σ' : @module_signature_cat C} (h : Σ --> Σ')
     : (models_of_module_signatures_cat Σ') ⟶ (models_of_module_signatures_cat Σ)
     := make_functor (pullback_functor_data h) (pullback_functor_is_functor h).
 
@@ -731,10 +722,10 @@ Section TotalCategoriesOfModels.
   Proof.
     use tpair.
     - use models_of_module_signatures_cat.
-    - intros Σ Σ' Rr Rr' h; use (Rr --> pullback_functor h Rr').
+    - intros Σ Σ' Rr Rr' h. use (Rr --> pullback_functor h Rr').
   Defined.
 
-  Definition total_category_of_models_disp_cat_id_comp 
+  Definition total_category_of_models_disp_cat_id_comp
     : disp_cat_id_comp module_signature_cat total_category_of_models_disp_cat_ob_mor.
   Proof.
     split; intros; use tpair.
@@ -745,7 +736,7 @@ Section TotalCategoriesOfModels.
         rename x into Σ, y into Σ', z into Σ'', X into u, X0 into v;
         induction xx as [R r]; induction yy as [R' r']; induction zz as [R'' r''];
         simpl; unfold mor_disp, total_category_of_modules_disp_cat_ob_mor;
-        simpl; rewrite transportf_total2; 
+        simpl; rewrite transportf_total2;
         simpl; rewrite transportf_const;
         simpl; rewrite @section_disp_comp, assoc, assoc, assoc; cbn;
         etrans; [|symmetry; etrans];
@@ -767,18 +758,18 @@ Section TotalCategoriesOfModels.
     := total_category_of_models_disp_cat_ob_mor ,, total_category_of_models_disp_cat_id_comp.
 
 
-  Lemma total_category_of_models_disp_cat_axioms 
+  Lemma total_category_of_models_disp_cat_axioms
     : disp_cat_axioms _ total_category_of_models_disp_cat_data.
   Proof.
     repeat split; intros; cycle 3.
     {
       use isaset_total2; [|intros; use isasetaprop]; use homset_property.
     }
-    all: 
+    all:
       use invmap; [|use path_sigma_hprop|]; [use homset_property|];
-      use invmap; [|use path_sigma_hprop|]; [use isaprop_is_monoid_mor|];
+      apply MON_mor_eq;
       simpl; unfold transportb, mor_disp, total_category_of_models_disp_cat_ob_mor;
-      simpl; rewrite transportf_total2; 
+      simpl; rewrite transportf_total2;
       simpl; rewrite transportf_const;
       simpl.
     - use id_left.
@@ -786,7 +777,7 @@ Section TotalCategoriesOfModels.
     - use assoc.
   Qed.
 
-  Definition total_category_of_models_disp_cat : disp_cat module_signature_cat 
+  Definition total_category_of_models_disp_cat : disp_cat module_signature_cat
     := total_category_of_models_disp_cat_data ,, total_category_of_models_disp_cat_axioms.
 
   Definition total_category_of_models : category
@@ -822,7 +813,7 @@ Section Modularity.
                            |                                     |
                            |                                     |
      modularity_morphism₂  |                                     |  modularity_morphism_in₁
-                           |                                     | 
+                           |                                     |
                            |                                     |
                            |                                     |
                            |                               ⌜     |
@@ -834,7 +825,7 @@ Section Modularity.
 
   Definition modularity_morphism₁
     : total_category_of_models⟦
-      (Σ,, InitialObject HΣ) , 
+      (Σ,, InitialObject HΣ) ,
       (Σ₁,, InitialObject HΣ₁)
     ⟧.
   Proof.
@@ -843,7 +834,7 @@ Section Modularity.
 
   Definition modularity_morphism₂
     : total_category_of_models⟦
-      (Σ,, InitialObject HΣ) , 
+      (Σ,, InitialObject HΣ) ,
       (Σ₂,, InitialObject HΣ₂)
     ⟧.
   Proof.
@@ -852,7 +843,7 @@ Section Modularity.
 
   Definition modularity_morphism_in₁
     : total_category_of_models⟦
-      (Σ₁,, InitialObject HΣ₁) , 
+      (Σ₁,, InitialObject HΣ₁) ,
       (Σ₁₂,, InitialObject HΣ₁₂)
     ⟧.
   Proof.
@@ -861,7 +852,7 @@ Section Modularity.
 
   Definition modularity_morphism_in₂
     : total_category_of_models⟦
-      (Σ₂,, InitialObject HΣ₂) , 
+      (Σ₂,, InitialObject HΣ₂) ,
       (Σ₁₂,, InitialObject HΣ₁₂)
     ⟧.
   Proof.
@@ -873,9 +864,7 @@ Section Modularity.
     = modularity_morphism₂ · modularity_morphism_in₂.
   Proof.
     use invmap; [|use total2_paths_equiv|]; use tpair.
-    - use invmap; [|use path_sigma_hprop|].
-      + use isaprop_section_nat_trans_disp_axioms.
-      + exact (maponpaths pr1 (PushoutSqrCommutes H_pushout)).
+    - apply (PushoutSqrCommutes H_pushout).
     - use InitialArrowEq.
   Qed.
 
@@ -888,7 +877,7 @@ Section Modularity.
 
     Context (H : modularity_morphism₁ · f = modularity_morphism₂ · g).
 
-    Definition modularity_induced_morphism 
+    Definition modularity_induced_morphism
       : total_category_of_models ⟦ (Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr) ⟧
       := PushoutArrow H_pushout _ (pr1 f) (pr1 g) (maponpaths pr1 H) ,,
         InitialArrow HΣ₁₂ _.
@@ -909,53 +898,54 @@ Section Modularity.
       - use InitialArrowEq.
     Qed.
 
-    Let triplet 
+    Let triplet
       : ∑(u : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧),
-        modularity_morphism_in₁ · u = f 
+        modularity_morphism_in₁ · u = f
         × modularity_morphism_in₂ · u = g
-      := (modularity_induced_morphism ,, 
-          modularity_morphism_commutes1 ,, 
+      := (modularity_induced_morphism ,,
+          modularity_morphism_commutes1 ,,
           modularity_morphism_commutes2).
 
-    Context (triplet' 
+    Context (triplet'
       : ∑(u : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧),
-        modularity_morphism_in₁ · u = f 
+        modularity_morphism_in₁ · u = f
         × modularity_morphism_in₂ · u = g).
 
-    Let u : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧ 
+    Let u : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧
       := pr1 triplet'.
 
-    Let H' : modularity_morphism_in₁ · u = f 
+    Let H' : modularity_morphism_in₁ · u = f
       := pr12 triplet'.
 
     Let H'' : modularity_morphism_in₂ · u = g
       := pr22 triplet'.
 
-    Lemma modularity_induced_morphism_unique 
+    Lemma modularity_induced_morphism_unique
       : u = modularity_induced_morphism.
     Proof.
-      use invmap; [|use total2_paths_equiv|]. 
-      use tpair; swap 1 2.
-      - use invmap; [|use path_sigma_hprop|].
-        use homset_property.
-        simpl; rewrite transportf_total2;
-        simpl; rewrite transportf_const;
-        simpl; simpl in u.
-        use (maponpaths pr1 (InitialArrowUnique HΣ₁₂ (pr1 Rr ,, _) (pr12 u ,, _))).
-        simpl; etrans; [use (pr22 u)|].
-        refine (maponpaths (λ x, _ (pr1 x · _)) _).
-        exact (
-          maponpaths (λ x, pr1 x (pr1 Rr)) 
-          (PushoutArrowUnique _ _ _ _ _ 
-            (isPushout_Pushout H_pushout) _ _ _ 
-            (maponpaths pr1 H) _ 
-            (maponpaths pr1 H') 
-            (maponpaths pr1 H'')
-          )
-        ).
-      - use (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout)).
-        + use (maponpaths pr1 H').
-        + use (maponpaths pr1 H'').
+      use invmap; [|use total2_paths_equiv|].
+      use tpair.
+      2: {use invmap; [|use path_sigma_hprop|].
+          use homset_property.
+          simpl; rewrite transportf_total2;
+            simpl; rewrite transportf_const;
+            simpl; simpl in u.
+          use (maponpaths pr1 (InitialArrowUnique HΣ₁₂ (pr1 Rr ,, _) (pr12 u ,, _))).
+          simpl; etrans; [use (pr22 u)|].
+          refine (maponpaths (λ x, _ (pr1 x · _)) _).
+          exact (
+              maponpaths (λ x, pr1 x (pr1 Rr))
+                (PushoutArrowUnique _ _ _ _ _
+                   (isPushout_Pushout H_pushout) _ _ _
+                   (maponpaths pr1 H) _
+                   (maponpaths pr1 H')
+                   (maponpaths pr1 H'')
+                )
+            ).
+      }
+      use (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout)).
+      + use (maponpaths pr1 H').
+      + use (maponpaths pr1 H'').
     Qed.
 
     Lemma modularity_pushout_uniqueness : triplet' = triplet.
@@ -967,11 +957,11 @@ Section Modularity.
     Qed.
 
   End ModularityPushoutInducedMorphism.
-  
-  Definition modularity_is_pushout 
+
+  Definition modularity_is_pushout
     : isPushout
       modularity_morphism₁ modularity_morphism₂
-      modularity_morphism_in₁ modularity_morphism_in₂ 
+      modularity_morphism_in₁ modularity_morphism_in₂
       modularity_commutes
     := make_isPushout _ _ _ _ modularity_commutes
       (λ Σ' f g H, _ ,, modularity_pushout_uniqueness _ _ _ _ H).
