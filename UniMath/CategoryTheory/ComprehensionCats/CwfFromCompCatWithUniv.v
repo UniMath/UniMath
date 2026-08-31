@@ -817,7 +817,6 @@ Section Construction.
         refine (!_).
         apply comp_cat_subst_ty_iso_comp.
       }
-      Check comp_cat_subst_ty_eq.
       unfold comp_cat_subst_ty_iso.
       etrans.
       2: {
