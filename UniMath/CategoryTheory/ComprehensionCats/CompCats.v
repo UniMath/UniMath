@@ -401,7 +401,7 @@ Proof.
   intros Γ Δ s A.
   exact (comprehension_functor_mor_comm  s
            (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C _ _ s A))).
-Qed.  
+Qed. 
 
 Lemma comp_cat_ext_subst_term_commute {C : comp_cat} {Γ Δ : C}
   (s : Γ --> Δ) (A : comp_cat_ty Δ) (t : comp_cat_tm A)
