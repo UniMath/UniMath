@@ -1470,7 +1470,6 @@ Proof.
   exact (pr2 Hc _ @ ! pr2 Hc _).
 Qed.
 
-
 Lemma comp_cat_extend_subst_subst
   {C : comp_cat} {Γ Δ Θ : C} (r : Θ --> Γ) (σ : Γ --> Δ)
   {A : comp_cat_ty Δ} (t : comp_cat_tm (A [[ σ ]]))
