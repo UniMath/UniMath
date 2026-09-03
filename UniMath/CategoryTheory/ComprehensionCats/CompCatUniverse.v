@@ -531,7 +531,7 @@ Section Universe_Unit_Closure.
       set (tΓ := TerminalArrow (empty_context C) Γ).
       refine (z_iso_comp (z_iso_inv (comp_cat_el_iso tΓ (comp_cat_unit_code UnitU))) _).
       refine (z_iso_comp (comp_cat_reindex_iso tΓ (comp_cat_unit_el_iso UnitU)) _).
-      exact (comp_cat_unit_sub_iso tΓ).
+      exact (comp_cat_unit_sub_iso _ _).
     Defined.
 
     (* Reindexing commutes with unit codes *)
@@ -645,12 +645,12 @@ Section Universe_Unit_Closure.
       comp_cat_tm (comp_cat_el (comp_cat_unit_code_weakened UnitU Γ)).
     Proof.
       use tpair.
-      - exact ( (comp_cat_unit_tt Γ) ↑ ( ⌈ (comp_cat_unit_el_iso_w UnitU Γ) ⌉⁻¹ ) ).
+      - exact ( (comp_cat_unit_tt _ Γ) ↑ ( ⌈ (comp_cat_unit_el_iso_w UnitU Γ) ⌉⁻¹ ) ).
       - abstract(
             cbn;
             rewrite <- assoc;
             rewrite comp_cat_comp_mor_law;
-            exact (pr2 (comp_cat_unit_tt Γ))).
+            exact (pr2 (comp_cat_unit_tt _ Γ))).
     Defined.
 
     Lemma iscontr_tm_of_iso {Γ : C} {A B : comp_cat_ty Γ}
@@ -676,7 +676,7 @@ Section Universe_Unit_Closure.
       assert (HOneΓ : iscontr (comp_cat_tm ((pr1 Unit) Γ))).
       {
         use tpair.
-        - exact ( comp_cat_unit_tt Γ).
+        - exact ( comp_cat_unit_tt _ Γ).
         - intro u.
           exact (comp_cat_unit_unique u).
       }
