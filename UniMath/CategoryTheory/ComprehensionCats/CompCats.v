@@ -401,7 +401,7 @@ Proof.
   intros Γ Δ s A.
   exact (comprehension_functor_mor_comm  s
            (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C _ _ s A))).
-Qed. 
+Qed.
 
 Lemma comp_cat_ext_subst_term_commute {C : comp_cat} {Γ Δ : C}
   (s : Γ --> Δ) (A : comp_cat_ty Δ) (t : comp_cat_tm A)
@@ -1072,7 +1072,6 @@ Proof.
   exact (!id_left _).
 Qed.
 
-
 Definition comp_cat_ext_subst_z_iso
   {C : comp_cat} {Γ Δ : C} (s : z_iso Δ Γ) (A : comp_cat_ty Γ)
   : z_iso (Δ & (A [[ s ]])) (Γ & A).
@@ -1084,23 +1083,24 @@ Proof.
     + exact (π A · inv_from_z_iso s).
     + abstract (rewrite id_left, assoc', z_iso_after_z_iso_inv, id_right;
                 apply idpath).
-  - split.
-    + use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback A s))).
-      * rewrite assoc'.
-        rewrite (PullbackArrow_PullbackPr1 (comp_cat_pullback A s)).
-        rewrite id_left, id_right.
-        apply idpath.
-      * rewrite assoc'.
-        rewrite (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)).
-        rewrite assoc.
-        etrans. { apply maponpaths_2. apply comp_cat_ext_subst_commute. }
-        rewrite assoc'.
-        rewrite z_iso_inv_after_z_iso.
-        rewrite id_left, id_right.
-        apply idpath.
-    + exact (PullbackArrow_PullbackPr1 (comp_cat_pullback A s) _ _ _ _).
+  - abstract (
+        split ;
+        [ use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback A s))) ;
+          [ rewrite assoc' ;
+            rewrite (PullbackArrow_PullbackPr1 (comp_cat_pullback A s)) ;
+            rewrite id_left, id_right ;
+            apply idpath
+          | rewrite assoc' ;
+            rewrite (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)) ;
+            rewrite assoc ;
+            etrans ; [ apply maponpaths_2 ; apply comp_cat_ext_subst_commute | ] ;
+            rewrite assoc' ;
+            rewrite z_iso_inv_after_z_iso ;
+            rewrite id_left, id_right ;
+            apply idpath ]
+        | exact (PullbackArrow_PullbackPr1 (comp_cat_pullback A s) _ _ _ _) ]
+      ).
 Defined.
-
 
 Lemma iscontr_tm_of_iso {C: comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
   (HA : iscontr (comp_cat_tm A))

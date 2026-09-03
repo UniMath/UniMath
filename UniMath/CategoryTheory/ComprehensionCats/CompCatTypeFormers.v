@@ -521,7 +521,7 @@ End Unit_For_Comp_Cat.
 (** Accessors for comp_cat_unit *)
 
 Definition comp_cat_unit_tt
-  {C : comp_cat} {Unit : comp_cat_unit C}
+  {C : comp_cat} (Unit : comp_cat_unit C)
   (Γ : C)
   : comp_cat_tm ((pr1 Unit) Γ)
   := pr12 Unit Γ.
@@ -529,11 +529,11 @@ Definition comp_cat_unit_tt
 Definition comp_cat_unit_unique
   {C : comp_cat} {Unit : comp_cat_unit C}
   {Γ : C} (u : comp_cat_tm ((pr1 Unit) Γ))
-  : u = comp_cat_unit_tt Γ
+  : u = comp_cat_unit_tt _ Γ
   := pr122 Unit Γ u.
 
 Definition comp_cat_unit_sub_iso
-  {C : comp_cat} {Unit : comp_cat_unit C}
+  {C : comp_cat} (Unit : comp_cat_unit C)
   {Γ Δ : C} (s : Γ --> Δ)
   : z_iso (C := fiber_category _ _) (((pr1 Unit) Δ) [[ s ]]) ((pr1 Unit) Γ)
   := pr222 Unit Γ Δ s.
@@ -543,16 +543,16 @@ Definition comp_cat_unit_sub_iso
 Definition comp_cat_tt_is_iso
   {C : comp_cat} {Unit : comp_cat_unit C}
   (Γ : C):
-  π _ · comp_cat_unit_tt (Unit:=Unit) Γ = identity _.
+  π _ · comp_cat_unit_tt Unit Γ = identity _.
 Proof.
   use comp_cat_mor_into_ext_eq.
   - abstract (rewrite assoc';
-              etrans; [ apply maponpaths; apply (pr2 (comp_cat_unit_tt Γ)) | ];
+              etrans; [ apply maponpaths; apply (pr2 (comp_cat_unit_tt _ Γ)) | ];
               rewrite id_right, id_left;
               apply idpath).
-  - use (iscontr_tm_of_iso _ (z_iso_inv (comp_cat_unit_sub_iso _))).
+  - use (iscontr_tm_of_iso _ (z_iso_inv (comp_cat_unit_sub_iso _ _))).
     use tpair.
-    + exact (comp_cat_unit_tt (Γ & (pr1 Unit) Γ)).
+    + exact (comp_cat_unit_tt _ (Γ & (pr1 Unit) Γ)).
     + intro u. exact (comp_cat_unit_unique u).
 Qed.
 
@@ -560,17 +560,17 @@ Definition comp_cat_unit_unique_mor
   {C : comp_cat} {Unit : comp_cat_unit C}
   {Γ : C} (u : Γ --> Γ & _)
   ( p : u · π _ = identity _)
-  : u = comp_cat_unit_tt (Unit:=Unit) Γ
+  : u = comp_cat_unit_tt Unit Γ
   := maponpaths pr1 (comp_cat_unit_unique (u ,, p)).
 
 Definition comp_cat_unit_ind
   {C : comp_cat} {Unit : comp_cat_unit C}
   {Γ : C} (Cty : comp_cat_ty (Γ & ((pr1 Unit) Γ)))
-  (c : comp_cat_tm (Cty [[ comp_cat_unit_tt Γ ]]))
+  (c : comp_cat_tm (Cty [[ comp_cat_unit_tt _ Γ ]]))
   : comp_cat_tm Cty.
 Proof.
   use make_comp_cat_tm.
-  - exact (π _ · c · comp_cat_ext_subst (comp_cat_unit_tt _) Cty).
+  - exact (π _ · c · comp_cat_ext_subst (comp_cat_unit_tt _ _) Cty).
   - abstract (rewrite assoc';
               rewrite comp_cat_ext_subst_commute;
               rewrite assoc;
@@ -583,8 +583,8 @@ Defined.
 Definition comp_cat_unit_comp
   {C : comp_cat} {Unit : comp_cat_unit C}
   {Γ : C} (Cty : comp_cat_ty (Γ & ((pr1 Unit) Γ)))
-  (c : comp_cat_tm (Cty [[ comp_cat_unit_tt Γ ]]))
-  : comp_cat_unit_ind Cty c [[ comp_cat_unit_tt Γ ]]tm = c.
+  (c : comp_cat_tm (Cty [[ comp_cat_unit_tt _ Γ ]]))
+  : comp_cat_unit_ind Cty c [[ comp_cat_unit_tt _ Γ ]]tm = c.
 Proof.
   use comp_cat_tm_eq.
   refine (!_).
@@ -595,36 +595,36 @@ Proof.
     etrans.
     2: { do 2  apply maponpaths_2.
          refine (!_).
-         apply (pr2 (comp_cat_unit_tt Γ)). }
+         apply (pr2 (comp_cat_unit_tt _ Γ)). }
     rewrite id_left.
     apply idpath.
   - apply (pr2 c).
-Qed. 
+Qed.
 
 Definition comp_cat_unit_sub_tt
-  {C : comp_cat} {Unit : comp_cat_unit C}
+  {C : comp_cat} (Unit : comp_cat_unit C)
   {Γ Δ : C} (s : Γ --> Δ)
-  : comp_cat_unit_tt (Unit:=Unit) Δ [[ s ]]tm · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso s⌉) =
-      comp_cat_unit_tt Γ.
+  : comp_cat_unit_tt Unit Δ [[ s ]]tm · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso _ s⌉) =
+      comp_cat_unit_tt _ Γ.
 Proof.
   refine (comp_cat_unit_unique_mor _ _).
   rewrite assoc'.
   rewrite comp_cat_comp_mor_law.
-  exact (pr2 ((comp_cat_unit_tt Δ) [[s]]tm)).
+  exact (pr2 ((comp_cat_unit_tt _ Δ) [[s]]tm)).
 Qed.
 
 Lemma comp_cat_unit_tt_ext_path
   {C : comp_cat} {Unit : comp_cat_unit C}
   {Γ Δ : C} (s : Γ --> Δ)
-  (ttΔ := comp_cat_unit_tt (Unit:= Unit) Δ)
-  (usubtt := comp_cat_unit_sub_tt (Unit:=Unit) s)
-  (uiso := comp_cat_unit_sub_iso (Unit:=Unit) s)
-  : s · comp_cat_unit_tt Δ =
-      comp_cat_unit_tt Γ
-        · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso (Unit := Unit) s⌉⁻¹)
+  (ttΔ := comp_cat_unit_tt Unit Δ)
+  (usubtt := comp_cat_unit_sub_tt Unit s)
+  (uiso := comp_cat_unit_sub_iso Unit s)
+  : s · comp_cat_unit_tt _ Δ =
+      comp_cat_unit_tt _ Γ
+        · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso Unit s⌉⁻¹)
         · comp_cat_ext_subst s ((pr1 Unit) Δ).
 Proof.
-  etrans. { refine (!_). apply (comp_cat_ext_subst_term_commute s _ (ttΔ)). } 
+  etrans. { refine (!_). apply (comp_cat_ext_subst_term_commute s _ (ttΔ)). }
   apply cancel_postcomposition.
   rewrite <- usubtt.
   rewrite assoc'.
@@ -638,11 +638,11 @@ Definition comp_cat_unit_sub_elim
   {C : comp_cat} {Unit : comp_cat_unit C}
   {Γ Δ : C} (s : Γ --> Δ)
   (Cty : comp_cat_ty (Δ & ((pr1 Unit) Δ)))
-  (d : comp_cat_tm (Cty [[ comp_cat_unit_tt Δ ]]))
-  (s1 := comp_cat_comp_mor (⌈comp_cat_unit_sub_iso s⌉⁻¹)
+  (d : comp_cat_tm (Cty [[ comp_cat_unit_tt _ Δ ]]))
+  (s1 := comp_cat_comp_mor (⌈comp_cat_unit_sub_iso _ s⌉⁻¹)
            · comp_cat_ext_subst s ((pr1 Unit) Δ))
   (p := pathscomp0 (comp_cat_unit_tt_ext_path s)
-          (! assoc (comp_cat_unit_tt Γ) _ _))
+          (! assoc (comp_cat_unit_tt _ Γ) _ _))
   (icompiso := comp_cat_subst_ty_eq_comp_iso Cty p)
   : comp_cat_unit_ind Cty d [[ s1 ]]tm =
       comp_cat_unit_ind (Cty [[ s1 ]]) (d [[ s ]]tm ↑ ⌈icompiso⌉).
@@ -651,15 +651,15 @@ Proof.
   use comp_cat_tm_eq.
   refine (!_).
   use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
-  - cbn -[ "_ [[ _ ]]tm" comp_cat_ext_subst comp_cat_subst_ty_eq_comp_iso].  
+  - cbn -[ "_ [[ _ ]]tm" comp_cat_ext_subst comp_cat_subst_ty_eq_comp_iso].
     unfold s1.
-    set (q := comp_cat_comp_mor (⌈comp_cat_unit_sub_iso s⌉⁻¹)
+    set (q := comp_cat_comp_mor (⌈comp_cat_unit_sub_iso _ s⌉⁻¹)
                 · comp_cat_ext_subst s (pr1 Unit Δ)).
     change (comprehension_functor_mor q
               (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C _ _ q Cty)))
       with (comp_cat_ext_subst q Cty).
     rewrite assoc'.
-    rewrite <- (comp_cat_ext_subst_comp' Cty (comp_cat_unit_tt Γ) q).
+    rewrite <- (comp_cat_ext_subst_comp' Cty (comp_cat_unit_tt _ Γ) q).
     unfold icompiso.
     assert (h : q · π (pr1 Unit Δ) = π (pr1 Unit Γ) · s).
     { unfold q.
@@ -674,7 +674,7 @@ Proof.
     2: { do 2 apply maponpaths_2. refine (!_). exact h. }
     rewrite !assoc'.
     apply maponpaths.
-    refine (_ @ ! comp_cat_extend_subst_subst s (comp_cat_unit_tt Δ) d).
+    refine (_ @ ! comp_cat_extend_subst_subst s (comp_cat_unit_tt _ Δ) d).
     rewrite !assoc.
     rewrite assoc4.
     rewrite <- comp_cat_comp_mor_comp'.
@@ -682,7 +682,7 @@ Proof.
     rewrite comp_cat_comp_mor_comp'.
     rewrite assoc.
     refine (! comp_cat_extend_subst_eq p
-              (d [[s]]tm ↑ ⌈comp_cat_subst_ty_comp_iso Cty (comp_cat_unit_tt Δ) s⌉)).
-  - exact (pr2 (make_comp_cat_tm (π (pr1 Unit Γ) · d [[s ]]tm ↑ ⌈ icompiso ⌉ · comp_cat_ext_subst (comp_cat_unit_tt Γ) (Cty [[s1]]))
+              (d [[s]]tm ↑ ⌈comp_cat_subst_ty_comp_iso Cty (comp_cat_unit_tt _ Δ) s⌉)).
+  - exact (pr2 (make_comp_cat_tm (π (pr1 Unit Γ) · d [[s ]]tm ↑ ⌈ icompiso ⌉ · comp_cat_ext_subst (comp_cat_unit_tt _ Γ) (Cty [[s1]]))
                   (comp_cat_unit_ind_subproof C Unit Γ (Cty [[s1]]) (d [[s ]]tm ↑ ⌈ icompiso ⌉)))).
 Qed.
