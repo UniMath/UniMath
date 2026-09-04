@@ -14,6 +14,7 @@
  1. Codes for propositional resizing
  2. Accessors and builders
  3. Stability
+ 4. The unit type is in the universe if it supports resizing
 
                                                                                            *)
 Require Import UniMath.MoreFoundations.All.
@@ -44,6 +45,7 @@ Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompC
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
 Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps.
+Require Import UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.
@@ -383,3 +385,14 @@ Arguments resizing_in_comp_cat_univ_code_on_z_iso_fib {C} resize {Γ A B} p HA H
 Arguments resizing_in_comp_cat_univ_code_on_z_iso {C} resize {Γ A B} f p HA HB.
 Arguments stable_resizing_in_comp_cat_univ_code_stable_mor {C} resize {Γ Δ} s A HA.
 Arguments stable_resizing_in_comp_cat_univ_code_stable_mor' {C} resize {Γ Δ} s A HA.
+
+(** * 4. The unit type is in the universe if it supports resizing *)
+Definition unit_in_comp_cat_univ_from_resizing
+           (C : dfl_full_comp_cat_with_univ)
+           (resize : resizing_in_comp_cat_univ C)
+  : unit_in_comp_cat_univ C.
+Proof.
+  use make_type_in_comp_cat_univ.
+  - exact (resizing_in_comp_cat_univ_code resize _ (is_hprop_ty_unit_type _)).
+  - exact (resizing_in_comp_cat_univ_z_iso resize _ (is_hprop_ty_unit_type _)).
+Defined.

@@ -30,6 +30,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.SectionsExamples.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
@@ -250,8 +251,8 @@ Proof.
   set (mapstocartesian := pr222 CC).
   set (lift := cleaving_of_types C _ _ s A).
   set (iscartesian := cartesian_lift_is_cartesian _ _ lift).
-  exact (cartesian_isPullback_in_cod_disp _ (mapstocartesian _ _ _ _ _ lift iscartesian)).
-Qed.
+  exact (cartesian_isPullback_in_cod_disp _ (cartesian_disp_functor_on_cartesian (_ ,, mapstocartesian) lift)).
+Defined.
 
 Definition comp_cat_pullback {C : comp_cat} {Γ₁ Γ₂ : C}
   (A : comp_cat_ty Γ₁) (s : Γ₂ --> Γ₁)
@@ -281,11 +282,18 @@ Definition comp_cat_subst_tm {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Δ}
   (s : Γ --> Δ) (t : comp_cat_tm A)
   : comp_cat_tm (A [[ s ]]).
 Proof.
-  apply (@comp_cat_univ_pullback _ _ _ Δ _ _ s t).
+  use make_comp_cat_tm.
+  - use (PullbackArrow (comp_cat_pullback A s)).
+    + exact (s · t).
+    + exact (identity Γ).
+    + exact (section_of_mor_pullback_pb_eq (comp_cat_pullback A s) t).
+  - (* t [[s]] · π(A[[s]]) = id *)
+    apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)).
+(* apply (@comp_cat_univ_pullback _ _ _ Δ _ _ s t).
   abstract ( set (th  := pr2 t : (t · (π A) = identity Δ));
              rewrite assoc';
              rewrite th;
-             apply id_right).
+             apply id_right).*)
 Defined.
 
 Notation "t '[[' s ']]tm'" := (comp_cat_subst_tm s t) (at level 20) : comp_cat.
@@ -349,13 +357,10 @@ Definition coerce_comp_cat_tm {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
 Proof.
   use make_comp_cat_tm.
   - exact (t · comp_cat_comp_mor f).
-  - abstract (
-        rewrite assoc';
-        set (h := comprehension_functor_mor_comm (identity Γ) f);
-        eapply pathscomp0;[apply cancel_precomposition, h|];
-        rewrite assoc;
-        eapply pathscomp0;[apply cancel_postcomposition, (pr2 t)|];
-        apply id_right).
+  - exact (coerce_section_of_mor_eq
+             (comp_cat_comp_mor f)
+             (comprehension_functor_mor_comm (identity Γ) f)
+             t).
 Defined.
 
 Notation "t ↑ f" := (coerce_comp_cat_tm f t) (at level 29, left associativity).

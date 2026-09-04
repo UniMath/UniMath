@@ -51,7 +51,7 @@ Local Open Scope hd.
 
 (** * 1. Tripos *)
 Definition is_power_object_tripos
-           {H : first_order_preorder_hyperdoctrine}
+           {H : preorder_hyperdoctrine}
            (X : ty H)
            (PX : ty H)
            (inX : form (X ×h PX))
@@ -64,7 +64,7 @@ Definition is_power_object_tripos
      inX [ ⟨ π₁ (tm_var _) , f [ π₂ (tm_var _) ]tm ⟩ ].
 
 Definition is_preorder_tripos
-           (H : first_order_preorder_hyperdoctrine)
+           (H : preorder_hyperdoctrine)
   : UU
   := ∏ (X : ty H),
      ∑ (PX : ty H)
@@ -83,8 +83,8 @@ Proof.
 Defined.
 
 Definition is_tripos
-           (H : first_order_hyperdoctrine)
-           (H' := first_order_hyperdoctrine_to_preorder_hyperdoctrine H)
+           (H : hyperdoctrine)
+           (H' := hyperdoctrine_to_preorder_hyperdoctrine H)
   : UU
   := ∏ (X : ty H'),
      ∑ (PX : ty H')
@@ -108,7 +108,7 @@ Definition tripos_power
   : ty H
   := pr1 (pr2 H X).
 
-Notation "'ℙ'" := tripos_power. (* \bP *)
+Notation "'ℙ'" := tripos_power : hyperdoctrine. (* \bP *)
 
 Definition tripos_in
            {H : tripos}
@@ -116,7 +116,7 @@ Definition tripos_in
   : form (X ×h ℙ X)
   := pr12 (pr2 H X).
 
-Notation "x ∈ P" := ((tripos_in _) [ ⟨ x , P ⟩ ]).
+Notation "x ∈ P" := ((tripos_in _) [ ⟨ x , P ⟩ ]) : hyperdoctrine.
 
 Proposition tripos_in_subst
             {H : tripos}
@@ -141,7 +141,7 @@ Definition tripos_compr
   : tm Γ (ℙ X)
   := pr1 (pr22 (pr2 H X) Γ R).
 
-Notation "{{ R }}" := (tripos_compr R).
+Notation "{{ R }}" := (tripos_compr R) : hyperdoctrine.
 
 Proposition mor_to_tripos_power_eq
             {H : tripos}

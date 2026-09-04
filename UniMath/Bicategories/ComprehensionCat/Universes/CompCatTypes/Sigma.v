@@ -534,16 +534,16 @@ Section TypesInCompCatUniv.
               (a : tm Δ (dfl_full_comp_cat_univ _))
               (b : tm (Δ & comp_cat_univ_el el a) (dfl_full_comp_cat_univ _))
     : sigma_in_comp_cat_univ_z_iso sig _ _
-     · comp_cat_comp_mor_over_sub
-         (comp_cat_univ_el_stable_inv el _ _)
-         (comp_cat_univ_el_stable_inv el _ _ · comp_subst_ty_inv _ _ _)
-     · comp_cat_extend_over _ (comp_cat_extend_over _ s)
-     =
-     comp_cat_comp_mor_over
-       _
-       (comp_cat_el_map_on_eq el (!(stable_sigma_in_comp_cat_univ_code_stable sig s a b))
-        · comp_cat_univ_el_stable_inv el s _)
-     · sigma_in_comp_cat_univ_z_iso sig a b.
+      · comp_cat_comp_mor_over_sub
+          (comp_cat_univ_el_stable_inv el _ _)
+          (comp_cat_univ_el_stable_inv el _ _ · comp_subst_ty_inv _ _ _)
+      · comp_cat_extend_over _ (comp_cat_extend_over _ s)
+      =
+      comp_cat_comp_mor_over
+        _
+        (comp_cat_el_map_on_eq el (!(stable_sigma_in_comp_cat_univ_code_stable sig s a b))
+         · comp_cat_univ_el_stable_inv el s _)
+      · sigma_in_comp_cat_univ_z_iso sig a b.
   Proof.
     exact (pr2 (pr2 sig Γ Δ s a b)).
   Defined.

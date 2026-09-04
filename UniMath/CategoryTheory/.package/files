@@ -106,6 +106,8 @@ Limits/Coends.v
 
 Limits/PullbackConstructions.v
 
+IdempotentsAndSplitting/SectionsExamples.v
+
 RegularAndExact/RegularEpi.v
 RegularAndExact/RegularCategory.v
 RegularAndExact/RegularEpiFacts.v
@@ -149,6 +151,7 @@ DisplayedCats/MonoCodomain/MonoHyperdoctrine.v
 
 Hyperdoctrines/Hyperdoctrine.v
 Hyperdoctrines/FirstOrderHyperdoctrine.v
+Hyperdoctrines/FirstOrderHyperdoctrineChosen.v
 Hyperdoctrines/Tripos.v
 Hyperdoctrines/GenericPredicate.v
 
@@ -420,6 +423,7 @@ DisplayedCats/SIP.v
 
 DisplayedCats/Examples/SetGroupoidsIsoFib.v
 DisplayedCats/Examples/SetGroupoidComprehension.v
+DisplayedCats/Examples/FullSubDispCat.v
 
 Monads/Monads.v
 Monads/LModules.v
@@ -744,6 +748,8 @@ IndexedCategories/IndexedTransformationToTransformation.v
 IndexedCategories/OpIndexedCategory.v
 IndexedCategories/CoreIndexedCategory.v
 
+DisplayedCats/Examples/SetFams.v
+
 # Presheaf model of type theory
 Presheaves/DependentPresheaf.v
 Presheaves/TotalPresheaf.v
@@ -755,6 +761,18 @@ Presheaves/PiTypesStable.v
 Presheaves/SubobjectClassifier.v
 Presheaves/NaturalNumbers.v
 Presheaves/Precomposition.v
+Presheaves/Sites.v
+Presheaves/ExamplesSites.v
+Presheaves/Sheaves.v
+Presheaves/ConstructionsSheaves.v
+Presheaves/SigmaSheaf.v
+Presheaves/PiSheaf.v
+Presheaves/ClosedSieves.v
+Presheaves/SubobjectClassifierSheaf.v
+Presheaves/PresheafLogic.v
+Presheaves/PresheafMonos.v
+Presheaves/SheafLogic.v
+Presheaves/SheafMonos.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
