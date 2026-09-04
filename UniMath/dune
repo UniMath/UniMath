@@ -1,11 +1,12 @@
 
 (include_subdirs qualified)
 
-(coq.theory
+(rocq.theory
  (name UniMath)
  (package coq-unimath)
+ ;; is this still the package name in 2026?
  (theories Ltac2)
- (coqdoc_flags
+ (rocqdoc_flags
         :standard
         -interpolate
         --charset utf-8)
