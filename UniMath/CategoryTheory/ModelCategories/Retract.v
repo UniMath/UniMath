@@ -3,6 +3,7 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.opp_precat.
 
 Declare Scope retract.
+Declare Scope morcls.
 Delimit Scope morcls with retract.
 
 Local Open Scope retract.
@@ -31,14 +32,14 @@ Definition is_retract {C : category} {a b a' b' : C} (f : a --> b) (f' : a' --> 
   (ra ∘ ia = identity a') × (rb ∘ ib = identity b') × (f  ∘ ia = ib ∘ f') × (f' ∘ ra = rb ∘ f).
 
 Definition make_is_retract {C : category} {a b a' b' : C} {f : a --> b} {f' : a' --> b'}
-    {ia : a' --> a} {ra : a --> a'} {ib : b' --> b} {rb : b --> b'} 
+    {ia : a' --> a} {ra : a --> a'} {ib : b' --> b} {rb : b --> b'}
     (ha : ra ∘ ia = identity a') (hb : rb ∘ ib = identity b')  (hi : f  ∘ ia = ib ∘ f') (hr : f' ∘ ra = rb ∘ f): is_retract f f' ia ra ib rb :=
   make_dirprod ha (make_dirprod hb (make_dirprod hi hr)).
 
 Definition retract {C : category} {a b a' b' : C} (f : a --> b) (f' : a' --> b') : UU :=
   ∑ (ia : a' --> a) (ra : a --> a') (ib : b' --> b) (rb : b --> b'), is_retract f f' ia ra ib rb.
 
-Definition make_retract {C : category} {a b a' b' : C} {f : a --> b} {f' : a' --> b'} 
+Definition make_retract {C : category} {a b a' b' : C} {f : a --> b} {f' : a' --> b'}
     (ia : a' --> a) (ra : a --> a') (ib : b' --> b) (rb : b --> b') (r : is_retract f f' ia ra ib rb) : retract f f' :=
   tpair _ ia (tpair _ ra (tpair _ ib (tpair _ rb r))).
 
@@ -48,7 +49,7 @@ Lemma retract_is_iso {C : category} {a b a' b' : C} {f : iso a b} {f' : a' --> b
 Proof.
   destruct r as [ia [ra [ib [rb [ha [hb [hi hr]]]]]]].
 
-  (* we construct an explicit inverse from the retract diagram *)  
+  (* we construct an explicit inverse from the retract diagram *)
   apply is_iso_from_is_z_iso.
 
   (* inverse is ra ∘ f^{-1} ∘ ib *)
@@ -78,7 +79,7 @@ Proof.
   - now rewrite hr.
 Defined.
 
-Definition opp_retract {C : category} {a b a' b' : C} {f : a --> b} {f' : a' --> b'} (r : retract f f') : 
+Definition opp_retract {C : category} {a b a' b' : C} {f : a --> b} {f' : a' --> b'} (r : retract f f') :
     retract (C:=op_cat C) (opp_mor f) (opp_mor f').
 Proof.
   destruct r as [ia [ra [ib [rb [ha [hb [hi hr]]]]]]].

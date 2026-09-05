@@ -347,6 +347,7 @@ Proof.
   intros. induction e1. apply e2.
 Defined.
 
+Create HintDb pathshints.
 #[global]
 Hint Resolve @pathscomp0 : pathshints.
 
