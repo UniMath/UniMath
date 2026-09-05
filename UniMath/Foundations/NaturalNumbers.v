@@ -801,6 +801,8 @@ Proof.
   - apply idpath.
   - simpl. apply (maponpaths S IH).
 Defined.
+
+Create HintDb natarith.
 #[global]
 Hint Resolve natplusr0: natarith.
 
