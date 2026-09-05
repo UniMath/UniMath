@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.DCPOs.Examples.SubDCPO</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.DCPOs.Examples.SubDCPO</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.Basics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.MonotoneFunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.PointedPosets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.DirectedSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.Basics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottContinuous.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.ScottContinuous</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">dcpo</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. The sub DCPO
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="SubPartialOrder" class="idref" href="#SubPartialOrder"><span class="id" title="section">SubPartialOrder</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="SubPartialOrder.X" class="idref" href="#SubPartialOrder.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="SubPartialOrder.PX" class="idref" href="#SubPartialOrder.PX"><span class="id" title="variable">PX</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#X:1"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="SubPartialOrder.P" class="idref" href="#SubPartialOrder.P"><span class="id" title="variable">P</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#X:1"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="SubPartialOrder.S" class="idref" href="#SubPartialOrder.S"><span class="id" title="variable">S</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a> := (<a class="idref" href="UniMath.Foundations.Sets.html#392b6343647ea2b96651e88640e7de80"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#392b6343647ea2b96651e88640e7de80"><span class="id" title="notation">(</span></a><a id="x:4" class="idref" href="#x:4"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Sets.html#392b6343647ea2b96651e88640e7de80"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#hProp_to_hSet"><span class="id" title="definition">hProp_to_hSet</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.P"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#x:4"><span class="id" title="variable">x</span></a>))%<span class="id" title="tactic">set</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sub_isPartialOrder" class="idref" href="#sub_isPartialOrder"><span class="id" title="definition">sub_isPartialOrder</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#isPartialOrder"><span class="id" title="definition">isPartialOrder</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a> <a id="y:6" class="idref" href="#y:6"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.S"><span class="id" title="variable">S</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.PX"><span class="id" title="variable">PX</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#x:5"><span class="id" title="variable">x</span></a>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#y:6"><span class="id" title="variable">y</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x₁</span> <span class="id" title="var">x₂</span> <span class="id" title="var">x₃</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#trans_PartialOrder"><span class="id" title="lemma">trans_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.PX"><span class="id" title="variable">PX</span></a> <span class="id" title="var">p</span> <span class="id" title="var">q</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#refl_PartialOrder"><span class="id" title="lemma">refl_PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#antisymm_PartialOrder"><span class="id" title="lemma">antisymm_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.PX"><span class="id" title="variable">PX</span></a> <span class="id" title="var">p</span> <span class="id" title="var">q</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sub_PartialOrder" class="idref" href="#sub_PartialOrder"><span class="id" title="definition">sub_PartialOrder</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.S"><span class="id" title="variable">S</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Sets.html#make_PartialOrder"><span class="id" title="definition">make_PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:7" class="idref" href="#x:7"><span class="id" title="binder"><span id="x:9" class="id">x</span></span></a> <a id="y:8" class="idref" href="#y:8"><span class="id" title="binder"><span id="y:10" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.PX"><span class="id" title="variable">PX</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#x:7"><span class="id" title="variable">x</span></a>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#y:8"><span class="id" title="variable">y</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_isPartialOrder"><span class="id" title="definition">sub_isPartialOrder</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_monotone_pr1_sub" class="idref" href="#is_monotone_pr1_sub"><span class="id" title="definition">is_monotone_pr1_sub</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#is_monotone"><span class="id" title="definition">is_monotone</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_PartialOrder"><span class="id" title="definition">sub_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.PX"><span class="id" title="variable">PX</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="pr1_sub_monotone" class="idref" href="#pr1_sub_monotone"><span class="id" title="definition">pr1_sub_monotone</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#monotone_function"><span class="id" title="definition">monotone_function</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_PartialOrder"><span class="id" title="definition">sub_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder.PX"><span class="id" title="variable">PX</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#is_monotone_pr1_sub"><span class="id" title="definition">is_monotone_pr1_sub</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubPartialOrder"><span class="id" title="section">SubPartialOrder</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="SubDCPO" class="idref" href="#SubDCPO"><span class="id" title="section">SubDCPO</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="SubDCPO.X" class="idref" href="#SubDCPO.X"><span class="id" title="variable">X</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="SubDCPO.P" class="idref" href="#SubDCPO.P"><span class="id" title="variable">P</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#X:11"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="SubDCPO.HP" class="idref" href="#SubDCPO.HP"><span class="id" title="variable">HP</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="D:13" class="idref" href="#D:13"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#directed_set"><span class="id" title="definition">directed_set</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#X:11"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="d:14" class="idref" href="#d:14"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#D:13"><span class="id" title="variable">D</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#P:12"><span class="id" title="variable">P</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#D:13"><span class="id" title="variable">D</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#d:14"><span class="id" title="variable">d</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#P:12"><span class="id" title="variable">P</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#5722364dcd44d883bddb37d170a0195c"><span class="id" title="notation">⨆</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#D:13"><span class="id" title="variable">D</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="SubDCPO.S" class="idref" href="#SubDCPO.S"><span class="id" title="variable">S</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a> := (<a class="idref" href="UniMath.Foundations.Sets.html#392b6343647ea2b96651e88640e7de80"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#392b6343647ea2b96651e88640e7de80"><span class="id" title="notation">(</span></a><a id="x:16" class="idref" href="#x:16"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.X"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Sets.html#392b6343647ea2b96651e88640e7de80"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#hProp_to_hSet"><span class="id" title="definition">hProp_to_hSet</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.P"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#x:16"><span class="id" title="variable">x</span></a>))%<span class="id" title="tactic">set</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sub_dcpo_lub" class="idref" href="#sub_dcpo_lub"><span class="id" title="definition">sub_dcpo_lub</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="D:17" class="idref" href="#D:17"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#directed_set"><span class="id" title="definition">directed_set</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_PartialOrder"><span class="id" title="definition">sub_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.P"><span class="id" title="variable">P</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#lub"><span class="id" title="definition">lub</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_PartialOrder"><span class="id" title="definition">sub_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.P"><span class="id" title="variable">P</span></a>) <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#D:17"><span class="id" title="variable">D</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">D'</span> := <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#directed_set_comp"><span class="id" title="definition">directed_set_comp</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#pr1_sub_monotone"><span class="id" title="definition">pr1_sub_monotone</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.P"><span class="id" title="variable">P</span></a>) <span class="id" title="var">D</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#make_lub"><span class="id" title="definition">make_lub</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#5722364dcd44d883bddb37d170a0195c"><span class="id" title="notation">⨆</span></a> <span class="id" title="var">D'</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.HP"><span class="id" title="variable">HP</span></a> <span class="id" title="var">D'</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> <span class="id" title="var">d</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<span class="id" title="var">D</span> <span class="id" title="var">d</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#less_than_dcpo_lub"><span class="id" title="lemma">less_than_dcpo_lub</span></a> <span class="id" title="var">D'</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<span class="id" title="var">D</span> <span class="id" title="var">i</span>)) <span class="id" title="var">i</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#refl_dcpo"><span class="id" title="lemma">refl_dcpo</span></a> <span class="id" title="var">_</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">Hx</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo_lub_is_least"><span class="id" title="lemma">dcpo_lub_is_least</span></a> <span class="id" title="var">D'</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="var">Hx</span> <span class="id" title="var">i</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sub_dcpo_struct" class="idref" href="#sub_dcpo_struct"><span class="id" title="definition">sub_dcpo_struct</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo_struct"><span class="id" title="definition">dcpo_struct</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.S"><span class="id" title="variable">S</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#make_dcpo_struct"><span class="id" title="definition">make_dcpo_struct</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_PartialOrder"><span class="id" title="definition">sub_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.P"><span class="id" title="variable">P</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">I</span> <span class="id" title="var">D</span> <span class="id" title="var">HD</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_dcpo_lub"><span class="id" title="definition">sub_dcpo_lub</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#make_directed_set"><span class="id" title="definition">make_directed_set</span></a> <span class="id" title="var">_</span> <span class="id" title="var">I</span> <span class="id" title="var">D</span> <span class="id" title="var">HD</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sub_dcpo" class="idref" href="#sub_dcpo"><span class="id" title="definition">sub_dcpo</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_dcpo_struct"><span class="id" title="definition">sub_dcpo_struct</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="is_scott_continuous_pr1_sub" class="idref" href="#is_scott_continuous_pr1_sub"><span class="id" title="lemma">is_scott_continuous_pr1_sub</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottContinuous.html#is_scott_continuous"><span class="id" title="definition">is_scott_continuous</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_dcpo"><span class="id" title="definition">sub_dcpo</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottContinuous.html#make_is_scott_continuous"><span class="id" title="definition">make_is_scott_continuous</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#is_monotone_pr1_sub"><span class="id" title="definition">is_monotone_pr1_sub</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.P"><span class="id" title="variable">P</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   2. The first projection is continuous
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="pr1_sub_scott_continuous" class="idref" href="#pr1_sub_scott_continuous"><span class="id" title="definition">pr1_sub_scott_continuous</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottContinuous.html#scott_continuous_map"><span class="id" title="definition">scott_continuous_map</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#sub_dcpo"><span class="id" title="definition">sub_dcpo</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO.X"><span class="id" title="variable">X</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#is_scott_continuous_pr1_sub"><span class="id" title="lemma">is_scott_continuous_pr1_sub</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.SubDCPO.html#SubDCPO"><span class="id" title="section">SubDCPO</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+Given a map between two functors, we get a pseudofunctor between their fundamental bigroupoids.
+
+<div class="paragraph"> </div>
+
+Authors: Dan Frumin, Niels van der Weide
+
+<div class="paragraph"> </div>
+
+Ported from: https://github.com/nmvdw/groupoids
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#"><span class="id" title="library">UniMath.CategoryTheory.PrecategoryBinProduct</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Invertible_2cells.html#"><span class="id" title="library">UniMath.Bicategories.Core.Invertible_2cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#"><span class="id" title="library">UniMath.Bicategories.Core.BicategoryLaws</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.PseudoFunctor</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#Notations"><span class="id" title="module">PseudoFunctor.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.TwoType.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.TwoType</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="ApFunctor" class="idref" href="#ApFunctor"><span class="id" title="section">ApFunctor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="ApFunctor.X" class="idref" href="#ApFunctor.X"><span class="id" title="variable">X</span></a> <a id="ApFunctor.Y" class="idref" href="#ApFunctor.Y"><span class="id" title="variable">Y</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="ApFunctor.HX" class="idref" href="#ApFunctor.HX"><span class="id" title="variable">HX</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> 4 <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#X:1"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="ApFunctor.HY" class="idref" href="#ApFunctor.HY"><span class="id" title="variable">HY</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> 4 <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#Y:2"><span class="id" title="variable">Y</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> (<a id="ApFunctor.f" class="idref" href="#ApFunctor.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.Y"><span class="id" title="variable">Y</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ap_functor_data" class="idref" href="#ap_functor_data"><span class="id" title="definition">ap_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#psfunctor_data"><span class="id" title="definition">psfunctor_data</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.TwoType.html#fundamental_bigroupoid"><span class="id" title="definition">fundamental_bigroupoid</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.HX"><span class="id" title="variable">HX</span></a>) (<a class="idref" href="UniMath.Bicategories.Core.Examples.TwoType.html#fundamental_bigroupoid"><span class="id" title="definition">fundamental_bigroupoid</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.Y"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.HY"><span class="id" title="variable">HY</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#make_psfunctor_data"><span class="id" title="definition">make_psfunctor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.f"><span class="id" title="variable">f</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="s:7" class="idref" href="#s:7"><span class="id" title="binder"><span id="s:8" class="id">s</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.f"><span class="id" title="variable">f</span></a>) <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#s:7"><span class="id" title="variable">s</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:9" class="idref" href="#x:9"><span class="id" title="binder"><span id="x:10" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> (<a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.f"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#x:9"><span class="id" title="variable">x</span></a>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="p:11" class="idref" href="#p:11"><span class="id" title="binder"><span id="p:13" class="id">p</span></span></a> <a id="q:12" class="idref" href="#q:12"><span class="id" title="binder"><span id="q:14" class="id">q</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#maponpathscomp0"><span class="id" title="definition">maponpathscomp0</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.f"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#p:11"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#q:12"><span class="id" title="variable">q</span></a><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ap_functor_laws" class="idref" href="#ap_functor_laws"><span class="id" title="definition">ap_functor_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#psfunctor_laws"><span class="id" title="definition">psfunctor_laws</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ap_functor_data"><span class="id" title="definition">ap_functor_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">p₁</span> <span class="id" title="var">p₂</span> <span class="id" title="var">p₃</span> <span class="id" title="var">s₁</span> <span class="id" title="var">s₂</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpathscomp0"><span class="id" title="definition">maponpathscomp0</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.f"><span class="id" title="variable">f</span></a>) <span class="id" title="var">s₁</span> <span class="id" title="var">s₂</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">p</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">p</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> <span class="id" title="var">r</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span>, <span class="id" title="var">q</span>, <span class="id" title="var">r</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">p</span> <span class="id" title="var">q₁</span> <span class="id" title="var">q₂</span> <span class="id" title="var">s</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">s</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#pathscomp0rid"><span class="id" title="definition">pathscomp0rid</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">p₁</span> <span class="id" title="var">p₂</span> <span class="id" title="var">q</span> <span class="id" title="var">s</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">s</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#pathscomp0rid"><span class="id" title="definition">pathscomp0rid</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ap_psfunctor" class="idref" href="#ap_psfunctor"><span class="id" title="definition">ap_psfunctor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.TwoType.html#fundamental_bigroupoid"><span class="id" title="definition">fundamental_bigroupoid</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.X"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.HX"><span class="id" title="variable">HX</span></a>) (<a class="idref" href="UniMath.Bicategories.Core.Examples.TwoType.html#fundamental_bigroupoid"><span class="id" title="definition">fundamental_bigroupoid</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.Y"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.HY"><span class="id" title="variable">HY</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#make_psfunctor"><span class="id" title="definition">make_psfunctor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ap_functor_data"><span class="id" title="definition">ap_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ap_functor_laws"><span class="id" title="definition">ap_functor_laws</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Examples.TwoType.html#fundamental_groupoid_2cell_iso"><span class="id" title="definition">fundamental_groupoid_2cell_iso</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.Y"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.HY"><span class="id" title="variable">HY</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>(<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> (<a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.f"><span class="id" title="variable">f</span></a> <span class="id" title="var">a</span>)))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">c</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Examples.TwoType.html#fundamental_groupoid_2cell_iso"><span class="id" title="definition">fundamental_groupoid_2cell_iso</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.Y"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.HY"><span class="id" title="variable">HY</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#maponpathscomp0"><span class="id" title="definition">maponpathscomp0</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor.f"><span class="id" title="variable">f</span></a> <span class="id" title="var">p</span> <span class="id" title="var">q</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.ApFunctor.html#ApFunctor"><span class="id" title="section">ApFunctor</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+ Morphisms in op2 bicat
+
+<div class="paragraph"> </div>
+
+ Contents
+ 1. Faithful 1-cells
+ 2. Fully faithful 1-cells
+ 3. Conservative 1-cells
+ 4. Discrete 1-cells
+ 5. Adjunctions
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Invertible_2cells.html#"><span class="id" title="library">UniMath.Bicategories.Core.Invertible_2cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#"><span class="id" title="library">UniMath.Bicategories.Core.Unitors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#"><span class="id" title="library">UniMath.Bicategories.Core.BicategoryLaws</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.EquivToAdjequiv.html#"><span class="id" title="library">UniMath.Bicategories.Core.EquivToAdjequiv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.OpCellBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.Adjunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.FullyFaithful</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.DiscreteMorphisms.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.DiscreteMorphisms</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. Faithful 1-cells
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="faithful_op2_bicat" class="idref" href="#faithful_op2_bicat"><span class="id" title="definition">faithful_op2_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="B:1" class="idref" href="#B:1"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:2" class="idref" href="#x:2"><span class="id" title="binder">x</span></a> <a id="y:3" class="idref" href="#y:3"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:1"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:4" class="idref" href="#f:4"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#x:2"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#y:3"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hf:5" class="idref" href="#Hf:5"><span class="id" title="binder">Hf</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#faithful_1cell"><span class="id" title="definition">faithful_1cell</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:4"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: @<a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#faithful_1cell"><span class="id" title="definition">faithful_1cell</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#op2_bicat"><span class="id" title="definition">op2_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:1"><span class="id" title="variable">B</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:4"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span> <span class="id" title="var">g₂</span> <span class="id" title="var">α</span> <span class="id" title="var">β</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hf</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. Fully faithful 1-cells
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="fully_faithful_op2_bicat" class="idref" href="#fully_faithful_op2_bicat"><span class="id" title="definition">fully_faithful_op2_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="B:6" class="idref" href="#B:6"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:7" class="idref" href="#x:7"><span class="id" title="binder">x</span></a> <a id="y:8" class="idref" href="#y:8"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:6"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:9" class="idref" href="#f:9"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#y:8"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hf:10" class="idref" href="#Hf:10"><span class="id" title="binder">Hf</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#fully_faithful_1cell"><span class="id" title="definition">fully_faithful_1cell</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:9"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: @<a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#fully_faithful_1cell"><span class="id" title="definition">fully_faithful_1cell</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#op2_bicat"><span class="id" title="definition">op2_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:6"><span class="id" title="variable">B</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:9"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#make_fully_faithful"><span class="id" title="definition">make_fully_faithful</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#faithful_op2_bicat"><span class="id" title="definition">faithful_op2_bicat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#fully_faithful_1cell_faithful"><span class="id" title="definition">fully_faithful_1cell_faithful</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Hf</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span> <span class="id" title="var">g₂</span> <span class="id" title="var">αf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#fully_faithful_1cell_inv_map"><span class="id" title="definition">fully_faithful_1cell_inv_map</span></a> <span class="id" title="var">Hf</span> <span class="id" title="var">αf</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#fully_faithful_1cell_inv_map_eq"><span class="id" title="definition">fully_faithful_1cell_inv_map_eq</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. Conservative 1-cells
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="conservative_op2_bicat" class="idref" href="#conservative_op2_bicat"><span class="id" title="definition">conservative_op2_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="B:11" class="idref" href="#B:11"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:12" class="idref" href="#x:12"><span class="id" title="binder">x</span></a> <a id="y:13" class="idref" href="#y:13"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:11"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:14" class="idref" href="#f:14"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#x:12"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#y:13"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hf:15" class="idref" href="#Hf:15"><span class="id" title="binder">Hf</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.DiscreteMorphisms.html#conservative_1cell"><span class="id" title="definition">conservative_1cell</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:14"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: @<a class="idref" href="UniMath.Bicategories.Morphisms.DiscreteMorphisms.html#conservative_1cell"><span class="id" title="definition">conservative_1cell</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#op2_bicat"><span class="id" title="definition">op2_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:11"><span class="id" title="variable">B</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:14"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span> <span class="id" title="var">g₂</span> <span class="id" title="var">α</span> <span class="id" title="var">Hα</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#to_op2_is_invertible_2cell"><span class="id" title="definition">to_op2_is_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hf</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#from_op2_is_invertible_2cell"><span class="id" title="definition">from_op2_is_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Hα</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 4. Discrete 1-cells
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="discrete_op2_bicat" class="idref" href="#discrete_op2_bicat"><span class="id" title="definition">discrete_op2_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="B:16" class="idref" href="#B:16"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:17" class="idref" href="#x:17"><span class="id" title="binder">x</span></a> <a id="y:18" class="idref" href="#y:18"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:16"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:19" class="idref" href="#f:19"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#x:17"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#y:18"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hf:20" class="idref" href="#Hf:20"><span class="id" title="binder">Hf</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.DiscreteMorphisms.html#discrete_1cell"><span class="id" title="definition">discrete_1cell</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:19"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: @<a class="idref" href="UniMath.Bicategories.Morphisms.DiscreteMorphisms.html#discrete_1cell"><span class="id" title="definition">discrete_1cell</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#op2_bicat"><span class="id" title="definition">op2_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:16"><span class="id" title="variable">B</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:19"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#faithful_op2_bicat"><span class="id" title="definition">faithful_op2_bicat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hf</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#conservative_op2_bicat"><span class="id" title="definition">conservative_op2_bicat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hf</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 5. Adjunctions
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="op2_left_adjoint_right_adjoint_is_left_adjoint" class="idref" href="#op2_left_adjoint_right_adjoint_is_left_adjoint"><span class="id" title="definition">op2_left_adjoint_right_adjoint_is_left_adjoint</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="B:21" class="idref" href="#B:21"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:22" class="idref" href="#x:22"><span class="id" title="binder">x</span></a> <a id="y:23" class="idref" href="#y:23"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:21"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:24" class="idref" href="#f:24"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#x:22"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#y:23"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hf:25" class="idref" href="#Hf:25"><span class="id" title="binder">Hf</span></a> : @<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint"><span class="id" title="definition">left_adjoint</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#op2_bicat"><span class="id" title="definition">op2_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:21"><span class="id" title="variable">B</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:24"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: @<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint"><span class="id" title="definition">left_adjoint</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:21"><span class="id" title="variable">B</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint_right_adjoint"><span class="id" title="definition">left_adjoint_right_adjoint</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#Hf:25"><span class="id" title="variable">Hf</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">))</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint_counit"><span class="id" title="definition">left_adjoint_counit</span></a> <span class="id" title="var">Hf</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint_unit"><span class="id" title="definition">left_adjoint_unit</span></a> <span class="id" title="var">Hf</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_triangle2"><span class="id" title="definition">internal_triangle2</span></a> <span class="id" title="var">Hf</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_triangle1"><span class="id" title="definition">internal_triangle1</span></a> <span class="id" title="var">Hf</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="op2_left_adjoint_to_right_adjoint" class="idref" href="#op2_left_adjoint_to_right_adjoint"><span class="id" title="definition">op2_left_adjoint_to_right_adjoint</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="B:26" class="idref" href="#B:26"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:27" class="idref" href="#x:27"><span class="id" title="binder">x</span></a> <a id="y:28" class="idref" href="#y:28"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:26"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:29" class="idref" href="#f:29"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#x:27"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#y:28"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hf:30" class="idref" href="#Hf:30"><span class="id" title="binder">Hf</span></a> : @<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint"><span class="id" title="definition">left_adjoint</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#op2_bicat"><span class="id" title="definition">op2_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:26"><span class="id" title="variable">B</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:29"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: @<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_right_adj"><span class="id" title="definition">internal_right_adj</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:26"><span class="id" title="variable">B</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:29"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">))</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint_right_adjoint"><span class="id" title="definition">left_adjoint_right_adjoint</span></a> <span class="id" title="var">Hf</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint_counit"><span class="id" title="definition">left_adjoint_counit</span></a> <span class="id" title="var">Hf</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint_unit"><span class="id" title="definition">left_adjoint_unit</span></a> <span class="id" title="var">Hf</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_triangle2"><span class="id" title="definition">internal_triangle2</span></a> <span class="id" title="var">Hf</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocl"><span class="id" title="definition">vassocl</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_triangle1"><span class="id" title="definition">internal_triangle1</span></a> <span class="id" title="var">Hf</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="right_adjoint_to_op2_left_adjoint" class="idref" href="#right_adjoint_to_op2_left_adjoint"><span class="id" title="definition">right_adjoint_to_op2_left_adjoint</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="B:31" class="idref" href="#B:31"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:32" class="idref" href="#x:32"><span class="id" title="binder">x</span></a> <a id="y:33" class="idref" href="#y:33"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:31"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:34" class="idref" href="#f:34"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#x:32"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#y:33"><span class="id" title="variable">y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hf:35" class="idref" href="#Hf:35"><span class="id" title="binder">Hf</span></a> : @<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_right_adj"><span class="id" title="definition">internal_right_adj</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:31"><span class="id" title="variable">B</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:34"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: @<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint"><span class="id" title="definition">left_adjoint</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#op2_bicat"><span class="id" title="definition">op2_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:31"><span class="id" title="variable">B</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:34"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">))</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_right_adj_left_adjoint"><span class="id" title="definition">internal_right_adj_left_adjoint</span></a> <span class="id" title="var">Hf</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_right_adj_counit"><span class="id" title="definition">internal_right_adj_counit</span></a> <span class="id" title="var">Hf</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_right_adj_unit"><span class="id" title="definition">internal_right_adj_unit</span></a> <span class="id" title="var">Hf</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocr"><span class="id" title="definition">vassocr</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <span class="id" title="var">Hf</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#vassocr"><span class="id" title="definition">vassocr</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <span class="id" title="var">Hf</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="op2_left_adjoint_weq_right_adjoint" class="idref" href="#op2_left_adjoint_weq_right_adjoint"><span class="id" title="definition">op2_left_adjoint_weq_right_adjoint</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="B:36" class="idref" href="#B:36"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:37" class="idref" href="#x:37"><span class="id" title="binder">x</span></a> <a id="y:38" class="idref" href="#y:38"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:36"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f:39" class="idref" href="#f:39"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#x:37"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#y:38"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;: @<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#left_adjoint"><span class="id" title="definition">left_adjoint</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#op2_bicat"><span class="id" title="definition">op2_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:36"><span class="id" title="variable">B</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:39"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> @<a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#internal_right_adj"><span class="id" title="definition">internal_right_adj</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#B:36"><span class="id" title="variable">B</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#f:39"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_weq"><span class="id" title="definition">make_weq</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#op2_left_adjoint_to_right_adjoint"><span class="id" title="definition">op2_left_adjoint_to_right_adjoint</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#isweq_iso"><span class="id" title="lemma">isweq_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.html#right_adjoint_to_op2_left_adjoint"><span class="id" title="definition">right_adjoint_to_op2_left_adjoint</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> <span class="id" title="var">Hf</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#cellset_property"><span class="id" title="definition">cellset_property</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intro</span> <span class="id" title="var">Hf</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#cellset_property"><span class="id" title="definition">cellset_property</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

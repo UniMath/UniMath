@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Actegories.ProductsInActegories</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Actegories.ProductsInActegories</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+studies products in the categories on which is being acted in actegories
+
+<div class="paragraph"> </div>
+
+author: Ralph Matthes, 2023
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.Actegories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.MorphismsOfActegories.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.MorphismsOfActegories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductActegory.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.ProductActegory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#"><span class="id" title="library">UniMath.CategoryTheory.PrecategoryBinProduct</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.ProductCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.ProductCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#BifunctorNotations"><span class="id" title="module">BifunctorNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FixAMonoidalCategory" class="idref" href="#FixAMonoidalCategory"><span class="id" title="section">FixAMonoidalCategory</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FixAMonoidalCategory.V" class="idref" href="#FixAMonoidalCategory.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="FixAMonoidalCategory.Mon_V" class="idref" href="#FixAMonoidalCategory.Mon_V"><span class="id" title="variable">Mon_V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#V:1"><span class="id" title="variable">V</span></a>). </div>
+
+<div class="doc">
+given the monoidal category that acts upon categories 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FixAMonoidalCategory.BinaryProduct" class="idref" href="#FixAMonoidalCategory.BinaryProduct"><span class="id" title="section">BinaryProduct</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FixAMonoidalCategory.BinaryProduct.C" class="idref" href="#FixAMonoidalCategory.BinaryProduct.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="FixAMonoidalCategory.BinaryProduct.BP" class="idref" href="#FixAMonoidalCategory.BinaryProduct.BP"><span class="id" title="variable">BP</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#C:3"><span class="id" title="variable">C</span></a>) (<a id="FixAMonoidalCategory.BinaryProduct.Act" class="idref" href="#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> : <a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#actegory"><span class="id" title="definition">actegory</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.Mon_V"><span class="id" title="variable">Mon_V</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#C:3"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="binprod_collector_data" class="idref" href="#binprod_collector_data"><span class="id" title="definition">binprod_collector_data</span></a> (<a id="v:6" class="idref" href="#v:6"><span class="id" title="binder">v</span></a> : <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.V"><span class="id" title="variable">V</span></a>) (<a id="c:7" class="idref" href="#c:7"><span class="id" title="binder">c</span></a> <a id="d:8" class="idref" href="#d:8"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.C"><span class="id" title="variable">C</span></a>):<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#v:6"><span class="id" title="variable">v</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">⊗</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.BP"><span class="id" title="variable">BP</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#c:7"><span class="id" title="variable">c</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#d:8"><span class="id" title="variable">d</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.BP"><span class="id" title="variable">BP</span></a> (<a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#v:6"><span class="id" title="variable">v</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">⊗</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#c:7"><span class="id" title="variable">c</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#v:6"><span class="id" title="variable">v</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">⊗</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#af70864b352974556df578874859ffea"><span class="id" title="notation">}</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#d:8"><span class="id" title="variable">d</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrow"><span class="id" title="definition">BinProductArrow</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#leftwhiskering_on_morphisms"><span class="id" title="definition">leftwhiskering_on_morphisms</span></a>; [<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1"><span class="id" title="definition">BinProductPr1</span></a> | <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2"><span class="id" title="definition">BinProductPr2</span></a> ].<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="binprod_functor_lineator_data" class="idref" href="#binprod_functor_lineator_data"><span class="id" title="definition">binprod_functor_lineator_data</span></a>:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Actegories.MorphismsOfActegories.html#lineator_data"><span class="id" title="definition">lineator_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.Mon_V"><span class="id" title="variable">Mon_V</span></a> (<a class="idref" href="UniMath.CategoryTheory.Actegories.ProductActegory.html#actegory_binprod"><span class="id" title="definition">actegory_binprod</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.Mon_V"><span class="id" title="variable">Mon_V</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a>) <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#binproduct_functor"><span class="id" title="definition">binproduct_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.BP"><span class="id" title="variable">BP</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">v</span> <span class="id" title="var">cd</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#binprod_collector_data"><span class="id" title="definition">binprod_collector_data</span></a> <span class="id" title="var">v</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">cd</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">cd</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;<span class="id" title="keyword">Lemma</span> <a id="binprod_functor_lineator_laxlaws" class="idref" href="#binprod_functor_lineator_laxlaws"><span class="id" title="lemma">binprod_functor_lineator_laxlaws</span></a>:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Actegories.MorphismsOfActegories.html#lineator_laxlaws"><span class="id" title="definition">lineator_laxlaws</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#binprod_functor_lineator_data"><span class="id" title="definition">binprod_functor_lineator_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">red</span>; <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">red</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">v</span> <span class="id" title="var">cd1</span> <span class="id" title="var">cd2</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#precompWithBinProductArrow"><span class="id" title="lemma">precompWithBinProductArrow</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#postcompWithBinProductArrow"><span class="id" title="lemma">postcompWithBinProductArrow</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_12"><span class="id" title="definition">maponpaths_12</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#leftwhiskering_functor"><span class="id" title="definition">leftwhiskering_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> <span class="id" title="var">v</span>)). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#leftwhiskering_functor"><span class="id" title="definition">leftwhiskering_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> <span class="id" title="var">v</span>)). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductOfArrowsPr1"><span class="id" title="lemma">BinProductOfArrowsPr1</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#leftwhiskering_functor"><span class="id" title="definition">leftwhiskering_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> <span class="id" title="var">v</span>)). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#leftwhiskering_functor"><span class="id" title="definition">leftwhiskering_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> <span class="id" title="var">v</span>)). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductOfArrowsPr2"><span class="id" title="lemma">BinProductOfArrowsPr2</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">red</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">v1</span> <span class="id" title="var">v2</span> <span class="id" title="var">cd</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#precompWithBinProductArrow"><span class="id" title="lemma">precompWithBinProductArrow</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#postcompWithBinProductArrow"><span class="id" title="lemma">postcompWithBinProductArrow</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_12"><span class="id" title="definition">maponpaths_12</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_equalwhiskers"><span class="id" title="definition">bifunctor_equalwhiskers</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a>). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_equalwhiskers"><span class="id" title="definition">bifunctor_equalwhiskers</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a>). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">red</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">v</span> <span class="id" title="var">w</span> <span class="id" title="var">cd</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#postcompWithBinProductArrow"><span class="id" title="lemma">postcompWithBinProductArrow</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#precompWithBinProductArrow"><span class="id" title="lemma">precompWithBinProductArrow</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_12"><span class="id" title="definition">maponpaths_12</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#leftwhiskering_functor"><span class="id" title="definition">leftwhiskering_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> <span class="id" title="var">v</span>)). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr1Commutes"><span class="id" title="lemma">BinProductPr1Commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#actegory_actornatleft"><span class="id" title="definition">actegory_actornatleft</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#assoc'"><span class="id" title="definition">assoc'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#leftwhiskering_functor"><span class="id" title="definition">leftwhiskering_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> <span class="id" title="var">v</span>)). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductPr2Commutes"><span class="id" title="lemma">BinProductPr2Commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#actegory_actornatleft"><span class="id" title="definition">actegory_actornatleft</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">red</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">cd</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#postcompWithBinProductArrow"><span class="id" title="lemma">postcompWithBinProductArrow</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProductArrowEta"><span class="id" title="lemma">BinProductArrowEta</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_12"><span class="id" title="definition">maponpaths_12</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#actegory_unitornat"><span class="id" title="definition">actegory_unitornat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="binprod_functor_lax_lineator" class="idref" href="#binprod_functor_lax_lineator"><span class="id" title="definition">binprod_functor_lax_lineator</span></a>:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Actegories.MorphismsOfActegories.html#lineator_lax"><span class="id" title="definition">lineator_lax</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.Mon_V"><span class="id" title="variable">Mon_V</span></a> (<a class="idref" href="UniMath.CategoryTheory.Actegories.ProductActegory.html#actegory_binprod"><span class="id" title="definition">actegory_binprod</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.Mon_V"><span class="id" title="variable">Mon_V</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a>) <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.Act"><span class="id" title="variable">Act</span></a> (<a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#binproduct_functor"><span class="id" title="definition">binproduct_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct.BP"><span class="id" title="variable">BP</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#binprod_functor_lineator_data"><span class="id" title="definition">binprod_functor_lineator_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#binprod_functor_lineator_laxlaws"><span class="id" title="lemma">binprod_functor_lineator_laxlaws</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory.BinaryProduct"><span class="id" title="section">BinaryProduct</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ProductsInActegories.html#FixAMonoidalCategory"><span class="id" title="section">FixAMonoidalCategory</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

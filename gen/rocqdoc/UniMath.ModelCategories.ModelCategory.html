@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.ModelCategories.ModelCategory</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.ModelCategories.ModelCategory</h1>
+
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Lifting.html#"><span class="id" title="library">UniMath.ModelCategories.Lifting</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.Retract.html#"><span class="id" title="library">UniMath.ModelCategories.Retract</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#"><span class="id" title="library">UniMath.ModelCategories.MorphismClass</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.WFS.html#"><span class="id" title="library">UniMath.ModelCategories.WFS</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.ModelCategories.WeakEquivalences.html#"><span class="id" title="library">UniMath.ModelCategories.WeakEquivalences</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="modelcat" class="idref" href="#modelcat"><span class="id" title="section">modelcat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">morcls</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">retract</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="is_model_category" class="idref" href="#is_model_category"><span class="id" title="definition">is_model_category</span></a> {<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="W:2" class="idref" href="#W:2"><span class="id" title="binder">W</span></a> <a id="K:3" class="idref" href="#K:3"><span class="id" title="binder">K</span></a> <a id="F:4" class="idref" href="#F:4"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#morphism_class"><span class="id" title="definition">morphism_class</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#C:1"><span class="id" title="variable">C</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.ModelCategories.WeakEquivalences.html#is_weak_equivalences"><span class="id" title="definition">is_weak_equivalences</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:2"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.ModelCategories.WFS.html#is_wfs"><span class="id" title="definition">is_wfs</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#K:3"><span class="id" title="variable">K</span></a> (<a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:4"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#e98ccf81321dd324deeecb21dc341190"><span class="id" title="notation">∩</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:2"><span class="id" title="variable">W</span></a>) <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.ModelCategories.WFS.html#is_wfs"><span class="id" title="definition">is_wfs</span></a> (<a class="idref" href="UniMath.ModelCategories.ModelCategory.html#K:3"><span class="id" title="variable">K</span></a> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#e98ccf81321dd324deeecb21dc341190"><span class="id" title="notation">∩</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:2"><span class="id" title="variable">W</span></a>) <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:4"><span class="id" title="variable">F</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_is_model_category" class="idref" href="#make_is_model_category"><span class="id" title="definition">make_is_model_category</span></a> {<a id="C:5" class="idref" href="#C:5"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="W:6" class="idref" href="#W:6"><span class="id" title="binder">W</span></a> <a id="K:7" class="idref" href="#K:7"><span class="id" title="binder">K</span></a> <a id="F:8" class="idref" href="#F:8"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#morphism_class"><span class="id" title="definition">morphism_class</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#C:5"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="weq:9" class="idref" href="#weq:9"><span class="id" title="binder">weq</span></a> : <a class="idref" href="UniMath.ModelCategories.WeakEquivalences.html#is_weak_equivalences"><span class="id" title="definition">is_weak_equivalences</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:6"><span class="id" title="variable">W</span></a>) (<a id="cfw_wfs:10" class="idref" href="#cfw_wfs:10"><span class="id" title="binder">cfw_wfs</span></a> : <a class="idref" href="UniMath.ModelCategories.WFS.html#is_wfs"><span class="id" title="definition">is_wfs</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#K:7"><span class="id" title="variable">K</span></a> (<a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:8"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#e98ccf81321dd324deeecb21dc341190"><span class="id" title="notation">∩</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:6"><span class="id" title="variable">W</span></a>)) (<a id="cwf_wfs:11" class="idref" href="#cwf_wfs:11"><span class="id" title="binder">cwf_wfs</span></a> : <a class="idref" href="UniMath.ModelCategories.WFS.html#is_wfs"><span class="id" title="definition">is_wfs</span></a> (<a class="idref" href="UniMath.ModelCategories.ModelCategory.html#K:7"><span class="id" title="variable">K</span></a> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#e98ccf81321dd324deeecb21dc341190"><span class="id" title="notation">∩</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:6"><span class="id" title="variable">W</span></a>) <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:8"><span class="id" title="variable">F</span></a>) : <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#is_model_category"><span class="id" title="definition">is_model_category</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:6"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#K:7"><span class="id" title="variable">K</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:8"><span class="id" title="variable">F</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#weq:9"><span class="id" title="variable">weq</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#cfw_wfs:10"><span class="id" title="variable">cfw_wfs</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#cwf_wfs:11"><span class="id" title="variable">cwf_wfs</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="model_category" class="idref" href="#model_category"><span class="id" title="definition">model_category</span></a> (<a id="C:12" class="idref" href="#C:12"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>) :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="W:13" class="idref" href="#W:13"><span class="id" title="binder">W</span></a> <a id="K:14" class="idref" href="#K:14"><span class="id" title="binder">K</span></a> <a id="F:15" class="idref" href="#F:15"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#morphism_class"><span class="id" title="definition">morphism_class</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#C:12"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#is_model_category"><span class="id" title="definition">is_model_category</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:13"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#K:14"><span class="id" title="variable">K</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:15"><span class="id" title="variable">F</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isprop_is_model_category" class="idref" href="#isprop_is_model_category"><span class="id" title="lemma">isprop_is_model_category</span></a> {<a id="C:16" class="idref" href="#C:16"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="W:17" class="idref" href="#W:17"><span class="id" title="binder">W</span></a> <a id="K:18" class="idref" href="#K:18"><span class="id" title="binder">K</span></a> <a id="F:19" class="idref" href="#F:19"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#morphism_class"><span class="id" title="definition">morphism_class</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#C:16"><span class="id" title="variable">C</span></a>) : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.ModelCategories.ModelCategory.html#is_model_category"><span class="id" title="definition">is_model_category</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:17"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#K:18"><span class="id" title="variable">K</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:19"><span class="id" title="variable">F</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.ModelCategories.WeakEquivalences.html#isaprop_is_weak_equivalences"><span class="id" title="lemma">isaprop_is_weak_equivalences</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.ModelCategories.WFS.html#isaprop_is_wfs"><span class="id" title="lemma">isaprop_is_wfs</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="is_model_category_mk'" class="idref" href="#is_model_category_mk'"><span class="id" title="lemma">is_model_category_mk'</span></a> {<a id="C:20" class="idref" href="#C:20"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} {<a id="W:21" class="idref" href="#W:21"><span class="id" title="binder">W</span></a> <a id="K:22" class="idref" href="#K:22"><span class="id" title="binder">K</span></a> <a id="AF:23" class="idref" href="#AF:23"><span class="id" title="binder">AF</span></a> <a id="AK:24" class="idref" href="#AK:24"><span class="id" title="binder">AK</span></a> <a id="F:25" class="idref" href="#F:25"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#morphism_class"><span class="id" title="definition">morphism_class</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#C:20"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="weq:26" class="idref" href="#weq:26"><span class="id" title="binder">weq</span></a> : <a class="idref" href="UniMath.ModelCategories.WeakEquivalences.html#is_weak_equivalences"><span class="id" title="definition">is_weak_equivalences</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:21"><span class="id" title="variable">W</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="kaf:27" class="idref" href="#kaf:27"><span class="id" title="binder">kaf</span></a> : <a class="idref" href="UniMath.ModelCategories.WFS.html#is_wfs"><span class="id" title="definition">is_wfs</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#K:22"><span class="id" title="variable">K</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#AF:23"><span class="id" title="variable">AF</span></a>) (<a id="akf:28" class="idref" href="#akf:28"><span class="id" title="binder">akf</span></a> : <a class="idref" href="UniMath.ModelCategories.WFS.html#is_wfs"><span class="id" title="definition">is_wfs</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#AK:24"><span class="id" title="variable">AK</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:25"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="hAF:29" class="idref" href="#hAF:29"><span class="id" title="binder">hAF</span></a> : <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#AF:23"><span class="id" title="variable">AF</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:25"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#e98ccf81321dd324deeecb21dc341190"><span class="id" title="notation">∩</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:21"><span class="id" title="variable">W</span></a>) (<a id="hAK:30" class="idref" href="#hAK:30"><span class="id" title="binder">hAK</span></a> : <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#AK:24"><span class="id" title="variable">AK</span></a> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#baef9e69b31ef8e58ebc8e71b09f7e62"><span class="id" title="notation">⊆</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:21"><span class="id" title="variable">W</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.ModelCategories.ModelCategory.html#is_model_category"><span class="id" title="definition">is_model_category</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#W:21"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#K:22"><span class="id" title="variable">K</span></a> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#F:25"><span class="id" title="variable">F</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#make_is_model_category"><span class="id" title="definition">make_is_model_category</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">assumption</span>. &nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <span class="id" title="var">hAF</span> <span class="id" title="tactic">in</span> <span class="id" title="var">kaf</span>. &nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">enough</span> (<span class="id" title="var">K</span> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#e98ccf81321dd324deeecb21dc341190"><span class="id" title="notation">∩</span></a> <span class="id" title="var">W</span> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#baef9e69b31ef8e58ebc8e71b09f7e62"><span class="id" title="notation">⊆</span></a> <span class="id" title="var">AK</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">kw_sak</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">K</span> <a class="idref" href="UniMath.ModelCategories.MorphismClass.html#e98ccf81321dd324deeecb21dc341190"><span class="id" title="notation">∩</span></a> <span class="id" title="var">W</span> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="var">AK</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">kw_ak</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.ModelCategories.MorphismClass.html#morphism_class_subset_antisymm"><span class="id" title="lemma">morphism_class_subset_antisymm</span></a> <span class="id" title="var">kw_sak</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">f</span> <span class="id" title="var">hf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.ModelCategories.WFS.html#is_wfs_llp"><span class="id" title="definition">is_wfs_llp</span></a> <span class="id" title="var">akf</span>) <span class="id" title="tactic">in</span> <span class="id" title="var">hf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.ModelCategories.WFS.html#is_wfs_llp"><span class="id" title="definition">is_wfs_llp</span></a> <span class="id" title="var">kaf</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">f</span> <span class="id" title="var">hf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.ModelCategories.Lifting.html#llp_anti"><span class="id" title="lemma">llp_anti</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">g</span> <span class="id" title="var">hg</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">hAF</span> <span class="id" title="tactic">in</span> <span class="id" title="var">hg</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">hg</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">hgf</span> ?].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">hgf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">hAK</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">hf</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">kw_ak</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">akf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">f</span> <span class="id" title="var">hf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">hf</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">f_k</span> <span class="id" title="var">f_w</span>].<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">acf_fact</span> := (<a class="idref" href="UniMath.ModelCategories.WFS.html#is_wfs_fact"><span class="id" title="definition">is_wfs_fact</span></a> <span class="id" title="var">akf</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhuniv"><span class="id" title="definition">hinhuniv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">acf_fact</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">acf_fact</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">acf_fact</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">acf_fact</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">c</span> [<span class="id" title="var">g</span> [<span class="id" title="var">h</span> [<span class="id" title="var">g_ak</span> [<span class="id" title="var">h_f</span> <span class="id" title="var">gh</span>]]]]].<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">h_w</span> : (<span class="id" title="var">W</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">hAK</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">g_ak</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">g_w</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> ((<a class="idref" href="UniMath.ModelCategories.WeakEquivalences.html#is_weq_cancel_left"><span class="id" title="definition">is_weq_cancel_left</span></a> <span class="id" title="var">weq</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">g_w</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">gh</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">f_w</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">h_af</span> : (<span class="id" title="var">AF</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">hAF</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">h_f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">h_w</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.ModelCategories.WFS.html#wfs'lp"><span class="id" title="lemma">wfs'lp</span></a> (<a class="idref" href="UniMath.ModelCategories.WFS.html#make_wfs"><span class="id" title="definition">make_wfs</span></a> <span class="id" title="var">K</span> <span class="id" title="var">AF</span> <span class="id" title="var">kaf</span>) <span class="id" title="var">f_k</span> <span class="id" title="var">h_af</span> <span class="id" title="var">g</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">b</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">gh</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">hl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">hl</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">l</span> [<span class="id" title="var">hl1</span> <span class="id" title="var">hl2</span>]].<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">r</span> : <a class="idref" href="UniMath.ModelCategories.Retract.html#retract"><span class="id" title="definition">retract</span></a> <span class="id" title="var">g</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.ModelCategories.Retract.html#make_retract"><span class="id" title="definition">make_retract</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">a</span>) (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">a</span>) <span class="id" title="var">l</span> <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.ModelCategories.Retract.html#make_is_retract"><span class="id" title="definition">make_is_retract</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>. <span class="id" title="var">now</span> <span class="id" title="tactic">symmetry</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>. <span class="id" title="var">now</span> <span class="id" title="tactic">symmetry</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.ModelCategories.WFS.html#wfs_L_retract"><span class="id" title="lemma">wfs_L_retract</span></a> (<a class="idref" href="UniMath.ModelCategories.WFS.html#make_wfs"><span class="id" title="definition">make_wfs</span></a> <span class="id" title="var">AK</span> <span class="id" title="var">F</span> <span class="id" title="var">akf</span>) <span class="id" title="var">r</span> <span class="id" title="var">g_ak</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.ModelCategories.ModelCategory.html#modelcat"><span class="id" title="section">modelcat</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.Morphisms.Properties.FromInitial</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.Morphisms.Properties.FromInitial</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Invertible_2cells.html#"><span class="id" title="library">UniMath.Bicategories.Core.Invertible_2cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.OpCellBicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.OpCellBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.Adjunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.FullyFaithful</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.DiscreteMorphisms.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.DiscreteMorphisms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetFibration.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.InternalStreetFibration</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetOpFibration.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.InternalStreetOpFibration</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#"><span class="id" title="library">UniMath.Bicategories.Colimits.Initial</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FromInitial" class="idref" href="#FromInitial"><span class="id" title="section">FromInitial</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FromInitial.B" class="idref" href="#FromInitial.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="FromInitial.x" class="idref" href="#FromInitial.x"><span class="id" title="variable">x</span></a> <a id="FromInitial.y" class="idref" href="#FromInitial.y"><span class="id" title="variable">y</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#B:1"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FromInitial.Hx" class="idref" href="#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#x:2"><span class="id" title="variable">x</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FromInitial.Sx" class="idref" href="#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#biinitial_is_strict_biinitial_obj"><span class="id" title="definition">biinitial_is_strict_biinitial_obj</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#Hx:4"><span class="id" title="variable">Hx</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FromInitial.f" class="idref" href="#FromInitial.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#x:2"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#y:3"><span class="id" title="variable">y</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   1. Faithfulness
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_faithful_1cell" class="idref" href="#from_biinitial_faithful_1cell"><span class="id" title="definition">from_biinitial_faithful_1cell</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#faithful_1cell"><span class="id" title="definition">faithful_1cell</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span> <span class="id" title="var">g₂</span> <span class="id" title="var">α₁</span> <span class="id" title="var">α₂</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">enough</span> (<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   2. Fully faithfulness
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_fully_faithful_1cell" class="idref" href="#from_biinitial_fully_faithful_1cell"><span class="id" title="definition">from_biinitial_fully_faithful_1cell</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#fully_faithful_1cell"><span class="id" title="definition">fully_faithful_1cell</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#make_fully_faithful"><span class="id" title="definition">make_fully_faithful</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_faithful_1cell"><span class="id" title="definition">from_biinitial_faithful_1cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span> <span class="id" title="var">g₂</span> <span class="id" title="var">αf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span>(<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   3. Pseudomonic
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_pseudomonic_1cell" class="idref" href="#from_biinitial_pseudomonic_1cell"><span class="id" title="definition">from_biinitial_pseudomonic_1cell</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#pseudomonic_1cell"><span class="id" title="definition">pseudomonic_1cell</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#make_pseudomonic"><span class="id" title="definition">make_pseudomonic</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_faithful_1cell"><span class="id" title="definition">from_biinitial_faithful_1cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span> <span class="id" title="var">g₂</span> <span class="id" title="var">αf</span> <span class="id" title="var">Hαf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span>(<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#make_is_invertible_2cell"><span class="id" title="definition">make_is_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   4. Conservativity
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_conservative_1cell" class="idref" href="#from_biinitial_conservative_1cell"><span class="id" title="definition">from_biinitial_conservative_1cell</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.DiscreteMorphisms.html#conservative_1cell"><span class="id" title="definition">conservative_1cell</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span> <span class="id" title="var">g₂</span> <span class="id" title="var">α</span> <span class="id" title="var">Hα</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span>(<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#make_is_invertible_2cell"><span class="id" title="definition">make_is_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   5. Discreteness
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_discrete_1cell" class="idref" href="#from_biinitial_discrete_1cell"><span class="id" title="definition">from_biinitial_discrete_1cell</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.DiscreteMorphisms.html#discrete_1cell"><span class="id" title="definition">discrete_1cell</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_faithful_1cell"><span class="id" title="definition">from_biinitial_faithful_1cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_conservative_1cell"><span class="id" title="definition">from_biinitial_conservative_1cell</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   6. It's an internal Street fibration
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_is_cartesian_2cell_sfib" class="idref" href="#from_biinitial_is_cartesian_2cell_sfib"><span class="id" title="definition">from_biinitial_is_cartesian_2cell_sfib</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="z:7" class="idref" href="#z:7"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.B"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="c2591994c1f30bab381934ed3947d1fa" class="idref" href="#c2591994c1f30bab381934ed3947d1fa"><span class="id" title="binder">g₁</span></a> <a id="dff53e034e7d54997799b71a94ac992b" class="idref" href="#dff53e034e7d54997799b71a94ac992b"><span class="id" title="binder">g₂</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#z:7"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.x"><span class="id" title="variable">x</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="01214f440e1ebbf02585b4d6c7d6f861" class="idref" href="#01214f440e1ebbf02585b4d6c7d6f861"><span class="id" title="binder">α</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#c2591994c1f30bab381934ed3947d1fa"><span class="id" title="variable">g₁</span></a> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#28d17e2d9863b97d3e4250ecaac017ab"><span class="id" title="notation">==&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#dff53e034e7d54997799b71a94ac992b"><span class="id" title="variable">g₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetFibration.html#is_cartesian_2cell_sfib"><span class="id" title="definition">is_cartesian_2cell_sfib</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#01214f440e1ebbf02585b4d6c7d6f861"><span class="id" title="variable">α</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span>(<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">γ</span> <span class="id" title="var">δp</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#invproofirrelevance"><span class="id" title="lemma">invproofirrelevance</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> φ<span class="id" title="var">₁</span> φ<span class="id" title="var">₂</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#cellset_property"><span class="id" title="definition">cellset_property</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_internal_sfib_cleaving" class="idref" href="#from_biinitial_internal_sfib_cleaving"><span class="id" title="definition">from_biinitial_internal_sfib_cleaving</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetFibration.html#internal_sfib_cleaving"><span class="id" title="definition">internal_sfib_cleaving</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">α</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span>(<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">h</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">h</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#id2"><span class="id" title="definition">id2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#make_invertible_2cell"><span class="id" title="definition">make_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#make_is_invertible_2cell"><span class="id" title="definition">make_is_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetFibration.html#id_is_cartesian_2cell_sfib"><span class="id" title="definition">id_is_cartesian_2cell_sfib</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_lwhisker_is_cartesian" class="idref" href="#from_biinitial_lwhisker_is_cartesian"><span class="id" title="definition">from_biinitial_lwhisker_is_cartesian</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetFibration.html#lwhisker_is_cartesian"><span class="id" title="definition">lwhisker_is_cartesian</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_is_cartesian_2cell_sfib"><span class="id" title="definition">from_biinitial_is_cartesian_2cell_sfib</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_internal_sfib" class="idref" href="#from_biinitial_internal_sfib"><span class="id" title="definition">from_biinitial_internal_sfib</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetFibration.html#internal_sfib"><span class="id" title="definition">internal_sfib</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_internal_sfib_cleaving"><span class="id" title="definition">from_biinitial_internal_sfib_cleaving</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_lwhisker_is_cartesian"><span class="id" title="definition">from_biinitial_lwhisker_is_cartesian</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   7. Preservation of cartesian cells
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_mor_preserves_cartesian" class="idref" href="#from_biinitial_mor_preserves_cartesian"><span class="id" title="definition">from_biinitial_mor_preserves_cartesian</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x':11" class="idref" href="#x':11"><span class="id" title="binder">x'</span></a> <a id="y':12" class="idref" href="#y':12"><span class="id" title="binder">y'</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.B"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f':13" class="idref" href="#f':13"><span class="id" title="binder">f'</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#x':11"><span class="id" title="variable">x'</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#y':12"><span class="id" title="variable">y'</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetFibration.html#mor_preserves_cartesian"><span class="id" title="definition">mor_preserves_cartesian</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#f':13"><span class="id" title="variable">f'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_1cell_property"><span class="id" title="definition">is_biinitial_1cell_property</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#x':11"><span class="id" title="variable">x'</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">h₁</span> <span class="id" title="var">h₂</span> <span class="id" title="var">γ</span> <span class="id" title="var">Hγ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span>(<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">h₁</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">ζ</span> <span class="id" title="var">δp</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#invproofirrelevance"><span class="id" title="lemma">invproofirrelevance</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> φ<span class="id" title="var">₁</span> φ<span class="id" title="var">₂</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#cellset_property"><span class="id" title="definition">cellset_property</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   8. It's an internal Street opfibration
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_is_opcartesian_2cell_sopfib" class="idref" href="#from_biinitial_is_opcartesian_2cell_sopfib"><span class="id" title="definition">from_biinitial_is_opcartesian_2cell_sopfib</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="z:14" class="idref" href="#z:14"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.B"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="305f183c8a91e331e3f101aaa50a6394" class="idref" href="#305f183c8a91e331e3f101aaa50a6394"><span class="id" title="binder">g₁</span></a> <a id="68c76cceddcc1b4b43ca6e63c2c8b739" class="idref" href="#68c76cceddcc1b4b43ca6e63c2c8b739"><span class="id" title="binder">g₂</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#z:14"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.x"><span class="id" title="variable">x</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="d7761040dcb0d253db75070b448ba0f5" class="idref" href="#d7761040dcb0d253db75070b448ba0f5"><span class="id" title="binder">α</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#305f183c8a91e331e3f101aaa50a6394"><span class="id" title="variable">g₁</span></a> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#28d17e2d9863b97d3e4250ecaac017ab"><span class="id" title="notation">==&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#68c76cceddcc1b4b43ca6e63c2c8b739"><span class="id" title="variable">g₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetOpFibration.html#is_opcartesian_2cell_sopfib"><span class="id" title="definition">is_opcartesian_2cell_sopfib</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#d7761040dcb0d253db75070b448ba0f5"><span class="id" title="variable">α</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span>(<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">g₁</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">γ</span> <span class="id" title="var">δp</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#invproofirrelevance"><span class="id" title="lemma">invproofirrelevance</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> φ<span class="id" title="var">₁</span> φ<span class="id" title="var">₂</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#cellset_property"><span class="id" title="definition">cellset_property</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_internal_sopfib_cleaving" class="idref" href="#from_biinitial_internal_sopfib_cleaving"><span class="id" title="definition">from_biinitial_internal_sopfib_cleaving</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetOpFibration.html#internal_sopfib_opcleaving"><span class="id" title="definition">internal_sopfib_opcleaving</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">α</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span>(<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">g</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#id2"><span class="id" title="definition">id2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#make_invertible_2cell"><span class="id" title="definition">make_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#make_is_invertible_2cell"><span class="id" title="definition">make_is_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetOpFibration.html#id_is_opcartesian_2cell_sopfib"><span class="id" title="definition">id_is_opcartesian_2cell_sopfib</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_lwhisker_is_opcartesian" class="idref" href="#from_biinitial_lwhisker_is_opcartesian"><span class="id" title="definition">from_biinitial_lwhisker_is_opcartesian</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetOpFibration.html#lwhisker_is_opcartesian"><span class="id" title="definition">lwhisker_is_opcartesian</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_is_opcartesian_2cell_sopfib"><span class="id" title="definition">from_biinitial_is_opcartesian_2cell_sopfib</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_internal_sopfib" class="idref" href="#from_biinitial_internal_sopfib"><span class="id" title="definition">from_biinitial_internal_sopfib</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetOpFibration.html#internal_sopfib"><span class="id" title="definition">internal_sopfib</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_internal_sopfib_cleaving"><span class="id" title="definition">from_biinitial_internal_sopfib_cleaving</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#from_biinitial_lwhisker_is_opcartesian"><span class="id" title="definition">from_biinitial_lwhisker_is_opcartesian</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   9. Preservation of opcartesian cells
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="from_biinitial_mor_preserves_opcartesian" class="idref" href="#from_biinitial_mor_preserves_opcartesian"><span class="id" title="definition">from_biinitial_mor_preserves_opcartesian</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x':18" class="idref" href="#x':18"><span class="id" title="binder">x'</span></a> <a id="y':19" class="idref" href="#y':19"><span class="id" title="binder">y'</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.B"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="f':20" class="idref" href="#f':20"><span class="id" title="binder">f'</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#x':18"><span class="id" title="variable">x'</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#y':19"><span class="id" title="variable">y'</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Morphisms.InternalStreetOpFibration.html#mor_preserves_opcartesian"><span class="id" title="definition">mor_preserves_opcartesian</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.f"><span class="id" title="variable">f</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#f':20"><span class="id" title="variable">f'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_1cell_property"><span class="id" title="definition">is_biinitial_1cell_property</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#x':18"><span class="id" title="variable">x'</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">h₁</span> <span class="id" title="var">h₂</span> <span class="id" title="var">γ</span> <span class="id" title="var">Hγ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span>(<span class="id" title="var">Hz</span> : <a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial"><span class="id" title="definition">is_biinitial</span></a> <span class="id" title="var">z</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#equiv_to_biinitial"><span class="id" title="definition">equiv_to_biinitial</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Hx"><span class="id" title="variable">Hx</span></a> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial.Sx"><span class="id" title="variable">Sx</span></a> <span class="id" title="var">z</span> <span class="id" title="var">h₁</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">ζ</span> <span class="id" title="var">δp</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#invproofirrelevance"><span class="id" title="lemma">invproofirrelevance</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> φ<span class="id" title="var">₁</span> φ<span class="id" title="var">₂</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#cellset_property"><span class="id" title="definition">cellset_property</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_2cell_property"><span class="id" title="definition">is_biinitial_2cell_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.Colimits.Initial.html#is_biinitial_eq_property"><span class="id" title="definition">is_biinitial_eq_property</span></a> <span class="id" title="var">Hz</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.FromInitial.html#FromInitial"><span class="id" title="section">FromInitial</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.ComprehensionCat.PresheafModel</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.ComprehensionCat.PresheafModel</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+ The presheaf model of type theory
+
+<div class="paragraph"> </div>
+
+ One of the standard models of type theory, is the presheaf model. Specifically,
+ if we have a category `C`, then we have a comprehension category as follows.
+<ul class="doclist">
+<li> Contexts: presheaves over `C`
+
+</li>
+<li> Morphisms between contexts: natural transformations
+
+</li>
+<li> Types in context `Γ`: dependent presheaves over `Γ` (i.e., presheaves over `∫ Γ`
+   where `∫ Γ` is the category of elements of `Γ`)
+
+</li>
+<li> Morphisms between types: natural transformation
+
+</li>
+<li> Terms are the same as sections
+
+</li>
+</ul>
+ We construct this model as a full comprehension category. In addition, we show that
+ this model supports various type formers, like extensional identity types, a unit type,
+ binary products, ∑-types, natural numbers, and ∏-types. We also show that it supports
+ a subobject classifier type. We use this to deduce that the category of presheaves
+ is an elementary topos.
+
+<div class="paragraph"> </div>
+
+ We also show that functors and natural transformations lift to the presheaf model.
+
+<div class="paragraph"> </div>
+
+ Content
+ 1. The full comprehension category
+ 2. Type formers in the presheaf model
+ 3. The category of presheaves is an elementary topos
+ 4. Functors on the presheaf model
+ 5. Natural transformations on the presheaf model
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.html#"><span class="id" title="library">UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Total.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Total</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PowerObject.html#"><span class="id" title="library">UniMath.CategoryTheory.PowerObject</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.ElementaryTopos.html#"><span class="id" title="library">UniMath.CategoryTheory.ElementaryTopos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#"><span class="id" title="library">UniMath.CategoryTheory.Arithmetic.ParameterizedNNO</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DependentPresheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.DependentPresheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.TotalPresheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.TotalPresheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.Constructions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SigmaTypes.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.SigmaTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.PiTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypesStable.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.PiTypesStable</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.SubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.NaturalNumbers.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.NaturalNumbers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.Precomposition</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#"><span class="id" title="library">UniMath.CategoryTheory.Monics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#"><span class="id" title="library">UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.html#"><span class="id" title="library">UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.StructuredCategories.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.StructuredCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.BicatOfCompCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.CompCatNotations.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.CompCatNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.DFLCompCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.UnitTypes.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.TypeFormers.UnitTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWithProp.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWithProp</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.html#"><span class="id" title="library">UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">comp_cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="PShCompCat" class="idref" href="#PShCompCat"><span class="id" title="section">PShCompCat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="PShCompCat.C" class="idref" href="#PShCompCat.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab509"></a><h1 class="section">1. The full comprehension category</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_cat_with_terminal_disp_cat" class="idref" href="#psh_cat_with_terminal_disp_cat"><span class="id" title="definition">psh_cat_with_terminal_disp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#cat_with_terminal_disp_cat"><span class="id" title="definition">cat_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#make_cat_with_terminal_disp_cat"><span class="id" title="definition">make_cat_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#make_univalent_category"><span class="id" title="definition">make_univalent_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#::cat:'PreShv'_x"><span class="id" title="notation">PreShv</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#is_univalent_functor_category"><span class="id" title="lemma">is_univalent_functor_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#is_univalent_HSET"><span class="id" title="lemma">is_univalent_HSET</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Terminal_PreShv"><span class="id" title="lemma">Terminal_PreShv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#make_disp_univalent_category"><span class="id" title="definition">make_disp_univalent_category</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#disp_cat_dep_psh"><span class="id" title="definition">disp_cat_dep_psh</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#is_univalent_disp_disp_cat_dep_psh"><span class="id" title="lemma">is_univalent_disp_disp_cat_dep_psh</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_cat_with_terminal_cleaving" class="idref" href="#psh_cat_with_terminal_cleaving"><span class="id" title="definition">psh_cat_with_terminal_cleaving</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#cat_with_terminal_cleaving"><span class="id" title="definition">cat_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#make_cat_with_terminal_cleaving"><span class="id" title="definition">make_cat_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_cat_with_terminal_disp_cat"><span class="id" title="definition">psh_cat_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#cleaving_disp_cat_dep_psh"><span class="id" title="definition">cleaving_disp_cat_dep_psh</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_comprehension_functor" class="idref" href="#psh_comprehension_functor"><span class="id" title="definition">psh_comprehension_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#comprehension_functor"><span class="id" title="definition">comprehension_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_cat_with_terminal_cleaving"><span class="id" title="definition">psh_cat_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#make_comprehension_functor"><span class="id" title="definition">make_comprehension_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#dep_psh_comprehension"><span class="id" title="definition">dep_psh_comprehension</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#is_cartesian_dep_psh_comprehension"><span class="id" title="lemma">is_cartesian_dep_psh_comprehension</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_comp_cat" class="idref" href="#psh_comp_cat"><span class="id" title="definition">psh_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#comp_cat"><span class="id" title="definition">comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#make_comp_cat"><span class="id" title="definition">make_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_cat_with_terminal_cleaving"><span class="id" title="definition">psh_cat_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_comprehension_functor"><span class="id" title="definition">psh_comprehension_functor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_full_comp_cat" class="idref" href="#psh_full_comp_cat"><span class="id" title="definition">psh_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#full_comp_cat"><span class="id" title="definition">full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#make_full_comp_cat"><span class="id" title="definition">make_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_comp_cat"><span class="id" title="definition">psh_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#disp_functor_ff_dep_psh_comprehension"><span class="id" title="lemma">disp_functor_ff_dep_psh_comprehension</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab510"></a><h1 class="section">2. Type formers in the presheaf model</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_democratic_psh_full_comp_cat" class="idref" href="#is_democratic_psh_full_comp_cat"><span class="id" title="definition">is_democratic_psh_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.html#is_democratic"><span class="id" title="definition">is_democratic</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_full_comp_cat"><span class="id" title="definition">psh_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">Γ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#psh_to_dep_psh"><span class="id" title="definition">psh_to_dep_psh</span></a> <span class="id" title="var">Γ</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#psh_to_dep_psh_z_iso"><span class="id" title="definition">psh_to_dep_psh_z_iso</span></a> <span class="id" title="var">Γ</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="dependent_sums_psh_full_comp_cat" class="idref" href="#dependent_sums_psh_full_comp_cat"><span class="id" title="definition">dependent_sums_psh_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.html#comp_cat_dependent_sum"><span class="id" title="definition">comp_cat_dependent_sum</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_full_comp_cat"><span class="id" title="definition">psh_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.html#make_comp_cat_dependent_sum_from_chosen"><span class="id" title="definition">make_comp_cat_dependent_sum_from_chosen</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.html#make_comp_cat_dependent_sum_chosen"><span class="id" title="definition">make_comp_cat_dependent_sum_chosen</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.SigmaTypes.html#dependent_sum_dep_psh"><span class="id" title="definition">dependent_sum_dep_psh</span></a> <span class="id" title="var">A</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ₁</span> <span class="id" title="var">Γ₂</span> <span class="id" title="var">A</span> <span class="id" title="var">s</span> <span class="id" title="var">B</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#make_is_z_isomorphism"><span class="id" title="definition">make_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.SigmaTypes.html#dep_psh_sigma_subst"><span class="id" title="definition">dep_psh_sigma_subst</span></a> <span class="id" title="var">s</span> <span class="id" title="var">A</span> <span class="id" title="var">B</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">split</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DependentPresheaf.html#dep_psh_nat_trans_eq"><span class="id" title="lemma">dep_psh_nat_trans_eq</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">xx</span> <span class="id" title="var">ab</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#dep_psh_fiber_comp"><span class="id" title="lemma">dep_psh_fiber_comp</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.SigmaTypes.html#dep_psh_sigma_beck_chevalley"><span class="id" title="lemma">dep_psh_sigma_beck_chevalley</span></a> <span class="id" title="var">s</span> <span class="id" title="var">A</span> <span class="id" title="var">B</span> <span class="id" title="var">ab</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="strong_dependent_sums_psh_full_comp_cat" class="idref" href="#strong_dependent_sums_psh_full_comp_cat"><span class="id" title="definition">strong_dependent_sums_psh_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.html#strong_dependent_sums"><span class="id" title="definition">strong_dependent_sums</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_full_comp_cat"><span class="id" title="definition">psh_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#dependent_sums_psh_full_comp_cat"><span class="id" title="definition">dependent_sums_psh_full_comp_cat</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> <span class="id" title="var">A</span> <span class="id" title="var">B</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#make_is_z_isomorphism"><span class="id" title="definition">make_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.SigmaTypes.html#dep_psh_sigma_total_inv"><span class="id" title="definition">dep_psh_sigma_total_inv</span></a> <span class="id" title="var">A</span> <span class="id" title="var">B</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">split</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq"><span class="id" title="lemma">nat_trans_eq</span></a> ; [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a> | ]) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_dfl_full_comp_cat" class="idref" href="#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#dfl_full_comp_cat"><span class="id" title="definition">dfl_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#make_dfl_full_comp_cat"><span class="id" title="definition">make_dfl_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_full_comp_cat"><span class="id" title="definition">psh_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#is_democratic_psh_full_comp_cat"><span class="id" title="definition">is_democratic_psh_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#dep_psh_fiberwise_terminal"><span class="id" title="definition">dep_psh_fiberwise_terminal</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#dep_psh_unit_z_iso"><span class="id" title="definition">dep_psh_unit_z_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#dep_psh_fiberwise_binproducts"><span class="id" title="definition">dep_psh_fiberwise_binproducts</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#dep_psh_fiberwise_equalizers"><span class="id" title="definition">dep_psh_fiberwise_equalizers</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#strong_dependent_sums_psh_full_comp_cat"><span class="id" title="definition">strong_dependent_sums_psh_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="dependent_prod_psh_comp_cat" class="idref" href="#dependent_prod_psh_comp_cat"><span class="id" title="definition">dependent_prod_psh_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.html#comp_cat_dependent_prod"><span class="id" title="definition">comp_cat_dependent_prod</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_full_comp_cat"><span class="id" title="definition">psh_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.html#make_comp_cat_dependent_prod_from_chosen"><span class="id" title="definition">make_comp_cat_dependent_prod_from_chosen</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.html#make_comp_cat_dependent_prod_chosen"><span class="id" title="definition">make_comp_cat_dependent_prod_chosen</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#dependent_product_dep_psh"><span class="id" title="definition">dependent_product_dep_psh</span></a> <span class="id" title="var">A</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ₁</span> <span class="id" title="var">Γ₂</span> <span class="id" title="var">A</span> <span class="id" title="var">s</span> <span class="id" title="var">B</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#make_is_z_isomorphism"><span class="id" title="definition">make_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypesStable.html#dep_psh_pi_subst"><span class="id" title="definition">dep_psh_pi_subst</span></a> <span class="id" title="var">s</span> <span class="id" title="var">A</span> <span class="id" title="var">B</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypesStable.html#dep_psh_pi_subst_inv_laws"><span class="id" title="lemma">dep_psh_pi_subst_inv_laws</span></a> <span class="id" title="var">s</span> <span class="id" title="var">A</span> <span class="id" title="var">B</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="subobject_classifier_psh_comp_cat" class="idref" href="#subobject_classifier_psh_comp_cat"><span class="id" title="definition">subobject_classifier_psh_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#fiberwise_cat_property"><span class="id" title="definition">fiberwise_cat_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#subobject_classifier_local_property"><span class="id" title="definition">subobject_classifier_local_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#make_fiberwise_cat_property"><span class="id" title="definition">make_fiberwise_cat_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#dep_psh_subobject_classifier"><span class="id" title="definition">dep_psh_subobject_classifier</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ₁</span> <span class="id" title="var">Γ₂</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#dep_psh_subobject_classifier_preservation"><span class="id" title="definition">dep_psh_subobject_classifier_preservation</span></a> <span class="id" title="var">s</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="pnno_psh_comp_cat" class="idref" href="#pnno_psh_comp_cat"><span class="id" title="definition">pnno_psh_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#fiberwise_cat_property"><span class="id" title="definition">fiberwise_cat_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#parameterized_NNO_local_property"><span class="id" title="definition">parameterized_NNO_local_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.html#make_fiberwise_cat_property"><span class="id" title="definition">make_fiberwise_cat_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">Γ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#is_parameterized_NNO_prod_independent"><span class="id" title="lemma">is_parameterized_NNO_prod_independent</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">C</span> := <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#univalent_fiber_category"><span class="id" title="definition">univalent_fiber_category</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#univalent_disp_cat_dep_psh"><span class="id" title="definition">univalent_disp_cat_dep_psh</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Γ</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.NaturalNumbers.html#dep_psh_fiberwise_nno"><span class="id" title="definition">dep_psh_fiberwise_nno</span></a> <span class="id" title="var">Γ</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ₁</span> <span class="id" title="var">Γ₂</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#preserves_parameterized_NNO_prod_independent"><span class="id" title="definition">preserves_parameterized_NNO_prod_independent</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.NaturalNumbers.html#dep_psh_fiberwise_nno_stable"><span class="id" title="definition">dep_psh_fiberwise_nno_stable</span></a> <span class="id" title="var">s</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab511"></a><h1 class="section">3. The category of presheaves is an elementary topos</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_univ_cat_with_finlim" class="idref" href="#psh_univ_cat_with_finlim"><span class="id" title="definition">psh_univ_cat_with_finlim</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Core.Examples.StructuredCategories.html#univ_cat_with_finlim"><span class="id" title="definition">univ_cat_with_finlim</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.html#dfl_full_comp_cat_to_finlim"><span class="id" title="definition">dfl_full_comp_cat_to_finlim</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_locally_cartesian_closed_psh_univ_cat_with_finlim" class="idref" href="#is_locally_cartesian_closed_psh_univ_cat_with_finlim"><span class="id" title="definition">is_locally_cartesian_closed_psh_univ_cat_with_finlim</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.html#is_locally_cartesian_closed"><span class="id" title="definition">is_locally_cartesian_closed</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Core.Examples.StructuredCategories.html#pullbacks_univ_cat_with_finlim"><span class="id" title="definition">pullbacks_univ_cat_with_finlim</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_univ_cat_with_finlim"><span class="id" title="definition">psh_univ_cat_with_finlim</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv.html#dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob"><span class="id" title="definition">dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#dependent_prod_psh_comp_cat"><span class="id" title="definition">dependent_prod_psh_comp_cat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_univ_cat_subobject_classifier" class="idref" href="#psh_univ_cat_subobject_classifier"><span class="id" title="definition">psh_univ_cat_subobject_classifier</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#subobject_classifier"><span class="id" title="definition">subobject_classifier</span></a> (@<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Terminal_PreShv"><span class="id" title="lemma">Terminal_PreShv</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.html#local_property_in_dfl_comp_cat"><span class="id" title="definition">local_property_in_dfl_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#subobject_classifier_local_property"><span class="id" title="definition">subobject_classifier_local_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#subobject_classifier_psh_comp_cat"><span class="id" title="definition">subobject_classifier_psh_comp_cat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_univ_cat_pnno" class="idref" href="#psh_univ_cat_pnno"><span class="id" title="definition">psh_univ_cat_pnno</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.html#parameterized_NNO"><span class="id" title="definition">parameterized_NNO</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Terminal_PreShv"><span class="id" title="lemma">Terminal_PreShv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Core.Examples.StructuredCategories.html#binproducts_univ_cat_with_finlim"><span class="id" title="definition">binproducts_univ_cat_with_finlim</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_univ_cat_with_finlim"><span class="id" title="definition">psh_univ_cat_with_finlim</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.html#local_property_in_dfl_comp_cat"><span class="id" title="definition">local_property_in_dfl_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.html#parameterized_NNO_local_property"><span class="id" title="definition">parameterized_NNO_local_property</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#pnno_psh_comp_cat"><span class="id" title="definition">pnno_psh_comp_cat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psh_topos" class="idref" href="#psh_topos"><span class="id" title="definition">psh_topos</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.ElementaryTopos.html#Topos"><span class="id" title="definition">Topos</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.ElementaryTopos.html#make_Topos"><span class="id" title="definition">make_Topos</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_univ_cat_with_finlim"><span class="id" title="definition">psh_univ_cat_with_finlim</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.ElementaryTopos.html#make_Topos_Structure"><span class="id" title="definition">make_Topos_Structure</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Examples.StructuredCategories.html#pullbacks_univ_cat_with_finlim"><span class="id" title="definition">pullbacks_univ_cat_with_finlim</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_univ_cat_with_finlim"><span class="id" title="definition">psh_univ_cat_with_finlim</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Examples.StructuredCategories.html#terminal_univ_cat_with_finlim"><span class="id" title="definition">terminal_univ_cat_with_finlim</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_univ_cat_with_finlim"><span class="id" title="definition">psh_univ_cat_with_finlim</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_univ_cat_subobject_classifier"><span class="id" title="definition">psh_univ_cat_subobject_classifier</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.PowerObject.html#PowerObject_from_exponentials"><span class="id" title="definition">PowerObject_from_exponentials</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.html#is_locally_cartesian_closed_exponentials"><span class="id" title="definition">is_locally_cartesian_closed_exponentials</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#is_locally_cartesian_closed_psh_univ_cat_with_finlim"><span class="id" title="definition">is_locally_cartesian_closed_psh_univ_cat_with_finlim</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCat"><span class="id" title="section">PShCompCat</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab512"></a><h1 class="section">4. Functors on the presheaf model</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="PShCompCatFunctor" class="idref" href="#PShCompCatFunctor"><span class="id" title="section">PShCompCatFunctor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="c0e38999014ae6499bc973bb476d4af3" class="idref" href="#c0e38999014ae6499bc973bb476d4af3"><span class="id" title="variable">C₁</span></a> <a id="0632303db6ba6583893c7f27a188f411" class="idref" href="#0632303db6ba6583893c7f27a188f411"><span class="id" title="variable">C₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PShCompCatFunctor.F" class="idref" href="#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#94ac6026770feb54e4b346e25b44edea"><span class="id" title="variable">C₁</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#5fde3f0cc2cbae0bc1717a879ade453e"><span class="id" title="variable">C₂</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precomposition_psh_functor_with_terminal_disp_cat" class="idref" href="#precomposition_psh_functor_with_terminal_disp_cat"><span class="id" title="definition">precomposition_psh_functor_with_terminal_disp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#functor_with_terminal_disp_cat"><span class="id" title="definition">functor_with_terminal_disp_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#0632303db6ba6583893c7f27a188f411"><span class="id" title="variable">C₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#c0e38999014ae6499bc973bb476d4af3"><span class="id" title="variable">C₁</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#make_functor_with_terminal_disp_cat"><span class="id" title="definition">make_functor_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#precomp_psh"><span class="id" title="definition">precomp_psh</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#preserves_terminal_precomp_psh"><span class="id" title="lemma">preserves_terminal_precomp_psh</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#precomp_dep_psh_disp_functor"><span class="id" title="definition">precomp_dep_psh_disp_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precomposition_psh_functor_with_terminal_cleaving" class="idref" href="#precomposition_psh_functor_with_terminal_cleaving"><span class="id" title="definition">precomposition_psh_functor_with_terminal_cleaving</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#functor_with_terminal_cleaving"><span class="id" title="definition">functor_with_terminal_cleaving</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#0632303db6ba6583893c7f27a188f411"><span class="id" title="variable">C₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#c0e38999014ae6499bc973bb476d4af3"><span class="id" title="variable">C₁</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#make_functor_with_terminal_cleaving"><span class="id" title="definition">make_functor_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#precomposition_psh_functor_with_terminal_disp_cat"><span class="id" title="definition">precomposition_psh_functor_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#is_cartesian_precomp_dep_psh_disp_functor"><span class="id" title="lemma">is_cartesian_precomp_dep_psh_disp_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precomposition_psh_comp_cat_functor" class="idref" href="#precomposition_psh_comp_cat_functor"><span class="id" title="definition">precomposition_psh_comp_cat_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#comp_cat_functor"><span class="id" title="definition">comp_cat_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#0632303db6ba6583893c7f27a188f411"><span class="id" title="variable">C₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#c0e38999014ae6499bc973bb476d4af3"><span class="id" title="variable">C₁</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#make_comp_cat_functor"><span class="id" title="definition">make_comp_cat_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#precomposition_psh_functor_with_terminal_cleaving"><span class="id" title="definition">precomposition_psh_functor_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#precomp_dep_psh_disp_functor_comprehension"><span class="id" title="definition">precomp_dep_psh_disp_functor_comprehension</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precomposition_psh_full_comp_cat_functor" class="idref" href="#precomposition_psh_full_comp_cat_functor"><span class="id" title="definition">precomposition_psh_full_comp_cat_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#full_comp_cat_functor"><span class="id" title="definition">full_comp_cat_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#0632303db6ba6583893c7f27a188f411"><span class="id" title="variable">C₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#c0e38999014ae6499bc973bb476d4af3"><span class="id" title="variable">C₁</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#make_full_comp_cat_functor"><span class="id" title="definition">make_full_comp_cat_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#precomposition_psh_comp_cat_functor"><span class="id" title="definition">precomposition_psh_comp_cat_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="a66eb0e7c85ea280f33904e5ac83af54" class="idref" href="#a66eb0e7c85ea280f33904e5ac83af54"><span class="id" title="binder"><span id="de9bdb4e9c2be34cf9b5e2f20d66b06e" class="id">Γ</span></span></a> <a id="A:6" class="idref" href="#A:6"><span class="id" title="binder"><span id="A:8" class="id">A</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#precomp_dep_psh_disp_functor_comprehension_z_iso"><span class="id" title="definition">precomp_dep_psh_disp_functor_comprehension_z_iso</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#A:6"><span class="id" title="variable">A</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precomposition_psh_dfl_full_comp_cat_functor" class="idref" href="#precomposition_psh_dfl_full_comp_cat_functor"><span class="id" title="definition">precomposition_psh_dfl_full_comp_cat_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#dfl_full_comp_cat_functor"><span class="id" title="definition">dfl_full_comp_cat_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#0632303db6ba6583893c7f27a188f411"><span class="id" title="variable">C₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#psh_dfl_full_comp_cat"><span class="id" title="definition">psh_dfl_full_comp_cat</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#c0e38999014ae6499bc973bb476d4af3"><span class="id" title="variable">C₁</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#make_dfl_full_comp_cat_functor"><span class="id" title="definition">make_dfl_full_comp_cat_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#precomposition_psh_full_comp_cat_functor"><span class="id" title="definition">precomposition_psh_full_comp_cat_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#precomp_dep_psh_disp_functor_preserves_terminal"><span class="id" title="definition">precomp_dep_psh_disp_functor_preserves_terminal</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#precomp_dep_psh_disp_functor_preserves_binproduct"><span class="id" title="definition">precomp_dep_psh_disp_functor_preserves_binproduct</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#precomp_dep_psh_disp_functor_preserves_equalizer"><span class="id" title="definition">precomp_dep_psh_disp_functor_preserves_equalizer</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatFunctor"><span class="id" title="section">PShCompCatFunctor</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab513"></a><h1 class="section">5. Natural transformations on the presheaf model</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="PShCompCatNatTrans" class="idref" href="#PShCompCatNatTrans"><span class="id" title="section">PShCompCatNatTrans</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="fd0a173e7ec25792bb884fcd09551c1f" class="idref" href="#fd0a173e7ec25792bb884fcd09551c1f"><span class="id" title="variable">C₁</span></a> <a id="e72236f01eb996a81b6a33e645e3f0c5" class="idref" href="#e72236f01eb996a81b6a33e645e3f0c5"><span class="id" title="variable">C₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="PShCompCatNatTrans.F" class="idref" href="#PShCompCatNatTrans.F"><span class="id" title="variable">F</span></a> <a id="PShCompCatNatTrans.G" class="idref" href="#PShCompCatNatTrans.G"><span class="id" title="variable">G</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#422fa54cfa58f613edff23e882af5e79"><span class="id" title="variable">C₁</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#fac20af712cc0c8374543dcdfdb71a00"><span class="id" title="variable">C₂</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="6472b24a8fc0919068083ae4a421b936" class="idref" href="#6472b24a8fc0919068083ae4a421b936"><span class="id" title="variable">τ</span></a> : <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#F:11"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#G:12"><span class="id" title="variable">G</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precomposition_psh_dfl_full_nat_trans_with_terminal_cleaving" class="idref" href="#precomposition_psh_dfl_full_nat_trans_with_terminal_cleaving"><span class="id" title="definition">precomposition_psh_dfl_full_nat_trans_with_terminal_cleaving</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#nat_trans_with_terminal_cleaving"><span class="id" title="definition">nat_trans_with_terminal_cleaving</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#precomposition_psh_dfl_full_comp_cat_functor"><span class="id" title="definition">precomposition_psh_dfl_full_comp_cat_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatNatTrans.G"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#precomposition_psh_dfl_full_comp_cat_functor"><span class="id" title="definition">precomposition_psh_dfl_full_comp_cat_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatNatTrans.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.html#make_nat_trans_with_terminal_cleaving"><span class="id" title="definition">make_nat_trans_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.html#make_nat_trans_with_terminal_disp_cat"><span class="id" title="definition">make_nat_trans_with_terminal_disp_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#precomp_psh_nat_trans"><span class="id" title="definition">precomp_psh_nat_trans</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#6472b24a8fc0919068083ae4a421b936"><span class="id" title="variable">τ</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Precomposition.html#precomp_psh_disp_nat_trans"><span class="id" title="definition">precomp_psh_disp_nat_trans</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#6472b24a8fc0919068083ae4a421b936"><span class="id" title="variable">τ</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precomposition_psh_dfl_full_comp_cat_nat_trans" class="idref" href="#precomposition_psh_dfl_full_comp_cat_nat_trans"><span class="id" title="definition">precomposition_psh_dfl_full_comp_cat_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#dfl_full_comp_cat_nat_trans"><span class="id" title="definition">dfl_full_comp_cat_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#precomposition_psh_dfl_full_comp_cat_functor"><span class="id" title="definition">precomposition_psh_dfl_full_comp_cat_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatNatTrans.G"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#precomposition_psh_dfl_full_comp_cat_functor"><span class="id" title="definition">precomposition_psh_dfl_full_comp_cat_functor</span></a> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatNatTrans.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.DFLCompCat.html#make_dfl_full_comp_cat_nat_trans"><span class="id" title="definition">make_dfl_full_comp_cat_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.html#make_full_comp_cat_nat_trans"><span class="id" title="definition">make_full_comp_cat_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.html#make_comp_cat_nat_trans"><span class="id" title="definition">make_comp_cat_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#precomposition_psh_dfl_full_nat_trans_with_terminal_cleaving"><span class="id" title="definition">precomposition_psh_dfl_full_nat_trans_with_terminal_cleaving</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> <span class="id" title="var">A</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq"><span class="id" title="lemma">nat_trans_eq</span></a> ; [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.ComprehensionCat.PresheafModel.html#PShCompCatNatTrans"><span class="id" title="section">PShCompCatNatTrans</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

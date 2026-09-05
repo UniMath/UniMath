@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.AlgebraicTheories.Examples.TheoryAlgebra</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.AlgebraicTheories.Examples.TheoryAlgebra</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#"><span class="id" title="library">UniMath.AlgebraicTheories.AlgebraicTheories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.html#"><span class="id" title="library">UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraMorphisms.html#"><span class="id" title="library">UniMath.AlgebraicTheories.AlgebraMorphisms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#"><span class="id" title="library">UniMath.AlgebraicTheories.Algebras</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">algebraic_theories</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="TheoryAlgebra" class="idref" href="#TheoryAlgebra"><span class="id" title="section">TheoryAlgebra</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="TheoryAlgebra.T" class="idref" href="#TheoryAlgebra.T"><span class="id" title="variable">T</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#algebraic_theory"><span class="id" title="definition">algebraic_theory</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="TheoryAlgebra.n" class="idref" href="#TheoryAlgebra.n"><span class="id" title="variable">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab454"></a><h1 class="section">1. The T-algebra structure</h1>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="theory_algebra_data" class="idref" href="#theory_algebra_data"><span class="id" title="definition">theory_algebra_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#algebra_data"><span class="id" title="definition">algebra_data</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.T"><span class="id" title="variable">T</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#make_algebra_data"><span class="id" title="definition">make_algebra_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.T"><span class="id" title="variable">T</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.n"><span class="id" title="variable">n</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <a id="f:3" class="idref" href="#f:3"><span class="id" title="binder">f</span></a> <a id="a:4" class="idref" href="#a:4"><span class="id" title="binder">a</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#f:3"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#6c93869cea8f5761f02d7fd28ef4af6a"><span class="id" title="notation">•</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#a:4"><span class="id" title="variable">a</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="theory_is_algebra" class="idref" href="#theory_is_algebra"><span class="id" title="lemma">theory_is_algebra</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#is_algebra"><span class="id" title="definition">is_algebra</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra_data"><span class="id" title="definition">theory_algebra_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#make_is_algebra"><span class="id" title="definition">make_is_algebra</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#subst_subst"><span class="id" title="definition">subst_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#var_subst"><span class="id" title="definition">var_subst</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="theory_algebra" class="idref" href="#theory_algebra"><span class="id" title="definition">theory_algebra</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#algebra"><span class="id" title="definition">algebra</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.T"><span class="id" title="variable">T</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#make_algebra"><span class="id" title="definition">make_algebra</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_is_algebra"><span class="id" title="lemma">theory_is_algebra</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab455"></a><h1 class="section">2. It is the free algebra on n generators</h1>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="TheoryAlgebra.Free" class="idref" href="#TheoryAlgebra.Free"><span class="id" title="section">Free</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="TheoryAlgebra.Free.A" class="idref" href="#TheoryAlgebra.Free.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#algebra"><span class="id" title="definition">algebra</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.T"><span class="id" title="variable">T</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="theory_algebra_free_mor" class="idref" href="#theory_algebra_free_mor"><span class="id" title="definition">theory_algebra_free_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="a:6" class="idref" href="#a:6"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.n"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.Free.A"><span class="id" title="variable">A</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.AlgebraMorphisms.html#algebra_morphism"><span class="id" title="definition">algebra_morphism</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra"><span class="id" title="definition">theory_algebra</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.Free.A"><span class="id" title="variable">A</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraMorphisms.html#make_algebra_morphism"><span class="id" title="definition">make_algebra_morphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#action"><span class="id" title="definition">action</span></a> <span class="id" title="var">f</span> <span class="id" title="var">a</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">do</span> 3 <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#subst_action"><span class="id" title="definition">subst_action</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="theory_algebra_free_inv" class="idref" href="#theory_algebra_free_inv"><span class="id" title="definition">theory_algebra_free_inv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:7" class="idref" href="#F:7"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.AlgebraMorphisms.html#algebra_morphism"><span class="id" title="definition">algebra_morphism</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra"><span class="id" title="definition">theory_algebra</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.Free.A"><span class="id" title="variable">A</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.n"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.Free.A"><span class="id" title="variable">A</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="i:8" class="idref" href="#i:8"><span class="id" title="binder">i</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#F:7"><span class="id" title="variable">F</span></a> (<a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#var"><span class="id" title="definition">var</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#i:8"><span class="id" title="variable">i</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="theory_algebra_free_inv_after_mor" class="idref" href="#theory_algebra_free_inv_after_mor"><span class="id" title="lemma">theory_algebra_free_inv_after_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="a:9" class="idref" href="#a:9"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.n"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.Free.A"><span class="id" title="variable">A</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra_free_inv"><span class="id" title="definition">theory_algebra_free_inv</span></a> (<a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra_free_mor"><span class="id" title="definition">theory_algebra_free_mor</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#a:9"><span class="id" title="variable">a</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#a:9"><span class="id" title="variable">a</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.Algebras.html#var_action"><span class="id" title="definition">var_action</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="theory_algebra_free_mor_after_inv" class="idref" href="#theory_algebra_free_mor_after_inv"><span class="id" title="lemma">theory_algebra_free_mor_after_inv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:10" class="idref" href="#F:10"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.AlgebraMorphisms.html#algebra_morphism"><span class="id" title="definition">algebra_morphism</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra"><span class="id" title="definition">theory_algebra</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.Free.A"><span class="id" title="variable">A</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra_free_mor"><span class="id" title="definition">theory_algebra_free_mor</span></a> (<a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra_free_inv"><span class="id" title="definition">theory_algebra_free_inv</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#F:10"><span class="id" title="variable">F</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#F:10"><span class="id" title="variable">F</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraMorphisms.html#algebra_morphism_eq"><span class="id" title="lemma">algebra_morphism_eq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.AlgebraicTheories.AlgebraMorphisms.html#mor_action"><span class="id" title="definition">mor_action</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#subst_var"><span class="id" title="definition">subst_var</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="theory_algebra_free" class="idref" href="#theory_algebra_free"><span class="id" title="definition">theory_algebra_free</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartA.html#weq"><span class="id" title="definition">weq</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.n"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.Free.A"><span class="id" title="variable">A</span></a>) (<a class="idref" href="UniMath.AlgebraicTheories.AlgebraMorphisms.html#algebra_morphism"><span class="id" title="definition">algebra_morphism</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra"><span class="id" title="definition">theory_algebra</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.Free.A"><span class="id" title="variable">A</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.PartA.html#weq_iso"><span class="id" title="definition">weq_iso</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra_free_mor"><span class="id" title="definition">theory_algebra_free_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra_free_inv"><span class="id" title="definition">theory_algebra_free_inv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra_free_inv_after_mor"><span class="id" title="lemma">theory_algebra_free_inv_after_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#theory_algebra_free_mor_after_inv"><span class="id" title="lemma">theory_algebra_free_mor_after_inv</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra.Free"><span class="id" title="section">Free</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.AlgebraicTheories.Examples.TheoryAlgebra.html#TheoryAlgebra"><span class="id" title="section">TheoryAlgebra</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

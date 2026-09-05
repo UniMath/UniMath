@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.Universal.EqAlgebras</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.Universal.EqAlgebras</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab254"></a><h1 class="section">Varieties.</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 
+<div class="paragraph"> </div>
+
+This file contains a formalization of equational algebras, i.e., algebra which are
+models of an equation system.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#"><span class="id" title="library">UniMath.Algebra.Universal.Algebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#"><span class="id" title="library">UniMath.Algebra.Universal.Equations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Varieties" class="idref" href="#Varieties"><span class="id" title="section">Varieties</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="holds" class="idref" href="#holds"><span class="id" title="definition">holds</span></a> {<a id="037d1dbc1a02d6ef6874dcc89df346e1" class="idref" href="#037d1dbc1a02d6ef6874dcc89df346e1"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>} {<a id="V:2" class="idref" href="#V:2"><span class="id" title="binder">V</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#037d1dbc1a02d6ef6874dcc89df346e1"><span class="id" title="variable">σ</span></a>} (<a id="a:3" class="idref" href="#a:3"><span class="id" title="binder">a</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#algebra"><span class="id" title="definition">algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#037d1dbc1a02d6ef6874dcc89df346e1"><span class="id" title="variable">σ</span></a>) (<a id="e:4" class="idref" href="#e:4"><span class="id" title="binder">e</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#equation"><span class="id" title="definition">equation</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#037d1dbc1a02d6ef6874dcc89df346e1"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#V:2"><span class="id" title="variable">V</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="c18e2a91f576aa9c767d85d85d474d01" class="idref" href="#c18e2a91f576aa9c767d85d85d474d01"><span class="id" title="binder">α</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#fromterm"><span class="id" title="definition">fromterm</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Algebras.html#ops"><span class="id" title="definition">ops</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#a:3"><span class="id" title="variable">a</span></a>) <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#c18e2a91f576aa9c767d85d85d474d01"><span class="id" title="variable">α</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsort"><span class="id" title="definition">eqsort</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#e:4"><span class="id" title="variable">e</span></a>) (<a class="idref" href="UniMath.Algebra.Universal.Equations.html#lhs"><span class="id" title="definition">lhs</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#e:4"><span class="id" title="variable">e</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Universal.VTerms.html#fromterm"><span class="id" title="definition">fromterm</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Algebras.html#ops"><span class="id" title="definition">ops</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#a:3"><span class="id" title="variable">a</span></a>) <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#c18e2a91f576aa9c767d85d85d474d01"><span class="id" title="variable">α</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsort"><span class="id" title="definition">eqsort</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#e:4"><span class="id" title="variable">e</span></a>) (<a class="idref" href="UniMath.Algebra.Universal.Equations.html#rhs"><span class="id" title="definition">rhs</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#e:4"><span class="id" title="variable">e</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_eqalgebra" class="idref" href="#is_eqalgebra"><span class="id" title="definition">is_eqalgebra</span></a> {<a id="f0835817faaba90db49f1e400f4a8926" class="idref" href="#f0835817faaba90db49f1e400f4a8926"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>} (<a id="a:7" class="idref" href="#a:7"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#algebra"><span class="id" title="definition">algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#f0835817faaba90db49f1e400f4a8926"><span class="id" title="variable">σ</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="e:8" class="idref" href="#e:8"><span class="id" title="binder">e</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Equations.html#equations"><span class="id" title="definition">equations</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#f0835817faaba90db49f1e400f4a8926"><span class="id" title="variable">σ</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#holds"><span class="id" title="definition">holds</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#a:7"><span class="id" title="variable">a</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Equations.html#geteq"><span class="id" title="definition">geteq</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#e:8"><span class="id" title="variable">e</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="eqalgebra" class="idref" href="#eqalgebra"><span class="id" title="definition">eqalgebra</span></a> (<a id="72e868d13abb05ece78ff9e6f5f88467" class="idref" href="#72e868d13abb05ece78ff9e6f5f88467"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="a:10" class="idref" href="#a:10"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#algebra"><span class="id" title="definition">algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#72e868d13abb05ece78ff9e6f5f88467"><span class="id" title="variable">σ</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#is_eqalgebra"><span class="id" title="definition">is_eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#a:10"><span class="id" title="variable">a</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="algebra_of_eqalgebra" class="idref" href="#algebra_of_eqalgebra"><span class="id" title="definition">algebra_of_eqalgebra</span></a> {<a id="303c62d4b554442e1659318da8f8db12" class="idref" href="#303c62d4b554442e1659318da8f8db12"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#eqalgebra"><span class="id" title="definition">eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#303c62d4b554442e1659318da8f8db12"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#algebra"><span class="id" title="definition">algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#303c62d4b554442e1659318da8f8db12"><span class="id" title="variable">σ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#algebra_of_eqalgebra"><span class="id" title="definition">algebra_of_eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#algebra_of_eqalgebra"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#algebra_of_eqalgebra"><span class="id" title="definition">eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#algebra_of_eqalgebra"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#algebra_of_eqalgebra"><span class="id" title="definition">algebra</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="eqalgebra_proof" class="idref" href="#eqalgebra_proof"><span class="id" title="definition">eqalgebra_proof</span></a> {<a id="feb34c1ba9419896b17e3d09a5a7adde" class="idref" href="#feb34c1ba9419896b17e3d09a5a7adde"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>} (<a id="a:13" class="idref" href="#a:13"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#eqalgebra"><span class="id" title="definition">eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#feb34c1ba9419896b17e3d09a5a7adde"><span class="id" title="variable">σ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#is_eqalgebra"><span class="id" title="definition">is_eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#a:13"><span class="id" title="variable">a</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#a:13"><span class="id" title="variable">a</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="make_eqalgebra" class="idref" href="#make_eqalgebra"><span class="id" title="definition">make_eqalgebra</span></a> {<a id="90e77474618ba1a451407daf80040e41" class="idref" href="#90e77474618ba1a451407daf80040e41"><span class="id" title="binder">σ</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>} (<a id="a:15" class="idref" href="#a:15"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#algebra"><span class="id" title="definition">algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#90e77474618ba1a451407daf80040e41"><span class="id" title="variable">σ</span></a>) (<a id="H:16" class="idref" href="#H:16"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#is_eqalgebra"><span class="id" title="definition">is_eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#a:15"><span class="id" title="variable">a</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#eqalgebra"><span class="id" title="definition">eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#90e77474618ba1a451407daf80040e41"><span class="id" title="variable">σ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#is_eqalgebra"><span class="id" title="definition">is_eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#a:15"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#H:16"><span class="id" title="variable">H</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#Varieties"><span class="id" title="section">Varieties</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
