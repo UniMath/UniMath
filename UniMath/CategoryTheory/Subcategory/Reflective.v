@@ -35,6 +35,7 @@ Section Def.
 
   Definition reflective_subcategory_to_precategory :
     reflective_subcategory -> precategory.
+  Proof.
     intro D; exact (full_sub_precategory D).
   Defined.
 

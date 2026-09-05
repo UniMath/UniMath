@@ -247,13 +247,14 @@ Definition sum : List natHSET -> nat :=
 (* Eval vm_compute in sum testlistS. *)
 
 (* All of these compute *)
-Goal length _ (nil natHSET) = 0. reflexivity. Qed.
-Goal length _ testlist = length _ testlistS. reflexivity. Qed.
-Goal sum testlistS = sum testlist + length _ testlist. lazy. reflexivity. Qed.
-Goal length _ (concatenate _ testlist testlistS) = length _ testlist + length _ testlistS. reflexivity. Qed.
-Goal sum (concatenate _ testlist testlistS) = sum testlistS + sum testlist. reflexivity. Qed.
+Goal length _ (nil natHSET) = 0. Proof. reflexivity. Qed.
+Goal length _ testlist = length _ testlistS. Proof. reflexivity. Qed.
+Goal sum testlistS = sum testlist + length _ testlist. Proof. lazy. reflexivity. Qed.
+Goal length _ (concatenate _ testlist testlistS) = length _ testlist + length _ testlistS. Proof. reflexivity. Qed.
+Goal sum (concatenate _ testlist testlistS) = sum testlistS + sum testlist. Proof. reflexivity. Qed.
 
 Goal (∏ l, length _ (2 :: l) = S (length _ l)).
+Proof.
 simpl.
 intro l.
 try apply idpath. (* this doesn't work *)
@@ -341,7 +342,7 @@ Defined.
 (* Eval compute in (to_list _ testlist). *)
 
 (* This does compute: *)
-Goal to_list _ testlist = 2,,5,,2,,tt. reflexivity. Qed.
+Goal to_list _ testlist = 2,,5,,2,,tt. Proof. reflexivity. Qed.
 
 End list.
 
@@ -667,6 +668,7 @@ Definition sum : pr1 (List natHSET) -> nat :=
 (* Abort. *)
 
 Goal (∏ l, length _ (2 :: l) = S (length _ l)).
+Proof.
 simpl.
 intro l.
 try apply idpath. (* this doesn't work *)

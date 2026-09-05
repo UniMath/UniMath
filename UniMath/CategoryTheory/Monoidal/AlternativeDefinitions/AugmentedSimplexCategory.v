@@ -765,6 +765,7 @@ Proof.
 Defined.
 
 Definition tensor_associator_ord : associator tensor_functor_ord.
+Proof.
   unfold associator, nat_z_iso.
   exists tensor_associator_ord_nat_trans.
   unfold is_nat_z_iso.

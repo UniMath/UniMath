@@ -85,6 +85,7 @@ Proof.
 Defined.
 
 Definition weq_to_Equivalence {X Y} : X ≃ Y -> X ≅ Y.
+Proof.
   intros f.
   exact (makeEquivalence X Y f (invmap f)
                          (homotweqinvweq f) (homotinvweqweq f)
@@ -123,6 +124,7 @@ Abort.
 
 (* another proof *)
 Definition weq_to_Equivalence' X Y : X ≃ Y -> Equivalence X Y.
+Proof.
   intros [f r].
   unfold isweq in r.
   set (g := λ y, hfiberpr1 f y (pr1 (r y))).

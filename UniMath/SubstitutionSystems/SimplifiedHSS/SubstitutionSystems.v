@@ -257,6 +257,7 @@ Qed.
 (** basically the same proof *)
 Lemma bracket_property_parts_identity_nicer_impl2 (h : `T • `T  --> `T):
   bracket_property_parts_identity_nicer h -> bracket_property_parts θ T (identity _) h.
+Proof.
   intro Hyp. induction Hyp as [Hyp1 Hyp2].
   split.
   - etrans.
