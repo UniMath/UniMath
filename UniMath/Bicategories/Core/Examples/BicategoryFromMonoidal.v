@@ -194,6 +194,7 @@ Definition prebicat_from_monoidal : prebicat :=
   prebicat_data_from_monoidal ,, prebicat_laws_from_monoidal.
 
 Definition bicat_from_monoidal : bicat.
+Proof.
   use build_bicategory.
   - exact prebicat_data_from_monoidal.
   - exact prebicat_laws_from_monoidal.

@@ -92,16 +92,19 @@ Definition PL : hSet := alg_carrier _ PL_alg.
 Definition PL_type : UU := pr1hSet PL.
 
 Definition PL_var : HSET⟦vars, PL⟧.
+Proof.
   refine (_ · alg_map _ PL_alg).
   intro v; do 4 apply inl; exact v.
 Defined.
 
 Definition PL_not : HSET⟦PL, PL⟧.
+Proof.
   refine (_ · alg_map _ PL_alg).
   intro s; do 3 apply inl; apply inr; exact s.
 Defined.
 
 Definition PL_and : HSET⟦PL ⊗ PL, PL⟧.
+Proof.
   refine (_ · alg_map _ PL_alg).
   intro s; do 2 apply inl; apply inr; exact s.
 Defined.
@@ -110,6 +113,7 @@ Definition PL_and_fun (x : PL_type) (y : PL_type) : PL_type :=
   PL_and (make_dirprod x y).
 
 Definition PL_or : HSET⟦PL ⊗ PL, PL⟧.
+Proof.
   refine (_ · alg_map _ PL_alg).
   intro s; do 1 apply inl; apply inr; exact s.
 Defined.
@@ -118,6 +122,7 @@ Definition PL_or_fun (x : PL_type) (y : PL_type) : PL_type :=
   PL_or (make_dirprod x y).
 
 Definition PL_impl : HSET⟦PL ⊗ PL, PL⟧.
+Proof.
   refine (_ · alg_map _ PL_alg).
   intro s; apply inr; exact s.
 Defined.

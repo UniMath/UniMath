@@ -77,6 +77,7 @@ End dep_product_precategory.
 
 (** The product of categories is again a category. *)
 Definition product_category {I : UU} (C : I -> category) : category.
+Proof.
   use make_category.
   - exact (product_precategory C).
   - apply has_homsets_product_precategory.

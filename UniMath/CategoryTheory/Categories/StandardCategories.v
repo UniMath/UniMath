@@ -39,6 +39,7 @@ Proof. intros. exact (compose f g). Defined.
 
 (** The pregroupoid with points in X as objects and paths as morphisms *)
 Definition path_pregroupoid (X:UU) (iobj : isofhlevel 3 X) : pregroupoid.
+Proof.
   use make_pregroupoid.
   - use tpair.
     {
@@ -210,6 +211,7 @@ Defined.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Definition cat_n (n:nat): univalent_groupoid.
+Proof.
   apply path_groupoid_hset; use make_hSet.
   - exact (stn n).
   - apply isasetstn.

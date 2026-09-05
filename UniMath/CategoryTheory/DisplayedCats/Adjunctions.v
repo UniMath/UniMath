@@ -180,7 +180,8 @@ Section DispHomSetIso_from_Adjunction.
   Lemma homset_conj'_after_conj_inv {c : C} {c' : C'} {g : C⟦c, G c'⟧} {d : D c} (d' : D' c')
         (alpha : d -->[g] GG _ d') :
     transportf _ (φ_adj_after_φ_adj_inv A g)
-     (homset_conj' _ _ _ (homset_conj_inv g d d' alpha)) = alpha.
+      (homset_conj' _ _ _ (homset_conj_inv g d d' alpha)) = alpha.
+  Proof.
     unfold homset_conj_inv.
     cbn.
     set (eq := homset_conj'_natural_precomp (εε c' d') alpha).

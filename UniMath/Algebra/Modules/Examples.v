@@ -64,6 +64,7 @@ Example ring_left_mult {R : ring} : R → group_endomorphism_ring R :=
 (** A ring morphism R -> S defines an R-module structure on the additive abelian
     group of S *)
 Definition ringfun_module {R S : ring} (f : ringfun R S) : module R.
+Proof.
   apply (make_module (@ringaddabgr S)).
   apply (@mult_to_module_struct R S (λ x, (ringfun_left_mult f x : abelian_group_morphism _ _)));
     unfold funcomp, pr1, ringfun_left_mult.
@@ -115,6 +116,7 @@ Definition bimodule_struct' (R S : ring) (G : abgr) : UU :=
     ∏ (r : R) (s : S), mulr r ∘ muls s = muls s ∘ mulr r.
 
 Definition make_bimodule (R S : ring) {G} (str : bimodule_struct' R S G) : bimodule R S.
+Proof.
   refine (G,, _).
 
   (** Index the module structs over bool *)
@@ -133,6 +135,7 @@ Defined.
 
 (** A commutative ring is a bimodule over itself *)
 Example commring_bimodule (R : commring) : bimodule R R.
+Proof.
   apply (@make_bimodule R R (@ringaddabgr R)).
   unfold bimodule_struct'.
   refine (pr2module (ring_is_module R),, _).
