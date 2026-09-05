@@ -1318,6 +1318,7 @@ Proof.
 Defined.
 
 Definition decfun3 {X Y:UU} (i : isdeceq X) (x1 x2 x3:X) (y1 y2 y3 y':Y) : X → Y.
+Proof.
   revert y1 y2 y3 y'.
   exact (isolfun3 x1 x2 x3 (i x1) (i x2) (i x3)).
 Defined.

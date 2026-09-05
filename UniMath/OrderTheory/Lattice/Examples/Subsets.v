@@ -90,6 +90,7 @@ Section Subsets.
   Qed.
 
   Lemma iscomm_union_binop : iscomm union_binop.
+  Proof.
     intros ? ?; unfold union_binop, infinitary_op_to_binop; cbn.
     apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond.
     use make_dirprod; intro; cbn; intros ain;

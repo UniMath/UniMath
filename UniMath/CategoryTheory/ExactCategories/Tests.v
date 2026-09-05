@@ -55,19 +55,24 @@ Local Arguments isBinDirectSum {_ _ _ _}.
 Require Import UniMath.CategoryTheory.ExactCategories.ExactCategories.
 
 Goal ∏ (C:category) (a b:C) (f: a --> b), isMonic (C:=C) f = isEpi (C:=C^op) f.
+Proof.
   reflexivity.
 Defined.
 Goal ∏ (C:category) (a b:C) (f: a --> b), isEpi (C:=C) f = isMonic (C:=C^op) f.
+Proof.
   reflexivity.
 Defined.
 (** Here's why we prefer to use z_iso instead of iso : *)
 Goal ∏ (C:precategory) (a b:C) (f:z_iso a b), z_iso_inv (z_iso_inv f) = f.
+Proof.
   reflexivity.
 Defined.
 Goal ∏ (C:precategory) (a b:C) (f:z_iso (C:=C) a b), opp_z_iso (opp_z_iso f) = f.
+Proof.
   reflexivity.
 Defined.
 Goal ∏ (C:category) (a b:C) (f:z_iso (C:=C^op) b a), opp_z_iso (opp_z_iso f) = f.
+Proof.
   reflexivity.
 Defined.
 Goal ∏ (M : category) {X:Type} (j : X -> ob M),
@@ -80,9 +85,11 @@ Proof.
   reflexivity.
 Qed.
 Goal ∏ {M : category} (A B C:M) (f : A --> C) (g : B --> C), Pullback f g = Pushout (C:=M^op) f g.
+Proof.
   reflexivity.
 Defined.
 Goal ∏ {M : category} (A B C:M) (f : A --> C) (g : A --> C), Pushout f g = Pullback (C:=M^op) f g.
+Proof.
   reflexivity.
 Defined.
 Goal ∏ (M : precategoryWithBinOps), oppositePrecategoryWithBinOps (oppositePrecategoryWithBinOps M) = M.
@@ -119,9 +126,11 @@ Proof.
   reflexivity.
 Defined.
 Goal ∏ (M:PreAdditive) (A B:M) (AB : BinDirectSum A B), reverseBinDirectSum (oppositeBinDirectSum AB) = oppositeBinDirectSum (reverseBinDirectSum AB).
+Proof.
   reflexivity.
 Defined.
 Goal ∏ (M:PreAdditive) (A B:M) (AB : BinDirectSum A B), reverseBinDirectSum (reverseBinDirectSum AB) = AB.
+Proof.
   Fail reflexivity.
 Abort.
 
@@ -131,18 +140,18 @@ Local Definition Hom_add (C : PreAdditive) : ob C -> ob C -> abgr := λ c c', (@
 
 Section Sanity.
   Context (M : category) (x y:M) (f : hom M x y) (g : Hom M x y).
-  Goal Hom M x y. exact f. Defined.
-  Goal hom M x y. exact g. Defined.
+  Goal Hom M x y. Proof. exact f. Defined.
+  Goal hom M x y. Proof. exact g. Defined.
 End Sanity.
 
 Section Sanity2.
   Context (M : PreAdditive) (x y:M) (f : hom M x y) (g : Hom M x y) (h : Hom_add M x y).
-  Goal Hom_add M x y. exact f. Defined.
-  Goal Hom_add M x y. exact g. Defined.
-  Goal Hom M x y. exact f. Defined.
-  Goal Hom M x y. exact h. Defined.
-  Goal hom M x y. exact g. Defined.
-  Goal hom M x y. exact h. Defined.
+  Goal Hom_add M x y. Proof. exact f. Defined.
+  Goal Hom_add M x y. Proof. exact g. Defined.
+  Goal Hom M x y. Proof. exact f. Defined.
+  Goal Hom M x y. Proof. exact h. Defined.
+  Goal hom M x y. Proof. exact g. Defined.
+  Goal hom M x y. Proof. exact h. Defined.
 End Sanity2.
 
 Goal ∏ (M:precategory) (P:MorphismPair M), MorphismPair_opp (MorphismPair_opp P) = P.
@@ -150,6 +159,7 @@ Proof.
   reflexivity.
 Qed.
 Goal ∏ (M:category) (p:MorphismPair M^op), MorphismPair M.
+Proof.
   intros. exact (MorphismPair_opp p).
 Qed.
 Goal ∏ (M:category) (P Q : MorphismPair M^op) (f:MorphismPairIsomorphism P Q),
@@ -173,6 +183,7 @@ Proof.
   reflexivity.
 Qed.
 Goal ∏ (M:ExactCategoryData), oppositeExactCategoryData (oppositeExactCategoryData M) = M.
+Proof.
   reflexivity.
 Qed.
 Goal ∏ (M:ExactCategory), ExactCategoryDataToAdditiveCategory (ExactCategoryToData (oppositeExactCategory M))
@@ -204,15 +215,19 @@ Proof.
   reflexivity.
 Defined.
 Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Mor1 (TrivialExactSequence A Z) = identity A.
+Proof.
   reflexivity.
 Qed.
 Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Ob3 (TrivialExactSequence A Z) = Z.
+Proof.
   reflexivity.
 Qed.
 Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Mor2 (TrivialExactSequence' Z A) = identity A.
+Proof.
   reflexivity.
 Qed.
 Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Ob1 (TrivialExactSequence' Z A) = Z.
+Proof.
   reflexivity.
 Qed.
 Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (ce : exts_lift M j),
@@ -241,6 +256,7 @@ Proof.
 Defined.
 
 Goal ∏ (M:category), oppositeCategory (oppositeCategory M) = M.
+Proof.
   reflexivity.
 Qed.
 
@@ -268,9 +284,11 @@ Proof.
   reflexivity.
 Defined.
 Goal ∏ (M:PreAdditive) (x y z : M) (f : x --> y) (g : y --> z), isKernel' (M:=M) f g = isCokernel' (M:=oppositePreAdditive M) g f.
+Proof.
   reflexivity.
 Defined.
 Goal ∏ (M:PreAdditive) (x y z : M) (f : x --> y) (g : y --> z), isCokernel' (M:=M) f g = isKernel' (M:=oppositePreAdditive M) g f.
+Proof.
   reflexivity.
 Defined.
 Goal ∏ (M :PreAdditive) (A B C A':M) (i : A <-- B) (p : B <-- C)

@@ -2359,6 +2359,7 @@ Defined.
 
 Definition weqtotal2dirprodassoc  {X Y : UU} (P : X × Y -> UU) :
   (∑ xy : X × Y, P xy) ≃ (∑ (x : X) (y : Y), P (x,,y)).
+Proof.
   intros.
   use weq_iso.
   - intros xyp.

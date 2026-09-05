@@ -18,10 +18,12 @@ Proof.
 Defined.
 
 Goal ∏ Y {y y':Y} (e : y = y'), interval_map e left = y.
+Proof.
    reflexivity.
 Qed.
 
 Goal ∏ Y {y y':Y} (e : y = y'), interval_map e right = y'.
+Proof.
    reflexivity.
 Qed.
 

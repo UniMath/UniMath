@@ -286,6 +286,7 @@ Proof.
 Qed.
 
 Lemma θ_Strength2_int_nicer_implies_θ_Strength2_int: θ_Strength2_int_nicer -> θ_Strength2_int.
+Proof.
   intro Hyp.
   intros X Z Z'.
   assert (HypX := Hyp X Z Z').

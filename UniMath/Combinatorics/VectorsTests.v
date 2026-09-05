@@ -12,16 +12,16 @@ Section Tests_el.
 
   Let v := vcons a (vcons b (vcons c (vcons d vnil))).
 
-  Goal el v (●0) = a. reflexivity. Qed.
-  Goal el v (●1) = b. reflexivity. Qed.
-  Goal el v (●2) = c. reflexivity. Qed.
-  Goal el v (●3) = d. reflexivity. Qed.
+  Goal el v (●0) = a. Proof. reflexivity. Qed.
+  Goal el v (●1) = b. Proof. reflexivity. Qed.
+  Goal el v (●2) = c. Proof. reflexivity. Qed.
+  Goal el v (●3) = d. Proof. reflexivity. Qed.
 
-  Goal make_vec (el v) = v. reflexivity. Qed.
+  Goal make_vec (el v) = v. Proof. reflexivity. Qed.
 
   Let f : ⟦ 4 ⟧ → A := Eval compute in (el v).
 
-  Goal (el (make_vec f) = f). reflexivity. Qed.
+  Goal (el (make_vec f) = f). Proof. reflexivity. Qed.
 
 End Tests_el.
 
@@ -31,7 +31,7 @@ Section Test_vec_foldr.
 
   Let v := vcons p (vcons q (vcons r vnil)).
 
-  Goal vec_foldr f b v = f p (f q (f r b)). reflexivity. Qed.
+  Goal vec_foldr f b v = f p (f q (f r b)). Proof. reflexivity. Qed.
 
 End Test_vec_foldr.
 
@@ -41,7 +41,7 @@ Section Test_vec_foldr1.
 
   Let v := vcons p (vcons q (vcons r (vcons t vnil))).
 
-  Goal vec_foldr1 f v = f p (f q (f r t)). reflexivity. Qed.
+  Goal vec_foldr1 f v = f p (f q (f r t)). Proof. reflexivity. Qed.
 
 End Test_vec_foldr1.
 
@@ -53,6 +53,6 @@ Section Test_vec_append.
   Let v := vcons d (vcons e vnil).
   Let w := vcons a (vcons b (vcons c (vcons d (vcons e vnil)))).
 
-  Goal vec_append u v = w. reflexivity. Qed.
+  Goal vec_append u v = w. Proof. reflexivity. Qed.
 
 End Test_vec_append.
