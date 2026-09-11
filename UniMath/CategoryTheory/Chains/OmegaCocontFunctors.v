@@ -274,15 +274,7 @@ Lemma preserves_colimit_functor_composite (F : functor C D) (G : functor D E)
   (H2 : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
   preserves_colimit (functor_composite F G) d L cc.
 Proof.
-intros HcL y ccy; simpl.
-set (CC := make_ColimCocone _ _ _ (H2 (H1 HcL))).
-use tpair.
-- use tpair.
-  + apply (colimArrow CC), ccy.
-  + abstract (simpl; intro v; apply (colimArrowCommutes CC)).
-- abstract (simpl; intro t; apply subtypePath;
-    [ intros f; apply impred; intro; apply homset_property
-    | simpl; apply (colimArrowUnique CC), (pr2 t) ]).
+  intro hyp; exact (H2 (H1 hyp)).
 Defined.
 
 Lemma is_cocont_functor_composite (F : functor C D) (G : functor D E)
