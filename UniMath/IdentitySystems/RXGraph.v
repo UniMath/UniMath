@@ -369,6 +369,7 @@ Section induction.
       tactics. *)
 
   Goal ∏ (G : univalent_rxgraph) (Q : UU) (a b : G) (f : G -> Q) (e : a ≈ b), f a = f b.
+  Proof.
     intros.
     Succeed elim e using rxgraph_edge_rect_left'; exact (idpath (f a)).
     Succeed revert b e; apply rxgraph_edge_rect_left'.

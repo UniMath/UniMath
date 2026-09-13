@@ -52,7 +52,7 @@ Defined.
 
 Lemma is_univalent_graph_on_rxgraph (* ℓ *) (A : UU (* ℓ *))
   : is_univalent (* ℓ+1 *) (graph_on_rxgraph (* ℓ *) A).
-Proof. exact (∏! _ _, UU_rxgraph')%rxgraph_spec. Qed.
+Proof. exact (∏! _ _, UU_univalent_rxgraph)%rxgraph_spec. Qed.
 
 Definition graph_rxgraph (* ℓ *) : rxgraph (* ℓ+1 *)
   := total_rxgraph (* ℓ+1 *)
@@ -62,12 +62,12 @@ Lemma is_univalent_graph_rxgraph (* ℓ *)
   : is_univalent (* ℓ+1 *) (graph_rxgraph (* ℓ *)).
 Proof.
   apply is_univalent_total_rxgraph.
-  - exact UU_rxgraph'.
+  - exact UU_univalent_rxgraph.
   - apply is_univalent_contra_lens_disp_rxgraph; intro A.
     apply is_univalent_graph_on_rxgraph.
 Qed.
 
-Definition graph_rxgraph' (* ℓ *) : univalent_rxgraph (* ℓ+1 *)
+Definition graph_univalent_rxgraph (* ℓ *) : univalent_rxgraph (* ℓ+1 *)
   := make_univalent_rxgraph (* ℓ+1 *) _ is_univalent_graph_rxgraph.
 
 Definition graph_iso (* ℓ *) (C D : graph_rxgraph (* ℓ *)) : UU (* ℓ *) := C ≈ D.
@@ -130,7 +130,7 @@ Lemma is_univalent_rxgraph_rxgraph (* ℓ *)
   : is_univalent (* ℓ+1 *) (rxgraph_rxgraph (* ℓ *)).
 Proof.
   use is_univalent_total_rxgraph.
-  - exact UU_rxgraph'.
+  - exact UU_univalent_rxgraph.
   - apply is_univalent_sigma_disp_rxgraph.
     + apply is_univalent_contra_lens_disp_rxgraph; intro A.
       apply is_univalent_graph_on_rxgraph.
@@ -139,7 +139,7 @@ Proof.
       apply is_univalent_has_refl_rxgraph.
 Qed.
 
-Definition rxgraph_rxgraph' (* ℓ *) : univalent_rxgraph (* ℓ+1 *)
+Definition rxgraph_univalent_rxgraph (* ℓ *) : univalent_rxgraph (* ℓ+1 *)
   := make_univalent_rxgraph _ is_univalent_rxgraph_rxgraph.
 
 Definition rxgraph_iso (C D : rxgraph) : UU := C ≈{rxgraph_rxgraph} D.
@@ -207,7 +207,7 @@ Lemma is_univalent_disp_graph_on_rxgraph (* ℓ *)
   : is_univalent (* ℓ+1 *) (disp_graph_on_rxgraph (* ℓ *) B E).
 Proof.
   do 5 (apply is_univalent_product_rxgraph; intro).
-  exact UU_rxgraph'.
+  exact UU_univalent_rxgraph.
 Qed.
 
 Definition disp_graph_rxgraph (* ℓ *) (B : rxgraph (* ℓ *))
@@ -220,7 +220,7 @@ Lemma is_univalent_disp_graph_rxgraph (* ℓ *) (B : rxgraph (* ℓ *))
   : is_univalent (* ℓ+1 *) (disp_graph_rxgraph (* ℓ *) B).
 Proof.
   apply is_univalent_total_rxgraph.
-  - exact (∏! _, UU_rxgraph')%rxgraph_spec.
+  - exact (∏! _, UU_univalent_rxgraph)%rxgraph_spec.
   - apply is_univalent_contra_lens_disp_rxgraph; intro.
     apply is_univalent_disp_graph_on_rxgraph.
 Qed.
@@ -269,7 +269,7 @@ Lemma is_univalent_disp_rxgraph_rxgraph (* ℓ *) (B : rxgraph (* ℓ *))
   : is_univalent (* ℓ+1 *) (disp_rxgraph_rxgraph (* ℓ *) B).
 Proof.
   apply is_univalent_total_rxgraph.
-  - exact (∏! _, UU_rxgraph')%rxgraph_spec.
+  - exact (∏! _, UU_univalent_rxgraph)%rxgraph_spec.
   - apply is_univalent_sigma_disp_rxgraph.
     + apply is_univalent_contra_lens_disp_rxgraph; intro.
       apply is_univalent_disp_graph_on_rxgraph.
@@ -277,7 +277,7 @@ Proof.
       apply is_univalent_has_disp_refl_rxgraph.
 Qed.
 
-Definition disp_rxgraph_rxgraph' (* ℓ *) (B : rxgraph (* ℓ *))
+Definition disp_rxgraph_univalent_rxgraph (* ℓ *) (B : rxgraph (* ℓ *))
   : univalent_rxgraph (* ℓ+1 *)
   := make_univalent_rxgraph (* ℓ+1 *) _
        (is_univalent_disp_rxgraph_rxgraph (* ℓ *) B).
@@ -336,6 +336,6 @@ Proof.
   apply is_univalent_disp_rxgraph_rxgraph.
 Qed.
 
-Definition disp_rxgraph_disp_rxgraph' (* ℓ *)
+Definition disp_rxgraph_univalent_disp_rxgraph (* ℓ *)
   : univalent_disp_rxgraph (* ℓ+1 *) (rxgraph_rxgraph (* ℓ *))
   := make_univalent_disp_rxgraph _ is_univalent_disp_rxgraph_disp_rxgraph.

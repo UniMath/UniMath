@@ -49,9 +49,9 @@ Definition precategory_ob_mor_rxgraph : rxgraph
 Lemma is_univalent_precategory_ob_mor_rxgraph : is_univalent precategory_ob_mor_rxgraph.
 Proof.
   apply is_univalent_total_rxgraph.
-  - exact UU_rxgraph'.
+  - exact UU_univalent_rxgraph.
   - apply is_univalent_contra_lens_disp_rxgraph; intro.
-    exact (∏! _ _, UU_rxgraph')%rxgraph_spec.
+    exact (∏! _ _, UU_univalent_rxgraph)%rxgraph_spec.
 Qed.
 
 Definition precategory_ob_mor_iso (C D : precategory_ob_mor) : UU
