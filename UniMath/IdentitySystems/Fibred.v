@@ -472,7 +472,7 @@ Proof.
   - exact (idweq (E x)).
   - intros a b; cbn in a, b |- *.
     eexists.
-    apply (isweq_edge_comp_left (E x) (lens_push_refl E x a)).
+    apply (isweq_edge_comp_left (pr1 E x) (lens_push_refl E x a)).
   - intros a; cbn in a |- *.
     apply edge_comp_refl_right.
 Defined.
@@ -503,7 +503,7 @@ Proof.
   - exact (idweq (E x)).
   - intros a b; cbn in a, b |- *.
     eexists.
-    apply (isweq_edge_comp_right (E x) (lens_pull_refl E x b)).
+    apply (isweq_edge_comp_right (pr1 E x) (lens_pull_refl E x b)).
   - intros a; cbn in a |- *.
     apply edge_comp_refl_left.
 Defined.

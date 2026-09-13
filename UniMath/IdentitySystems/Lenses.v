@@ -50,8 +50,8 @@ Coercion covy_lens_to_structure {B : rxgraph} (E : covy_lens B)
 Definition univalent_covy_lens (B : rxgraph) : UU
   := ∑ (E : B -> univalent_rxgraph), covy_lens_structure E.
 Definition univalent_covy_lens_rxgraph {B : rxgraph} (E : univalent_covy_lens B) := pr1 E.
-Coercion univalent_covy_lens_rxgraph : univalent_covy_lens >-> Funclass.
-(* Ambiguous *) Coercion univalent_covy_lens_to_covy_lens {B : rxgraph}
+(* (Ambiguous) Coercion univalent_covy_lens_rxgraph : univalent_covy_lens >-> Funclass. *)
+Coercion univalent_covy_lens_to_covy_lens {B : rxgraph}
   (E : univalent_covy_lens B) : covy_lens B
   := (univalent_rxgraph_to_rxgraph ∘ pr1 E),, pr2 E.
 
@@ -162,8 +162,8 @@ Coercion contra_lens_to_structure {B : rxgraph} (E : contra_lens B)
 Definition univalent_contra_lens (B : rxgraph) : UU
   := ∑ (E : B -> univalent_rxgraph), contra_lens_structure E.
 Definition univalent_contra_lens_rxgraph {B : rxgraph} (E : univalent_contra_lens B) := pr1 E.
-Coercion univalent_contra_lens_rxgraph : univalent_contra_lens >-> Funclass.
-(* Ambiguous *) Coercion univalent_contra_lens_to_contra_lens {B : rxgraph}
+(* (Ambiguous) Coercion univalent_contra_lens_rxgraph : univalent_contra_lens >-> Funclass. *)
+Coercion univalent_contra_lens_to_contra_lens {B : rxgraph}
   (E : univalent_contra_lens B) : contra_lens B
   := (univalent_rxgraph_to_rxgraph ∘ pr1 E),, pr2 E.
 
