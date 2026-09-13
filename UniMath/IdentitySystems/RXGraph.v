@@ -35,9 +35,6 @@ Declare Scope rxgraph.
 Delimit Scope rxgraph with rxgraph.
 Local Open Scope rxgraph.
 
-Declare Scope rxgraph_spec.
-Delimit Scope rxgraph_spec with rxgraph_spec.
-
 (** ** Definition of reflexive graphs *)
 
 Definition rxgraph := ∑ (A : UU) (edge : A -> A -> UU), ∏ a, edge a a.
@@ -45,7 +42,7 @@ Definition rxgraph := ∑ (A : UU) (edge : A -> A -> UU), ∏ a, edge a a.
 Coercion rxgraph_vertex (G : rxgraph) : UU := pr1 G.
 
 Definition edge (G : rxgraph) : G -> G -> UU := pr12 G.
-Notation "a '≈{' G  '}' b" := (edge G%rxgraph_spec a b) (at level 70) : rxgraph.
+Notation "a '≈{' G  '}' b" := (edge G a b) (at level 70) : rxgraph.
 Notation "a '≈' b" := (edge _ a b) (at level 70) : rxgraph.
 
 Definition refl {G : rxgraph} : ∏ (a : G), a ≈ a := pr22 G.
@@ -495,7 +492,7 @@ Coercion disp_rxgraph_vertex : disp_rxgraph >-> Funclass.
 
 Definition disp_edge {B : rxgraph} (E : disp_rxgraph B)
   : ∏ {x y : B} (e : x ≈ y), E x -> E y -> UU := pr12 E.
-Notation "a '≈{' E  '}[' e  ']' b" := (disp_edge E%rxgraph_spec e a b) (at level 70) : rxgraph.
+Notation "a '≈{' E  '}[' e  ']' b" := (disp_edge E e a b) (at level 70) : rxgraph.
 Notation "a '≈[' e  ']' b" := (disp_edge _ e a b) (at level 70) : rxgraph.
 
 Definition disp_refl {B : rxgraph} {E : disp_rxgraph B}

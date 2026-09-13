@@ -27,7 +27,6 @@ Require Import UniMath.IdentitySystems.Lenses.
 Require Import UniMath.IdentitySystems.RXGraphOfRXGraphs.
 
 Local Open Scope rxgraph.
-Local Bind Scope rxgraph_spec with rxgraph.
 
 (** ** Definitions *)
 
@@ -216,8 +215,8 @@ Section covy_straightening.
     {x y : B} (e : x ≈ y) {a : E x}.
 
   Let p := iscontrpr1 (covy_fibration_lift E e a).
-  Notation "'p*a'" := (pr1 p).
-  Notation "'p†a'" := (pr2 p).
+  Local Notation "'p*a'" := (pr1 p).
+  Local Notation "'p†a'" := (pr2 p).
 
   Definition covy_edge_str₀
     {b : E y} (e' : a ≈[e] b)
@@ -316,8 +315,8 @@ Section contra_straightening.
     {x y : B} (e : x ≈ y) {b : E y}.
 
   Let p := iscontrpr1 (contra_fibration_lift E e b).
-  Notation "'p*b'" := (pr1 p).
-  Notation "'p†b'" := (pr2 p).
+  Local Notation "'p*b'" := (pr1 p).
+  Local Notation "'p†b'" := (pr2 p).
 
   Definition contra_edge_str₀
     {a : E x} (e' : a ≈[e] b)
@@ -418,7 +417,7 @@ Definition univalent_covy_lens_from_fibration {B : rxgraph}
   : univalent_covy_lens B.
 Proof.
   use make_univalent_covy_lens.
-  - intro x; exists (E⟦x⟧)%rxgraph_spec.
+  - intro x; exists (E⟦x⟧).
     apply is_univalent_covy_fibration, E.
   - intros x y e a.
     exact (pr1 (iscontrpr1 (covy_fibration_lift E e a))).
@@ -432,7 +431,7 @@ Definition univalent_contra_lens_from_fibration {B : rxgraph}
   : univalent_contra_lens B.
 Proof.
   use make_univalent_contra_lens.
-  - intro x; exists (E⟦x⟧)%rxgraph_spec.
+  - intro x; exists (E⟦x⟧).
     apply is_univalent_contra_fibration, E.
   - intros x y e a.
     exact (pr1 (iscontrpr1 (contra_fibration_lift E e a))).

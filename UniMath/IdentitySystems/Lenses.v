@@ -13,7 +13,7 @@
  1.1. Oplax covariant lenses
  1.2. Lax contravariant lenses
  1.3. Unbiased dependent lenses
- 2. Definitional Replacement
+ 2. Definitional lenses
 
  Author: B. Szilvasy
  September 2026
@@ -27,7 +27,6 @@ Require Import UniMath.IdentitySystems.RXGraph.
 Require Import UniMath.IdentitySystems.Examples.
 
 Local Open Scope rxgraph.
-Local Bind Scope rxgraph_spec with rxgraph.
 
 (** ** Definitions *)
 
@@ -99,10 +98,12 @@ Proof.
     exact (lens_push_refl E x a).
 Defined.
 
+Notation "'disp+'" := covy_lens_disp_rxgraph : rxgraph.
+
 Lemma is_univalent_covy_lens_disp_rxgraph
   {B : rxgraph} (E : covy_lens B)
   (HE : ∏ x, is_univalent (E x))
-  : is_disp_univalent (covy_lens_disp_rxgraph E).
+  : is_disp_univalent (disp+ E).
 Proof.
   intros x.
   apply is_univalent_from_isaprop_edges_from; intro a.
@@ -135,7 +136,7 @@ Proof.
     use weqbandf; [apply (weq_sec_over_contr_total2 (is_univalent_to_iscontr_edges_from _ HB x))|].
     intro; exact (idweq _).
   }
-  change (iscontr (edges_to (∏ _, E x) (idfun _))).
+  change (iscontr (edges_to (E x ~> E x) (idfun _))).
   apply is_univalent_to_iscontr_edges_to.
   apply is_univalent_product_rxgraph; intro.
   apply HE.
@@ -209,10 +210,12 @@ Proof.
     exact (lens_pull_refl E x a).
 Defined.
 
+Notation "'disp-'" := contra_lens_disp_rxgraph : rxgraph.
+
 Lemma is_univalent_contra_lens_disp_rxgraph
   {B : rxgraph} (E : contra_lens B)
   (HE : ∏ x, is_univalent (E x))
-  : is_disp_univalent (contra_lens_disp_rxgraph E).
+  : is_disp_univalent (disp- E).
 Proof.
   intros x.
   apply is_univalent_from_isaprop_edges_to; intro a.
@@ -233,7 +236,7 @@ Proof.
     use weqbandf; [apply (weq_sec_over_contr_total2 (is_univalent_to_iscontr_edges_from _ HB x))|].
     intro; exact (idweq _).
   }
-  change (iscontr (edges_from (∏ _ : E x, E x) (λ a, a))).
+  change (iscontr (edges_from (E x ~> E x) (idfun _))).
   apply is_univalent_to_iscontr_edges_from.
   apply is_univalent_product_rxgraph; intro.
   apply HE.
@@ -245,7 +248,7 @@ Definition covy_to_contra_lens {B : rxgraph}
   (E : covy_lens B) : contra_lens B^op.
 Proof.
   use make_contra_lens.
-  - intro x; exact (E x)^op%rxgraph_spec.
+  - intro x; exact (E x)^op.
   - intros x y e; exact (lens_push E e).
   - intros x a; exact (lens_push_refl E x a).
 Defined.
@@ -254,7 +257,7 @@ Definition contra_to_covy_lens {B : rxgraph}
   (E : contra_lens B) : covy_lens B^op.
 Proof.
   use make_covy_lens.
-  - intro x; exact (E x)^op%rxgraph_spec.
+  - intro x; exact (E x)^op.
   - intros x y e; exact (lens_pull E e).
   - intros x a; exact (lens_pull_refl E x a).
 Defined.
@@ -268,13 +271,11 @@ Definition covy_to_contra_lens_involution_compute {B : rxgraph} (E : contra_lens
 Proof. reflexivity. Defined.
 
 Definition covy_to_contra_lens_disp_rxgraph_compute {B : rxgraph} (E : covy_lens B)
-  : contra_lens_disp_rxgraph (covy_to_contra_lens E)
-    = total_opp_disp_rxgraph (covy_lens_disp_rxgraph E).
+  : disp- (covy_to_contra_lens E) = (disp+ E)^op*.
 Proof. reflexivity. Defined.
 
 Definition contra_to_covy_lens_disp_rxgraph_compute {B : rxgraph} (E : contra_lens B)
-  : covy_lens_disp_rxgraph (contra_to_covy_lens E)
-    = total_opp_disp_rxgraph (contra_lens_disp_rxgraph E).
+  : disp+ (contra_to_covy_lens E) = (disp- E)^op*.
 Proof. reflexivity. Defined.
 
 (** *** Unbiased dependent lenses *)
@@ -338,10 +339,13 @@ Proof.
     exact (lens_ext_refl E x a).
 Defined.
 
+Notation "'disp±'" := unbiased_lens_disp_rxgraph.
+(* type in Emacs using agda-input with disp \pm *)
+
 Lemma is_univalent_unbiased_lens_disp_rxgraph
   {B : rxgraph} (E : unbiased_lens B)
   (HE : ∏ (x y : B) (e : x ≈ y), is_univalent (E _ _ e))
-  : is_disp_univalent (unbiased_lens_disp_rxgraph E).
+  : is_disp_univalent (disp± E).
 Proof.
   intro x.
   apply is_univalent_from_isaprop_edges_from; intro a.
@@ -376,17 +380,17 @@ Proof.
   apply impred; intro x.
   eapply (isofhlevelweqb 0
             (Y:=∑ (lext rext : E _ _ (refl x) -> E _ _ (refl x)),
-               (lext ≈{∏_,_} rext) × (idfun _ ≈{∏_,_} rext))). {
+               (lext ≈{_ ~> _} rext) × (idfun _ ≈{_ ~> _} rext))). {
     use weqbandf; [apply (weq_sec_over_contr_total2 (is_univalent_to_iscontr_edges_from _ HB x))|].
     intro lext; cbn.
     use weqbandf; [apply (weq_sec_over_contr_total2 (is_univalent_to_iscontr_edges_from _ HB x))|].
     intro rext; cbn.
     exact (idweq _).
   }
-  eapply (isofhlevelweqb 0 (Y:=edges_to (product_rxgraph _) (idfun (E _ _ (refl x))))).
+  eapply (isofhlevelweqb 0 (Y:=edges_to (_ ~> _) (idfun (E _ _ (refl x))))).
   { apply weqfibtototal; intro lext.
-    intermediate_weq (∑ (rext : edges_from (product_rxgraph _) (idfun (E _ _ (refl x)))),
-                       lext ≈{∏_,_} pr1 rext).
+    intermediate_weq (∑ (rext : edges_from (_ ~> _) (idfun (E _ _ (refl x)))),
+                       lext ≈{_ ~> _} pr1 rext).
     { use weq_iso.
       - intros [r [p q]]; exact ((r,,q),,p).
       - intros [[r q] p]; exact (r,, p,, q).
@@ -419,8 +423,7 @@ Defined.
 
 Lemma unbiased_lens_from_covy_disp_compute
   {B : rxgraph} (E : covy_lens B)
-  : unbiased_lens_disp_rxgraph (unbiased_lens_from_covy E)
-    = covy_lens_disp_rxgraph E.
+  : disp± (unbiased_lens_from_covy E) = disp+ E.
 Proof. reflexivity. Defined.
 
 Definition unbiased_lens_from_contra {B : rxgraph}
@@ -436,11 +439,10 @@ Defined.
 
 Lemma unbiased_lens_from_contra_disp_compute
   {B : rxgraph} (E : contra_lens B)
-  : unbiased_lens_disp_rxgraph (unbiased_lens_from_contra E)
-    = contra_lens_disp_rxgraph E.
+  : disp± (unbiased_lens_from_contra E) = disp- E.
 Proof. reflexivity. Defined.
 
-(** Definitional replacement *)
+(** ** Definitional lenses *)
 
 Definition discrete_covy_lens {B : UU} (E : B -> rxgraph)
   : @covy_lens_structure (Δ B) E.
@@ -453,6 +455,11 @@ Defined.
 Definition make_discrete_covy_lens {B : UU} (E : B -> rxgraph) : covy_lens (Δ B)
   := E,, discrete_covy_lens E.
 
+Notation "'Δ+' x ',' E" :=
+  (make_discrete_covy_lens (λ x, E))
+    (x binder, at level 200) : rxgraph.
+(* type in Emacs using agda-input with \Delta or \GD *)
+
 Definition discrete_contra_lens {B : UU} (E : B -> rxgraph)
   : @contra_lens_structure (Δ B) E.
 Proof.
@@ -463,6 +470,13 @@ Defined.
 
 Definition make_discrete_contra_lens {B : UU} (E : B -> rxgraph) : contra_lens (Δ B)
   := E,, discrete_contra_lens E.
+
+Notation "'Δ-' x ',' E" :=
+  (make_discrete_contra_lens (λ x, E))
+    (x binder, at level 200) : rxgraph.
+(* type in Emacs using agda-input with \Delta or \GD *)
+
+(** Definitional replacement *)
 
 Definition flatten_covy_lens {B : rxgraph}
   (E : covy_lens B) : rxgraph.
@@ -487,7 +501,7 @@ Proof.
   cbn; intros x y.
   apply (weqcomp (weq_id_to_edge HB x y)).
   apply invweq, weqpr1; intro e.
-  refine (is_univalent_to_iscontr_edges_from (∏ _, E y) _ (lens_push E e)).
+  refine (is_univalent_to_iscontr_edges_from (_ ~> E y) _ (lens_push E e)).
   apply is_univalent_product_rxgraph; intro a.
   apply HE.
 Qed.
@@ -525,7 +539,7 @@ Proof.
   cbn; intros x y.
   apply (weqcomp (weq_id_to_edge HB x y)).
   apply invweq, weqpr1; intro e.
-  refine (is_univalent_to_iscontr_edges_to (∏ _, E x) _ (lens_pull E e)).
+  refine (is_univalent_to_iscontr_edges_to (_ ~> E x) _ (lens_pull E e)).
   apply is_univalent_product_rxgraph; intro a.
   apply HE.
 Qed.

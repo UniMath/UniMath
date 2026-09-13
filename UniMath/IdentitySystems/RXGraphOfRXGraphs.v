@@ -35,8 +35,6 @@ Require Import UniMath.IdentitySystems.Examples.
 Require Import UniMath.IdentitySystems.Lenses.
 
 Local Open Scope rxgraph.
-Local Bind Scope rxgraph_spec with rxgraph.
-Local Bind Scope rxgraph_spec with univalent_rxgraph.
 
 (** ** Reflexive graph of graphs *)
 
@@ -44,7 +42,7 @@ Definition graph_on_rxgraph (* ℓ *)
   : contra_lens (* ℓ+1 *) (UU_rxgraph (* ℓ *)).
 Proof.
   use make_contra_lens.
-  - intros A; exact (∏ (_ _ : A), UU_rxgraph (* ℓ *))%rxgraph_spec.
+  - intros A; exact (A ~> A ~> UU_rxgraph (* ℓ *)).
   - intros x y w e; cbn in w, e.
     exact (λ x' y', e (w x') (w y')).
   - intros A edge; exact (refl edge).
@@ -52,7 +50,7 @@ Defined.
 
 Lemma is_univalent_graph_on_rxgraph (* ℓ *) (A : UU (* ℓ *))
   : is_univalent (* ℓ+1 *) (graph_on_rxgraph (* ℓ *) A).
-Proof. exact (∏! _ _, UU_univalent_rxgraph)%rxgraph_spec. Qed.
+Proof. exact (∏! _ _, UU_univalent_rxgraph). Qed.
 
 Definition graph_rxgraph (* ℓ *) : rxgraph (* ℓ+1 *)
   := total_rxgraph (* ℓ+1 *)
@@ -94,7 +92,7 @@ Proof.
   use make_unbiased_lens.
   - intros C D f.
     change (graph_iso C D) in f.
-    exact (∏ (a : pr1 C), Δ pr2 D (f a) (f a))%rxgraph_spec.
+    exact (∏~ (a : pr1 C), Δ pr2 D (f a) (f a)).
   - intros C D f refl a.
     change (graph_iso C D) in f.
     cbn in refl.
@@ -110,7 +108,7 @@ Defined.
 Lemma is_univalent_has_refl_rxgraph (* ℓ *)
   {C D : graph_rxgraph (* ℓ *)} (w : graph_iso (* ℓ *) C D)
   : is_univalent (* ℓ+1 *) (has_refl_rxgraph (* ℓ *) C D w).
-Proof. exact (∏! _, Δ _)%rxgraph_spec. Qed.
+Proof. exact (∏! _, Δ _). Qed.
 
 (* We defined [rxgraph] associated to the right, which means the [total_rxgraph]
    of [has_refl_rxgraph] is the wrong thing.  We can use [sigma_disp_rxgraph] to
@@ -191,15 +189,15 @@ Qed.
 (** ** Reflexive graph of displayed graphs *)
 
 Definition disp_graph_on_rxgraph (* ℓ *) (B : rxgraph (* ℓ *))
-  : contra_lens (* ℓ+1 *) (∏ (_ : B), UU_rxgraph (* ℓ *)).
+  : contra_lens (* ℓ+1 *) (B ~> UU_rxgraph (* ℓ *)).
 Proof.
   use make_contra_lens.
-  - intro E.
-    exact (∏ (x y : B) (e : x ≈ y) (_ : E x) (_ : E y),
-            UU_rxgraph (* ℓ *))%rxgraph_spec.
-  - cbn; intros E₁ E₂ w edge x y e a b.
+  + intro E.
+    exact (∏~ (x y : B) (e : x ≈ y),
+            E x ~> E y ~> UU_rxgraph (* ℓ *)).
+  + cbn; intros E₁ E₂ w edge x y e a b.
     exact (edge x y e (w x a) (w y b)).
-  - intros E disp_edge; exact (refl disp_edge).
+  + intros E disp_edge; exact (refl disp_edge).
 Defined.
 
 Lemma is_univalent_disp_graph_on_rxgraph (* ℓ *)
@@ -220,7 +218,7 @@ Lemma is_univalent_disp_graph_rxgraph (* ℓ *) (B : rxgraph (* ℓ *))
   : is_univalent (* ℓ+1 *) (disp_graph_rxgraph (* ℓ *) B).
 Proof.
   apply is_univalent_total_rxgraph.
-  - exact (∏! _, UU_univalent_rxgraph)%rxgraph_spec.
+  - exact (∏! _, UU_univalent_rxgraph).
   - apply is_univalent_contra_lens_disp_rxgraph; intro.
     apply is_univalent_disp_graph_on_rxgraph.
 Qed.
@@ -233,8 +231,8 @@ Proof.
   use make_unbiased_lens.
   - intros C D f.
     cbn in f.
-    exact (∏ (x : B) (a : pr1 C x),
-            Δ pr2 D x x (refl x) (pr1 f x a) (pr1 f x a))%rxgraph_spec.
+    exact (∏~ (x : B) (a : pr1 C x),
+            Δ pr2 D x x (refl x) (pr1 f x a) (pr1 f x a)).
   - intros C D f disp_refl x a.
     cbn in f, disp_refl.
     exact (pr2 f _ _ (refl x) _ _ (disp_refl x a)).
@@ -249,7 +247,7 @@ Lemma is_univalent_has_disp_refl_rxgraph (* ℓ *) (B : rxgraph (* ℓ *))
   {E₁ E₂ : disp_graph_rxgraph (* ℓ *) B} (f : E₁ ≈ E₂)
   : is_univalent (* ℓ+1 *) (has_disp_refl_rxgraph (* ℓ *) B _ _ f).
 Proof.
-  exact (∏! _ _, Δ _)%rxgraph_spec.
+  exact (∏! _ _, Δ _).
 Qed.
 
 Definition disp_rxgraph_rxgraph (* ℓ *) (B : rxgraph (* ℓ *))
@@ -269,7 +267,7 @@ Lemma is_univalent_disp_rxgraph_rxgraph (* ℓ *) (B : rxgraph (* ℓ *))
   : is_univalent (* ℓ+1 *) (disp_rxgraph_rxgraph (* ℓ *) B).
 Proof.
   apply is_univalent_total_rxgraph.
-  - exact (∏! _, UU_univalent_rxgraph)%rxgraph_spec.
+  - exact (∏! _, UU_univalent_rxgraph).
   - apply is_univalent_sigma_disp_rxgraph.
     + apply is_univalent_contra_lens_disp_rxgraph; intro.
       apply is_univalent_disp_graph_on_rxgraph.

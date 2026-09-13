@@ -30,28 +30,27 @@ Require Import UniMath.IdentitySystems.RXGraphOfRXGraphs.
 
 Local Open Scope cat.
 Local Open Scope rxgraph.
-Local Bind Scope rxgraph_spec with rxgraph.
 
 (** ** Reflexive graph of [precategory_ob_mor] *)
 
 Definition precategory_mor_on_rxgraph : contra_lens UU_rxgraph.
 Proof.
   use make_contra_lens.
-  - intro ob; exact (∏ (_ _ : ob), UU_rxgraph)%rxgraph_spec.
+  - intro ob; exact (ob ~> ob ~> UU_rxgraph).
   - cbn; intros C D w mor a b.
     exact (mor (w a) (w b)).
   - intros C mor; exact (refl mor).
 Defined.
 
 Definition precategory_ob_mor_rxgraph : rxgraph
-  := total_rxgraph (contra_lens_disp_rxgraph precategory_mor_on_rxgraph).
+  := ∑~ disp- precategory_mor_on_rxgraph.
 
 Lemma is_univalent_precategory_ob_mor_rxgraph : is_univalent precategory_ob_mor_rxgraph.
 Proof.
   apply is_univalent_total_rxgraph.
   - exact UU_univalent_rxgraph.
   - apply is_univalent_contra_lens_disp_rxgraph; intro.
-    exact (∏! _ _, UU_univalent_rxgraph)%rxgraph_spec.
+    exact (∏! _ _, UU_univalent_rxgraph).
 Qed.
 
 Definition precategory_ob_mor_iso (C D : precategory_ob_mor) : UU
@@ -73,9 +72,8 @@ Proof.
   - intros C D F.
     change precategory_ob_mor in C, D.
     change (precategory_ob_mor_iso C D) in F.
-    exact ((∏ (a : C), Δ D ⟦F a, F a⟧)
-          × (∏ a b c (_ : C ⟦a, b⟧) (_ : C ⟦b, c⟧),
-               Δ D ⟦F a, F c⟧))%rxgraph_spec.
+    exact ((∏~ (a : C), Δ D⟦F a, F a⟧) ×~
+             (∏~ (a b c : C), C⟦a, b⟧ ~> C⟦b, c⟧ ~> Δ D⟦F a, F c⟧)).
   - cbn; intros C D F [id comp].
     change precategory_ob_mor in C, D.
     change (precategory_ob_mor_iso C D) in F.
@@ -93,9 +91,7 @@ Proof.
 Defined.
 
 Definition precategory_data_rxgraph₀ : rxgraph
-  := total_rxgraph
-       (unbiased_lens_disp_rxgraph
-          precategory_id_comp_rxgraph).
+  := ∑~ disp± precategory_id_comp_rxgraph.
 
 Lemma is_univalent_precategory_data_rxgraph₀ : is_univalent precategory_data_rxgraph₀.
 Proof.

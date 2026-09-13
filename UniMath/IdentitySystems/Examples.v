@@ -44,6 +44,9 @@ Proof.
     exact (iscontr_paths_from _).
 Defined.
 
+Notation "'Δ' A" := (discrete_rxgraph A) (at level 200) : rxgraph.
+(* type in Emacs using agda-input with \Delta or \GD *)
+
 (** The codiscrete reflexive graph [∇ A] has vertices [A]
     and edges [unit].  It is univalent if [A] is a proposition. *)
 
@@ -63,11 +66,16 @@ Proof.
   intros a b; apply weqcontrtounit, H.
 Qed.
 
-Definition prop_rxgraph (A : UU) (H : isaprop A) : univalent_rxgraph
+Definition rxgraph_from_prop (A : UU) (H : isaprop A) : univalent_rxgraph
   := make_univalent_rxgraph _ (is_univalent_codiscrete_rxgraph A H).
 
-Definition hProp_rxgraph (A : hProp) : univalent_rxgraph
-  := prop_rxgraph A (propproperty A).
+Definition rxgraph_from_hProp (A : hProp) : univalent_rxgraph
+  := rxgraph_from_prop A (propproperty A).
+
+Notation "'∇' A" := (codiscrete_rxgraph A) (at level 200) : rxgraph.
+Notation "'∇![' H  ']' A" := (rxgraph_from_prop A H) (at level 200) : rxgraph.
+Notation "'∇!' A" := (rxgraph_from_hProp A) (at level 200) : rxgraph.
+(* type in Emacs using agda-input with \nabla *)
 
 (** A family of reflexive graphs [x : B ⊢ E[x]] gives rise to a univalent
     reflexive graph whose vertices are [∏ x, E[x]].  It is univalent
@@ -96,6 +104,21 @@ Qed.
 
 Definition product_univalent_rxgraph {B : UU} (E : B -> univalent_rxgraph) : univalent_rxgraph
   := make_univalent_rxgraph _ (is_univalent_product_rxgraph E (λ x, E x)).
+
+Notation "'∏~' x .. y , G" :=
+  (product_rxgraph (λ x, .. (product_rxgraph (λ y, G)) ..))
+    (at level 200, x binder, y binder, right associativity) : rxgraph.
+Notation "'∏!' x .. y , G" :=
+  (product_univalent_rxgraph (λ x, .. (product_univalent_rxgraph (λ y, G)) ..))
+    (at level 200, x binder, y binder, right associativity) : rxgraph.
+(* type in Emacs using agda-input with \prod *)
+
+Notation "A '~>' B" :=
+  (∏~ _ : A, B)
+    (at level 99, B at level 200, right associativity) : rxgraph.
+Notation "A '~>!' B" :=
+  (∏! _ : A, B)
+    (at level 99, B at level 200, right associativity) : rxgraph.
 
 (** The binary product [A × B] of reflexive graphs [A] and [B] has the obvious
     vertices and edges the binary products of [A]- and [B]-edges.  It is univalent
@@ -126,6 +149,14 @@ Qed.
 
 Definition dirprod_univalent_rxgraph (A B : univalent_rxgraph) : univalent_rxgraph
   := make_univalent_rxgraph _ (is_univalent_dirprod_rxgraph _ _ A B).
+
+Notation "A '×~' B" :=
+  (dirprod_rxgraph A B)
+    (at level 75, right associativity) : rxgraph.
+Notation "A '×!' B" :=
+  (dirprod_univalent_rxgraph A B)
+    (at level 75, right associativity) : rxgraph.
+(* type in Emacs using agda-input with \times *)
 
 (** The (binary) coproduct reflexive graph [A ⨿ B] has the obvious vertices.
     Its edges [inl a₁ ≈ inl a₂] are [a₁ ≈ a₂], and edges [inr b₁ ≈ inr b₂] are
@@ -183,6 +214,15 @@ Definition coprod_univalent_rxgraph
   := make_univalent_rxgraph _
        (is_univalent_coprod_rxgraph A B A B).
 
+Notation "A '⨿~' B" :=
+  (coprod_rxgraph A B)
+    (at level 75, right associativity) : rxgraph.
+Notation "A '⨿!' B" :=
+  (coprod_univalent_rxgraph A B)
+    (at level 75, right associativity) : rxgraph.
+(* type in Emacs with C-X 8 RET AMALGAMATION OR COPRODUCT
+   or using agda-input with \union (on the second page). *)
+
 (** [UU_rxgraph] is the (large) reflexive graph of (small) types.
     It is univalent precisely if the universe is.  We indicate
     the larger size with an imaginary universe parameter [ℓ]. *)
@@ -213,6 +253,8 @@ Proof.
   - intro a; exact (idweq (E a)).
 Defined.
 
+Notation "B '/~' E" := (family_image_rxgraph B E) (at level 75) : rxgraph.
+
 (** The opposite [G^op] of a reflexive graph [G] has the same vertices, but
     flipped edges.  It is univalent if and only if G is. *)
 
@@ -240,6 +282,9 @@ Defined.
 
 Definition opp_univalent_rxgraph (A : univalent_rxgraph) : univalent_rxgraph
   := make_univalent_rxgraph _ (is_univalent_opp_rxgraph _ A).
+
+Notation "A '^op'" := (opp_rxgraph A) (at level 1, format "A ^op") : rxgraph.
+Notation "A '^op!'" := (opp_univalent_rxgraph A) (at level 1, format "A ^op!") : rxgraph.
 
 (** A displayed reflexive graph [x : B |- E[x]] gives a reflexive graph
     whose vertices are sigma types.  It is univalent if [B] and [E] are. *)
@@ -277,6 +322,14 @@ Definition total_univalent_rxgraph
   : univalent_rxgraph
   := make_univalent_rxgraph _ (is_univalent_total_rxgraph E B E).
 
+Notation "'∑~' E" :=
+  (total_rxgraph E)
+    (at level 200, right associativity) : rxgraph.
+Notation "'∑!' E" :=
+  (total_univalent_rxgraph E)
+    (at level 200, right associativity) : rxgraph.
+(* type in Emacs using agda-input with \sum *)
+
 (** A displayed reflexive graph's components are (by definition) univalent if
     the displayed reflexive graph is. *)
 
@@ -292,6 +345,10 @@ Definition univalent_disp_rxgraph_at
   : univalent_rxgraph
   := make_univalent_rxgraph _
        (is_univalent_disp_rxgraph_at E E x).
+
+Notation "E ⟦ x ⟧" := (disp_rxgraph_at E x) (at level 49) : rxgraph.
+Notation "E ⟦ x '⟧!'" := (univalent_disp_rxgraph_at E x) (at level 49) : rxgraph.
+(* type in Emacs using agda-input with \[[ \]] *)
 
 (** Given a family of types [x : A ⊢ P[x]] over a reflexive graph A,
     the sub-reflexive graph of [A] satisfying [P] is the
@@ -334,6 +391,12 @@ Definition sub_univalent_rxgraph_pred
   : univalent_rxgraph
   := make_univalent_rxgraph _
        (is_univalent_sub_rxgraph A P A HP).
+
+Notation "'{'  x '∣' P  '}'" := (sub_rxgraph _ (λ x, P)) (x binder) : rxgraph.
+Notation "'{'  x '∣!' P  '}'" := (sub_univalent_rxgraph _ (λ x, P)) (x binder) : rxgraph.
+Notation "'{'  x '∣![' H  ']' P  '}'" :=
+  (sub_univalent_rxgraph_pred _ (λ x, P) (λ x, H)) (x binder) : rxgraph.
+(* type in Emacs using agda-input with \mid *)
 
 (** A displayed reflexive graph [E₁] over [B], along with a
     displayed reflexive graph [E₂] over the total reflexive graph of [E₁],
@@ -398,6 +461,14 @@ Definition sigma_univalent_disp_rxgraph
   (E₂ : univalent_disp_rxgraph (total_rxgraph E₁))
   : univalent_disp_rxgraph B
   := _,, is_univalent_sigma_disp_rxgraph E₁ E₂ E₁ E₂.
+
+Notation "'∑>~' E₁ ',' E₂" :=
+  (sigma_disp_rxgraph E₁ E₂)
+    (at level 200, right associativity) : rxgraph.
+Notation "'∑>!' E₁ ',' E₂" :=
+  (sigma_univalent_disp_rxgraph E₁ E₂)
+    (at level 200, right associativity) : rxgraph.
+(* type in Emacs using agda-input with \sum *)
 
 (** A family of types [x : B |- E[x]] gives rise to a discrete displayed
     reflexive graph whose vertices are the [PathPair]s.  It is always
@@ -478,44 +549,9 @@ Definition total_opp_univalent_disp_rxgraph
   := make_univalent_disp_rxgraph _
        (is_univalent_total_opp_disp_rxgraph E E).
 
-(** ** Notations for building reflexive graphs. *)
-
-Notation "'Δ' A" := (discrete_rxgraph A) (at level 200) : rxgraph_spec.
-(* type in Emacs using agda-input with \Delta or \GD *)
-
-Notation "'∇' A" := (codiscrete_rxgraph A) (at level 200) : rxgraph_spec.
-Notation "'∇![' H  ']' A" := (prop_rxgraph A H) (at level 200) : rxgraph_spec.
-Notation "'∇!' A" := (hProp_rxgraph A) (at level 200) : rxgraph_spec.
-(* type in Emacs using agda-input with \nabla *)
-
-Notation "'∏' x .. y , G" :=
-  (product_rxgraph (λ x, .. (product_rxgraph (λ y, G%rxgraph_spec)) ..)) : rxgraph_spec.
-Notation "'∏!' x .. y , G" :=
-  (product_univalent_rxgraph (λ x, .. (product_univalent_rxgraph (λ y, G%rxgraph_spec)) ..))
-    (at level 200, x binder, y binder, right associativity) : rxgraph_spec.
-(* type in Emacs using agda-input with \prod *)
-
-Notation "A × B" := (dirprod_rxgraph A%rxgraph_spec B%rxgraph_spec) : rxgraph_spec.
-Notation "A '×!' B" := (dirprod_univalent_rxgraph A%rxgraph_spec B%rxgraph_spec)
-                         (at level 75, right associativity) : rxgraph_spec.
-(* type in Emacs using agda-input with \times *)
-
-Notation "A ⨿ B" := (coprod_rxgraph A%rxgraph_spec B%rxgraph_spec) : rxgraph_spec.
-Notation "A '⨿!' B" := (coprod_univalent_rxgraph A%rxgraph_spec B%rxgraph_spec) (at level 75, right associativity) : rxgraph_spec.
-(* type in Emacs with C-X 8 RET AMALGAMATION OR COPRODUCT
-   or using agda-input with \union (on the second page). *)
-
-Notation "B '/' E" := (family_image_rxgraph B%rxgraph_spec E%rxgraph_spec) : rxgraph_spec.
-
-Notation "A '^op'" := (opp_rxgraph A%rxgraph_spec) (at level 1, format "A ^op") : rxgraph_spec.
-Notation "A '^op!'" := (opp_univalent_rxgraph A%rxgraph_spec) (at level 1, format "A ^op!") : rxgraph_spec.
-
-Notation "E ⟦ x ⟧" := (disp_rxgraph_at E%rxgraph_spec x) (at level 49) : rxgraph_spec.
-Notation "E ⟦ x '⟧!'" := (univalent_disp_rxgraph_at E%rxgraph_spec x) (at level 49) : rxgraph_spec.
-(* type in Emacs using agda-input with \[[ \]] *)
-
-Notation "'{'  x '∣' P  '}'" := (sub_rxgraph _ (λ (x : _%rxgraph_spec), P)) (x binder) : rxgraph_spec.
-Notation "'{'  x '∣!' P  '}'" := (sub_univalent_rxgraph _ (λ x, P)) (x binder) : rxgraph_spec.
-Notation "'{'  x '∣![' H  ']' P  '}'" :=
-  (sub_univalent_rxgraph_pred _ (λ (x : _%rxgraph_spec), P) (λ x, H)) (x binder) : rxgraph_spec.
-(* type in Emacs using agda-input with \mid *)
+Notation "E '^op*'" :=
+  (total_opp_disp_rxgraph E)
+    (at level 1, format "E ^op*") : rxgraph.
+Notation "E '^op*!'" :=
+  (total_opp_univalent_disp_rxgraph E)
+    (at level 1, format "E ^op*!") : rxgraph.
