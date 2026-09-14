@@ -225,6 +225,7 @@ coslicecat.v
 catiso.v
 DisplayedCats/CatIsoDisplayed.v
 CategoryEquality.v
+CategoryRXGraph.v
 Core/PosetCat.v
 
 WeakEquivalences/Core.v
