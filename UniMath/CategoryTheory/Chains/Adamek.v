@@ -96,8 +96,20 @@ Local Definition shiftColimCocone : ColimCocone FFchain :=
 
 Definition colim_algebra_mor : C⟦F L,L⟧ := colimArrow FHC L shiftCocone.
 
+Definition colim_algebra_mor_inv : C⟦L,F L⟧ 
+  := colimArrow shiftColimCocone _ (colimCocone FHC).
+
 Local Definition is_z_iso_colim_algebra_mor : is_z_isomorphism colim_algebra_mor :=
   isColim_is_z_iso _ FHC _ _ shiftIsColimCocone.
+
+Definition colim_algebra_mor_iso : z_iso (F L) L
+  := make_z_iso' _ is_z_iso_colim_algebra_mor.
+
+Lemma colim_algebra_mor_commutes (n : nat)
+  : #F (colimIn CC n) · colim_algebra_mor = colimIn CC (S n).
+Proof.
+  use (colimArrowCommutes FHC).
+Qed.
 
 Let α : z_iso (F L) L := make_z_iso' _ is_z_iso_colim_algebra_mor.
 Let α_inv : z_iso L (F L) := z_iso_inv_from_z_iso α.
