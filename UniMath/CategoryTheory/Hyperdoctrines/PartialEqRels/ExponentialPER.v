@@ -53,9 +53,10 @@ Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
 
 Local Open Scope cat.
 Local Open Scope hd.
+Local Open Scope weak_tripos.
 
 Section ExponentialPartialSetoid.
-  Context {H : tripos}
+  Context {H : weak_tripos}
           (X Y : partial_setoid H).
 
   (** * 1. Functions of partial setoids via the powerset *)
@@ -168,22 +169,18 @@ Section ExponentialPartialSetoid.
     exact q.
   Qed.
 
-  Proposition exp_partial_setoid_eq_defined
+  Proposition exp_partial_setoid_extensional
               {Γ : ty H}
               {Δ : form Γ}
               {f : tm Γ (ℙ (X ×h Y))}
-              (p : Δ ⊢ exp_partial_setoid_is_function [ f ])
+              (r : Δ ⊢ exp_partial_setoid_eq_defined_law [ f ])
               {x x' : tm Γ X}
               (qx : Δ ⊢ x ~ x')
               {y y' : tm Γ Y}
-              (qy : Δ ⊢ y ~y')
+              (qy : Δ ⊢ y ~ y')
               (q : Δ ⊢ ⟨ x , y ⟩ ∈ f)
     : Δ ⊢ ⟨ x' , y' ⟩ ∈ f.
   Proof.
-    unfold exp_partial_setoid_is_function in p.
-    rewrite !conj_subst in p.
-    pose proof (r := conj_elim_left (conj_elim_right (conj_elim_right p))).
-    clear p.
     unfold exp_partial_setoid_eq_defined_law in r.
     rewrite !forall_subst in r.
     rewrite !impl_subst in r.
@@ -204,7 +201,7 @@ Section ExponentialPartialSetoid.
     rewrite !forall_subst in r.
     rewrite !impl_subst in r.
     rewrite !partial_setoid_subst in r.
-    rewrite !tripos_in_subst in r.
+    rewrite !weak_tripos_in_subst in r.
     rewrite !hyperdoctrine_pr2_subst in r.
     rewrite !hyperdoctrine_pr1_subst in r.
     rewrite !hyperdoctrine_pair_subst in r.
@@ -236,7 +233,7 @@ Section ExponentialPartialSetoid.
     rewrite !forall_subst in r.
     rewrite !impl_subst in r.
     rewrite !partial_setoid_subst in r.
-    rewrite !tripos_in_subst in r.
+    rewrite !weak_tripos_in_subst in r.
     rewrite !hyperdoctrine_pr2_subst in r.
     rewrite !hyperdoctrine_pr1_subst in r.
     rewrite !hyperdoctrine_pair_subst in r.
@@ -256,7 +253,7 @@ Section ExponentialPartialSetoid.
     rewrite !forall_subst in r.
     rewrite !impl_subst in r.
     rewrite !partial_setoid_subst in r.
-    rewrite !tripos_in_subst in r.
+    rewrite !weak_tripos_in_subst in r.
     rewrite !hyperdoctrine_pr2_subst in r.
     rewrite !hyperdoctrine_pr1_subst in r.
     rewrite !hyperdoctrine_pair_subst in r.
@@ -275,7 +272,7 @@ Section ExponentialPartialSetoid.
     clear r ; rename r' into r.
     rewrite !impl_subst in r.
     rewrite !partial_setoid_subst in r.
-    rewrite !tripos_in_subst in r.
+    rewrite !weak_tripos_in_subst in r.
     rewrite !hyperdoctrine_pr2_subst in r.
     rewrite !hyperdoctrine_pair_subst in r.
     rewrite !hyperdoctrine_pr2_subst in r.
@@ -304,6 +301,27 @@ Section ExponentialPartialSetoid.
       exact qx.
     - use weaken_right.
       apply hyperdoctrine_hyp.
+  Qed.
+
+  Proposition exp_partial_setoid_eq_defined
+              {Γ : ty H}
+              {Δ : form Γ}
+              {f : tm Γ (ℙ (X ×h Y))}
+              (p : Δ ⊢ exp_partial_setoid_is_function [ f ])
+              {x x' : tm Γ X}
+              (qx : Δ ⊢ x ~ x')
+              {y y' : tm Γ Y}
+              (qy : Δ ⊢ y ~ y')
+              (q : Δ ⊢ ⟨ x , y ⟩ ∈ f)
+    : Δ ⊢ ⟨ x' , y' ⟩ ∈ f.
+  Proof.
+    refine (exp_partial_setoid_extensional _ qx qy q).
+    refine (hyperdoctrine_cut p _).
+    unfold exp_partial_setoid_is_function.
+    rewrite !conj_subst.
+    do 2 use weaken_right.
+    use weaken_left.
+    apply hyperdoctrine_hyp.
   Qed.
 
   Proposition exp_partial_setoid_unique_im

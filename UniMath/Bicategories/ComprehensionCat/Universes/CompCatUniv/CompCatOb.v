@@ -696,6 +696,86 @@ Definition sub_comp_cat_univ_inv
   : comp_cat_univ Γ <: comp_cat_univ Δ [[ s ]]
   := inv_from_z_iso (sub_comp_cat_univ_iso s).
 
+Proposition sub_comp_cat_univ_id
+            {C : comp_cat_with_ob}
+            (Γ : C)
+  : sub_comp_cat_univ (identity Γ) = id_subst_ty_inv _.
+Proof.
+  unfold sub_comp_cat_univ, sub_comp_cat_univ_iso.
+  refine (!(id_left (_ · _)) @ _).
+  etrans.
+  {
+    apply maponpaths_2.
+    exact (!(z_iso_after_z_iso_inv (id_subst_ty_iso _))).
+  }
+  refine (_ @ id_right _).
+  rewrite !assoc'.
+  apply maponpaths.
+  refine (_ @ id_left_subst_ty _ _).
+  rewrite assoc.
+  apply maponpaths.
+  apply eq_subst_ty_eq.
+Qed.
+
+Proposition sub_comp_cat_univ_comp
+            {C : comp_cat_with_ob}
+            {Γ₁ Γ₂ Γ₃ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+  : sub_comp_cat_univ (s₁ · s₂)
+    =
+    comp_subst_ty_inv _ _ _
+    · coerce_subst_ty s₁ (sub_comp_cat_univ s₂)
+    · sub_comp_cat_univ s₁.
+Proof.
+  unfold sub_comp_cat_univ, sub_comp_cat_univ_iso.
+  refine (!(id_left (_ · _)) @ _).
+  etrans.
+  {
+    apply maponpaths_2.
+    exact (!(z_iso_after_z_iso_inv (comp_subst_ty_iso _ _ _))).
+  }
+  rewrite !assoc'.
+  apply maponpaths.
+  etrans.
+  {
+    rewrite !assoc.
+    apply maponpaths_2.
+    apply assoc_subst_ty.
+  }
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    apply comp_coerce_subst_ty.
+  }
+  rewrite !assoc'.
+  apply maponpaths.
+  etrans.
+  {
+    refine (assoc _ _ _ @ _).
+    apply maponpaths_2.
+    apply coerce_comp_subst_ty.
+  }
+  rewrite !assoc'.
+  apply maponpaths.
+  refine (eq_subst_ty_concat _ _ _ @ _ @ !(eq_subst_ty_concat _ _ _)).
+  apply eq_subst_ty_eq.
+Qed.
+
+Proposition sub_comp_cat_univ_on_eq
+            {C : comp_cat_with_ob}
+            {Γ₁ Γ₂ : C}
+            {s₁ s₂ : Γ₁ --> Γ₂}
+            (p : s₁ = s₂)
+  : sub_comp_cat_univ s₁
+    =
+    eq_subst_ty _ p · sub_comp_cat_univ s₂.
+Proof.
+  induction p.
+  exact (!(id_left _)).
+Qed.
+
 Definition comp_cat_functor_ob
            (C₁ C₂ : comp_cat_with_ob)
   : UU

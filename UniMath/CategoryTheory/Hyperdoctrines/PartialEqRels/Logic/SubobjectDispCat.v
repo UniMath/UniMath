@@ -112,6 +112,20 @@ Section PartialEqRelDispCat.
     : form X
     := pr1 φ.
 
+  Proposition path_per_subobject
+              (X : partial_setoid H)
+              {φ ψ : per_subobject X}
+              (p : (φ : form X) = ψ)
+    : φ = ψ.
+  Proof.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_per_subobject_laws.
+    }
+    exact p.
+  Qed.
+
   Proposition per_subobject_def
               {X : partial_setoid H}
               (φ : per_subobject X)
@@ -213,6 +227,29 @@ Section PartialEqRelDispCat.
 
   Arguments per_subobject_mor_law {X Y} φ ψ₁ ψ₂ /.
 
+  Proposition per_subobject_mor_law_over_id
+              {X : partial_setoid H}
+              (ψ₁ ψ₂ : per_subobject X)
+              (p : ψ₁ ⊢ ψ₂)
+    : per_subobject_mor_law (id_partial_setoid_morphism _) ψ₁ ψ₂.
+  Proof.
+    unfold per_subobject_mor_law.
+    do 2 use forall_intro.
+    use impl_intro.
+    cbn.
+    use weaken_right.
+    hypersimplify.
+    use impl_intro.
+    refine (hyperdoctrine_cut
+              _
+              (hyperdoctrine_proof_subst _ p)).
+    refine (per_subobject_eq ψ₁ _ _).
+    - use weaken_left.
+      apply hyperdoctrine_hyp.
+    - use weaken_right.
+      apply hyperdoctrine_hyp.
+  Qed.
+
   Proposition isaprop_per_subobject_mor_law
               {X Y : partial_setoid H}
               (φ : partial_setoid_morphism X Y)
@@ -302,6 +339,25 @@ Section PartialEqRelDispCat.
     apply truth_intro.
   Qed.
 
+  Proposition per_subobject_mor_over_id
+              {X : partial_setoid H}
+              {ψ₁ ψ₂ : per_subobject X}
+              (p : per_subobject_mor_law (id_partial_setoid_morphism _) ψ₁ ψ₂)
+              {Γ : ty H}
+              {Δ : form Γ}
+              {x : tm Γ X}
+              (q : Δ ⊢ ψ₁ [ x ])
+    : Δ ⊢ ψ₂ [ x ].
+  Proof.
+    use (per_subobject_mor p).
+    - exact x.
+    - cbn.
+      hypersimplify.
+      refine (per_subobject_def _ _ _).
+      exact q.
+    - exact q.
+  Qed.
+
   (** * 4. The displayed category of subobjects *)
   Definition disp_cat_ob_mor_per_subobject
     : disp_cat_ob_mor (category_of_partial_setoids H).
@@ -323,20 +379,8 @@ Section PartialEqRelDispCat.
     split.
     - cbn.
       intros X ψ.
-      do 2 use forall_intro.
-      use impl_intro.
-      use weaken_right.
-      pose (x₁ := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h X)))).
-      pose (x₂ := π₂ (tm_var ((𝟙 ×h X) ×h X))).
-      fold x₁ x₂.
-      hypersimplify.
-      use impl_intro.
-      use per_subobject_eq.
-      + exact x₁.
-      + use weaken_left.
-        apply hyperdoctrine_hyp.
-      + use weaken_right.
-        apply hyperdoctrine_hyp.
+      use per_subobject_mor_law_over_id.
+      apply hyperdoctrine_hyp.
     - intros X Y Z φ₁ φ₂ ψ₁ ψ₂ ψ₃ p q.
       cbn -[per_subobject_mor_law] in * ; cbn.
       do 2 use forall_intro.
@@ -416,15 +460,11 @@ Section PartialEqRelDispCat.
       pose (p := pr1 pq).
       pose (q := pr12 pq).
       cbn -[per_subobject_mor_law] in p, q.
-      use subtypePath.
-      {
-        intro.
-        apply isaprop_per_subobject_laws.
-      }
+      use path_per_subobject.
       use hyperdoctrine_formula_eq.
       + pose (x := tm_var X).
-        rewrite <- (hyperdoctrine_id_subst (pr1 ψ₁)).
-        rewrite <- (hyperdoctrine_id_subst (pr1 ψ₂)).
+        rewrite <- (hyperdoctrine_id_subst ψ₁).
+        rewrite <- (hyperdoctrine_id_subst ψ₂).
         use (per_subobject_mor p).
         * apply tm_var.
         * fold x.
@@ -434,8 +474,8 @@ Section PartialEqRelDispCat.
           apply hyperdoctrine_hyp.
         * apply hyperdoctrine_hyp.
       + pose (x := tm_var X).
-        rewrite <- (hyperdoctrine_id_subst (pr1 ψ₁)).
-        rewrite <- (hyperdoctrine_id_subst (pr1 ψ₂)).
+        rewrite <- (hyperdoctrine_id_subst ψ₁).
+        rewrite <- (hyperdoctrine_id_subst ψ₂).
         use (per_subobject_mor q).
         * apply tm_var.
         * fold x.

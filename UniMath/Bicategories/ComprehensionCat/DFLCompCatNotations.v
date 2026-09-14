@@ -24,6 +24,8 @@
  2. Operations on democracy
  3. Operations on extensional identity types
  4. Operations on sigma types
+ 5. Operations on the unit type
+ 6. Useful calculation lemmas
 
  *************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -629,4 +631,145 @@ Section DFLCompCat.
              (B : ty (Γ & A))
     : z_iso (Γ & A & B) (Γ & dfl_sigma_type A B)
     := _ ,, strong_dependent_sums_iso (strong_dependent_sum_dfl_full_comp_cat C) A B.
+
+  (** * 5. Operations on the unit type *)
+  Definition dfl_unit_tt
+             (Γ : C)
+    : tm Γ (dfl_full_comp_cat_unit Γ)
+    := dfl_full_comp_cat_mor_to_tm (identity _).
+
+  Proposition dfl_unit_unique
+              {Γ : C}
+              (t : tm Γ (dfl_full_comp_cat_unit Γ))
+    : t = dfl_unit_tt Γ.
+  Proof.
+    refine (!(dfl_full_comp_cat_tm_to_mor_to_tm t) @ _).
+    unfold dfl_unit_tt.
+    apply maponpaths.
+    apply TerminalArrowEq.
+  Qed.
+
+  (** * 6. Useful calculation lemmas *)
+  Proposition dfl_full_comp_cat_mor_to_tm_subst
+              {Γ Δ : C}
+              (s : Γ --> Δ)
+              {A : ty Δ}
+              (t : dfl_full_comp_cat_unit Δ <: A)
+    : (dfl_full_comp_cat_mor_to_tm t) [[ s ]]tm
+      =
+      dfl_full_comp_cat_mor_to_tm
+        (inv_from_z_iso (dfl_comp_cat_unit_subst s) · coerce_subst_ty s t).
+  Proof.
+    use eq_comp_cat_tm.
+    refine (!_).
+    use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A s))).
+    - simpl.
+      rewrite !assoc'.
+      use z_iso_inv_on_right.
+      simpl.
+      refine (!(comprehension_functor_mor_comp _ _ _) @ _).
+      etrans.
+      {
+        cbn.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite comprehension_functor_mor_transportf.
+        rewrite !assoc_disp_var.
+        rewrite comprehension_functor_mor_transportf.
+        rewrite cartesian_factorisation_commutes.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite comprehension_functor_mor_transportf.
+        rewrite assoc_disp.
+        rewrite comprehension_functor_mor_transportb.
+        apply comprehension_functor_mor_comp.
+      }
+      rewrite !assoc.
+      apply maponpaths_2.
+      use z_iso_inv_on_left.
+      simpl.
+      rewrite comprehension_functor_mor_comm.
+      rewrite id_left.
+      apply idpath.
+    - apply comp_cat_tm_eq.
+  Qed.
+
+  Proposition dfl_full_comp_cat_mor_to_tm_coerce
+              {Γ : C}
+              {A B : ty Γ}
+              (f : A <: B)
+              (t : dfl_full_comp_cat_unit Γ <: A)
+    : (dfl_full_comp_cat_mor_to_tm t) ↑ f
+      =
+      dfl_full_comp_cat_mor_to_tm (t · f).
+  Proof.
+    use eq_comp_cat_tm.
+    cbn.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite comprehension_functor_mor_transportf.
+    exact (!(comprehension_functor_mor_comp _ _ _)).
+  Qed.
+
+  Proposition dfl_full_comp_cat_tm_to_mor_coerce_subst_ty
+              {Γ Δ : C}
+              (s : Γ --> Δ)
+              {A : ty Δ}
+              (t : tm Δ A)
+    : coerce_subst_ty s (dfl_full_comp_cat_tm_to_mor t)
+      =
+      TerminalArrow _ _ · dfl_full_comp_cat_tm_to_mor (t [[ s ]]tm).
+  Proof.
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      refine (_ @ dfl_full_comp_cat_mor_to_tm_subst s (dfl_full_comp_cat_tm_to_mor t)).
+      refine (!_).
+      rewrite (dfl_full_comp_cat_tm_to_mor_to_tm t).
+      apply idpath.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      apply dfl_full_comp_cat_mor_to_tm_to_mor.
+    }
+    rewrite !assoc.
+    refine (_ @ id_left _).
+    apply maponpaths_2.
+    exact (z_iso_inv_after_z_iso (dfl_comp_cat_unit_subst s)).
+  Qed.
+
+  Proposition dfl_full_comp_cat_tm_to_mor_coerce
+              {Γ : C}
+              {A B : ty Γ}
+              (f : A <: B)
+              (t : tm Γ A)
+    : dfl_full_comp_cat_tm_to_mor (t ↑ f) = dfl_full_comp_cat_tm_to_mor t · f.
+  Proof.
+    refine (_ @ dfl_full_comp_cat_mor_to_tm_to_mor _).
+    apply maponpaths.
+    refine (_ @ dfl_full_comp_cat_mor_to_tm_coerce _ _).
+    apply maponpaths.
+    exact (!(dfl_full_comp_cat_tm_to_mor_to_tm t)).
+  Qed.
+
+  Proposition dfl_full_comp_cat_tm_to_mor_subst_tm
+              {Γ Δ : C}
+              (s : Γ --> Δ)
+              {A : ty Δ}
+              (t : tm Δ A)
+    : dfl_full_comp_cat_tm_to_mor (t [[ s ]]tm)
+      =
+      inv_from_z_iso (dfl_comp_cat_unit_subst s)
+      · coerce_subst_ty s (dfl_full_comp_cat_tm_to_mor t).
+  Proof.
+    rewrite dfl_full_comp_cat_tm_to_mor_coerce_subst_ty.
+    rewrite !assoc.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (z_iso_after_z_iso_inv (dfl_comp_cat_unit_subst s)).
+    }
+    apply id_left.
+  Qed.
 End DFLCompCat.

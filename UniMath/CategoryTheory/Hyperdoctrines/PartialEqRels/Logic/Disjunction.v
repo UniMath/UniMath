@@ -102,22 +102,10 @@ Section Disjunction.
           ψ₁
           per_subobject_disj.
     Proof.
-      do 2 use forall_intro.
-      use impl_intro.
-      use weaken_right.
-      use impl_intro.
+      use per_subobject_mor_law_over_id.
       cbn.
-      hypersimplify.
-      pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
-      pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
-      fold γ₁ γ₂.
       use disj_intro_left.
-      use per_subobject_eq.
-      - exact γ₁.
-      - use weaken_left.
-        apply hyperdoctrine_hyp.
-      - use weaken_right.
-        apply hyperdoctrine_hyp.
+      apply hyperdoctrine_hyp.
     Qed.
 
     Proposition per_subobject_disj_intro_right
@@ -126,22 +114,10 @@ Section Disjunction.
           ψ₂
           per_subobject_disj.
     Proof.
-      do 2 use forall_intro.
-      use impl_intro.
-      use weaken_right.
-      use impl_intro.
+      use per_subobject_mor_law_over_id.
       cbn.
-      hypersimplify.
-      pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
-      pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
-      fold γ₁ γ₂.
       use disj_intro_right.
-      use per_subobject_eq.
-      - exact γ₁.
-      - use weaken_left.
-        apply hyperdoctrine_hyp.
-      - use weaken_right.
-        apply hyperdoctrine_hyp.
+      apply hyperdoctrine_hyp.
     Qed.
 
     (** * 3. Elimination rule *)
@@ -155,37 +131,19 @@ Section Disjunction.
           per_subobject_disj
           χ.
     Proof.
-      do 2 use forall_intro.
-      use impl_intro.
-      use weaken_right.
-      use impl_intro.
+      use per_subobject_mor_law_over_id.
       cbn.
-      hypersimplify.
-      pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
-      pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
-      fold γ₁ γ₂.
-      use hyp_sym.
-      use (disj_elim (weaken_left (hyperdoctrine_hyp _) _)).
-      - use hyp_ltrans.
-        use weaken_right.
-        use (per_subobject_mor p).
-        + exact γ₁.
-        + cbn.
-          hypersimplify.
-          use weaken_left.
-          apply hyperdoctrine_hyp.
-        + use weaken_right.
-          apply hyperdoctrine_hyp.
-      - use hyp_ltrans.
-        use weaken_right.
-        use (per_subobject_mor q).
-        + exact γ₁.
-        + cbn.
-          hypersimplify.
-          use weaken_left.
-          apply hyperdoctrine_hyp.
-        + use weaken_right.
-          apply hyperdoctrine_hyp.
+      refine (disj_elim (hyperdoctrine_hyp _) _ _).
+      - use weaken_right.
+        rewrite <- (hyperdoctrine_id_subst ψ₁).
+        rewrite <- (hyperdoctrine_id_subst χ).
+        use (per_subobject_mor_over_id p).
+        apply hyperdoctrine_hyp.
+      - use weaken_right.
+        rewrite <- (hyperdoctrine_id_subst ψ₂).
+        rewrite <- (hyperdoctrine_id_subst χ).
+        use (per_subobject_mor_over_id q).
+        apply hyperdoctrine_hyp.
     Qed.
   End Disjunction.
 
@@ -199,67 +157,33 @@ Section Disjunction.
         (per_subobject_subst s (per_subobject_disj ψ₁ ψ₂))
         (per_subobject_disj (per_subobject_subst s ψ₁) (per_subobject_subst s ψ₂)).
   Proof.
-    do 2 use forall_intro.
-    use impl_intro.
-    use weaken_right.
-    use impl_intro.
+    use per_subobject_mor_law_over_id.
     cbn.
-    rewrite partial_setoid_subst.
-    rewrite !exists_subst.
-    use hyp_sym.
-    use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
-    rewrite !conj_subst.
-    use hyp_ltrans.
+    refine (exists_elim (hyperdoctrine_hyp _) _).
     use weaken_right.
-    hypersimplify_form.
     hypersimplify.
-    pose (γ₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))))).
-    pose (γ₁' := π₂ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂)))).
-    pose (γ₂ := π₂ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))).
-    fold γ₁ γ₁' γ₂.
-    use hyp_rtrans.
     use hyp_sym.
-    use (disj_elim (weaken_left (hyperdoctrine_hyp _) _)).
+    refine (disj_elim _ _ _).
+    - use weaken_left.
+      apply hyperdoctrine_hyp.
     - use hyp_ltrans.
       use weaken_right.
       use disj_intro_left.
       use exists_intro.
-      + exact γ₂.
-      + hypersimplify.
-        fold γ₁'.
-        use conj_intro.
-        * use weaken_left.
-          use (partial_setoid_mor_eq_defined s).
-          ** exact γ₁.
-          ** exact γ₂.
-          ** use weaken_left.
-             apply hyperdoctrine_hyp.
-          ** use weaken_right.
-             exact (partial_setoid_mor_cod_defined s _ _ (hyperdoctrine_hyp _)).
-          ** use weaken_right.
-             apply hyperdoctrine_hyp.
-        * use weaken_right.
-          apply hyperdoctrine_hyp.
+      {
+        exact (π₂ (tm_var _)).
+      }
+      hypersimplify.
+      apply hyperdoctrine_hyp.
     - use hyp_ltrans.
       use weaken_right.
       use disj_intro_right.
       use exists_intro.
-      + exact γ₂.
-      + hypersimplify.
-        fold γ₁'.
-        use conj_intro.
-        * use weaken_left.
-          use (partial_setoid_mor_eq_defined s).
-          ** exact γ₁.
-          ** exact γ₂.
-          ** use weaken_left.
-             apply hyperdoctrine_hyp.
-          ** use weaken_right.
-             exact (partial_setoid_mor_cod_defined s _ _ (hyperdoctrine_hyp _)).
-          ** use weaken_right.
-             apply hyperdoctrine_hyp.
-        * use weaken_right.
-          apply hyperdoctrine_hyp.
+      {
+        exact (π₂ (tm_var _)).
+      }
+      hypersimplify.
+      apply hyperdoctrine_hyp.
   Qed.
 
   (** * 5. Fiberwise binary coproducts *)

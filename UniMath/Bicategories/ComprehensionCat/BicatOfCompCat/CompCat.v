@@ -158,7 +158,9 @@ Proposition comprehension_functor_mor_comm
     comprehension_functor_cod_mor χ xx · f.
 Proof.
   exact (pr2 ((♯ χ ff)%mor_disp)).
-Qed.
+Defined.
+
+#[global] Opaque comprehension_functor_mor_comm.
 
 Proposition comprehension_functor_mor_id
             {C : cat_with_terminal_cleaving}

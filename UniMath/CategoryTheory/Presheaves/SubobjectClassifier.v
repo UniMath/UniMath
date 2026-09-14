@@ -548,7 +548,7 @@ Section SubobjectClassifier.
                      θ₂
                      (dep_psh_truth Γ)).
 
-      Definition unique_im_dep_psh_psh_characteristic_mor
+      Definition unique_im_dep_psh_characteristic_mor
                  {x : C}
                  {xx : (Γ x : hSet)}
                  (z : Z x xx)
@@ -595,7 +595,7 @@ Section SubobjectClassifier.
                  (xx : (Γ x : hSet))
                  (z : Z x xx)
         : A x (nat_trans_id Γ x xx)
-        := pr11 (unique_im_dep_psh_psh_characteristic_mor z).
+        := pr11 (unique_im_dep_psh_characteristic_mor z).
 
       Proposition dep_psh_characteristic_mor_pb_mor_laws
         : dep_psh_nat_trans_naturality dep_psh_characteristic_mor_pb_mor_data.
@@ -603,13 +603,13 @@ Section SubobjectClassifier.
         intros x y xx yy f q₁ q₂ z.
         use monic_dep_psh_nat_trans_monic.
         cbn.
-        refine (pr21 (unique_im_dep_psh_psh_characteristic_mor _) @ _).
+        refine (pr21 (unique_im_dep_psh_characteristic_mor _) @ _).
         refine (!_).
         simple refine (dep_psh_nat_trans_ax τ _ _ q₁ _ @ _).
         etrans.
         {
           apply maponpaths.
-          exact (pr21 (unique_im_dep_psh_psh_characteristic_mor _)).
+          exact (pr21 (unique_im_dep_psh_characteristic_mor _)).
         }
         refine (!_).
         apply dep_psh_nat_trans_ax.
@@ -633,8 +633,8 @@ Section SubobjectClassifier.
         intros x xx z.
         refine (dep_psh_fiber_comp _ _ _ _ @ _).
         cbn.
-        exact (pr21 (unique_im_dep_psh_psh_characteristic_mor z)).
-      Defined.
+        exact (pr21 (unique_im_dep_psh_characteristic_mor z)).
+      Qed.
 
       Proposition dep_psh_characteristic_mor_pb_unique
                   (ξ : (disp_cat_dep_psh C)[{Γ}] ⟦ Z, A ⟧)
@@ -651,7 +651,7 @@ Section SubobjectClassifier.
         simpl in r.
         refine (!(dep_psh_fiber_comp _ ξ τ z) @ r @ _).
         refine (!_).
-        exact (pr21 (unique_im_dep_psh_psh_characteristic_mor z)).
+        exact (pr21 (unique_im_dep_psh_characteristic_mor z)).
       Qed.
     End Pullback.
 

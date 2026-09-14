@@ -91,6 +91,16 @@ Arguments TerminalArrowUnique {_} _ _ _.
 Arguments make_isTerminal {_} _ _ _.
 Arguments make_Terminal {_} _ _.
 
+(** A useful property for terminal objects *)
+Definition enough_points
+           {D : category}
+           (term : Terminal D)
+  : UU
+  := ∏ (y z : D)
+       (f g : y --> z)
+       (H : ∏ (pt : term --> y),
+            pt · f = pt · g),
+     f = g.
 
 Section Terminal_Unique.
 

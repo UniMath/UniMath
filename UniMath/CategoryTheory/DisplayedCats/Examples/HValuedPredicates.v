@@ -19,9 +19,9 @@
 
  References
  - "Tripos Theory in Retrospect" by Andrew Pitts
- - "Implicative algebras: a new foundation for realizability and forcing" by Alexandra Miquel
+ - "Implicative algebras: a new foundation for realizability and forcing" by Alexander Miquel
  - "Intuitionistic Set Theory" by John Bell
- - "An injection from NN to N" by Andrej Bauer. Link:
+ - "An injection from N^N to N" by Andrej Bauer. Link:
  [https://math.andrej.com/2011/06/15/constructive-gem-an-injection-from-baire-space-to-natural-numbers/]
 
  Content
@@ -39,7 +39,8 @@
  5. The first-order hyperdoctrine of H-valued predicates
  6. Comprehension category of H-valued predicates
  7. The tripos of H-valued predicates
- 8. The comprehension category of H-valued predicates is not necessarily full
+ 8. Natural numbers for H-valued predicates
+ 9. The comprehension category of H-valued predicates is not necessarily full
 
  ********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -73,6 +74,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCartesian
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Tripos.
 
@@ -368,7 +370,7 @@ Section HValuedSets.
   Definition h_valued_sets_first_order_hyperdoctrine
     : first_order_hyperdoctrine.
   Proof.
-    use make_first_order_hyperdoctrine.
+    use make_first_order_hyperdoctrine_all.
     - exact h_valued_sets_hyperdoctrine.
     - exact fiberwise_terminal_h_valued_sets.
     - exact fiberwise_initial_h_valued_sets.
@@ -561,9 +563,82 @@ Section HValuedSets.
     - exact h_valued_sets_first_order_hyperdoctrine.
     - exact is_tripos_h_valued_sets.
   Defined.
+
+  (** * 8. Natural numbers for H-valued predicates *)
+  Definition h_valued_sets_first_order_hyperdoctrine_nats_data
+    : first_order_hyperdoctrine_nats_data
+        h_valued_sets_first_order_hyperdoctrine.
+  Proof.
+    use make_first_order_hyperdoctrine_nats_data.
+    - exact natset.
+    - exact (λ _, 0).
+    - exact succ.
+  Defined.
+
+  Proposition h_valued_sets_first_order_hyperdoctrine_nats_axioms
+    : first_order_hyperdoctrine_nats_axioms
+        h_valued_sets_first_order_hyperdoctrine_nats_data.
+  Proof.
+    split.
+    - intro x ; cbn in *.
+      induction x.
+      use cha_le_glb ; cbn.
+      intros i.
+      induction i as [ [ [ ] n ] p ].
+      cbn in p.
+      use cha_to_le_exp.
+      rewrite cha_lunit_min_top.
+      use cha_lub_le.
+      cbn ; unfold prodtofuntoprod ; cbn.
+      intros j.
+      induction j as [ m q ].
+      pose proof (r₁ := maponpaths dirprod_pr1 q).
+      pose proof (r₂ := maponpaths dirprod_pr2 q).
+      cbn in r₁, r₂.
+      use fromempty.
+      refine (negpathssx0 n _).
+      refine (_ @ r₂).
+      exact (!r₁).
+    - intro x ; cbn in *.
+      induction x.
+      use cha_le_glb ; cbn.
+      intros i.
+      induction i as [ [ [ ] n ] p ].
+      cbn in p.
+      use cha_le_glb ; cbn.
+      intros j.
+      induction j as [ [ [ [ ] m₂ ] m₃ ] q ].
+      cbn in *.
+      use cha_to_le_exp.
+      rewrite cha_lunit_min_top.
+      use cha_lub_le.
+      cbn ; unfold prodtofuntoprod ; cbn.
+      intros j.
+      induction j as [ k r ].
+      pose proof (maponpaths dirprod_pr2 q) as s₁.
+      pose proof (maponpaths dirprod_pr1 r) as s₂.
+      pose proof (maponpaths dirprod_pr2 r) as s₃.
+      cbn in s₁, s₂, s₃.
+      pose proof( invmaponpathsS _ _ (!s₂ @ s₃)) as s₄.
+      use cha_le_lub.
+      + refine (m₃ ,, _).
+        apply maponpaths.
+        exact s₄.
+      + cbn.
+        apply cha_le_top.
+  Qed.
+
+  Definition h_valued_sets_first_order_hyperdoctrine_nats
+    : first_order_hyperdoctrine_nats
+        h_valued_sets_first_order_hyperdoctrine.
+  Proof.
+    use make_first_order_hyperdoctrine_nats.
+    - exact h_valued_sets_first_order_hyperdoctrine_nats_data.
+    - exact h_valued_sets_first_order_hyperdoctrine_nats_axioms.
+  Defined.
 End HValuedSets.
 
-(** * 8. The comprehension category of H-valued predicates is not necessarily full *)
+(** * 9. The comprehension category of H-valued predicates is not necessarily full *)
 Lemma h_valued_pred_comprehension_ff_no_non_trivial_open
       {D : dcpo}
       (X : scott_open_set D)

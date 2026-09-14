@@ -21,9 +21,10 @@
  3. The counit
  4. The triangle equalities
  5. The adjunction
- 6. The Beck-Chevalley condition
- 7. Dependent sums for the codomain
- 8. The left adjoint is an isomorphism
+ 6. Calculational lemmas
+ 7. The Beck-Chevalley condition
+ 8. Dependent sums for the codomain
+ 9. The left adjoint is an isomorphism
 
  ***************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -261,7 +262,122 @@ End CodomainLeftAdj.
 Arguments comp_functor_unit_data {C} HC {x y} f /.
 Arguments comp_functor_counit_data {C} HC {x y} f /.
 
-(** * 6. The Beck-Chevalley condition *)
+(** * 6. Calculational lemmas *)
+Proposition comp_functor_identity
+            {C : category}
+            (x : C)
+  : comp_functor (identity x) = functor_identity _.
+Proof.
+  use functor_eq.
+  {
+    apply homset_property.
+  }
+  use functor_data_eq.
+  - intro f.
+    refine (maponpaths (λ z, _ ,, z) _).
+    apply id_right.
+  - intros f₁ f₂ g.
+    rewrite double_transport_idtoiso.
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      refine (!_).
+      apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
+    }
+    use eq_mor_cod_fib.
+    rewrite !comp_in_cod_fib.
+    refine (_ @ id_right _ @ id_left _).
+    use maponpaths_compose.
+    + apply maponpaths_2.
+      etrans.
+      {
+        exact (dom_mor_idtoiso _).
+      }
+      cbn.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite maponpathsinv0.
+        apply maponpaths.
+        refine (maponpathscomp (λ z, _ ,, z) cod_dom (id_right _) @ _).
+        apply maponpaths_for_constant_function.
+      }
+      cbn.
+      apply idpath.
+    + etrans.
+      {
+        apply dom_mor_idtoiso.
+      }
+      cbn.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        refine (maponpathscomp (λ z, _ ,, z) cod_dom (id_right _) @ _).
+        apply maponpaths_for_constant_function.
+      }
+      cbn.
+      apply idpath.
+Qed.
+
+Proposition comp_functor_comp
+            {C : category}
+            {x y z : C}
+            (f₁ : x --> y)
+            (f₂ : y --> z)
+  : comp_functor (f₁ · f₂) = comp_functor f₁ ∙ comp_functor f₂.
+Proof.
+  use functor_eq.
+  {
+    apply homset_property.
+  }
+  use functor_data_eq.
+  - intro g.
+    refine (maponpaths (λ z, _ ,, z) _).
+    apply assoc.
+  - intros g₁ g₂ h.
+    rewrite double_transport_idtoiso.
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      refine (!_).
+      apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
+    }
+    use eq_mor_cod_fib.
+    rewrite !comp_in_cod_fib.
+    refine (_ @ id_right _ @ id_left _).
+    use maponpaths_compose.
+    + apply maponpaths_2.
+      etrans.
+      {
+        exact (dom_mor_idtoiso _).
+      }
+      cbn.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite maponpathsinv0.
+        apply maponpaths.
+        refine (maponpathscomp (λ z, _ ,, z) cod_dom (assoc _ _ _) @ _).
+        apply maponpaths_for_constant_function.
+      }
+      cbn.
+      apply idpath.
+    + etrans.
+      {
+        apply dom_mor_idtoiso.
+      }
+      cbn.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        refine (maponpathscomp (λ z, _ ,, z) cod_dom (assoc _ _ _) @ _).
+        apply maponpaths_for_constant_function.
+      }
+      cbn.
+      apply idpath.
+Qed.
+
+(** * 7. The Beck-Chevalley condition *)
 Section BeckChevalley.
   Context {C : category}
           (HC : Pullbacks C)
@@ -522,7 +638,7 @@ Section BeckChevalley.
   Defined.
 End BeckChevalley.
 
-(** * 7. Dependent sums for the codomain *)
+(** * 8. Dependent sums for the codomain *)
 Definition cod_fiber_has_dependent_sum
            {C : category}
            (HC : Pullbacks C)
@@ -534,7 +650,7 @@ Proof.
   - exact (λ w x y z f g h k p H, cod_left_beck_chevalley HC f g h k p H).
 Defined.
 
-(** * 8. The left adjoint is an adjoint equivalence *)
+(** * 9. The left adjoint is an adjoint equivalence *)
 Definition functor_on_slices_iso_is_adj_equiv {C : category} {c c' : C} (i : z_iso c c')
   : adj_equivalence_of_cats (comp_functor i).
 Proof.

@@ -29,7 +29,7 @@ Local Open Scope cat.
 Local Open Scope hd.
 
 Definition exponentials_partial_setoid
-           (H : tripos)
+           (H : weak_tripos)
   : Exponentials (binproducts_partial_setoid H).
 Proof.
   intros X.

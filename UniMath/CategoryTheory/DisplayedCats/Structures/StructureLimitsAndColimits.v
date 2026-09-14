@@ -32,6 +32,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Products.
@@ -238,6 +239,15 @@ Proof.
         exact (!eqtohomot (base_paths _ _ Hg) (x ,, z))
       ).
 Defined.
+
+Definition enough_points_hset_cartesian_closed_struct
+           (P : hset_cartesian_closed_struct)
+  : enough_points (Terminal_category_of_hset_struct P).
+Proof.
+  use enough_points_category_of_hset_struct.
+  intros.
+  apply hset_struct_const.
+Qed.
 
 (**
  2. Equalizers of structures

@@ -200,7 +200,6 @@ Proof.
         (cbn ;
          apply is_strict_scott_continuous_constant).
 Defined.
-
 (**
  4. Dcppos form a pointed structure
  *)
